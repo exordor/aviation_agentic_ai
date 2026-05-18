@@ -1,0 +1,478 @@
+{
+  "applied": true,
+  "archive_dir": "reports/archive/stages/2026-05-18",
+  "archive_items": [
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/cq_gap_review.json",
+      "artifact_type": "machine_artifact",
+      "category": "source_scope",
+      "format": "json",
+      "path": "reports/stages/cq_gap_review.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/cq_gap_review.md",
+      "artifact_type": "human_report",
+      "category": "source_scope",
+      "format": "md",
+      "path": "reports/stages/cq_gap_review.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.json",
+      "artifact_type": "machine_artifact",
+      "category": "ontology_evaluation",
+      "format": "json",
+      "path": "reports/stages/generated_boundary_ontology_evaluation.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.md",
+      "artifact_type": "human_report",
+      "category": "ontology_evaluation",
+      "format": "md",
+      "path": "reports/stages/generated_boundary_ontology_evaluation.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.json",
+      "artifact_type": "machine_artifact",
+      "category": "ontology_evaluation",
+      "format": "json",
+      "path": "reports/stages/generated_ontology_evaluation.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.md",
+      "artifact_type": "human_report",
+      "category": "ontology_evaluation",
+      "format": "md",
+      "path": "reports/stages/generated_ontology_evaluation.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/generation_run_summary.json",
+      "artifact_type": "machine_artifact",
+      "category": "generation_runs",
+      "format": "json",
+      "path": "reports/stages/generation_run_summary.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/generation_run_summary.md",
+      "artifact_type": "human_report",
+      "category": "generation_runs",
+      "format": "md",
+      "path": "reports/stages/generation_run_summary.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/generation_runs",
+      "artifact_type": "directory",
+      "category": "generation_runs",
+      "format": "directory",
+      "path": "reports/stages/generation_runs"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.json",
+      "artifact_type": "machine_artifact",
+      "category": "ontology_evaluation",
+      "format": "json",
+      "path": "reports/stages/live_gpt54_page1_boundary_evaluation.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.md",
+      "artifact_type": "human_report",
+      "category": "ontology_evaluation",
+      "format": "md",
+      "path": "reports/stages/live_gpt54_page1_boundary_evaluation.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.json",
+      "artifact_type": "machine_artifact",
+      "category": "ontology_evaluation",
+      "format": "json",
+      "path": "reports/stages/live_gpt54_page1_ontology_evaluation.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.md",
+      "artifact_type": "human_report",
+      "category": "ontology_evaluation",
+      "format": "md",
+      "path": "reports/stages/live_gpt54_page1_ontology_evaluation.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/ontology_evaluation.json",
+      "artifact_type": "machine_artifact",
+      "category": "ontology_evaluation",
+      "format": "json",
+      "path": "reports/stages/ontology_evaluation.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/ontology_evaluation.md",
+      "artifact_type": "human_report",
+      "category": "ontology_evaluation",
+      "format": "md",
+      "path": "reports/stages/ontology_evaluation.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/ontology_report.md",
+      "artifact_type": "human_report",
+      "category": "ontology_stats",
+      "format": "md",
+      "path": "reports/stages/ontology_report.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/ontology_stats.json",
+      "artifact_type": "machine_artifact",
+      "category": "ontology_stats",
+      "format": "json",
+      "path": "reports/stages/ontology_stats.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/overnight_optimization_report.json",
+      "artifact_type": "machine_artifact",
+      "category": "stage_summaries",
+      "format": "json",
+      "path": "reports/stages/overnight_optimization_report.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/overnight_optimization_report.md",
+      "artifact_type": "human_report",
+      "category": "stage_summaries",
+      "format": "md",
+      "path": "reports/stages/overnight_optimization_report.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/review_progress.json",
+      "artifact_type": "machine_artifact",
+      "category": "reviews",
+      "format": "json",
+      "path": "reports/stages/review_progress.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/review_progress.md",
+      "artifact_type": "human_report",
+      "category": "reviews",
+      "format": "md",
+      "path": "reports/stages/review_progress.md"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/source_scope.json",
+      "artifact_type": "machine_artifact",
+      "category": "source_scope",
+      "format": "json",
+      "path": "reports/stages/source_scope.json"
+    },
+    {
+      "archived_to": "reports/archive/stages/2026-05-18/source_scope.md",
+      "artifact_type": "human_report",
+      "category": "source_scope",
+      "format": "md",
+      "path": "reports/stages/source_scope.md"
+    }
+  ],
+  "archive_items_total": 23,
+  "categories": {
+    "generation_runs": [
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/generation_run_summary.json",
+        "artifact_type": "machine_artifact",
+        "category": "generation_runs",
+        "format": "json",
+        "path": "reports/stages/generation_run_summary.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/generation_run_summary.md",
+        "artifact_type": "human_report",
+        "category": "generation_runs",
+        "format": "md",
+        "path": "reports/stages/generation_run_summary.md"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/generation_runs",
+        "artifact_type": "directory",
+        "category": "generation_runs",
+        "format": "directory",
+        "path": "reports/stages/generation_runs"
+      }
+    ],
+    "ontology_evaluation": [
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.json",
+        "artifact_type": "machine_artifact",
+        "category": "ontology_evaluation",
+        "format": "json",
+        "path": "reports/stages/generated_boundary_ontology_evaluation.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.md",
+        "artifact_type": "human_report",
+        "category": "ontology_evaluation",
+        "format": "md",
+        "path": "reports/stages/generated_boundary_ontology_evaluation.md"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.json",
+        "artifact_type": "machine_artifact",
+        "category": "ontology_evaluation",
+        "format": "json",
+        "path": "reports/stages/generated_ontology_evaluation.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.md",
+        "artifact_type": "human_report",
+        "category": "ontology_evaluation",
+        "format": "md",
+        "path": "reports/stages/generated_ontology_evaluation.md"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.json",
+        "artifact_type": "machine_artifact",
+        "category": "ontology_evaluation",
+        "format": "json",
+        "path": "reports/stages/live_gpt54_page1_boundary_evaluation.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.md",
+        "artifact_type": "human_report",
+        "category": "ontology_evaluation",
+        "format": "md",
+        "path": "reports/stages/live_gpt54_page1_boundary_evaluation.md"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.json",
+        "artifact_type": "machine_artifact",
+        "category": "ontology_evaluation",
+        "format": "json",
+        "path": "reports/stages/live_gpt54_page1_ontology_evaluation.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.md",
+        "artifact_type": "human_report",
+        "category": "ontology_evaluation",
+        "format": "md",
+        "path": "reports/stages/live_gpt54_page1_ontology_evaluation.md"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/ontology_evaluation.json",
+        "artifact_type": "machine_artifact",
+        "category": "ontology_evaluation",
+        "format": "json",
+        "path": "reports/stages/ontology_evaluation.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/ontology_evaluation.md",
+        "artifact_type": "human_report",
+        "category": "ontology_evaluation",
+        "format": "md",
+        "path": "reports/stages/ontology_evaluation.md"
+      }
+    ],
+    "ontology_stats": [
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/ontology_report.md",
+        "artifact_type": "human_report",
+        "category": "ontology_stats",
+        "format": "md",
+        "path": "reports/stages/ontology_report.md"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/ontology_stats.json",
+        "artifact_type": "machine_artifact",
+        "category": "ontology_stats",
+        "format": "json",
+        "path": "reports/stages/ontology_stats.json"
+      }
+    ],
+    "reviews": [
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/review_progress.json",
+        "artifact_type": "machine_artifact",
+        "category": "reviews",
+        "format": "json",
+        "path": "reports/stages/review_progress.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/review_progress.md",
+        "artifact_type": "human_report",
+        "category": "reviews",
+        "format": "md",
+        "path": "reports/stages/review_progress.md"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "reviews",
+        "format": "json",
+        "path": "reports/reviews/2026-05-18-subagent-ontology-review.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "reviews",
+        "format": "md",
+        "path": "reports/reviews/2026-05-18-subagent-ontology-review.md"
+      }
+    ],
+    "source_scope": [
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/cq_gap_review.json",
+        "artifact_type": "machine_artifact",
+        "category": "source_scope",
+        "format": "json",
+        "path": "reports/stages/cq_gap_review.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/cq_gap_review.md",
+        "artifact_type": "human_report",
+        "category": "source_scope",
+        "format": "md",
+        "path": "reports/stages/cq_gap_review.md"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/source_scope.json",
+        "artifact_type": "machine_artifact",
+        "category": "source_scope",
+        "format": "json",
+        "path": "reports/stages/source_scope.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/source_scope.md",
+        "artifact_type": "human_report",
+        "category": "source_scope",
+        "format": "md",
+        "path": "reports/stages/source_scope.md"
+      }
+    ],
+    "stage_summaries": [
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/overnight_optimization_report.json",
+        "artifact_type": "machine_artifact",
+        "category": "stage_summaries",
+        "format": "json",
+        "path": "reports/stages/overnight_optimization_report.json"
+      },
+      {
+        "archived_to": "reports/archive/stages/2026-05-18/overnight_optimization_report.md",
+        "artifact_type": "human_report",
+        "category": "stage_summaries",
+        "format": "md",
+        "path": "reports/stages/overnight_optimization_report.md"
+      }
+    ]
+  },
+  "final_report_readiness": {
+    "project_report": "reports/final/project_report.md",
+    "ready": true,
+    "sources": "reports/final/project_report_sources.json",
+    "stage_index": "reports/stages/index.json"
+  },
+  "generated_at": "2026-05-18T23:29:36.777653+00:00",
+  "moved_items": [
+    {
+      "from": "reports/stages/cq_gap_review.json",
+      "to": "reports/archive/stages/2026-05-18/cq_gap_review.json"
+    },
+    {
+      "from": "reports/stages/cq_gap_review.md",
+      "to": "reports/archive/stages/2026-05-18/cq_gap_review.md"
+    },
+    {
+      "from": "reports/stages/generated_boundary_ontology_evaluation.json",
+      "to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.json"
+    },
+    {
+      "from": "reports/stages/generated_boundary_ontology_evaluation.md",
+      "to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.md"
+    },
+    {
+      "from": "reports/stages/generated_ontology_evaluation.json",
+      "to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.json"
+    },
+    {
+      "from": "reports/stages/generated_ontology_evaluation.md",
+      "to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.md"
+    },
+    {
+      "from": "reports/stages/generation_run_summary.json",
+      "to": "reports/archive/stages/2026-05-18/generation_run_summary.json"
+    },
+    {
+      "from": "reports/stages/generation_run_summary.md",
+      "to": "reports/archive/stages/2026-05-18/generation_run_summary.md"
+    },
+    {
+      "from": "reports/stages/generation_runs",
+      "to": "reports/archive/stages/2026-05-18/generation_runs"
+    },
+    {
+      "from": "reports/stages/live_gpt54_page1_boundary_evaluation.json",
+      "to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.json"
+    },
+    {
+      "from": "reports/stages/live_gpt54_page1_boundary_evaluation.md",
+      "to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.md"
+    },
+    {
+      "from": "reports/stages/live_gpt54_page1_ontology_evaluation.json",
+      "to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.json"
+    },
+    {
+      "from": "reports/stages/live_gpt54_page1_ontology_evaluation.md",
+      "to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.md"
+    },
+    {
+      "from": "reports/stages/ontology_evaluation.json",
+      "to": "reports/archive/stages/2026-05-18/ontology_evaluation.json"
+    },
+    {
+      "from": "reports/stages/ontology_evaluation.md",
+      "to": "reports/archive/stages/2026-05-18/ontology_evaluation.md"
+    },
+    {
+      "from": "reports/stages/ontology_report.md",
+      "to": "reports/archive/stages/2026-05-18/ontology_report.md"
+    },
+    {
+      "from": "reports/stages/ontology_stats.json",
+      "to": "reports/archive/stages/2026-05-18/ontology_stats.json"
+    },
+    {
+      "from": "reports/stages/overnight_optimization_report.json",
+      "to": "reports/archive/stages/2026-05-18/overnight_optimization_report.json"
+    },
+    {
+      "from": "reports/stages/overnight_optimization_report.md",
+      "to": "reports/archive/stages/2026-05-18/overnight_optimization_report.md"
+    },
+    {
+      "from": "reports/stages/review_progress.json",
+      "to": "reports/archive/stages/2026-05-18/review_progress.json"
+    },
+    {
+      "from": "reports/stages/review_progress.md",
+      "to": "reports/archive/stages/2026-05-18/review_progress.md"
+    },
+    {
+      "from": "reports/stages/source_scope.json",
+      "to": "reports/archive/stages/2026-05-18/source_scope.json"
+    },
+    {
+      "from": "reports/stages/source_scope.md",
+      "to": "reports/archive/stages/2026-05-18/source_scope.md"
+    }
+  ],
+  "policy": "archive_without_delete",
+  "review_items": [
+    {
+      "archived_to": null,
+      "artifact_type": "machine_artifact",
+      "category": "reviews",
+      "format": "json",
+      "path": "reports/reviews/2026-05-18-subagent-ontology-review.json"
+    },
+    {
+      "archived_to": null,
+      "artifact_type": "human_report",
+      "category": "reviews",
+      "format": "md",
+      "path": "reports/reviews/2026-05-18-subagent-ontology-review.md"
+    }
+  ],
+  "review_items_total": 2,
+  "reviews_dir": "reports/reviews",
+  "stage_dir": "reports/stages"
+}

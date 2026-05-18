@@ -1,0 +1,46 @@
+name: phak_ch4_focused_v1
+description: Focused ABox extraction profile for PHAK Chapter 4 principles of flight.
+namespace: "http://www.example.org/aviation/phak#"
+
+defaults:
+  unlisted_classes: schema_only
+  require_provenance: true
+
+instantiable_classes:
+  - Cl_Aircraft
+  - Cl_Airfoil
+  - Cl_Wing
+  - Cl_AerodynamicForce
+  - Cl_Lift
+  - Cl_Drag
+  - Cl_AngleOfAttack
+  - Cl_BoundaryLayer
+  - Cl_WingtipVortex
+  - Cl_Atmosphere
+  - Cl_Pressure
+  - Cl_Density
+  - Cl_Temperature
+  - Cl_Altitude
+
+relation_properties:
+  - affects
+  - causes
+  - hasComponent
+  - partOf
+  - hasQuantity
+  - appliesTo
+  - hasCondition
+  - hasOutcome
+
+provenance_fields:
+  - source_document
+  - page
+  - section
+  - chunk_id
+  - evidence_text
+  - model
+  - confidence
+  - extracted_at
+  - subject
+  - predicate
+  - object

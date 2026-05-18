@@ -1,0 +1,250 @@
+{
+  "review_id": "2026-05-18-subagent-ontology-review",
+  "title": "SubAgent Ontology Pipeline Review",
+  "date": "2026-05-18",
+  "method": "Four read-only subAgent reviews covering CQs, baseline ontology, prompts, and pipeline.",
+  "findings": [
+    {
+      "id": "F-CQ-001",
+      "area": "cqs",
+      "severity": "high",
+      "title": "CQ artifacts are not strictly validated before generation or evaluation",
+      "evidence": [
+        "src/aviation_agentic_ai/ontology/evaluation.py load_cqs coerces missing fields and skips malformed pages/questions.",
+        "src/aviation_agentic_ai/ontology/generation.py _load_cqs silently drops non-list page entries."
+      ],
+      "impact": "Broken CQ files can look like smaller valid benchmarks, weakening generation and evaluation evidence.",
+      "recommendation": "Add a strict CQ validator that fails on malformed pages, missing fields, empty entities, duplicate IDs, unknown ODP labels, and non-atomic records.",
+      "status": "closed"
+    },
+    {
+      "id": "F-CQ-002",
+      "area": "cqs",
+      "severity": "high",
+      "title": "CQ IDs are positional and not stable",
+      "evidence": [
+        "Evaluation derives IDs as document:pX:qY from page and list position."
+      ],
+      "impact": "Insertion, deletion, deduplication, or reordering changes IDs and invalidates review traceability.",
+      "recommendation": "Add stable CQ IDs to the artifact and preserve them through generation, evaluation, sampling, and review reports.",
+      "status": "closed"
+    },
+    {
+      "id": "F-CQ-003",
+      "area": "cqs",
+      "severity": "high",
+      "title": "ODP labels are too fragmented for defensible stratification",
+      "evidence": [
+        "The current CQ artifact has 334 CQs but 190 distinct odp_hint values.",
+        "Equivalent variants include Causal Relation, Causal Relation Pattern, and Causal Relation / Event Reification."
+      ],
+      "impact": "Sampling and reporting over raw ODP text creates noisy strata and weak coverage interpretation.",
+      "recommendation": "Normalize ODP hints into a controlled vocabulary and store both raw label and normalized odp_id.",
+      "status": "closed"
+    },
+    {
+      "id": "F-CQ-004",
+      "area": "cqs",
+      "severity": "medium",
+      "title": "Lexical CQ coverage can overstate ontology support",
+      "evidence": [
+        "reports/stages/ontology_evaluation.md reports 0.8744 entity mention coverage but this is name matching only.",
+        "match_entity uses normalized and substring matching rather than relation or answer support."
+      ],
+      "impact": "A matched term may exist while the ontology still lacks the relation, restriction, or axiom needed to answer the CQ.",
+      "recommendation": "Split CQ evaluation into lexical entity coverage, relation/property coverage, and answer-support coverage.",
+      "status": "closed"
+    },
+    {
+      "id": "F-ONT-001",
+      "area": "baseline_ontology",
+      "severity": "high",
+      "title": "Baseline verdict is too generous for ontology engineering quality",
+      "evidence": [
+        "reports/stages/ontology_evaluation.md marks Valid TBox prototype as yes despite zero labels/comments and no owl:Ontology declaration."
+      ],
+      "impact": "The report may imply stronger ontology validity than the artifact currently supports.",
+      "recommendation": "Reframe the verdict as RDF-valid TBox extraction prototype until semantic checks, annotations, and CQ answerability improve.",
+      "status": "closed"
+    },
+    {
+      "id": "F-ONT-002",
+      "area": "baseline_ontology",
+      "severity": "high",
+      "title": "Baseline ontology conflates quantity kinds, units, assertions, states, and processes",
+      "evidence": [
+        "Units such as Cl_PSI and Cl_Feet are modeled in the same broad quantity assertion area as physical quantities.",
+        "Physical quantities such as pressure, altitude, temperature, density, and viscosity are also represented near Cl_QuantityAssertion."
+      ],
+      "impact": "Reasoning and downstream extraction cannot reliably distinguish a quantity kind, measured value, unit, or assertion about a value.",
+      "recommendation": "Introduce clearer upper patterns for physical object, material, process/event, situation/state, force, quantity kind, quantity value, unit, and assertion.",
+      "status": "open"
+    },
+    {
+      "id": "F-ONT-003",
+      "area": "baseline_ontology",
+      "severity": "high",
+      "title": "Several axioms appear semantically incoherent or likely false",
+      "evidence": [
+        "Cl_PerfectlyDryAir is constrained with water vapor.",
+        "Cl_Pressure is constrained with both less-than and greater-than atmospheric pressure patterns.",
+        "Cl_Pressure has quantity some Cl_Pressure."
+      ],
+      "impact": "Syntax-valid Turtle can still encode misleading aviation knowledge and should not pass semantic quality review.",
+      "recommendation": "Add semantic smell checks for contradictory restrictions, self-quantity patterns, and aviation-domain plausibility flags.",
+      "status": "closed"
+    },
+    {
+      "id": "F-ONT-004",
+      "area": "baseline_ontology",
+      "severity": "medium",
+      "title": "Core property semantics are weakened by broad owl:Thing domains and ranges",
+      "evidence": [
+        "Core properties such as composedOf, hasComponent, hasQuantity, hasUnit, affects, and causes use broad domains/ranges."
+      ],
+      "impact": "Domain/range completeness is inflated while reasoning remains permissive and weak.",
+      "recommendation": "Track broad owl:Thing domain/range ratio and refine core property schemas toward domain-specific classes.",
+      "status": "open"
+    },
+    {
+      "id": "F-PROMPT-001",
+      "area": "prompts",
+      "severity": "high",
+      "title": "SRD and TIP outputs have no enforceable schema",
+      "evidence": [
+        "generation.py asks for JSON-only SRD but stores unchecked strings.",
+        "TIP output is also unchecked free text before being passed to the coder prompt."
+      ],
+      "impact": "Malformed JSON, missing CQ coverage, unsupported requirements, or ambiguous model output can flow into TTL generation.",
+      "recommendation": "Add Pydantic SRD and TIP models with required CQ IDs, evidence quotes, source pages, concepts, relations, constraints, and ambiguity flags.",
+      "status": "closed"
+    },
+    {
+      "id": "F-PROMPT-002",
+      "area": "prompts",
+      "severity": "high",
+      "title": "Turtle validation only checks syntax, not ontology intent",
+      "evidence": [
+        "generation.py accepts any parseable Turtle candidate.",
+        "validation.py only parses RDF/Turtle."
+      ],
+      "impact": "The coder can drop prior terms, rename concepts, create ABox resources, omit domain/range, or invent unsupported terms and still pass.",
+      "recommendation": "Add post-generation gates for TBox-only output, namespace policy, no prior-term deletion, domain/range thresholds, CQ term coverage, and unsupported source claims.",
+      "status": "closed"
+    },
+    {
+      "id": "F-PROMPT-003",
+      "area": "prompts",
+      "severity": "medium",
+      "title": "Complete-TTL rewrite is fragile as ontology size grows",
+      "evidence": [
+        "The coder prompt asks the model to return the complete Turtle document for each page.",
+        "configs/ontology_generation.yaml caps max_tokens at 4096."
+      ],
+      "impact": "Later pages can truncate, compress, or drop accepted ontology content.",
+      "recommendation": "Prefer validated page-level Turtle additions or structured patches merged deterministically by code.",
+      "status": "open"
+    },
+    {
+      "id": "F-PIPE-001",
+      "area": "pipeline",
+      "severity": "high",
+      "title": "Generated ontology is not evaluated by default",
+      "evidence": [
+        "ontology generate writes data/ontology/generated/06_phak_ch4_0.generated.ttl.",
+        "ontology evaluate defaults to the baseline ontology unless --ontology-file is supplied."
+      ],
+      "impact": "A user can run generate then evaluate and accidentally evaluate the old baseline instead of the new generated ontology.",
+      "recommendation": "Document or implement a pipeline command that passes the same generated TTL through validate, report, and evaluate.",
+      "status": "closed"
+    },
+    {
+      "id": "F-PIPE-002",
+      "area": "pipeline",
+      "severity": "high",
+      "title": "Generation has no durable per-page artifacts or checkpoints",
+      "evidence": [
+        "SRD, TIP, candidate TTL, and validation errors are kept in memory.",
+        "Only the final TTL is written after all pages finish."
+      ],
+      "impact": "Late-page failures lose accepted work and leave no audit trail for model outputs.",
+      "recommendation": "Persist per-page prompts, SRDs, TIPs, candidate TTLs, validation errors, accepted TTLs, and checkpoint state.",
+      "status": "closed"
+    },
+    {
+      "id": "F-PIPE-003",
+      "area": "pipeline",
+      "severity": "high",
+      "title": "LLM and run settings are not captured in outputs",
+      "evidence": [
+        "Reports record paths, seed, sample size, and AI review flag, but not provider, model, base URL, config hash, source hash, CQ hash, or prompt version."
+      ],
+      "impact": "Generated artifacts and AI-review results are difficult to reproduce or audit.",
+      "recommendation": "Write a run manifest beside generated TTLs and evaluation reports with model/provider, config snapshot, hashes, prompt version, timestamp, and command args.",
+      "status": "closed"
+    },
+    {
+      "id": "F-PIPE-004",
+      "area": "pipeline",
+      "severity": "medium",
+      "title": "AI review is enabled by default and fails all-or-nothing",
+      "evidence": [
+        "ontology evaluate uses AI review unless --no-ai-review is passed.",
+        "A malformed AI response or transient API failure aborts evaluation before reports are written."
+      ],
+      "impact": "Evaluation can unexpectedly incur cost or disclose context, and partial results are not preserved on failures.",
+      "recommendation": "Make deterministic evaluation the default, require explicit --ai-review opt-in, and record per-CQ AI review errors instead of aborting the whole run.",
+      "status": "closed"
+    }
+  ],
+  "actions": [
+    {
+      "id": "A-P0-001",
+      "finding_ids": ["F-CQ-001", "F-CQ-002", "F-CQ-003"],
+      "priority": "P0",
+      "title": "Add strict CQ validation and stable CQ identity",
+      "target": "CQs",
+      "status": "done"
+    },
+    {
+      "id": "A-P0-002",
+      "finding_ids": ["F-ONT-001", "F-ONT-003", "F-PROMPT-002"],
+      "priority": "P0",
+      "title": "Reframe ontology verdict and add semantic quality gates",
+      "target": "Ontology evaluation",
+      "status": "done"
+    },
+    {
+      "id": "A-P1-001",
+      "finding_ids": ["F-PROMPT-001", "F-CQ-004"],
+      "priority": "P1",
+      "title": "Introduce structured SRD/TIP schemas tied to CQ evidence",
+      "target": "Prompt artifacts",
+      "status": "done"
+    },
+    {
+      "id": "A-P1-002",
+      "finding_ids": ["F-PIPE-002", "F-PIPE-003"],
+      "priority": "P1",
+      "title": "Write generation run manifests and per-page checkpoints",
+      "target": "Pipeline reproducibility",
+      "status": "done"
+    },
+    {
+      "id": "A-P1-003",
+      "finding_ids": ["F-PIPE-001", "F-PIPE-004"],
+      "priority": "P1",
+      "title": "Make evaluation deterministic by default and align generated artifact evaluation",
+      "target": "CLI workflow",
+      "status": "done"
+    },
+    {
+      "id": "A-P2-001",
+      "finding_ids": ["F-ONT-002", "F-ONT-004"],
+      "priority": "P2",
+      "title": "Refactor ontology upper patterns for quantities, units, states, and processes",
+      "target": "Ontology model",
+      "status": "planned"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+@prefix : <http://www.example.org/aviation/phak#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+: a owl:Ontology ;
+    rdfs:label "PHAK principles of flight seed ontology" .
+
+:Cl_PrinciplesOfFlight a owl:Class ;
+    rdfs:label "Principles of flight" .
+:Cl_Chapter4PrinciplesOfFlight a owl:Class ;
+    rdfs:label "Chapter 4 principles of flight" ;
+    rdfs:subClassOf :Cl_PrinciplesOfFlight .
+
+:Cl_PhysicalObject a owl:Class ;
+    rdfs:label "Physical object" .
+:Cl_Material a owl:Class ;
+    rdfs:label "Material" .
+:Cl_AircraftComponent a owl:Class ;
+    rdfs:label "Aircraft component" ;
+    rdfs:subClassOf :Cl_PhysicalObject .
+:Cl_ProcessOrEvent a owl:Class ;
+    rdfs:label "Process or event" .
+:Cl_FlightSituation a owl:Class ;
+    rdfs:label "Flight situation" .
+:Cl_AtmosphericCondition a owl:Class ;
+    rdfs:label "Atmospheric condition" ;
+    rdfs:subClassOf :Cl_FlightSituation .
+:Cl_AerodynamicForce a owl:Class ;
+    rdfs:label "Aerodynamic force" ;
+    rdfs:subClassOf :Cl_QuantityKind .
+:Cl_FluidFlow a owl:Class ;
+    rdfs:label "Fluid flow" ;
+    rdfs:subClassOf :Cl_ProcessOrEvent .
+:Cl_PressureDistribution a owl:Class ;
+    rdfs:label "Pressure distribution" .
+:Cl_QuantityKind a owl:Class ;
+    rdfs:label "Quantity kind" .
+:Cl_QuantityValue a owl:Class ;
+    rdfs:label "Quantity value" .
+:Cl_Unit a owl:Class ;
+    rdfs:label "Unit" .
+:Cl_PrincipleOrLaw a owl:Class ;
+    rdfs:label "Principle or law" .
+
+:Cl_Aircraft a owl:Class ;
+    rdfs:label "Aircraft" ;
+    rdfs:subClassOf :Cl_PhysicalObject .
+:Cl_Pilot a owl:Class ;
+    rdfs:label "Pilot" ;
+    rdfs:subClassOf :Cl_PhysicalObject .
+:Cl_Atmosphere a owl:Class ;
+    rdfs:label "Atmosphere" ;
+    rdfs:subClassOf :Cl_PhysicalObject .
+:Cl_Air a owl:Class ;
+    rdfs:label "Air" ;
+    rdfs:subClassOf :Cl_Fluid,
+        :Cl_Material .
+:Cl_PerfectlyDryAir a owl:Class ;
+    rdfs:label "Perfectly dry air" ;
+    rdfs:subClassOf :Cl_Air .
+:Cl_WaterVapor a owl:Class ;
+    rdfs:label "Water vapor" ;
+    rdfs:subClassOf :Cl_Material .
+:Cl_Fluid a owl:Class ;
+    rdfs:label "Fluid" ;
+    rdfs:subClassOf :Cl_Material .
+:Cl_Airfoil a owl:Class ;
+    rdfs:label "Airfoil" ;
+    rdfs:subClassOf :Cl_AircraftComponent .
+:Cl_Wing a owl:Class ;
+    rdfs:label "Wing" ;
+    rdfs:subClassOf :Cl_AircraftComponent .
+:Cl_Winglet a owl:Class ;
+    rdfs:label "Winglet" ;
+    rdfs:subClassOf :Cl_AircraftComponent .
+:Cl_Lift a owl:Class ;
+    rdfs:label "Lift" ;
+    rdfs:subClassOf :Cl_AerodynamicForce .
+:Cl_Drag a owl:Class ;
+    rdfs:label "Drag" ;
+    rdfs:subClassOf :Cl_AerodynamicForce .
+:Cl_AngleOfAttack a owl:Class ;
+    rdfs:label "Angle of attack" ;
+    rdfs:subClassOf :Cl_QuantityKind .
+:Cl_BoundaryLayer a owl:Class ;
+    rdfs:label "Boundary layer" ;
+    rdfs:subClassOf :Cl_FluidFlow .
+:Cl_WingtipVortex a owl:Class ;
+    rdfs:label "Wingtip vortex" ;
+    rdfs:subClassOf :Cl_FluidFlow .
+:Cl_Pressure a owl:Class ;
+    rdfs:label "Pressure" ;
+    rdfs:subClassOf :Cl_QuantityKind .
+:Cl_Density a owl:Class ;
+    rdfs:label "Density" ;
+    rdfs:subClassOf :Cl_QuantityKind .
+:Cl_Temperature a owl:Class ;
+    rdfs:label "Temperature" ;
+    rdfs:subClassOf :Cl_QuantityKind .
+:Cl_Humidity a owl:Class ;
+    rdfs:label "Humidity" ;
+    rdfs:subClassOf :Cl_QuantityKind .
+:Cl_Altitude a owl:Class ;
+    rdfs:label "Altitude" ;
+    rdfs:subClassOf :Cl_QuantityKind .
+:Cl_PressureAltitude a owl:Class ;
+    rdfs:label "Pressure altitude" ;
+    rdfs:subClassOf :Cl_Altitude .
+:Cl_DensityAltitude a owl:Class ;
+    rdfs:label "Density altitude" ;
+    rdfs:subClassOf :Cl_Altitude .
+:Cl_NewtonsLaw a owl:Class ;
+    rdfs:label "Newton's law" ;
+    rdfs:subClassOf :Cl_PrincipleOrLaw .
+:Cl_NewtonsFirstLaw a owl:Class ;
+    rdfs:label "Newton's first law" ;
+    rdfs:subClassOf :Cl_NewtonsLaw .
+:Cl_NewtonsSecondLaw a owl:Class ;
+    rdfs:label "Newton's second law" ;
+    rdfs:subClassOf :Cl_NewtonsLaw .
+:Cl_NewtonsThirdLaw a owl:Class ;
+    rdfs:label "Newton's third law" ;
+    rdfs:subClassOf :Cl_NewtonsLaw .
+:Cl_BernoullisPrinciple a owl:Class ;
+    rdfs:label "Bernoulli's principle" ;
+    rdfs:subClassOf :Cl_PrincipleOrLaw .
+
+:hasComponent a owl:ObjectProperty ;
+    rdfs:label "has component" ;
+    rdfs:domain :Cl_PhysicalObject ;
+    rdfs:range :Cl_AircraftComponent .
+:partOf a owl:ObjectProperty ;
+    rdfs:label "part of" ;
+    rdfs:domain :Cl_PhysicalObject ;
+    rdfs:range :Cl_PhysicalObject .
+:hasConstituent a owl:ObjectProperty ;
+    rdfs:label "has constituent" ;
+    rdfs:domain :Cl_Material ;
+    rdfs:range :Cl_Material .
+:hasQuantity a owl:ObjectProperty ;
+    rdfs:label "has quantity" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_QuantityValue .
+:hasQuantityKind a owl:ObjectProperty ;
+    rdfs:label "has quantity kind" ;
+    rdfs:domain :Cl_QuantityValue ;
+    rdfs:range :Cl_QuantityKind .
+:hasUnit a owl:ObjectProperty ;
+    rdfs:label "has unit" ;
+    rdfs:domain :Cl_QuantityValue ;
+    rdfs:range :Cl_Unit .
+:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies to" ;
+    rdfs:domain :Cl_PrincipleOrLaw ;
+    rdfs:range owl:Thing .
+:affects a owl:ObjectProperty ;
+    rdfs:label "affects" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:causes a owl:ObjectProperty ;
+    rdfs:label "causes" ;
+    rdfs:domain :Cl_ProcessOrEvent ;
+    rdfs:range owl:Thing .
+:hasCondition a owl:ObjectProperty ;
+    rdfs:label "has condition" ;
+    rdfs:domain :Cl_FlightSituation ;
+    rdfs:range :Cl_AtmosphericCondition .
+:hasOutcome a owl:ObjectProperty ;
+    rdfs:label "has outcome" ;
+    rdfs:domain :Cl_FlightSituation ;
+    rdfs:range owl:Thing .
+:hasFlow a owl:ObjectProperty ;
+    rdfs:label "has flow" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_FluidFlow .
+:hasPressureDistribution a owl:ObjectProperty ;
+    rdfs:label "has pressure distribution" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_PressureDistribution .
+:hasAngleOfAttack a owl:ObjectProperty ;
+    rdfs:label "has angle of attack" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_QuantityValue .
+:hasBoundaryLayer a owl:ObjectProperty ;
+    rdfs:label "has boundary layer" ;
+    rdfs:domain :Cl_PhysicalObject ;
+    rdfs:range :Cl_BoundaryLayer .
+:generates a owl:ObjectProperty ;
+    rdfs:label "generates" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:reduces a owl:ObjectProperty ;
+    rdfs:label "reduces" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:hasNumericValue a owl:DatatypeProperty ;
+    rdfs:label "has numeric value" ;
+    rdfs:domain :Cl_QuantityValue ;
+    rdfs:range xsd:decimal .
+:hasSymbol a owl:DatatypeProperty ;
+    rdfs:label "has symbol" ;
+    rdfs:domain :Cl_Unit ;
+    rdfs:range xsd:string .

@@ -1,0 +1,119 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from click.testing import CliRunner
+
+from aviation_agentic_ai.cli import main
+from aviation_agentic_ai.reporting.reviews import (
+    aggregate_review_reports,
+    load_review_report,
+    write_review_progress,
+)
+
+
+def write_review(path: Path) -> None:
+    path.write_text(
+        json.dumps(
+            {
+                "review_id": "test-review",
+                "title": "Test Review",
+                "findings": [
+                    {
+                        "id": "F-1",
+                        "area": "cqs",
+                        "severity": "high",
+                        "title": "Missing CQ validation",
+                        "evidence": ["CQ file accepts malformed entries."],
+                        "impact": "Evaluation can undercount broken records.",
+                        "recommendation": "Add strict validation.",
+                        "status": "open",
+                    },
+                    {
+                        "id": "F-2",
+                        "area": "pipeline",
+                        "severity": "medium",
+                        "title": "Missing manifest",
+                        "evidence": ["Generated runs lack config hashes."],
+                        "impact": "Runs are hard to reproduce.",
+                        "recommendation": "Write a run manifest.",
+                        "status": "closed",
+                    },
+                ],
+                "actions": [
+                    {
+                        "id": "A-1",
+                        "finding_ids": ["F-1"],
+                        "priority": "P0",
+                        "title": "Add CQ validator",
+                        "target": "CQs",
+                        "status": "planned",
+                    }
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_load_review_report_validates_schema(tmp_path: Path) -> None:
+    path = tmp_path / "review.json"
+    write_review(path)
+
+    report = load_review_report(path)
+
+    assert report["review_id"] == "test-review"
+    assert report["findings"][0]["severity"] == "high"
+
+
+def test_aggregate_review_reports_tracks_open_items(tmp_path: Path) -> None:
+    path = tmp_path / "review.json"
+    write_review(path)
+    report = load_review_report(path)
+
+    progress = aggregate_review_reports([report])
+
+    assert progress["reviews_total"] == 1
+    assert progress["findings_total"] == 2
+    assert progress["severity_counts"]["high"] == 1
+    assert progress["area_counts"]["cqs"]["total"] == 1
+    assert len(progress["open_findings"]) == 1
+    assert progress["open_actions"][0]["priority"] == "P0"
+
+
+def test_write_review_progress_handles_empty_directory(tmp_path: Path) -> None:
+    reviews_dir = tmp_path / "reviews"
+    output_dir = tmp_path / "stages"
+
+    json_path, md_path, progress = write_review_progress(reviews_dir, output_dir)
+
+    assert progress["reviews_total"] == 0
+    assert json_path.exists()
+    assert md_path.exists()
+    assert "No findings recorded." in md_path.read_text(encoding="utf-8")
+
+
+def test_cli_report_reviews_writes_progress(tmp_path: Path) -> None:
+    reviews_dir = tmp_path / "reviews"
+    output_dir = tmp_path / "stages"
+    reviews_dir.mkdir()
+    write_review(reviews_dir / "review.json")
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "reviews",
+            "--reviews-dir",
+            str(reviews_dir),
+            "--output-dir",
+            str(output_dir),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert (output_dir / "review_progress.json").exists()
+    assert (output_dir / "review_progress.md").exists()
+    assert "Aggregated 1 review reports" in result.output

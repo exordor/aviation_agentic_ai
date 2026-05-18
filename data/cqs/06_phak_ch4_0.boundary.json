@@ -1,0 +1,274 @@
+{
+  "06_phak_ch4_0": {
+    "0": [
+      {
+        "canonical_entities": [
+          "atmosphere",
+          "air",
+          "nitrogen",
+          "oxygen",
+          "trace gases"
+        ],
+        "competency_question": "How should atmosphere, air, and constituent gases be modeled as a composition structure?",
+        "cq_type": "schema_requirement",
+        "expected_answer": "Atmosphere and Air should be material or physical classes connected to Gas constituents such as Nitrogen, Oxygen, and TraceGas by composition relations, with percentage values represented as quantities.",
+        "id": "06-phak-ch4-0-p00-fa9830b888",
+        "key_entities": [
+          "atmosphere",
+          "air",
+          "nitrogen",
+          "oxygen",
+          "trace gases"
+        ],
+        "odp_hint": "Material composition and part-whole",
+        "odp_id": "partonomy",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 0,
+        "status": "silver"
+      }
+    ],
+    "1": [
+      {
+        "canonical_entities": [
+          "air",
+          "fluid",
+          "viscosity",
+          "friction",
+          "boundary layer",
+          "wing"
+        ],
+        "competency_question": "What classes and relations represent air as a fluid with viscosity, friction, and a boundary layer on a wing?",
+        "cq_type": "class_schema",
+        "expected_answer": "Air should be a Fluid with viscosity and flow behavior; friction between air and wing surface should be modeled as causing or maintaining a BoundaryLayer adjacent to the surface.",
+        "id": "06-phak-ch4-0-p01-dbcda7dbf4",
+        "key_entities": [
+          "air",
+          "fluid",
+          "viscosity",
+          "friction",
+          "boundary layer",
+          "wing"
+        ],
+        "odp_hint": "Flow interaction and causal relation",
+        "odp_id": "causal_relation",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 1,
+        "status": "silver"
+      }
+    ],
+    "2": [
+      {
+        "canonical_entities": [
+          "standard atmosphere",
+          "atmospheric pressure",
+          "temperature",
+          "density"
+        ],
+        "competency_question": "How should standard atmosphere values for pressure, temperature, and density be modeled?",
+        "cq_type": "quantity_schema",
+        "expected_answer": "StandardAtmosphere should be a reference situation with pressure, temperature, density, altitude, and unit-bearing measurements such as inches of mercury and millibars.",
+        "id": "06-phak-ch4-0-p02-dafae1ecbc",
+        "key_entities": [
+          "standard atmosphere",
+          "atmospheric pressure",
+          "temperature",
+          "density"
+        ],
+        "odp_hint": "Quantity and situation",
+        "odp_id": "quantity",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 2,
+        "status": "silver"
+      }
+    ],
+    "3": [
+      {
+        "canonical_entities": [
+          "pressure altitude",
+          "density altitude",
+          "humidity",
+          "air density",
+          "aircraft performance"
+        ],
+        "competency_question": "What causal schema links pressure altitude, density altitude, humidity, air density, and aircraft performance?",
+        "cq_type": "quantity_schema",
+        "expected_answer": "PressureAltitude and DensityAltitude should be altitude quantities; temperature, pressure, and humidity conditions affect AirDensity, and changed AirDensity affects AircraftPerformance.",
+        "id": "06-phak-ch4-0-p03-f463ba25ee",
+        "key_entities": [
+          "pressure altitude",
+          "density altitude",
+          "humidity",
+          "air density",
+          "aircraft performance"
+        ],
+        "odp_hint": "Causal relation and quantity",
+        "odp_id": "quantity",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 3,
+        "status": "silver"
+      }
+    ],
+    "5": [
+      {
+        "canonical_entities": [
+          "newton's laws",
+          "force",
+          "mass",
+          "acceleration",
+          "action",
+          "reaction"
+        ],
+        "competency_question": "How should Newton's laws be represented as force and motion relations for aircraft?",
+        "cq_type": "causal_schema",
+        "expected_answer": "NewtonLaw concepts should relate Force, Mass, Acceleration, Action, and Reaction, including propulsion examples where rearward gas or air motion produces forward aircraft force.",
+        "id": "06-phak-ch4-0-p05-986bfc7e8f",
+        "key_entities": [
+          "Newton's laws",
+          "force",
+          "mass",
+          "acceleration",
+          "action",
+          "reaction"
+        ],
+        "odp_hint": "Force relation and causal relation",
+        "odp_id": "causal_relation",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 5,
+        "status": "silver"
+      },
+      {
+        "canonical_entities": [
+          "bernoulli principle",
+          "venturi",
+          "velocity",
+          "pressure",
+          "airflow"
+        ],
+        "competency_question": "What relation captures Bernoulli and venturi pressure decrease as air velocity increases?",
+        "cq_type": "property_schema",
+        "expected_answer": "BernoulliPrinciple or VenturiFlow should connect FlowVelocity and Pressure with an inverse qualitative relation: increasing velocity corresponds to decreasing static pressure.",
+        "id": "06-phak-ch4-0-p05-bb9a93ef72",
+        "key_entities": [
+          "Bernoulli principle",
+          "venturi",
+          "velocity",
+          "pressure",
+          "airflow"
+        ],
+        "odp_hint": "Flow interaction and quantity",
+        "odp_id": "quantity",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 5,
+        "status": "silver"
+      }
+    ],
+    "6": [
+      {
+        "canonical_entities": [
+          "airfoil",
+          "leading edge",
+          "trailing edge",
+          "chord line",
+          "mean camber line",
+          "upper surface",
+          "lower surface"
+        ],
+        "competency_question": "What partonomy should represent airfoil structure and section geometry?",
+        "cq_type": "schema_requirement",
+        "expected_answer": "Airfoil should have parts or geometric features such as LeadingEdge, TrailingEdge, ChordLine, MeanCamberLine, UpperSurface, and LowerSurface.",
+        "id": "06-phak-ch4-0-p06-a653e00686",
+        "key_entities": [
+          "airfoil",
+          "leading edge",
+          "trailing edge",
+          "chord line",
+          "mean camber line",
+          "upper surface",
+          "lower surface"
+        ],
+        "odp_hint": "Part-whole structure",
+        "odp_id": "partonomy",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 6,
+        "status": "silver"
+      }
+    ],
+    "7": [
+      {
+        "canonical_entities": [
+          "lift",
+          "pressure difference",
+          "downwash",
+          "flow turning",
+          "airfoil"
+        ],
+        "competency_question": "How should lift be modeled as an aerodynamic force produced by pressure differences and flow turning?",
+        "cq_type": "schema_requirement",
+        "expected_answer": "Lift should be an AerodynamicForce caused by pressure distribution, positive pressure below, lower pressure above, downwash, and flow turning around an airfoil.",
+        "id": "06-phak-ch4-0-p07-9737986760",
+        "key_entities": [
+          "lift",
+          "pressure difference",
+          "downwash",
+          "flow turning",
+          "airfoil"
+        ],
+        "odp_hint": "Force relation and flow interaction",
+        "odp_id": "force_relation",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 7,
+        "status": "silver"
+      },
+      {
+        "canonical_entities": [
+          "angle of attack",
+          "pressure distribution",
+          "center of pressure",
+          "airfoil"
+        ],
+        "competency_question": "What schema links angle of attack to airfoil pressure distribution and center of pressure movement?",
+        "cq_type": "quantity_schema",
+        "expected_answer": "AngleOfAttack should be an angular quantity of an Airfoil relative to airflow, affecting PressureDistribution and CenterOfPressure location.",
+        "id": "06-phak-ch4-0-p07-59d55c9639",
+        "key_entities": [
+          "angle of attack",
+          "pressure distribution",
+          "center of pressure",
+          "airfoil"
+        ],
+        "odp_hint": "Quantity and causal relation",
+        "odp_id": "quantity",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 7,
+        "status": "silver"
+      }
+    ],
+    "8": [
+      {
+        "canonical_entities": [
+          "wingtip vortex",
+          "wing tip",
+          "winglet",
+          "pressure difference",
+          "induced drag"
+        ],
+        "competency_question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+        "cq_type": "causal_schema",
+        "expected_answer": "WingtipVortex should be a flow phenomenon caused by pressure difference around a wing tip; Winglet should be a wing component that mitigates or reduces vortex-related induced effects.",
+        "id": "06-phak-ch4-0-p08-84dd3b3d9f",
+        "key_entities": [
+          "wingtip vortex",
+          "wing tip",
+          "winglet",
+          "pressure difference",
+          "induced drag"
+        ],
+        "odp_hint": "Flow interaction and causal relation",
+        "odp_id": "causal_relation",
+        "source_document": "06_phak_ch4_0",
+        "source_page": 8,
+        "status": "silver"
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Runtime/generated artifacts
+data/indexes/
+data/chunks/
+data/kg/*.tmp
+data/kg/*.cache
+reports/**/*.tmp
+reports/archive/
+logs/
+
+# Locally downloaded paper PDFs; keep citations in data/papers/README.md.
+data/papers/*.pdf
+
+# Model and vector-store artifacts
+*.faiss
+*.index
+*.sqlite3
+*.duckdb
+*.parquet
+models/
+tmp/

@@ -1,0 +1,32 @@
+project:
+  name: aviation_agentic_ai
+  description: CLI-first aviation ontology, KG, and GraphRAG research prototype.
+
+paths:
+  raw_pdf: data/raw/06_phak_ch4_0.pdf
+  papers_dir: data/papers
+  baseline_ontology: data/ontology/baseline/06_phak_ch4_0.ttl
+  generated_ontology_dir: data/ontology/generated
+  chunks_file: data/chunks/06_phak_ch4_0.jsonl
+  kg_file: data/kg/06_phak_ch4_0.kg.jsonl
+  kg_dir: data/kg
+  index_dir: data/indexes
+  stage_report_dir: reports/stages
+
+retrieval:
+  collection_name: phak_ch4_chunks
+  graph_hops: 2
+  vector_top_k: 5
+  hybrid_top_k: 8
+
+chunking:
+  default_strategy: fixed_window
+  comparison_strategies:
+    - fixed_window
+    - sentence_recursive
+    - structure_aware
+    - semantic_meta_like
+
+kg_extraction:
+  temperature: 0.0
+  max_tokens: 4096

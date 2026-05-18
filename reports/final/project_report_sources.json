@@ -1,0 +1,620 @@
+{
+  "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+  "configs": {
+    "default": {
+      "data": {
+        "chunking": {
+          "comparison_strategies": [
+            "fixed_window",
+            "sentence_recursive",
+            "structure_aware",
+            "semantic_meta_like"
+          ],
+          "default_strategy": "fixed_window"
+        },
+        "paths": {
+          "baseline_ontology": "data/ontology/baseline/06_phak_ch4_0.ttl",
+          "chunks_file": "data/chunks/06_phak_ch4_0.jsonl",
+          "generated_ontology_dir": "data/ontology/generated",
+          "index_dir": "data/indexes",
+          "kg_dir": "data/kg",
+          "kg_file": "data/kg/06_phak_ch4_0.kg.jsonl",
+          "papers_dir": "data/papers",
+          "raw_pdf": "data/raw/06_phak_ch4_0.pdf",
+          "stage_report_dir": "reports/stages"
+        },
+        "project": {
+          "description": "CLI-first aviation ontology, KG, and GraphRAG research prototype.",
+          "name": "aviation_agentic_ai"
+        },
+        "retrieval": {
+          "collection_name": "phak_ch4_chunks",
+          "graph_hops": 2,
+          "hybrid_top_k": 8,
+          "vector_top_k": 5
+        }
+      },
+      "path": "configs/default.yaml",
+      "present": true
+    },
+    "extraction_profile": {
+      "data": {
+        "defaults": {
+          "require_provenance": true,
+          "unlisted_classes": "schema_only"
+        },
+        "description": "Focused ABox extraction profile for PHAK Chapter 4 principles of flight.",
+        "instantiable_classes": [
+          "Cl_Aircraft",
+          "Cl_Airfoil",
+          "Cl_Wing",
+          "Cl_AerodynamicForce",
+          "Cl_Lift",
+          "Cl_Drag",
+          "Cl_AngleOfAttack",
+          "Cl_BoundaryLayer",
+          "Cl_WingtipVortex",
+          "Cl_Atmosphere",
+          "Cl_Pressure",
+          "Cl_Density",
+          "Cl_Temperature",
+          "Cl_Altitude"
+        ],
+        "name": "phak_ch4_focused_v1",
+        "namespace": "http://www.example.org/aviation/phak#",
+        "provenance_fields": [
+          "source_document",
+          "page",
+          "section",
+          "chunk_id",
+          "evidence_text",
+          "model",
+          "confidence",
+          "extracted_at",
+          "subject",
+          "predicate",
+          "object"
+        ],
+        "relation_properties": [
+          "affects",
+          "causes",
+          "hasComponent",
+          "partOf",
+          "hasQuantity",
+          "appliesTo",
+          "hasCondition",
+          "hasOutcome"
+        ]
+      },
+      "path": "configs/extraction_profile.yaml",
+      "present": true
+    },
+    "ontology_generation": {
+      "data": {
+        "cq_output": "data/cqs/06_phak_ch4_0.json",
+        "domain_profile": "aviation_phak",
+        "input_pdf": "data/raw/06_phak_ch4_0.pdf",
+        "max_page_chars": 8000,
+        "max_pages": null,
+        "max_qa_cycles": 2,
+        "max_tokens": 4096,
+        "ontology_output": "data/ontology/generated/06_phak_ch4_0.generated.ttl",
+        "temperature": 0.0
+      },
+      "path": "configs/ontology_generation.yaml",
+      "present": true
+    }
+  },
+  "course_goal": {
+    "excerpt": "We want to build an AI-based advisory assistant for private pilots. The problem is that private pilots usually have less training and less frequent flying experience than professional pilots. In normal situations this may be fine, but in emergencies or abnormal situations they may forget the correct checklist, procedure, or response under stress.\n\nThe idea is to create a system that uses:\n\naviation handbooks and manuals\n\nontology and knowledge graphs\n\nlive aircraft and environment data\n\nagentic AI for orchestration\n\nA future work: possibly a digital twin of the aircraft and current flight situation\n\nThe system should not replace the pilot. It should act as a decision-support assistant that gives grounded, context-aware, step-by-step advice.\n\nCore Problem\n\nPrivate pilots may:\n\nfly infrequently\n\nforget rare emergency procedures\n\nstruggle to search long manuals during stress\n\nmisjudge risk in fast-changing situations\n\nneed help not only during disasters, but also before a situation becomes worse\n\nSo the goal is to move from static manuals to real-time intelligent advisory support.\nWe want to use this handbooks for start\nhttps://www.faa.gov/regulations_policies/handbooks_manuals/aviation\nhttps://www.faa.gov/regulations_policies/handbooks_manuals/aviation/airplane_handbook\nhttps://www.faa.gov/regulations_policies/handbooks_manuals/aviation/aviation_instructors_handbook\nhttps://www.faa.gov/sites/faa.gov/files/regulations_policies/handbooks_manuals/aviation/FAA-H-8083-15B.pdf\nhttps://www.faa.gov/regulationspolicies/handbooksmanuals/aviation/faa-h-8083-28a-aviation-weather-handbook\nhttps://www.faa.gov/regulations_policies/handbooks_manuals/aviation/instrument_procedures_handbook\nhttps://www.faa.gov/regulations_policies/handbooks_manuals/aviation/phak\nhttps://www.faa.gov/regulationspolicies/handbooksmanuals/risk-management-handbook-faa-h-8083-2a\nhttps://www.faa.gov/sites/faa.gov/files/regulations_policies/handbooks_manuals/aviation/tips_on_mountain_flying.pdf\nhttps://www.faa.gov/sites/faa.gov/files/regulations_policies/handbooks_manuals/aviation/FAA-H-8083-1.pdf\nMain Vision\n\nThe system should:\n\nextract knowledge from FAA handbooks, checklists, and aircraft manuals\n\nstructure this knowledge into an ontology-based knowledge graph\n\nconnect to aircraft sensors and flight context\n\nidentify the current situation\n\nretrieve the relevant procedure or warning\n\nprovide short, clear, step-by-step guidance to the pilot\nAgentic AI\n\nThe AI should not \u201cfreely decide\u201d like magic. It should coordinate the workflow:\n\ndetect context\n\nidentify possible situations\n\nselect the relevant graph modules\n\nretrieve grounded procedures\n\nexplain what to do\n\nYou need to learn \nBasics of what is Ontology \nThe relation between Ontology and Knowledge Graph\nHow can we create knowledge Graph from natural language (e.g. Books, PDF and ...)\nWhy Hallucination happened in GenAIs and how we can reduce it in LLMs?\nWhat is RAG?\nWhat is Hybrid-Rag (KG combine with Vector)?\nHow we can retrieve from a rag?\nWhat is Agentic AI?",
+    "path": "tmp/goal.md",
+    "present": true,
+    "truncated": false
+  },
+  "generated_at": "2026-05-18T23:36:28.290820+00:00",
+  "readme": {
+    "excerpt": "# Aviation Agentic AI\n\nAviation Agentic AI is a research prototype for turning aviation training text\ninto machine-queryable knowledge. It uses FAA Pilot's Handbook of Aeronautical\nKnowledge material as a source document, represents domain concepts as an\nontology, and prepares the foundation for provenance-aware Knowledge Graph and\nGraphRAG retrieval workflows.\n\nThe project focuses on a practical question: can aviation concepts such as lift,\ndrag, angle of attack, airflow, pressure, density, and altitude be extracted from\ntechnical prose into structured knowledge that can support traceable question\nanswering?\n\n## What This Project Demonstrates\n\n- **Ontology-first modeling** of aviation concepts from PHAK Chapter 4.\n- **RDF/OWL validation and reporting** over the generated aviation ontology.\n- **A focused ABox extraction design** for future entity and relation extraction.\n- **GraphRAG-ready structure** with separate modules for ontology, KG, chunking,\n  retrieval, evaluation, and reporting.\n- **Submission-friendly project hygiene** with curated assets, third-party\n  attribution, and generated artifacts kept under control.\n\n## Current Prototype\n\nThe current implementation includes project-owned ontology generation code plus\nvalidation/reporting over the baseline aviation ontology generated from PHAK\nChapter 4. The baseline ontology is kept as a reference TBox; future runs can\nregenerate candidate ontologies under `data/ontology/generated/`.\n\nBaseline assets:\n\n- Source PDF: `data/raw/06_phak_ch4_0.pdf`\n- Primary ontology-generation reference paper:\n  `data/papers/towards-automated-ontology-generation-multi-agent-llm.pdf`\n- Generated CQs copied from the reference pipeline:\n  `data/cqs/06_phak_ch4_0.json`\n- Baseline ontology: `data/ontology/baseline/06_phak_ch4_0.ttl`\n- Reference generated ontology/KG artifact:\n  `data/ontology/generated/reference/06_phak_ch4_0_kg_backup_20260512_042920.ttl`\n- Ontology report: `reports/stages/ontology_report.md`\n- Ontology statistics: `reports/stages/ontology_stats.json`\n\nThe baseline ontology currently contains:\n\n- 2,773 RDF triples\n- 245 OWL classes\n- 173 object properties\n- 2 datatype properties\n- 0 named individuals in the curated baseline TBox\n\n## Planned Pipeline\n\n```text\nPHAK PDF\n  -> CQ generation\n  -> SRD/TIP/TTL ontology generation\n  -> RDF validation and reporting\n  -> focused ABox/KG extraction with provenance\n  -> section-aware semantic chunking\n  -> graph retrieval + vector retrieval\n  -> hybrid GraphRAG answer generation with citations\n```\n\nThe project is CLI-first so every stage can be reproduced and evaluated before a\nservice or user interface is added.\n\n## Project Layout\n\n```text\nconfigs/                 Reproducible project and extraction settings\ndata/raw/                Curated source PDF\ndata/papers/             Related research papers and reading notes\ndata/ontology/           Baseline and generated ontology artifacts\ndata/kg/                 Future KG/ABox artifacts\nreports/                 Stage and final research reports\nsrc/aviation_agentic_ai/ Project package and CLI implementation\ntests/                   Unit and integration tests\n```\n\nReport directories are intentionally separated:\n\n- `reports/stages/`: current dashboard entrypoints such as `index.md` and\n  `index.json`\n- `reports/archive/`: archived stage artifacts and run evidence\n- `reports/reviews/`: review inputs that are indexed but not archived by\n  hygiene commands\n- `reports/final/`: final deliverables such as `project_report.md`\n\n## Quick Start\n\n```bash\ncd aviation_agentic_ai\nuv sync --extra dev\nuv run aviation-ai ontology validate\nuv run aviation-ai ontology report\nuv run aviation-ai ontology validate-cqs\n```\n\nWithout `uv`:\n\n```bash\npython3 -m venv .venv\n. .venv/bin/activate\npip install -e \".[dev]\"\naviation-ai ontology validate\n```\n\n## CLI\n\n```bash\naviation-ai --help\naviation-ai ontology validate\naviation-ai ontology report\naviation-ai ontology scope\naviation-ai ontology evaluate\naviation-ai ontology evalua",
+    "path": "README.md",
+    "present": true,
+    "truncated": true
+  },
+  "report_sections": [
+    "Project motivation and course objective alignment",
+    "Architecture overview",
+    "Ontology/TBox generation and evaluation",
+    "KG/ABox extraction and validation",
+    "Chunking comparison design",
+    "Hybrid RAG protocol and layered metrics",
+    "Current results and limitations",
+    "Advisory assistant boundary",
+    "Next work plan",
+    "Reproducibility appendix"
+  ],
+  "source_policy": {
+    "env_files_read": false,
+    "missing_results_policy": "Use TBD / Not yet run; do not invent results.",
+    "secrets_allowed": false
+  },
+  "stage_index": {
+    "data": {
+      "applied": true,
+      "archive_dir": "reports/archive/stages/2026-05-18",
+      "archive_items": [
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/cq_gap_review.json",
+          "artifact_type": "machine_artifact",
+          "category": "source_scope",
+          "format": "json",
+          "path": "reports/stages/cq_gap_review.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/cq_gap_review.md",
+          "artifact_type": "human_report",
+          "category": "source_scope",
+          "format": "md",
+          "path": "reports/stages/cq_gap_review.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.json",
+          "artifact_type": "machine_artifact",
+          "category": "ontology_evaluation",
+          "format": "json",
+          "path": "reports/stages/generated_boundary_ontology_evaluation.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.md",
+          "artifact_type": "human_report",
+          "category": "ontology_evaluation",
+          "format": "md",
+          "path": "reports/stages/generated_boundary_ontology_evaluation.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.json",
+          "artifact_type": "machine_artifact",
+          "category": "ontology_evaluation",
+          "format": "json",
+          "path": "reports/stages/generated_ontology_evaluation.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.md",
+          "artifact_type": "human_report",
+          "category": "ontology_evaluation",
+          "format": "md",
+          "path": "reports/stages/generated_ontology_evaluation.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/generation_run_summary.json",
+          "artifact_type": "machine_artifact",
+          "category": "generation_runs",
+          "format": "json",
+          "path": "reports/stages/generation_run_summary.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/generation_run_summary.md",
+          "artifact_type": "human_report",
+          "category": "generation_runs",
+          "format": "md",
+          "path": "reports/stages/generation_run_summary.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/generation_runs",
+          "artifact_type": "directory",
+          "category": "generation_runs",
+          "format": "directory",
+          "path": "reports/stages/generation_runs"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.json",
+          "artifact_type": "machine_artifact",
+          "category": "ontology_evaluation",
+          "format": "json",
+          "path": "reports/stages/live_gpt54_page1_boundary_evaluation.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.md",
+          "artifact_type": "human_report",
+          "category": "ontology_evaluation",
+          "format": "md",
+          "path": "reports/stages/live_gpt54_page1_boundary_evaluation.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.json",
+          "artifact_type": "machine_artifact",
+          "category": "ontology_evaluation",
+          "format": "json",
+          "path": "reports/stages/live_gpt54_page1_ontology_evaluation.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.md",
+          "artifact_type": "human_report",
+          "category": "ontology_evaluation",
+          "format": "md",
+          "path": "reports/stages/live_gpt54_page1_ontology_evaluation.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/ontology_evaluation.json",
+          "artifact_type": "machine_artifact",
+          "category": "ontology_evaluation",
+          "format": "json",
+          "path": "reports/stages/ontology_evaluation.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/ontology_evaluation.md",
+          "artifact_type": "human_report",
+          "category": "ontology_evaluation",
+          "format": "md",
+          "path": "reports/stages/ontology_evaluation.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/ontology_report.md",
+          "artifact_type": "human_report",
+          "category": "ontology_stats",
+          "format": "md",
+          "path": "reports/stages/ontology_report.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/ontology_stats.json",
+          "artifact_type": "machine_artifact",
+          "category": "ontology_stats",
+          "format": "json",
+          "path": "reports/stages/ontology_stats.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/overnight_optimization_report.json",
+          "artifact_type": "machine_artifact",
+          "category": "stage_summaries",
+          "format": "json",
+          "path": "reports/stages/overnight_optimization_report.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/overnight_optimization_report.md",
+          "artifact_type": "human_report",
+          "category": "stage_summaries",
+          "format": "md",
+          "path": "reports/stages/overnight_optimization_report.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/review_progress.json",
+          "artifact_type": "machine_artifact",
+          "category": "reviews",
+          "format": "json",
+          "path": "reports/stages/review_progress.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/review_progress.md",
+          "artifact_type": "human_report",
+          "category": "reviews",
+          "format": "md",
+          "path": "reports/stages/review_progress.md"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/source_scope.json",
+          "artifact_type": "machine_artifact",
+          "category": "source_scope",
+          "format": "json",
+          "path": "reports/stages/source_scope.json"
+        },
+        {
+          "archived_to": "reports/archive/stages/2026-05-18/source_scope.md",
+          "artifact_type": "human_report",
+          "category": "source_scope",
+          "format": "md",
+          "path": "reports/stages/source_scope.md"
+        }
+      ],
+      "archive_items_total": 23,
+      "categories": {
+        "generation_runs": [
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/generation_run_summary.json",
+            "artifact_type": "machine_artifact",
+            "category": "generation_runs",
+            "format": "json",
+            "path": "reports/stages/generation_run_summary.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/generation_run_summary.md",
+            "artifact_type": "human_report",
+            "category": "generation_runs",
+            "format": "md",
+            "path": "reports/stages/generation_run_summary.md"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/generation_runs",
+            "artifact_type": "directory",
+            "category": "generation_runs",
+            "format": "directory",
+            "path": "reports/stages/generation_runs"
+          }
+        ],
+        "ontology_evaluation": [
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.json",
+            "artifact_type": "machine_artifact",
+            "category": "ontology_evaluation",
+            "format": "json",
+            "path": "reports/stages/generated_boundary_ontology_evaluation.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.md",
+            "artifact_type": "human_report",
+            "category": "ontology_evaluation",
+            "format": "md",
+            "path": "reports/stages/generated_boundary_ontology_evaluation.md"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.json",
+            "artifact_type": "machine_artifact",
+            "category": "ontology_evaluation",
+            "format": "json",
+            "path": "reports/stages/generated_ontology_evaluation.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.md",
+            "artifact_type": "human_report",
+            "category": "ontology_evaluation",
+            "format": "md",
+            "path": "reports/stages/generated_ontology_evaluation.md"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.json",
+            "artifact_type": "machine_artifact",
+            "category": "ontology_evaluation",
+            "format": "json",
+            "path": "reports/stages/live_gpt54_page1_boundary_evaluation.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.md",
+            "artifact_type": "human_report",
+            "category": "ontology_evaluation",
+            "format": "md",
+            "path": "reports/stages/live_gpt54_page1_boundary_evaluation.md"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.json",
+            "artifact_type": "machine_artifact",
+            "category": "ontology_evaluation",
+            "format": "json",
+            "path": "reports/stages/live_gpt54_page1_ontology_evaluation.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.md",
+            "artifact_type": "human_report",
+            "category": "ontology_evaluation",
+            "format": "md",
+            "path": "reports/stages/live_gpt54_page1_ontology_evaluation.md"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/ontology_evaluation.json",
+            "artifact_type": "machine_artifact",
+            "category": "ontology_evaluation",
+            "format": "json",
+            "path": "reports/stages/ontology_evaluation.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/ontology_evaluation.md",
+            "artifact_type": "human_report",
+            "category": "ontology_evaluation",
+            "format": "md",
+            "path": "reports/stages/ontology_evaluation.md"
+          }
+        ],
+        "ontology_stats": [
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/ontology_report.md",
+            "artifact_type": "human_report",
+            "category": "ontology_stats",
+            "format": "md",
+            "path": "reports/stages/ontology_report.md"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/ontology_stats.json",
+            "artifact_type": "machine_artifact",
+            "category": "ontology_stats",
+            "format": "json",
+            "path": "reports/stages/ontology_stats.json"
+          }
+        ],
+        "reviews": [
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/review_progress.json",
+            "artifact_type": "machine_artifact",
+            "category": "reviews",
+            "format": "json",
+            "path": "reports/stages/review_progress.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/review_progress.md",
+            "artifact_type": "human_report",
+            "category": "reviews",
+            "format": "md",
+            "path": "reports/stages/review_progress.md"
+          },
+          {
+            "archived_to": null,
+            "artifact_type": "machine_artifact",
+            "category": "reviews",
+            "format": "json",
+            "path": "reports/reviews/2026-05-18-subagent-ontology-review.json"
+          },
+          {
+            "archived_to": null,
+            "artifact_type": "human_report",
+            "category": "reviews",
+            "format": "md",
+            "path": "reports/reviews/2026-05-18-subagent-ontology-review.md"
+          }
+        ],
+        "source_scope": [
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/cq_gap_review.json",
+            "artifact_type": "machine_artifact",
+            "category": "source_scope",
+            "format": "json",
+            "path": "reports/stages/cq_gap_review.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/cq_gap_review.md",
+            "artifact_type": "human_report",
+            "category": "source_scope",
+            "format": "md",
+            "path": "reports/stages/cq_gap_review.md"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/source_scope.json",
+            "artifact_type": "machine_artifact",
+            "category": "source_scope",
+            "format": "json",
+            "path": "reports/stages/source_scope.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/source_scope.md",
+            "artifact_type": "human_report",
+            "category": "source_scope",
+            "format": "md",
+            "path": "reports/stages/source_scope.md"
+          }
+        ],
+        "stage_summaries": [
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/overnight_optimization_report.json",
+            "artifact_type": "machine_artifact",
+            "category": "stage_summaries",
+            "format": "json",
+            "path": "reports/stages/overnight_optimization_report.json"
+          },
+          {
+            "archived_to": "reports/archive/stages/2026-05-18/overnight_optimization_report.md",
+            "artifact_type": "human_report",
+            "category": "stage_summaries",
+            "format": "md",
+            "path": "reports/stages/overnight_optimization_report.md"
+          }
+        ]
+      },
+      "final_report_readiness": {
+        "project_report": "reports/final/project_report.md",
+        "ready": true,
+        "sources": "reports/final/project_report_sources.json",
+        "stage_index": "reports/stages/index.json"
+      },
+      "generated_at": "2026-05-18T23:29:36.777653+00:00",
+      "moved_items": [
+        {
+          "from": "reports/stages/cq_gap_review.json",
+          "to": "reports/archive/stages/2026-05-18/cq_gap_review.json"
+        },
+        {
+          "from": "reports/stages/cq_gap_review.md",
+          "to": "reports/archive/stages/2026-05-18/cq_gap_review.md"
+        },
+        {
+          "from": "reports/stages/generated_boundary_ontology_evaluation.json",
+          "to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.json"
+        },
+        {
+          "from": "reports/stages/generated_boundary_ontology_evaluation.md",
+          "to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.md"
+        },
+        {
+          "from": "reports/stages/generated_ontology_evaluation.json",
+          "to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.json"
+        },
+        {
+          "from": "reports/stages/generated_ontology_evaluation.md",
+          "to": "reports/archive/stages/2026-05-18/generated_ontology_evaluation.md"
+        },
+        {
+          "from": "reports/stages/generation_run_summary.json",
+          "to": "reports/archive/stages/2026-05-18/generation_run_summary.json"
+        },
+        {
+          "from": "reports/stages/generation_run_summary.md",
+          "to": "reports/archive/stages/2026-05-18/generation_run_summary.md"
+        },
+        {
+          "from": "reports/stages/generation_runs",
+          "to": "reports/archive/stages/2026-05-18/generation_runs"
+        },
+        {
+          "from": "reports/stages/live_gpt54_page1_boundary_evaluation.json",
+          "to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.json"
+        },
+        {
+          "from": "reports/stages/live_gpt54_page1_boundary_evaluation.md",
+          "to": "reports/archive/stages/2026-05-18/live_gpt54_page1_boundary_evaluation.md"
+        },
+        {
+          "from": "reports/stages/live_gpt54_page1_ontology_evaluation.json",
+          "to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.json"
+        },
+        {
+          "from": "reports/stages/live_gpt54_page1_ontology_evaluation.md",
+          "to": "reports/archive/stages/2026-05-18/live_gpt54_page1_ontology_evaluation.md"
+        },
+        {
+          "from": "reports/stages/ontology_evaluation.json",
+          "to": "reports/archive/stages/2026-05-18/ontology_evaluation.json"
+        },
+        {
+          "from": "reports/stages/ontology_evaluation.md",
+          "to": "reports/archive/stages/2026-05-18/ontology_evaluation.md"
+        },
+        {
+          "from": "reports/stages/ontology_report.md",
+          "to": "reports/archive/stages/2026-05-18/ontology_report.md"
+        },
+        {
+          "from": "reports/stages/ontology_stats.json",
+          "to": "reports/archive/stages/2026-05-18/ontology_stats.json"
+        },
+        {
+          "from": "reports/stages/overnight_optimization_report.json",
+          "to": "reports/archive/stages/2026-05-18/overnight_optimization_report.json"
+        },
+        {
+          "from": "reports/stages/overnight_optimization_report.md",
+          "to": "reports/archive/stages/2026-05-18/overnight_optimization_report.md"
+        },
+        {
+          "from": "reports/stages/review_progress.json",
+          "to": "reports/archive/stages/2026-05-18/review_progress.json"
+        },
+        {
+          "from": "reports/stages/review_progress.md",
+          "to": "reports/archive/stages/2026-05-18/review_progress.md"
+        },
+        {
+          "from": "reports/stages/source_scope.json",
+          "to": "reports/archive/stages/2026-05-18/source_scope.json"
+        },
+        {
+          "from": "reports/stages/source_scope.md",
+          "to": "reports/archive/stages/2026-05-18/source_scope.md"
+        }
+      ],
+      "policy": "archive_without_delete",
+      "review_items": [
+        {
+          "archived_to": null,
+          "artifact_type": "machine_artifact",
+          "category": "reviews",
+          "format": "json",
+          "path": "reports/reviews/2026-05-18-subagent-ontology-review.json"
+        },
+        {
+          "archived_to": null,
+          "artifact_type": "human_report",
+          "category": "reviews",
+          "format": "md",
+          "path": "reports/reviews/2026-05-18-subagent-ontology-review.md"
+        }
+      ],
+      "review_items_total": 2,
+      "reviews_dir": "reports/reviews",
+      "stage_dir": "reports/stages"
+    },
+    "path": "reports/stages/index.json",
+    "present": true
+  }
+}

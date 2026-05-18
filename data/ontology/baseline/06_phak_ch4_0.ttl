@@ -1,0 +1,1719 @@
+@prefix : <http://www.example.org/aviation/phak#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+:Cl_PrinciplesOfFlight a owl:Class .
+:Cl_Chapter4PrinciplesOfFlight a owl:Class ;
+    rdfs:subClassOf :Cl_PrinciplesOfFlight .
+:Cl_Aircraft a owl:Class .
+:Cl_Pilot a owl:Class .
+:Cl_Atmosphere a owl:Class .
+:Cl_Air a owl:Class .
+:Cl_Fluid a owl:Class .
+:Cl_AtmosphericComposition a owl:Class .
+:Cl_AtmosphericElement a owl:Class .
+:Cl_QuantityAssertion a owl:Class .
+:Cl_Altitude a owl:Class .
+:Cl_AltitudeRegion a owl:Class .
+:Cl_Constraint a owl:Class .
+:Cl_AerodynamicForce a owl:Class .
+:Cl_Airfoil a owl:Class .
+:Cl_Wing a owl:Class .
+:Cl_AngleOfAttack a owl:Class .
+:Cl_BoundaryLayer a owl:Class .
+:Cl_WingtipVortex a owl:Class .
+:Cl_Viscosity a owl:Class .
+:Cl_Pressure a owl:Class .
+:Cl_Density a owl:Class .
+:Cl_Temperature a owl:Class .
+
+:hasMember a owl:ObjectProperty .
+:partOf a owl:ObjectProperty .
+:composedOf a owl:ObjectProperty .
+:hasComponent a owl:ObjectProperty .
+:hasQuantity a owl:ObjectProperty .
+:appliesTo a owl:ObjectProperty .
+:affects a owl:ObjectProperty .
+:causes a owl:ObjectProperty .
+:governs a owl:ObjectProperty .
+:surrounds a owl:ObjectProperty .
+:restsUpon a owl:ObjectProperty .
+:belowAltitude a owl:ObjectProperty .
+:aboveAltitude a owl:ObjectProperty .
+:hasThreshold a owl:ObjectProperty .
+:hasCondition a owl:ObjectProperty .
+:hasOutcome a owl:ObjectProperty .
+:hasNumericValue a owl:DatatypeProperty .
+:hasFractionValue a owl:DatatypeProperty .
+:hasUnit a owl:ObjectProperty .
+:Cl_Earth a owl:Class .
+:Cl_EarthSurface a owl:Class ;
+    rdfs:subClassOf :Cl_Earth .
+:Cl_Gas a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphericElement .
+:Cl_Nitrogen a owl:Class ;
+    rdfs:subClassOf :Cl_Gas .
+:Cl_Oxygen a owl:Class ;
+    rdfs:subClassOf :Cl_Gas .
+:Cl_OtherGas a owl:Class ;
+    rdfs:subClassOf :Cl_Gas .
+:Cl_AirMass a owl:Class ;
+    rdfs:subClassOf :Cl_Fluid .
+:Cl_GasMixture a owl:Class ;
+    rdfs:subClassOf :Cl_AirMass .
+:Cl_HeavierGas a owl:Class ;
+    rdfs:subClassOf :Cl_Gas .
+:Cl_LighterGas a owl:Class ;
+    rdfs:subClassOf :Cl_Gas .
+:Cl_CompositionState a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphericComposition .
+:Cl_AtmosphericStratification a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_VerticalStratification a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphericStratification .
+:Cl_FractionQuantity a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Percent a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Feet a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Atmosphere rdfs:subClassOf :Cl_AirMass .
+:Cl_Air rdfs:subClassOf :Cl_GasMixture .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :surrounds ; owl:someValuesFrom :Cl_Earth ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :restsUpon ; owl:someValuesFrom :Cl_EarthSurface ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :composedOf ; owl:someValuesFrom :Cl_Gas ] .
+:Cl_Air rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :composedOf ; owl:someValuesFrom :Cl_Gas ] .
+:Cl_AtmosphericComposition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :appliesTo ; owl:someValuesFrom :Cl_Atmosphere ] .
+:Cl_AtmosphericComposition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_FractionQuantity ] .
+:Cl_AtmosphericStratification rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :appliesTo ; owl:someValuesFrom :Cl_Gas ] .
+:Cl_AtmosphericStratification rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :belowAltitude ; owl:someValuesFrom :Cl_AltitudeRegion ] .
+:Cl_AtmosphericStratification rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :aboveAltitude ; owl:someValuesFrom :Cl_AltitudeRegion ] .
+:Cl_FractionQuantity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_Percent ] .
+:Cl_Altitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_Feet ] .
+:hasMember rdfs:subPropertyOf :hasComponent .
+:hasComponent rdfs:subPropertyOf :composedOf .
+:surrounds rdfs:domain :Cl_Atmosphere ; rdfs:range :Cl_Earth .
+:restsUpon rdfs:domain :Cl_Atmosphere ; rdfs:range :Cl_EarthSurface .
+:composedOf rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:hasComponent rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:hasQuantity rdfs:domain owl:Thing ; rdfs:range :Cl_QuantityAssertion .
+:appliesTo rdfs:domain :Cl_QuantityAssertion ; rdfs:range owl:Thing .
+:belowAltitude rdfs:domain :Cl_AtmosphericStratification ; rdfs:range :Cl_AltitudeRegion .
+:aboveAltitude rdfs:domain :Cl_AtmosphericStratification ; rdfs:range :Cl_AltitudeRegion .
+:hasThreshold rdfs:domain :Cl_Constraint ; rdfs:range :Cl_QuantityAssertion .
+:hasOutcome rdfs:domain :Cl_Constraint ; rdfs:range owl:Thing .
+:hasNumericValue rdfs:domain :Cl_QuantityAssertion ; rdfs:range xsd:decimal .
+:hasFractionValue rdfs:domain :Cl_FractionQuantity ; rdfs:range xsd:decimal .
+:hasUnit rdfs:domain :Cl_QuantityAssertion ; rdfs:range owl:Thing .
+:heavierThan a owl:ObjectProperty ;
+    rdfs:domain :Cl_Gas ;
+    rdfs:range :Cl_Gas .
+:lighterThan a owl:ObjectProperty ;
+    rdfs:domain :Cl_Gas ;
+    rdfs:range :Cl_Gas .
+:hasAltitudeRegion a owl:ObjectProperty ;
+    rdfs:domain :Cl_AtmosphericStratification ;
+    rdfs:range :Cl_AltitudeRegion .
+:locatedAtAltitude a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Altitude .
+:hasConstituent a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasComponent ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_Gas .
+:Cl_CausalEffect a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_SettlingEffect a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_LiftingEffect a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_AtmosphericDistribution a owl:Class ;
+    rdfs:subClassOf :Cl_VerticalStratification .
+:causes rdfs:domain :Cl_Constraint ; rdfs:range owl:Thing .
+:affects rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:governs rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+
+:Cl_Material a owl:Class .
+:Cl_Object a owl:Class .
+:Cl_Surface a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+:Cl_WingSurface a owl:Class ;
+    rdfs:subClassOf :Cl_Surface ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_Container a owl:Class .
+:Cl_Flow a owl:Class .
+:Cl_FlowResistance a owl:Class .
+:Cl_SurfaceRoughness a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Molecule a owl:Class ;
+    rdfs:subClassOf :Cl_Material .
+:Cl_AirMolecule a owl:Class ;
+    rdfs:subClassOf :Cl_Molecule ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_Air ] .
+:Cl_NearSurfaceAirMolecule a owl:Class ;
+    rdfs:subClassOf :Cl_AirMolecule .
+:Cl_Velocity a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_DensityQuantity a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_ViscosityQuantity a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Volume a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_AvailableVolume a owl:Class ;
+    rdfs:subClassOf :Cl_Volume .
+:Cl_Situation a owl:Class .
+:Cl_FlowOverObjectEvent a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_BoundaryLayerFormationEvent a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_Friction a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_Fluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :flowsOver ; owl:someValuesFrom :Cl_Surface ] .
+:Cl_Fluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :takesShapeOfContainer ; owl:someValuesFrom :Cl_Container ] .
+:flowsOver a owl:ObjectProperty ;
+    rdfs:domain :Cl_Fluid ;
+    rdfs:range :Cl_Surface .
+:takesShapeOfContainer a owl:ObjectProperty ;
+    rdfs:domain :Cl_Fluid ;
+    rdfs:range :Cl_Container .
+:adjacentTo a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:occursBetween a owl:ObjectProperty ;
+    rdfs:domain :Cl_Friction ;
+    rdfs:range :Cl_Material .
+:causesResistanceToFlow a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_FlowResistance .
+:hasRelativeVelocity a owl:ObjectProperty ;
+    rdfs:domain :Cl_AirMolecule ;
+    rdfs:range :Cl_Velocity .
+:hasDensity a owl:ObjectProperty ;
+    rdfs:domain :Cl_Fluid ;
+    rdfs:range :Cl_DensityQuantity .
+:hasViscosity a owl:ObjectProperty ;
+    rdfs:domain :Cl_Fluid ;
+    rdfs:range :Cl_ViscosityQuantity .
+:hasVelocityValue a owl:ObjectProperty ;
+    rdfs:domain :Cl_Velocity ;
+    rdfs:range :Cl_QuantityAssertion .
+:hasSurfaceRoughness a owl:ObjectProperty ;
+    rdfs:domain :Cl_Surface ;
+    rdfs:range :Cl_SurfaceRoughness .
+:hasMolecularAdhesion a owl:ObjectProperty ;
+    rdfs:domain :Cl_Material ;
+    rdfs:range :Cl_Adhesion .
+:Cl_Adhesion a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+
+:resistsFlow a owl:ObjectProperty ;
+    rdfs:domain :Cl_Fluid ;
+    rdfs:range :Cl_FlowResistance .
+
+:hasFlowResistance a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_FlowResistance .
+:participatesIn a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:hasParticipant a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:hasComponent rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:partOf rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:hasQuantity rdfs:domain owl:Thing ;
+    rdfs:range :Cl_QuantityAssertion .
+:Cl_Fluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasViscosity ; owl:someValuesFrom :Cl_ViscosityQuantity ] .
+:Cl_Fluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasDensity ; owl:someValuesFrom :Cl_DensityQuantity ] .
+:Cl_Fluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :resistsFlow ; owl:someValuesFrom :Cl_FlowResistance ] .
+:Cl_BoundaryLayer rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_AirMolecule ] .
+:Cl_FlowOverObjectEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Fluid ] .
+:Cl_FlowOverObjectEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Object ] .
+:Cl_BoundaryLayerFormationEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_AirMolecule ] .
+:Cl_BoundaryLayerFormationEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_WingSurface ] .
+:Cl_Friction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Surface ] .
+:Cl_Friction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Material ] .
+
+:hasComponent rdfs:subPropertyOf :composedOf .
+:hasQuantity rdfs:subPropertyOf :hasComponent .
+:hasMember rdfs:subPropertyOf :hasComponent .
+:hasParticipant rdfs:subPropertyOf :participatesIn .
+:adheresTo rdfs:subPropertyOf :affects .
+:flowsOver rdfs:subPropertyOf :affects .
+:adjacentTo rdfs:subPropertyOf :affects .
+:causesResistanceToFlow rdfs:subPropertyOf :causes .
+:hasSurfaceRoughness rdfs:subPropertyOf :hasQuantity .
+:hasDensity rdfs:subPropertyOf :hasQuantity .
+:hasViscosity rdfs:subPropertyOf :hasQuantity .
+:hasRelativeVelocity rdfs:subPropertyOf :hasQuantity .
+:hasVelocityValue rdfs:subPropertyOf :hasQuantity .
+:occursBetween rdfs:subPropertyOf :affects .
+:takesShapeOfContainer rdfs:subPropertyOf :affects .
+:fillsVolumeOf rdfs:subPropertyOf :affects .
+:resistsFlow rdfs:subPropertyOf :affects .
+:hasFlowResistance rdfs:subPropertyOf :hasQuantity .
+:Cl_Viscosity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+:Cl_Density rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+:Cl_Velocity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+:Cl_SurfaceRoughness rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+
+:Cl_StandardAtmosphere a owl:Class ;
+    rdfs:subClassOf :Cl_Atmosphere , :Cl_Situation .
+:Cl_NonstandardAtmosphere a owl:Class ;
+    rdfs:subClassOf :Cl_Atmosphere , :Cl_Situation .
+:Cl_InternationalStandardAtmosphere a owl:Class ;
+    rdfs:subClassOf :Cl_StandardAtmosphere .
+:Cl_ICAOStandardAtmosphere a owl:Class ;
+    rdfs:subClassOf :Cl_StandardAtmosphere .
+:Cl_StandardAtmosphereAtSeaLevel a owl:Class ;
+    rdfs:subClassOf :Cl_StandardAtmosphere .
+:Cl_AtmosphericPressure a owl:Class ;
+    rdfs:subClassOf :Cl_Pressure .
+:Cl_AtmosphereCondition a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_FluidImmersionSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_PressureGradientMotionSituation a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_BoundaryLayerAdherenceSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_StandardTemperatureLapseRate a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_StandardPressureLapseRate a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_PressureLapseRate a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_TemperatureLapseRate a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_PSI a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_InchOfMercury a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Millibar a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_DegreeCelsius a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_DegreeFahrenheit a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_AltitudeUnit a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_PressureUnit a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_TemperatureUnit a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+
+:Cl_Degree a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+
+
+:hasAppliedToSurface a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_Pressure ;
+    rdfs:range :Cl_Surface .
+:actsPerpendicularTo a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_Pressure ;
+    rdfs:range :Cl_Surface .
+:isSubQuantityOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf :partOf ;
+    rdfs:domain :Cl_QuantityAssertion ;
+    rdfs:range :Cl_QuantityAssertion .
+:hasValueUnit a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasUnit ;
+    rdfs:domain :Cl_QuantityAssertion ;
+    rdfs:range owl:Thing .
+:adheresTo a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_BoundaryLayer ;
+    rdfs:range :Cl_Wing .
+:combinedWith a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_BoundaryLayer ;
+    rdfs:range :Cl_Viscosity .
+:hasCause a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasParticipant ;
+    rdfs:domain :Cl_CausalEffect ;
+    rdfs:range owl:Thing .
+:hasOutcomeCondition a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasOutcome ;
+    rdfs:domain :Cl_Constraint ;
+    rdfs:range :Cl_Situation .
+:variesWithAltitude a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_Altitude .
+:hasReferencePressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_StandardAtmosphere ;
+    rdfs:range :Cl_AtmosphericPressure .
+:hasReferenceTemperature a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_StandardAtmosphere ;
+    rdfs:range :Cl_Temperature .
+:hasReferenceAltitude a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_StandardAtmosphere ;
+    rdfs:range :Cl_Altitude .
+:decreasesWithAltitude a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_QuantityAssertion ;
+    rdfs:range :Cl_Altitude .
+:hasLapseRate a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_StandardAtmosphere ;
+    rdfs:range :Cl_Constraint .
+:hasPressureValue a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Pressure ;
+    rdfs:range :Cl_QuantityAssertion .
+:hasAltitudeValue a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Altitude ;
+    rdfs:range :Cl_QuantityAssertion .
+
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasConstituent ; owl:someValuesFrom :Cl_Gas ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesWithAltitude ; owl:someValuesFrom :Cl_Altitude ] .
+:Cl_AtmosphericPressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :actsPerpendicularTo ; owl:someValuesFrom :Cl_Surface ] .
+:Cl_AtmosphericPressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_PressureUnit ] .
+:Cl_Altitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_AltitudeUnit ] .
+:Cl_Temperature rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_TemperatureUnit ] .
+:Cl_StandardAtmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasReferencePressure ; owl:someValuesFrom :Cl_AtmosphericPressure ] .
+:Cl_StandardAtmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasReferenceTemperature ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_StandardAtmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasReferenceAltitude ; owl:someValuesFrom :Cl_Altitude ] .
+:Cl_StandardAtmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasLapseRate ; owl:someValuesFrom :Cl_Constraint ] .
+:Cl_FluidImmersionSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Fluid ] .
+:Cl_FluidImmersionSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Object ] .
+:Cl_PressureGradientMotionSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Object ] .
+:Cl_BoundaryLayerAdherenceSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_BoundaryLayer ] .
+:Cl_BoundaryLayerAdherenceSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_StandardTemperatureLapseRate rdfs:subClassOf :Cl_TemperatureLapseRate .
+:Cl_StandardPressureLapseRate rdfs:subClassOf :Cl_PressureLapseRate .
+:Cl_InternationalStandardAtmosphere rdfs:subClassOf :Cl_ICAOStandardAtmosphere .
+:Cl_AtmosphericPressure rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Pressure rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Altitude rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Temperature rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Density rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Viscosity rdfs:subClassOf :Cl_QuantityAssertion .
+
+:Cl_QuantityAssertion rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom owl:Thing ] .
+:Cl_Pressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasAppliedToSurface ; owl:someValuesFrom :Cl_Surface ] .
+:Cl_BoundaryLayer rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :adheresTo ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_BoundaryLayer rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :combinedWith ; owl:someValuesFrom :Cl_Viscosity ] .
+:Cl_Drag a owl:Class ;
+    rdfs:subClassOf :Cl_AerodynamicForce .
+:Cl_Drag rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_BoundaryLayer ] .
+:Cl_Drag rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_Viscosity ] .
+:Cl_Drag rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_FlowResistance ] .
+
+:Cl_StandardDatumPlane a owl:Class ;
+    rdfs:subClassOf :Cl_AltitudeRegion , :Cl_Situation .
+:Cl_Altimeter a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+:Cl_PressureAltitude a owl:Class ;
+    rdfs:subClassOf :Cl_Altitude , :Cl_QuantityAssertion .
+:Cl_DensityAltitude a owl:Class ;
+    rdfs:subClassOf :Cl_Altitude , :Cl_QuantityAssertion .
+:Cl_AirDensity a owl:Class ;
+    rdfs:subClassOf :Cl_Density , :Cl_QuantityAssertion .
+:Cl_Humidity a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphereCondition .
+:Cl_FlightLevel a owl:Class ;
+    rdfs:subClassOf :Cl_Altitude , :Cl_QuantityAssertion .
+:Cl_AircraftPerformance a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_ActualAltitude a owl:Class ;
+    rdfs:subClassOf :Cl_Altitude .
+:Cl_ThinAir a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphereCondition , :Cl_Situation .
+:Cl_DenseAir a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphereCondition , :Cl_Situation .
+:Cl_HighDensityAltitude a owl:Class ;
+    rdfs:subClassOf :Cl_DensityAltitude , :Cl_Situation .
+:Cl_LowDensityAltitude a owl:Class ;
+    rdfs:subClassOf :Cl_DensityAltitude , :Cl_Situation .
+:Cl_ConstantTemperatureCondition a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint , :Cl_Situation .
+:Cl_ConstantPressureCondition a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint , :Cl_Situation .
+:Cl_AirDensityVariationSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_AtmosphericVariationWithAltitudeSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_GasCompressionProcess a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_GasExpansionProcess a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_StandardDayCondition a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphereCondition , :Cl_Situation .
+:Cl_CausalDependency a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_PerformanceEffect a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_Engine a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+:Cl_Propeller a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+:Cl_Power a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Thrust a owl:Class ;
+    rdfs:subClassOf :Cl_AerodynamicForce .
+:measuredFrom a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_PressureAltitude ;
+    rdfs:range :Cl_StandardDatumPlane .
+:calibratedFor a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_Altimeter ;
+    rdfs:range :Cl_StandardAtmosphere .
+:indicatesAltitudeIn a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_Altimeter ;
+    rdfs:range :Cl_StandardAtmosphere .
+:derivedFrom a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:correctedFor a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_DensityAltitude ;
+    rdfs:range :Cl_Temperature .
+:assignedUsing a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_FlightLevel ;
+    rdfs:range :Cl_PressureAltitude .
+:influencesPerformance a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirDensity ;
+    rdfs:range :Cl_AircraftPerformance .
+:variesDirectlyWith a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirDensity ;
+    rdfs:range :Cl_Pressure .
+:variesInverselyWith a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirDensity ;
+    rdfs:range :Cl_Temperature .
+:supportsFlightLevelAssignment a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_PressureAltitude ;
+    rdfs:range :Cl_FlightLevel .
+:causalTo a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:influences a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:correlatesWith a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+:higherWhenDensityDecreases a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_DensityAltitude ;
+    rdfs:range :Cl_AirDensity .
+:lowerWhenDensityIncreases a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_DensityAltitude ;
+    rdfs:range :Cl_AirDensity .
+:variesWithAltitude a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_Altitude .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :decreasesWithAltitude ; owl:someValuesFrom :Cl_Altitude ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesWithAltitude ; owl:someValuesFrom :Cl_Altitude ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesDirectlyWith ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesInverselyWith ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influencesPerformance ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_AircraftPerformance rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_AircraftPerformance rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_StandardDayCondition ] .
+:Cl_AtmosphericVariationWithAltitudeSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Altitude ] .
+:Cl_AtmosphericVariationWithAltitudeSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_GasCompressionProcess rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_GasExpansionProcess rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_StandardDayCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasReferenceAtmosphere ; owl:someValuesFrom :Cl_StandardAtmosphere ] .
+:Cl_ThinAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_DenseAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_HighDensityAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_ThinAir ] .
+:Cl_LowDensityAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_DenseAir ] .
+:Cl_ConstantTemperatureCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_ConstantPressureCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_AirDensityVariationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_AirDensityVariationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AtmosphereCondition ] .
+:Cl_Pressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_ConstantTemperatureCondition ] .
+:Cl_Density rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_ConstantTemperatureCondition ] .
+:Cl_Density rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_ConstantPressureCondition ] .
+:Cl_PressureAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_Feet ] .
+:Cl_DensityAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_Feet ] .
+:Cl_FlightLevel rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :assignedUsing ; owl:someValuesFrom :Cl_PressureAltitude ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_Density ] .
+:Cl_Altimeter rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :calibratedFor ; owl:someValuesFrom :Cl_StandardAtmosphere ] .
+:Cl_Altimeter rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :indicatesAltitudeIn ; owl:someValuesFrom :Cl_StandardAtmosphere ] .
+
+
+:Cl_WaterVapor a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphericElement .
+:Cl_MoistAir a owl:Class ;
+    rdfs:subClassOf :Cl_Air .
+:Cl_DryAir a owl:Class ;
+    rdfs:subClassOf :Cl_Air .
+:Cl_SaturatedAir a owl:Class ;
+    rdfs:subClassOf :Cl_Air , :Cl_Situation .
+:Cl_PerfectlyDryAir a owl:Class ;
+    rdfs:subClassOf :Cl_Air , :Cl_Situation .
+:Cl_WarmAirMass a owl:Class ;
+    rdfs:subClassOf :Cl_AirMass .
+:Cl_ColdAirMass a owl:Class ;
+    rdfs:subClassOf :Cl_AirMass .
+:Cl_RelativeHumidity a owl:Class ;
+    rdfs:subClassOf :Cl_Humidity , :Cl_FractionQuantity .
+:Cl_DewPoint a owl:Class ;
+    rdfs:subClassOf :Cl_Temperature .
+:Cl_AircraftPerformanceReduction a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_Lift a owl:Class ;
+    rdfs:subClassOf :Cl_AerodynamicForce .
+:Cl_Gravity a owl:Class ;
+    rdfs:subClassOf :Cl_Force .
+:Cl_Force a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Mass a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Acceleration a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Momentum a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Time a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Motion a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_DensityAltitudeCalculation a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_StationPressure a owl:Class ;
+    rdfs:subClassOf :Cl_Pressure .
+:Cl_FlowResistance a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_SymmetricalAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_Airfoil .
+
+:Cl_Altitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_Feet ] .
+:Cl_Pressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_InchOfMercury ] .
+:Cl_RelativeHumidity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_Percent ] .
+:Cl_DewPoint rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_Degree ] .
+:Cl_Humidity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_FractionQuantity ] .
+:Cl_MoistAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasConstituent ; owl:someValuesFrom :Cl_WaterVapor ] .
+:Cl_SaturatedAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasConstituent ; owl:someValuesFrom :Cl_WaterVapor ] .
+:Cl_PerfectlyDryAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasConstituent ; owl:someValuesFrom :Cl_WaterVapor ] .
+:Cl_WarmAirMass rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_ColdAirMass rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_Lift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_Drag rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_BoundaryLayer ] .
+:Cl_Drag rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_Viscosity ] .
+:Cl_Gravity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :affects ; owl:someValuesFrom :Cl_Flight ] .
+:Cl_DensityAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :derivedFrom ; owl:someValuesFrom :Cl_PressureAltitude ] .
+:Cl_DensityAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :correctedFor ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_DensityAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :higherWhenDensityDecreases ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_DensityAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :lowerWhenDensityIncreases ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesDirectlyWith ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesInverselyWith ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :decreasesWithAltitude ; owl:someValuesFrom :Cl_Altitude ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influencesPerformance ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_Humidity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :appliesTo ; owl:someValuesFrom :Cl_Atmosphere ] .
+:Cl_Humidity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :appliesTo ; owl:someValuesFrom :Cl_Air ] .
+:Cl_Humidity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influences ; owl:someValuesFrom :Cl_Density ] .
+:Cl_Humidity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_DensityAltitude ] .
+:Cl_AircraftPerformance rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AtmosphereCondition ] .
+:Cl_AircraftPerformance rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_AircraftPerformanceReduction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_DensityAltitudeCalculation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_StationPressure ] .
+:Cl_DensityAltitudeCalculation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_DensityAltitudeCalculation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_DewPoint ] .
+:Cl_DensityAltitudeCalculation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_DensityAltitude ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :produces ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_Wing rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :produces ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_BoundaryLayer rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_Viscosity ] .
+:Cl_WingtipVortex rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_SaturatedAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Humidity ] .
+:Cl_PerfectlyDryAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Humidity ] .
+:Cl_SymmetricalAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :produces ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_NewtonsFirstLaw rdfs:subClassOf :Cl_PrinciplesOfFlight .
+:Cl_NewtonsSecondLaw rdfs:subClassOf :Cl_PrinciplesOfFlight .
+:Cl_NewtonsFirstLaw rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Inertia ] .
+:Cl_Inertia rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_Inertia rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Motion ] .
+:Cl_Force rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Mass ] .
+:Cl_Force rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Acceleration ] .
+:Cl_Force rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Momentum ] .
+:Cl_Force rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Time ] .
+:Cl_Drag rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :affects ; owl:someValuesFrom :Cl_Flight ] .
+:Cl_Lift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :affects ; owl:someValuesFrom :Cl_Flight ] .
+
+:hasCondition rdfs:domain :Cl_Situation ; rdfs:range owl:Thing .
+:hasOutcome rdfs:domain :Cl_CausalEffect ; rdfs:range owl:Thing .
+:produces a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_Wing ;
+    rdfs:range :Cl_AerodynamicForce .
+:hasCause rdfs:domain :Cl_CausalEffect ; rdfs:range owl:Thing .
+:variesDirectlyWith rdfs:domain :Cl_QuantityAssertion ; rdfs:range :Cl_QuantityAssertion .
+:variesInverselyWith rdfs:domain :Cl_QuantityAssertion ; rdfs:range :Cl_QuantityAssertion .
+:decreasesWithAltitude rdfs:domain :Cl_QuantityAssertion ; rdfs:range :Cl_Altitude .
+:influencesPerformance rdfs:domain :Cl_QuantityAssertion ; rdfs:range :Cl_AircraftPerformance .
+:influences rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:derivedFrom rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:correctedFor rdfs:domain :Cl_DensityAltitude ; rdfs:range :Cl_QuantityAssertion .
+:higherWhenDensityDecreases rdfs:domain :Cl_DensityAltitude ; rdfs:range :Cl_AirDensity .
+:lowerWhenDensityIncreases rdfs:domain :Cl_DensityAltitude ; rdfs:range :Cl_AirDensity .
+:appliesTo rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:hasParticipant rdfs:domain :Cl_Situation ; rdfs:range owl:Thing .
+:hasUnit rdfs:domain :Cl_QuantityAssertion ; rdfs:range owl:Thing .
+:hasQuantity rdfs:domain owl:Thing ; rdfs:range :Cl_QuantityAssertion .
+:Cl_HighHumidityCondition a owl:Class ;
+    rdfs:subClassOf :Cl_AtmosphereCondition , :Cl_Situation .
+:Cl_HighHumidityCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Humidity ] .
+:Cl_HighHumidityCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_AircraftPerformanceReduction ] .
+:Cl_AirMass rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasConstituent ; owl:someValuesFrom :Cl_WaterVapor ] .
+:Cl_MoistAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_Density ] .
+:Cl_DryAir rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_Density ] .
+:Cl_WarmAirMass rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_Density ] .
+:Cl_ColdAirMass rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_Density ] .
+
+
+:Cl_Liquid a owl:Class ;
+    rdfs:subClassOf :Cl_Fluid .
+
+:Cl_Body a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+
+:Cl_AppliedForce a owl:Class ;
+    rdfs:subClassOf :Cl_Force .
+
+:Cl_MovingFluid a owl:Class ;
+    rdfs:subClassOf :Cl_Fluid .
+
+:Cl_BernoulliPressureDifferential a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+
+:Cl_VenturiTube a owl:Class ;
+    rdfs:subClassOf :Cl_Container .
+
+:Cl_Inlet a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+
+:Cl_Throat a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+
+:Cl_OutletSection a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+
+:Cl_FluidMovingAtLowerVelocity a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+
+:Cl_FluidMovingAtHigherVelocity a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+
+:Cl_VenturiThroatConstrictedFlow a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+
+:Cl_VenturiDownstreamSlowingAndPressureIncrease a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+
+:Cl_NewtonThirdLawActionReaction a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+
+:Cl_ActionForce a owl:Class ;
+    rdfs:subClassOf :Cl_Force .
+
+:Cl_ReactionForce a owl:Class ;
+    rdfs:subClassOf :Cl_Force .
+
+:Cl_LowPressureAreaOverAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+
+:Cl_UpperSurface a owl:Class ;
+    rdfs:subClassOf :Cl_Surface .
+
+:Cl_LowerSurface a owl:Class ;
+    rdfs:subClassOf :Cl_Surface .
+
+:Cl_LeadingEdge a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+
+:Cl_TrailingEdge a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+
+:Cl_ChordLine a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+
+:Cl_AirfoilProfile a owl:Class ;
+    rdfs:subClassOf :Cl_Airfoil .
+
+:Cl_WingCrossSection a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilProfile .
+
+:Cl_Camber a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+
+:Cl_DistanceToChordLine a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+
+:Cl_AirflowOverWingSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+
+:Cl_PropulsionReactionSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+
+:Cl_MassFlowContinuityConstraint a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+
+:hasPart a owl:ObjectProperty ;
+    owl:inverseOf :partOf .
+
+:hasVelocity a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Fluid ;
+    rdfs:range :Cl_Velocity .
+
+:hasPressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Fluid ;
+    rdfs:range :Cl_Pressure .
+
+:hasForce a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Force .
+
+:hasAcceleration a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Body ;
+    rdfs:range :Cl_Acceleration .
+
+:hasMass a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Mass .
+
+:increasesVelocity a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_CausalEffect ;
+    rdfs:range :Cl_Situation .
+
+:decreasesPressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_CausalEffect ;
+    rdfs:range :Cl_Situation .
+
+:increasesPressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_CausalEffect ;
+    rdfs:range :Cl_Situation .
+
+:slowsFlow a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_CausalEffect ;
+    rdfs:range :Cl_Situation .
+
+:connects a owl:ObjectProperty ;
+    rdfs:domain :Cl_ChordLine ;
+    rdfs:range owl:Thing .
+
+:hasEndpoint a owl:ObjectProperty ;
+    rdfs:subPropertyOf :connects ;
+    rdfs:domain :Cl_ChordLine ;
+    rdfs:range owl:Thing .
+
+:equalTo a owl:ObjectProperty ;
+    rdfs:domain :Cl_QuantityAssertion ;
+    rdfs:range :Cl_QuantityAssertion .
+
+:hasUpperSurface a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_UpperSurface .
+
+:hasLowerSurface a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_LowerSurface .
+
+:hasLeadingEdge a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_LeadingEdge .
+
+:hasTrailingEdge a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_TrailingEdge .
+
+:hasChordLine a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_AirfoilProfile ;
+    rdfs:range :Cl_ChordLine .
+
+:hasCamber a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_Camber .
+
+:hasDistanceToChordLine a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_AirfoilProfile ;
+    rdfs:range :Cl_DistanceToChordLine .
+
+:participatesInSituation a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasParticipant ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Situation .
+
+:causalAntecedent a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasParticipant ;
+    rdfs:domain :Cl_CausalEffect ;
+    rdfs:range owl:Thing .
+
+:causalConsequent a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasOutcome ;
+    rdfs:domain :Cl_CausalEffect ;
+    rdfs:range owl:Thing .
+
+:hasInlet a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_VenturiTube ;
+    rdfs:range :Cl_Inlet .
+
+:hasThroat a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_VenturiTube ;
+    rdfs:range :Cl_Throat .
+
+:hasOutletSection a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_VenturiTube ;
+    rdfs:range :Cl_OutletSection .
+
+:Cl_Fluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasVelocity ; owl:someValuesFrom :Cl_Velocity ] .
+:Cl_Fluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPressure ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_Fluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :flowsOver ; owl:someValuesFrom :Cl_Surface ] .
+:Cl_MovingFluid rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasVelocity ; owl:someValuesFrom :Cl_Velocity ] .
+:Cl_VenturiTube rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasInlet ; owl:someValuesFrom :Cl_Inlet ] .
+:Cl_VenturiTube rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasThroat ; owl:someValuesFrom :Cl_Throat ] .
+:Cl_VenturiTube rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutletSection ; owl:someValuesFrom :Cl_OutletSection ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUpperSurface ; owl:someValuesFrom :Cl_UpperSurface ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasLowerSurface ; owl:someValuesFrom :Cl_LowerSurface ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasLeadingEdge ; owl:someValuesFrom :Cl_LeadingEdge ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasTrailingEdge ; owl:someValuesFrom :Cl_TrailingEdge ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCamber ; owl:someValuesFrom :Cl_Camber ] .
+:Cl_AirfoilProfile rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasChordLine ; owl:someValuesFrom :Cl_ChordLine ] .
+:Cl_AirfoilProfile rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasDistanceToChordLine ; owl:someValuesFrom :Cl_DistanceToChordLine ] .
+:Cl_VenturiThroatConstrictedFlow rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_VenturiTube ] .
+:Cl_VenturiThroatConstrictedFlow rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_VenturiDownstreamSlowingAndPressureIncrease rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_VenturiTube ] .
+:Cl_VenturiDownstreamSlowingAndPressureIncrease rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_BernoulliPressureDifferential rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_MovingFluid ] .
+:Cl_BernoulliPressureDifferential rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causalAntecedent ; owl:someValuesFrom :Cl_FluidMovingAtHigherVelocity ] .
+:Cl_BernoulliPressureDifferential rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causalConsequent ; owl:someValuesFrom :Cl_FluidMovingAtLowerVelocity ] .
+:Cl_NewtonThirdLawActionReaction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_ActionForce ] .
+:Cl_NewtonThirdLawActionReaction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_ReactionForce ] .
+:Cl_NewtonThirdLawActionReaction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Propeller ] .
+:Cl_NewtonThirdLawActionReaction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Aircraft ] .
+:Cl_NewtonThirdLawActionReaction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_PropulsionReactionSituation ] .
+:Cl_PropulsionReactionSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_AirflowOverWingSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_AirflowOverWingSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_AirflowOverWingSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_LowPressureAreaOverAirfoil ] .
+:Cl_LowPressureAreaOverAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_UpperSurface ] .
+:Cl_LowPressureAreaOverAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_MassFlowContinuityConstraint rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_VenturiTube ] .
+:Cl_MassFlowContinuityConstraint rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Air ] .
+:Cl_Force rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Body ] .
+:Cl_Force rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Mass ] .
+:Cl_Force rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Acceleration ] .
+:Cl_Acceleration rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesInverselyWith ; owl:someValuesFrom :Cl_Mass ] .
+:Cl_Acceleration rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesDirectlyWith ; owl:someValuesFrom :Cl_Force ] .
+:Cl_Acceleration rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Motion ] .
+:Cl_Acceleration rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Motion ] .
+:Cl_Airfoil rdfs:subClassOf :Cl_Surface .
+:Cl_Wing rdfs:subClassOf :Cl_Airfoil .
+:Cl_Pressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_Velocity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+:Cl_Camber rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_DistanceToChordLine ] .
+:Cl_DistanceToChordLine rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUnit ; owl:someValuesFrom :Cl_Feet ] .
+
+:Cl_AirfoilSection a owl:Class ;
+    rdfs:subClassOf :Cl_Airfoil .
+:Cl_AirfoilDesign a owl:Class ;
+    rdfs:subClassOf :Cl_Airfoil .
+:Cl_SubsonicAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_SupersonicAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_LaminarFlowAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_CircularArcAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_DoubleWedgeAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_ClarkYAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_EarlyAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_LaterAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_ConcaveAirfoilShape a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilDesign .
+:Cl_AirfoilFlowInteraction a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_LiftGenerationEvent a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_PositivePressureLift a owl:Class ;
+    rdfs:subClassOf :Cl_LiftGenerationEvent .
+:Cl_NegativePressureLift a owl:Class ;
+    rdfs:subClassOf :Cl_LiftGenerationEvent .
+:Cl_ReducedPressureAboveAirfoil a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_AircraftInFlight a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_LiftExceedsWeightSituation a owl:Class ;
+    rdfs:subClassOf :Cl_AircraftInFlight .
+:Cl_SlowFlightCondition a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_LowDragInsufficientLiftCondition a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_BernoulliEffect a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_AngleOfAttackSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_SmallAngleOfAttack a owl:Class ;
+    rdfs:subClassOf :Cl_AngleOfAttackSituation .
+:Cl_FlapExtension a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_WingShapeChangeEvent a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_AircraftWeight a owl:Class ;
+    rdfs:subClassOf :Cl_Force .
+:Cl_PressureDifference a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_AngleOfAttackQuantity a owl:Class ;
+    rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_AirSpeed a owl:Class ;
+    rdfs:subClassOf :Cl_Velocity .
+:Cl_AirPressureAboveWing a owl:Class ;
+    rdfs:subClassOf :Cl_Pressure .
+:Cl_AirPressureBelowWing a owl:Class ;
+    rdfs:subClassOf :Cl_Pressure .
+:Cl_RequiredLiftConstraint a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_AirfoilDesignRequirement a owl:Class ;
+    rdfs:subClassOf :Cl_Constraint .
+:Cl_MeanCamberLine a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+:Cl_UpperSurface rdfs:subClassOf :Cl_AirfoilSection .
+:Cl_LowerSurface rdfs:subClassOf :Cl_AirfoilSection .
+:Cl_LeadingEdge rdfs:subClassOf :Cl_AirfoilSection .
+:Cl_TrailingEdge rdfs:subClassOf :Cl_AirfoilSection .
+:Cl_ChordLine rdfs:subClassOf :Cl_AirfoilSection .
+:Cl_UpperSurface rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_LowerSurface rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_LeadingEdge rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_TrailingEdge rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_ChordLine rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_MeanCamberLine rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :equidistantFrom ; owl:someValuesFrom :Cl_UpperSurface ] .
+:Cl_MeanCamberLine rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :equidistantFrom ; owl:someValuesFrom :Cl_LowerSurface ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :generatesLiftThrough ; owl:someValuesFrom :Cl_AirfoilFlowInteraction ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :produces ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_Wing rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_Aircraft rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_Lift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_AircraftInFlight ] .
+:Cl_Lift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AircraftInFlight ] .
+:Cl_Lift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_PressureDifference ] .
+:Cl_Lift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_AirfoilFlowInteraction ] .
+:Cl_RequiredLiftConstraint rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasThreshold ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_RequiredLiftConstraint rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AircraftInFlight ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AirfoilDesign ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Aircraft ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AirSpeed ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Purpose ] .
+:Cl_AirfoilFlowInteraction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_AirfoilFlowInteraction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_AirfoilFlowInteraction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_LiftGenerationEvent ] .
+:Cl_LiftGenerationEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_LiftGenerationEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_LiftGenerationEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_PositivePressureLift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_AirPressureBelowWing ] .
+:Cl_PositivePressureLift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_NegativePressureLift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_AirPressureAboveWing ] .
+:Cl_NegativePressureLift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_ReducedPressureAboveAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AirSpeed ] .
+:Cl_ReducedPressureAboveAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AirPressureAboveWing ] .
+:Cl_LiftExceedsWeightSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_LiftExceedsWeightSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AircraftWeight ] .
+:Cl_LiftExceedsWeightSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AircraftInFlight ] .
+:Cl_SlowFlightCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_FlapExtension ] .
+:Cl_SlowFlightCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_LowDragInsufficientLiftCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Drag ] .
+:Cl_LowDragInsufficientLiftCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_LowDragInsufficientLiftCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AircraftInFlight ] .
+:Cl_BernoulliEffect rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :increasesVelocity ; owl:someValuesFrom :Cl_AirSpeed ] .
+:Cl_BernoulliEffect rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :decreasesPressure ; owl:someValuesFrom :Cl_AirPressureAboveWing ] .
+:Cl_BernoulliEffect rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_ReducedPressureAboveAirfoil ] .
+:Cl_AngleOfAttackSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AngleOfAttackQuantity ] .
+:Cl_AngleOfAttackSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_SmallAngleOfAttack rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AngleOfAttackQuantity ] .
+:Cl_FlapExtension rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_FlapExtension rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :changesShapeOf ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_FlapExtension rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_ConcaveAirfoilShape ] .
+:Cl_WingShapeChangeEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_WingShapeChangeEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_ConcaveAirfoilShape ] .
+:Cl_AirfoilDesign rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :requiresDesignBy ; owl:someValuesFrom :Cl_AirfoilDesignRequirement ] .
+:Cl_MeanCamberLine rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_ChordLine ] .
+:Cl_MeanCamberLine rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isBetween ; owl:someValuesFrom :Cl_UpperSurface ] .
+:Cl_MeanCamberLine rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isBetween ; owl:someValuesFrom :Cl_LowerSurface ] .
+:hasSectionPart a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_AirfoilSection ;
+    rdfs:range :Cl_AirfoilSection .
+:equidistantFrom a owl:ObjectProperty ;
+    rdfs:domain :Cl_MeanCamberLine ;
+    rdfs:range :Cl_AirfoilSection .
+:isBetween a owl:ObjectProperty ;
+    rdfs:domain :Cl_MeanCamberLine ;
+    rdfs:range :Cl_AirfoilSection .
+:hasUpperSurface a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_AirfoilSection ;
+    rdfs:range :Cl_UpperSurface .
+:hasLowerSurface a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_AirfoilSection ;
+    rdfs:range :Cl_LowerSurface .
+:hasLeadingEdge a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_AirfoilSection ;
+    rdfs:range :Cl_LeadingEdge .
+:hasTrailingEdge a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_AirfoilSection ;
+    rdfs:range :Cl_TrailingEdge .
+:hasCamberLine a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_AirfoilSection ;
+    rdfs:range :Cl_MeanCamberLine .
+:hasPart rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+
+:increasesAirSpeedOver a owl:ObjectProperty ;
+    rdfs:subPropertyOf :increasesVelocity ;
+    rdfs:domain :Cl_AirfoilFlowInteraction ;
+    rdfs:range :Cl_Airfoil .
+:reducesPressureAbove a owl:ObjectProperty ;
+    rdfs:subPropertyOf :decreasesPressure ;
+    rdfs:domain :Cl_BernoulliEffect ;
+    rdfs:range :Cl_Airfoil .
+:requiresDesignBy a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AirfoilDesignRequirement .
+:variesBy a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirfoilDesign ;
+    rdfs:range :Cl_AircraftPerformance .
+:dependsOn a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirfoilDesignRequirement ;
+    rdfs:range owl:Thing .
+:hasPressureAboveWing a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AirPressureAboveWing .
+:hasPressureBelowWing a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AirPressureBelowWing .
+:hasAngleOfAttack a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AngleOfAttackQuantity .
+:hasLift a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasForce ;
+    rdfs:domain :Cl_Aircraft ;
+    rdfs:range :Cl_Lift .
+:hasWeight a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasForce ;
+    rdfs:domain :Cl_Aircraft ;
+    rdfs:range :Cl_AircraftWeight .
+:hasPressureDifference a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_AirfoilFlowInteraction ;
+    rdfs:range :Cl_PressureDifference .
+:hasCamberLine a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_AirfoilSection ;
+    rdfs:range :Cl_MeanCamberLine .
+:hasSection a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AirfoilSection .
+:hasShapeChange a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasOutcome ;
+    rdfs:domain :Cl_FlapExtension ;
+    rdfs:range :Cl_WingShapeChangeEvent .
+:hasFlightCharacteristic a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasOutcome ;
+    rdfs:domain :Cl_AirfoilDesign ;
+    rdfs:range :Cl_Situation .
+:hasLiftThreshold a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasThreshold ;
+    rdfs:domain :Cl_RequiredLiftConstraint ;
+    rdfs:range :Cl_Lift .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasSection ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_AirfoilSection rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCamberLine ; owl:someValuesFrom :Cl_MeanCamberLine ] .
+:Cl_AirfoilSection rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasLeadingEdge ; owl:someValuesFrom :Cl_LeadingEdge ] .
+:Cl_AirfoilSection rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasTrailingEdge ; owl:someValuesFrom :Cl_TrailingEdge ] .
+:Cl_AirfoilSection rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasUpperSurface ; owl:someValuesFrom :Cl_UpperSurface ] .
+:Cl_AirfoilSection rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasLowerSurface ; owl:someValuesFrom :Cl_LowerSurface ] .
+:Cl_AirfoilDesign rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_Situation ] .
+:Cl_AircraftInFlight rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_LiftExceedsWeightSituation ] .
+:Cl_AircraftInFlight rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Aircraft ] .
+:Cl_AircraftInFlight rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_AircraftInFlight rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_AircraftWeight ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :dependsOn ; owl:someValuesFrom :Cl_AircraftWeight ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :dependsOn ; owl:someValuesFrom :Cl_AirSpeed ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :dependsOn ; owl:someValuesFrom :Cl_Aircraft ] .
+:Cl_AirfoilDesignRequirement rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :dependsOn ; owl:someValuesFrom :Cl_Purpose ] .
+:Cl_AircraftWeight rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+:Cl_PressureDifference rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+:Cl_AngleOfAttackQuantity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+:Cl_AirSpeed rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasNumericValue ; owl:someValuesFrom xsd:decimal ] .
+:Cl_AirPressureAboveWing rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_AirPressureBelowWing rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasQuantity ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_AirfoilDesign rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :variesBy ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_AirfoilDesign rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :requiresDesignBy ; owl:someValuesFrom :Cl_AirfoilDesignRequirement ] .
+:Cl_SubsonicAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_SupersonicAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_LaminarFlowAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_CircularArcAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_DoubleWedgeAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_ClarkYAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_EarlyAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_LaterAirfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_ConcaveAirfoilShape rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasFlightCharacteristic ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+
+:Cl_PressureDistribution a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_CenterOfPressure a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_AngleOfAttackCondition a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_HighAngleOfAttack a owl:Class ;
+    rdfs:subClassOf :Cl_AngleOfAttackCondition .
+:Cl_NormalAngleOfAttack a owl:Class ;
+    rdfs:subClassOf :Cl_AngleOfAttackCondition .
+:Cl_LowAngleOfAttack a owl:Class ;
+    rdfs:subClassOf :Cl_AngleOfAttackCondition .
+:Cl_HighAngleOfAttackCondition a owl:Class ;
+    rdfs:subClassOf :Cl_HighAngleOfAttack .
+:Cl_LowAngleOfAttackCondition a owl:Class ;
+    rdfs:subClassOf :Cl_LowAngleOfAttack .
+:Cl_PressureDifference rdfs:subClassOf :Cl_QuantityAssertion .
+:Cl_NegativePressure a owl:Class ;
+    rdfs:subClassOf :Cl_Pressure .
+:Cl_PositivePressure a owl:Class ;
+    rdfs:subClassOf :Cl_Pressure .
+:Cl_SubAtmosphericPressure a owl:Class ;
+    rdfs:subClassOf :Cl_NegativePressure .
+:Cl_AboveAtmosphericPressure a owl:Class ;
+    rdfs:subClassOf :Cl_PositivePressure .
+:Cl_UpperSurfaceFlow a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_LowerSurfaceFlow a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_StagnationPoint a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_Downwash a owl:Class ;
+    rdfs:subClassOf :Cl_Flow .
+:Cl_BernoulliPrinciple a owl:Class ;
+    rdfs:subClassOf :Cl_PrinciplesOfFlight .
+:Cl_NewtonThirdLaw a owl:Class ;
+    rdfs:subClassOf :Cl_PrinciplesOfFlight .
+:Cl_UpwardForwardForce a owl:Class ;
+    rdfs:subClassOf :Cl_Force .
+:Cl_TotalLift a owl:Class ;
+    rdfs:subClassOf :Cl_Lift .
+:Cl_PressureComponentOfLift a owl:Class ;
+    rdfs:subClassOf :Cl_Lift .
+:Cl_AerodynamicBalance a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_Controllability a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_SymmetricalWing a owl:Class ;
+    rdfs:subClassOf :Cl_Wing .
+:Cl_RotorBlade a owl:Class ;
+    rdfs:subClassOf :Cl_Airfoil .
+:Cl_CliftGenerationSituation a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect , :Cl_Situation .
+:Cl_CenterOfPressureShift a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_ForwardCenterOfPressureShift a owl:Class ;
+    rdfs:subClassOf :Cl_CenterOfPressureShift .
+:Cl_AftCenterOfPressureShift a owl:Class ;
+    rdfs:subClassOf :Cl_CenterOfPressureShift .
+:Cl_AngleOfAttackSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_AirfoilSurface a owl:Class ;
+    rdfs:subClassOf :Cl_Surface .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasAngleOfAttack ; owl:someValuesFrom :Cl_AngleOfAttackQuantity ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasAngleOfAttackCondition ; owl:someValuesFrom :Cl_AngleOfAttackCondition ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPressureDistribution ; owl:someValuesFrom :Cl_PressureDistribution ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCenterOfPressure ; owl:someValuesFrom :Cl_CenterOfPressure ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasSection ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_AirfoilSurface ] .
+:Cl_AerodynamicForce rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :actsThrough ; owl:someValuesFrom :Cl_CenterOfPressure ] .
+:Cl_AerodynamicForce rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasLineOfAction ; owl:someValuesFrom :Cl_CenterOfPressure ] .
+:Cl_PressureDistribution rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :occursOn ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_PressureDistribution rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :dependsOn ; owl:someValuesFrom :Cl_AngleOfAttackQuantity ] .
+:Cl_PressureDistribution rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPressureDifference ; owl:someValuesFrom :Cl_PressureDifference ] .
+:Cl_CenterOfPressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :locatedOn ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_CenterOfPressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influencedBy ; owl:someValuesFrom :Cl_AngleOfAttackQuantity ] .
+:Cl_HighAngleOfAttack rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_ForwardCenterOfPressureShift ] .
+:Cl_LowAngleOfAttack rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_AftCenterOfPressureShift ] .
+:Cl_Pressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :lessThanAtmosphericPressure ; owl:someValuesFrom :Cl_AtmosphericPressure ] .
+:Cl_Pressure rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :greaterThanAtmosphericPressure ; owl:someValuesFrom :Cl_AtmosphericPressure ] .
+:Cl_Downwash rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :meetsAt ; owl:someValuesFrom :Cl_TrailingEdge ] .
+:Cl_Downwash rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :producesReactionForce ; owl:someValuesFrom :Cl_UpwardForwardForce ] .
+:Cl_StagnationPoint rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :locatedAt ; owl:someValuesFrom :Cl_LeadingEdge ] .
+:Cl_StagnationPoint rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :nearLeadingEdge ; owl:someValuesFrom :Cl_LeadingEdge ] .
+:Cl_BernoulliPrinciple rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_PressureComponentOfLift ] .
+:Cl_NewtonThirdLaw rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_UpwardForwardForce ] .
+:Cl_PressureDifference rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :contributesTo ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_PressureComponentOfLift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :contributesTo ; owl:someValuesFrom :Cl_TotalLift ] .
+:Cl_TotalLift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_PressureComponentOfLift ] .
+:Cl_AerodynamicBalance rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_CenterOfPressure ] .
+:Cl_Controllability rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_CenterOfPressure ] .
+:Cl_AngleOfAttackCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influencesCenterOfPressure ; owl:someValuesFrom :Cl_CenterOfPressure ] .
+:Cl_AngleOfAttackQuantity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influencesCenterOfPressure ; owl:someValuesFrom :Cl_CenterOfPressure ] .
+:Cl_HighAngleOfAttackCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_ForwardCenterOfPressureShift ] .
+:Cl_LowAngleOfAttackCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_AftCenterOfPressureShift ] .
+:Cl_SymmetricalWing rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_RotorBlade rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :produces ; owl:someValuesFrom :Cl_Lift ] .
+:hasAngleOfAttackCondition a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasCondition ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AngleOfAttackCondition .
+:influencesCenterOfPressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :influences ;
+    rdfs:domain :Cl_AngleOfAttackQuantity ;
+    rdfs:range :Cl_CenterOfPressure .
+:actsThrough a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AerodynamicForce ;
+    rdfs:range :Cl_CenterOfPressure .
+:hasLineOfAction a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AerodynamicForce ;
+    rdfs:range :Cl_CenterOfPressure .
+:occursOn a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_PressureDistribution ;
+    rdfs:range :Cl_Airfoil .
+:locatedOn a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_CenterOfPressure ;
+    rdfs:range :Cl_Airfoil .
+:influencedBy a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_CenterOfPressure ;
+    rdfs:range :Cl_AngleOfAttackQuantity .
+:lessThanAtmosphericPressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_Pressure ;
+    rdfs:range :Cl_AtmosphericPressure .
+:greaterThanAtmosphericPressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_Pressure ;
+    rdfs:range :Cl_AtmosphericPressure .
+:meetsAt a owl:ObjectProperty ;
+    rdfs:subPropertyOf :adjacentTo ;
+    rdfs:domain :Cl_Downwash ;
+    rdfs:range :Cl_TrailingEdge .
+:producesReactionForce a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_Downwash ;
+    rdfs:range :Cl_UpwardForwardForce .
+:locatedAt a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_StagnationPoint ;
+    rdfs:range :Cl_LeadingEdge .
+:nearLeadingEdge a owl:ObjectProperty ;
+    rdfs:subPropertyOf :adjacentTo ;
+    rdfs:domain :Cl_StagnationPoint ;
+    rdfs:range :Cl_LeadingEdge .
+:hasPressureDistribution a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasSituation ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_PressureDistribution .
+:hasCenterOfPressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasSituation ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_CenterOfPressure .
+:contributesTo a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Lift .
+:hasSituation a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Situation .
+:influencesCenterOfPressure rdfs:subPropertyOf :affects .
+:Cl_AngleOfAttack rdfs:subClassOf :Cl_AngleOfAttackQuantity .
+:Cl_AngleOfAttackSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AngleOfAttackCondition ] .
+:Cl_PressureDistribution rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :occursOn ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_LiftGenerationSituation rdfs:subClassOf :Cl_CausalEffect .
+:Cl_LiftGenerationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_BernoulliPrinciple ] .
+:Cl_LiftGenerationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_NewtonThirdLaw ] .
+:Cl_LiftGenerationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Lift ] .
+
+
+:Cl_OncomingAirstream a owl:Class ;
+    rdfs:subClassOf :Cl_Air .
+:Cl_Inclination a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_AirfoilInclinationSituation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_DeflectionEvent a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_FlowTurningEvent a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_FlowTurningEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_FlowTurningEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :turnsAbout ; owl:someValuesFrom :Cl_Object ] .
+
+:Cl_TipVortex a owl:Class ;
+    rdfs:subClassOf :Cl_WingtipVortex .
+:Cl_Winglet a owl:Class ;
+    rdfs:subClassOf :Cl_Object .
+:Cl_TaperedAirfoilTip a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilSection .
+:Cl_TaperedAirfoilTip a owl:Class ;
+    rdfs:subClassOf :Cl_AirfoilSection .
+:Cl_TaperedAirfoilTip rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :reducesPressureDifferential ; owl:someValuesFrom :Cl_PressureDifferential ] .
+:Cl_TaperedAirfoilTip rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :smoothsAirflowAroundTip ; owl:someValuesFrom :Cl_OncomingAirstream ] .
+:Cl_TaperedAirfoilTip rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_Airfoil ] .
+
+:Cl_Downwash rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :reducesLift ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_Downwash rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :meetsAt ; owl:someValuesFrom :Cl_TrailingEdge ] .
+:Cl_DownwashBehindAirfoilSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Downwash ] .
+:Cl_DownwashBehindAirfoilSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_ReducedLiftPortionSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Downwash ] .
+:Cl_ReducedLiftPortionSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_AffectedAirfoilPortion rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :partOf ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_PilotUnderstandingOfFlightPrinciples rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Pilot ] .
+:Cl_PilotUnderstandingOfFlightPrinciples rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_PrinciplesOfFlight ] .
+:Cl_ModernGeneralAviationAircraft rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_ModernGeneralAviationAircraft rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_Airfoil ] .
+:hasTip a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AirfoilTip .
+:hasInclination a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasSituation ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_Inclination .
+:isInclinedRelativeTo a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_OncomingAirstream .
+:deflects a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_DeflectionEvent ;
+    rdfs:range :Cl_Flow .
+:turnsAbout a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirTurningAboutObjectEvent ;
+    rdfs:range :Cl_Object .
+:changesVelocityMagnitude a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirTurningAboutObjectEvent ;
+    rdfs:range :Cl_Velocity .
+:changesVelocityDirection a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirTurningAboutObjectEvent ;
+    rdfs:range :Cl_Velocity .
+:attachedToTip a owl:ObjectProperty ;
+    rdfs:subPropertyOf :adjacentTo ;
+    rdfs:domain :Cl_Winglet ;
+    rdfs:range :Cl_AirfoilTip .
+:formsFrom a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_TipVortex ;
+    rdfs:range :Cl_PressureDifferential .
+:createsDownwash a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_TipVortex ;
+    rdfs:range :Cl_Downwash .
+:reducesLift a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_Downwash ;
+    rdfs:range :Cl_Lift .
+:reducesVortexFormation a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_Winglet ;
+    rdfs:range :Cl_TipVortex .
+:reducesPressureDifferential a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_TaperedAirfoilTip ;
+    rdfs:range :Cl_PressureDifferential .
+:smoothsAirflowAroundTip a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_TaperedAirfoilTip ;
+    rdfs:range :Cl_OncomingAirstream .
+:participatesInLift a owl:ObjectProperty ;
+    rdfs:subPropertyOf :participatesIn ;
+    rdfs:domain :Cl_AirfoilSection ;
+    rdfs:range :Cl_Lift .
+:hasAngleOfAttackCondition rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AngleOfAttackCondition .
+:requiresUnderstandingOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf :appliesTo ;
+    rdfs:domain :Cl_Pilot ;
+    rdfs:range :Cl_PrinciplesOfFlight .
+:hasPressureDifferential a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_PressureDistribution ;
+    rdfs:range :Cl_PressureDifferential .
+:hasAngleOfAttack rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AngleOfAttackQuantity .
+:Cl_AirfoilInclinationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_AirfoilInclinationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_OncomingAirstream ] .
+:Cl_AirfoilInclinationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Inclination ] .
+:Cl_AirfoilInclinationSituation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_DeflectionEvent ] .
+:Cl_DeflectionEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causalAntecedent ; owl:someValuesFrom :Cl_AirfoilInclinationSituation ] .
+:Cl_DeflectionEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causalConsequent ; owl:someValuesFrom :Cl_FlowTurningEvent ] .
+:Cl_FlowTurningEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_FlowTurningEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :turnsAbout ; owl:someValuesFrom :Cl_Object ] .
+:Cl_AirTurningAboutObjectEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Velocity ] .
+:Cl_AirMovingAroundAirfoilTipEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Air ] .
+:Cl_AirMovingAroundAirfoilTipEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_AirfoilTip ] .
+:Cl_AirMovingAroundAirfoilTipEvent rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_TipVortex ] .
+:Cl_PressureDifferentialReduction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_TaperedAirfoilTip ] .
+:Cl_PressureDifferentialReduction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_PressureDifferential ] .
+:Cl_AirfoilTip rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_LeadingEdge ] .
+:Cl_AirfoilTip rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_TrailingEdge ] .
+:Cl_AirfoilTip rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPart ; owl:someValuesFrom :Cl_UpperSurface ] .
+
+
+:Cl_AerodynamicInteraction a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_AerodynamicEffect a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_FlightOperation a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_Airflow a owl:Class ;
+    rdfs:subClassOf :Cl_Flow .
+:Cl_Wingtip a owl:Class ;
+    rdfs:subClassOf :Cl_CliftGenerationSituation .
+:Cl_AdjacentSurfaceRegion a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_SurfaceGeometryChange a owl:Class ;
+    rdfs:subClassOf :Cl_CausalEffect .
+:Cl_AtmosphericConditionState a owl:Class ;
+    rdfs:subClassOf :Cl_Situation .
+:Cl_AirDensity rdfs:subClassOf :Cl_Density .
+:Cl_PressureAltitude rdfs:subClassOf :Cl_Altitude .
+:Cl_DensityAltitude rdfs:subClassOf :Cl_Altitude .
+:Cl_FlightLevel rdfs:subClassOf :Cl_Altitude .
+:Cl_AngleOfAttackCondition rdfs:subClassOf :Cl_Situation .
+:Cl_Atmosphere rdfs:subClassOf :Cl_Situation .
+:Cl_Aircraft rdfs:subClassOf :Cl_Object .
+:Cl_Pilot rdfs:subClassOf :Cl_Object .
+:Cl_Wing rdfs:subClassOf :Cl_Surface .
+:Cl_AirfoilSection rdfs:subClassOf :Cl_Surface .
+:Cl_WingtipVortex rdfs:subClassOf :Cl_AerodynamicEffect .
+:Cl_Lift rdfs:subClassOf :Cl_AerodynamicEffect .
+:Cl_Drag rdfs:subClassOf :Cl_AerodynamicEffect .
+
+:hasCause rdfs:subPropertyOf :causes .
+:causalAntecedent rdfs:subPropertyOf :hasCause .
+:causalConsequent rdfs:subPropertyOf :hasOutcome .
+:hasOutcome rdfs:subPropertyOf :affects .
+:hasCondition rdfs:subPropertyOf :appliesTo .
+:hasComponent rdfs:subPropertyOf :hasPart .
+:participatesIn rdfs:subPropertyOf :affects .
+:hasParticipant rdfs:subPropertyOf :participatesIn .
+:hasPart rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:partOf rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:hasComponent rdfs:domain owl:Thing ; rdfs:range owl:Thing .
+:hasCause rdfs:domain :Cl_CausalEffect ; rdfs:range owl:Thing .
+:causalAntecedent rdfs:domain :Cl_CausalEffect ; rdfs:range owl:Thing .
+:causalConsequent rdfs:domain :Cl_CausalEffect ; rdfs:range owl:Thing .
+:hasOutcome rdfs:domain :Cl_CausalEffect ; rdfs:range owl:Thing .
+:hasCondition rdfs:domain :Cl_Situation ; rdfs:range owl:Thing .
+:hasParticipant rdfs:domain :Cl_Situation ; rdfs:range owl:Thing .
+:participatesIn rdfs:domain owl:Thing ; rdfs:range :Cl_Situation .
+:hasCause owl:inverseOf :causalConsequent .
+:hasPart owl:inverseOf :partOf .
+:hasParticipant owl:inverseOf :participatesIn .
+
+:hasAircraftPart a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Aircraft ;
+    rdfs:range owl:Thing .
+:hasWing a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasAircraftPart ;
+    rdfs:domain :Cl_Aircraft ;
+    rdfs:range :Cl_Wing .
+:hasAirfoilSection a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasSection ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AirfoilSection .
+:hasAngleOfAttackQuantity a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_AngleOfAttackQuantity .
+:hasAtmosphericCondition a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasCondition ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_AtmosphericCondition .
+:hasAirDensity a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_AirDensity .
+:hasPressureAltitude a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_PressureAltitude .
+:hasDensityAltitude a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_DensityAltitude .
+:hasFlightOperation a owl:ObjectProperty ;
+    rdfs:subPropertyOf :participatesIn ;
+    rdfs:domain :Cl_Pilot ;
+    rdfs:range :Cl_FlightOperation .
+:hasInteraction a owl:ObjectProperty ;
+    rdfs:subPropertyOf :participatesIn ;
+    rdfs:domain :Cl_Airflow ;
+    rdfs:range :Cl_AerodynamicInteraction .
+:hasOutcomeForce a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasOutcome ;
+    rdfs:domain :Cl_AerodynamicInteraction ;
+    rdfs:range :Cl_AerodynamicForce .
+:hasSurfaceGeometry a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_Surface .
+:hasBoundaryLayer a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasCondition ;
+    rdfs:domain :Cl_Airfoil ;
+    rdfs:range :Cl_BoundaryLayer .
+:hasWingtip a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasPart ;
+    rdfs:domain :Cl_Wing ;
+    rdfs:range :Cl_Wingtip .
+:adjacentSurface a owl:ObjectProperty ;
+    rdfs:subPropertyOf :adjacentTo ;
+    rdfs:domain :Cl_BoundaryLayer ;
+    rdfs:range :Cl_Surface .
+:hasAtmosphericPressure a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_AtmosphericPressure .
+:hasTemperature a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain :Cl_Atmosphere ;
+    rdfs:range :Cl_Temperature .
+:hasViscosity rdfs:domain :Cl_Fluid ; rdfs:range :Cl_ViscosityQuantity .
+:hasDensity rdfs:domain :Cl_Fluid ; rdfs:range :Cl_DensityQuantity .
+:hasPressure rdfs:domain :Cl_Fluid ; rdfs:range :Cl_Pressure .
+:hasWingtipVortex a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasOutcome ;
+    rdfs:domain :Cl_Wing ;
+    rdfs:range :Cl_WingtipVortex .
+:causesLift a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_AerodynamicInteraction ;
+    rdfs:range :Cl_Lift .
+:causesDrag a owl:ObjectProperty ;
+    rdfs:subPropertyOf :causes ;
+    rdfs:domain :Cl_AerodynamicInteraction ;
+    rdfs:range :Cl_Drag .
+:dependsOnAtmosphericState a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AirDensity ;
+    rdfs:range :Cl_AtmosphericCondition .
+:influencesAirDensity a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_Altitude ;
+    rdfs:range :Cl_AirDensity .
+:influencesLift a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AngleOfAttackQuantity ;
+    rdfs:range :Cl_Lift .
+:influencesDrag a owl:ObjectProperty ;
+    rdfs:subPropertyOf :affects ;
+    rdfs:domain :Cl_AngleOfAttackQuantity ;
+    rdfs:range :Cl_Drag .
+:hasMeasurableQuantity a owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQuantity ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_QuantityAssertion .
+
+:Cl_Aircraft rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasWing ; owl:someValuesFrom :Cl_Wing ] .
+:Cl_Wing rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasWingtip ; owl:someValuesFrom :Cl_Wingtip ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasAirfoilSection ; owl:someValuesFrom :Cl_AirfoilSection ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasSurfaceGeometry ; owl:someValuesFrom :Cl_Surface ] .
+:Cl_Airfoil rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasBoundaryLayer ; owl:someValuesFrom :Cl_BoundaryLayer ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasAtmosphericCondition ; owl:someValuesFrom :Cl_AtmosphericCondition ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasAtmosphericPressure ; owl:someValuesFrom :Cl_AtmosphericPressure ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasTemperature ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasAirDensity ; owl:someValuesFrom :Cl_AirDensity ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPressureAltitude ; owl:someValuesFrom :Cl_PressureAltitude ] .
+:Cl_Atmosphere rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasDensityAltitude ; owl:someValuesFrom :Cl_DensityAltitude ] .
+:Cl_BoundaryLayer rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :adjacentSurface ; owl:someValuesFrom :Cl_Surface ] .
+:Cl_BoundaryLayer rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Viscosity ] .
+:Cl_AerodynamicInteraction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Airflow ] .
+:Cl_AerodynamicInteraction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_AerodynamicInteraction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcomeForce ; owl:someValuesFrom :Cl_AerodynamicForce ] .
+:Cl_AerodynamicInteraction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causesLift ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_AerodynamicInteraction rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causesDrag ; owl:someValuesFrom :Cl_Drag ] .
+:Cl_Lift rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_AerodynamicInteraction ] .
+:Cl_Drag rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_BoundaryLayer ] .
+:Cl_Drag rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_Viscosity ] .
+:Cl_WingtipVortex rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_Wingtip ] .
+:Cl_WingtipVortex rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCause ; owl:someValuesFrom :Cl_Airflow ] .
+:Cl_AngleOfAttackCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AngleOfAttackQuantity ] .
+:Cl_AngleOfAttackCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influencesLift ; owl:someValuesFrom :Cl_Lift ] .
+:Cl_AngleOfAttackCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influencesDrag ; owl:someValuesFrom :Cl_Drag ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :dependsOnAtmosphericState ; owl:someValuesFrom :Cl_AtmosphericCondition ] .
+:Cl_AirDensity rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :influencesPerformance ; owl:someValuesFrom :Cl_AircraftPerformance ] .
+:Cl_PressureAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :measuredFrom ; owl:someValuesFrom :Cl_StandardAtmosphere ] .
+:Cl_DensityAltitude rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :correctedFor ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_FlightOperation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Pilot ] .
+:Cl_FlightOperation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasParticipant ; owl:someValuesFrom :Cl_Aircraft ] .
+:Cl_FlightOperation rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Atmosphere ] .
+:Cl_Airflow rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :flowsOver ; owl:someValuesFrom :Cl_Surface ] .
+:Cl_Airflow rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Atmosphere ] .
+:Cl_SurfaceGeometryChange rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutcome ; owl:someValuesFrom :Cl_Airfoil ] .
+:Cl_SurfaceGeometryChange rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :causes ; owl:someValuesFrom :Cl_AerodynamicInteraction ] .
+:Cl_AtmosphericConditionState rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_AtmosphericPressure ] .
+:Cl_AtmosphericConditionState rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_AtmosphericConditionState rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Density ] .
+:Cl_AtmosphericConditionState rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Altitude ] .
+:Cl_AtmosphereCondition rdfs:subClassOf :Cl_AtmosphericConditionState .
+:Cl_StandardAtmosphere rdfs:subClassOf :Cl_AtmosphereConditionState .
+:Cl_AtmosphereCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Pressure ] .
+:Cl_AtmosphereCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Density ] .
+:Cl_AtmosphereCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Temperature ] .
+:Cl_AtmosphereCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_Altitude ] .
+:Cl_AtmosphereCondition rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasCondition ; owl:someValuesFrom :Cl_StandardAtmosphere ] .
+:Cl_Pilot rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :participatesIn ; owl:someValuesFrom :Cl_FlightOperation ] .
+:Cl_Aircraft rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :participatesIn ; owl:someValuesFrom :Cl_FlightOperation ] .
