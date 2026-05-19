@@ -43,10 +43,53 @@ def _write_project_fixture(root: Path) -> Path:
     index_path.write_text(
         json.dumps(
             {
+                "current_active_artifacts": {
+                    "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.md",
+                    "kg_validation": "reports/stages/kg_validation.md",
+                },
                 "categories": {
                     "ontology_evaluation": [{"path": "reports/archive/ontology.json"}],
                     "rag_experiments": [{"path": "reports/archive/chunking.json"}],
                 }
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (root / "reports" / "stages" / "curated_ontology_evaluation.md").write_text(
+        "# Curated ontology\n",
+        encoding="utf-8",
+    )
+    (root / "reports" / "stages" / "curated_ontology_evaluation.json").write_text(
+        json.dumps(
+            {
+                "structural_metrics": {
+                    "triples": 188,
+                    "classes": 35,
+                    "object_properties": 9,
+                    "tbox_only": True,
+                    "class_label_coverage": 1.0,
+                },
+                "judgment": {
+                    "valid_tbox_prototype": True,
+                    "publication_ready_ontology": False,
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (root / "reports" / "stages" / "kg_validation.md").write_text(
+        "# KG Validation\n",
+        encoding="utf-8",
+    )
+    (root / "reports" / "stages" / "kg_validation.json").write_text(
+        json.dumps(
+            {
+                "kg_path": "data/kg/test.kg.jsonl",
+                "ontology_path": "data/ontology/curated/test.ttl",
+                "triples_total": 3,
+                "errors_total": 0,
             }
         )
         + "\n",
@@ -66,6 +109,7 @@ def test_project_evidence_pack_reads_index_configs_and_goal(tmp_path: Path) -> N
     assert evidence["stage_index"]["present"]
     assert evidence["readme"]["present"]
     assert evidence["course_goal"]["present"]
+    assert evidence["current_artifacts"]["kg_validation_json"]["data"]["triples_total"] == 3
     assert evidence["configs"]["default"]["data"]["retrieval"]["vector_top_k"] == 5
     assert not evidence["source_policy"]["env_files_read"]
 
@@ -85,6 +129,7 @@ def test_deterministic_project_report_needs_no_ai(tmp_path: Path) -> None:
     markdown = md_path.read_text(encoding="utf-8")
     assert "Aviation Agentic AI Project Report" in markdown
     assert "Hybrid RAG protocol and layered metrics" in markdown
+    assert "Triples=3" in markdown
 
 
 def test_ai_project_report_uses_mock_llm_and_prompt_constraints(tmp_path: Path) -> None:
@@ -183,4 +228,3 @@ def test_cli_report_project_ai_uses_writer_flag(tmp_path: Path, monkeypatch) -> 
     assert result.exit_code == 0, result.output
     assert calls["use_ai"] is True
     assert "Generated AI-polished project report" in result.output
-

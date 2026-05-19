@@ -77,6 +77,31 @@ def _read_json_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dict[st
     }
 
 
+def _read_artifact_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    if path.suffix == ".json":
+        return _read_json_source(path, base=base)
+    if path.suffix in {".yaml", ".yml"}:
+        return _read_yaml_source(path, base=base)
+    return _read_text_source(path, base=base, max_chars=8000)
+
+
+def _read_current_artifacts(
+    root: Path,
+    current_artifacts: dict[str, Any],
+) -> dict[str, Any]:
+    sources: dict[str, Any] = {}
+    for key, rel_path in current_artifacts.items():
+        if not isinstance(rel_path, str):
+            continue
+        path = root / rel_path
+        sources[key] = _read_artifact_source(path, base=root)
+        if path.suffix == ".md":
+            json_path = path.with_suffix(".json")
+            if json_path.exists():
+                sources[f"{key}_json"] = _read_json_source(json_path, base=root)
+    return sources
+
+
 def build_project_evidence_pack(
     *,
     project_root: str | Path = PROJECT_ROOT,
@@ -101,12 +126,18 @@ def build_project_evidence_pack(
                 base=root,
             ),
         }
+    current_artifacts = stage_index.get("data", {}).get("current_active_artifacts", {})
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "report_sections": list(PROJECT_REPORT_SECTIONS),
         "advisory_boundary": ADVISORY_BOUNDARY,
         "stage_index": stage_index,
+        "current_artifacts": _read_current_artifacts(root, current_artifacts)
+        if isinstance(current_artifacts, dict)
+        else {},
         "readme": _read_text_source(root / "README.md", base=root),
+        "goals": _read_text_source(root / "GOALS.md", base=root),
+        "tasks": _read_text_source(root / "TASKS.md", base=root),
         "course_goal": _read_text_source(root / "tmp" / "goal.md", base=root),
         "configs": {
             "default": _read_yaml_source(root / "configs" / "default.yaml", base=root),
@@ -134,8 +165,19 @@ def _present_marker(source: dict[str, Any]) -> str:
 def build_project_report_draft(evidence: dict[str, Any]) -> str:
     stage_index = evidence.get("stage_index", {}).get("data", {})
     categories = stage_index.get("categories", {})
+    current_artifacts = stage_index.get("current_active_artifacts", {})
+    artifact_sources = evidence.get("current_artifacts", {})
+    curated_eval = artifact_sources.get("curated_ontology_evaluation_json", {}).get("data", {})
+    kg_validation = artifact_sources.get("kg_validation_json", {}).get("data", {})
+    structural = curated_eval.get("structural_metrics", {}) if isinstance(curated_eval, dict) else {}
+    judgment = curated_eval.get("judgment", {}) if isinstance(curated_eval, dict) else {}
     config_default = evidence.get("configs", {}).get("default", {}).get("data", {})
     retrieval_config = config_default.get("retrieval", {}) if isinstance(config_default, dict) else {}
+    ontology_path = current_artifacts.get("active_ontology", "TBD")
+    ontology_design = current_artifacts.get("ontology_design", "TBD")
+    kg_path = kg_validation.get("kg_path", current_artifacts.get("validated_kg", "TBD"))
+    kg_triples = kg_validation.get("triples_total", "TBD")
+    kg_errors = kg_validation.get("errors_total", "TBD")
     lines = [
         "# Aviation Agentic AI Project Report",
         "",
@@ -155,15 +197,26 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "",
         "## Ontology/TBox generation and evaluation",
         "",
-        f"Stage index category count: {len(categories.get('ontology_evaluation', []))}. "
-        "Detailed completed metrics should be cited from the archived ontology evaluation "
-        "artifacts listed in the stage index.",
+        f"The active ontology is `{ontology_path}`, with design rationale in "
+        f"`{ontology_design}`. It replaces the historical baseline as the explainable "
+        "schema used for KG extraction.",
+        f"Curated ontology metrics: triples={structural.get('triples', 'TBD')}, "
+        f"classes={structural.get('classes', 'TBD')}, object_properties="
+        f"{structural.get('object_properties', 'TBD')}, TBox-only="
+        f"{structural.get('tbox_only', 'TBD')}, label coverage="
+        f"{structural.get('class_label_coverage', 'TBD')}.",
+        f"Ontology judgment: valid TBox prototype="
+        f"{judgment.get('valid_tbox_prototype', 'TBD')}, publication-ready="
+        f"{judgment.get('publication_ready_ontology', 'TBD')}.",
+        f"Historical ontology evaluation artifacts indexed: "
+        f"{len(categories.get('ontology_evaluation', []))}.",
         "",
         "## KG/ABox extraction and validation",
         "",
         "The KG stage is designed around focused triples with provenance and deterministic "
-        "validation against the extraction profile. If no validated KG experiment report is "
-        "listed in the evidence pack, mark end-to-end KG results as Not yet run.",
+        "validation against the extraction profile.",
+        f"Validated KG artifact: `{kg_path}`. Triples={kg_triples}; validation errors="
+        f"{kg_errors}; ontology constraint=`{kg_validation.get('ontology_path', ontology_path)}`.",
         "",
         "## Chunking comparison design",
         "",
