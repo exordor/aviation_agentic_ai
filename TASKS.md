@@ -15,12 +15,13 @@ A task should be small enough to finish, verify, and check off. When a task prod
 
 ## Active Task Queue
 
-1. Run the final quality gate and commit/push the current experiment evidence.
-2. Add GitLab CI for `ruff` and `pytest` if more automation is needed.
-3. Optional: mirror high-priority tasks into GitLab issues after the repository is stable.
-4. Optional next research step: expand beyond PHAK Chapter 4 only after document metadata and section schema are applied.
+1. Expand gold labels from 10 reviewed boundary CQs to 30-50 chunk/span-level evaluation questions.
+2. Implement retrieval ablation reports for vector, graph, hybrid, graph hops, and top-k settings.
+3. Add KG extraction quality experiments for model/settings/chunking comparisons.
+4. Add answer-level and robustness evaluation before expanding beyond PHAK Chapter 4.
+5. Add cost/latency tracking so structure-aware quality gains can be compared with extraction/index/query cost.
 
-Related goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.
+Related goals: G2, G3, G4, G6, G8, G9 in `GOALS.md`.
 
 ## P0 - Immediate Reproducibility Tasks
 
@@ -105,7 +106,7 @@ Related goals: G3, G4, G6, G8.
   - Acceptance: report identifies whether misses come from page boundaries, sentence breaks, section structure, or embedding mismatch.
 - [x] Analyze GraphRAG tradeoffs.
   - Current evidence: fixed-window hybrid improved graph Recall@5 by +0.1 but trailed vector-only by -0.1; structure-aware hybrid matches vector-only Recall@5 while preserving KG evidence coverage.
-  - Evidence-level result: structure-aware hybrid supported 9 answers versus 7 for fixed-window hybrid.
+  - Evidence-level result: structure-aware hybrid supported 9 answers versus 8 for fixed-window hybrid.
   - Acceptance: report explains when graph retrieval improves evidence coverage, when vector retrieval is sufficient, and when KG sparsity limits hybrid gains.
 - [x] Select the default chunking strategy for the next project phase.
   - Decision: `structure_aware`, because it improves vector MRR/precision, structure-aware Hybrid RAG reaches Recall@5 = 1.0 with KG evidence coverage = 0.9, and evidence-level evaluation shows more supported answers.
@@ -158,7 +159,51 @@ Related goals: G1, G5, G6, G7, G8.
   - Evidence: Ruff passed; Pytest passed with 116 tests; PPT layout check reported 0 errors/0 warnings; `unzip -t` reported no PPTX archive errors; refined secret scan found no committed secrets.
   - Acceptance: checks pass and only intentional files are changed.
 
-## P3 - Automation And GitLab Tasks
+## P3 - Experimental Expansion Tasks
+
+Related goals: G2, G3, G4, G6, G8, G9.
+
+- [ ] Expand the gold label set to 30-50 evaluation questions.
+  - Candidate output: `data/cqs/06_phak_ch4_0.expanded.gold.json`.
+  - Scope: include topic coverage for atmosphere, air density, pressure/temperature, viscosity, boundary layer, Newton laws, Bernoulli, airfoil geometry, lift, angle of attack, wingtip vortices, and induced drag.
+  - Required fields: `gold_level`, `source_page`, `expected_chunk_ids`, `evidence_spans`, `key_entities`, `answer_key`, `question_type`.
+  - Include at least 5 no-answer or insufficient-evidence questions to test abstention.
+  - Acceptance: loader and metrics can evaluate page/chunk/span/no-answer labels without API keys.
+- [ ] Implement retrieval ablation experiment reporting.
+  - Candidate command: `uv run aviation-ai report retrieval-ablation`.
+  - Modes/settings: vector-only, graph-only, hybrid RRF, hybrid with graph disabled, `graph_hops` variants, `vector_top_k` variants, `hybrid_top_k` variants.
+  - Metrics: Recall@5, MRR@5, Context Precision@5, first relevant rank, source-page hits, chunk/span hits, and KG evidence coverage.
+  - Acceptance: report explains where graph evidence helps, where vector is sufficient, and where hybrid fusion hurts page-level recall.
+- [ ] Implement KG extraction quality comparison.
+  - Candidate command: `uv run aviation-ai report kg-extraction-comparison`.
+  - Variables: `fixed_window` vs `structure_aware`, model name, max token setting, prompt strictness, dry-run seed triples versus live extraction.
+  - Metrics: valid triples, unsupported class/property count, provenance completeness, evidence-in-chunk rate, duplicate/near-duplicate triples, key-entity coverage, cost/time.
+  - Acceptance: report identifies whether extra structure-aware triples improve useful evidence or mainly add noise/cost.
+- [ ] Implement answer-level evaluation report.
+  - Candidate command: `uv run aviation-ai report answer-eval`.
+  - Metrics: citation correctness, citation completeness, answer faithfulness, answer relevance, abstention correctness, advisory-boundary violation count.
+  - Inputs: Hybrid RAG reports plus expanded gold labels.
+  - Acceptance: answer quality remains a separate layer and is not merged with retrieval or KG metrics into one score.
+- [ ] Add paraphrase and robustness benchmark.
+  - Candidate output: `data/cqs/06_phak_ch4_0.robustness.json`.
+  - Cases: paraphrased CQs, terminology substitution, ambiguous questions, cross-page questions, and unsupported questions.
+  - Metrics: retrieval stability, answer stability, citation stability, KG evidence stability, abstention correctness.
+  - Acceptance: report identifies whether the current system overfits the original boundary CQ wording.
+- [ ] Compare embedding/index options.
+  - Candidate command: `uv run aviation-ai report embedding-comparison`.
+  - Variables: current Chroma default embedding versus at least one configured external/local embedding backend if available.
+  - Metrics: retrieval quality, index build time, query latency, index size, and reproducibility notes.
+  - Acceptance: default embedding choice is justified by quality/cost/stability, not assumed.
+- [ ] Add cost and latency tracking to experiment manifests.
+  - Candidate output: extend run manifest schema and reports.
+  - Track: chunk build time, KG extraction elapsed time, LLM token usage where available, Chroma index build time, query latency, report runtime, collection size.
+  - Acceptance: structure-aware quality gains can be discussed alongside cost and runtime overhead.
+- [ ] Define the next-document expansion protocol.
+  - Candidate output: `docs/document_expansion_protocol.md`.
+  - Scope: document metadata, section schema, source type, revision/date, page range, section hierarchy, and advisory risk level.
+  - Acceptance: no emergency/procedure manual is added until its metadata and section schema can be validated.
+
+## P4 - Automation And GitLab Tasks
 
 Related goals: G5.
 

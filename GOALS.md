@@ -152,6 +152,28 @@ GraphRAG should be defended as structured evidence coverage rather than a simple
 page-level Recall winner; and the web demo is offline-first by default for
 reproducible review.
 
+## G9 - Experimental Expansion And Robustness
+
+Extend the current proof-of-pipeline experiments into a stronger evaluation suite that can support more defensible research claims about GraphRAG value.
+
+Rationale:
+
+- The current experiment proves that the system works end to end on 10 boundary CQs.
+- Stronger claims require more gold labels, retrieval ablations, KG extraction comparisons, answer-level evaluation, and robustness checks.
+- The project should keep retrieval quality, KG evidence quality, answer faithfulness, cost, and safety boundary behavior as separate experiment layers.
+
+Success criteria:
+
+- Gold labels expand from 10 boundary CQs to a larger set of 30-50 questions with chunk/span evidence, key entities, and no-answer or insufficient-evidence cases.
+- Retrieval ablations compare vector-only, graph-only, hybrid RRF, hybrid with graph disabled, different graph hops, and different top-k settings.
+- KG extraction experiments compare fixed-window and structure-aware chunks, model choice, max-token settings, prompt strictness, provenance completeness, and unsupported triple rejection.
+- Answer-level evaluation records citation correctness, faithfulness, answer relevance, abstention correctness, and advisory-boundary violations without creating a single mixed score.
+- Robustness tests include paraphrased CQs, terminology variation, cross-page questions, ambiguous questions, and insufficient-evidence questions.
+- Cost and latency reports record chunk build time, KG extraction cost/time, index build time, query latency, token usage, and collection/index size.
+- Dataset expansion beyond PHAK Chapter 4 only starts after document metadata and section schema are enforced for each new source.
+
+Current status: planned. The current reviewed 10-CQ experiment is the baseline; the next phase should expand evaluation breadth before adding live flight context or operational advisory behavior.
+
 ## Current Non-Goals
 
 - Do not build a production cockpit assistant in this phase.
@@ -173,3 +195,4 @@ reproducible review.
 | G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
 | G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TASKS.md` P2 |
 | G8 | final report, academic report, comparison reports, defense notes, defense PPT | `TASKS.md` P1/P2 |
+| G9 | expanded gold labels, ablation reports, robustness reports, cost/latency reports | `TASKS.md` P3 |
