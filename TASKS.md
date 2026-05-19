@@ -122,8 +122,8 @@ Related goals: G1, G5, G6, G7, G8.
 - [x] Implement a minimal web interface demonstrator.
   - Command: `uv run aviation-ai web serve`
   - Evidence: `reports/stages/web_demo_readiness.md`
-  - Scope: offline-first FastAPI page with macOS-style sidebar question list, fixed-window/structure-aware comparison, vector/graph/hybrid toolbar controls, answer panel, citation/evidence chunks, KG triple evidence, metrics, and advisory boundary notice.
-  - Acceptance: reviewer can run it locally and see the pipeline output without reading raw JSON reports.
+  - Scope: offline-first FastAPI page with macOS-style sidebar question list, fixed-window/structure-aware comparison, vector/graph/hybrid toolbar controls, answer panel, citation/evidence chunks, KG triple evidence, question-scoped KG relationship graph, metrics, and advisory boundary notice.
+  - Acceptance: reviewer can run it locally, inspect retrieved KG relationships for each CQ, and see the pipeline output without reading raw JSON reports.
 - [~] Add web interface run instructions and screenshots or smoke-test evidence.
   - Current evidence: README includes `uv sync --extra dev --extra graphrag --extra web` and `uv run aviation-ai web serve`.
   - Current smoke evidence: local browser check confirmed the default structure-aware hybrid view loads with answer, chunks, and KG triples.

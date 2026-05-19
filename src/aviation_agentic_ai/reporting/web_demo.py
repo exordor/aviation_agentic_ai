@@ -38,6 +38,23 @@ def _artifact_readiness(project_root: str | Path) -> dict[str, dict[str, Any]]:
     }
 
 
+def _kg_graph_sample(report: dict[str, Any] | None) -> dict[str, Any]:
+    if not report:
+        return {}
+    for record in report.get("records", []):
+        if not isinstance(record, dict):
+            continue
+        hybrid = _metric_value(record, "results", "hybrid", default={})
+        triples = hybrid.get("graph_triples", []) if isinstance(hybrid, dict) else []
+        if triples:
+            return {
+                "cq_id": record.get("cq_id"),
+                "mode": "hybrid",
+                "triple_count": len(triples),
+            }
+    return {}
+
+
 def build_web_demo_readiness(
     project_root: str | Path = PROJECT_ROOT,
 ) -> dict[str, Any]:
@@ -45,6 +62,8 @@ def build_web_demo_readiness(
     artifacts = _artifact_readiness(root)
     evidence_eval = _read_json(root / ARTIFACTS["evidence_level_evaluation"])
     graphrag_review = _read_json(root / ARTIFACTS["graphrag_review"])
+    structure_report = _read_json(root / ARTIFACTS["structure_aware_hybrid"])
+    kg_graph_sample = _kg_graph_sample(structure_report)
     structure_ready = (
         artifacts["structure_aware_hybrid"]["present"]
         and artifacts["structure_aware_kg"]["present"]
@@ -81,6 +100,7 @@ def build_web_demo_readiness(
         "evidence_level_ready": evidence_ready,
         "advisory_boundary_defined": bool(ADVISORY_BOUNDARY),
         "graphrag_review_ready": graphrag_review is not None,
+        "question_scoped_kg_graph_ready": bool(kg_graph_sample),
     }
     return {
         "metadata": {
@@ -98,17 +118,27 @@ def build_web_demo_readiness(
             "structure_aware_hybrid": structure_hybrid_eval,
             "summary": build_experiment_summary(root),
         },
+        "kg_graph": {
+            "ready": bool(kg_graph_sample),
+            "scope": "question_scoped_retrieved_evidence",
+            "default_experiment": "structure_aware",
+            "default_mode": "hybrid",
+            "sample": kg_graph_sample,
+        },
         "advisory_boundary": ADVISORY_BOUNDARY,
         "demo_script": [
             "Open the local FastAPI web demo.",
             "Confirm artifact readiness and advisory boundary in the sidebar.",
             "Select a boundary CQ and compare vector, graph, and hybrid evidence.",
+            "Use the KG relationship graph to explain retrieved structured evidence.",
             "Switch between structure-aware and fixed-window experiments.",
             "Explain GraphRAG as structured KG evidence support, not a single-score winner.",
         ],
         "ui_smoke_checklist": [
             "macOS-style sidebar question list is visible.",
             "Top toolbar exposes strategy and retrieval mode segmented controls.",
+            "Question-scoped KG graph renders nodes and edges for structure_aware + hybrid.",
+            "Vector mode shows a clear empty state for KG graph evidence.",
             "Answer, gold label, chunk evidence, and KG triple evidence remain readable.",
             "Default selection is structure_aware + hybrid.",
             "Narrow viewport does not overlap controls or evidence text.",
@@ -136,6 +166,7 @@ def write_web_demo_readiness_markdown(
     path.parent.mkdir(parents=True, exist_ok=True)
     fixed = result["metrics"]["fixed_window_hybrid"]
     structure = result["metrics"]["structure_aware_hybrid"]
+    kg_graph = result["kg_graph"]
     lines = [
         "# Web Demo Readiness",
         "",
@@ -168,6 +199,15 @@ def write_web_demo_readiness_markdown(
             f"{structure.get('span_hit_rate', 'TBD')} | "
             f"{structure.get('kg_triple_relevance', 'TBD')} | "
             f"{structure.get('answer_support_distribution', {}).get('supported', 'TBD')} |",
+            "",
+            "## KG Graph Readiness",
+            "",
+            f"- Ready: {kg_graph['ready']}",
+            f"- Scope: `{kg_graph['scope']}`",
+            f"- Default: `{kg_graph['default_experiment']}` + `{kg_graph['default_mode']}`",
+            "- Sample: "
+            f"`{kg_graph.get('sample', {}).get('cq_id', 'TBD')}` with "
+            f"{kg_graph.get('sample', {}).get('triple_count', 'TBD')} triples",
             "",
             "## Demo Script",
             "",

@@ -235,11 +235,13 @@ uv run aviation-ai kg validate --chunks tmp/smoke-chunks.jsonl --kg-file tmp/smo
 The local web demo is an offline-first FastAPI dashboard for reviewing the
 GraphRAG pipeline evidence. The UI follows a macOS-style utility layout with a
 sidebar question list, compact toolbar controls, an answer workspace, and
-separate chunk/KG evidence inspectors. By default it reads committed reports, KG
+separate chunk/KG evidence inspectors. It also includes a question-scoped KG
+relationship graph that visualizes the retrieved triples for the selected CQ,
+strategy, and retrieval mode. By default it reads committed reports, KG
 artifacts, gold labels, and Hybrid RAG outputs instead of calling the LLM. This
 keeps the review demo reproducible and lets a reviewer inspect answers,
-retrieved chunks, KG triples, citations, evidence-level metrics, and the
-advisory boundary from a browser.
+retrieved chunks, KG triples, citations, evidence-level metrics, structured
+relationships, and the advisory boundary from a browser.
 
 Install the optional web dependencies and run the readiness check:
 

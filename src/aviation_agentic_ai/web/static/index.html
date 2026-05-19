@@ -77,6 +77,28 @@
           </aside>
         </section>
 
+        <section class="panel kg-graph-panel" aria-labelledby="kg-graph-title">
+          <div class="section-heading">
+            <h3 id="kg-graph-title">KG Relationship Graph</h3>
+            <div class="graph-counts">
+              <span id="kg-node-count" class="count">0 nodes</span>
+              <span id="kg-edge-count" class="count">0 edges</span>
+            </div>
+          </div>
+          <div class="graph-layout">
+            <div class="graph-canvas">
+              <svg
+                id="kg-graph-svg"
+                viewBox="0 0 720 320"
+                role="img"
+                aria-label="Question-scoped KG relationship graph"
+              ></svg>
+              <div id="kg-graph-empty" class="graph-empty">No KG triples for this mode.</div>
+            </div>
+            <dl id="kg-graph-detail" class="graph-detail"></dl>
+          </div>
+        </section>
+
         <section class="evidence-grid">
           <article class="panel">
             <div class="section-heading">

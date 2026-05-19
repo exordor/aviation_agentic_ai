@@ -14,6 +14,7 @@ from aviation_agentic_ai.web.data import (
     build_demo_status,
     build_experiment_summary,
     build_question_detail,
+    build_question_kg_graph,
     build_questions,
 )
 
@@ -67,6 +68,20 @@ def create_app(
         if detail is None:
             raise HTTPException(status_code=404, detail=f"Unknown CQ id: {cq_id}")
         return detail
+
+    @app.get("/api/questions/{cq_id}/kg-graph")
+    def question_kg_graph(
+        cq_id: str,
+        experiment: Literal["fixed_window", "structure_aware"] = "structure_aware",
+        mode: Literal["vector", "graph", "hybrid"] = "hybrid",
+    ):
+        try:
+            graph = build_question_kg_graph(cq_id, root, experiment=experiment, mode=mode)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        if graph is None:
+            raise HTTPException(status_code=404, detail=f"Unknown CQ id: {cq_id}")
+        return graph
 
     @app.get("/api/experiments/summary")
     def experiments_summary():

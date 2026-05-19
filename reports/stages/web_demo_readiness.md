@@ -24,11 +24,19 @@
 | fixed_window | 0.8 | 0.8 | 0.9 | 7 |
 | structure_aware | 0.9 | 0.8 | 0.9 | 9 |
 
+## KG Graph Readiness
+
+- Ready: True
+- Scope: `question_scoped_retrieved_evidence`
+- Default: `structure_aware` + `hybrid`
+- Sample: `06-phak-ch4-0-p00-fa9830b888` with 8 triples
+
 ## Demo Script
 
 - Open the local FastAPI web demo.
 - Confirm artifact readiness and advisory boundary in the sidebar.
 - Select a boundary CQ and compare vector, graph, and hybrid evidence.
+- Use the KG relationship graph to explain retrieved structured evidence.
 - Switch between structure-aware and fixed-window experiments.
 - Explain GraphRAG as structured KG evidence support, not a single-score winner.
 
@@ -36,6 +44,8 @@
 
 - macOS-style sidebar question list is visible.
 - Top toolbar exposes strategy and retrieval mode segmented controls.
+- Question-scoped KG graph renders nodes and edges for structure_aware + hybrid.
+- Vector mode shows a clear empty state for KG graph evidence.
 - Answer, gold label, chunk evidence, and KG triple evidence remain readable.
 - Default selection is structure_aware + hybrid.
 - Narrow viewport does not overlap controls or evidence text.

@@ -11,6 +11,8 @@ from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 STRUCTURE_AWARE_CHUNKS = "data/chunks/06_phak_ch4_0.structure_aware.jsonl"
 STRUCTURE_AWARE_KG = "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"
 STRUCTURE_AWARE_COLLECTION = "phak_ch4_chunks_structure_aware"
+SUPPORTED_EXPERIMENTS = {"fixed_window", "structure_aware"}
+SUPPORTED_MODES = {"vector", "graph", "hybrid"}
 
 
 ARTIFACTS = {
@@ -112,8 +114,10 @@ def _compact_triple(triple: dict[str, Any]) -> dict[str, Any]:
     return {
         "triple_id": triple.get("triple_id"),
         "subject": triple.get("subject"),
+        "subject_class": triple.get("subject_class"),
         "predicate": triple.get("predicate"),
         "object": triple.get("object"),
+        "object_class": triple.get("object_class"),
         "chunk_id": triple.get("chunk_id"),
         "page": triple.get("page"),
         "rank": triple.get("rank"),
@@ -264,6 +268,106 @@ def build_question_detail(
                 structure_eval.get(cq_id),
             ),
         },
+    }
+
+
+def _node_label(node_id: str) -> str:
+    label = node_id.removeprefix("Cl_").removeprefix("Kg_")
+    return label.replace("_", " ")
+
+
+def _sorted_values(values: set[Any]) -> list[Any]:
+    return sorted(values, key=lambda value: str(value))
+
+
+def build_question_kg_graph(
+    cq_id: str,
+    project_root: str | Path = PROJECT_ROOT,
+    *,
+    experiment: str = "structure_aware",
+    mode: str = "hybrid",
+) -> dict[str, Any] | None:
+    if experiment not in SUPPORTED_EXPERIMENTS:
+        raise ValueError(f"Unsupported experiment: {experiment}")
+    if mode not in SUPPORTED_MODES:
+        raise ValueError(f"Unsupported retrieval mode: {mode}")
+
+    detail = build_question_detail(cq_id, project_root)
+    if detail is None:
+        return None
+
+    payload = (
+        detail.get("experiments", {})
+        .get(experiment, {})
+        .get("modes", {})
+        .get(mode, {})
+    )
+    triples = payload.get("graph_triples", []) if isinstance(payload, dict) else []
+    nodes: dict[str, dict[str, Any]] = {}
+    node_pages: dict[str, set[Any]] = {}
+    edges: list[dict[str, Any]] = []
+
+    def ensure_node(node_id: str, class_name: Any, page: Any) -> None:
+        if node_id not in nodes:
+            nodes[node_id] = {
+                "id": node_id,
+                "label": _node_label(node_id),
+                "class": class_name or "Concept",
+                "degree": 0,
+                "source_pages": [],
+            }
+            node_pages[node_id] = set()
+        if page is not None:
+            node_pages[node_id].add(page)
+
+    for index, triple in enumerate(triples):
+        if not isinstance(triple, dict):
+            continue
+        subject = str(triple.get("subject") or "").strip()
+        object_ = str(triple.get("object") or "").strip()
+        predicate = str(triple.get("predicate") or "").strip()
+        if not subject or not object_:
+            continue
+        page = triple.get("page")
+        ensure_node(subject, triple.get("subject_class"), page)
+        ensure_node(object_, triple.get("object_class"), page)
+        nodes[subject]["degree"] += 1
+        nodes[object_]["degree"] += 1
+        triple_id = triple.get("triple_id") or f"{cq_id}-{mode}-triple-{index + 1}"
+        edges.append(
+            {
+                "id": triple_id,
+                "source": subject,
+                "target": object_,
+                "subject": subject,
+                "object": object_,
+                "predicate": predicate,
+                "triple_id": triple_id,
+                "chunk_id": triple.get("chunk_id"),
+                "page": page,
+                "evidence_text": triple.get("evidence_text"),
+                "confidence": triple.get("confidence"),
+                "score": triple.get("score"),
+                "rank": triple.get("rank"),
+            }
+        )
+
+    for node_id, node in nodes.items():
+        node["source_pages"] = _sorted_values(node_pages[node_id])
+
+    ordered_nodes = sorted(nodes.values(), key=lambda node: (-node["degree"], node["label"]))
+    return {
+        "metadata": {
+            "cq_id": cq_id,
+            "experiment": experiment,
+            "mode": mode,
+            "graph_scope": "question_scoped_retrieved_evidence",
+            "triple_count": len(edges),
+            "edge_count": len(edges),
+            "node_count": len(ordered_nodes),
+        },
+        "nodes": ordered_nodes,
+        "edges": edges,
     }
 
 

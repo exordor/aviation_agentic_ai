@@ -19438,7 +19438,7 @@
       "truncated": true
     },
     "web_demo_readiness": {
-      "excerpt": "# Web Demo Readiness\n\n- Ready: True\n- Default strategy: `structure_aware`\n- Baseline strategy: `fixed_window`\n- Live query: disabled by default\n\n## Artifact Readiness\n\n| Artifact | Present | Path |\n| --- | ---: | --- |\n| gold_labels | True | `data/cqs/06_phak_ch4_0.gold.json` |\n| fixed_hybrid | True | `reports/stages/hybrid_rag_experiment.json` |\n| structure_aware_hybrid | True | `reports/stages/hybrid_rag_structure_aware.json` |\n| evidence_level_evaluation | True | `reports/stages/evidence_level_evaluation.json` |\n| graphrag_review | True | `reports/stages/graphrag_review.json` |\n| structure_aware_kg | True | `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl` |\n| structure_aware_chunks | True | `data/chunks/06_phak_ch4_0.structure_aware.jsonl` |\n\n## Evidence Summary\n\n| Strategy | Chunk Recall@5 | Span hit rate | KG triple relevance | Supported answers |\n| --- | ---: | ---: | ---: | ---: |\n| fixed_window | 0.8 | 0.8 | 0.9 | 7 |\n| structure_aware | 0.9 | 0.8 | 0.9 | 9 |\n\n## Demo Script\n\n- Open the local FastAPI web demo.\n- Confirm artifact readiness and advisory boundary in the sidebar.\n- Select a boundary CQ and compare vector, graph, and hybrid evidence.\n- Switch between structure-aware and fixed-window experiments.\n- Explain GraphRAG as structured KG evidence support, not a single-score winner.\n\n## Apple-Style UI Smoke Checklist\n\n- macOS-style sidebar question list is visible.\n- Top toolbar exposes strategy and retrieval mode segmented controls.\n- Answer, gold label, chunk evidence, and KG triple evidence remain readable.\n- Default selection is structure_aware + hybrid.\n- Narrow viewport does not overlap controls or evidence text.\n\n## Advisory Boundary\n\nThis system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.\n",
+      "excerpt": "# Web Demo Readiness\n\n- Ready: True\n- Default strategy: `structure_aware`\n- Baseline strategy: `fixed_window`\n- Live query: disabled by default\n\n## Artifact Readiness\n\n| Artifact | Present | Path |\n| --- | ---: | --- |\n| gold_labels | True | `data/cqs/06_phak_ch4_0.gold.json` |\n| fixed_hybrid | True | `reports/stages/hybrid_rag_experiment.json` |\n| structure_aware_hybrid | True | `reports/stages/hybrid_rag_structure_aware.json` |\n| evidence_level_evaluation | True | `reports/stages/evidence_level_evaluation.json` |\n| graphrag_review | True | `reports/stages/graphrag_review.json` |\n| structure_aware_kg | True | `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl` |\n| structure_aware_chunks | True | `data/chunks/06_phak_ch4_0.structure_aware.jsonl` |\n\n## Evidence Summary\n\n| Strategy | Chunk Recall@5 | Span hit rate | KG triple relevance | Supported answers |\n| --- | ---: | ---: | ---: | ---: |\n| fixed_window | 0.8 | 0.8 | 0.9 | 7 |\n| structure_aware | 0.9 | 0.8 | 0.9 | 9 |\n\n## KG Graph Readiness\n\n- Ready: True\n- Scope: `question_scoped_retrieved_evidence`\n- Default: `structure_aware` + `hybrid`\n- Sample: `06-phak-ch4-0-p00-fa9830b888` with 8 triples\n\n## Demo Script\n\n- Open the local FastAPI web demo.\n- Confirm artifact readiness and advisory boundary in the sidebar.\n- Select a boundary CQ and compare vector, graph, and hybrid evidence.\n- Use the KG relationship graph to explain retrieved structured evidence.\n- Switch between structure-aware and fixed-window experiments.\n- Explain GraphRAG as structured KG evidence support, not a single-score winner.\n\n## Apple-Style UI Smoke Checklist\n\n- macOS-style sidebar question list is visible.\n- Top toolbar exposes strategy and retrieval mode segmented controls.\n- Question-scoped KG graph renders nodes and edges for structure_aware + hybrid.\n- Vector mode shows a clear empty state for KG graph evidence.\n- Answer, gold label, chunk evidence, and KG triple evidence remain readable.\n- Default selection is structure_aware + hybrid.\n- Narrow viewport does not overlap controls or evidence text.\n\n## Advisory Boundary\n\nThis system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.\n",
       "path": "reports/stages/web_demo_readiness.md",
       "present": true,
       "truncated": false
@@ -19484,17 +19484,30 @@
           "fixed_window_ready": true,
           "graphrag_review_ready": true,
           "layered_scoring_policy": true,
+          "question_scoped_kg_graph_ready": true,
           "structure_aware_ready": true
         },
         "demo_script": [
           "Open the local FastAPI web demo.",
           "Confirm artifact readiness and advisory boundary in the sidebar.",
           "Select a boundary CQ and compare vector, graph, and hybrid evidence.",
+          "Use the KG relationship graph to explain retrieved structured evidence.",
           "Switch between structure-aware and fixed-window experiments.",
           "Explain GraphRAG as structured KG evidence support, not a single-score winner."
         ],
+        "kg_graph": {
+          "default_experiment": "structure_aware",
+          "default_mode": "hybrid",
+          "ready": true,
+          "sample": {
+            "cq_id": "06-phak-ch4-0-p00-fa9830b888",
+            "mode": "hybrid",
+            "triple_count": 8
+          },
+          "scope": "question_scoped_retrieved_evidence"
+        },
         "metadata": {
-          "created_at": "2026-05-19T02:10:23.032125+00:00",
+          "created_at": "2026-05-19T02:34:08.225960+00:00",
           "project_root": ".",
           "purpose": "offline_first_fastapi_web_demo_readiness"
         },
@@ -19669,6 +19682,8 @@
         "ui_smoke_checklist": [
           "macOS-style sidebar question list is visible.",
           "Top toolbar exposes strategy and retrieval mode segmented controls.",
+          "Question-scoped KG graph renders nodes and edges for structure_aware + hybrid.",
+          "Vector mode shows a clear empty state for KG graph evidence.",
           "Answer, gold label, chunk evidence, and KG triple evidence remain readable.",
           "Default selection is structure_aware + hybrid.",
           "Narrow viewport does not overlap controls or evidence text."
@@ -19678,7 +19693,7 @@
       "present": true
     }
   },
-  "generated_at": "2026-05-19T02:10:39.275934+00:00",
+  "generated_at": "2026-05-19T02:34:08.239698+00:00",
   "goals": {
     "excerpt": "# Project Goals\n\nLast updated: 2026-05-19\n\nThis file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.\n\n## Goal vs Task\n\n- A goal describes an outcome the project must achieve.\n- A task describes a concrete action that can be completed and checked off.\n- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.\n- Reports under `reports/` provide evidence that a goal has been met.\n\n## G1 - Course Objective And Project Rationale\n\nBuild a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.\n\nSuccess criteria:\n\n- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.\n- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.\n- The project can answer why GraphRAG is needed instead of only using plain LLM prompting or vector-only RAG.\n- The project uses FAA aviation handbook material as the starting source corpus.\n- The report clearly connects implementation choices to the course objective.\n\nCurrent status: in progress.\n\n## G2 - Ontology-Grounded KG Deliverable\n\nDeliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.\n\nRationale:\n\n- The KG is a project deliverable, not only an intermediate cache.\n- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.\n- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.\n\nSuccess criteria:\n\n- A baseline or generated TBox ontology exists and can be validated.\n- The extraction profile maps focused aviation classes/properties back to the ontology design.\n- Focused ABox/KG triples are extracted only when supported by source chunks.\n- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.\n- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.\n\nCurrent status: active curated ontology is available; focused KG was extracted and validated against the curated schema.\n\n## G3 - GraphRAG Core Pipeline\n\nImplement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.\n\nTarget pipeline:\n\n```text\nPDF -> chunks -> ontology-constrained KG/ABox\n    -> Chroma vector index\n    -> graph retrieval + vector retrieval\n    -> reciprocal-rank hybrid fusion\n    -> grounded LLM answer with citations\n```\n\nSuccess criteria:\n\n- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.\n- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.\n- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.\n- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.\n- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.\n\nCurrent status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 while preserving KG evidence coverage.\n\n## G4 - Evaluation And Experiment Protocol\n\nEvaluate retrieval, KG evidence, and LLM answer quality as separate layers rather than a single mixed score.\n\nSuccess criteria:\n\n- Retrieval metrics include Recall@5, MRR@5, Context Precision@5, hit ranks, and hit source identifiers.\n- KG ev",
     "path": "GOALS.md",

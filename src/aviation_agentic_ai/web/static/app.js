@@ -4,6 +4,8 @@ const state = {
   questions: [],
   status: null,
   detail: null,
+  kgGraph: null,
+  selectedEdgeId: null,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -74,6 +76,11 @@ function renderQuestions() {
 
 function selectedModePayload() {
   return state.detail?.experiments?.[state.experiment]?.modes?.[state.mode] || {};
+}
+
+function truncate(value, length = 28) {
+  const text = String(value ?? "");
+  return text.length > length ? `${text.slice(0, length - 1)}...` : text;
 }
 
 function renderMetrics() {
@@ -161,6 +168,123 @@ function renderEvidence() {
     : "<p class='evidence-text'>No KG triples.</p>";
 }
 
+function graphDetailRows(edge) {
+  if (!edge) {
+    return `
+      <dt>Selection</dt>
+      <dd>No edge selected.</dd>
+      <dd class="detail-wide">Select a KG edge to inspect its source chunk, page, and evidence text.</dd>
+    `;
+  }
+  const rows = [
+    ["Triple", edge.triple_id],
+    ["Subject", edge.subject],
+    ["Predicate", edge.predicate],
+    ["Object", edge.object],
+    ["Chunk", edge.chunk_id],
+    ["Page", edge.page],
+    ["Confidence", edge.confidence ?? edge.score],
+  ];
+  return (
+    rows
+      .map(([key, value]) => `<dt>${escapeHtml(key)}</dt><dd>${escapeHtml(formatValue(value))}</dd>`)
+      .join("") +
+    `<dd class="detail-wide">${escapeHtml(edge.evidence_text || "No evidence text in this report.")}</dd>`
+  );
+}
+
+function nodePositionMap(nodes) {
+  const positions = new Map();
+  if (!nodes.length) return positions;
+  if (nodes.length === 1) {
+    positions.set(nodes[0].id, { x: 360, y: 160 });
+    return positions;
+  }
+  if (nodes.length === 2) {
+    positions.set(nodes[0].id, { x: 240, y: 160 });
+    positions.set(nodes[1].id, { x: 480, y: 160 });
+    return positions;
+  }
+
+  const [center, ...outer] = nodes;
+  positions.set(center.id, { x: 360, y: 160 });
+  outer.forEach((node, index) => {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / outer.length;
+    positions.set(node.id, {
+      x: 360 + Math.cos(angle) * 250,
+      y: 160 + Math.sin(angle) * 104,
+    });
+  });
+  return positions;
+}
+
+function renderKgGraph() {
+  const graph = state.kgGraph || { nodes: [], edges: [], metadata: {} };
+  const nodes = graph.nodes || [];
+  const edges = graph.edges || [];
+  const svg = $("#kg-graph-svg");
+  const canvas = svg.closest(".graph-canvas");
+  $("#kg-node-count").textContent = `${nodes.length} nodes`;
+  $("#kg-edge-count").textContent = `${edges.length} edges`;
+
+  if (!nodes.length || !edges.length) {
+    canvas.classList.add("empty");
+    svg.innerHTML = "";
+    $("#kg-graph-detail").innerHTML = graphDetailRows(null);
+    return;
+  }
+
+  canvas.classList.remove("empty");
+  if (!edges.some((edge) => edge.id === state.selectedEdgeId)) {
+    state.selectedEdgeId = edges[0].id;
+  }
+
+  const positions = nodePositionMap(nodes);
+  const edgeMarkup = edges
+    .map((edge) => {
+      const source = positions.get(edge.source);
+      const target = positions.get(edge.target);
+      if (!source || !target) return "";
+      const selected = edge.id === state.selectedEdgeId ? " selected" : "";
+      const midX = (source.x + target.x) / 2;
+      const midY = (source.y + target.y) / 2 - 8;
+      return `
+        <g>
+          <line class="kg-edge${selected}" x1="${source.x}" y1="${source.y}" x2="${target.x}" y2="${target.y}" marker-end="url(#kg-arrow)" data-edge-id="${escapeHtml(edge.id)}"></line>
+          <text class="kg-edge-label" x="${midX}" y="${midY}" data-edge-id="${escapeHtml(edge.id)}">${escapeHtml(truncate(edge.predicate, 24))}</text>
+        </g>
+      `;
+    })
+    .join("");
+
+  const nodeMarkup = nodes
+    .map((node) => {
+      const position = positions.get(node.id);
+      if (!position) return "";
+      const radius = Math.min(34, 22 + Number(node.degree || 0) * 3);
+      return `
+        <g class="kg-node">
+          <circle class="kg-node-circle" cx="${position.x}" cy="${position.y}" r="${radius}"></circle>
+          <text class="kg-node-label" x="${position.x}" y="${position.y - 2}">${escapeHtml(truncate(node.label, 18))}</text>
+          <text class="kg-node-class" x="${position.x}" y="${position.y + 13}">${escapeHtml(truncate(node.class, 18))}</text>
+        </g>
+      `;
+    })
+    .join("");
+
+  svg.innerHTML = `
+    <defs>
+      <marker id="kg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(0, 122, 255, 0.55)"></path>
+      </marker>
+    </defs>
+    ${edgeMarkup}
+    ${nodeMarkup}
+  `;
+  const selectedEdge = edges.find((edge) => edge.id === state.selectedEdgeId) || edges[0];
+  $("#kg-graph-detail").innerHTML = graphDetailRows(selectedEdge);
+}
+
 function renderQuestionContext() {
   const gold = state.detail?.gold || {};
   const cqId = state.detail?.cq_id || "No CQ";
@@ -185,7 +309,32 @@ function renderDetail() {
 
 async function loadQuestion(cqId) {
   state.detail = await fetchJson(`/api/questions/${encodeURIComponent(cqId)}`);
+  state.selectedEdgeId = null;
   renderDetail();
+  await loadKgGraph();
+}
+
+async function loadKgGraph() {
+  if (!state.detail?.cq_id) {
+    state.kgGraph = null;
+    renderKgGraph();
+    return;
+  }
+  const cqId = state.detail.cq_id;
+  const experiment = state.experiment;
+  const mode = state.mode;
+  const graph = await fetchJson(
+    `/api/questions/${encodeURIComponent(cqId)}/kg-graph?experiment=${encodeURIComponent(experiment)}&mode=${encodeURIComponent(mode)}`
+  );
+  if (
+    state.detail?.cq_id !== cqId ||
+    state.experiment !== experiment ||
+    state.mode !== mode
+  ) {
+    return;
+  }
+  state.kgGraph = graph;
+  renderKgGraph();
 }
 
 function bindControls() {
@@ -197,16 +346,30 @@ function bindControls() {
   $$(".segmented").forEach((button) => {
     button.addEventListener("click", () => {
       state.experiment = button.dataset.experiment;
+      state.selectedEdgeId = null;
       $$(".segmented").forEach((item) => item.classList.toggle("active", item === button));
       renderDetail();
+      loadKgGraph().catch((error) => {
+        $("#kg-graph-detail").innerHTML = graphDetailRows({ evidence_text: error.message });
+      });
     });
   });
   $$(".tab").forEach((button) => {
     button.addEventListener("click", () => {
       state.mode = button.dataset.mode;
+      state.selectedEdgeId = null;
       $$(".tab").forEach((item) => item.classList.toggle("active", item === button));
       renderDetail();
+      loadKgGraph().catch((error) => {
+        $("#kg-graph-detail").innerHTML = graphDetailRows({ evidence_text: error.message });
+      });
     });
+  });
+  $("#kg-graph-svg").addEventListener("click", (event) => {
+    const edge = event.target.closest("[data-edge-id]");
+    if (!edge) return;
+    state.selectedEdgeId = edge.dataset.edgeId;
+    renderKgGraph();
   });
   $("#live-form").addEventListener("submit", async (event) => {
     event.preventDefault();

@@ -11,6 +11,7 @@ from aviation_agentic_ai.reporting.web_demo import build_web_demo_readiness
 from aviation_agentic_ai.web.data import (
     build_demo_status,
     build_question_detail,
+    build_question_kg_graph,
     build_questions,
 )
 
@@ -32,13 +33,30 @@ def _mode_result(cq_id: str, mode: str) -> dict:
             {
                 "triple_id": f"triple-{cq_id}",
                 "subject": "Lift",
+                "subject_class": "AerodynamicForce",
                 "predicate": "affectedBy",
                 "object": "AngleOfAttack",
+                "object_class": "FlightCondition",
                 "chunk_id": f"chunk-{cq_id}",
                 "page": 1,
                 "rank": 1,
                 "score": 1,
+                "confidence": 0.92,
                 "evidence_text": "angle of attack affects lift",
+            },
+            {
+                "triple_id": f"triple-evidence-{cq_id}",
+                "subject": "Lift",
+                "subject_class": "AerodynamicForce",
+                "predicate": "supportedByEvidence",
+                "object": "Evidence",
+                "object_class": "Evidence",
+                "chunk_id": f"chunk-{cq_id}",
+                "page": 1,
+                "rank": 2,
+                "score": 0.8,
+                "confidence": 0.88,
+                "evidence_text": "Lift is supported by pressure and airflow evidence.",
             }
         ]
         if mode != "vector"
@@ -212,6 +230,40 @@ def test_web_data_loads_questions_and_detail(tmp_path: Path) -> None:
     assert detail["experiments"]["structure_aware"]["modes"]["hybrid"]["graph_triples"]
 
 
+def test_question_kg_graph_builds_question_scoped_nodes_and_edges(tmp_path: Path) -> None:
+    cq_ids = _write_web_fixture(tmp_path)
+
+    graph = build_question_kg_graph(cq_ids[0], tmp_path)
+    vector_graph = build_question_kg_graph(cq_ids[0], tmp_path, mode="vector")
+
+    assert graph is not None
+    assert graph["metadata"]["cq_id"] == cq_ids[0]
+    assert graph["metadata"]["experiment"] == "structure_aware"
+    assert graph["metadata"]["mode"] == "hybrid"
+    assert graph["metadata"]["graph_scope"] == "question_scoped_retrieved_evidence"
+    assert graph["metadata"]["node_count"] == 3
+    assert graph["metadata"]["edge_count"] == 2
+    assert graph["nodes"][0]["id"] == "Lift"
+    assert graph["nodes"][0]["degree"] == 2
+    assert graph["nodes"][0]["source_pages"] == [1]
+    assert graph["edges"][0]["triple_id"] == f"triple-{cq_ids[0]}"
+    assert graph["edges"][0]["chunk_id"] == f"chunk-{cq_ids[0]}"
+    assert graph["edges"][0]["evidence_text"] == "angle of attack affects lift"
+    assert vector_graph is not None
+    assert vector_graph["nodes"] == []
+    assert vector_graph["edges"] == []
+
+
+def test_question_kg_graph_rejects_invalid_scope(tmp_path: Path) -> None:
+    cq_ids = _write_web_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="Unsupported experiment"):
+        build_question_kg_graph(cq_ids[0], tmp_path, experiment="global")
+
+    with pytest.raises(ValueError, match="Unsupported retrieval mode"):
+        build_question_kg_graph(cq_ids[0], tmp_path, mode="rerank")
+
+
 def test_web_demo_readiness_uses_layered_metrics(tmp_path: Path) -> None:
     _write_web_fixture(tmp_path)
 
@@ -237,6 +289,8 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     status = client.get("/api/status")
     questions = client.get("/api/questions")
     detail = client.get(f"/api/questions/{cq_ids[0]}")
+    graph = client.get(f"/api/questions/{cq_ids[0]}/kg-graph")
+    vector_graph = client.get(f"/api/questions/{cq_ids[0]}/kg-graph?mode=vector")
     live = client.post("/api/query", json={"question": "What affects lift?"})
     favicon = client.get("/favicon.ico")
 
@@ -244,12 +298,19 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert "question-list" in root.text
     assert "toolbar-group" in root.text
     assert "Retrieved Chunks" in root.text
+    assert "KG Relationship Graph" in root.text
+    assert "kg-graph-svg" in root.text
     assert status.status_code == 200
     assert status.json()["advisory_boundary"]
     assert questions.status_code == 200
     assert len(questions.json()["questions"]) == 10
     assert detail.status_code == 200
     assert detail.json()["experiments"]["structure_aware"]["modes"]["hybrid"]["present"]
+    assert graph.status_code == 200
+    assert graph.json()["metadata"]["edge_count"] == 2
+    assert graph.json()["nodes"][0]["id"] == "Lift"
+    assert vector_graph.status_code == 200
+    assert vector_graph.json()["metadata"]["edge_count"] == 0
     assert live.status_code == 403
     assert favicon.status_code == 204
 

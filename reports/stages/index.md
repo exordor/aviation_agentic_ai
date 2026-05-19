@@ -54,6 +54,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Structure-aware result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.9, hybrid Recall@5 = 1.0; graph and hybrid KG evidence coverage = 0.9.
 - Evidence-level result summary: structure-aware hybrid supported 9/10 answers versus fixed-window hybrid 7/10; both hybrid runs have KG triple relevance = 0.9.
 - Web demo default strategy: `structure_aware`; live query is disabled by default for reproducible review.
+- Web demo KG visualization: question-scoped graph renders retrieved KG triples for the selected CQ, strategy, and retrieval mode.
 
 ## Project Tracking
 

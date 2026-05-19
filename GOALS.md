@@ -120,7 +120,9 @@ Success criteria:
 
 Current status: offline-first FastAPI demo implemented with a macOS-style
 utility layout. It reads existing GraphRAG reports, gold labels, KG artifacts,
-and evidence-level metrics by default; live query is opt-in.
+and evidence-level metrics by default; live query is opt-in. The interface now
+includes a question-scoped KG relationship graph so reviewers can see why graph
+evidence was selected, not only read the answer and evidence lists.
 
 ## G8 - Pipeline Explanation And Project Defense
 
