@@ -5,6 +5,7 @@ def test_load_default_config() -> None:
     config = load_default_config()
 
     assert config["project"]["name"] == "aviation_agentic_ai"
+    assert "curated_ontology" in config["paths"]
     assert "baseline_ontology" in config["paths"]
     assert config["kg_extraction"]["max_tokens"] == 4096
 

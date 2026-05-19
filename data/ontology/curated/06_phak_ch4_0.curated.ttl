@@ -1,0 +1,263 @@
+@prefix : <http://www.example.org/aviation/phak#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+: a owl:Ontology ;
+    rdfs:label "PHAK Chapter 4 curated ontology" ;
+    rdfs:comment "Explainable TBox schema for PHAK Chapter 4 KG extraction and GraphRAG evidence retrieval." ;
+    dcterms:source "FAA Pilot's Handbook of Aeronautical Knowledge, Chapter 4 excerpt" .
+
+#################################################################
+# Core module
+#################################################################
+
+:Cl_Concept a owl:Class ;
+    rdfs:label "Concept" ;
+    rdfs:comment "Root class for reusable aviation concepts represented in this ontology." .
+
+:Cl_Document a owl:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "A source document that provides aviation learning material." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Evidence a owl:Class ;
+    rdfs:label "Evidence" ;
+    rdfs:comment "A source-backed evidence item used to justify a KG triple or answer." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_SourceChunk a owl:Class ;
+    rdfs:label "Source chunk" ;
+    rdfs:comment "A stable text chunk with page and document provenance." ;
+    rdfs:subClassOf :Cl_Evidence .
+
+:Cl_KGTriple a owl:Class ;
+    rdfs:label "KG triple" ;
+    rdfs:comment "A subject-predicate-object assertion extracted from source text and validated against this ontology." ;
+    rdfs:subClassOf :Cl_Concept .
+
+#################################################################
+# Atmosphere module
+#################################################################
+
+:Cl_Atmosphere a owl:Class ;
+    rdfs:label "Atmosphere" ;
+    rdfs:comment "The envelope of air around Earth that provides the operating medium for aircraft." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Air a owl:Class ;
+    rdfs:label "Air" ;
+    rdfs:comment "The gas mixture that acts as the fluid medium for aerodynamic effects." ;
+    rdfs:subClassOf :Cl_Fluid .
+
+:Cl_Fluid a owl:Class ;
+    rdfs:label "Fluid" ;
+    rdfs:comment "A material medium that can flow, including air in the aerodynamic context." ;
+    rdfs:subClassOf :Cl_Atmosphere .
+
+:Cl_Pressure a owl:Class ;
+    rdfs:label "Pressure" ;
+    rdfs:comment "Force per unit area relevant to atmospheric state and airfoil pressure distribution." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Density a owl:Class ;
+    rdfs:label "Density" ;
+    rdfs:comment "Mass per unit volume of air, relevant to aircraft performance and density altitude." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Temperature a owl:Class ;
+    rdfs:label "Temperature" ;
+    rdfs:comment "Thermal state of the atmosphere that can affect density and aircraft performance." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Altitude a owl:Class ;
+    rdfs:label "Altitude" ;
+    rdfs:comment "Height reference used for atmospheric and aircraft performance reasoning." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Humidity a owl:Class ;
+    rdfs:label "Humidity" ;
+    rdfs:comment "Water-vapor condition of air that can affect density and aircraft performance." ;
+    rdfs:subClassOf :Cl_Concept .
+
+#################################################################
+# Aircraft and airfoil module
+#################################################################
+
+:Cl_Aircraft a owl:Class ;
+    rdfs:label "Aircraft" ;
+    rdfs:comment "A vehicle that operates in the atmosphere and is affected by aerodynamic forces." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Wing a owl:Class ;
+    rdfs:label "Wing" ;
+    rdfs:comment "Aircraft lifting surface that contains or uses airfoil geometry." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Airfoil a owl:Class ;
+    rdfs:label "Airfoil" ;
+    rdfs:comment "A cross-sectional shape designed to produce aerodynamic force as air flows around it." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_AirfoilSurface a owl:Class ;
+    rdfs:label "Airfoil surface" ;
+    rdfs:comment "Upper or lower surface of an airfoil that participates in pressure distribution." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_LeadingEdge a owl:Class ;
+    rdfs:label "Leading edge" ;
+    rdfs:comment "The forward edge of an airfoil where relative airflow first meets the section." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_TrailingEdge a owl:Class ;
+    rdfs:label "Trailing edge" ;
+    rdfs:comment "The rear edge of an airfoil where airflow leaves the section." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_ChordLine a owl:Class ;
+    rdfs:label "Chord line" ;
+    rdfs:comment "A reference line from leading edge to trailing edge used to define angle of attack." ;
+    rdfs:subClassOf :Cl_Concept .
+
+#################################################################
+# Aerodynamics module
+#################################################################
+
+:Cl_AerodynamicForce a owl:Class ;
+    rdfs:label "Aerodynamic force" ;
+    rdfs:comment "A force generated through interaction between aircraft surfaces and airflow." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Lift a owl:Class ;
+    rdfs:label "Lift" ;
+    rdfs:comment "Aerodynamic force acting generally perpendicular to relative wind." ;
+    rdfs:subClassOf :Cl_AerodynamicForce .
+
+:Cl_Drag a owl:Class ;
+    rdfs:label "Drag" ;
+    rdfs:comment "Aerodynamic force opposing motion through air." ;
+    rdfs:subClassOf :Cl_AerodynamicForce .
+
+:Cl_AngleOfAttack a owl:Class ;
+    rdfs:label "Angle of attack" ;
+    rdfs:comment "Angle between the chord line of an airfoil and the relative wind." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_BoundaryLayer a owl:Class ;
+    rdfs:label "Boundary layer" ;
+    rdfs:comment "Thin layer of air near a surface where viscosity and friction affect flow." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_WingtipVortex a owl:Class ;
+    rdfs:label "Wingtip vortex" ;
+    rdfs:comment "Rotating airflow near a wingtip caused by pressure differences around a finite wing." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Downwash a owl:Class ;
+    rdfs:label "Downwash" ;
+    rdfs:comment "Downward deflection of airflow associated with lift production." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_PressureDistribution a owl:Class ;
+    rdfs:label "Pressure distribution" ;
+    rdfs:comment "Spatial pattern of pressure around an airfoil or wing." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_AircraftPerformance a owl:Class ;
+    rdfs:label "Aircraft performance" ;
+    rdfs:comment "Operational capability affected by atmospheric state and aerodynamic conditions." ;
+    rdfs:subClassOf :Cl_Concept .
+
+#################################################################
+# Physics and relation module
+#################################################################
+
+:Cl_NewtonLaw a owl:Class ;
+    rdfs:label "Newton law" ;
+    rdfs:comment "Newtonian principle used to explain force, acceleration, and action-reaction effects." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_BernoulliPrinciple a owl:Class ;
+    rdfs:label "Bernoulli principle" ;
+    rdfs:comment "Principle relating fluid speed and pressure used in aerodynamic explanations." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Force a owl:Class ;
+    rdfs:label "Force" ;
+    rdfs:comment "Physical push or pull relevant to motion and aerodynamic effects." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Flow a owl:Class ;
+    rdfs:label "Flow" ;
+    rdfs:comment "Motion of air or another fluid around a body." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Condition a owl:Class ;
+    rdfs:label "Condition" ;
+    rdfs:comment "A state or context under which an aviation relationship holds." ;
+    rdfs:subClassOf :Cl_Concept .
+
+:Cl_Outcome a owl:Class ;
+    rdfs:label "Outcome" ;
+    rdfs:comment "A result or effect produced by a condition, cause, or principle." ;
+    rdfs:subClassOf :Cl_Concept .
+
+#################################################################
+# KG extraction relation properties
+#################################################################
+
+:hasComponent a owl:ObjectProperty ;
+    rdfs:label "has component" ;
+    rdfs:comment "Connects a whole aviation concept to a component concept." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+
+:partOf a owl:ObjectProperty ;
+    rdfs:label "part of" ;
+    rdfs:comment "Connects a component concept to the larger whole it belongs to." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+
+:hasQuantity a owl:ObjectProperty ;
+    rdfs:label "has quantity" ;
+    rdfs:comment "Connects a concept to a relevant quantity-like concept such as pressure, density, or altitude." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Concept .
+
+:affects a owl:ObjectProperty ;
+    rdfs:label "affects" ;
+    rdfs:comment "Connects a factor to another concept whose state or behavior it influences." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+
+:causes a owl:ObjectProperty ;
+    rdfs:label "causes" ;
+    rdfs:comment "Connects a cause, condition, or process to an outcome it produces." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+
+:appliesTo a owl:ObjectProperty ;
+    rdfs:label "applies to" ;
+    rdfs:comment "Connects a principle, condition, or explanation to the aviation concept it concerns." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range owl:Thing .
+
+:hasCondition a owl:ObjectProperty ;
+    rdfs:label "has condition" ;
+    rdfs:comment "Connects an assertion or situation to the condition under which it holds." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Condition .
+
+:hasOutcome a owl:ObjectProperty ;
+    rdfs:label "has outcome" ;
+    rdfs:comment "Connects a cause, condition, or principle to its resulting outcome." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Outcome .
+
+:supportedByEvidence a owl:ObjectProperty ;
+    rdfs:label "supported by evidence" ;
+    rdfs:comment "Connects a KG assertion or concept to source evidence used to ground it." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :Cl_Evidence .

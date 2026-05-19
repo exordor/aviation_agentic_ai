@@ -24,9 +24,10 @@ answering?
 ## Current Prototype
 
 The current implementation includes project-owned ontology generation code plus
-validation/reporting over the baseline aviation ontology generated from PHAK
-Chapter 4. The baseline ontology is kept as a reference TBox; future runs can
-regenerate candidate ontologies under `data/ontology/generated/`.
+an explainable curated ontology for PHAK Chapter 4. The older baseline ontology
+is kept as a historical reference because it is useful for comparison but too
+large to explain clearly as the primary project schema. The curated ontology is
+the active schema for focused KG extraction and GraphRAG experiments.
 
 Baseline assets:
 
@@ -35,19 +36,25 @@ Baseline assets:
   `data/papers/towards-automated-ontology-generation-multi-agent-llm.pdf`
 - Generated CQs copied from the reference pipeline:
   `data/cqs/06_phak_ch4_0.json`
-- Baseline ontology: `data/ontology/baseline/06_phak_ch4_0.ttl`
+- Active curated ontology: `data/ontology/curated/06_phak_ch4_0.curated.ttl`
+- Ontology design explanation: `docs/ontology_design.md`
+- Historical baseline ontology: `data/ontology/baseline/06_phak_ch4_0.ttl`
 - Reference generated ontology/KG artifact:
   `data/ontology/generated/reference/06_phak_ch4_0_kg_backup_20260512_042920.ttl`
 - Ontology report: `reports/stages/ontology_report.md`
 - Ontology statistics: `reports/stages/ontology_stats.json`
 
-The baseline ontology currently contains:
+The historical baseline ontology currently contains:
 
 - 2,773 RDF triples
 - 245 OWL classes
 - 173 object properties
 - 2 datatype properties
-- 0 named individuals in the curated baseline TBox
+- 0 named individuals in the historical baseline TBox
+
+The active curated ontology is intentionally smaller. It is designed to be
+explainable in a project review and to constrain KG extraction with a focused
+set of aviation classes and relations.
 
 ## Planned Pipeline
 
@@ -148,11 +155,11 @@ Document and Technical Implementation Plan JSON artifacts, then Turtle ontology
 output. Per-run manifests and page checkpoints are written when an artifact
 directory is supplied. The current baseline ontology is not treated as final.
 
-The next stage after regenerating the ontology is focused ABox extraction.
-Instead of extracting every possible class from the ontology, the project uses
-`configs/extraction_profile.yaml` to define high-value aviation concepts and
-relations for v1. Each extracted triple will carry source provenance so GraphRAG
-answers can cite the text that supports them.
+The next stage after selecting the curated ontology is focused ABox extraction.
+Instead of extracting every possible concept from the historical baseline, the
+project uses `configs/extraction_profile.yaml` to define a small set of
+high-value aviation classes and relations for v1. Each extracted triple carries
+source provenance so GraphRAG answers can cite the text that supports them.
 
 The retrieval layer will combine:
 

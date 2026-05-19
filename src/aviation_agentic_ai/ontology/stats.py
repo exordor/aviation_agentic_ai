@@ -40,6 +40,7 @@ def collect_stats(path: str | Path) -> OntologyStats:
         and subject not in classes
         and subject not in object_properties
         and subject not in datatype_properties
+        and (subject, RDF.type, OWL.Ontology) not in graph
     }
     return OntologyStats(
         path=project_relative_path(ontology_path),

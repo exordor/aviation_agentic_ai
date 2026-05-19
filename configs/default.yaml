@@ -5,6 +5,7 @@ project:
 paths:
   raw_pdf: data/raw/06_phak_ch4_0.pdf
   papers_dir: data/papers
+  curated_ontology: data/ontology/curated/06_phak_ch4_0.curated.ttl
   baseline_ontology: data/ontology/baseline/06_phak_ch4_0.ttl
   generated_ontology_dir: data/ontology/generated
   chunks_file: data/chunks/06_phak_ch4_0.jsonl

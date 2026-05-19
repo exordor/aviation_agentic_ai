@@ -1224,7 +1224,7 @@ def build_judgment(
             "The ontology is not a valid TBox prototype under the configured quality gates."
         )
     if structural.tbox_only:
-        rationale.append("No ABox individuals were detected in the baseline ontology.")
+        rationale.append("No ABox individuals were detected in the ontology.")
     else:
         rationale.append("ABox-like typed resources were detected and should be reviewed.")
     if failed_gate_ids:

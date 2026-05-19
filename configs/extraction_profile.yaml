@@ -1,5 +1,5 @@
 name: phak_ch4_focused_v1
-description: Focused ABox extraction profile for PHAK Chapter 4 principles of flight.
+description: Focused ABox extraction profile for the explainable PHAK Chapter 4 curated ontology.
 namespace: "http://www.example.org/aviation/phak#"
 
 defaults:
@@ -7,30 +7,50 @@ defaults:
   require_provenance: true
 
 instantiable_classes:
+  - Cl_Concept
+  - Cl_Evidence
+  - Cl_SourceChunk
+  - Cl_Atmosphere
+  - Cl_Air
+  - Cl_Fluid
+  - Cl_Pressure
+  - Cl_Density
+  - Cl_Temperature
+  - Cl_Altitude
+  - Cl_Humidity
   - Cl_Aircraft
-  - Cl_Airfoil
   - Cl_Wing
+  - Cl_Airfoil
+  - Cl_AirfoilSurface
+  - Cl_LeadingEdge
+  - Cl_TrailingEdge
+  - Cl_ChordLine
   - Cl_AerodynamicForce
   - Cl_Lift
   - Cl_Drag
   - Cl_AngleOfAttack
   - Cl_BoundaryLayer
   - Cl_WingtipVortex
-  - Cl_Atmosphere
-  - Cl_Pressure
-  - Cl_Density
-  - Cl_Temperature
-  - Cl_Altitude
+  - Cl_Downwash
+  - Cl_PressureDistribution
+  - Cl_AircraftPerformance
+  - Cl_NewtonLaw
+  - Cl_BernoulliPrinciple
+  - Cl_Force
+  - Cl_Flow
+  - Cl_Condition
+  - Cl_Outcome
 
 relation_properties:
-  - affects
-  - causes
   - hasComponent
   - partOf
   - hasQuantity
+  - affects
+  - causes
   - appliesTo
   - hasCondition
   - hasOutcome
+  - supportedByEvidence
 
 provenance_fields:
   - source_document
