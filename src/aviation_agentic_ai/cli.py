@@ -26,6 +26,7 @@ from aviation_agentic_ai.ontology.reporting import write_stats_json, write_stats
 from aviation_agentic_ai.ontology.source_scope import write_source_scope_reports
 from aviation_agentic_ai.ontology.stats import collect_stats, load_graph
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
+from aviation_agentic_ai.reporting.graphrag_review import write_graphrag_review
 from aviation_agentic_ai.reporting.hybrid_rag import write_hybrid_rag_experiment
 from aviation_agentic_ai.reporting.generation_runs import write_generation_run_summary
 from aviation_agentic_ai.reporting.hygiene import run_report_hygiene
@@ -348,6 +349,13 @@ def kg_extract(
     output = output_path or resolve_project_path(config["paths"]["kg_file"])
     profile = profile_path or resolve_project_path("configs/extraction_profile.yaml")
     ontology_path = ontology_file or _default_ontology_path()
+
+    def progress(index: int, total: int, chunk, triples_count: int) -> None:
+        click.echo(
+            f"Extracted KG chunk {index}/{total}: {chunk.chunk_id} "
+            f"({triples_count} triples)."
+        )
+
     try:
         path, triples, report = extract_kg_file(
             chunks,
@@ -360,6 +368,7 @@ def kg_extract(
             if temperature is not None
             else float(kg_config.get("temperature", 0.0)),
             max_tokens=max_tokens if max_tokens is not None else int(kg_config.get("max_tokens", 4096)),
+            progress_callback=progress,
         )
     except KGValidationError as exc:
         raise click.ClickException(str(exc)) from exc
@@ -378,12 +387,14 @@ def kg_extract(
 @click.option("--profile", "profile_path", type=click.Path(path_type=Path), default=None)
 @click.option("--ontology-file", type=click.Path(path_type=Path), default=None)
 @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="kg_validation", show_default=True)
 def kg_validate(
     kg_path: Path | None,
     chunks_path: Path | None,
     profile_path: Path | None,
     ontology_file: Path | None,
     output_dir: Path | None,
+    report_name: str,
 ) -> None:
     """Validate KG artifacts."""
     config = load_default_config()
@@ -399,7 +410,11 @@ def kg_validate(
             f"{report['errors'][:3]}"
         )
     if output_dir is not None:
-        json_path, md_path = write_kg_validation_reports(report, output_dir)
+        json_path, md_path = write_kg_validation_reports(
+            report,
+            output_dir,
+            report_name=report_name,
+        )
         click.echo(f"Wrote {project_relative_path(json_path)}")
         click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"OK: validated {report['triples_total']} KG triples.")
@@ -745,6 +760,7 @@ def report_project(
 @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
 @click.option("--collection-name", default=None)
 @click.option("--chunking-strategy", default=None)
+@click.option("--report-name", default="hybrid_rag_experiment", show_default=True)
 @click.option("--max-questions", type=int, default=None)
 def report_hybrid_rag(
     boundary_cqs: Path | None,
@@ -755,6 +771,7 @@ def report_hybrid_rag(
     output_dir: Path | None,
     collection_name: str | None,
     chunking_strategy: str | None,
+    report_name: str,
     max_questions: int | None,
 ) -> None:
     """Run and report the boundary-CQ Hybrid RAG experiment."""
@@ -775,11 +792,45 @@ def report_hybrid_rag(
         max_questions=max_questions,
         gold_labels_path=gold_labels,
         chunking_strategy=chunking_strategy,
+        report_name=report_name,
         command=" ".join(["aviation-ai", *sys.argv[1:]]),
     )
     click.echo(f"Wrote {project_relative_path(json_path)}")
     click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"Evaluated {result['metadata']['questions_total']} boundary CQs.")
+
+
+@report.command("graphrag-review")
+@click.option("--chunking-comparison", type=click.Path(path_type=Path), default=None)
+@click.option("--fixed-hybrid", type=click.Path(path_type=Path), default=None)
+@click.option("--structure-aware-hybrid", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="graphrag_review", show_default=True)
+def report_graphrag_review(
+    chunking_comparison: Path | None,
+    fixed_hybrid: Path | None,
+    structure_aware_hybrid: Path | None,
+    output_dir: Path | None,
+    report_name: str,
+) -> None:
+    """Review GraphRAG value and failure modes across experiment reports."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    default_structure = report_dir / "hybrid_rag_structure_aware.json"
+    structure_path = structure_aware_hybrid or (
+        default_structure if default_structure.exists() else None
+    )
+    json_path, md_path, result = write_graphrag_review(
+        chunking_comparison or report_dir / "chunking_comparison.json",
+        fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
+        report_dir,
+        structure_aware_hybrid_path=structure_path,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    structure_status = "included" if result["metadata"]["structure_aware_present"] else "missing"
+    click.echo(f"Reviewed GraphRAG reports; structure-aware experiment: {structure_status}.")
 
 
 @report.command("chunking-comparison")

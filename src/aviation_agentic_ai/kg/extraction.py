@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from hashlib import sha1
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from rdflib import DCTERMS, Graph, Literal, Namespace, OWL, RDF, RDFS, URIRef
 
@@ -473,11 +473,22 @@ def validate_kg_file(
     }
 
 
-def write_kg_validation_reports(report: dict[str, Any], output_dir: str | Path) -> tuple[Path, Path]:
+def _report_name(name: str) -> str:
+    stem = Path(name).stem
+    return stem or "kg_validation"
+
+
+def write_kg_validation_reports(
+    report: dict[str, Any],
+    output_dir: str | Path,
+    *,
+    report_name: str = "kg_validation",
+) -> tuple[Path, Path]:
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
-    json_path = output / "kg_validation.json"
-    md_path = output / "kg_validation.md"
+    stem = _report_name(report_name)
+    json_path = output / f"{stem}.json"
+    md_path = output / f"{stem}.md"
     json_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     status = "valid" if report["valid"] else "invalid"
@@ -511,25 +522,28 @@ def extract_kg_file(
     dry_run: bool = False,
     temperature: float = 0.0,
     max_tokens: int = 4096,
+    progress_callback: Callable[[int, int, SourceChunk, int], None] | None = None,
 ) -> tuple[Path, list[KGTriple], dict[str, Any]]:
     profile = load_extraction_profile(profile_path)
     chunks = read_chunks_jsonl(chunks_path)
     selected_chunks = chunks[:max_chunks] if max_chunks is not None else chunks
     extracted_at = datetime.now(UTC).isoformat()
     triples: list[KGTriple] = []
-    for chunk in selected_chunks:
+    total = len(selected_chunks)
+    for index, chunk in enumerate(selected_chunks, start=1):
         if dry_run:
-            triples.extend(_deterministic_triples_for_chunk(chunk, profile, extracted_at))
+            chunk_triples = _deterministic_triples_for_chunk(chunk, profile, extracted_at)
         else:
-            triples.extend(
-                _llm_triples_for_chunk(
-                    chunk,
-                    profile,
-                    extracted_at,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                )
+            chunk_triples = _llm_triples_for_chunk(
+                chunk,
+                profile,
+                extracted_at,
+                temperature=temperature,
+                max_tokens=max_tokens,
             )
+        triples.extend(chunk_triples)
+        if progress_callback is not None:
+            progress_callback(index, total, chunk, len(chunk_triples))
     report = validate_kg_triples(triples, chunks, profile, ontology_path=ontology_path)
     if not report["valid"]:
         raise KGValidationError(json.dumps(report["errors"][:10], indent=2))

@@ -75,3 +75,45 @@ def test_hybrid_rag_report_calculates_metrics(tmp_path: Path) -> None:
     }
     assert "learning and decision-support" in result["metadata"]["advisory_boundary"]
     assert result["records"][0]["gold"]["gold_level"] == "page"
+
+
+def test_hybrid_rag_report_supports_custom_report_name(tmp_path: Path) -> None:
+    cqs = normalize_cq_artifact(
+        {
+            "doc": {
+                "0": [
+                    {
+                        "competency_question": "What affects lift?",
+                        "key_entities": ["lift"],
+                        "odp_hint": "Causal relation",
+                        "expected_answer": "Angle of attack affects lift.",
+                    }
+                ]
+            }
+        }
+    )
+    cq_path = tmp_path / "boundary.json"
+    cq_path.write_text(json.dumps(cqs) + "\n", encoding="utf-8")
+
+    def fake_query_runner(question, mode, *_args, **_kwargs):
+        return {
+            "question": question,
+            "mode": mode,
+            "fused_chunks": [{"chunk_id": "doc-p00-c00", "page": 0, "source": mode}],
+            "graph_triples": [],
+            "answer": "Answer. Citations: doc-p00-c00",
+        }
+
+    json_path, md_path, _result = write_hybrid_rag_experiment(
+        cq_path,
+        tmp_path / "chunks.jsonl",
+        tmp_path / "kg.jsonl",
+        tmp_path / "chroma",
+        tmp_path,
+        report_name="hybrid_rag_structure_aware",
+        query_runner=fake_query_runner,
+    )
+
+    assert json_path.name == "hybrid_rag_structure_aware.json"
+    assert md_path.name == "hybrid_rag_structure_aware.md"
+    assert not (tmp_path / "hybrid_rag_experiment.json").exists()

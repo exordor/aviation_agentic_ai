@@ -314,6 +314,7 @@ def write_hybrid_rag_experiment(
     rebuild_indexes: bool = False,
     rebuild_kg: bool = False,
     chunking_strategy: str | None = None,
+    report_name: str = "hybrid_rag_experiment",
     command: str = "aviation-ai report hybrid-rag",
     query_runner: QueryRunner = run_query,
 ) -> tuple[Path, Path, dict[str, Any]]:
@@ -336,6 +337,7 @@ def write_hybrid_rag_experiment(
         query_runner=query_runner,
     )
     output = Path(output_dir)
-    json_path = write_hybrid_rag_experiment_json(result, output / "hybrid_rag_experiment.json")
-    md_path = write_hybrid_rag_experiment_markdown(result, output / "hybrid_rag_experiment.md")
+    stem = Path(report_name).stem or "hybrid_rag_experiment"
+    json_path = write_hybrid_rag_experiment_json(result, output / f"{stem}.json")
+    md_path = write_hybrid_rag_experiment_markdown(result, output / f"{stem}.md")
     return json_path, md_path, result

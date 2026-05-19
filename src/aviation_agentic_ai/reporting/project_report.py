@@ -128,7 +128,7 @@ def _compact_hybrid_report(data: dict[str, Any]) -> dict[str, Any]:
 def _compact_json_data(path: Path, data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
     if path.name == "chunking_comparison.json":
         return _compact_chunking_report(data), True
-    if path.name == "hybrid_rag_experiment.json":
+    if path.name.startswith("hybrid_rag") and path.suffix == ".json":
         return _compact_hybrid_report(data), True
     return data, False
 
@@ -312,7 +312,7 @@ def _hybrid_summary_lines(
     manifest = metadata.get("run_manifest", {})
     llm = manifest.get("llm", {}) if isinstance(manifest, dict) else {}
     report_path = report.get("path", "reports/stages/hybrid_rag_experiment.md") if report else "TBD"
-    return [
+    lines = [
         f"Hybrid RAG evidence: `{report_path}`. It evaluated "
         f"{metadata.get('questions_total', 'TBD')} boundary CQs using "
         f"`{metadata.get('chunking_strategy', 'TBD')}` chunks, collection "
@@ -340,6 +340,30 @@ def _hybrid_summary_lines(
         f"vs vector Recall@5={lift.get('vs_vector_recall_at_5', 'TBD')}, "
         f"vs graph Recall@5={lift.get('vs_graph_recall_at_5', 'TBD')}.",
     ]
+    structure_report = artifact_sources.get("hybrid_rag_structure_aware")
+    structure_data = artifact_sources.get("hybrid_rag_structure_aware_json", {}).get("data", {})
+    if isinstance(structure_data, dict) and structure_data:
+        structure_metadata = structure_data.get("metadata", {})
+        structure_aggregate = structure_data.get("aggregate", {})
+        structure_hybrid = structure_aggregate.get("hybrid", {})
+        structure_lift = structure_aggregate.get("hybrid_lift", {})
+        structure_path = structure_report.get("path", "reports/stages/hybrid_rag_structure_aware.md")
+        lines.append(
+            f"Structure-aware Hybrid RAG evidence: `{structure_path}`. It evaluated "
+            f"{structure_metadata.get('questions_total', 'TBD')} boundary CQs with hybrid "
+            f"Recall@5={_metric_value(structure_hybrid, 'retrieval', 'recall_at_5')}, "
+            "KG evidence coverage="
+            f"{_metric_value(structure_hybrid, 'kg_evidence', 'evidence_coverage')}, "
+            "and lift vs vector Recall@5="
+            f"{structure_lift.get('vs_vector_recall_at_5', 'TBD')}."
+        )
+    review = artifact_sources.get("graphrag_review")
+    if review and review.get("present"):
+        lines.append(
+            f"GraphRAG interpretation evidence: `{review.get('path')}` explains "
+            "retrieval, KG evidence, and LLM answer behavior separately."
+        )
+    return lines
 
 
 def build_project_report_draft(evidence: dict[str, Any]) -> str:
@@ -349,6 +373,9 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     artifact_sources = evidence.get("current_artifacts", {})
     curated_eval = artifact_sources.get("curated_ontology_evaluation_json", {}).get("data", {})
     kg_validation = artifact_sources.get("kg_validation_json", {}).get("data", {})
+    structure_kg_validation = artifact_sources.get(
+        "structure_aware_kg_validation_json", {}
+    ).get("data", {})
     structural = curated_eval.get("structural_metrics", {}) if isinstance(curated_eval, dict) else {}
     judgment = curated_eval.get("judgment", {}) if isinstance(curated_eval, dict) else {}
     config_default = evidence.get("configs", {}).get("default", {}).get("data", {})
@@ -358,6 +385,12 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     kg_path = kg_validation.get("kg_path", current_artifacts.get("validated_kg", "TBD"))
     kg_triples = kg_validation.get("triples_total", "TBD")
     kg_errors = kg_validation.get("errors_total", "TBD")
+    structure_kg_path = structure_kg_validation.get(
+        "kg_path",
+        current_artifacts.get("structure_aware_kg", "TBD"),
+    )
+    structure_kg_triples = structure_kg_validation.get("triples_total", "TBD")
+    structure_kg_errors = structure_kg_validation.get("errors_total", "TBD")
     chunking_lines = _chunking_summary_lines(artifact_sources, categories)
     hybrid_lines = _hybrid_summary_lines(artifact_sources, retrieval_config)
     has_chunking = bool(
@@ -366,14 +399,26 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     has_hybrid = bool(
         artifact_sources.get("hybrid_rag_experiment_json", {}).get("data", {})
     )
+    has_structure_hybrid = bool(
+        artifact_sources.get("hybrid_rag_structure_aware_json", {}).get("data", {})
+    )
     if has_chunking and has_hybrid:
-        next_work_lines = [
-            "1. Review the chunking and Hybrid RAG reports for project-defense claims.",
-            "2. Decide whether to re-extract the KG with `structure_aware` chunks.",
-            "3. Refine gold labels from source-page to chunk/span evidence.",
-            "4. Generate the AI-polished final report after review.",
-            "5. Implement the minimal web interface demonstrator.",
-        ]
+        if has_structure_hybrid:
+            next_work_lines = [
+                "1. Refine gold labels from source-page to chunk/span evidence.",
+                "2. Write project-defense conclusions from fixed-window and structure-aware runs.",
+                "3. Decide whether `structure_aware` becomes the default GraphRAG strategy.",
+                "4. Generate the AI-polished final report after review.",
+                "5. Implement the minimal web interface demonstrator.",
+            ]
+        else:
+            next_work_lines = [
+                "1. Review the chunking and Hybrid RAG reports for project-defense claims.",
+                "2. Decide whether to re-extract the KG with `structure_aware` chunks.",
+                "3. Refine gold labels from source-page to chunk/span evidence.",
+                "4. Generate the AI-polished final report after review.",
+                "5. Implement the minimal web interface demonstrator.",
+            ]
     else:
         next_work_lines = [
             "1. Run report hygiene to maintain a readable stage dashboard.",
@@ -381,6 +426,28 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
             "3. Refine gold labels from source-page to chunk/span evidence.",
             "4. Use the AI report command to polish this deterministic draft.",
         ]
+    reproducibility_lines = [
+        "- `uv run aviation-ai report chunking-comparison`",
+        "- `uv run aviation-ai index build`",
+        "- `uv run aviation-ai report hybrid-rag`",
+    ]
+    if has_structure_hybrid:
+        reproducibility_lines.extend(
+            [
+                "- `uv run aviation-ai kg extract --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --output data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --ttl-output data/kg/06_phak_ch4_0.structure_aware.kg.ttl`",
+                "- `uv run aviation-ai kg validate --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --output-dir reports/stages --report-name structure_aware_kg_validation`",
+                "- `uv run aviation-ai index build --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --collection-name phak_ch4_chunks_structure_aware`",
+                "- `uv run aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware`",
+                "- `uv run aviation-ai report graphrag-review`",
+            ]
+        )
+    reproducibility_lines.extend(
+        [
+            "- `uv run aviation-ai report hygiene --apply`",
+            "- `uv run aviation-ai report project --no-ai`",
+            "- `uv run aviation-ai report project --ai`",
+        ]
+    )
     lines = [
         "# Aviation Agentic AI Project Report",
         "",
@@ -420,6 +487,9 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "validation against the extraction profile.",
         f"Validated KG artifact: `{kg_path}`. Triples={kg_triples}; validation errors="
         f"{kg_errors}; ontology constraint=`{kg_validation.get('ontology_path', ontology_path)}`.",
+        f"Structure-aware KG artifact: `{structure_kg_path}`. Triples="
+        f"{structure_kg_triples}; validation errors={structure_kg_errors}. It is kept "
+        "separate from the fixed-window KG to avoid mixing chunk-id schemas.",
         "",
         "## Chunking comparison design",
         "",
@@ -431,12 +501,14 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "",
         "## Current results and limitations",
         "",
-        "Current evidence now covers the explainable curated ontology, validated KG, "
-        "chunking comparison, and fixed-window Hybrid RAG loop when their reports are "
-        "present in the stage index.",
-        "Limitations: gold labels are still source-page level, the current KG is aligned "
-        "to fixed-window chunks, and the Hybrid RAG run improved graph recall but did "
-        "not beat vector-only Recall@5 on this coarse benchmark.",
+        "Current evidence now covers the explainable curated ontology, fixed-window KG, "
+        "structure-aware KG, chunking comparison, fixed-window Hybrid RAG, "
+        "structure-aware Hybrid RAG, and GraphRAG review when their reports are present "
+        "in the stage index.",
+        "Limitations: gold labels are still source-page level, structure-aware KG "
+        "extraction is more expensive because it uses many smaller chunks, and "
+        "GraphRAG should be defended as structured evidence support rather than a "
+        "single-score Recall improvement.",
         "",
         "## Advisory assistant boundary",
         "",
@@ -448,12 +520,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "",
         "## Reproducibility appendix",
         "",
-        "- `uv run aviation-ai report chunking-comparison`",
-        "- `uv run aviation-ai index build`",
-        "- `uv run aviation-ai report hybrid-rag`",
-        "- `uv run aviation-ai report hygiene --apply`",
-        "- `uv run aviation-ai report project --no-ai`",
-        "- `uv run aviation-ai report project --ai`",
+        *reproducibility_lines,
         "",
         "## Evidence Sources",
         "",

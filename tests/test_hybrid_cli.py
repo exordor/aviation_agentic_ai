@@ -186,6 +186,52 @@ def test_cli_kg_extract_can_write_ttl_export(tmp_path: Path, monkeypatch) -> Non
     assert "kg.ttl" in result.output
 
 
+def test_cli_kg_validate_passes_report_name(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    calls = {}
+
+    def fake_validate_kg_file(*_args, **_kwargs):
+        return {
+            "valid": True,
+            "kg_path": "data/kg/test.jsonl",
+            "chunks_path": "data/chunks/test.jsonl",
+            "profile_path": "configs/extraction_profile.yaml",
+            "ontology_path": "data/ontology/curated/test.ttl",
+            "triples_total": 1,
+            "errors_total": 0,
+            "errors": [],
+        }
+
+    def fake_write_reports(_report, output_dir, *, report_name):
+        calls["report_name"] = report_name
+        output = Path(output_dir)
+        output.mkdir(parents=True, exist_ok=True)
+        json_path = output / f"{report_name}.json"
+        md_path = output / f"{report_name}.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path
+
+    monkeypatch.setattr(cli, "validate_kg_file", fake_validate_kg_file)
+    monkeypatch.setattr(cli, "write_kg_validation_reports", fake_write_reports)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "kg",
+            "validate",
+            "--output-dir",
+            str(tmp_path),
+            "--report-name",
+            "structure_aware_kg_validation",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls["report_name"] == "structure_aware_kg_validation"
+
+
 def test_cli_report_chunking_comparison_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai import cli
 
@@ -214,3 +260,65 @@ def test_cli_report_chunking_comparison_uses_mocked_writer(tmp_path: Path, monke
 
     assert result.exit_code == 0, result.output
     assert "Compared 1 chunking strategies" in result.output
+
+
+def test_cli_report_hybrid_rag_passes_report_name(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    calls = {}
+
+    def fake_writer(*_args, **kwargs):
+        calls["report_name"] = kwargs["report_name"]
+        json_path = tmp_path / f"{kwargs['report_name']}.json"
+        md_path = tmp_path / f"{kwargs['report_name']}.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"questions_total": 2}}
+
+    monkeypatch.setattr(cli, "write_hybrid_rag_experiment", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "hybrid-rag",
+            "--output-dir",
+            str(tmp_path),
+            "--report-name",
+            "hybrid_rag_structure_aware",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls["report_name"] == "hybrid_rag_structure_aware"
+    assert "Evaluated 2 boundary CQs" in result.output
+
+
+def test_cli_report_graphrag_review_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **kwargs):
+        json_path = tmp_path / f"{kwargs['report_name']}.json"
+        md_path = tmp_path / f"{kwargs['report_name']}.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return (
+            json_path,
+            md_path,
+            {"metadata": {"structure_aware_present": False}},
+        )
+
+    monkeypatch.setattr(cli, "write_graphrag_review", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "graphrag-review",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Reviewed GraphRAG reports" in result.output

@@ -207,3 +207,25 @@ def test_write_kg_validation_reports(tmp_path: Path) -> None:
     assert json_path.exists()
     assert md_path.exists()
     assert "KG Validation Report" in md_path.read_text(encoding="utf-8")
+
+
+def test_write_kg_validation_reports_supports_report_name(tmp_path: Path) -> None:
+    report = {
+        "valid": True,
+        "kg_path": "data/kg/test.jsonl",
+        "chunks_path": "data/chunks/test.jsonl",
+        "profile_path": "configs/extraction_profile.yaml",
+        "ontology_path": "data/ontology/curated/test.ttl",
+        "triples_total": 1,
+        "errors_total": 0,
+        "errors": [],
+    }
+
+    json_path, md_path = write_kg_validation_reports(
+        report,
+        tmp_path,
+        report_name="structure_aware_kg_validation",
+    )
+
+    assert json_path.name == "structure_aware_kg_validation.json"
+    assert md_path.name == "structure_aware_kg_validation.md"
