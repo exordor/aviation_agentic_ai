@@ -1,0 +1,3044 @@
+@prefix : <http://www.example.org/aviation/phak#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg00_8748d82ca7 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p00-c00-kg00-8748d82ca7" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg00_8748d82ca7 ;
+    rdf:object :Entity_e6ddfe806bf2 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg01_b36f7b1b3c a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p00-c00-kg01-b36f7b1b3c" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg01_b36f7b1b3c ;
+    rdf:object :Entity_97d09ab0508d ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg02_30f9108dc2 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p00-c00-kg02-30f9108dc2" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg02_30f9108dc2 ;
+    rdf:object :Entity_97d09ab0508d ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg03_eb390520b8 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p00-c00-kg03-eb390520b8" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg03_eb390520b8 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_0bc4d2597a9e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg04_0965835698 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p00-c00-kg04-0965835698" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg04_0965835698 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg00_898cdb205b a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg00_898cdb205b ;
+    rdf:object :Entity_15a4d680a787 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg01_8c4f39e792 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c00-kg01-8c4f39e792" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg01_8c4f39e792 ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_15a4d680a787 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg02_d6f789c778 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c00-kg02-d6f789c778" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg02_d6f789c778 ;
+    rdf:object :Entity_7e77286b3463 ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_15a4d680a787 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg03_012eeeefb3 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg03_012eeeefb3 ;
+    rdf:object :Entity_6550a96e2c5c ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_64c526067f92 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg04_b22fb4d3ff a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c00-kg04-b22fb4d3ff" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg04_b22fb4d3ff ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c01_kg00_898cdb205b a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c01-kg00-898cdb205b" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c01_kg00_898cdb205b ;
+    rdf:object :Entity_15a4d680a787 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c01_kg01_b22fb4d3ff a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c01-kg01-b22fb4d3ff" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c01_kg01_b22fb4d3ff ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg00_2130a146d0 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c02-kg00-2130a146d0" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg00_2130a146d0 ;
+    rdf:object :Entity_8bcd01c8388a ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_0d8b9642372c .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg01_4d653713c4 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c02-kg01-4d653713c4" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg01_4d653713c4 ;
+    rdf:object :Entity_8bcd01c8388a ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_1e73b30600d2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg02_3fc80c9399 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c02-kg02-3fc80c9399" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg02_3fc80c9399 ;
+    rdf:object :Entity_8bcd01c8388a ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_4977a4c1b708 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg04_89ba52ba48 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c02-kg04-89ba52ba48" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg04_89ba52ba48 ;
+    rdf:object :Entity_e6ddfe806bf2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_bbd659b9b867 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c03_kg00_52eb682acd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c03-kg00-52eb682acd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c03_kg00_52eb682acd ;
+    rdf:object :Entity_a21a9c5fb703 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_6579d642cbbc .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c03_kg01_901c2036f9 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c03-kg01-901c2036f9" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c03_kg01_901c2036f9 ;
+    rdf:object :Entity_a5490c465e30 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_6579d642cbbc .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p01_c03_kg02_676b83c358 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p01-c03-kg02-676b83c358" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c03_kg02_676b83c358 ;
+    rdf:object :Entity_5e9a82789689 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_cba062bc5cf0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c00_kg00_6b5a5c0913 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c00-kg00-6b5a5c0913" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c00_kg00_6b5a5c0913 ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c00_kg01_a5f6c08529 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c00-kg01-a5f6c08529" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c00_kg01_a5f6c08529 ;
+    rdf:object :Entity_113264d3bd57 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_4ced2bc633bc .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c00_kg02_77b9f87c3e a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c00-kg02-77b9f87c3e" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c00_kg02_77b9f87c3e ;
+    rdf:object :Entity_4ced2bc633bc ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_6550a96e2c5c .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c00_kg03_7dd3a19d10 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c00-kg03-7dd3a19d10" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c00_kg03_7dd3a19d10 ;
+    rdf:object :Entity_4ced2bc633bc ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c01_kg00_0a8eb90590 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c01-kg00-0a8eb90590" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c01_kg00_0a8eb90590 ;
+    rdf:object :Entity_0d8b9642372c ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_113264d3bd57 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c01_kg01_c46a1dfa85 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c01-kg01-c46a1dfa85" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c01_kg01_c46a1dfa85 ;
+    rdf:object :Entity_d29735431e2e ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c01_kg02_8748d82ca7 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c01-kg02-8748d82ca7" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c01_kg02_8748d82ca7 ;
+    rdf:object :Entity_e6ddfe806bf2 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c01_kg03_404d3659af a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c01-kg03-404d3659af" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c01_kg03_404d3659af ;
+    rdf:object :Entity_15a4d680a787 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c02_kg00_a7beb88a1c a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c02-kg00-a7beb88a1c" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg00_a7beb88a1c ;
+    rdf:object :Entity_25044416018b ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c02_kg01_45048a4272 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c02-kg01-45048a4272" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg01_45048a4272 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c02_kg02_54921c8ed3 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c02-kg02-54921c8ed3" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg02_54921c8ed3 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c02_kg03_520365d66c a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c02-kg03-520365d66c" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg03_520365d66c ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_2e54a5bf9ed5 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c02_kg04_cfd439979e a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c02-kg04-cfd439979e" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg04_cfd439979e ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c02_kg05_4ed6928f68 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c02-kg05-4ed6928f68" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg05_4ed6928f68 ;
+    rdf:object :Entity_dd1b29cbefbe ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c02_kg06_54921c8ed3 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c02-kg06-54921c8ed3" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg06_54921c8ed3 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c02_kg07_18b34d10b2 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c02-kg07-18b34d10b2" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg07_18b34d10b2 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_dd1b29cbefbe .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c03_kg00_1d193d5848 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c03-kg00-1d193d5848" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c03_kg00_1d193d5848 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_dd1b29cbefbe .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c03_kg01_c326dd5b34 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c03-kg01-c326dd5b34" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c03_kg01_c326dd5b34 ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_dd1b29cbefbe .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c03_kg02_e189b1ea98 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c03-kg02-e189b1ea98" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c03_kg02_e189b1ea98 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p02_c03_kg03_c590adea72 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p02-c03-kg03-c590adea72" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p02_c03_kg03_c590adea72 ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_97d09ab0508d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg00_4803bde96a a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg00-4803bde96a" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg00_4803bde96a ;
+    rdf:object :Entity_d29735431e2e ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_a21e7584800e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg01_000e77b985 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg01-000e77b985" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg01_000e77b985 ;
+    rdf:object :Entity_d29735431e2e ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_69662a258101 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg02_6af83bfa87 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg02-6af83bfa87" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg02_6af83bfa87 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_fa87b488c50e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg03_44d1ca3841 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg03-44d1ca3841" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg03_44d1ca3841 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_140a4dc9d343 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg04_608b829bd2 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg04-608b829bd2" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg04_608b829bd2 ;
+    rdf:object :Entity_d29735431e2e ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_140a4dc9d343 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg05_7e245baf37 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg05-7e245baf37" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg05_7e245baf37 ;
+    rdf:object :Entity_d29735431e2e ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_ee583821bd40 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg06_8a38a05291 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg06-8a38a05291" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg06_8a38a05291 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_fa87b488c50e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg07_299b471876 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg07-299b471876" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg07_299b471876 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c00_kg08_1802ea4070 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c00-kg08-1802ea4070" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg08_1802ea4070 ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_fa87b488c50e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c01_kg00_851d22d42a a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c01-kg00-851d22d42a" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c01_kg00_851d22d42a ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_0bc4d2597a9e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c01_kg01_654437250f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c01-kg01-654437250f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c01_kg01_654437250f ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c01_kg02_a140c7af03 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c01-kg02-a140c7af03" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c01_kg02_a140c7af03 ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_fb6fca75d7ea .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c02_kg00_eb390520b8 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c02-kg00-eb390520b8" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg00_eb390520b8 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_0bc4d2597a9e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c02_kg01_5451cb26a9 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c02-kg01-5451cb26a9" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg01_5451cb26a9 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_2e54a5bf9ed5 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c02_kg02_422a4a176e a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c02-kg02-422a4a176e" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg02_422a4a176e ;
+    rdf:object :Entity_dd1b29cbefbe ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_2e54a5bf9ed5 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c02_kg03_f0a707d3de a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c02-kg03-f0a707d3de" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg03_f0a707d3de ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_a21e7584800e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c02_kg04_3c5d113bc9 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c02-kg04-3c5d113bc9" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg04_3c5d113bc9 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_0bc4d2597a9e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c02_kg05_996d2b24a8 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c02-kg05-996d2b24a8" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg05_996d2b24a8 ;
+    rdf:object :Entity_dd1b29cbefbe ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_0bc4d2597a9e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c03_kg00_cd15092b29 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c03-kg00-cd15092b29" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg00_cd15092b29 ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_0bc4d2597a9e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c03_kg01_851d22d42a a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c03-kg01-851d22d42a" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg01_851d22d42a ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_0bc4d2597a9e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c03_kg02_db67ae14db a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c03-kg02-db67ae14db" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg02_db67ae14db ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c03_kg03_5f41309182 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c03-kg03-5f41309182" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg03_5f41309182 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_2e54a5bf9ed5 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c03_kg04_2bf419b2a5 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c03-kg04-2bf419b2a5" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg04_2bf419b2a5 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_dd1b29cbefbe .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c03_kg05_3d55cb1ee1 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c03-kg05-3d55cb1ee1" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg05_3d55cb1ee1 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_68b5514cac4b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c03_kg06_7a6442e723 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c03-kg06-7a6442e723" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg06_7a6442e723 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_b568d37122a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c03_kg07_b55090d06e a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c03-kg07-b55090d06e" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg07_b55090d06e ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c04_kg00_8d5f1149d7 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c04-kg00-8d5f1149d7" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c04_kg00_8d5f1149d7 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c04_kg01_2bf419b2a5 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c04-kg01-2bf419b2a5" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c04_kg01_2bf419b2a5 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_dd1b29cbefbe .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c04_kg02_36b6bbb8a1 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c04-kg02-36b6bbb8a1" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c04_kg02_36b6bbb8a1 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_2e54a5bf9ed5 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p03_c04_kg03_64ad6cbe92 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p03-c04-kg03-64ad6cbe92" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p03_c04_kg03_64ad6cbe92 ;
+    rdf:object :Entity_d29735431e2e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c00_kg00_9ab0d80009 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c00-kg00-9ab0d80009" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c00_kg00_9ab0d80009 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_a6bdb8eeb54d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c00_kg01_c05f4af477 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c00-kg01-c05f4af477" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c00_kg01_c05f4af477 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_a6bdb8eeb54d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c00_kg02_80b509825b a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c00-kg02-80b509825b" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c00_kg02_80b509825b ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_a6bdb8eeb54d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c00_kg03_466b6055df a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c00-kg03-466b6055df" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c00_kg03_466b6055df ;
+    rdf:object :Entity_d29735431e2e ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_a6bdb8eeb54d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c01_kg00_a566d68926 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c01-kg00-a566d68926" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg00_a566d68926 ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_68b5514cac4b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c01_kg01_a566d68926 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c01-kg01-a566d68926" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg01_a566d68926 ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_68b5514cac4b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c01_kg02_3d55cb1ee1 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c01-kg02-3d55cb1ee1" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg02_3d55cb1ee1 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_68b5514cac4b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c01_kg03_adf9bc9e73 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c01-kg03-adf9bc9e73" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg03_adf9bc9e73 ;
+    rdf:object :Entity_68b5514cac4b ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c01_kg04_13afbf9092 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c01-kg04-13afbf9092" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg04_13afbf9092 ;
+    rdf:object :Entity_e6ddfe806bf2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_dd1b29cbefbe .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c01_kg05_2bf419b2a5 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c01-kg05-2bf419b2a5" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg05_2bf419b2a5 ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_dd1b29cbefbe .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c01_kg06_b55090d06e a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c01-kg06-b55090d06e" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg06_b55090d06e ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c01_kg07_9f23e68dba a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c01-kg07-9f23e68dba" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg07_9f23e68dba ;
+    rdf:object :Entity_0bc4d2597a9e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_a21e7584800e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c02_kg00_9ea374876e a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c02-kg00-9ea374876e" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg00_9ea374876e ;
+    rdf:object :Entity_137851f1d4de ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c02_kg01_2c6857b3aa a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c02-kg01-2c6857b3aa" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg01_2c6857b3aa ;
+    rdf:object :Entity_5bc68cc3aa5b ;
+    rdf:predicate :hasQuantity ;
+    rdf:subject :Entity_2e54a5bf9ed5 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c02_kg02_0ae6b8c88c a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c02-kg02-0ae6b8c88c" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg02_0ae6b8c88c ;
+    rdf:object :Entity_9d6cb3f62eef ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_b568d37122a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c02_kg03_1f8db3f912 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c02-kg03-1f8db3f912" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg03_1f8db3f912 ;
+    rdf:object :Entity_2e54a5bf9ed5 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_68b5514cac4b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c02_kg04_b8789cd762 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c02-kg04-b8789cd762" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg04_b8789cd762 ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_68b5514cac4b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c02_kg05_813c55c60f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c02-kg05-813c55c60f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg05_813c55c60f ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_bbd659b9b867 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c02_kg06_ed34569861 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c02-kg06-ed34569861" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg06_ed34569861 ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_b057963b083a .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c02_kg07_15aa36e7f8 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c02-kg07-15aa36e7f8" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg07_15aa36e7f8 ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :partOf ;
+    rdf:subject :Entity_113264d3bd57 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c03_kg00_813c55c60f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c03-kg00-813c55c60f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg00_813c55c60f ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_bbd659b9b867 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c03_kg01_c554d41824 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c03-kg01-c554d41824" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg01_c554d41824 ;
+    rdf:object :Entity_b057963b083a ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_38f564c94cd0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c03_kg02_fd165fb283 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c03-kg02-fd165fb283" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg02_fd165fb283 ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_38f564c94cd0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c03_kg03_8c9532872d a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c03-kg03-8c9532872d" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg03_8c9532872d ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_e3c1d502d2a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c03_kg04_61250fc89b a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c03-kg04-61250fc89b" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg04_61250fc89b ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_df322a700ec1 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c04_kg00_45483e222a a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c04-kg00-45483e222a" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg00_45483e222a ;
+    rdf:object :Entity_90226b5b52af ;
+    rdf:predicate :supportedByEvidence ;
+    rdf:subject :Entity_df322a700ec1 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c04_kg01_45483e222a a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c04-kg01-45483e222a" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg01_45483e222a ;
+    rdf:object :Entity_90226b5b52af ;
+    rdf:predicate :supportedByEvidence ;
+    rdf:subject :Entity_df322a700ec1 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c04_kg02_a19469c432 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c04-kg02-a19469c432" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg02_a19469c432 ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_b057963b083a .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c04_kg03_bb6c8ab2da a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c04-kg03-bb6c8ab2da" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg03_bb6c8ab2da ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_b057963b083a .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p04_c04_kg04_76c5d5d779 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p04-c04-kg04-76c5d5d779" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg04_76c5d5d779 ;
+    rdf:object :Entity_7e77286b3463 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_0d8b9642372c .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c00_kg00_8736068c3c a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c00-kg00-8736068c3c" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c00_kg00_8736068c3c ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_d29735431e2e .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c00_kg01_cd6545eea2 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c00-kg01-cd6545eea2" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c00_kg01_cd6545eea2 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_e3c1d502d2a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c00_kg02_7d9582b614 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c00-kg02-7d9582b614" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c00_kg02_7d9582b614 ;
+    rdf:object :Entity_0d8b9642372c ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_df322a700ec1 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c01_kg00_2c11cb419a a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c01-kg00-2c11cb419a" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c01_kg00_2c11cb419a ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_e3c1d502d2a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c01_kg01_618e279253 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c01-kg01-618e279253" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c01_kg01_618e279253 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_6550a96e2c5c .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c01_kg02_07568da591 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c01-kg02-07568da591" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c01_kg02_07568da591 ;
+    rdf:object :Entity_bbd659b9b867 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_e3c1d502d2a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c01_kg03_45048a4272 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c01-kg03-45048a4272" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c01_kg03_45048a4272 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c02_kg00_45048a4272 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c02-kg00-45048a4272" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c02_kg00_45048a4272 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_e6ddfe806bf2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c02_kg01_813c55c60f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c02-kg01-813c55c60f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c02_kg01_813c55c60f ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_bbd659b9b867 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c02_kg02_89ba52ba48 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c02-kg02-89ba52ba48" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c02_kg02_89ba52ba48 ;
+    rdf:object :Entity_e6ddfe806bf2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_bbd659b9b867 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c02_kg03_c83e137229 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c02-kg03-c83e137229" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c02_kg03_c83e137229 ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c03_kg00_c2d45fd4f6 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c03-kg00-c2d45fd4f6" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg00_c2d45fd4f6 ;
+    rdf:object :Entity_3592cf6a2cf0 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c03_kg01_a87aa93e4f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c03-kg01-a87aa93e4f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg01_a87aa93e4f ;
+    rdf:object :Entity_a3d6d325cdd8 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c03_kg02_1560082613 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c03-kg02-1560082613" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg02_1560082613 ;
+    rdf:object :Entity_c366b9238ba0 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c03_kg03_e6f8bc1000 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c03-kg03-e6f8bc1000" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg03_e6f8bc1000 ;
+    rdf:object :Entity_e9b5f85f25af ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p05_c03_kg04_7543176b0f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p05-c03-kg04-7543176b0f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg04_7543176b0f ;
+    rdf:object :Entity_db07cb80a8a4 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_bbd659b9b867 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c00_kg00_c2d45fd4f6 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c00-kg00-c2d45fd4f6" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg00_c2d45fd4f6 ;
+    rdf:object :Entity_3592cf6a2cf0 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c00_kg01_a87aa93e4f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c00-kg01-a87aa93e4f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg01_a87aa93e4f ;
+    rdf:object :Entity_a3d6d325cdd8 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c00_kg02_1560082613 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c00-kg02-1560082613" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg02_1560082613 ;
+    rdf:object :Entity_c366b9238ba0 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c00_kg03_9a88c7f5f5 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c00-kg03-9a88c7f5f5" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg03_9a88c7f5f5 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c00_kg04_9a88c7f5f5 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c00-kg04-9a88c7f5f5" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg04_9a88c7f5f5 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c00_kg05_f9b9087ebd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c00-kg05-f9b9087ebd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg05_f9b9087ebd ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c00_kg06_f9b9087ebd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c00-kg06-f9b9087ebd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg06_f9b9087ebd ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c00_kg07_f9b9087ebd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c00-kg07-f9b9087ebd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg07_f9b9087ebd ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c01_kg00_f9b9087ebd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c01-kg00-f9b9087ebd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c01_kg00_f9b9087ebd ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c01_kg01_76e56b03de a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c01-kg01-76e56b03de" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c01_kg01_76e56b03de ;
+    rdf:object :Entity_e6ddfe806bf2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c01_kg03_f0178fd71c a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c01-kg03-f0178fd71c" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c01_kg03_f0178fd71c ;
+    rdf:object :Entity_b568d37122a0 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_bbd659b9b867 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c01_kg04_b03c9d39d4 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c01-kg04-b03c9d39d4" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c01_kg04_b03c9d39d4 ;
+    rdf:object :Entity_7e77286b3463 ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c02_kg00_c2d45fd4f6 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c02-kg00-c2d45fd4f6" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg00_c2d45fd4f6 ;
+    rdf:object :Entity_3592cf6a2cf0 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c02_kg01_a87aa93e4f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c02-kg01-a87aa93e4f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg01_a87aa93e4f ;
+    rdf:object :Entity_a3d6d325cdd8 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c02_kg02_4b6e2a6f24 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c02-kg02-4b6e2a6f24" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg02_4b6e2a6f24 ;
+    rdf:object :Entity_db07cb80a8a4 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_3592cf6a2cf0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c02_kg03_6da52cc772 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c02-kg03-6da52cc772" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg03_6da52cc772 ;
+    rdf:object :Entity_db07cb80a8a4 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_a3d6d325cdd8 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c02_kg04_c83e137229 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c02-kg04-c83e137229" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg04_c83e137229 ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c02_kg05_f5a8a00834 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c02-kg05-f5a8a00834" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg05_f5a8a00834 ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c03_kg00_ffc37cbc37 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c03-kg00-ffc37cbc37" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg00_ffc37cbc37 ;
+    rdf:object :Entity_e6ddfe806bf2 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c03_kg01_d374f2f475 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c03-kg01-d374f2f475" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg01_d374f2f475 ;
+    rdf:object :Entity_bbd659b9b867 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c03_kg02_f51c2b9fb3 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c03-kg02-f51c2b9fb3" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg02_f51c2b9fb3 ;
+    rdf:object :Entity_d6294526ef14 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c03_kg03_011d4501c5 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c03-kg03-011d4501c5" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg03_011d4501c5 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p06_c03_kg04_2c11cb419a a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p06-c03-kg04-2c11cb419a" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg04_2c11cb419a ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_e3c1d502d2a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c00_kg00_865d5a01fd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c00-kg00-865d5a01fd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg00_865d5a01fd ;
+    rdf:object :Entity_db07cb80a8a4 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_ca25add3240b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c00_kg01_9844b11d81 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c00-kg01-9844b11d81" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg01_9844b11d81 ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c00_kg02_d8dd9f334b a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c00-kg02-d8dd9f334b" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg02_d8dd9f334b ;
+    rdf:object :Entity_d6294526ef14 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_ca25add3240b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c00_kg03_0875fe4456 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c00-kg03-0875fe4456" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg03_0875fe4456 ;
+    rdf:object :Entity_0d8b9642372c ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_6ff22567c857 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c00_kg04_9a7b2cc4a1 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c00-kg04-9a7b2cc4a1" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg04_9a7b2cc4a1 ;
+    rdf:object :Entity_6550a96e2c5c ;
+    rdf:predicate :partOf ;
+    rdf:subject :Entity_6ff22567c857 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c00_kg05_dc73bd3f98 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c00-kg05-dc73bd3f98" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg05_dc73bd3f98 ;
+    rdf:object :Entity_0d8b9642372c ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_df322a700ec1 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c01_kg00_2c11cb419a a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c01-kg00-2c11cb419a" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg00_2c11cb419a ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_e3c1d502d2a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c01_kg01_9844b11d81 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c01-kg01-9844b11d81" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg01_9844b11d81 ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c01_kg02_85927cf324 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c01-kg02-85927cf324" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg02_85927cf324 ;
+    rdf:object :Entity_db07cb80a8a4 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_e3c1d502d2a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c01_kg03_61250fc89b a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c01-kg03-61250fc89b" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg03_61250fc89b ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_df322a700ec1 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c01_kg04_713b3d25ba a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c01-kg04-713b3d25ba" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg04_713b3d25ba ;
+    rdf:object :Entity_ca25add3240b ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_b568d37122a0 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg00_865d5a01fd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg00-865d5a01fd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg00_865d5a01fd ;
+    rdf:object :Entity_db07cb80a8a4 ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_ca25add3240b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg01_f8536369d8 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg01-f8536369d8" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg01_f8536369d8 ;
+    rdf:object :Entity_d6294526ef14 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_ca25add3240b .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg02_bc020d0bff a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg02-bc020d0bff" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg02_bc020d0bff ;
+    rdf:object :Entity_97d09ab0508d ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_97d09ab0508d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg03_b1c697ee50 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg03-b1c697ee50" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg03_b1c697ee50 ;
+    rdf:object :Entity_97d09ab0508d ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_cdcefa1c76d8 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg04_14998e95a7 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg04-14998e95a7" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg04_14998e95a7 ;
+    rdf:object :Entity_d6294526ef14 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_97d09ab0508d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg05_bc020d0bff a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg05-bc020d0bff" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg05_bc020d0bff ;
+    rdf:object :Entity_97d09ab0508d ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_97d09ab0508d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg06_14998e95a7 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg06-14998e95a7" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg06_14998e95a7 ;
+    rdf:object :Entity_d6294526ef14 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_97d09ab0508d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg07_bc020d0bff a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg07-bc020d0bff" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg07_bc020d0bff ;
+    rdf:object :Entity_97d09ab0508d ;
+    rdf:predicate :hasOutcome ;
+    rdf:subject :Entity_97d09ab0508d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c02_kg08_13e9f7b56d a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c02-kg08-13e9f7b56d" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg08_13e9f7b56d ;
+    rdf:object :Entity_a21e7584800e ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_97d09ab0508d .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c03_kg00_64cb8ae1a6 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c03-kg00-64cb8ae1a6" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c03_kg00_64cb8ae1a6 ;
+    rdf:object :Entity_8033db400cb2 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_81cd96d79825 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c03_kg01_44fdb3348f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c03-kg01-44fdb3348f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c03_kg01_44fdb3348f ;
+    rdf:object :Entity_e9b5f85f25af ;
+    rdf:predicate :appliesTo ;
+    rdf:subject :Entity_8033db400cb2 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c03_kg02_e6f8bc1000 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c03-kg02-e6f8bc1000" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c03_kg02_e6f8bc1000 ;
+    rdf:object :Entity_e9b5f85f25af ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p07_c03_kg03_511b1c732d a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p07-c03-kg03-511b1c732d" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p07_c03_kg03_511b1c732d ;
+    rdf:object :Entity_bbd659b9b867 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_b057963b083a .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c00_kg00_f51c2b9fb3 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c00-kg00-f51c2b9fb3" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg00_f51c2b9fb3 ;
+    rdf:object :Entity_d6294526ef14 ;
+    rdf:predicate :hasCondition ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c00_kg01_f9b9087ebd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c00-kg01-f9b9087ebd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg01_f9b9087ebd ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c00_kg02_09be8462ad a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c00-kg02-09be8462ad" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg02_09be8462ad ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_6550a96e2c5c .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c00_kg03_e094cafc50 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c00-kg03-e094cafc50" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg03_e094cafc50 ;
+    rdf:object :Entity_6550a96e2c5c ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c00_kg04_6f52afcdda a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c00-kg04-6f52afcdda" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg04_6f52afcdda ;
+    rdf:object :Entity_0d8b9642372c ;
+    rdf:predicate :causes ;
+    rdf:subject :Entity_6550a96e2c5c .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c01_kg00_a87aa93e4f a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c01-kg00-a87aa93e4f" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg00_a87aa93e4f ;
+    rdf:object :Entity_a3d6d325cdd8 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c01_kg01_e6f8bc1000 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c01-kg01-e6f8bc1000" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg01_e6f8bc1000 ;
+    rdf:object :Entity_e9b5f85f25af ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c01_kg02_c2d45fd4f6 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c01-kg02-c2d45fd4f6" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg02_c2d45fd4f6 ;
+    rdf:object :Entity_3592cf6a2cf0 ;
+    rdf:predicate :hasComponent ;
+    rdf:subject :Entity_db07cb80a8a4 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c01_kg04_42e039dd54 a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c01-kg04-42e039dd54" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg04_42e039dd54 ;
+    rdf:object :Entity_38f564c94cd0 ;
+    rdf:predicate :affects ;
+    rdf:subject :Entity_6ff22567c857 .
+
+:KGTriple_06_phak_ch4_0_fixed_window_p08_c01_kg05_ee7a4b62dd a :Cl_KGTriple,
+        rdf:Statement ;
+    dcterms:created "2026-05-19T00:25:29.206191+00:00" ;
+    dcterms:creator "llm-structured-kg-extraction" ;
+    dcterms:identifier "06_phak_ch4_0-fixed_window-p08-c01-kg05-ee7a4b62dd" ;
+    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg05_ee7a4b62dd ;
+    rdf:object :Entity_90226b5b52af ;
+    rdf:predicate :supportedByEvidence ;
+    rdf:subject :Entity_28c278027660 .
+
+:Entity_1e73b30600d2 a :Cl_Force ;
+    rdfs:label "Cl_Friction" ;
+    :causes :Entity_8bcd01c8388a .
+
+:Entity_28c278027660 a :Cl_WingtipVortex ;
+    rdfs:label "Cl_WingtipVortex" ;
+    :supportedByEvidence :Entity_90226b5b52af .
+
+:Entity_4977a4c1b708 a :Cl_Concept ;
+    rdfs:label "Cl_Surface" ;
+    :causes :Entity_8bcd01c8388a .
+
+:Entity_64c526067f92 a :Cl_Concept ;
+    rdfs:label "Cl_Viscosity" ;
+    :affects :Entity_6550a96e2c5c .
+
+:Entity_69662a258101 a :Cl_Concept ;
+    rdfs:label "Cl_Instruments" ;
+    :appliesTo :Entity_d29735431e2e .
+
+:Entity_81cd96d79825 a :Cl_AerodynamicForce ;
+    rdfs:label "Cl_Lift" ;
+    :causes :Entity_8033db400cb2 .
+
+:Entity_cba062bc5cf0 a :Cl_AirfoilSurface ;
+    rdfs:label "surface roughness" ;
+    :affects :Entity_5e9a82789689 .
+
+:Entity_cdcefa1c76d8 a :Cl_AerodynamicForce ;
+    rdfs:label "Cl_AerodynamicForce" ;
+    :appliesTo :Entity_97d09ab0508d .
+
+:Entity_ee583821bd40 a :Cl_Concept ;
+    rdfs:label "Cl_Altimeter" ;
+    :appliesTo :Entity_d29735431e2e .
+
+:Entity_fb6fca75d7ea a :Cl_Concept ;
+    rdfs:label "Cl_DensityAltitude" ;
+    :affects :Entity_a21e7584800e .
+
+:Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg00_8748d82ca7 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=0; section=page-0; chunk_id=06_phak_ch4_0-fixed_window-p00-c00" ;
+    dcterms:conformsTo "confidence=0.970" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The atmosphere is an envelope of air" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg01_b36f7b1b3c a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=0; section=page-0; chunk_id=06_phak_ch4_0-fixed_window-p00-c00" ;
+    dcterms:conformsTo "confidence=0.720" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "a mixture of gases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg02_30f9108dc2 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=0; section=page-0; chunk_id=06_phak_ch4_0-fixed_window-p00-c00" ;
+    dcterms:conformsTo "confidence=0.780" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "78 percent nitrogen, 21 percent oxygen, and 1 percent other gases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg03_eb390520b8 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=0; section=page-0; chunk_id=06_phak_ch4_0-fixed_window-p00-c00" ;
+    dcterms:conformsTo "confidence=0.680" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the lighter elements are lifted up to the region of higher altitude" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg04_0965835698 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=0; section=page-0; chunk_id=06_phak_ch4_0-fixed_window-p00-c00" ;
+    dcterms:conformsTo "confidence=0.830" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "below 35,000 feet altitude" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg00_898cdb205b a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c00" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "gasses, like air, are also fluids" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg01_8c4f39e792 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c00" ;
+    dcterms:conformsTo "confidence=0.820" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Fluids take on the shape of their containers" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg02_d6f789c778 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c00" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "air will expand to fill the available volume of its container" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg03_012eeeefb3 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c00" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Viscosity is the property of a fluid that causes it to resist flowing" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg04_b22fb4d3ff a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c00" ;
+    dcterms:conformsTo "confidence=0.890" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Air has a low viscosity" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c01_kg00_898cdb205b a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c01" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Air is a fluid" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c01_kg01_b22fb4d3ff a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c01" ;
+    dcterms:conformsTo "confidence=0.740" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "has viscosity properties" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg00_2130a146d0 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c02" ;
+    dcterms:conformsTo "confidence=0.780" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the resistance that one surface or object encounters" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg01_4d653713c4 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c02" ;
+    dcterms:conformsTo "confidence=0.770" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "because of friction" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg02_3fc80c9399 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c02" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "surface roughness causes resistance" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg04_89ba52ba48 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c02" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "air flowing over the wing" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c03_kg00_52eb682acd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c03" ;
+    dcterms:conformsTo "confidence=0.890" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The layer of molecules that adhere to the wing surface is referred to as the boundary layer." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c03_kg01_901c2036f9 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c03" ;
+    dcterms:conformsTo "confidence=0.870" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "have a relative velocity near zero" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p01_c03_kg02_676b83c358 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=1; section=page-1; chunk_id=06_phak_ch4_0-fixed_window-p01-c03" ;
+    dcterms:conformsTo "confidence=0.710" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The roughness of the surface impedes their motion." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c00_kg00_6b5a5c0913 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c00" ;
+    dcterms:conformsTo "confidence=0.870" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Pressure is the force applied in a perpendicular direction" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c00_kg01_a5f6c08529 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c00" ;
+    dcterms:conformsTo "confidence=0.910" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "these two forces act together to resist airflow over a wing, it is called drag" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c00_kg02_77b9f87c3e a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c00" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Once the boundary layer of the air adheres to the wing by friction" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c00_kg03_7dd3a19d10 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c00" ;
+    dcterms:conformsTo "confidence=0.780" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Once the boundary layer of the air adheres to the wing by friction" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c01_kg00_0a8eb90590 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c01" ;
+    dcterms:conformsTo "confidence=0.820" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "it is called drag." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c01_kg01_c46a1dfa85 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c01" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Atmospheric Pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c01_kg02_8748d82ca7 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c01" ;
+    dcterms:conformsTo "confidence=0.720" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Air is very light" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c01_kg03_404d3659af a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c01" ;
+    dcterms:conformsTo "confidence=0.940" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Since air is a fluid substance" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg00_a7beb88a1c a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c02" ;
+    dcterms:conformsTo "confidence=0.670" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "it has weight" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg01_45048a4272 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c02" ;
+    dcterms:conformsTo "confidence=0.920" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Its effect on bodies within the air is called pressure." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg02_54921c8ed3 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c02" ;
+    dcterms:conformsTo "confidence=0.860" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The pressure of the atmosphere varies with time and location." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg03_520365d66c a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c02" ;
+    dcterms:conformsTo "confidence=0.800" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the higher the altitude, the less air there is above." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg04_cfd439979e a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c02" ;
+    dcterms:conformsTo "confidence=0.740" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Under standard conditions at sea level" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg05_4ed6928f68 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c02" ;
+    dcterms:conformsTo "confidence=0.940" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "a surface temperature of 59 °F or 15 °C" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg06_54921c8ed3 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c02" ;
+    dcterms:conformsTo "confidence=0.940" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "a surface pressure of 29.92 inches of mercury" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c02_kg07_18b34d10b2 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c02" ;
+    dcterms:conformsTo "confidence=0.740" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the temperature decreases at the rate of approximately 3.5 °F" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c03_kg00_1d193d5848 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c03" ;
+    dcterms:conformsTo "confidence=0.820" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "up to 36,000 feet" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c03_kg01_c326dd5b34 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c03" ;
+    dcterms:conformsTo "confidence=0.890" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Above this point, the temperature is considered constant" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c03_kg02_e189b1ea98 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c03" ;
+    dcterms:conformsTo "confidence=0.930" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "1 \"Hg per 1,000 feet of altitude gain" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p02_c03_kg03_c590adea72 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=2; section=page-2; chunk_id=06_phak_ch4_0-fixed_window-p02-c03" ;
+    dcterms:conformsTo "confidence=0.740" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "nonstandard temperature and pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg00_4803bde96a a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.870" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "with respect to the standard atmosphere" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg01_000e77b985 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.830" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "all aircraft instruments are calibrated for the standard atmosphere" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg02_6af83bfa87 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Pressure altitude is the height above a standard datum plane" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg03_44d1ca3841 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.760" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "where the weight of the atmosphere is 29.92 \"Hg" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg04_608b829bd2 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.780" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the weight of the atmosphere is 29.92 \"Hg" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg05_7e245baf37 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.820" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "calibrated to indicate altitude in the standard atmosphere" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg06_8a38a05291 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.910" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the altitude indicated is the pressure altitude" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg07_299b471876 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.740" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "As atmospheric pressure changes, the SDP may be below, at, or above sea level" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c00_kg08_1802ea4070 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c00" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "important as a basis for determining airplane performance" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c01_kg00_851d22d42a a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c01" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The density of air has significant effects on the aircraft’s performance" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c01_kg01_654437250f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c01" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the thin air exerts less force on the airfoils" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c01_kg02_a140c7af03 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c01" ;
+    dcterms:conformsTo "confidence=0.820" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "aircraft performance increases; conversely as air density decreases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg00_eb390520b8 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c02" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "increase in air density means a lower density altitude" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg01_5451cb26a9 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c02" ;
+    dcterms:conformsTo "confidence=0.920" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The computation of density altitude involves consideration of pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg02_422a4a176e a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c02" ;
+    dcterms:conformsTo "confidence=0.890" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "and temperature" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg03_f0a707d3de a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c02" ;
+    dcterms:conformsTo "confidence=0.940" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "performance data apply to air density levels" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg04_3c5d113bc9 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c02" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "density varies directly with pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c02_kg05_996d2b24a8 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c02" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "and inversely with temperature" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg00_cd15092b29 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03" ;
+    dcterms:conformsTo "confidence=0.970" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The density of the air has a pronounced effect on aircraft and engine performance." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg01_851d22d42a a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The density of the air has a pronounced effect on aircraft and engine performance." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg02_db67ae14db a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Air density is affected by changes in altitude, temperature, and humidity." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg03_5f41309182 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Air density is affected by changes in altitude, temperature, and humidity." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg04_2bf419b2a5 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Air density is affected by changes in altitude, temperature, and humidity." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg05_3d55cb1ee1 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Air density is affected by changes in altitude, temperature, and humidity." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg06_7a6442e723 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03" ;
+    dcterms:conformsTo "confidence=0.860" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The conditions that result in a high density altitude are high elevations, low atmospheric pressures, high temperatures, high humidity, or some combination of these factors." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c03_kg07_b55090d06e a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03" ;
+    dcterms:conformsTo "confidence=0.740" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Effect of Pressure on Density" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c04_kg00_8d5f1149d7 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c04" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "density is directly proportional to pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c04_kg01_2bf419b2a5 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c04" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Increasing the temperature of a substance decreases its density" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c04_kg02_36b6bbb8a1 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c04" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "density to decrease with altitude" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p03_c04_kg03_64ad6cbe92 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=3; section=page-3; chunk_id=06_phak_ch4_0-fixed_window-p03-c04" ;
+    dcterms:conformsTo "confidence=0.760" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "pressure decrease with altitude" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c00_kg00_9ab0d80009 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c00" ;
+    dcterms:conformsTo "confidence=0.920" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the air becomes less dense" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c00_kg01_c05f4af477 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c00" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "increasing density altitude" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c00_kg02_80b509825b a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c00" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "decreasing performance" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c00_kg03_466b6055df a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c00" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "water vapor contained in the atmosphere" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg00_a566d68926 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c01" ;
+    dcterms:conformsTo "confidence=0.790" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "relative humidity of zero percent" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg01_a566d68926 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c01" ;
+    dcterms:conformsTo "confidence=0.790" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "relative humidity of 100 percent" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg02_3d55cb1ee1 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c01" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "humidity have a great influence" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg03_adf9bc9e73 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c01" ;
+    dcterms:conformsTo "confidence=0.680" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Humidity alone" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg04_13afbf9092 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c01" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "As temperature increases, the air can hold greater amounts" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg05_2bf419b2a5 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c01" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Pressure, temperature, and humidity have a great influence" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg06_b55090d06e a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c01" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Pressure, temperature, and humidity have a great influence" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c01_kg07_9f23e68dba a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c01" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "great influence on aircraft performance because of their effect upon density" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg00_9ea374876e a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c02" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "pressure at 8,000 feet is 22.22 \"Hg" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg01_2c6857b3aa a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c02" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "pressure at 8,000 feet" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg02_0ae6b8c88c a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c02" ;
+    dcterms:conformsTo "confidence=0.870" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "high humidity conditions" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg03_1f8db3f912 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c02" ;
+    dcterms:conformsTo "confidence=0.890" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "effects of humidity on density altitude" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg04_b8789cd762 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c02" ;
+    dcterms:conformsTo "confidence=0.860" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "decrease in overall performance" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg05_813c55c60f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c02" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "A wing moving through air generates the force called lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg06_ed34569861 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c02" ;
+    dcterms:conformsTo "confidence=0.620" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "achieve flight in a machine that is heavier than air" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c02_kg07_15aa36e7f8 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c02" ;
+    dcterms:conformsTo "confidence=0.720" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the resistance to movement called drag" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg00_813c55c60f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c03" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "A wing moving through air generates the force called lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg01_c554d41824 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c03" ;
+    dcterms:conformsTo "confidence=0.860" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "enables an aircraft to fly" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg02_fd165fb283 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c03" ;
+    dcterms:conformsTo "confidence=0.780" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Lift from the wing that is greater than the force of gravity" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg03_8c9532872d a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c03" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Bernoulli's principle of differential pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c03_kg04_61250fc89b a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c03" ;
+    dcterms:conformsTo "confidence=0.870" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Newton's basic laws of motion" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg00_45483e222a a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c04" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "“Every object persists in its state of rest" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg01_45483e222a a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c04" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "“Force is equal to the change in" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg02_a19469c432 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c04" ;
+    dcterms:conformsTo "confidence=0.870" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "An aircraft at rest on the ramp" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg03_bb6c8ab2da a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c04" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "remains at rest unless a force" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p04_c04_kg04_76c5d5d779 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=4; section=page-4; chunk_id=06_phak_ch4_0-fixed_window-p04-c04" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "outside force causes it to do so" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c00_kg00_8736068c3c a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c00" ;
+    dcterms:conformsTo "confidence=0.860" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Air pressure decreases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c00_kg01_cd6545eea2 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c00" ;
+    dcterms:conformsTo "confidence=0.780" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Bernoulli’s Principle of Differential Pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c00_kg02_7d9582b614 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c00" ;
+    dcterms:conformsTo "confidence=0.720" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "equal and opposite reaction" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c01_kg00_2c11cb419a a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c01" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the pressure within the fluid decreases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c01_kg01_618e279253 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c01" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the pressure within the fluid decreases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c01_kg02_07568da591 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c01" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "air passing over the curved top of the airplane wing" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c01_kg03_45048a4272 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c01" ;
+    dcterms:conformsTo "confidence=0.910" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "When the air speeds up, the pressure also decreases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c02_kg00_45048a4272 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c02" ;
+    dcterms:conformsTo "confidence=0.740" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the pressure increases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c02_kg01_813c55c60f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c02" ;
+    dcterms:conformsTo "confidence=0.700" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "an airplane wing develops lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c02_kg02_89ba52ba48 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c02" ;
+    dcterms:conformsTo "confidence=0.760" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "moves through the air" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c02_kg03_c83e137229 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c02" ;
+    dcterms:conformsTo "confidence=0.790" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "airfoils designed to produce lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg00_c2d45fd4f6 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c03" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "called the leading edge" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg01_a87aa93e4f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c03" ;
+    dcterms:conformsTo "confidence=0.980" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the trailing edge" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg02_1560082613 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c03" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the chord line" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg03_e6f8bc1000 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c03" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the upper and lower surfaces of the airfoil" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p05_c03_kg04_7543176b0f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=5; section=page-5; chunk_id=06_phak_ch4_0-fixed_window-p05-c03" ;
+    dcterms:conformsTo "confidence=0.860" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the cross section of a wing" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg00_c2d45fd4f6 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c00" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Leading edge" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg01_a87aa93e4f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c00" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Trailing edge" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg02_1560082613 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c00" ;
+    dcterms:conformsTo "confidence=0.960" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Chord line" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg03_9a88c7f5f5 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c00" ;
+    dcterms:conformsTo "confidence=0.720" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "positive pressure lifting action" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg04_9a88c7f5f5 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c00" ;
+    dcterms:conformsTo "confidence=0.720" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "negative pressure lifting action" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg05_f9b9087ebd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c00" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "positive pressure lifting action" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg06_f9b9087ebd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c00" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "negative pressure lifting action" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c00_kg07_f9b9087ebd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c00" ;
+    dcterms:conformsTo "confidence=0.830" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "positive lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c01_kg00_f9b9087ebd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c01" ;
+    dcterms:conformsTo "confidence=0.830" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "causes a lift force" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c01_kg01_76e56b03de a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c01" ;
+    dcterms:conformsTo "confidence=0.910" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "forces air downward" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c01_kg03_f0178fd71c a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c01" ;
+    dcterms:conformsTo "confidence=0.660" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "different wing designs" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c01_kg04_b03c9d39d4 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c01" ;
+    dcterms:conformsTo "confidence=0.890" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Different airfoils have different flight characteristics" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg00_c2d45fd4f6 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c02" ;
+    dcterms:conformsTo "confidence=0.830" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Leading edge (Kreuger) flaps" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg01_a87aa93e4f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c02" ;
+    dcterms:conformsTo "confidence=0.830" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "trailing edge (Fowler) flaps" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg02_4b6e2a6f24 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c02" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "change the airfoil shape" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg03_6da52cc772 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c02" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "change the airfoil shape" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg04_c83e137229 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c02" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "generating much greater lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c02_kg05_f5a8a00834 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c02" ;
+    dcterms:conformsTo "confidence=0.720" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "not suitable for high-speed flight" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg00_ffc37cbc37 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c03" ;
+    dcterms:conformsTo "confidence=0.930" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "moving stream of air" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg01_d374f2f475 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c03" ;
+    dcterms:conformsTo "confidence=0.890" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "basic airfoil (wing) section" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg02_f51c2b9fb3 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c03" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "inclined so the airflow strikes it at an angle" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg03_011d4501c5 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c03" ;
+    dcterms:conformsTo "confidence=0.970" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "This increased velocity reduces the pressure above the airfoil." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p06_c03_kg04_2c11cb419a a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=6; section=page-6; chunk_id=06_phak_ch4_0-fixed_window-p06-c03" ;
+    dcterms:conformsTo "confidence=0.810" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Applying Bernoulli’s Principle of Pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg00_865d5a01fd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c00" ;
+    dcterms:conformsTo "confidence=0.940" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Pressure distribution on an airfoil" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg01_9844b11d81 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c00" ;
+    dcterms:conformsTo "confidence=0.830" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "This lowered pressure is a component of total lift." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg02_d8dd9f334b a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c00" ;
+    dcterms:conformsTo "confidence=0.910" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "CP changes with AOA." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg03_0875fe4456 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c00" ;
+    dcterms:conformsTo "confidence=0.820" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "results in an upward forward force on the airfoil." .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg04_9a7b2cc4a1 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c00" ;
+    dcterms:conformsTo "confidence=0.760" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "This downwash meets the flow" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c00_kg05_dc73bd3f98 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c00" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Applying Newton’s third law" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg00_2c11cb419a a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c01" ;
+    dcterms:conformsTo "confidence=0.940" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the fluid speed decreases, the pressure must increase" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg01_9844b11d81 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c01" ;
+    dcterms:conformsTo "confidence=0.890" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the pressure differential between the upper and lower surface of the airfoil increases, total lift increases" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg02_85927cf324 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c01" ;
+    dcterms:conformsTo "confidence=0.780" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Bernoulli’s principle" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg03_61250fc89b a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c01" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Newton’s Laws are in operation whenever lift is being generated by an airfoil" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c01_kg04_713b3d25ba a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c01" ;
+    dcterms:conformsTo "confidence=0.810" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "at different angles of attack (AOA)" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg00_865d5a01fd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.920" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "pressure distribution along an airfoil" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg01_f8536369d8 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "at three different angles of attack" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg02_bc020d0bff a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.710" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "The average of the pressure variation for any given AOA is referred to as the center of pressure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg03_b1c697ee50 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.930" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "Aerodynamic force acts through this CP" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg04_14998e95a7 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.910" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "At high angles of attack" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg05_bc020d0bff a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the CP moves forward" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg06_14998e95a7 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.910" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "at low angles of attack" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg07_bc020d0bff a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the CP moves aft" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c02_kg08_13e9f7b56d a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c02" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "it affects the position of the air loads imposed on the wing structure" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c03_kg00_64cb8ae1a6 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c03" ;
+    dcterms:conformsTo "confidence=0.840" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "pressure between upper and lower airfoil surfaces" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c03_kg01_44fdb3348f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c03" ;
+    dcterms:conformsTo "confidence=0.780" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "upper and lower airfoil surfaces" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c03_kg02_e6f8bc1000 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c03" ;
+    dcterms:conformsTo "confidence=0.830" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "upper and lower airfoil surfaces" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p07_c03_kg03_511b1c732d a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=7; section=page-7; chunk_id=06_phak_ch4_0-fixed_window-p07-c03" ;
+    dcterms:conformsTo "confidence=0.640" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "symmetrical wings" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg00_f51c2b9fb3 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c00" ;
+    dcterms:conformsTo "confidence=0.950" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "relationship of the airfoil with the oncoming airstream (angle)" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg01_f9b9087ebd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c00" ;
+    dcterms:conformsTo "confidence=0.870" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "these airfoils do produce lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg02_09be8462ad a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c00" ;
+    dcterms:conformsTo "confidence=0.920" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "“flow turning” is partly (or fully) responsible for creating lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg03_e094cafc50 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c00" ;
+    dcterms:conformsTo "confidence=0.860" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "producing a different flow caused by the airfoil’s relationship to the oncoming air" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c00_kg04_6f52afcdda a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c00" ;
+    dcterms:conformsTo "confidence=0.740" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "resulting in a measurable velocity force and direction" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg00_a87aa93e4f a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c01" ;
+    dcterms:conformsTo "confidence=0.680" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the trailing edge of the airfoil" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg01_e6f8bc1000 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c01" ;
+    dcterms:conformsTo "confidence=0.880" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "upper and lower surfaces of an airfoil" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg02_c2d45fd4f6 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c01" ;
+    dcterms:conformsTo "confidence=0.550" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "the tip of the airfoil" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg04_42e039dd54 a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c01" ;
+    dcterms:conformsTo "confidence=0.940" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "results in an overall reduction in lift" .
+
+:Evidence_06_phak_ch4_0_fixed_window_p08_c01_kg05_ee7a4b62dd a :Cl_Evidence ;
+    dcterms:bibliographicCitation "page=8; section=page-8; chunk_id=06_phak_ch4_0-fixed_window-p08-c01" ;
+    dcterms:conformsTo "confidence=0.900" ;
+    dcterms:source "06_phak_ch4_0" ;
+    rdfs:comment "a rotating flow called a tip vortex" .
+
+:Entity_137851f1d4de a :Cl_Concept ;
+    rdfs:label "22.22 \"Hg" .
+
+:Entity_140a4dc9d343 a :Cl_Concept ;
+    rdfs:label "Cl_StandardDatumPlane" ;
+    :hasCondition :Entity_8033db400cb2,
+        :Entity_d29735431e2e .
+
+:Entity_25044416018b a :Cl_Force ;
+    rdfs:label "Cl_Weight" .
+
+:Entity_5bc68cc3aa5b a :Cl_Concept ;
+    rdfs:label "8,000 feet" .
+
+:Entity_5e9a82789689 a :Cl_Force ;
+    rdfs:label "motion" .
+
+:Entity_6579d642cbbc a :Cl_BoundaryLayer ;
+    rdfs:label "boundary layer" ;
+    :hasComponent :Entity_a21a9c5fb703 ;
+    :hasCondition :Entity_a5490c465e30 .
+
+:Entity_9d6cb3f62eef a :Cl_Condition ;
+    rdfs:label "high humidity conditions" .
+
+:Entity_a21a9c5fb703 a :Cl_Air ;
+    rdfs:label "air molecules near the surface of the wing" .
+
+:Entity_a5490c465e30 a :Cl_Condition ;
+    rdfs:label "relative velocity near zero" .
+
+:Entity_6ff22567c857 a :Cl_Downwash ;
+    rdfs:label "Cl_Downwash" ;
+    :affects :Entity_38f564c94cd0 ;
+    :causes :Entity_0d8b9642372c ;
+    :partOf :Entity_6550a96e2c5c .
+
+:Entity_c366b9238ba0 a :Cl_ChordLine ;
+    rdfs:label "Cl_ChordLine" .
+
+:Entity_fa87b488c50e a :Cl_Concept ;
+    rdfs:label "Cl_PressureAltitude" ;
+    :appliesTo :Entity_2e54a5bf9ed5 ;
+    :hasOutcome :Entity_2e54a5bf9ed5,
+        :Entity_a21e7584800e .
+
+:Entity_113264d3bd57 a :Cl_Drag ;
+    rdfs:label "Cl_Drag" ;
+    :hasCondition :Entity_0d8b9642372c ;
+    :partOf :Entity_a21e7584800e .
+
+:Entity_a6bdb8eeb54d a :Cl_Humidity ;
+    rdfs:label "Humidity" ;
+    :affects :Entity_a21e7584800e ;
+    :causes :Entity_0bc4d2597a9e,
+        :Entity_2e54a5bf9ed5 ;
+    :hasCondition :Entity_d29735431e2e .
+
+:Entity_4ced2bc633bc a :Cl_BoundaryLayer ;
+    rdfs:label "Cl_BoundaryLayer" ;
+    :causes :Entity_113264d3bd57 .
+
+:Entity_90226b5b52af a :Cl_Evidence ;
+    rdfs:label "Cl_Evidence" .
+
+:Entity_3592cf6a2cf0 a :Cl_LeadingEdge ;
+    rdfs:label "Cl_LeadingEdge" ;
+    :affects :Entity_db07cb80a8a4 .
+
+:Entity_7e77286b3463 a :Cl_Outcome ;
+    rdfs:label "Cl_Outcome" .
+
+:Entity_8bcd01c8388a a :Cl_Condition ;
+    rdfs:label "Cl_Resistance" .
+
+:Entity_a3d6d325cdd8 a :Cl_TrailingEdge ;
+    rdfs:label "Cl_TrailingEdge" ;
+    :affects :Entity_db07cb80a8a4 .
+
+:Entity_b057963b083a a :Cl_Aircraft ;
+    rdfs:label "Cl_Aircraft" ;
+    :hasComponent :Entity_bbd659b9b867 ;
+    :hasCondition :Entity_b568d37122a0 ;
+    :hasOutcome :Entity_38f564c94cd0,
+        :Entity_b568d37122a0 .
+
+:Entity_ca25add3240b a :Cl_PressureDistribution ;
+    rdfs:label "Cl_PressureDistribution" ;
+    :affects :Entity_d6294526ef14 ;
+    :appliesTo :Entity_db07cb80a8a4 ;
+    :hasCondition :Entity_d6294526ef14 .
+
+:Entity_df322a700ec1 a :Cl_NewtonLaw ;
+    rdfs:label "Cl_NewtonLaw" ;
+    :appliesTo :Entity_0d8b9642372c,
+        :Entity_38f564c94cd0 ;
+    :causes :Entity_0d8b9642372c ;
+    :supportedByEvidence :Entity_90226b5b52af .
+
+:Entity_e9b5f85f25af a :Cl_AirfoilSurface ;
+    rdfs:label "Cl_AirfoilSurface" .
+
+:Entity_15a4d680a787 a :Cl_Fluid ;
+    rdfs:label "Cl_Fluid" ;
+    :causes :Entity_b568d37122a0 ;
+    :hasOutcome :Entity_7e77286b3463 .
+
+:Entity_e3c1d502d2a0 a :Cl_BernoulliPrinciple ;
+    rdfs:label "Cl_BernoulliPrinciple" ;
+    :affects :Entity_8033db400cb2 ;
+    :appliesTo :Entity_38f564c94cd0,
+        :Entity_bbd659b9b867,
+        :Entity_db07cb80a8a4 ;
+    :causes :Entity_8033db400cb2 .
+
+:Entity_68b5514cac4b a :Cl_Humidity ;
+    rdfs:label "Cl_Humidity" ;
+    :affects :Entity_0bc4d2597a9e,
+        :Entity_2e54a5bf9ed5 ;
+    :hasOutcome :Entity_a21e7584800e ;
+    :hasQuantity :Entity_b568d37122a0 .
+
+:Entity_6550a96e2c5c a :Cl_Flow ;
+    rdfs:label "Cl_Flow" ;
+    :affects :Entity_8033db400cb2 ;
+    :causes :Entity_0d8b9642372c,
+        :Entity_38f564c94cd0 ;
+    :hasCondition :Entity_4ced2bc633bc .
+
+:Entity_d6294526ef14 a :Cl_AngleOfAttack ;
+    rdfs:label "Cl_AngleOfAttack" .
+
+:Entity_0d8b9642372c a :Cl_Force ;
+    rdfs:label "Cl_Force" ;
+    :causes :Entity_7e77286b3463 ;
+    :hasOutcome :Entity_8bcd01c8388a .
+
+:Entity_bbd659b9b867 a :Cl_Wing ;
+    rdfs:label "Cl_Wing" ;
+    :affects :Entity_e6ddfe806bf2 ;
+    :causes :Entity_38f564c94cd0 ;
+    :hasComponent :Entity_db07cb80a8a4 ;
+    :hasCondition :Entity_b568d37122a0 .
+
+:Entity_dd1b29cbefbe a :Cl_Temperature ;
+    rdfs:label "Cl_Temperature" ;
+    :affects :Entity_0bc4d2597a9e,
+        :Entity_2e54a5bf9ed5,
+        :Entity_e6ddfe806bf2 ;
+    :hasCondition :Entity_b568d37122a0 ;
+    :hasQuantity :Entity_2e54a5bf9ed5 .
+
+:Entity_97d09ab0508d a :Cl_Concept ;
+    rdfs:label "Cl_Concept" ;
+    :affects :Entity_a21e7584800e ;
+    :hasCondition :Entity_b568d37122a0,
+        :Entity_d6294526ef14 ;
+    :hasOutcome :Entity_97d09ab0508d .
+
+:Entity_a21e7584800e a :Cl_AircraftPerformance ;
+    rdfs:label "Cl_AircraftPerformance" ;
+    :affects :Entity_0bc4d2597a9e ;
+    :appliesTo :Entity_0bc4d2597a9e ;
+    :hasCondition :Entity_d29735431e2e .
+
+:Entity_d29735431e2e a :Cl_Atmosphere ;
+    rdfs:label "Cl_Atmosphere" ;
+    :affects :Entity_2e54a5bf9ed5 ;
+    :hasComponent :Entity_97d09ab0508d,
+        :Entity_e6ddfe806bf2 ;
+    :hasCondition :Entity_2e54a5bf9ed5,
+        :Entity_68b5514cac4b,
+        :Entity_b568d37122a0 ;
+    :hasOutcome :Entity_8033db400cb2 ;
+    :hasQuantity :Entity_8033db400cb2,
+        :Entity_dd1b29cbefbe .
+
+:Entity_e6ddfe806bf2 a :Cl_Air ;
+    rdfs:label "Cl_Air" ;
+    :affects :Entity_0bc4d2597a9e ;
+    :causes :Entity_38f564c94cd0,
+        :Entity_8033db400cb2 ;
+    :hasComponent :Entity_15a4d680a787,
+        :Entity_25044416018b,
+        :Entity_4ced2bc633bc,
+        :Entity_97d09ab0508d ;
+    :hasCondition :Entity_15a4d680a787,
+        :Entity_b568d37122a0 .
+
+:Entity_2e54a5bf9ed5 a :Cl_Altitude ;
+    rdfs:label "Cl_Altitude" ;
+    :affects :Entity_0bc4d2597a9e,
+        :Entity_8033db400cb2 ;
+    :causes :Entity_0bc4d2597a9e ;
+    :hasCondition :Entity_8033db400cb2,
+        :Entity_dd1b29cbefbe ;
+    :hasQuantity :Entity_5bc68cc3aa5b .
+
+:Entity_b568d37122a0 a :Cl_Condition ;
+    rdfs:label "Cl_Condition" ;
+    :affects :Entity_ca25add3240b ;
+    :hasCondition :Entity_9d6cb3f62eef ;
+    :hasOutcome :Entity_0bc4d2597a9e .
+
+:Entity_38f564c94cd0 a :Cl_Lift ;
+    rdfs:label "Cl_Lift" ;
+    :affects :Entity_b057963b083a ;
+    :hasCondition :Entity_b568d37122a0 .
+
+:Entity_0bc4d2597a9e a :Cl_Density ;
+    rdfs:label "Cl_Density" ;
+    :affects :Entity_2e54a5bf9ed5,
+        :Entity_8033db400cb2,
+        :Entity_a21e7584800e,
+        :Entity_dd1b29cbefbe ;
+    :hasOutcome :Entity_a21e7584800e .
+
+:Entity_db07cb80a8a4 a :Cl_Airfoil ;
+    rdfs:label "Cl_Airfoil" ;
+    :affects :Entity_6550a96e2c5c,
+        :Entity_8033db400cb2,
+        :Entity_e6ddfe806bf2 ;
+    :appliesTo :Entity_e6ddfe806bf2 ;
+    :causes :Entity_38f564c94cd0 ;
+    :hasComponent :Entity_3592cf6a2cf0,
+        :Entity_8033db400cb2,
+        :Entity_a3d6d325cdd8,
+        :Entity_bbd659b9b867,
+        :Entity_c366b9238ba0,
+        :Entity_e9b5f85f25af ;
+    :hasCondition :Entity_d6294526ef14 ;
+    :hasOutcome :Entity_38f564c94cd0,
+        :Entity_7e77286b3463,
+        :Entity_a21e7584800e .
+
+:Entity_8033db400cb2 a :Cl_Pressure ;
+    rdfs:label "Cl_Pressure" ;
+    :affects :Entity_0bc4d2597a9e,
+        :Entity_d29735431e2e ;
+    :appliesTo :Entity_d29735431e2e,
+        :Entity_e9b5f85f25af ;
+    :causes :Entity_0bc4d2597a9e,
+        :Entity_38f564c94cd0 ;
+    :hasCondition :Entity_b568d37122a0 ;
+    :hasQuantity :Entity_137851f1d4de,
+        :Entity_2e54a5bf9ed5 .
+
