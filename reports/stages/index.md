@@ -23,3 +23,17 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 
 - Draft: `reports/final/project_report.md`
 - Sources: `reports/final/project_report_sources.json`
+
+## Current Active Artifacts
+
+- Active ontology: `data/ontology/curated/06_phak_ch4_0.curated.ttl`
+- Ontology design: `docs/ontology_design.md`
+- Curated ontology evaluation: `reports/stages/curated_ontology_evaluation.md`
+- Validated KG: `data/kg/06_phak_ch4_0.kg.jsonl`
+- KG TTL export: `data/kg/06_phak_ch4_0.kg.ttl`
+- KG validation report: `reports/stages/kg_validation.md`
+
+## Project Tracking
+
+- Goals: `GOALS.md`
+- Task board: `TASKS.md`

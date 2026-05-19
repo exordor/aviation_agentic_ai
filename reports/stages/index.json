@@ -474,5 +474,17 @@
   ],
   "review_items_total": 2,
   "reviews_dir": "reports/reviews",
-  "stage_dir": "reports/stages"
+  "stage_dir": "reports/stages",
+  "current_active_artifacts": {
+    "active_ontology": "data/ontology/curated/06_phak_ch4_0.curated.ttl",
+    "ontology_design": "docs/ontology_design.md",
+    "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.md",
+    "validated_kg": "data/kg/06_phak_ch4_0.kg.jsonl",
+    "kg_ttl_export": "data/kg/06_phak_ch4_0.kg.ttl",
+    "kg_validation": "reports/stages/kg_validation.md"
+  },
+  "tracking": {
+    "goals": "GOALS.md",
+    "tasks": "TASKS.md"
+  }
 }
