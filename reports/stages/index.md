@@ -16,7 +16,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 | kg_validation | 2 |
 | ontology_evaluation | 10 |
 | ontology_stats | 2 |
-| rag_experiments | 16 |
+| rag_experiments | 24 |
 | reviews | 4 |
 | source_scope | 4 |
 | stage_summaries | 2 |
@@ -42,7 +42,12 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Structure-aware Hybrid RAG experiment: `reports/stages/hybrid_rag_structure_aware.md`
 - GraphRAG review: `reports/stages/graphrag_review.md`
 - Gold labels: `data/cqs/06_phak_ch4_0.gold.json`
+- Expanded gold labels: `data/cqs/06_phak_ch4_0.expanded.gold.json`
 - Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md`
+- Retrieval ablation: `reports/stages/retrieval_ablation.md`
+- KG extraction comparison: `reports/stages/kg_extraction_comparison.md`
+- Answer evaluation: `reports/stages/answer_evaluation.md`
+- Robustness evaluation: `reports/stages/robustness_evaluation.md`
 - Final evaluation review: `reports/stages/final_evaluation_review.md`
 - Web demo readiness: `reports/stages/web_demo_readiness.md`
 - Web demo final smoke: `reports/stages/web_demo_final_smoke.md`
@@ -61,6 +66,11 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Structure-aware result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.9, hybrid Recall@5 = 1.0; graph and hybrid KG evidence coverage = 0.9.
 - Gold labels: reviewed chunk/span labels are marked `manual_reviewed`; they remain course-project gold, not external aviation examiner certification.
 - Evidence-level result summary: structure-aware hybrid supported 9/10 answers versus fixed-window hybrid 8/10; both hybrid runs have KG triple relevance = 0.9 and citation validity = 1.0.
+- Expanded evaluation labels: 35 total questions, including 5 insufficient-evidence/no-answer questions for abstention testing.
+- Retrieval ablation: 12 deterministic scenarios over 35 expanded questions; vector-only and explicit graph-disabled hybrid Recall@5 = 0.6857, while structure-aware hybrid RRF Recall@5 = 0.6286 in the default top-k/hops setting, showing the expanded set is harder than the original 10 CQ benchmark.
+- KG extraction comparison: structure-aware KG has 448 validated triples versus 172 fixed-window triples; key-entity coverage is 0.8571 versus 0.8286, with higher duplicate count that should be discussed as cost/noise.
+- Answer evaluation: existing 10-CQ structure-aware hybrid answers have citation completeness = 1.0, citation correctness = 0.9, answer faithfulness = 0.9, and zero advisory-boundary violations.
+- Robustness benchmark: 10 paraphrase/terminology/cross-page/unsupported cases; deterministic retrieval-only robustness has retrieval stability = 0.8, citation stability = 0.7, and abstention correctness = 0.6.
 - Final evaluation decision: `structure_aware` is the default demo and next-phase GraphRAG strategy; `fixed_window` remains the baseline.
 - Web demo default strategy: `structure_aware`; live query is disabled by default for reproducible review.
 - Web demo KG visualization: question-scoped graph renders retrieved KG triples for the selected CQ, strategy, and retrieval mode.

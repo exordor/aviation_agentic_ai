@@ -80,7 +80,7 @@ Success criteria:
 - LLM answer metrics include citation completeness, citation validity, and insufficient-evidence abstention behavior.
 - Gold labels support page-level ground truth now and can later be refined to chunk/span-level evidence.
 
-Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, reviewed chunk/span gold labels, evidence-level evaluation, and final evaluation review. The gold labels are course-project gold and not external aviation examiner certification.
+Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, reviewed chunk/span gold labels, expanded 35-question course-project gold, evidence-level evaluation, retrieval ablation, KG extraction comparison, answer evaluation, robustness evaluation, and final evaluation review. The gold labels are course-project gold and not external aviation examiner certification.
 
 ## G5 - Report Hygiene And Final Project Report
 
@@ -172,7 +172,7 @@ Success criteria:
 - Cost and latency reports record chunk build time, KG extraction cost/time, index build time, query latency, token usage, and collection/index size.
 - Dataset expansion beyond PHAK Chapter 4 only starts after document metadata and section schema are enforced for each new source.
 
-Current status: planned. The current reviewed 10-CQ experiment is the baseline; the next phase should expand evaluation breadth before adding live flight context or operational advisory behavior.
+Current status: in progress. The 10-CQ experiment remains the baseline, and a first expanded evaluation suite now exists with 35 gold-label questions, 5 insufficient-evidence cases, deterministic retrieval ablation, KG extraction comparison, answer evaluation, robustness evaluation, cost/latency metadata blocks, and a document expansion protocol. Embedding/index backend comparison remains future work.
 
 ## Current Non-Goals
 

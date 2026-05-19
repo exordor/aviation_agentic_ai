@@ -117,3 +117,53 @@ def test_hybrid_rag_report_supports_custom_report_name(tmp_path: Path) -> None:
     assert json_path.name == "hybrid_rag_structure_aware.json"
     assert md_path.name == "hybrid_rag_structure_aware.md"
     assert not (tmp_path / "hybrid_rag_experiment.json").exists()
+
+
+def test_hybrid_rag_report_can_use_questions_from_gold_labels(tmp_path: Path) -> None:
+    cq_path = tmp_path / "boundary.json"
+    cq_path.write_text(json.dumps({"doc": {}}) + "\n", encoding="utf-8")
+    gold_path = tmp_path / "expanded.gold.json"
+    gold_path.write_text(
+        json.dumps(
+            {
+                "labels": [
+                    {
+                        "cq_id": "expanded-1",
+                        "question": "What affects lift?",
+                        "question_type": "supported",
+                        "source_document": "doc",
+                        "source_page": 0,
+                        "expected_chunk_ids": ["doc-p00-c00"],
+                        "key_entities": ["lift"],
+                        "answer_key": "Angle of attack affects lift.",
+                        "gold_level": "chunk",
+                    }
+                ]
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    def fake_query_runner(question, mode, *_args, **_kwargs):
+        return {
+            "question": question,
+            "mode": mode,
+            "fused_chunks": [{"chunk_id": "doc-p00-c00", "page": 0, "source": mode}],
+            "graph_triples": [],
+            "answer": "Answer. Citations: doc-p00-c00",
+        }
+
+    _json_path, _md_path, result = write_hybrid_rag_experiment(
+        cq_path,
+        tmp_path / "chunks.jsonl",
+        tmp_path / "kg.jsonl",
+        tmp_path / "chroma",
+        tmp_path,
+        gold_labels_path=gold_path,
+        query_runner=fake_query_runner,
+    )
+
+    assert result["metadata"]["questions_total"] == 1
+    assert result["records"][0]["cq_id"] == "expanded-1"
+    assert result["records"][0]["gold"]["gold_level"] == "chunk"

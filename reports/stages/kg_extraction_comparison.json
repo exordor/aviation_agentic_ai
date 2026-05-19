@@ -1,0 +1,79 @@
+{
+  "experiments": {
+    "fixed_window": {
+      "duplicate_triple_count": 41,
+      "evidence_in_chunk_rate": 1.0,
+      "key_entity_coverage": 0.8286,
+      "kg_path": "data/kg/06_phak_ch4_0.kg.jsonl",
+      "model_counts": {
+        "llm-structured-kg-extraction": 172
+      },
+      "provenance_complete_rate": 1.0,
+      "triples_total": 172,
+      "unique_triple_count": 131,
+      "unsupported_triple_count": 0,
+      "valid_triples": 172
+    },
+    "structure_aware": {
+      "duplicate_triple_count": 107,
+      "evidence_in_chunk_rate": 1.0,
+      "key_entity_coverage": 0.8571,
+      "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+      "model_counts": {
+        "llm-structured-kg-extraction": 448
+      },
+      "provenance_complete_rate": 1.0,
+      "triples_total": 448,
+      "unique_triple_count": 341,
+      "unsupported_triple_count": 0,
+      "valid_triples": 448
+    }
+  },
+  "interpretation": "Structure-aware extraction produced more validated triples; judge this gain against duplicate count, key-entity coverage, and cost before treating it as higher-quality evidence.",
+  "metadata": {
+    "cost_latency": {
+      "cases_total": null,
+      "chunks_path": null,
+      "chunks_size_bytes": null,
+      "elapsed_seconds": 0.0526,
+      "index_dir": null,
+      "index_size_bytes": null,
+      "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+      "kg_size_bytes": 230440,
+      "llm_token_usage": null,
+      "questions_total": null
+    },
+    "gold_labels_path": "data/cqs/06_phak_ch4_0.expanded.gold.json",
+    "run_manifest": {
+      "artifacts": {
+        "fixed_kg_path": "data/kg/06_phak_ch4_0.kg.jsonl",
+        "structure_aware_kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"
+      },
+      "chunking_strategy": "fixed_window_vs_structure_aware",
+      "collection_name": "not_used",
+      "command": "aviation-ai report kg-extraction-comparison",
+      "created_at": "2026-05-19T04:43:58.276973+00:00",
+      "document": {},
+      "embedding": {
+        "backend": "not_used",
+        "collection_name": "not_used"
+      },
+      "experiment_name": "kg_extraction_comparison",
+      "llm": {
+        "model": "not_used",
+        "provider": "none"
+      },
+      "parameters": {
+        "default_rebuild_kg": false,
+        "gold_labels_path": "data/cqs/06_phak_ch4_0.expanded.gold.json"
+      },
+      "rebuild_policy": {
+        "chunks": false,
+        "indexes": false,
+        "kg": false
+      },
+      "run_id": "kg-extraction-comparison-20260519T044358Z"
+    },
+    "scoring_policy": "kg_quality_metrics_no_mixed_overall_score"
+  }
+}

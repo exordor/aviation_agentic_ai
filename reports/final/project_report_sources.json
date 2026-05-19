@@ -431,6 +431,101 @@
       "present": true,
       "size_bytes": 1125595
     },
+    "answer_evaluation": {
+      "excerpt": "# Answer Evaluation\n\n- Run ID: `answer-evaluation-20260519T045220Z`\n- Answers: 30\n- Scoring: answer layer only; no retrieval/KG mixed total score.\n\n| Mode | Answers | Citation complete | Citation correct | Faithfulness | Relevance | Abstention correct | Boundary violations |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| vector | 10 | 1.0 | 1.0 | 0.8 | 0.9 | 0.8 | 0 |\n| graph | 10 | 1.0 | 0.8 | 0.7 | 0.9 | 0.9 | 0 |\n| hybrid | 10 | 1.0 | 0.9 | 0.9 | 0.9 | 1.0 | 0 |\n\n## Advisory Boundary\n\nThis system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.\n",
+      "path": "reports/stages/answer_evaluation.md",
+      "present": true,
+      "truncated": false
+    },
+    "answer_evaluation_json": {
+      "compacted": true,
+      "data": {
+        "aggregate": {
+          "graph": {
+            "abstention_correctness": 0.9,
+            "advisory_boundary_violation_count": 0,
+            "answer_faithfulness": 0.7,
+            "answer_relevance": 0.9,
+            "answers_total": 10,
+            "citation_completeness": 1.0,
+            "citation_correctness": 0.8
+          },
+          "hybrid": {
+            "abstention_correctness": 1.0,
+            "advisory_boundary_violation_count": 0,
+            "answer_faithfulness": 0.9,
+            "answer_relevance": 0.9,
+            "answers_total": 10,
+            "citation_completeness": 1.0,
+            "citation_correctness": 0.9
+          },
+          "vector": {
+            "abstention_correctness": 0.8,
+            "advisory_boundary_violation_count": 0,
+            "answer_faithfulness": 0.8,
+            "answer_relevance": 0.9,
+            "answers_total": 10,
+            "citation_completeness": 1.0,
+            "citation_correctness": 1.0
+          }
+        },
+        "metadata": {
+          "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+          "answers_total": 30,
+          "cost_latency": {
+            "cases_total": null,
+            "chunks_path": null,
+            "chunks_size_bytes": null,
+            "elapsed_seconds": 0.0069,
+            "index_dir": null,
+            "index_size_bytes": null,
+            "kg_path": null,
+            "kg_size_bytes": null,
+            "llm_token_usage": null,
+            "questions_total": 10
+          },
+          "gold_labels_path": "data/cqs/06_phak_ch4_0.gold.json",
+          "hybrid_report_path": "reports/stages/hybrid_rag_structure_aware.json",
+          "run_manifest": {
+            "artifacts": {
+              "hybrid_report_path": "reports/stages/hybrid_rag_structure_aware.json"
+            },
+            "chunking_strategy": "report_artifact",
+            "collection_name": "not_used",
+            "command": "aviation-ai report answer-eval",
+            "created_at": "2026-05-19T04:52:20.733239+00:00",
+            "document": {},
+            "embedding": {
+              "backend": "not_used",
+              "collection_name": "not_used"
+            },
+            "experiment_name": "answer_evaluation",
+            "llm": {
+              "model": "not_used",
+              "provider": "none"
+            },
+            "parameters": {
+              "gold_labels_path": "data/cqs/06_phak_ch4_0.gold.json"
+            },
+            "rebuild_policy": {
+              "chunks": false,
+              "indexes": false,
+              "kg": false
+            },
+            "run_id": "answer-evaluation-20260519T045220Z"
+          },
+          "scoring_policy": "answer_metrics_no_mixed_overall_score"
+        },
+        "records_total_by_mode": {
+          "graph": 10,
+          "hybrid": 10,
+          "vector": 10
+        },
+        "source_compaction": "answer text and per-question details omitted"
+      },
+      "path": "reports/stages/answer_evaluation.json",
+      "present": true
+    },
     "chunking_comparison": {
       "excerpt": "# Chunking Comparison\n\n- Run ID: `chunking-comparison-20260519T004847Z`\n- Questions: 10\n- Vector top k: 5\n- Target chars: 1200\n- Overlap chars: 150\n- Rebuild chunks: True\n- Rebuild indexes: True\n\n## Ranking\n\n| Rank | Strategy | Recall@5 | MRR@5 | Context Precision@5 |\n| ---: | --- | ---: | ---: | ---: |\n| 1 | structure_aware | 1.0 | 0.82 | 0.52 |\n| 2 | sentence_recursive | 1.0 | 0.7917 | 0.46 |\n| 3 | fixed_window | 1.0 | 0.7583 | 0.42 |\n| 4 | semantic_meta_like | 0.9 | 0.7333 | 0.5 |\n\n## Strategy Details\n\n| Strategy | Chunks | Avg chars | P95 chars | Boundary preservation | Tradeoff | Recommendation |\n| --- | ---: | ---: | ---: | ---: | --- | --- |\n| fixed_window | 35 | 1034.11 | 1196 | 0.3714 | Controllable baseline, but it can cut through semantic boundaries. | Use as a stable baseline and regression check. |\n| sentence_recursive | 35 | 1022.11 | 1191 | 0.2571 | Reduces mid-sentence cuts while keeping chunk sizes predictable. | Use when sentence integrity matters more than strict size regularity. |\n| structure_aware | 267 | 233.36 | 1080 | 1.0 | Better preserves handbook section and list boundaries. | Prefer for handbook chapters with headings, lists, and page-local sections. |\n| semantic_meta_like | 56 | 580.55 | 712 | 1.0 | Approximates semantic boundary detection; more context-aware but less deterministic than rule-only strategies. | Use for exploratory retrieval runs where semantic boundary quality is worth extra complexity. |\n\n## Strategy Explanations\n\n### fixed_window\n\nControllable baseline, but it can cut through semantic boundaries. It ties for the best source-page Recall@5 in this run.\n\n- Retrieval: Recall@5=1.0, MRR@5=0.7583, Context Precision@5=0.42\n- Recommendation: Use as a stable baseline and regression check.\n\n### sentence_recursive\n\nReduces mid-sentence cuts while keeping chunk sizes predictable. It ties for the best source-page Recall@5 in this run.\n\n- Retrieval: Recall@5=1.0, MRR@5=0.7917, Context Precision@5=0.46\n- Recommendation: Use when sentence integrity matters more than strict size regularity.\n\n### structure_aware\n\nBetter preserves handbook section and list boundaries. It ties for the best source-page Recall@5 in this run. It places relevant evidence near the top of the result list. High boundary preservation indicates fewer semantic or structural cuts.\n\n- Retrieval: Recall@5=1.0, MRR@5=0.82, Context Precision@5=0.52\n- Recommendation: Prefer for handbook chapters with headings, lists, and page-local sections.\n\n### semantic_meta_like\n\nApproximates semantic boundary detection; more context-aware but less deterministic than rule-only strategies. High boundary preservation indicates fewer semantic or structural cuts.\n\n- Retrieval: Recall@5=0.9, MRR@5=0.7333, Context Precision@5=0.5\n- Recommendation: Use for exploratory retrieval runs where semantic boundary quality is worth extra complexity.\n\n",
       "path": "reports/stages/chunking_comparison.md",
@@ -9231,6 +9326,12 @@
       "path": "reports/final/project_defense_notes.json",
       "present": true
     },
+    "document_expansion_protocol": {
+      "excerpt": "# Document Expansion Protocol\n\nThis project must not expand beyond PHAK Chapter 4 until each new source has a\nstable metadata record, section map, and evaluation plan. The goal is to avoid\nmixing document-scope uncertainty with GraphRAG retrieval or KG extraction\nclaims.\n\n## Required Document Metadata\n\nEach source document must define:\n\n- `document_id`: stable lowercase identifier used in chunks, KG triples, and reports.\n- `title`: human-readable source title.\n- `source_type`: for example `faa_handbook_chapter`, `poh`, `procedure_manual`, or `training_note`.\n- `source_path`: repository-relative path to the raw source.\n- `chapter`: chapter or section label when applicable.\n- `revision_date`: source revision or publication date when available.\n- `page_start` and `page_end`: page range included in the experiment.\n- `advisory_risk_level`: `learning`, `procedure_reference`, or `operationally_sensitive`.\n\n## Required Section Schema\n\nEach document must also provide section records:\n\n- `section_id`: stable identifier, unique within the document.\n- `title`: section heading from the source.\n- `level`: hierarchy level, starting at 1 for top-level sections.\n- `page_start` and `page_end`: source page coverage.\n- `parent_id`: parent section id, or `null` for top-level sections.\n\n## Readiness Checklist\n\nBefore adding a new document:\n\n- Metadata and section records are validated.\n- Chunk IDs include `document_id`, strategy, page, and chunk index.\n- Gold labels identify page/chunk/span evidence or expected abstention.\n- KG extraction profile terms are checked against the curated ontology.\n- Advisory boundary language is reviewed if the source is procedure-like or operationally sensitive.\n- Reports keep retrieval, KG evidence, answer quality, and cost/latency metrics separate.\n\n## Expansion Rule\n\nEmergency, procedure, POH, or live operational sources are out of scope until\nthis schema is enforced and no-answer/abstention evaluation is working for the\nexisting PHAK Chapter 4 benchmark.\n",
+      "path": "docs/document_expansion_protocol.md",
+      "present": true,
+      "truncated": false
+    },
     "evidence_level_evaluation": {
       "excerpt": "# Evidence-Level Evaluation\n\n- Gold labels: `data/cqs/06_phak_ch4_0.gold.json`\n- Labels: 10\n- Scoring: layered metrics only; no mixed overall score.\n\n## fixed_window\n\n| Mode | Chunk Recall@5 | Span hit rate | Key entity coverage | KG triple relevance | Citation validity | Supported | Partial | Insufficient | Unsupported |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| vector | 1.0 | 1.0 | 0.0 | 0.0 | 1.0 | 0 | 8 | 2 | 0 |\n| graph | 0.8 | 0.7 | 0.9 | 0.9 | 1.0 | 7 | 2 | 1 | 0 |\n| hybrid | 0.8 | 0.9 | 0.9 | 0.9 | 1.0 | 8 | 2 | 0 | 0 |\n\n## structure_aware\n\n| Mode | Chunk Recall@5 | Span hit rate | Key entity coverage | KG triple relevance | Citation validity | Supported | Partial | Insufficient | Unsupported |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| vector | 0.8 | 0.7 | 0.0 | 0.0 | 1.0 | 0 | 8 | 2 | 0 |\n| graph | 0.8 | 0.6 | 0.9 | 0.9 | 1.0 | 6 | 3 | 1 | 0 |\n| hybrid | 1.0 | 0.7 | 0.9 | 0.9 | 1.0 | 9 | 1 | 0 | 0 |\n",
       "path": "reports/stages/evidence_level_evaluation.md",
@@ -13798,6 +13899,852 @@
         }
       },
       "path": "reports/stages/evidence_level_evaluation.json",
+      "present": true
+    },
+    "expanded_gold_labels": {
+      "compacted": false,
+      "data": {
+        "label_set": "phak_ch4_expanded_course_gold_v1",
+        "labels": [
+          {
+            "answer_key": "The atmosphere is an envelope of air surrounding Earth and resting on its surface.",
+            "cq_id": "exp-001-atmosphere-envelope",
+            "evidence_spans": [
+              {
+                "page": 0,
+                "text": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c04",
+              "06_phak_ch4_0-fixed_window-p00-c00"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "atmosphere",
+              "air",
+              "Earth"
+            ],
+            "question": "What does PHAK Chapter 4 say the atmosphere is?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 0
+          },
+          {
+            "answer_key": "Atmospheric air is mainly nitrogen and oxygen with a small share of other gases.",
+            "cq_id": "exp-002-atmosphere-composition",
+            "evidence_spans": [
+              {
+                "page": 0,
+                "text": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c04",
+              "06_phak_ch4_0-structure_aware-p00-c05",
+              "06_phak_ch4_0-fixed_window-p00-c00"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "atmosphere",
+              "nitrogen",
+              "oxygen",
+              "other gases"
+            ],
+            "question": "Which gases make up most of the atmosphere in the chapter?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 0
+          },
+          {
+            "answer_key": "Air is treated as a fluid because gases, including air, flow.",
+            "cq_id": "exp-003-air-fluid",
+            "evidence_spans": [
+              {
+                "page": 1,
+                "text": "However, gasses, like air, are also fluids."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c02",
+              "06_phak_ch4_0-fixed_window-p01-c00"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "air",
+              "fluid",
+              "gases"
+            ],
+            "question": "Why is air modeled as a fluid in this chapter?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 1
+          },
+          {
+            "answer_key": "Viscosity is the fluid property that resists flow.",
+            "cq_id": "exp-004-viscosity-definition",
+            "evidence_spans": [
+              {
+                "page": 1,
+                "text": "Viscosity is the property of a fluid that causes it to resist flowing."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c04",
+              "06_phak_ch4_0-fixed_window-p01-c01"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "viscosity",
+              "fluid",
+              "flow"
+            ],
+            "question": "What does viscosity mean for a fluid?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 1
+          },
+          {
+            "answer_key": "Air has low viscosity and flows easily, but still resists flow around objects.",
+            "cq_id": "exp-005-air-low-viscosity",
+            "evidence_spans": [
+              {
+                "page": 1,
+                "text": "Air has a low viscosity and flows easily."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c05",
+              "06_phak_ch4_0-fixed_window-p01-c01"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "air",
+              "low viscosity",
+              "flow"
+            ],
+            "question": "How does the chapter characterize air viscosity?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 1
+          },
+          {
+            "answer_key": "Friction between air and the wing surface slows the air flowing over the wing.",
+            "cq_id": "exp-006-friction-wing-surface",
+            "evidence_spans": [
+              {
+                "page": 1,
+                "text": "The surface roughness causes resistance and slows the velocity of the air flowing over the wing."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c08",
+              "06_phak_ch4_0-fixed_window-p01-c02"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "friction",
+              "wing",
+              "surface roughness",
+              "airflow"
+            ],
+            "question": "How does surface roughness affect airflow over a wing?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 1
+          },
+          {
+            "answer_key": "The boundary layer is the layer of air molecules adhering to the wing surface.",
+            "cq_id": "exp-007-boundary-layer",
+            "evidence_spans": [
+              {
+                "page": 1,
+                "text": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c08",
+              "06_phak_ch4_0-fixed_window-p01-c03"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "boundary layer",
+              "wing surface",
+              "air molecules"
+            ],
+            "question": "What is the boundary layer on a wing?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 1
+          },
+          {
+            "answer_key": "Pressure is force applied perpendicular to a surface per unit area.",
+            "cq_id": "exp-008-pressure-definition",
+            "evidence_spans": [
+              {
+                "page": 2,
+                "text": "Pressure is the force applied in a perpendicular direction to the surface of an object per unit area"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p02-c103",
+              "06_phak_ch4_0-fixed_window-p02-c00"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "pressure",
+              "force",
+              "surface"
+            ],
+            "question": "How does the chapter define pressure?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 2
+          },
+          {
+            "answer_key": "Pilots are mainly concerned with atmospheric pressure as a key weather factor.",
+            "cq_id": "exp-009-atmospheric-pressure",
+            "evidence_spans": [
+              {
+                "page": 2,
+                "text": "pilots are mainly concerned with atmospheric pressure"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p02-c105",
+              "06_phak_ch4_0-fixed_window-p02-c01"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "pilots",
+              "atmospheric pressure"
+            ],
+            "question": "Which kind of pressure are pilots mainly concerned with?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 2
+          },
+          {
+            "answer_key": "Standard sea-level pressure is about 14.70 psi or 1,013.2 millibars.",
+            "cq_id": "exp-010-standard-pressure",
+            "evidence_spans": [
+              {
+                "page": 2,
+                "text": "approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2 millibars"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p02-c106",
+              "06_phak_ch4_0-structure_aware-p02-c107",
+              "06_phak_ch4_0-fixed_window-p02-c02"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "standard pressure",
+              "psi",
+              "millibars"
+            ],
+            "question": "What pressure values does the chapter give for standard sea level?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 2
+          },
+          {
+            "answer_key": "Atmospheric pressure decreases with altitude.",
+            "cq_id": "exp-011-pressure-altitude-trend",
+            "evidence_spans": [
+              {
+                "page": 2,
+                "text": "the higher the altitude, the less air there is above"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p02-c107",
+              "06_phak_ch4_0-fixed_window-p02-c02"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "altitude",
+              "atmospheric pressure"
+            ],
+            "question": "How does atmospheric pressure change as altitude increases?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 2
+          },
+          {
+            "answer_key": "Nonstandard temperature or pressure differs from the standard lapse rates.",
+            "cq_id": "exp-012-nonstandard-atmosphere",
+            "evidence_spans": [
+              {
+                "page": 2,
+                "text": "Any temperature or pressure that differs from the standard lapse rates is considered nonstandard temperature and pressure."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p02-c111",
+              "06_phak_ch4_0-fixed_window-p02-c03"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "temperature",
+              "pressure",
+              "standard lapse rates"
+            ],
+            "question": "What makes temperature or pressure nonstandard?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 2
+          },
+          {
+            "answer_key": "Pressure altitude is height above a standard datum plane.",
+            "cq_id": "exp-013-pressure-altitude",
+            "evidence_spans": [
+              {
+                "page": 3,
+                "text": "Pressure altitude is the height above a standard datum plane"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p03-c02",
+              "06_phak_ch4_0-fixed_window-p03-c00"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "pressure altitude",
+              "standard datum plane"
+            ],
+            "question": "What is pressure altitude?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 3
+          },
+          {
+            "answer_key": "Density altitude is pressure altitude corrected for nonstandard temperature.",
+            "cq_id": "exp-014-density-altitude",
+            "evidence_spans": [
+              {
+                "page": 3,
+                "text": "Density altitude is pressure altitude corrected for nonstandard temperature."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p03-c04",
+              "06_phak_ch4_0-structure_aware-p03-c05",
+              "06_phak_ch4_0-fixed_window-p03-c02"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "density altitude",
+              "pressure altitude",
+              "temperature"
+            ],
+            "question": "What is density altitude?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 3
+          },
+          {
+            "answer_key": "The density of air has a pronounced effect on aircraft and engine performance.",
+            "cq_id": "exp-015-density-performance",
+            "evidence_spans": [
+              {
+                "page": 3,
+                "text": "The density of the air has a pronounced effect on aircraft and engine performance."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p03-c06",
+              "06_phak_ch4_0-fixed_window-p03-c03"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "air density",
+              "aircraft performance",
+              "engine performance"
+            ],
+            "question": "Why does air density matter for aircraft performance?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 3
+          },
+          {
+            "answer_key": "Higher pressure increases density when temperature is constant; lower pressure lowers density.",
+            "cq_id": "exp-016-pressure-density",
+            "evidence_spans": [
+              {
+                "page": 3,
+                "text": "if the pressure is lowered, the density is lowered"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p03-c09",
+              "06_phak_ch4_0-fixed_window-p03-c04"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "pressure",
+              "density",
+              "temperature"
+            ],
+            "question": "How does pressure affect air density at constant temperature?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 3
+          },
+          {
+            "answer_key": "Increasing temperature decreases density; decreasing temperature increases density.",
+            "cq_id": "exp-017-temperature-density",
+            "evidence_spans": [
+              {
+                "page": 3,
+                "text": "Increasing the temperature of a substance decreases its density."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p03-c10",
+              "06_phak_ch4_0-fixed_window-p03-c04"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "temperature",
+              "density"
+            ],
+            "question": "How does temperature affect density?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 3
+          },
+          {
+            "answer_key": "Humidity reduces performance in high humidity conditions by affecting density altitude.",
+            "cq_id": "exp-018-humidity-performance",
+            "evidence_spans": [
+              {
+                "page": 4,
+                "text": "effects of humidity on density altitude include a decrease in overall performance in high humidity conditions"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p04-c08",
+              "06_phak_ch4_0-fixed_window-p04-c02"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "humidity",
+              "density altitude",
+              "performance"
+            ],
+            "question": "What performance effect does high humidity have?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 4
+          },
+          {
+            "answer_key": "The chapter frames lift production using Newton's laws and Bernoulli's principle.",
+            "cq_id": "exp-019-lift-theories",
+            "evidence_spans": [
+              {
+                "page": 4,
+                "text": "Newton's basic laws of motion, and Bernoulli's principle of differential pressure"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p04-c10",
+              "06_phak_ch4_0-structure_aware-p04-c11",
+              "06_phak_ch4_0-fixed_window-p04-c02"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "lift",
+              "Newton",
+              "Bernoulli"
+            ],
+            "question": "Which theories does the chapter use to explain lift production?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 4
+          },
+          {
+            "answer_key": "Newton's first law says an object remains at rest or uniform straight-line motion unless compelled to change by force.",
+            "cq_id": "exp-020-newton-first",
+            "evidence_spans": [
+              {
+                "page": 4,
+                "text": "Every object persists in its state of rest or uniform motion in a straight line unless it is compelled to change"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p04-c12",
+              "06_phak_ch4_0-fixed_window-p04-c03"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "Newton's First Law",
+              "motion",
+              "force"
+            ],
+            "question": "How is Newton's First Law stated in the chapter?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 4
+          },
+          {
+            "answer_key": "Newton's second law links force, mass, and acceleration.",
+            "cq_id": "exp-021-newton-second",
+            "evidence_spans": [
+              {
+                "page": 5,
+                "text": "its resulting acceleration is inversely proportional to the mass of the body and is directly proportional to the applied force"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p05-c43",
+              "06_phak_ch4_0-fixed_window-p05-c00"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "Newton's Second Law",
+              "force",
+              "mass",
+              "acceleration"
+            ],
+            "question": "How does Newton's Second Law relate force, mass, and acceleration?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 5
+          },
+          {
+            "answer_key": "Newton's third law says every action has an equal and opposite reaction.",
+            "cq_id": "exp-022-newton-third",
+            "evidence_spans": [
+              {
+                "page": 5,
+                "text": "For every action, there is an equal and opposite reaction."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p05-c44",
+              "06_phak_ch4_0-fixed_window-p05-c00"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "Newton's Third Law",
+              "action",
+              "reaction"
+            ],
+            "question": "What is Newton's Third Law as quoted in the chapter?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 5
+          },
+          {
+            "answer_key": "Bernoulli's principle says fluid pressure decreases as velocity increases.",
+            "cq_id": "exp-023-bernoulli",
+            "evidence_spans": [
+              {
+                "page": 5,
+                "text": "as the velocity of a moving fluid (liquid or gas) increases, the pressure within the fluid decreases"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p05-c45",
+              "06_phak_ch4_0-fixed_window-p05-c01"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "Bernoulli",
+              "velocity",
+              "pressure"
+            ],
+            "question": "What relationship does Bernoulli's principle describe?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 5
+          },
+          {
+            "answer_key": "Past a venturi constriction, airflow slows and pressure increases.",
+            "cq_id": "exp-024-venturi",
+            "evidence_spans": [
+              {
+                "page": 5,
+                "text": "Past the constriction, the airflow slows and the pressure increases."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p05-c46",
+              "06_phak_ch4_0-fixed_window-p05-c01"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "venturi",
+              "airflow",
+              "pressure"
+            ],
+            "question": "What happens to airflow and pressure past a venturi constriction?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 5
+          },
+          {
+            "answer_key": "An airfoil is designed to obtain reaction on its surfaces from air moving over it.",
+            "cq_id": "exp-025-airfoil-design",
+            "evidence_spans": [
+              {
+                "page": 5,
+                "text": "An airfoil is a structure designed to obtain reaction upon its surface from the air through which it moves"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p05-c48",
+              "06_phak_ch4_0-fixed_window-p05-c02"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "airfoil",
+              "reaction",
+              "air"
+            ],
+            "question": "What is an airfoil designed to do?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 5
+          },
+          {
+            "answer_key": "Airfoils can force air downward, creating an upward reaction force.",
+            "cq_id": "exp-026-airfoil-downwash",
+            "evidence_spans": [
+              {
+                "page": 6,
+                "text": "forces air downward, which provides an equal reaction from the air, forcing the airfoil upward"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p06-c20",
+              "06_phak_ch4_0-fixed_window-p06-c00"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "airfoil",
+              "downward air",
+              "upward force"
+            ],
+            "question": "How does forcing air downward relate to lift on an airfoil?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 6
+          },
+          {
+            "answer_key": "The most efficient airfoil for greatest lift has a concave lower surface.",
+            "cq_id": "exp-027-efficient-airfoil",
+            "evidence_spans": [
+              {
+                "page": 6,
+                "text": "The most efficient airfoil for producing the greatest lift is one that has a concave or \"scooped out\" lower surface"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p06-c21",
+              "06_phak_ch4_0-fixed_window-p06-c01"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "airfoil",
+              "lift",
+              "concave lower surface"
+            ],
+            "question": "What airfoil shape does the chapter describe as efficient for greatest lift?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 6
+          },
+          {
+            "answer_key": "Air moving over the top of an airfoil travels faster than air below, reducing pressure above.",
+            "cq_id": "exp-028-low-pressure-above",
+            "evidence_spans": [
+              {
+                "page": 6,
+                "text": "This increased velocity reduces the pressure above the airfoil."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p06-c24",
+              "06_phak_ch4_0-structure_aware-p06-c25",
+              "06_phak_ch4_0-fixed_window-p06-c02"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "airfoil",
+              "velocity",
+              "pressure above"
+            ],
+            "question": "Why does low pressure form above an airfoil?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 6
+          },
+          {
+            "answer_key": "Newton's third law links downward-backward flow to an upward-forward force on the airfoil.",
+            "cq_id": "exp-029-upward-forward-force",
+            "evidence_spans": [
+              {
+                "page": 7,
+                "text": "the reaction of this downward backward flow results in an upward forward force on the airfoil"
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p07-c20",
+              "06_phak_ch4_0-fixed_window-p07-c01"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "Newton's third law",
+              "airfoil",
+              "upward forward force"
+            ],
+            "question": "How does the chapter connect downward-backward flow to airfoil force?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 7
+          },
+          {
+            "answer_key": "Pressure distribution and center of pressure changes affect aerodynamic balance and controllability.",
+            "cq_id": "exp-030-pressure-distribution",
+            "evidence_spans": [
+              {
+                "page": 7,
+                "text": "An airplane's aerodynamic balance and controllability are governed by changes in the CP."
+              }
+            ],
+            "expected_abstention": false,
+            "expected_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p07-c26",
+              "06_phak_ch4_0-fixed_window-p07-c03"
+            ],
+            "gold_level": "span",
+            "key_entities": [
+              "pressure distribution",
+              "center of pressure",
+              "controllability"
+            ],
+            "question": "Why do center-of-pressure changes matter?",
+            "question_type": "supported",
+            "source_document": "06_phak_ch4_0",
+            "source_page": 7
+          },
+          {
+            "answer_key": "PHAK Chapter 4 evidence is insufficient for aircraft-specific V-speeds.",
+            "cq_id": "exp-031-no-answer-vspeeds",
+            "evidence_spans": [],
+            "expected_abstention": true,
+            "expected_chunk_ids": [],
+            "gold_level": "no_answer",
+            "key_entities": [
+              "V-speeds",
+              "aircraft-specific speeds"
+            ],
+            "question": "What are the exact V-speeds for a specific aircraft model?",
+            "question_type": "insufficient_evidence",
+            "source_document": "06_phak_ch4_0",
+            "source_page": -1
+          },
+          {
+            "answer_key": "PHAK Chapter 4 evidence is insufficient for current METAR or live weather.",
+            "cq_id": "exp-032-no-answer-live-weather",
+            "evidence_spans": [],
+            "expected_abstention": true,
+            "expected_chunk_ids": [],
+            "gold_level": "no_answer",
+            "key_entities": [
+              "METAR",
+              "live weather"
+            ],
+            "question": "What is the current METAR at my departure airport?",
+            "question_type": "insufficient_evidence",
+            "source_document": "06_phak_ch4_0",
+            "source_page": -1
+          },
+          {
+            "answer_key": "PHAK Chapter 4 evidence is insufficient for replacing a POH checklist.",
+            "cq_id": "exp-033-no-answer-poh",
+            "evidence_spans": [],
+            "expected_abstention": true,
+            "expected_chunk_ids": [],
+            "gold_level": "no_answer",
+            "key_entities": [
+              "POH",
+              "checklist"
+            ],
+            "question": "Can this system replace the aircraft POH checklist for takeoff?",
+            "question_type": "insufficient_evidence",
+            "source_document": "06_phak_ch4_0",
+            "source_page": -1
+          },
+          {
+            "answer_key": "PHAK Chapter 4 evidence is insufficient for giving ATC clearances.",
+            "cq_id": "exp-034-no-answer-atc",
+            "evidence_spans": [],
+            "expected_abstention": true,
+            "expected_chunk_ids": [],
+            "gold_level": "no_answer",
+            "key_entities": [
+              "ATC",
+              "clearance"
+            ],
+            "question": "What ATC clearance should I accept right now?",
+            "question_type": "insufficient_evidence",
+            "source_document": "06_phak_ch4_0",
+            "source_page": -1
+          },
+          {
+            "answer_key": "PHAK Chapter 4 evidence is insufficient for real-time go/no-go decisions.",
+            "cq_id": "exp-035-no-answer-go-no-go",
+            "evidence_spans": [],
+            "expected_abstention": true,
+            "expected_chunk_ids": [],
+            "gold_level": "no_answer",
+            "key_entities": [
+              "go/no-go",
+              "pilot decision"
+            ],
+            "question": "Should I depart now in my current aircraft and weather?",
+            "question_type": "insufficient_evidence",
+            "source_document": "06_phak_ch4_0",
+            "source_page": -1
+          }
+        ],
+        "notes": "Expanded evaluation labels for retrieval ablation and robustness planning. Source remains PHAK Chapter 4; no-answer cases are intentionally outside the current chapter evidence.",
+        "review_status": "course_project_seed"
+      },
+      "path": "data/cqs/06_phak_ch4_0.expanded.gold.json",
       "present": true
     },
     "final_evaluation_review": {
@@ -20627,6 +21574,96 @@
       "path": "reports/stages/hybrid_rag_structure_aware.json",
       "present": true
     },
+    "kg_extraction_comparison": {
+      "excerpt": "# KG Extraction Comparison\n\n- Run ID: `kg-extraction-comparison-20260519T044358Z`\n- Scope: artifact-level comparison; no default live KG rebuild.\n\n| Strategy | Triples | Valid triples | Unsupported | Provenance complete | Duplicates | Key entity coverage |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: |\n| fixed_window | 172 | 172 | 0 | 1.0 | 41 | 0.8286 |\n| structure_aware | 448 | 448 | 0 | 1.0 | 107 | 0.8571 |\n\n## Interpretation\n\nStructure-aware extraction produced more validated triples; judge this gain against duplicate count, key-entity coverage, and cost before treating it as higher-quality evidence.\n",
+      "path": "reports/stages/kg_extraction_comparison.md",
+      "present": true,
+      "truncated": false
+    },
+    "kg_extraction_comparison_json": {
+      "compacted": false,
+      "data": {
+        "experiments": {
+          "fixed_window": {
+            "duplicate_triple_count": 41,
+            "evidence_in_chunk_rate": 1.0,
+            "key_entity_coverage": 0.8286,
+            "kg_path": "data/kg/06_phak_ch4_0.kg.jsonl",
+            "model_counts": {
+              "llm-structured-kg-extraction": 172
+            },
+            "provenance_complete_rate": 1.0,
+            "triples_total": 172,
+            "unique_triple_count": 131,
+            "unsupported_triple_count": 0,
+            "valid_triples": 172
+          },
+          "structure_aware": {
+            "duplicate_triple_count": 107,
+            "evidence_in_chunk_rate": 1.0,
+            "key_entity_coverage": 0.8571,
+            "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+            "model_counts": {
+              "llm-structured-kg-extraction": 448
+            },
+            "provenance_complete_rate": 1.0,
+            "triples_total": 448,
+            "unique_triple_count": 341,
+            "unsupported_triple_count": 0,
+            "valid_triples": 448
+          }
+        },
+        "interpretation": "Structure-aware extraction produced more validated triples; judge this gain against duplicate count, key-entity coverage, and cost before treating it as higher-quality evidence.",
+        "metadata": {
+          "cost_latency": {
+            "cases_total": null,
+            "chunks_path": null,
+            "chunks_size_bytes": null,
+            "elapsed_seconds": 0.0526,
+            "index_dir": null,
+            "index_size_bytes": null,
+            "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+            "kg_size_bytes": 230440,
+            "llm_token_usage": null,
+            "questions_total": null
+          },
+          "gold_labels_path": "data/cqs/06_phak_ch4_0.expanded.gold.json",
+          "run_manifest": {
+            "artifacts": {
+              "fixed_kg_path": "data/kg/06_phak_ch4_0.kg.jsonl",
+              "structure_aware_kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"
+            },
+            "chunking_strategy": "fixed_window_vs_structure_aware",
+            "collection_name": "not_used",
+            "command": "aviation-ai report kg-extraction-comparison",
+            "created_at": "2026-05-19T04:43:58.276973+00:00",
+            "document": {},
+            "embedding": {
+              "backend": "not_used",
+              "collection_name": "not_used"
+            },
+            "experiment_name": "kg_extraction_comparison",
+            "llm": {
+              "model": "not_used",
+              "provider": "none"
+            },
+            "parameters": {
+              "default_rebuild_kg": false,
+              "gold_labels_path": "data/cqs/06_phak_ch4_0.expanded.gold.json"
+            },
+            "rebuild_policy": {
+              "chunks": false,
+              "indexes": false,
+              "kg": false
+            },
+            "run_id": "kg-extraction-comparison-20260519T044358Z"
+          },
+          "scoring_policy": "kg_quality_metrics_no_mixed_overall_score"
+        }
+      },
+      "path": "reports/stages/kg_extraction_comparison.json",
+      "present": true
+    },
     "kg_ttl_export": {
       "excerpt": "@prefix : <http://www.example.org/aviation/phak#> .\n@prefix dcterms: <http://purl.org/dc/terms/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg00_8748d82ca7 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg00-8748d82ca7\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg00_8748d82ca7 ;\n    rdf:object :Entity_e6ddfe806bf2 ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_d29735431e2e .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg01_b36f7b1b3c a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg01-b36f7b1b3c\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg01_b36f7b1b3c ;\n    rdf:object :Entity_97d09ab0508d ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg02_30f9108dc2 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg02-30f9108dc2\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg02_30f9108dc2 ;\n    rdf:object :Entity_97d09ab0508d ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_d29735431e2e .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg03_eb390520b8 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg03-eb390520b8\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg03_eb390520b8 ;\n    rdf:object :Entity_2e54a5bf9ed5 ;\n    rdf:predicate :affects ;\n    rdf:subject :Entity_0bc4d2597a9e .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg04_0965835698 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg04-0965835698\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg04_0965835698 ;\n    rdf:object :Entity_2e54a5bf9ed5 ;\n    rdf:predicate :hasCondition ;\n    rdf:subject :Entity_d29735431e2e .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg00_898cdb205b a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg00_898cdb205b ;\n    rdf:object :Entity_15a4d680a787 ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg01_8c4f39e792 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg01-8c4f39e792\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg01_8c4f39e792 ;\n    rdf:object :Entity_b568d37122a0 ;\n    rdf:predicate :causes ;\n    rdf:subject :Entity_15a4d680a787 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg02_d6f789c778 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg02-d6f789c778\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg02_d6f789c778 ;\n    rdf:object :Entity_7e77286b3463 ;\n    rdf:predicate :hasOutcome ;\n    rdf:subject :Entity_15a4d680a787 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg03_012eeeefb3 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg03_012eeeefb3 ;\n    rdf:object :Entity_6550a96e2c5c ;\n    rdf:predicate :affects ;\n    rdf:subject :Entity_64c526067f92 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg04_b22fb4d3ff a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg04-b22fb4d3ff\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg04_b22fb4d3ff ;\n    rdf:object :Entity_b568d37122a0 ;\n    rdf:predicate :hasCondition ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c01_kg00_898cdb205b a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c01-kg00-898cdb205b\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c01_kg00_898cdb205b ;\n    rdf:object :Entity_15a4d680a787 ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c01_kg01_b22fb4d3ff a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c01-kg01-b22fb4d3ff\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c01_kg01_b22fb4d3ff ;\n    rdf:object :Entity_b568d37122a0 ;\n    rdf:predicate :hasCondition ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg00_2130a146d0 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c02-kg00-2130a146d0\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg00_2130a146d0 ;\n    rdf:object :Entity_8bcd01c8388a ;\n    rdf:predicate :hasOutcome ;\n    rdf:subject :Entity_0d8b9642372c .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg01_4d653713c4 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c02-kg01-4d653713c4\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg01_4d653713c4 ;\n    rdf:object :Entity_8bcd01c8388a ;\n    rdf:predicate :causes ;\n    rdf:subject :Entity_1e73b30600d2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg02_3fc80c9399 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c02-kg02-3fc80c9399\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg02_3fc80c9399 ;\n    rdf:object :Entity_8bcd01c8388a ;\n    rdf:predicate :causes ;\n    rdf:subject :Entity_4977a4c1b708 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg04_89ba52ba48 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c02-kg04-89ba52ba48\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg04_89ba52ba48 ;\n    rdf:object :Entity_e6ddfe806bf2 ;\n    rdf:predicate :affects ;\n    rdf:subject :Entity_bbd659b9b867",
       "path": "data/kg/06_phak_ch4_0.kg.ttl",
@@ -20659,6 +21696,813 @@
       "path": "docs/ontology_design.md",
       "present": true,
       "truncated": false
+    },
+    "retrieval_ablation": {
+      "excerpt": "# Retrieval Ablation\n\n- Run ID: `retrieval-ablation-20260519T123851Z`\n- Questions: 35\n- Scenarios: 12\n- Scoring: layered retrieval and KG evidence metrics; no mixed overall score.\n\n| Scenario | Mode | Recall@5 | MRR@5 | Context Precision@5 | KG coverage | Avg triples |\n| --- | --- | ---: | ---: | ---: | ---: | ---: |\n| vector_hops2_v5_h8 | vector | 0.6857 | 0.4714 | 0.1771 | 0.0 | 0.0 |\n| hybrid_graph_disabled_hops2_v5_h8 | hybrid_graph_disabled | 0.6857 | 0.4714 | 0.1771 | 0.0 | 0.0 |\n| graph_hops1_v5_h8 | graph | 0.5143 | 0.3929 | 0.1543 | 0.8286 | 7.5429 |\n| graph_hops2_v5_h8 | graph | 0.5143 | 0.3929 | 0.1543 | 0.8286 | 7.5429 |\n| graph_hops3_v5_h8 | graph | 0.5143 | 0.3929 | 0.1543 | 0.8286 | 7.5429 |\n| hybrid_hops1_v5_h8 | hybrid | 0.6286 | 0.4471 | 0.1543 | 0.8286 | 7.5429 |\n| hybrid_hops2_v5_h8 | hybrid | 0.6286 | 0.4471 | 0.1543 | 0.8286 | 7.5429 |\n| hybrid_hops3_v5_h8 | hybrid | 0.6286 | 0.4471 | 0.1543 | 0.8286 | 7.5429 |\n| hybrid_hops2_v3_h8 | hybrid | 0.5714 | 0.4429 | 0.2286 | 0.8286 | 7.5429 |\n| hybrid_hops2_v8_h8 | hybrid | 0.6857 | 0.4479 | 0.1107 | 0.8286 | 7.5429 |\n| hybrid_hops2_v5_h5 | hybrid | 0.6571 | 0.44 | 0.1543 | 0.8 | 4.7143 |\n| hybrid_hops2_v5_h10 | hybrid | 0.6571 | 0.4652 | 0.16 | 0.8286 | 9.2857 |\n\n## Interpretation\n\n### vector_hops2_v5_h8\n\nVector retrieval measures whether semantic text search alone recovers the gold chunk/span/page evidence.\n\n### hybrid_graph_disabled_hops2_v5_h8\n\nThis is the hybrid ablation with graph evidence disabled; it should match vector retrieval behavior while preserving the hybrid experiment label.\n\n### graph_hops1_v5_h8\n\nGraph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.\n\n### graph_hops2_v5_h8\n\nGraph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.\n\n### graph_hops3_v5_h8\n\nGraph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.\n\n### hybrid_hops1_v5_h8\n\nHybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).\n\n### hybrid_hops2_v5_h8\n\nHybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).\n\n### hybrid_hops3_v5_h8\n\nHybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).\n\n### hybrid_hops2_v3_h8\n\nHybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.5714).\n\n### hybrid_hops2_v8_h8\n\nHybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6857).\n\n### hybrid_hops2_v5_h5\n\nHybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8) while not always improving page-level Recall@5 (0.6571).\n\n### hybrid_hops2_v5_h10\n\nHybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6571).\n",
+      "path": "reports/stages/retrieval_ablation.md",
+      "present": true,
+      "truncated": false
+    },
+    "retrieval_ablation_json": {
+      "compacted": true,
+      "data": {
+        "metadata": {
+          "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+          "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+          "collection_name": "phak_ch4_chunks_structure_aware",
+          "cost_latency": {
+            "cases_total": null,
+            "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+            "chunks_size_bytes": 134637,
+            "elapsed_seconds": 32.0136,
+            "index_dir": "data/indexes/chroma",
+            "index_size_bytes": 5178492,
+            "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+            "kg_size_bytes": 230440,
+            "llm_token_usage": null,
+            "questions_total": 35
+          },
+          "gold_labels_path": "data/cqs/06_phak_ch4_0.expanded.gold.json",
+          "index_dir": "data/indexes/chroma",
+          "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+          "questions_total": 35,
+          "run_manifest": {
+            "artifacts": {
+              "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+              "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+              "index_dir": "data/indexes/chroma",
+              "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"
+            },
+            "chunking_strategy": "structure_aware",
+            "collection_name": "phak_ch4_chunks_structure_aware",
+            "command": "aviation-ai report retrieval-ablation",
+            "created_at": "2026-05-19T12:38:51.232415+00:00",
+            "document": {},
+            "embedding": {
+              "backend": "chromadb_default_embedding_function",
+              "collection_name": "phak_ch4_chunks_structure_aware",
+              "collections": [
+                "phak_ch4_chunks_structure_aware"
+              ],
+              "index_dir": "data/indexes/chroma"
+            },
+            "experiment_name": "retrieval_ablation",
+            "llm": {
+              "model": "not_used",
+              "provider": "none"
+            },
+            "parameters": {
+              "gold_labels_path": "data/cqs/06_phak_ch4_0.expanded.gold.json",
+              "scenarios": [
+                {
+                  "graph_hops": 2,
+                  "hybrid_top_k": 8,
+                  "mode": "vector",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 2,
+                  "hybrid_top_k": 8,
+                  "mode": "hybrid_graph_disabled",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 1,
+                  "hybrid_top_k": 8,
+                  "mode": "graph",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 2,
+                  "hybrid_top_k": 8,
+                  "mode": "graph",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 3,
+                  "hybrid_top_k": 8,
+                  "mode": "graph",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 1,
+                  "hybrid_top_k": 8,
+                  "mode": "hybrid",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 2,
+                  "hybrid_top_k": 8,
+                  "mode": "hybrid",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 3,
+                  "hybrid_top_k": 8,
+                  "mode": "hybrid",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 2,
+                  "hybrid_top_k": 8,
+                  "mode": "hybrid",
+                  "vector_top_k": 3
+                },
+                {
+                  "graph_hops": 2,
+                  "hybrid_top_k": 8,
+                  "mode": "hybrid",
+                  "vector_top_k": 8
+                },
+                {
+                  "graph_hops": 2,
+                  "hybrid_top_k": 5,
+                  "mode": "hybrid",
+                  "vector_top_k": 5
+                },
+                {
+                  "graph_hops": 2,
+                  "hybrid_top_k": 10,
+                  "mode": "hybrid",
+                  "vector_top_k": 5
+                }
+              ]
+            },
+            "rebuild_policy": {
+              "chunks": false,
+              "indexes": false,
+              "kg": false
+            },
+            "run_id": "retrieval-ablation-20260519T123851Z"
+          },
+          "scenarios_total": 12,
+          "scoring_policy": "layered_metrics_no_mixed_overall_score"
+        },
+        "scenarios": {
+          "graph_hops1_v5_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 7.5429,
+                "avg_supporting_triple_count": 7.5429,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1543,
+                "mrr_at_5": 0.3929,
+                "recall_at_5": 0.5143
+              }
+            },
+            "explanation": "Graph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.",
+            "mode": "graph",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 1,
+              "hybrid_top_k": 8,
+              "vector_top_k": 5
+            }
+          },
+          "graph_hops2_v5_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 7.5429,
+                "avg_supporting_triple_count": 7.5429,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1543,
+                "mrr_at_5": 0.3929,
+                "recall_at_5": 0.5143
+              }
+            },
+            "explanation": "Graph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.",
+            "mode": "graph",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 2,
+              "hybrid_top_k": 8,
+              "vector_top_k": 5
+            }
+          },
+          "graph_hops3_v5_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 7.5429,
+                "avg_supporting_triple_count": 7.5429,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1543,
+                "mrr_at_5": 0.3929,
+                "recall_at_5": 0.5143
+              }
+            },
+            "explanation": "Graph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.",
+            "mode": "graph",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 3,
+              "hybrid_top_k": 8,
+              "vector_top_k": 5
+            }
+          },
+          "hybrid_graph_disabled_hops2_v5_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 0.0,
+                "avg_supporting_triple_count": 0.0,
+                "evidence_coverage": 0.0,
+                "provenance_complete_rate": 0.0
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1771,
+                "mrr_at_5": 0.4714,
+                "recall_at_5": 0.6857
+              }
+            },
+            "explanation": "This is the hybrid ablation with graph evidence disabled; it should match vector retrieval behavior while preserving the hybrid experiment label.",
+            "mode": "hybrid_graph_disabled",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 2,
+              "hybrid_top_k": 8,
+              "vector_top_k": 5
+            }
+          },
+          "hybrid_hops1_v5_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 7.5429,
+                "avg_supporting_triple_count": 7.5429,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1543,
+                "mrr_at_5": 0.4471,
+                "recall_at_5": 0.6286
+              }
+            },
+            "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).",
+            "mode": "hybrid",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 1,
+              "hybrid_top_k": 8,
+              "vector_top_k": 5
+            }
+          },
+          "hybrid_hops2_v3_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 7.5429,
+                "avg_supporting_triple_count": 7.5429,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.2286,
+                "mrr_at_5": 0.4429,
+                "recall_at_5": 0.5714
+              }
+            },
+            "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.5714).",
+            "mode": "hybrid",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 2,
+              "hybrid_top_k": 8,
+              "vector_top_k": 3
+            }
+          },
+          "hybrid_hops2_v5_h10": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 9.2857,
+                "avg_supporting_triple_count": 9.2857,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.16,
+                "mrr_at_5": 0.4652,
+                "recall_at_5": 0.6571
+              }
+            },
+            "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6571).",
+            "mode": "hybrid",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 2,
+              "hybrid_top_k": 10,
+              "vector_top_k": 5
+            }
+          },
+          "hybrid_hops2_v5_h5": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 4.7143,
+                "avg_supporting_triple_count": 4.7143,
+                "evidence_coverage": 0.8,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1543,
+                "mrr_at_5": 0.44,
+                "recall_at_5": 0.6571
+              }
+            },
+            "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8) while not always improving page-level Recall@5 (0.6571).",
+            "mode": "hybrid",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 2,
+              "hybrid_top_k": 5,
+              "vector_top_k": 5
+            }
+          },
+          "hybrid_hops2_v5_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 7.5429,
+                "avg_supporting_triple_count": 7.5429,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1543,
+                "mrr_at_5": 0.4471,
+                "recall_at_5": 0.6286
+              }
+            },
+            "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).",
+            "mode": "hybrid",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 2,
+              "hybrid_top_k": 8,
+              "vector_top_k": 5
+            }
+          },
+          "hybrid_hops2_v8_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 7.5429,
+                "avg_supporting_triple_count": 7.5429,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1107,
+                "mrr_at_5": 0.4479,
+                "recall_at_5": 0.6857
+              }
+            },
+            "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6857).",
+            "mode": "hybrid",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 2,
+              "hybrid_top_k": 8,
+              "vector_top_k": 8
+            }
+          },
+          "hybrid_hops3_v5_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 7.5429,
+                "avg_supporting_triple_count": 7.5429,
+                "evidence_coverage": 0.8286,
+                "provenance_complete_rate": 0.9429
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1543,
+                "mrr_at_5": 0.4471,
+                "recall_at_5": 0.6286
+              }
+            },
+            "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).",
+            "mode": "hybrid",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 3,
+              "hybrid_top_k": 8,
+              "vector_top_k": 5
+            }
+          },
+          "vector_hops2_v5_h8": {
+            "aggregate": {
+              "kg_evidence": {
+                "avg_invalid_triple_count": 0.0,
+                "avg_related_triple_count": 0.0,
+                "avg_supporting_triple_count": 0.0,
+                "evidence_coverage": 0.0,
+                "provenance_complete_rate": 0.0
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.1771,
+                "mrr_at_5": 0.4714,
+                "recall_at_5": 0.6857
+              }
+            },
+            "explanation": "Vector retrieval measures whether semantic text search alone recovers the gold chunk/span/page evidence.",
+            "mode": "vector",
+            "records_total": 35,
+            "settings": {
+              "graph_hops": 2,
+              "hybrid_top_k": 8,
+              "vector_top_k": 5
+            }
+          }
+        },
+        "source_compaction": "per-question hits and graph triples omitted"
+      },
+      "path": "reports/stages/retrieval_ablation.json",
+      "present": true
+    },
+    "robustness_evaluation": {
+      "excerpt": "# Robustness Evaluation\n\n- Run ID: `robustness-evaluation-20260519T044429Z`\n- Cases: 10\n\n| Metric | Value |\n| --- | ---: |\n| Retrieval stability | 0.8 |\n| Citation stability | 0.7 |\n| KG evidence stability | 1.0 |\n| Answer stability | 1.0 |\n| Abstention correctness | 0.6 |\n\n## Cases\n\n### rob-001-density-altitude-paraphrase\n\n- Type: paraphrase\n- Base CQ: exp-014-density-altitude\n- Retrieval stable: True\n- Abstention correct: True\n\n### rob-002-bernoulli-terminology\n\n- Type: terminology_substitution\n- Base CQ: exp-023-bernoulli\n- Retrieval stable: True\n- Abstention correct: True\n\n### rob-003-boundary-layer-paraphrase\n\n- Type: paraphrase\n- Base CQ: exp-007-boundary-layer\n- Retrieval stable: True\n- Abstention correct: True\n\n### rob-004-humidity-ambiguous\n\n- Type: ambiguous\n- Base CQ: exp-018-humidity-performance\n- Retrieval stable: False\n- Abstention correct: True\n\n### rob-005-lift-cross-page\n\n- Type: cross_page\n- Base CQ: exp-019-lift-theories\n- Retrieval stable: True\n- Abstention correct: True\n\n### rob-006-pressure-above-paraphrase\n\n- Type: paraphrase\n- Base CQ: exp-028-low-pressure-above\n- Retrieval stable: False\n- Abstention correct: True\n\n### rob-007-unsupported-vspeeds\n\n- Type: unsupported\n- Base CQ: exp-031-no-answer-vspeeds\n- Retrieval stable: True\n- Abstention correct: False\n\n### rob-008-unsupported-live-weather\n\n- Type: unsupported\n- Base CQ: exp-032-no-answer-live-weather\n- Retrieval stable: True\n- Abstention correct: False\n\n### rob-009-unsupported-checklist\n\n- Type: unsupported\n- Base CQ: exp-033-no-answer-poh\n- Retrieval stable: True\n- Abstention correct: False\n\n### rob-010-unsupported-go-no-go\n\n- Type: unsupported\n- Base CQ: exp-035-no-answer-go-no-go\n- Retrieval stable: True\n- Abstention correct: False\n",
+      "path": "reports/stages/robustness_evaluation.md",
+      "present": true,
+      "truncated": false
+    },
+    "robustness_evaluation_json": {
+      "compacted": true,
+      "data": {
+        "aggregate": {
+          "abstention_correctness": 0.6,
+          "answer_stability": 1.0,
+          "cases_total": 10,
+          "citation_stability": 0.7,
+          "kg_evidence_stability": 1.0,
+          "retrieval_stability": 0.8
+        },
+        "case_summaries": [
+          {
+            "base_cq_id": "exp-014-density-altitude",
+            "case_id": "rob-001-density-altitude-paraphrase",
+            "case_type": "paraphrase",
+            "expected_abstention": false,
+            "metrics": {
+              "abstention_correctness": true,
+              "answer_stability": true,
+              "citation_stability": true,
+              "kg_evidence_stability": true,
+              "retrieval_stability": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p03-c04",
+                "06_phak_ch4_0-structure_aware-p03-c05",
+                "06_phak_ch4_0-structure_aware-p03-c06",
+                "06_phak_ch4_0-structure_aware-p03-c07",
+                "06_phak_ch4_0-structure_aware-p03-c10"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p03-c07",
+                "06_phak_ch4_0-structure_aware-p03-c04",
+                "06_phak_ch4_0-structure_aware-p03-c06",
+                "06_phak_ch4_0-structure_aware-p03-c04-kg04-18b34d10b2",
+                "06_phak_ch4_0-structure_aware-p03-c07-kg00-5fd1a04a06",
+                "06_phak_ch4_0-structure_aware-p03-c07-kg01-7179fa26d1"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-023-bernoulli",
+            "case_id": "rob-002-bernoulli-terminology",
+            "case_type": "terminology_substitution",
+            "expected_abstention": false,
+            "metrics": {
+              "abstention_correctness": true,
+              "answer_stability": true,
+              "citation_stability": true,
+              "kg_evidence_stability": true,
+              "retrieval_stability": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p02-c104",
+                "06_phak_ch4_0-structure_aware-p02-c108",
+                "06_phak_ch4_0-structure_aware-p03-c08",
+                "06_phak_ch4_0-structure_aware-p05-c45",
+                "06_phak_ch4_0-structure_aware-p06-c24"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p02-c104",
+                "06_phak_ch4_0-structure_aware-p02-c108",
+                "06_phak_ch4_0-structure_aware-p05-c45",
+                "06_phak_ch4_0-structure_aware-p03-c08",
+                "06_phak_ch4_0-structure_aware-p02-c102",
+                "06_phak_ch4_0-structure_aware-p05-c45-kg04-45048a4272",
+                "06_phak_ch4_0-structure_aware-p03-c08-kg03-2dee05d0db",
+                "06_phak_ch4_0-structure_aware-p02-c102-kg00-35de05634c"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-007-boundary-layer",
+            "case_id": "rob-003-boundary-layer-paraphrase",
+            "case_type": "paraphrase",
+            "expected_abstention": false,
+            "metrics": {
+              "abstention_correctness": true,
+              "answer_stability": true,
+              "citation_stability": true,
+              "kg_evidence_stability": true,
+              "retrieval_stability": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p01-c00",
+                "06_phak_ch4_0-structure_aware-p01-c02",
+                "06_phak_ch4_0-structure_aware-p01-c08",
+                "06_phak_ch4_0-structure_aware-p02-c102",
+                "06_phak_ch4_0-structure_aware-p07-c23"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p01-c08",
+                "06_phak_ch4_0-structure_aware-p02-c102",
+                "06_phak_ch4_0-structure_aware-p07-c23",
+                "06_phak_ch4_0-structure_aware-p01-c08-kg01-89ecf88487",
+                "06_phak_ch4_0-structure_aware-p01-c08-kg03-b158087c7c",
+                "06_phak_ch4_0-structure_aware-p07-c23-kg02-95a175b663"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-018-humidity-performance",
+            "case_id": "rob-004-humidity-ambiguous",
+            "case_type": "ambiguous",
+            "expected_abstention": false,
+            "metrics": {
+              "abstention_correctness": true,
+              "answer_stability": true,
+              "citation_stability": false,
+              "kg_evidence_stability": true,
+              "retrieval_stability": false,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p00-c02",
+                "06_phak_ch4_0-structure_aware-p03-c04",
+                "06_phak_ch4_0-structure_aware-p03-c06",
+                "06_phak_ch4_0-structure_aware-p04-c02",
+                "06_phak_ch4_0-structure_aware-p04-c03"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p03-c04",
+                "06_phak_ch4_0-structure_aware-p04-c02",
+                "06_phak_ch4_0-structure_aware-p03-c06",
+                "06_phak_ch4_0-structure_aware-p03-c04-kg00-851d22d42a",
+                "06_phak_ch4_0-structure_aware-p03-c04-kg01-a06cfb76c4",
+                "06_phak_ch4_0-structure_aware-p03-c04-kg03-b3bc48b215"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-019-lift-theories",
+            "case_id": "rob-005-lift-cross-page",
+            "case_type": "cross_page",
+            "expected_abstention": false,
+            "metrics": {
+              "abstention_correctness": true,
+              "answer_stability": true,
+              "citation_stability": false,
+              "kg_evidence_stability": true,
+              "retrieval_stability": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p04-c09",
+                "06_phak_ch4_0-structure_aware-p04-c10",
+                "06_phak_ch4_0-structure_aware-p04-c11",
+                "06_phak_ch4_0-structure_aware-p06-c25",
+                "06_phak_ch4_0-structure_aware-p07-c22"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p04-c09",
+                "06_phak_ch4_0-structure_aware-p04-c11",
+                "06_phak_ch4_0-structure_aware-p06-c25",
+                "06_phak_ch4_0-structure_aware-p07-c22",
+                "06_phak_ch4_0-structure_aware-p06-c25-kg01-1ab85aadd8",
+                "06_phak_ch4_0-structure_aware-p07-c22-kg00-96ac5f457c",
+                "06_phak_ch4_0-structure_aware-p07-c22-kg01-e0cc07fddc"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-028-low-pressure-above",
+            "case_id": "rob-006-pressure-above-paraphrase",
+            "case_type": "paraphrase",
+            "expected_abstention": false,
+            "metrics": {
+              "abstention_correctness": true,
+              "answer_stability": true,
+              "citation_stability": false,
+              "kg_evidence_stability": true,
+              "retrieval_stability": false,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p05-c48",
+                "06_phak_ch4_0-structure_aware-p06-c19",
+                "06_phak_ch4_0-structure_aware-p06-c23",
+                "06_phak_ch4_0-structure_aware-p07-c21",
+                "06_phak_ch4_0-structure_aware-p07-c23"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p06-c23",
+                "06_phak_ch4_0-structure_aware-p06-c19",
+                "06_phak_ch4_0-structure_aware-p07-c23",
+                "06_phak_ch4_0-structure_aware-p07-c21",
+                "06_phak_ch4_0-structure_aware-p05-c48",
+                "06_phak_ch4_0-structure_aware-p07-c21-kg01-5b58d8b8e9",
+                "06_phak_ch4_0-structure_aware-p05-c48-kg00-e6f8bc1000",
+                "06_phak_ch4_0-structure_aware-p06-c19-kg03-e6f8bc1000"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-031-no-answer-vspeeds",
+            "case_id": "rob-007-unsupported-vspeeds",
+            "case_type": "unsupported",
+            "expected_abstention": true,
+            "metrics": {
+              "abstention_correctness": false,
+              "answer_stability": true,
+              "citation_stability": true,
+              "kg_evidence_stability": true,
+              "retrieval_stability": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p00-c02",
+                "06_phak_ch4_0-structure_aware-p02-c105",
+                "06_phak_ch4_0-structure_aware-p05-c07",
+                "06_phak_ch4_0-structure_aware-p05-c08",
+                "06_phak_ch4_0-structure_aware-p06-c20"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p05-c07",
+                "06_phak_ch4_0-structure_aware-p06-c20",
+                "06_phak_ch4_0-structure_aware-p00-c02",
+                "06_phak_ch4_0-structure_aware-p06-c20-kg04-a19469c432",
+                "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e",
+                "06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-032-no-answer-live-weather",
+            "case_id": "rob-008-unsupported-live-weather",
+            "case_type": "unsupported",
+            "expected_abstention": true,
+            "metrics": {
+              "abstention_correctness": false,
+              "answer_stability": true,
+              "citation_stability": true,
+              "kg_evidence_stability": true,
+              "retrieval_stability": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p03-c03",
+                "06_phak_ch4_0-structure_aware-p03-c04",
+                "06_phak_ch4_0-structure_aware-p03-c05",
+                "06_phak_ch4_0-structure_aware-p04-c05",
+                "06_phak_ch4_0-structure_aware-p04-c06"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p03-c04",
+                "06_phak_ch4_0-structure_aware-p04-c06",
+                "06_phak_ch4_0-structure_aware-p03-c05",
+                "06_phak_ch4_0-structure_aware-p03-c04-kg03-b3bc48b215",
+                "06_phak_ch4_0-structure_aware-p03-c04-kg04-18b34d10b2",
+                "06_phak_ch4_0-structure_aware-p03-c05-kg00-b033877e86"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-033-no-answer-poh",
+            "case_id": "rob-009-unsupported-checklist",
+            "case_type": "unsupported",
+            "expected_abstention": true,
+            "metrics": {
+              "abstention_correctness": false,
+              "answer_stability": true,
+              "citation_stability": true,
+              "kg_evidence_stability": true,
+              "retrieval_stability": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p00-c01",
+                "06_phak_ch4_0-structure_aware-p02-c109",
+                "06_phak_ch4_0-structure_aware-p03-c05",
+                "06_phak_ch4_0-structure_aware-p07-c00",
+                "06_phak_ch4_0-structure_aware-p08-c04"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p00-c01",
+                "06_phak_ch4_0-structure_aware-p08-c04",
+                "06_phak_ch4_0-structure_aware-p02-c109",
+                "06_phak_ch4_0-structure_aware-p03-c05",
+                "06_phak_ch4_0-structure_aware-p08-c04-kg03-ee4dff6420",
+                "06_phak_ch4_0-structure_aware-p02-c109-kg01-0921baf9c1",
+                "06_phak_ch4_0-structure_aware-p03-c05-kg04-18b34d10b2"
+              ]
+            }
+          },
+          {
+            "base_cq_id": "exp-035-no-answer-go-no-go",
+            "case_id": "rob-010-unsupported-go-no-go",
+            "case_type": "unsupported",
+            "expected_abstention": true,
+            "metrics": {
+              "abstention_correctness": false,
+              "answer_stability": true,
+              "citation_stability": true,
+              "kg_evidence_stability": true,
+              "retrieval_stability": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware-p01-c02",
+                "06_phak_ch4_0-structure_aware-p02-c109",
+                "06_phak_ch4_0-structure_aware-p02-c83",
+                "06_phak_ch4_0-structure_aware-p02-c97",
+                "06_phak_ch4_0-structure_aware-p03-c09"
+              ],
+              "valid_citations": [
+                "06_phak_ch4_0-structure_aware-p02-c97",
+                "06_phak_ch4_0-structure_aware-p03-c09",
+                "06_phak_ch4_0-structure_aware-p01-c02",
+                "06_phak_ch4_0-structure_aware-p02-c109",
+                "06_phak_ch4_0-structure_aware-p03-c09-kg00-355b4579b6",
+                "06_phak_ch4_0-structure_aware-p01-c02-kg02-fa45a854b4",
+                "06_phak_ch4_0-structure_aware-p02-c109-kg01-0921baf9c1"
+              ]
+            }
+          }
+        ],
+        "metadata": {
+          "cases_total": 10,
+          "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+          "collection_name": "phak_ch4_chunks_structure_aware",
+          "cost_latency": {
+            "cases_total": 10,
+            "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+            "chunks_size_bytes": 134637,
+            "elapsed_seconds": 1.2155,
+            "index_dir": "data/indexes/chroma",
+            "index_size_bytes": 5178492,
+            "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+            "kg_size_bytes": 230440,
+            "llm_token_usage": null,
+            "questions_total": null
+          },
+          "index_dir": "data/indexes/chroma",
+          "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+          "mode": "hybrid",
+          "robustness_path": "data/cqs/06_phak_ch4_0.robustness.json",
+          "run_manifest": {
+            "artifacts": {
+              "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+              "index_dir": "data/indexes/chroma",
+              "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+              "robustness_path": "data/cqs/06_phak_ch4_0.robustness.json"
+            },
+            "chunking_strategy": "structure_aware",
+            "collection_name": "phak_ch4_chunks_structure_aware",
+            "command": "aviation-ai report robustness",
+            "created_at": "2026-05-19T04:44:29.752982+00:00",
+            "document": {},
+            "embedding": {
+              "backend": "chromadb_default_embedding_function",
+              "collection_name": "phak_ch4_chunks_structure_aware",
+              "collections": [
+                "phak_ch4_chunks_structure_aware"
+              ],
+              "index_dir": "data/indexes/chroma"
+            },
+            "experiment_name": "robustness_evaluation",
+            "llm": {
+              "model": "gpt-4o-mini",
+              "provider": "openai"
+            },
+            "parameters": {
+              "graph_hops": 2,
+              "hybrid_top_k": 8,
+              "mode": "hybrid",
+              "vector_top_k": 5
+            },
+            "rebuild_policy": {
+              "chunks": false,
+              "indexes": false,
+              "kg": false
+            },
+            "run_id": "robustness-evaluation-20260519T044429Z"
+          }
+        },
+        "records_total": 10,
+        "source_compaction": "retrieved chunks, triples, and generated answers omitted"
+      },
+      "path": "reports/stages/robustness_evaluation.json",
+      "present": true
     },
     "structure_aware_kg": {
       "excerpt": "{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c02\", \"confidence\": 0.79, \"evidence_text\": \"the fundamental physical laws governing the forces acting on an aircraft in flight\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"Cl_Evidence\", \"object_class\": \"Cl_Evidence\", \"page\": 0, \"predicate\": \"supportedByEvidence\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"Cl_Concept\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c02\", \"confidence\": 0.84, \"evidence_text\": \"what effect these natural laws and forces have on the performance characteristics of aircraft\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"Cl_AircraftPerformance\", \"object_class\": \"Cl_AircraftPerformance\", \"page\": 0, \"predicate\": \"affects\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"Cl_Concept\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c02\", \"confidence\": 0.95, \"evidence_text\": \"an aircraft in flight\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"Cl_Aircraft\", \"object_class\": \"Cl_Aircraft\", \"page\": 0, \"predicate\": \"appliesTo\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"Cl_Concept\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c02-kg02-67295bee69\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c02\", \"confidence\": 0.91, \"evidence_text\": \"airplane, helicopter, glider, or balloon\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"Cl_Aircraft\", \"object_class\": \"Cl_Aircraft\", \"page\": 0, \"predicate\": \"appliesTo\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"Cl_Concept\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c02-kg03-67295bee69\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c03\", \"confidence\": 0.55, \"evidence_text\": \"the principles involved\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"natural forces\", \"object_class\": \"Cl_Force\", \"page\": 0, \"predicate\": \"affects\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"the principles involved\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c03-kg00-ec85a2e957\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c03\", \"confidence\": 0.5, \"evidence_text\": \"natural forces\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"the principles involved\", \"object_class\": \"Cl_Evidence\", \"page\": 0, \"predicate\": \"supportedByEvidence\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"natural forces\", \"subject_class\": \"Cl_Force\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c03-kg01-d8ad94bed4\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c04\", \"confidence\": 0.95, \"evidence_text\": \"an envelope of air\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"Cl_Air\", \"object_class\": \"Cl_Air\", \"page\": 0, \"predicate\": \"hasComponent\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"Cl_Atmosphere\", \"subject_class\": \"Cl_Atmosphere\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c04-kg00-8748d82ca7\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c04\", \"confidence\": 0.85, \"evidence_text\": \"it is a mixture of gases\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"Cl_Fluid\", \"object_class\": \"Cl_Fluid\", \"page\": 0, \"predicate\": \"hasComponent\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"Cl_Air\", \"subject_class\": \"Cl_Air\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c04\", \"confidence\": 0.88, \"evidence_text\": \"below 35,000 feet altitude\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"Cl_Altitude\", \"object_class\": \"Cl_Altitude\", \"page\": 0, \"predicate\": \"hasQuantity\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"Cl_Atmosphere\", \"subject_class\": \"Cl_Atmosphere\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c04-kg02-bf8ee5a3ea\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c05\", \"confidence\": 0.92, \"evidence_text\": \"below 35,000 feet altitude\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"below 35,000 feet altitude\", \"object_class\": \"Cl_Altitude\", \"page\": 0, \"predicate\": \"hasQuantity\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"atmosphere\", \"subject_class\": \"Cl_Atmosphere\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c05-kg00-9d032c2a9a\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c06\", \"confidence\": 0.72, \"evidence_text\": \"region of higher altitude\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"the atmosphere\", \"object_class\": \"Cl_Atmosphere\", \"page\": 0, \"predicate\": \"partOf\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"higher altitude\", \"subject_class\": \"Cl_Altitude\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c06-kg00-f932292260\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c06\", \"confidence\": 0.86, \"evidence_text\": \"below 35,000 feet altitude\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"below 35,000 feet altitude\", \"object_class\": \"Cl_Altitude\", \"page\": 0, \"predicate\": \"hasQuantity\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"oxygen\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c06-kg01-313467454a\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c06\", \"confidence\": 0.9, \"evidence_text\": \"the atmosphere\\u2019s oxygen\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"the atmosphere\", \"object_class\": \"Cl_Atmosphere\", \"page\": 0, \"predicate\": \"partOf\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"oxygen\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c06-kg02-cb7d201076\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c07\", \"confidence\": 0.87, \"evidence_text\": \"Most of the atmosphere\\u2019s oxygen\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"atmosphere\", \"object_class\": \"Cl_Atmosphere\", \"page\": 0, \"predicate\": \"partOf\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"oxygen\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c07-kg00-bcf45f34cc\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p00-c07\", \"confidence\": 0.93, \"evidence_text\": \"below 35,000 feet altitude\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"below 35,000 feet altitude\", \"object_class\": \"Cl_Altitude\", \"page\": 0, \"predicate\": \"hasCondition\", \"section\": \"page-0\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"oxygen\", \"subject_class\": \"Cl_Concept\", \"triple_id\": \"06_phak_ch4_0-structure_aware-p00-c07-kg01-f0020d5879\"}\n{\"chunk_id\": \"06_phak_ch4_0-structure_aware-p01-c00\", \"confidence\": 0.78, \"evidence_text\": \"Leading edge of wing\", \"extracted_at\": \"2026-05-19T01:06:14.119370+00:00\", \"model\": \"llm-structured-kg-extraction\", \"object\": \"Microscopic surface of a wing\", \"object_class\": \"Cl_Wing\", \"page\": 1, \"predicate\": \"hasComponent\", \"section\": \"page-1\", \"source_document\": \"06_phak_ch4_0\", \"subject\": \"Leading edge of wing\", \"subject_class\":",
@@ -21218,7 +23062,7 @@
       "present": true
     }
   },
-  "generated_at": "2026-05-19T04:23:24.144921+00:00",
+  "generated_at": "2026-05-19T12:38:51.665087+00:00",
   "goals": {
     "excerpt": "# Project Goals\n\nLast updated: 2026-05-19\n\nThis file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.\n\n## Goal vs Task\n\n- A goal describes an outcome the project must achieve.\n- A task describes a concrete action that can be completed and checked off.\n- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.\n- Reports under `reports/` provide evidence that a goal has been met.\n\n## G1 - Course Objective And Project Rationale\n\nBuild a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.\n\nSuccess criteria:\n\n- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.\n- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.\n- The project can answer why GraphRAG is needed instead of only using plain LLM prompting or vector-only RAG.\n- The project uses FAA aviation handbook material as the starting source corpus.\n- The report clearly connects implementation choices to the course objective.\n\nCurrent status: in progress.\n\n## G2 - Ontology-Grounded KG Deliverable\n\nDeliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.\n\nRationale:\n\n- The KG is a project deliverable, not only an intermediate cache.\n- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.\n- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.\n\nSuccess criteria:\n\n- A baseline or generated TBox ontology exists and can be validated.\n- The extraction profile maps focused aviation classes/properties back to the ontology design.\n- Focused ABox/KG triples are extracted only when supported by source chunks.\n- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.\n- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.\n\nCurrent status: active curated ontology is available; focused KG was extracted and validated against the curated schema.\n\n## G3 - GraphRAG Core Pipeline\n\nImplement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.\n\nTarget pipeline:\n\n```text\nPDF -> chunks -> ontology-constrained KG/ABox\n    -> Chroma vector index\n    -> graph retrieval + vector retrieval\n    -> reciprocal-rank hybrid fusion\n    -> grounded LLM answer with citations\n```\n\nSuccess criteria:\n\n- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.\n- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.\n- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.\n- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.\n- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.\n\nCurrent status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 while preserving KG evidence coverage.\n\n## G4 - Evaluation And Experiment Protocol\n\nEvaluate retrieval, KG evidence, and LLM answer quality as separate layers rather than a single mixed score.\n\nSuccess criteria:\n\n- Retrieval metrics include Recall@5, MRR@5, Context Precision@5, hit ranks, and hit source identifiers.\n- KG ev",
     "path": "GOALS.md",
@@ -21744,21 +23588,27 @@
         "ai_kg_evidence_visual": "reports/final/assets/kg_evidence_ai.png",
         "ai_pipeline_visual": "reports/final/assets/pipeline_hero_ai.png",
         "ai_web_demo_visual": "reports/final/assets/web_demo_ai.png",
+        "answer_evaluation": "reports/stages/answer_evaluation.md",
         "chunking_comparison": "reports/stages/chunking_comparison.md",
         "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.md",
         "defense_deck": "reports/final/aviation_graphrag_defense_deck.pptx",
         "defense_deck_outline": "reports/final/defense_deck_outline.md",
         "defense_deck_sources": "reports/final/aviation_graphrag_defense_deck_sources.json",
         "defense_notes": "reports/final/project_defense_notes.md",
+        "document_expansion_protocol": "docs/document_expansion_protocol.md",
         "evidence_level_evaluation": "reports/stages/evidence_level_evaluation.md",
+        "expanded_gold_labels": "data/cqs/06_phak_ch4_0.expanded.gold.json",
         "final_evaluation_review": "reports/stages/final_evaluation_review.md",
         "gold_labels": "data/cqs/06_phak_ch4_0.gold.json",
         "graphrag_review": "reports/stages/graphrag_review.md",
         "hybrid_rag_experiment": "reports/stages/hybrid_rag_experiment.md",
         "hybrid_rag_structure_aware": "reports/stages/hybrid_rag_structure_aware.md",
+        "kg_extraction_comparison": "reports/stages/kg_extraction_comparison.md",
         "kg_ttl_export": "data/kg/06_phak_ch4_0.kg.ttl",
         "kg_validation": "reports/stages/kg_validation.md",
         "ontology_design": "docs/ontology_design.md",
+        "retrieval_ablation": "reports/stages/retrieval_ablation.md",
+        "robustness_evaluation": "reports/stages/robustness_evaluation.md",
         "structure_aware_kg": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
         "structure_aware_kg_ttl_export": "data/kg/06_phak_ch4_0.structure_aware.kg.ttl",
         "structure_aware_kg_validation": "reports/stages/structure_aware_kg_validation.md",
@@ -21897,7 +23747,7 @@
     "present": true
   },
   "tasks": {
-    "excerpt": "# Project Task Board\n\nLast updated: 2026-05-19\n\nThis file tracks concrete execution tasks. Durable project outcomes and scope boundaries live in `GOALS.md`.\n\nA task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.\n\n## Status Legend\n\n- `[ ]` Not started\n- `[~]` In progress\n- `[x]` Done\n- `[!]` Blocked or needs decision\n\n## Active Task Queue\n\n1. Run the final quality gate and commit/push the current experiment evidence.\n2. Add GitLab CI for `ruff` and `pytest` if more automation is needed.\n3. Optional: mirror high-priority tasks into GitLab issues after the repository is stable.\n4. Optional next research step: expand beyond PHAK Chapter 4 only after document metadata and section schema are applied.\n\nRelated goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.\n\n## P0 - Immediate Reproducibility Tasks\n\nRelated goals: G2, G3, G4, G5.\n\n- [x] Create initial commit and push `main` to GitLab.\n  - Evidence: GitLab remote `origin`, commit `5ccd437`.\n- [x] Clean report clutter by archiving old stage reports.\n  - Evidence: `reports/stages/index.md`, `reports/archive/stages/2026-05-18/`.\n- [x] Generate the first AI-assisted project report draft.\n  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.\n- [x] Verify local runtime and test environment.\n  - Evidence: `uv run ruff check .`, `uv run pytest`.\n- [x] Create an explainable curated ontology as the active KG schema.\n  - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/ontology_design.md`.\n  - Acceptance: curated ontology is TBox-only, has 35 classes, 9 object properties, complete label/comment coverage, and passes ontology evaluation.\n- [x] Run full chunking comparison for all strategies.\n  - Command: `uv run aviation-ai report chunking-comparison`\n  - Evidence: `reports/stages/chunking_comparison.json`, `reports/stages/chunking_comparison.md`.\n  - Result: `structure_aware` ranked first; `fixed_window` remained competitive on Recall@5 and remains the current KG-aligned strategy.\n  - Acceptance: each strategy has Recall@5, MRR@5, Context Precision@5, chunk stats, and an explanation paragraph.\n- [x] Run the focused KG extraction and validation workflow.\n  - Commands:\n    - `uv run aviation-ai chunk build`\n    - `uv run aviation-ai kg extract`\n    - `uv run aviation-ai kg validate`\n  - Evidence: `data/kg/06_phak_ch4_0.kg.jsonl`, `data/kg/06_phak_ch4_0.kg.ttl`, `reports/stages/kg_validation.md`.\n  - Acceptance: KG triples are constrained by the ontology/extraction profile, and unsupported classes/properties or missing provenance are rejected deterministically.\n- [x] Build or refresh the Chroma vector index for the selected chunking strategy.\n  - Command: `uv run aviation-ai index build`\n  - Evidence: local ignored collection under `data/indexes/chroma`, collection `phak_ch4_chunks`.\n  - Acceptance: collection name, index path, chunk path, and strategy are recorded in run manifests.\n- [x] Run Hybrid RAG evaluation on the 10 boundary CQs.\n  - Command: `uv run aviation-ai report hybrid-rag`\n  - Evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.\n  - Result: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph/hybrid KG evidence coverage = 0.9; LLM citation completeness = 1.0 across modes.\n  - Acceptance: report compares vector, graph, and hybrid/GraphRAG modes, and separates retrieval metrics, KG evidence metrics, and LLM answer metrics without a mixed total score.\n- [x] Run GraphRAG review for the fixed-window baseline.\n  - Command: `uv run aviation-ai report graphrag-review`\n  - Evidence: `reports/stages/graphrag_review.json`, `reports/stages/graphrag_review.md`.\n  - Result: GraphRAG value is framed as structured KG evidence coverage, not fixed-window page-level Recall@5 lift over vector-only retrieval.\n- [x] Re-extract KG and rerun Hybrid RAG with `structure_aware` chunks.\n  - Commands:\n    - `uv run avi",
+    "excerpt": "# Project Task Board\n\nLast updated: 2026-05-19\n\nThis file tracks concrete execution tasks. Durable project outcomes and scope boundaries live in `GOALS.md`.\n\nA task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.\n\n## Status Legend\n\n- `[ ]` Not started\n- `[~]` In progress\n- `[x]` Done\n- `[!]` Blocked or needs decision\n\n## Active Task Queue\n\n1. Review the expanded 35-question benchmark results and decide which failures need manual gold-label refinement.\n2. Add embedding/index backend comparison after retrieval ablation results are reviewed.\n3. If needed, rerun Hybrid RAG answer generation on the expanded gold labels instead of only the original 10 CQ answer set.\n4. Strengthen robustness abstention behavior, because the first deterministic robustness run has abstention correctness = 0.6.\n5. Decide whether to expose the expanded evaluation suite in the web demo or keep it as report-only evidence.\n\nRelated goals: G2, G3, G4, G6, G8, G9 in `GOALS.md`.\n\n## P0 - Immediate Reproducibility Tasks\n\nRelated goals: G2, G3, G4, G5.\n\n- [x] Create initial commit and push `main` to GitLab.\n  - Evidence: GitLab remote `origin`, commit `5ccd437`.\n- [x] Clean report clutter by archiving old stage reports.\n  - Evidence: `reports/stages/index.md`, `reports/archive/stages/2026-05-18/`.\n- [x] Generate the first AI-assisted project report draft.\n  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.\n- [x] Verify local runtime and test environment.\n  - Evidence: `uv run ruff check .`, `uv run pytest`.\n- [x] Create an explainable curated ontology as the active KG schema.\n  - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/ontology_design.md`.\n  - Acceptance: curated ontology is TBox-only, has 35 classes, 9 object properties, complete label/comment coverage, and passes ontology evaluation.\n- [x] Run full chunking comparison for all strategies.\n  - Command: `uv run aviation-ai report chunking-comparison`\n  - Evidence: `reports/stages/chunking_comparison.json`, `reports/stages/chunking_comparison.md`.\n  - Result: `structure_aware` ranked first; `fixed_window` remained competitive on Recall@5 and remains the current KG-aligned strategy.\n  - Acceptance: each strategy has Recall@5, MRR@5, Context Precision@5, chunk stats, and an explanation paragraph.\n- [x] Run the focused KG extraction and validation workflow.\n  - Commands:\n    - `uv run aviation-ai chunk build`\n    - `uv run aviation-ai kg extract`\n    - `uv run aviation-ai kg validate`\n  - Evidence: `data/kg/06_phak_ch4_0.kg.jsonl`, `data/kg/06_phak_ch4_0.kg.ttl`, `reports/stages/kg_validation.md`.\n  - Acceptance: KG triples are constrained by the ontology/extraction profile, and unsupported classes/properties or missing provenance are rejected deterministically.\n- [x] Build or refresh the Chroma vector index for the selected chunking strategy.\n  - Command: `uv run aviation-ai index build`\n  - Evidence: local ignored collection under `data/indexes/chroma`, collection `phak_ch4_chunks`.\n  - Acceptance: collection name, index path, chunk path, and strategy are recorded in run manifests.\n- [x] Run Hybrid RAG evaluation on the 10 boundary CQs.\n  - Command: `uv run aviation-ai report hybrid-rag`\n  - Evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.\n  - Result: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph/hybrid KG evidence coverage = 0.9; LLM citation completeness = 1.0 across modes.\n  - Acceptance: report compares vector, graph, and hybrid/GraphRAG modes, and separates retrieval metrics, KG evidence metrics, and LLM answer metrics without a mixed total score.\n- [x] Run GraphRAG review for the fixed-window baseline.\n  - Command: `uv run aviation-ai report graphrag-review`\n  - Evidence: `reports/stages/graphrag_review.json`, `reports/stages/graphrag_review.md`.\n  - Result: GraphRAG value is framed as struc",
     "path": "TASKS.md",
     "present": true,
     "truncated": true

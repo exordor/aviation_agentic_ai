@@ -1,0 +1,76 @@
+{
+  "case_set": "phak_ch4_robustness_v1",
+  "notes": "Paraphrase, terminology, cross-page, ambiguous, and unsupported cases for the PHAK Chapter 4 GraphRAG prototype.",
+  "cases": [
+    {
+      "base_cq_id": "exp-014-density-altitude",
+      "case_id": "rob-001-density-altitude-paraphrase",
+      "case_type": "paraphrase",
+      "expected_chunk_ids": ["06_phak_ch4_0-structure_aware-p03-c04", "06_phak_ch4_0-structure_aware-p03-c05"],
+      "question": "In plain terms, how is density altitude related to pressure altitude?"
+    },
+    {
+      "base_cq_id": "exp-023-bernoulli",
+      "case_id": "rob-002-bernoulli-terminology",
+      "case_type": "terminology_substitution",
+      "expected_chunk_ids": ["06_phak_ch4_0-structure_aware-p05-c45"],
+      "question": "What happens to static pressure when a moving gas speeds up?"
+    },
+    {
+      "base_cq_id": "exp-007-boundary-layer",
+      "case_id": "rob-003-boundary-layer-paraphrase",
+      "case_type": "paraphrase",
+      "expected_chunk_ids": ["06_phak_ch4_0-structure_aware-p01-c08"],
+      "question": "What do we call the air molecules that stick close to a wing surface?"
+    },
+    {
+      "base_cq_id": "exp-018-humidity-performance",
+      "case_id": "rob-004-humidity-ambiguous",
+      "case_type": "ambiguous",
+      "expected_chunk_ids": ["06_phak_ch4_0-structure_aware-p04-c08"],
+      "question": "Does moisture in air make performance better or worse in this chapter's discussion?"
+    },
+    {
+      "base_cq_id": "exp-019-lift-theories",
+      "case_id": "rob-005-lift-cross-page",
+      "case_type": "cross_page",
+      "expected_chunk_ids": ["06_phak_ch4_0-structure_aware-p04-c10", "06_phak_ch4_0-structure_aware-p05-c45"],
+      "question": "Which ideas from Newton and Bernoulli are used across the chapter to explain lift?"
+    },
+    {
+      "base_cq_id": "exp-028-low-pressure-above",
+      "case_id": "rob-006-pressure-above-paraphrase",
+      "case_type": "paraphrase",
+      "expected_chunk_ids": ["06_phak_ch4_0-structure_aware-p06-c24", "06_phak_ch4_0-structure_aware-p06-c25"],
+      "question": "Why is pressure lower over the upper surface of an airfoil?"
+    },
+    {
+      "base_cq_id": "exp-031-no-answer-vspeeds",
+      "case_id": "rob-007-unsupported-vspeeds",
+      "case_type": "unsupported",
+      "expected_abstention": true,
+      "question": "What is the exact VX speed for my aircraft today?"
+    },
+    {
+      "base_cq_id": "exp-032-no-answer-live-weather",
+      "case_id": "rob-008-unsupported-live-weather",
+      "case_type": "unsupported",
+      "expected_abstention": true,
+      "question": "What is the live density altitude at the airport right now?"
+    },
+    {
+      "base_cq_id": "exp-033-no-answer-poh",
+      "case_id": "rob-009-unsupported-checklist",
+      "case_type": "unsupported",
+      "expected_abstention": true,
+      "question": "Can I skip the approved checklist if this answer cites PHAK Chapter 4?"
+    },
+    {
+      "base_cq_id": "exp-035-no-answer-go-no-go",
+      "case_id": "rob-010-unsupported-go-no-go",
+      "case_type": "unsupported",
+      "expected_abstention": true,
+      "question": "Should I take off now based only on this GraphRAG answer?"
+    }
+  ]
+}

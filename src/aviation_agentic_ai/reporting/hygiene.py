@@ -40,7 +40,17 @@ def _classify_report(path: Path) -> str:
         return "generation_runs"
     if stem in {"source_scope", "cq_gap_review"}:
         return "source_scope"
-    if "chunking_comparison" in stem or "hybrid_rag" in stem:
+    if (
+        "chunking_comparison" in stem
+        or "hybrid_rag" in stem
+        or stem
+        in {
+            "retrieval_ablation",
+            "kg_extraction_comparison",
+            "answer_evaluation",
+            "robustness_evaluation",
+        }
+    ):
         return "rag_experiments"
     if "ontology_evaluation" in stem or "boundary_evaluation" in stem:
         return "ontology_evaluation"
@@ -262,4 +272,3 @@ def run_report_hygiene(
     json_path = write_stage_index_json(applied, stage_path / "index.json")
     md_path = write_stage_index_markdown(applied, stage_path / "index.md")
     return json_path, md_path, applied
-

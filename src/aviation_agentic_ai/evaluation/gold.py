@@ -31,11 +31,14 @@ class GoldLabel:
     cq_id: str
     source_document: str
     source_page: int
+    question: str = ""
+    question_type: str = ""
     expected_chunk_ids: tuple[str, ...] = ()
     evidence_spans: tuple[EvidenceSpan, ...] = ()
     key_entities: tuple[str, ...] = ()
     answer_key: str = ""
     gold_level: str = "page"
+    expected_abstention: bool = False
 
     @classmethod
     def from_cq(cls, cq: dict[str, Any]) -> "GoldLabel":
@@ -43,6 +46,8 @@ class GoldLabel:
             cq_id=str(cq["id"]),
             source_document=str(cq.get("source_document", "")),
             source_page=int(cq["source_page"]),
+            question=str(cq.get("competency_question", "")),
+            question_type=str(cq.get("cq_type", "")),
             key_entities=tuple(str(item) for item in cq.get("key_entities", [])),
             answer_key=str(cq.get("expected_answer", "")),
             gold_level="page",
@@ -57,16 +62,23 @@ class GoldLabel:
         )
         chunk_ids = tuple(str(item) for item in data.get("expected_chunk_ids", []))
         explicit_level = str(data.get("gold_level", "")).strip().lower()
-        inferred_level = "span" if spans else "chunk" if chunk_ids else "page"
+        expected_abstention = bool(data.get("expected_abstention", False))
+        inferred_level = (
+            "no_answer" if expected_abstention else "span" if spans else "chunk" if chunk_ids else "page"
+        )
         return cls(
             cq_id=str(data.get("cq_id") or data.get("id")),
             source_document=str(data.get("source_document", "")),
-            source_page=int(data["source_page"]),
+            source_page=int(data.get("source_page", -1)),
+            question=str(data.get("question") or data.get("competency_question", "")),
+            question_type=str(data.get("question_type") or data.get("cq_type", "")),
             expected_chunk_ids=chunk_ids,
             evidence_spans=spans,
             key_entities=tuple(str(item) for item in data.get("key_entities", [])),
             answer_key=str(data.get("answer_key") or data.get("expected_answer", "")),
             gold_level=explicit_level or inferred_level,
+            expected_abstention=expected_abstention
+            or (explicit_level in {"no_answer", "none", "unsupported", "insufficient_evidence"}),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -120,4 +132,3 @@ def gold_labels_for_questions(
         raise FileNotFoundError(f"Gold label file not found: {project_relative_path(path)}")
     labels.update(load_gold_labels(path))
     return labels
-

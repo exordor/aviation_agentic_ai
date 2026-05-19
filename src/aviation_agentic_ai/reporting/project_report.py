@@ -143,11 +143,73 @@ def _compact_hybrid_report(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _compact_retrieval_ablation_report(data: dict[str, Any]) -> dict[str, Any]:
+    scenarios: dict[str, Any] = {}
+    for name, scenario in data.get("scenarios", {}).items():
+        if not isinstance(scenario, dict):
+            continue
+        records = scenario.get("records", [])
+        scenarios[name] = {
+            "mode": scenario.get("mode"),
+            "settings": scenario.get("settings", {}),
+            "aggregate": scenario.get("aggregate", {}),
+            "explanation": scenario.get("explanation", ""),
+            "records_total": len(records) if isinstance(records, list) else "unknown",
+        }
+    return {
+        "metadata": data.get("metadata", {}),
+        "scenarios": scenarios,
+        "source_compaction": "per-question hits and graph triples omitted",
+    }
+
+
+def _compact_answer_evaluation_report(data: dict[str, Any]) -> dict[str, Any]:
+    records = data.get("records", {})
+    return {
+        "metadata": data.get("metadata", {}),
+        "aggregate": data.get("aggregate", {}),
+        "records_total_by_mode": {
+            mode: len(items) if isinstance(items, list) else "unknown"
+            for mode, items in records.items()
+        }
+        if isinstance(records, dict)
+        else {},
+        "source_compaction": "answer text and per-question details omitted",
+    }
+
+
+def _compact_robustness_report(data: dict[str, Any]) -> dict[str, Any]:
+    records = data.get("records", [])
+    return {
+        "metadata": data.get("metadata", {}),
+        "aggregate": data.get("aggregate", {}),
+        "case_summaries": [
+            {
+                "case_id": record.get("case_id"),
+                "base_cq_id": record.get("base_cq_id"),
+                "case_type": record.get("case_type"),
+                "expected_abstention": record.get("expected_abstention"),
+                "metrics": record.get("metrics", {}),
+            }
+            for record in records
+            if isinstance(record, dict)
+        ],
+        "records_total": len(records) if isinstance(records, list) else "unknown",
+        "source_compaction": "retrieved chunks, triples, and generated answers omitted",
+    }
+
+
 def _compact_json_data(path: Path, data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
     if path.name == "chunking_comparison.json":
         return _compact_chunking_report(data), True
     if path.name.startswith("hybrid_rag") and path.suffix == ".json":
         return _compact_hybrid_report(data), True
+    if path.name == "retrieval_ablation.json":
+        return _compact_retrieval_ablation_report(data), True
+    if path.name == "answer_evaluation.json":
+        return _compact_answer_evaluation_report(data), True
+    if path.name == "robustness_evaluation.json":
+        return _compact_robustness_report(data), True
     return data, False
 
 
@@ -423,6 +485,90 @@ def _hybrid_summary_lines(
     return lines
 
 
+def _experimental_expansion_lines(artifact_sources: dict[str, Any]) -> list[str]:
+    lines: list[str] = []
+    expanded_source = artifact_sources.get("expanded_gold_labels_json") or artifact_sources.get(
+        "expanded_gold_labels",
+        {},
+    )
+    expanded = expanded_source.get("data", {}) if isinstance(expanded_source, dict) else {}
+    if isinstance(expanded, dict) and expanded:
+        labels = expanded.get("labels", [])
+        no_answer = [
+            item
+            for item in labels
+            if isinstance(item, dict) and item.get("expected_abstention")
+        ]
+        lines.append(
+            "Expanded evaluation labels: "
+            f"{len(labels) if isinstance(labels, list) else 'TBD'} questions, including "
+            f"{len(no_answer)} insufficient-evidence/no-answer cases."
+        )
+    retrieval = artifact_sources.get("retrieval_ablation_json", {}).get("data", {})
+    if isinstance(retrieval, dict) and retrieval:
+        scenarios = retrieval.get("scenarios", {})
+        vector = _metric_value(
+            scenarios,
+            "vector_hops2_v5_h8",
+            "aggregate",
+            "retrieval",
+            default={},
+        )
+        graph_disabled = _metric_value(
+            scenarios,
+            "hybrid_graph_disabled_hops2_v5_h8",
+            "aggregate",
+            "retrieval",
+            default={},
+        )
+        hybrid = _metric_value(
+            scenarios,
+            "hybrid_hops2_v5_h8",
+            "aggregate",
+            "retrieval",
+            default={},
+        )
+        lines.append(
+            "Retrieval ablation: "
+            f"{retrieval.get('metadata', {}).get('scenarios_total', 'TBD')} scenarios over "
+            f"{retrieval.get('metadata', {}).get('questions_total', 'TBD')} questions; "
+            f"vector Recall@5={vector.get('recall_at_5', 'TBD')}, graph-disabled hybrid "
+            f"Recall@5={graph_disabled.get('recall_at_5', 'TBD')}, and default hybrid "
+            f"Recall@5={hybrid.get('recall_at_5', 'TBD')}."
+        )
+    kg = artifact_sources.get("kg_extraction_comparison_json", {}).get("data", {})
+    if isinstance(kg, dict) and kg:
+        fixed = kg.get("experiments", {}).get("fixed_window", {})
+        structure = kg.get("experiments", {}).get("structure_aware", {})
+        lines.append(
+            "KG extraction comparison: fixed-window valid triples="
+            f"{fixed.get('valid_triples', 'TBD')} with key-entity coverage="
+            f"{fixed.get('key_entity_coverage', 'TBD')}; structure-aware valid triples="
+            f"{structure.get('valid_triples', 'TBD')} with key-entity coverage="
+            f"{structure.get('key_entity_coverage', 'TBD')}."
+        )
+    answer = artifact_sources.get("answer_evaluation_json", {}).get("data", {})
+    if isinstance(answer, dict) and answer:
+        hybrid = answer.get("aggregate", {}).get("hybrid", {})
+        lines.append(
+            "Answer evaluation: hybrid citation completeness="
+            f"{hybrid.get('citation_completeness', 'TBD')}, citation correctness="
+            f"{hybrid.get('citation_correctness', 'TBD')}, answer faithfulness="
+            f"{hybrid.get('answer_faithfulness', 'TBD')}, advisory-boundary violations="
+            f"{hybrid.get('advisory_boundary_violation_count', 'TBD')}."
+        )
+    robustness = artifact_sources.get("robustness_evaluation_json", {}).get("data", {})
+    if isinstance(robustness, dict) and robustness:
+        aggregate = robustness.get("aggregate", {})
+        lines.append(
+            "Robustness evaluation: retrieval stability="
+            f"{aggregate.get('retrieval_stability', 'TBD')}, citation stability="
+            f"{aggregate.get('citation_stability', 'TBD')}, abstention correctness="
+            f"{aggregate.get('abstention_correctness', 'TBD')}."
+        )
+    return lines
+
+
 def build_project_report_draft(evidence: dict[str, Any]) -> str:
     stage_index = evidence.get("stage_index", {}).get("data", {})
     categories = stage_index.get("categories", {})
@@ -469,6 +615,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     )
     chunking_lines = _chunking_summary_lines(artifact_sources, categories)
     hybrid_lines = _hybrid_summary_lines(artifact_sources, retrieval_config)
+    expansion_lines = _experimental_expansion_lines(artifact_sources)
     has_chunking = bool(
         artifact_sources.get("chunking_comparison_json", {}).get("data", {})
     )
@@ -640,6 +787,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "Web demo smoke: "
         f"ready={web_smoke.get('ready', 'TBD') if isinstance(web_smoke, dict) else 'TBD'} "
         "for static/API checks.",
+        *expansion_lines,
         "Limitations: chunk/span gold labels are reviewed for source alignment but "
         "are not external aviation examiner certification, structure-aware KG "
         "extraction is more expensive because it uses many smaller chunks, and "

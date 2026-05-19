@@ -15,11 +15,11 @@ A task should be small enough to finish, verify, and check off. When a task prod
 
 ## Active Task Queue
 
-1. Expand gold labels from 10 reviewed boundary CQs to 30-50 chunk/span-level evaluation questions.
-2. Implement retrieval ablation reports for vector, graph, hybrid, graph hops, and top-k settings.
-3. Add KG extraction quality experiments for model/settings/chunking comparisons.
-4. Add answer-level and robustness evaluation before expanding beyond PHAK Chapter 4.
-5. Add cost/latency tracking so structure-aware quality gains can be compared with extraction/index/query cost.
+1. Review the expanded 35-question benchmark results and decide which failures need manual gold-label refinement.
+2. Add embedding/index backend comparison after retrieval ablation results are reviewed.
+3. If needed, rerun Hybrid RAG answer generation on the expanded gold labels instead of only the original 10 CQ answer set.
+4. Strengthen robustness abstention behavior, because the first deterministic robustness run has abstention correctness = 0.6.
+5. Decide whether to expose the expanded evaluation suite in the web demo or keep it as report-only evidence.
 
 Related goals: G2, G3, G4, G6, G8, G9 in `GOALS.md`.
 
@@ -163,44 +163,57 @@ Related goals: G1, G5, G6, G7, G8.
 
 Related goals: G2, G3, G4, G6, G8, G9.
 
-- [ ] Expand the gold label set to 30-50 evaluation questions.
+- [x] Expand the gold label set to 30-50 evaluation questions.
   - Candidate output: `data/cqs/06_phak_ch4_0.expanded.gold.json`.
   - Scope: include topic coverage for atmosphere, air density, pressure/temperature, viscosity, boundary layer, Newton laws, Bernoulli, airfoil geometry, lift, angle of attack, wingtip vortices, and induced drag.
   - Required fields: `gold_level`, `source_page`, `expected_chunk_ids`, `evidence_spans`, `key_entities`, `answer_key`, `question_type`.
   - Include at least 5 no-answer or insufficient-evidence questions to test abstention.
+  - Evidence: `data/cqs/06_phak_ch4_0.expanded.gold.json`.
+  - Result: 35 total labels, including 5 no-answer / insufficient-evidence labels.
   - Acceptance: loader and metrics can evaluate page/chunk/span/no-answer labels without API keys.
-- [ ] Implement retrieval ablation experiment reporting.
+- [x] Implement retrieval ablation experiment reporting.
   - Candidate command: `uv run aviation-ai report retrieval-ablation`.
   - Modes/settings: vector-only, graph-only, hybrid RRF, hybrid with graph disabled, `graph_hops` variants, `vector_top_k` variants, `hybrid_top_k` variants.
   - Metrics: Recall@5, MRR@5, Context Precision@5, first relevant rank, source-page hits, chunk/span hits, and KG evidence coverage.
+  - Evidence: `reports/stages/retrieval_ablation.md`.
+  - Result: 12 deterministic scenarios over 35 expanded questions; default vector Recall@5 = 0.6857, explicit graph-disabled hybrid Recall@5 = 0.6857, and default hybrid Recall@5 = 0.6286.
   - Acceptance: report explains where graph evidence helps, where vector is sufficient, and where hybrid fusion hurts page-level recall.
-- [ ] Implement KG extraction quality comparison.
+- [x] Implement KG extraction quality comparison.
   - Candidate command: `uv run aviation-ai report kg-extraction-comparison`.
   - Variables: `fixed_window` vs `structure_aware`, model name, max token setting, prompt strictness, dry-run seed triples versus live extraction.
   - Metrics: valid triples, unsupported class/property count, provenance completeness, evidence-in-chunk rate, duplicate/near-duplicate triples, key-entity coverage, cost/time.
+  - Evidence: `reports/stages/kg_extraction_comparison.md`.
+  - Result: structure-aware KG has 448 valid triples and 0.8571 key-entity coverage; fixed-window KG has 172 valid triples and 0.8286 key-entity coverage.
   - Acceptance: report identifies whether extra structure-aware triples improve useful evidence or mainly add noise/cost.
-- [ ] Implement answer-level evaluation report.
+- [x] Implement answer-level evaluation report.
   - Candidate command: `uv run aviation-ai report answer-eval`.
   - Metrics: citation correctness, citation completeness, answer faithfulness, answer relevance, abstention correctness, advisory-boundary violation count.
   - Inputs: Hybrid RAG reports plus expanded gold labels.
+  - Evidence: `reports/stages/answer_evaluation.md`.
+  - Result: existing 10-CQ structure-aware hybrid answers have citation completeness = 1.0, citation correctness = 0.9, answer faithfulness = 0.9, and zero advisory-boundary violations.
+  - Note: expanded-gold answer generation is not yet rerun; current answer evaluation uses the existing 10-CQ Hybrid RAG report.
   - Acceptance: answer quality remains a separate layer and is not merged with retrieval or KG metrics into one score.
-- [ ] Add paraphrase and robustness benchmark.
+- [x] Add paraphrase and robustness benchmark.
   - Candidate output: `data/cqs/06_phak_ch4_0.robustness.json`.
   - Cases: paraphrased CQs, terminology substitution, ambiguous questions, cross-page questions, and unsupported questions.
   - Metrics: retrieval stability, answer stability, citation stability, KG evidence stability, abstention correctness.
+  - Evidence: `data/cqs/06_phak_ch4_0.robustness.json`, `reports/stages/robustness_evaluation.md`.
+  - Result: 10 cases; retrieval stability = 0.8, citation stability = 0.7, abstention correctness = 0.6.
   - Acceptance: report identifies whether the current system overfits the original boundary CQ wording.
 - [ ] Compare embedding/index options.
   - Candidate command: `uv run aviation-ai report embedding-comparison`.
   - Variables: current Chroma default embedding versus at least one configured external/local embedding backend if available.
   - Metrics: retrieval quality, index build time, query latency, index size, and reproducibility notes.
   - Acceptance: default embedding choice is justified by quality/cost/stability, not assumed.
-- [ ] Add cost and latency tracking to experiment manifests.
+- [x] Add cost and latency tracking to experiment manifests.
   - Candidate output: extend run manifest schema and reports.
   - Track: chunk build time, KG extraction elapsed time, LLM token usage where available, Chroma index build time, query latency, report runtime, collection size.
+  - Evidence: `cost_latency` blocks in `reports/stages/retrieval_ablation.json`, `reports/stages/kg_extraction_comparison.json`, `reports/stages/answer_evaluation.json`, and `reports/stages/robustness_evaluation.json`.
   - Acceptance: structure-aware quality gains can be discussed alongside cost and runtime overhead.
-- [ ] Define the next-document expansion protocol.
+- [x] Define the next-document expansion protocol.
   - Candidate output: `docs/document_expansion_protocol.md`.
   - Scope: document metadata, section schema, source type, revision/date, page range, section hierarchy, and advisory risk level.
+  - Evidence: `docs/document_expansion_protocol.md`.
   - Acceptance: no emergency/procedure manual is added until its metadata and section schema can be validated.
 
 ## P4 - Automation And GitLab Tasks

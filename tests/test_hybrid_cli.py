@@ -373,3 +373,109 @@ def test_cli_report_evidence_eval_uses_mocked_writer(tmp_path: Path, monkeypatch
 
     assert result.exit_code == 0, result.output
     assert "Evaluated evidence-level metrics for 10 CQs" in result.output
+
+
+def test_cli_report_retrieval_ablation_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "retrieval_ablation.json"
+        md_path = tmp_path / "retrieval_ablation.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"scenarios_total": 3, "questions_total": 2}}
+
+    monkeypatch.setattr(cli, "write_retrieval_ablation", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "retrieval-ablation",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Evaluated 3 retrieval ablation scenarios" in result.output
+
+
+def test_cli_report_kg_extraction_comparison_uses_mocked_writer(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "kg_extraction_comparison.json"
+        md_path = tmp_path / "kg_extraction_comparison.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"experiments": {"fixed_window": {}, "structure_aware": {}}}
+
+    monkeypatch.setattr(cli, "write_kg_extraction_comparison", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "kg-extraction-comparison",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Compared 2 KG extraction artifacts" in result.output
+
+
+def test_cli_report_answer_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "answer_evaluation.json"
+        md_path = tmp_path / "answer_evaluation.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"answers_total": 4}}
+
+    monkeypatch.setattr(cli, "write_answer_evaluation", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "answer-eval",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Evaluated 4 answers" in result.output
+
+
+def test_cli_report_robustness_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "robustness_evaluation.json"
+        md_path = tmp_path / "robustness_evaluation.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"cases_total": 5}}
+
+    monkeypatch.setattr(cli, "write_robustness_evaluation", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "robustness",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Evaluated 5 robustness cases" in result.output

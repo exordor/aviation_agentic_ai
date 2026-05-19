@@ -16,6 +16,7 @@ def _write_stage_fixture(stage_dir: Path, reviews_dir: Path) -> None:
     (stage_dir / "ontology_evaluation.json").write_text("{}\n", encoding="utf-8")
     (stage_dir / "ontology_evaluation.md").write_text("# Eval\n", encoding="utf-8")
     (stage_dir / "source_scope.json").write_text("{}\n", encoding="utf-8")
+    (stage_dir / "retrieval_ablation.json").write_text("{}\n", encoding="utf-8")
     (stage_dir / "generation_runs").mkdir()
     (stage_dir / "generation_runs" / "run-a").mkdir()
     (stage_dir / "generation_runs" / "run-a" / "manifest.json").write_text(
@@ -40,11 +41,12 @@ def test_hygiene_plan_classifies_stage_and_review_artifacts(tmp_path: Path) -> N
         base=tmp_path,
     )
 
-    assert plan["archive_items_total"] == 4
+    assert plan["archive_items_total"] == 5
     assert plan["review_items_total"] == 2
     assert len(plan["categories"]["ontology_evaluation"]) == 2
     assert len(plan["categories"]["source_scope"]) == 1
     assert len(plan["categories"]["generation_runs"]) == 1
+    assert len(plan["categories"]["rag_experiments"]) == 1
     assert len(plan["categories"]["reviews"]) == 2
     assert plan["archive_dir"] == "reports/archive/stages/2026-05-18"
 
@@ -93,7 +95,7 @@ def test_report_hygiene_apply_archives_and_writes_index(tmp_path: Path) -> None:
     assert (archive_root / "stages" / "2026-05-18" / "ontology_evaluation.json").exists()
     assert (archive_root / "stages" / "2026-05-18" / "generation_runs").is_dir()
     assert (reviews_dir / "review.json").exists()
-    assert len(plan["moved_items"]) == 4
+    assert len(plan["moved_items"]) == 5
     index = json.loads((stage_dir / "index.json").read_text(encoding="utf-8"))
     assert index["categories"]["reviews"]
 
@@ -150,4 +152,3 @@ def test_cli_report_hygiene_apply_writes_index(tmp_path: Path) -> None:
     assert "Archived" in result.output
     assert (stage_dir / "index.json").exists()
     assert (stage_dir / "index.md").exists()
-

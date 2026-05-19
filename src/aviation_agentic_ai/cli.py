@@ -32,6 +32,7 @@ from aviation_agentic_ai.reporting.academic_outputs import (
     write_defense_notes,
     write_visual_assets,
 )
+from aviation_agentic_ai.reporting.answer_eval import write_answer_evaluation
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
 from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
 from aviation_agentic_ai.reporting.final_evaluation import write_final_evaluation_review
@@ -39,9 +40,14 @@ from aviation_agentic_ai.reporting.graphrag_review import write_graphrag_review
 from aviation_agentic_ai.reporting.hybrid_rag import write_hybrid_rag_experiment
 from aviation_agentic_ai.reporting.generation_runs import write_generation_run_summary
 from aviation_agentic_ai.reporting.hygiene import run_report_hygiene
+from aviation_agentic_ai.reporting.kg_extraction_comparison import (
+    write_kg_extraction_comparison,
+)
 from aviation_agentic_ai.reporting.overnight import write_overnight_summary
 from aviation_agentic_ai.reporting.project_report import write_project_report
 from aviation_agentic_ai.reporting.reviews import write_review_progress
+from aviation_agentic_ai.reporting.retrieval_ablation import write_retrieval_ablation
+from aviation_agentic_ai.reporting.robustness import write_robustness_evaluation
 from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
 from aviation_agentic_ai.reporting.web_demo_smoke import write_web_demo_smoke
 from aviation_agentic_ai.retrieval.hybrid import run_query, write_query_result
@@ -1049,6 +1055,145 @@ def report_evidence_eval(
     click.echo(f"Wrote {project_relative_path(json_path)}")
     click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"Evaluated evidence-level metrics for {result['metadata']['labels_total']} CQs.")
+
+
+@report.command("retrieval-ablation")
+@click.option("--boundary-cqs", type=click.Path(path_type=Path), default=None)
+@click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
+@click.option("--chunks", "chunks_path", type=click.Path(path_type=Path), default=None)
+@click.option("--kg-file", "kg_path", type=click.Path(path_type=Path), default=None)
+@click.option("--index-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--collection-name", default=None)
+@click.option("--report-name", default="retrieval_ablation", show_default=True)
+def report_retrieval_ablation(
+    boundary_cqs: Path | None,
+    gold_labels: Path | None,
+    chunks_path: Path | None,
+    kg_path: Path | None,
+    index_dir: Path | None,
+    output_dir: Path | None,
+    collection_name: str | None,
+    report_name: str,
+) -> None:
+    """Compare vector, graph, hybrid, hops, and top-k retrieval settings."""
+    config = load_default_config()
+    retrieval_config = config.get("retrieval", {})
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_retrieval_ablation(
+        boundary_cqs or resolve_project_path("data/cqs/06_phak_ch4_0.boundary.json"),
+        chunks_path or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
+        kg_path or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
+        index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
+        report_dir,
+        collection_name=collection_name
+        or retrieval_config.get("structure_aware_collection_name", "phak_ch4_chunks_structure_aware"),
+        gold_labels_path=gold_labels
+        or resolve_project_path("data/cqs/06_phak_ch4_0.expanded.gold.json"),
+        report_name=report_name,
+        command=" ".join(["aviation-ai", *sys.argv[1:]]),
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        f"Evaluated {result['metadata']['scenarios_total']} retrieval ablation scenarios "
+        f"for {result['metadata']['questions_total']} CQs."
+    )
+
+
+@report.command("kg-extraction-comparison")
+@click.option("--fixed-kg", type=click.Path(path_type=Path), default=None)
+@click.option("--structure-aware-kg", type=click.Path(path_type=Path), default=None)
+@click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="kg_extraction_comparison", show_default=True)
+def report_kg_extraction_comparison(
+    fixed_kg: Path | None,
+    structure_aware_kg: Path | None,
+    gold_labels: Path | None,
+    output_dir: Path | None,
+    report_name: str,
+) -> None:
+    """Compare fixed-window and structure-aware KG extraction artifacts."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_kg_extraction_comparison(
+        report_dir,
+        fixed_kg_path=fixed_kg or resolve_project_path("data/kg/06_phak_ch4_0.kg.jsonl"),
+        structure_aware_kg_path=structure_aware_kg
+        or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
+        gold_labels_path=gold_labels
+        or resolve_project_path("data/cqs/06_phak_ch4_0.expanded.gold.json"),
+        report_name=report_name,
+        command=" ".join(["aviation-ai", *sys.argv[1:]]),
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Compared {len(result['experiments'])} KG extraction artifacts.")
+
+
+@report.command("answer-eval")
+@click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
+@click.option("--hybrid-report", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="answer_evaluation", show_default=True)
+def report_answer_eval(
+    gold_labels: Path | None,
+    hybrid_report: Path | None,
+    output_dir: Path | None,
+    report_name: str,
+) -> None:
+    """Evaluate answer citations, abstention, relevance, and advisory boundary behavior."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_answer_evaluation(
+        report_dir,
+        gold_labels_path=gold_labels
+        or resolve_project_path("data/cqs/06_phak_ch4_0.gold.json"),
+        hybrid_report_path=hybrid_report or report_dir / "hybrid_rag_structure_aware.json",
+        report_name=report_name,
+        command=" ".join(["aviation-ai", *sys.argv[1:]]),
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Evaluated {result['metadata']['answers_total']} answers.")
+
+
+@report.command("robustness")
+@click.option("--robustness-cases", type=click.Path(path_type=Path), default=None)
+@click.option("--chunks", "chunks_path", type=click.Path(path_type=Path), default=None)
+@click.option("--kg-file", "kg_path", type=click.Path(path_type=Path), default=None)
+@click.option("--index-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--collection-name", default=None)
+@click.option("--report-name", default="robustness_evaluation", show_default=True)
+def report_robustness(
+    robustness_cases: Path | None,
+    chunks_path: Path | None,
+    kg_path: Path | None,
+    index_dir: Path | None,
+    output_dir: Path | None,
+    collection_name: str | None,
+    report_name: str,
+) -> None:
+    """Evaluate paraphrase, terminology, ambiguity, cross-page, and unsupported cases."""
+    config = load_default_config()
+    retrieval_config = config.get("retrieval", {})
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_robustness_evaluation(
+        robustness_cases or resolve_project_path("data/cqs/06_phak_ch4_0.robustness.json"),
+        chunks_path or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
+        kg_path or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
+        index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
+        report_dir,
+        collection_name=collection_name
+        or retrieval_config.get("structure_aware_collection_name", "phak_ch4_chunks_structure_aware"),
+        report_name=report_name,
+        command=" ".join(["aviation-ai", *sys.argv[1:]]),
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Evaluated {result['metadata']['cases_total']} robustness cases.")
 
 
 @report.command("final-evaluation")

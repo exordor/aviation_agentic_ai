@@ -261,6 +261,82 @@ def test_project_report_prompt_includes_required_sections(tmp_path: Path) -> Non
     assert "Cite source file paths" in prompt
 
 
+def test_project_report_compacts_expansion_reports(tmp_path: Path) -> None:
+    root = tmp_path
+    stages = root / "reports" / "stages"
+    stages.mkdir(parents=True)
+    (root / "reports" / "final").mkdir(parents=True)
+    (root / "configs").mkdir()
+    (root / "README.md").write_text("# README\n", encoding="utf-8")
+    (root / "GOALS.md").write_text("# GOALS\n", encoding="utf-8")
+    (root / "TASKS.md").write_text("# TASKS\n", encoding="utf-8")
+    (root / "configs" / "default.yaml").write_text("retrieval: {}\n", encoding="utf-8")
+    (root / "configs" / "ontology_generation.yaml").write_text("{}\n", encoding="utf-8")
+    (root / "configs" / "extraction_profile.yaml").write_text("{}\n", encoding="utf-8")
+    (stages / "index.json").write_text(
+        json.dumps(
+            {
+                "current_active_artifacts": {
+                    "retrieval_ablation": "reports/stages/retrieval_ablation.md",
+                    "answer_evaluation": "reports/stages/answer_evaluation.md",
+                    "robustness_evaluation": "reports/stages/robustness_evaluation.md",
+                },
+                "categories": {},
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (stages / "retrieval_ablation.md").write_text("# Retrieval\n", encoding="utf-8")
+    (stages / "retrieval_ablation.json").write_text(
+        json.dumps(
+            {
+                "metadata": {},
+                "scenarios": {
+                    "hybrid": {
+                        "mode": "hybrid",
+                        "settings": {},
+                        "aggregate": {},
+                        "records": [{"hits": [{"text": "large text"}]}],
+                    }
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (stages / "answer_evaluation.md").write_text("# Answer\n", encoding="utf-8")
+    (stages / "answer_evaluation.json").write_text(
+        json.dumps({"metadata": {}, "aggregate": {}, "records": {"hybrid": [{"answer": "x"}]}})
+        + "\n",
+        encoding="utf-8",
+    )
+    (stages / "robustness_evaluation.md").write_text("# Robustness\n", encoding="utf-8")
+    (stages / "robustness_evaluation.json").write_text(
+        json.dumps(
+            {
+                "metadata": {},
+                "aggregate": {},
+                "records": [{"case_id": "r1", "result": {"answer": "large text"}}],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    evidence = build_project_evidence_pack(project_root=root)
+
+    retrieval = evidence["current_artifacts"]["retrieval_ablation_json"]["data"]
+    answer = evidence["current_artifacts"]["answer_evaluation_json"]["data"]
+    robustness = evidence["current_artifacts"]["robustness_evaluation_json"]["data"]
+    assert retrieval["scenarios"]["hybrid"]["records_total"] == 1
+    assert "records" not in retrieval["scenarios"]["hybrid"]
+    assert answer["records_total_by_mode"]["hybrid"] == 1
+    assert "records" not in answer
+    assert robustness["records_total"] == 1
+    assert "result" not in robustness["case_summaries"][0]
+
+
 def test_cli_report_project_no_ai_writes_outputs(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai import cli
 

@@ -28,6 +28,8 @@ def _span_matches_hit(span: EvidenceSpan, hit: dict[str, Any]) -> bool:
 
 def _hit_matches_gold(hit: dict[str, Any], gold: GoldLabel) -> bool:
     level = gold.gold_level
+    if gold.expected_abstention or level in {"no_answer", "none", "unsupported", "insufficient_evidence"}:
+        return False
     if level == "span" and gold.evidence_spans:
         return any(_span_matches_hit(span, hit) for span in gold.evidence_spans)
     if level == "chunk" and gold.expected_chunk_ids:
@@ -54,6 +56,7 @@ def retrieval_metrics(
     matched_hits = [top_hits[index - 1] for index in ranks]
     return {
         "gold_level": label.gold_level,
+        "expected_abstention": label.expected_abstention,
         "recall_at_5": bool(ranks),
         "mrr_at_5": round(1.0 / ranks[0], 4) if ranks else 0.0,
         "context_precision_at_5": round(len(ranks) / max(len(top_hits), 1), 4),
@@ -202,4 +205,3 @@ def aggregate_answer_metrics(metric_items: list[dict[str, Any]]) -> dict[str, An
             4,
         ),
     }
-
