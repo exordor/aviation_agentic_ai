@@ -1,0 +1,372 @@
+{
+  "chunking_comparison": {
+    "best_strategy": "structure_aware",
+    "fixed_window": {
+      "chunking": {
+        "avg_chars": 1034.11,
+        "boundary_preservation_rate": 0.3714,
+        "chunk_count": 35,
+        "p95_chars": 1196
+      },
+      "retrieval": {
+        "context_precision_at_5": 0.42,
+        "mrr_at_5": 0.7583,
+        "recall_at_5": 1.0
+      }
+    },
+    "present": true,
+    "ranking": [
+      {
+        "context_precision_at_5": 0.52,
+        "mrr_at_5": 0.82,
+        "recall_at_5": 1.0,
+        "strategy": "structure_aware"
+      },
+      {
+        "context_precision_at_5": 0.46,
+        "mrr_at_5": 0.7917,
+        "recall_at_5": 1.0,
+        "strategy": "sentence_recursive"
+      },
+      {
+        "context_precision_at_5": 0.42,
+        "mrr_at_5": 0.7583,
+        "recall_at_5": 1.0,
+        "strategy": "fixed_window"
+      },
+      {
+        "context_precision_at_5": 0.5,
+        "mrr_at_5": 0.7333,
+        "recall_at_5": 0.9,
+        "strategy": "semantic_meta_like"
+      }
+    ],
+    "structure_aware": {
+      "chunking": {
+        "avg_chars": 233.36,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 267,
+        "p95_chars": 1080
+      },
+      "retrieval": {
+        "context_precision_at_5": 0.52,
+        "mrr_at_5": 0.82,
+        "recall_at_5": 1.0
+      }
+    }
+  },
+  "experiments": {
+    "fixed_window": {
+      "failure_cases": [
+        {
+          "citation_completeness": true,
+          "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+          "failure_type": "page_recall_miss_but_kg_evidence_found",
+          "hybrid_recall_at_5": false,
+          "kg_evidence_coverage": true,
+          "question": "How should Newton's laws be represented as force and motion relations for aircraft?",
+          "source_page": 5
+        },
+        {
+          "citation_completeness": true,
+          "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+          "failure_type": "retrieval_hit_but_kg_evidence_missing",
+          "hybrid_recall_at_5": true,
+          "kg_evidence_coverage": false,
+          "question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+          "source_page": 8
+        }
+      ],
+      "graph": {
+        "kg_evidence": {
+          "avg_invalid_triple_count": 0.0,
+          "avg_related_triple_count": 7.3,
+          "avg_supporting_triple_count": 7.3,
+          "evidence_coverage": 0.9,
+          "provenance_complete_rate": 1.0
+        },
+        "llm_answer": {
+          "answer_present": 1.0,
+          "citation_completeness": 1.0,
+          "insufficient_evidence_abstention": 0.1
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.49,
+          "mrr_at_5": 0.65,
+          "recall_at_5": 0.8
+        }
+      },
+      "hybrid": {
+        "kg_evidence": {
+          "avg_invalid_triple_count": 0.0,
+          "avg_related_triple_count": 7.3,
+          "avg_supporting_triple_count": 7.3,
+          "evidence_coverage": 0.9,
+          "provenance_complete_rate": 1.0
+        },
+        "llm_answer": {
+          "answer_present": 1.0,
+          "citation_completeness": 1.0,
+          "insufficient_evidence_abstention": 0.0
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.4,
+          "mrr_at_5": 0.7533,
+          "recall_at_5": 0.9
+        }
+      },
+      "hybrid_lift": {
+        "vs_graph_recall_at_5": 0.1,
+        "vs_vector_recall_at_5": -0.1
+      },
+      "label": "fixed_window",
+      "metadata": {
+        "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+        "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+        "chunking_strategy": "fixed_window",
+        "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+        "collection_name": "phak_ch4_chunks",
+        "gold_labels_path": null,
+        "graph_hops": 2,
+        "hybrid_top_k": 8,
+        "index_dir": "data/indexes/chroma",
+        "kg_path": "data/kg/06_phak_ch4_0.kg.jsonl",
+        "questions_total": 10,
+        "rebuild_chunks": false,
+        "rebuild_indexes": false,
+        "rebuild_kg": false,
+        "run_manifest": {
+          "artifacts": {
+            "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+            "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+            "index_dir": "data/indexes/chroma",
+            "kg_path": "data/kg/06_phak_ch4_0.kg.jsonl"
+          },
+          "chunking_strategy": "fixed_window",
+          "collection_name": "phak_ch4_chunks",
+          "command": "aviation-ai report hybrid-rag",
+          "created_at": "2026-05-19T00:52:13.034362+00:00",
+          "document": {},
+          "embedding": {
+            "backend": "chromadb_default_embedding_function",
+            "collection_name": "phak_ch4_chunks",
+            "collections": [
+              "phak_ch4_chunks"
+            ],
+            "index_dir": "data/indexes/chroma"
+          },
+          "experiment_name": "hybrid_rag",
+          "llm": {
+            "model": "gpt-5.4-mini",
+            "provider": "openai"
+          },
+          "parameters": {
+            "gold_labels_path": null,
+            "graph_hops": 2,
+            "hybrid_top_k": 8,
+            "max_questions": null,
+            "vector_top_k": 5
+          },
+          "rebuild_policy": {
+            "chunks": false,
+            "indexes": false,
+            "kg": false
+          },
+          "run_id": "hybrid-rag-20260519T005213Z"
+        },
+        "vector_top_k": 5
+      },
+      "present": true,
+      "vector": {
+        "kg_evidence": {
+          "avg_invalid_triple_count": 0.0,
+          "avg_related_triple_count": 0.0,
+          "avg_supporting_triple_count": 0.0,
+          "evidence_coverage": 0.0,
+          "provenance_complete_rate": 0.0
+        },
+        "llm_answer": {
+          "answer_present": 1.0,
+          "citation_completeness": 1.0,
+          "insufficient_evidence_abstention": 0.2
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.42,
+          "mrr_at_5": 0.7583,
+          "recall_at_5": 1.0
+        }
+      }
+    },
+    "structure_aware": {
+      "failure_cases": [
+        {
+          "citation_completeness": true,
+          "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+          "failure_type": "retrieval_hit_but_kg_evidence_missing",
+          "hybrid_recall_at_5": true,
+          "kg_evidence_coverage": false,
+          "question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+          "source_page": 8
+        }
+      ],
+      "graph": {
+        "kg_evidence": {
+          "avg_invalid_triple_count": 0.0,
+          "avg_related_triple_count": 7.3,
+          "avg_supporting_triple_count": 7.3,
+          "evidence_coverage": 0.9,
+          "provenance_complete_rate": 1.0
+        },
+        "llm_answer": {
+          "answer_present": 1.0,
+          "citation_completeness": 1.0,
+          "insufficient_evidence_abstention": 0.1
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.56,
+          "mrr_at_5": 0.7033,
+          "recall_at_5": 0.9
+        }
+      },
+      "hybrid": {
+        "kg_evidence": {
+          "avg_invalid_triple_count": 0.0,
+          "avg_related_triple_count": 7.3,
+          "avg_supporting_triple_count": 7.3,
+          "evidence_coverage": 0.9,
+          "provenance_complete_rate": 1.0
+        },
+        "llm_answer": {
+          "answer_present": 1.0,
+          "citation_completeness": 1.0,
+          "insufficient_evidence_abstention": 0.0
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.52,
+          "mrr_at_5": 0.7367,
+          "recall_at_5": 1.0
+        }
+      },
+      "hybrid_lift": {
+        "vs_graph_recall_at_5": 0.1,
+        "vs_vector_recall_at_5": 0.0
+      },
+      "label": "structure_aware",
+      "metadata": {
+        "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+        "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+        "chunking_strategy": "structure_aware",
+        "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+        "collection_name": "phak_ch4_chunks_structure_aware",
+        "gold_labels_path": null,
+        "graph_hops": 2,
+        "hybrid_top_k": 8,
+        "index_dir": "data/indexes/chroma",
+        "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+        "questions_total": 10,
+        "rebuild_chunks": false,
+        "rebuild_indexes": false,
+        "rebuild_kg": false,
+        "run_manifest": {
+          "artifacts": {
+            "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+            "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+            "index_dir": "data/indexes/chroma",
+            "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"
+          },
+          "chunking_strategy": "structure_aware",
+          "collection_name": "phak_ch4_chunks_structure_aware",
+          "command": "aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware",
+          "created_at": "2026-05-19T01:24:26.466498+00:00",
+          "document": {},
+          "embedding": {
+            "backend": "chromadb_default_embedding_function",
+            "collection_name": "phak_ch4_chunks_structure_aware",
+            "collections": [
+              "phak_ch4_chunks_structure_aware"
+            ],
+            "index_dir": "data/indexes/chroma"
+          },
+          "experiment_name": "hybrid_rag",
+          "llm": {
+            "model": "gpt-5.4-mini",
+            "provider": "openai"
+          },
+          "parameters": {
+            "gold_labels_path": null,
+            "graph_hops": 2,
+            "hybrid_top_k": 8,
+            "max_questions": null,
+            "vector_top_k": 5
+          },
+          "rebuild_policy": {
+            "chunks": false,
+            "indexes": false,
+            "kg": false
+          },
+          "run_id": "hybrid-rag-20260519T012426Z"
+        },
+        "vector_top_k": 5
+      },
+      "present": true,
+      "vector": {
+        "kg_evidence": {
+          "avg_invalid_triple_count": 0.0,
+          "avg_related_triple_count": 0.0,
+          "avg_supporting_triple_count": 0.0,
+          "evidence_coverage": 0.0,
+          "provenance_complete_rate": 0.0
+        },
+        "llm_answer": {
+          "answer_present": 1.0,
+          "citation_completeness": 1.0,
+          "insufficient_evidence_abstention": 0.2
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.52,
+          "mrr_at_5": 0.82,
+          "recall_at_5": 1.0
+        }
+      }
+    }
+  },
+  "interpretations": [
+    {
+      "claim": "GraphRAG value is evidence structure, not current page-level Recall lift.",
+      "evidence": "Fixed-window vector Recall@5=1.0; hybrid Recall@5=0.9; graph/hybrid KG evidence coverage=0.9/0.9.",
+      "implication": "Do not claim Hybrid RAG beats vector-only retrieval on the current coarse page-level benchmark."
+    },
+    {
+      "claim": "Vector-only can win page-level Recall@5 because the gold label is coarse.",
+      "evidence": "The current gold target is source_page, so any chunk from the right page counts even when it lacks structured relations.",
+      "implication": "Add chunk/span-level gold labels before drawing stronger GraphRAG conclusions."
+    },
+    {
+      "claim": "Hybrid fusion can lower page Recall when graph results add related but off-page evidence.",
+      "evidence": "Fixed-window hybrid lift vs vector Recall@5=-0.1.",
+      "implication": "Review fusion failures before tuning graph weight or hop depth."
+    },
+    {
+      "claim": "structure_aware is the best chunking candidate for the next KG.",
+      "evidence": "Chunking comparison ranked it first by Recall@5/MRR@5/Context Precision@5.",
+      "implication": "Re-extract KG on structure-aware chunks before using it as the Hybrid RAG default."
+    },
+    {
+      "claim": "Structure-aware Hybrid RAG is available as a second experiment.",
+      "evidence": "Its metrics are recorded separately and should be compared with fixed-window.",
+      "implication": "Use the paired reports to decide the default chunking strategy."
+    }
+  ],
+  "metadata": {
+    "chunking_comparison_path": "reports/stages/chunking_comparison.json",
+    "created_at": "2026-05-19T01:24:33.937368+00:00",
+    "fixed_hybrid_path": "reports/stages/hybrid_rag_experiment.json",
+    "structure_aware_hybrid_path": "reports/stages/hybrid_rag_structure_aware.json",
+    "structure_aware_present": true
+  },
+  "recommendations": [
+    "Report GraphRAG as adding structured KG evidence, not as current page Recall@5 winner.",
+    "Use structure-aware chunks for the next KG extraction candidate.",
+    "Refine gold labels to chunk/span-level evidence before optimizing fusion."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+  "errors": [],
+  "errors_total": 0,
+  "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+  "ontology_path": "data/ontology/curated/06_phak_ch4_0.curated.ttl",
+  "profile_path": "configs/extraction_profile.yaml",
+  "triples_total": 448,
+  "valid": true
+}
