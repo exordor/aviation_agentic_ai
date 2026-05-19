@@ -93,7 +93,10 @@ Success criteria:
 - `reports/final/project_report.md` is generated from evidence sources and does not invent missing results.
 - Missing experiments are explicitly marked TBD / Not yet run until evidence exists.
 
-Current status: report hygiene and initial final report draft are available.
+Current status: report hygiene, deterministic final report, academic-style
+report, project-defense notes, AI-enhanced visual assets with local SVG
+fallbacks, and an editable academic defense PPTX are available under
+`reports/final/`.
 
 ## G6 - Future Advisory Assistant Boundary
 
@@ -136,7 +139,14 @@ Success criteria:
 - The project can answer "what does each component do?", "why is it needed?", "why not use a simpler baseline?", and "where can the system fail?"
 - Limitations are explicit: coarse gold labels, incomplete KG coverage, LLM dependency, source-scope limits, and non-production advisory boundary.
 
-Current status: ontology design documentation, KG validation evidence, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, GraphRAG review, evidence-level evaluation, and web demo readiness are available. The next defense task is to explain why structure-aware improves evidence support while costing more KG extraction work and why the web demo is offline-first by default.
+Current status: ontology design documentation, KG validation evidence, chunking
+comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, GraphRAG
+review, evidence-level evaluation, web demo readiness, academic report,
+defense notes, and AI-enhanced defense PPT are available. The current defense framing is:
+structure-aware improves evidence support while costing more KG extraction work;
+GraphRAG should be defended as structured evidence coverage rather than a simple
+page-level Recall winner; and the web demo is offline-first by default for
+reproducible review.
 
 ## Current Non-Goals
 
@@ -155,7 +165,7 @@ Current status: ontology design documentation, KG validation evidence, chunking 
 | G2 | `data/ontology/`, `configs/extraction_profile.yaml`, KG reports | `TASKS.md` P0/P1 |
 | G3 | chunk/index/query CLI outputs, Hybrid RAG report | `TASKS.md` P0 |
 | G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports | `TASKS.md` P0/P1 |
-| G5 | `reports/stages/index.md`, `reports/final/` | `TASKS.md` P2 |
+| G5 | `reports/stages/index.md`, `reports/final/project_report.md`, `reports/final/project_academic_report.md`, defense PPT | `TASKS.md` P2 |
 | G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
 | G7 | web app code, `reports/stages/web_demo_readiness.md`, demo instructions | `TASKS.md` P2 |
-| G8 | final report, comparison reports, defense notes | `TASKS.md` P1/P2 |
+| G8 | final report, academic report, comparison reports, defense notes, defense PPT | `TASKS.md` P1/P2 |

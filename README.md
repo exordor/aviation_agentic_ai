@@ -365,3 +365,24 @@ The project report command writes `reports/final/project_report.md` and
 `reports/final/project_report_sources.json`. The AI prompt is constrained to the
 evidence pack, must cite source file paths, and must mark missing results as
 `TBD` or `Not yet run`.
+
+Generate academic-style defense deliverables from the same evidence pack:
+
+```bash
+uv run aviation-ai report visual-assets
+uv run aviation-ai report academic-paper --no-ai
+uv run aviation-ai report defense-notes
+uv run aviation-ai report defense-deck-outline
+node scripts/build_defense_deck.mjs
+```
+
+These commands write `reports/final/project_academic_report.md`,
+`reports/final/project_defense_notes.md`, AI-enhanced PNG visuals with local
+deterministic SVG fallbacks under
+`reports/final/assets/`, and
+`reports/final/aviation_graphrag_defense_deck.pptx`. The PNG visuals are
+presentation-only explanatory assets; the metrics and technical labels remain
+editable PPT objects backed by local reports. The manifest records whether AI
+PNG assets are present without storing API keys, tokens, or gateway URLs. The
+PPT builder uses the installed Presentations runtime and keeps preview/contact-
+sheet scratch files under ignored `outputs/`.

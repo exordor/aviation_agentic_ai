@@ -1,0 +1,57 @@
+{
+  "api_metadata_policy": "No API key, token, or base URL is recorded in this manifest.",
+  "assets": [
+    {
+      "exists": true,
+      "fallback_exists": true,
+      "fallback_path": "reports/final/assets/project_cover.svg",
+      "path": "reports/final/assets/project_cover_ai.png",
+      "prompt_role": "AI aviation GraphRAG research cover; no embedded text.",
+      "purpose": "Apple-style title-slide cover visual for the defense deck."
+    },
+    {
+      "exists": true,
+      "fallback_exists": true,
+      "fallback_path": "reports/final/assets/pipeline_overview.svg",
+      "path": "reports/final/assets/pipeline_hero_ai.png",
+      "prompt_role": "AI aviation GraphRAG pipeline hero; no embedded text.",
+      "purpose": "Large pipeline hero visual for PDF -> chunks -> KG -> Hybrid RAG."
+    },
+    {
+      "exists": true,
+      "fallback_exists": true,
+      "fallback_path": "reports/final/assets/ontology_kg_graphrag_concept.svg",
+      "path": "reports/final/assets/kg_evidence_ai.png",
+      "prompt_role": "AI aviation KG evidence component; no embedded text.",
+      "purpose": "Reusable KG evidence visual for ontology and GraphRAG slides."
+    },
+    {
+      "exists": true,
+      "fallback_exists": false,
+      "fallback_path": null,
+      "path": "reports/final/assets/web_demo_ai.png",
+      "prompt_role": "AI web demo mockup; abstract placeholder text only.",
+      "purpose": "Apple-inspired web demo mockup for the interface explanation slide."
+    }
+  ],
+  "generated_at": "2026-05-19T03:42:38.860979+00:00",
+  "generation_method": "ai_png_assets_with_local_svg_fallbacks",
+  "local_fallback_assets": [
+    {
+      "exists": true,
+      "path": "reports/final/assets/ontology_kg_graphrag_concept.svg",
+      "purpose": "Deterministic SVG fallback for reproducible report builds."
+    },
+    {
+      "exists": true,
+      "path": "reports/final/assets/pipeline_overview.svg",
+      "purpose": "Deterministic SVG fallback for reproducible report builds."
+    },
+    {
+      "exists": true,
+      "path": "reports/final/assets/project_cover.svg",
+      "purpose": "Deterministic SVG fallback for reproducible report builds."
+    }
+  ],
+  "uses_gateway_or_api": true
+}

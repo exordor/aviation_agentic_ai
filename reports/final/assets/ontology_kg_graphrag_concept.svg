@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024" role="img" aria-label="Ontology constrained KG evidence for GraphRAG">
+  <rect width="1536" height="1024" fill="#ffffff"/>
+  <path d="M104 720 C378 604 638 618 1008 420 C1164 336 1288 282 1410 248" fill="none" stroke="#1f4e79" stroke-width="12" opacity="0.08"/>
+  <g fill="#f8fafc" stroke="#9fb6ce" stroke-width="3">
+    <rect x="116" y="196" width="270" height="90" rx="20"/>
+    <rect x="116" y="322" width="270" height="90" rx="20"/>
+    <rect x="116" y="448" width="270" height="90" rx="20"/>
+    <rect x="116" y="574" width="270" height="90" rx="20"/>
+    <rect x="116" y="700" width="270" height="90" rx="20"/>
+  </g>
+  <g stroke="#b8c8da" stroke-width="8" stroke-linecap="round">
+    <line x1="158" y1="242" x2="314" y2="242"/>
+    <line x1="158" y1="368" x2="306" y2="368"/>
+    <line x1="158" y1="494" x2="330" y2="494"/>
+    <line x1="158" y1="620" x2="286" y2="620"/>
+    <line x1="158" y1="746" x2="318" y2="746"/>
+  </g>
+  <g stroke="#1f4e79" stroke-width="5" fill="none">
+    <path d="M386 242 C488 242 488 346 588 346"/>
+    <path d="M386 368 C492 368 488 440 588 440"/>
+    <path d="M386 494 C488 494 492 534 588 534"/>
+    <path d="M386 620 C492 620 488 628 588 628"/>
+    <path d="M386 746 C492 746 488 722 588 722"/>
+  </g>
+  <g stroke="#2e75b6" stroke-width="5" fill="#ffffff">
+    <circle cx="628" cy="346" r="32"/>
+    <circle cx="754" cy="292" r="32"/>
+    <circle cx="850" cy="384" r="32"/>
+    <circle cx="724" cy="506" r="32"/>
+    <circle cx="894" cy="572" r="32"/>
+    <circle cx="768" cy="706" r="32"/>
+    <line x1="628" y1="346" x2="754" y2="292"/>
+    <line x1="754" y1="292" x2="850" y2="384"/>
+    <line x1="628" y1="346" x2="724" y2="506"/>
+    <line x1="724" y1="506" x2="894" y2="572"/>
+    <line x1="724" y1="506" x2="768" y2="706"/>
+    <line x1="850" y1="384" x2="894" y2="572"/>
+  </g>
+  <g fill="#f8fafc" stroke="#9fb6ce" stroke-width="3">
+    <rect x="1056" y="250" width="324" height="108" rx="24"/>
+    <rect x="1056" y="414" width="324" height="108" rx="24"/>
+    <rect x="1056" y="578" width="324" height="160" rx="28"/>
+  </g>
+  <g stroke="#1f4e79" stroke-width="5" fill="none" marker-end="url(#arrow2)">
+    <path d="M926 572 C990 572 990 632 1050 632"/>
+    <path d="M926 384 C990 384 990 304 1050 304"/>
+  </g>
+  <defs>
+    <marker id="arrow2" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
+      <path d="M0,0 L16,8 L0,16 z" fill="#1f4e79"/>
+    </marker>
+  </defs>
+  <g fill="#2e75b6" opacity="0.2">
+    <rect x="1100" y="302" width="180" height="14" rx="7"/>
+    <rect x="1100" y="466" width="210" height="14" rx="7"/>
+    <rect x="1100" y="640" width="222" height="14" rx="7"/>
+    <rect x="1100" y="686" width="150" height="14" rx="7"/>
+  </g>
+</svg>

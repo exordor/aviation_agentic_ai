@@ -44,6 +44,11 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Gold labels: `data/cqs/06_phak_ch4_0.gold.json`
 - Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md`
 - Web demo readiness: `reports/stages/web_demo_readiness.md`
+- Academic report: `reports/final/project_academic_report.md`
+- Project defense notes: `reports/final/project_defense_notes.md`
+- Defense deck outline: `reports/final/defense_deck_outline.md`
+- Defense deck: `reports/final/aviation_graphrag_defense_deck.pptx`
+- AI visual assets with local SVG fallbacks: `reports/final/assets/visual_assets_manifest.json`
 
 ## Current Experiment Snapshot
 
@@ -56,6 +61,8 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Web demo default strategy: `structure_aware`; live query is disabled by default for reproducible review.
 - Web demo KG visualization: question-scoped graph renders retrieved KG triples for the selected CQ, strategy, and retrieval mode.
 - Web demo explanation layer: narrative, pipeline steps, mode comparison, and Why This Result explain the demo without reading raw reports.
+- Academic deliverables: deterministic paper-style report, defense Q&A notes, local SVG diagrams, and editable defense PPTX are available under `reports/final/`.
+- Visual asset policy: current diagrams are local deterministic SVGs and do not call the configured LLM or image gateway.
 
 ## Project Tracking
 

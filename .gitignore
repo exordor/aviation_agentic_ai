@@ -14,6 +14,7 @@ data/kg/*.cache
 reports/**/*.tmp
 reports/archive/
 logs/
+outputs/
 
 # Locally downloaded paper PDFs; keep citations in data/papers/README.md.
 data/papers/*.pdf

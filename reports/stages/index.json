@@ -593,7 +593,18 @@
     "graphrag_review": "reports/stages/graphrag_review.md",
     "gold_labels": "data/cqs/06_phak_ch4_0.gold.json",
     "evidence_level_evaluation": "reports/stages/evidence_level_evaluation.md",
-    "web_demo_readiness": "reports/stages/web_demo_readiness.md"
+    "web_demo_readiness": "reports/stages/web_demo_readiness.md",
+    "academic_report": "reports/final/project_academic_report.md",
+    "academic_report_sources": "reports/final/project_academic_report_sources.json",
+    "defense_notes": "reports/final/project_defense_notes.md",
+    "defense_deck_outline": "reports/final/defense_deck_outline.md",
+    "defense_deck": "reports/final/aviation_graphrag_defense_deck.pptx",
+    "defense_deck_sources": "reports/final/aviation_graphrag_defense_deck_sources.json",
+    "visual_assets_manifest": "reports/final/assets/visual_assets_manifest.json",
+    "ai_cover_visual": "reports/final/assets/project_cover_ai.png",
+    "ai_pipeline_visual": "reports/final/assets/pipeline_hero_ai.png",
+    "ai_kg_evidence_visual": "reports/final/assets/kg_evidence_ai.png",
+    "ai_web_demo_visual": "reports/final/assets/web_demo_ai.png"
   },
   "tracking": {
     "goals": "GOALS.md",

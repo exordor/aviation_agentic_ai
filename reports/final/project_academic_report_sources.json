@@ -1,0 +1,226 @@
+{
+  "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+  "artifacts": {
+    "academic_report": "reports/final/project_academic_report.md",
+    "academic_report_sources": "reports/final/project_academic_report_sources.json",
+    "active_ontology": "data/ontology/curated/06_phak_ch4_0.curated.ttl",
+    "ai_cover_visual": "reports/final/assets/project_cover_ai.png",
+    "ai_kg_evidence_visual": "reports/final/assets/kg_evidence_ai.png",
+    "ai_pipeline_visual": "reports/final/assets/pipeline_hero_ai.png",
+    "ai_web_demo_visual": "reports/final/assets/web_demo_ai.png",
+    "chunking_comparison": "reports/stages/chunking_comparison.md",
+    "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.md",
+    "defense_deck": "reports/final/aviation_graphrag_defense_deck.pptx",
+    "defense_deck_outline": "reports/final/defense_deck_outline.md",
+    "defense_deck_sources": "reports/final/aviation_graphrag_defense_deck_sources.json",
+    "defense_notes": "reports/final/project_defense_notes.md",
+    "evidence_level_evaluation": "reports/stages/evidence_level_evaluation.md",
+    "gold_labels": "data/cqs/06_phak_ch4_0.gold.json",
+    "graphrag_review": "reports/stages/graphrag_review.md",
+    "hybrid_rag_experiment": "reports/stages/hybrid_rag_experiment.md",
+    "hybrid_rag_structure_aware": "reports/stages/hybrid_rag_structure_aware.md",
+    "kg_ttl_export": "data/kg/06_phak_ch4_0.kg.ttl",
+    "kg_validation": "reports/stages/kg_validation.md",
+    "ontology_design": "docs/ontology_design.md",
+    "structure_aware_kg": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+    "structure_aware_kg_ttl_export": "data/kg/06_phak_ch4_0.structure_aware.kg.ttl",
+    "structure_aware_kg_validation": "reports/stages/structure_aware_kg_validation.md",
+    "validated_kg": "data/kg/06_phak_ch4_0.kg.jsonl",
+    "visual_assets_manifest": "reports/final/assets/visual_assets_manifest.json",
+    "web_demo_readiness": "reports/stages/web_demo_readiness.md"
+  },
+  "generated_at": "2026-05-19T03:50:19.541219+00:00",
+  "graphrag_interpretations": [
+    {
+      "claim": "GraphRAG value is evidence structure, not current page-level Recall lift.",
+      "evidence": "Fixed-window vector Recall@5=1.0; hybrid Recall@5=0.9; graph/hybrid KG evidence coverage=0.9/0.9.",
+      "implication": "Do not claim Hybrid RAG beats vector-only retrieval on the current coarse page-level benchmark."
+    },
+    {
+      "claim": "Vector-only can win page-level Recall@5 because the gold label is coarse.",
+      "evidence": "The current gold target is source_page, so any chunk from the right page counts even when it lacks structured relations.",
+      "implication": "Add chunk/span-level gold labels before drawing stronger GraphRAG conclusions."
+    },
+    {
+      "claim": "Hybrid fusion can lower page Recall when graph results add related but off-page evidence.",
+      "evidence": "Fixed-window hybrid lift vs vector Recall@5=-0.1.",
+      "implication": "Review fusion failures before tuning graph weight or hop depth."
+    },
+    {
+      "claim": "structure_aware is the best chunking candidate for the next KG.",
+      "evidence": "Chunking comparison ranked it first by Recall@5/MRR@5/Context Precision@5.",
+      "implication": "Re-extract KG on structure-aware chunks before using it as the Hybrid RAG default."
+    },
+    {
+      "claim": "Structure-aware Hybrid RAG is available as a second experiment.",
+      "evidence": "Its metrics are recorded separately and should be compared with fixed-window.",
+      "implication": "Use the paired reports to decide the default chunking strategy."
+    },
+    {
+      "claim": "Evidence-level scoring favors structure-aware hybrid retrieval.",
+      "evidence": "Structure-aware hybrid supported answers=9; fixed-window hybrid supported answers=7.",
+      "implication": "Use structure-aware as the default candidate after gold labels are reviewed."
+    }
+  ],
+  "key_claims": [
+    {
+      "claim": "The project implements a reproducible aviation-domain GraphRAG pipeline.",
+      "evidence_sources": [
+        "README.md",
+        "reports/stages/index.json",
+        "reports/final/project_report_sources.json"
+      ]
+    },
+    {
+      "claim": "The curated ontology is the explainable active schema for KG extraction.",
+      "evidence_sources": [
+        "docs/ontology_design.md",
+        "reports/stages/curated_ontology_evaluation.json",
+        "configs/extraction_profile.yaml"
+      ]
+    },
+    {
+      "claim": "Structure-aware chunking is the best current retrieval strategy by the chunking comparison ranking.",
+      "evidence_sources": [
+        "reports/stages/chunking_comparison.json"
+      ]
+    },
+    {
+      "claim": "GraphRAG value should be defended as structured KG evidence coverage rather than only page-level Recall lift.",
+      "evidence_sources": [
+        "reports/stages/graphrag_review.json",
+        "reports/stages/evidence_level_evaluation.json"
+      ]
+    },
+    {
+      "claim": "The web demo is a learning/decision-support explanation surface, not an operational flight authority.",
+      "evidence_sources": [
+        "reports/stages/web_demo_readiness.json",
+        "src/aviation_agentic_ai/advisory.py"
+      ]
+    }
+  ],
+  "metrics": {
+    "chunking": {
+      "best_context_precision_at_5": 0.52,
+      "best_mrr_at_5": 0.82,
+      "best_recall_at_5": 1.0,
+      "best_strategy": "structure_aware",
+      "fixed_window_chunks": 35,
+      "structure_aware_chunks": 267
+    },
+    "hybrid_rag": {
+      "fixed_hybrid_kg_coverage": 0.9,
+      "fixed_hybrid_recall_at_5": 0.9,
+      "fixed_supported_answers": 7,
+      "fixed_vector_recall_at_5": 1.0,
+      "structure_hybrid_kg_coverage": 0.9,
+      "structure_hybrid_recall_at_5": 1.0,
+      "structure_supported_answers": 9,
+      "structure_vector_recall_at_5": 1.0
+    },
+    "kg": {
+      "fixed_window_errors": 0,
+      "fixed_window_triples": 172,
+      "structure_aware_errors": 0,
+      "structure_aware_triples": 448
+    },
+    "ontology": {
+      "classes": 35,
+      "label_coverage": 1.0,
+      "object_properties": 9,
+      "tbox_only": true
+    },
+    "web_demo": {
+      "default_strategy": "structure_aware",
+      "explanation_ready": true,
+      "ready": true
+    }
+  },
+  "skills_used": [
+    "ml-paper-writing",
+    "academic-paper-reviewer",
+    "academic-pptx",
+    "Presentations",
+    "local-deterministic-svg-assets",
+    "gpt-image-2-optional-relay-assets"
+  ],
+  "source_paths": [
+    "GOALS.md",
+    "README.md",
+    "TASKS.md",
+    "configs/default.yaml",
+    "configs/extraction_profile.yaml",
+    "configs/ontology_generation.yaml",
+    "data/cqs/06_phak_ch4_0.gold.json",
+    "data/kg/06_phak_ch4_0.kg.jsonl",
+    "data/kg/06_phak_ch4_0.kg.ttl",
+    "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+    "data/kg/06_phak_ch4_0.structure_aware.kg.ttl",
+    "data/ontology/curated/06_phak_ch4_0.curated.ttl",
+    "docs/ontology_design.md",
+    "reports/final/assets/kg_evidence_ai.png",
+    "reports/final/assets/pipeline_hero_ai.png",
+    "reports/final/assets/project_cover_ai.png",
+    "reports/final/assets/visual_assets_manifest.json",
+    "reports/final/assets/web_demo_ai.png",
+    "reports/final/aviation_graphrag_defense_deck.pptx",
+    "reports/final/aviation_graphrag_defense_deck_sources.json",
+    "reports/final/defense_deck_outline.md",
+    "reports/final/project_academic_report.md",
+    "reports/final/project_academic_report_sources.json",
+    "reports/final/project_defense_notes.json",
+    "reports/final/project_defense_notes.md",
+    "reports/stages/chunking_comparison.json",
+    "reports/stages/chunking_comparison.md",
+    "reports/stages/curated_ontology_evaluation.json",
+    "reports/stages/curated_ontology_evaluation.md",
+    "reports/stages/evidence_level_evaluation.json",
+    "reports/stages/evidence_level_evaluation.md",
+    "reports/stages/graphrag_review.json",
+    "reports/stages/graphrag_review.md",
+    "reports/stages/hybrid_rag_experiment.json",
+    "reports/stages/hybrid_rag_experiment.md",
+    "reports/stages/hybrid_rag_structure_aware.json",
+    "reports/stages/hybrid_rag_structure_aware.md",
+    "reports/stages/index.json",
+    "reports/stages/kg_validation.json",
+    "reports/stages/kg_validation.md",
+    "reports/stages/structure_aware_kg_validation.json",
+    "reports/stages/structure_aware_kg_validation.md",
+    "reports/stages/web_demo_readiness.json",
+    "reports/stages/web_demo_readiness.md",
+    "tmp/goal.md"
+  ],
+  "source_policy": {
+    "env_files_read": false,
+    "missing_results_policy": "Use TBD / Not yet run; do not invent results.",
+    "secrets_allowed": false
+  },
+  "visual_assets": [
+    {
+      "fallback_path": "reports/final/assets/project_cover.svg",
+      "path": "reports/final/assets/project_cover_ai.png",
+      "prompt_role": "AI aviation GraphRAG research cover; no embedded text.",
+      "purpose": "Apple-style title-slide cover visual for the defense deck."
+    },
+    {
+      "fallback_path": "reports/final/assets/pipeline_overview.svg",
+      "path": "reports/final/assets/pipeline_hero_ai.png",
+      "prompt_role": "AI aviation GraphRAG pipeline hero; no embedded text.",
+      "purpose": "Large pipeline hero visual for PDF -> chunks -> KG -> Hybrid RAG."
+    },
+    {
+      "fallback_path": "reports/final/assets/ontology_kg_graphrag_concept.svg",
+      "path": "reports/final/assets/kg_evidence_ai.png",
+      "prompt_role": "AI aviation KG evidence component; no embedded text.",
+      "purpose": "Reusable KG evidence visual for ontology and GraphRAG slides."
+    },
+    {
+      "fallback_path": null,
+      "path": "reports/final/assets/web_demo_ai.png",
+      "prompt_role": "AI web demo mockup; abstract placeholder text only.",
+      "purpose": "Apple-inspired web demo mockup for the interface explanation slide."
+    }
+  ]
+}

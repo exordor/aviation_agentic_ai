@@ -1,0 +1,295 @@
+{
+  "deck_profile": "engineering-platform",
+  "design_system": {
+    "accent": "mid blue",
+    "background": "white",
+    "font": "single sans-serif",
+    "primary": "dark navy",
+    "rule": "one action title and one evidence object per slide"
+  },
+  "generated_at": "2026-05-19T03:50:41.653697+00:00",
+  "metrics_snapshot": {
+    "chunking": {
+      "best_context_precision_at_5": 0.52,
+      "best_mrr_at_5": 0.82,
+      "best_recall_at_5": 1.0,
+      "best_strategy": "structure_aware",
+      "fixed_window_chunks": 35,
+      "structure_aware_chunks": 267
+    },
+    "hybrid_rag": {
+      "fixed_hybrid_kg_coverage": 0.9,
+      "fixed_hybrid_recall_at_5": 0.9,
+      "fixed_supported_answers": 7,
+      "fixed_vector_recall_at_5": 1.0,
+      "structure_hybrid_kg_coverage": 0.9,
+      "structure_hybrid_recall_at_5": 1.0,
+      "structure_supported_answers": 9,
+      "structure_vector_recall_at_5": 1.0
+    },
+    "kg": {
+      "fixed_window_errors": 0,
+      "fixed_window_triples": 172,
+      "structure_aware_errors": 0,
+      "structure_aware_triples": 448
+    },
+    "ontology": {
+      "classes": 35,
+      "label_coverage": 1.0,
+      "object_properties": 9,
+      "tbox_only": true
+    },
+    "web_demo": {
+      "default_strategy": "structure_aware",
+      "explanation_ready": true,
+      "ready": true
+    }
+  },
+  "presentation_type": "structured_argument",
+  "qa_checklist": [
+    "Every content slide has an action title.",
+    "Reading action titles alone tells the argument.",
+    "Every metric-bearing claim cites a local evidence source.",
+    "Generated images are decorative/explanatory only and contain no fake metrics.",
+    "A references/artifact-index appendix exists after the conclusion slide.",
+    "The final non-appendix slide is a conclusion, not a thank-you slide."
+  ],
+  "skills_used": [
+    "ml-paper-writing",
+    "academic-paper-reviewer",
+    "academic-pptx",
+    "Presentations",
+    "local-deterministic-svg-assets",
+    "gpt-image-2-optional-relay-assets"
+  ],
+  "slides": [
+    {
+      "claim": "The project turns PHAK Chapter 4 into an evidence-grounded GraphRAG demo.",
+      "evidence_sources": [
+        "reports/stages/index.json",
+        "reports/final/project_academic_report.md"
+      ],
+      "role": "title",
+      "slide_number": 1,
+      "speaker_note": "Open with the problem, the source document, and the advisory boundary.",
+      "title": "Ontology-constrained GraphRAG makes aviation handbook answers auditable",
+      "visual": "reports/final/assets/project_cover_ai.png"
+    },
+    {
+      "claim": "The project can explain what it does, why each component exists, and how results are evaluated.",
+      "evidence_sources": [
+        "tmp/goal.md",
+        "GOALS.md",
+        "TASKS.md"
+      ],
+      "role": "motivation",
+      "slide_number": 2,
+      "speaker_note": "Frame the work as a reproducible research prototype.",
+      "title": "The course goal is answered by a full evidence pipeline, not a single model call",
+      "visual": "course objective and deliverable map"
+    },
+    {
+      "claim": "Each answer can be traced through chunks, KG triples, retrieval mode, and citations.",
+      "evidence_sources": [
+        "README.md",
+        "configs/default.yaml"
+      ],
+      "role": "method",
+      "slide_number": 3,
+      "speaker_note": "Walk left-to-right through the pipeline.",
+      "title": "The pipeline preserves traceability from PDF text to grounded answers",
+      "visual": "reports/final/assets/pipeline_hero_ai.png"
+    },
+    {
+      "claim": "The active ontology has 35 classes and 9 object properties.",
+      "evidence_sources": [
+        "docs/ontology_design.md",
+        "reports/stages/curated_ontology_evaluation.json"
+      ],
+      "role": "method",
+      "slide_number": 4,
+      "speaker_note": "Explain why the baseline ontology is not the main narrative object.",
+      "title": "A curated ontology keeps the KG explainable enough to defend",
+      "visual": "ontology module diagram"
+    },
+    {
+      "claim": "Fixed-window KG has 172 triples; structure-aware KG has 448 triples.",
+      "evidence_sources": [
+        "reports/stages/kg_validation.json",
+        "reports/stages/structure_aware_kg_validation.json"
+      ],
+      "role": "method",
+      "slide_number": 5,
+      "speaker_note": "Stress evidence/provenance validation rather than raw triple count.",
+      "title": "KG extraction is useful only because every triple is validator-gated",
+      "visual": "reports/final/assets/kg_evidence_ai.png"
+    },
+    {
+      "claim": "Best strategy: structure_aware with Recall@5=1.0 and MRR@5=0.82.",
+      "evidence_sources": [
+        "reports/stages/chunking_comparison.json"
+      ],
+      "role": "result",
+      "slide_number": 6,
+      "speaker_note": "Explain handbook structure, not just the metric ranking.",
+      "title": "Structure-aware chunking is the best current retrieval candidate",
+      "visual": "chunking comparison bar chart"
+    },
+    {
+      "claim": "Structure-aware hybrid Recall@5=1.0 and KG coverage=0.9.",
+      "evidence_sources": [
+        "reports/stages/hybrid_rag_structure_aware.json",
+        "reports/stages/graphrag_review.json"
+      ],
+      "role": "result",
+      "slide_number": 7,
+      "speaker_note": "Defend why a graph layer matters even when vector Recall is high.",
+      "title": "GraphRAG should be judged as structured evidence, not just page Recall",
+      "visual": "layered retrieval metric comparison"
+    },
+    {
+      "claim": "Structure-aware hybrid supports 9 answers versus 7 for fixed-window hybrid.",
+      "evidence_sources": [
+        "reports/stages/evidence_level_evaluation.json"
+      ],
+      "role": "result",
+      "slide_number": 8,
+      "speaker_note": "Use this as the strongest experiment-level defense claim.",
+      "title": "Evidence-level scoring favors the structure-aware hybrid run",
+      "visual": "supported answer distribution"
+    },
+    {
+      "claim": "Readiness=True; default strategy=structure_aware.",
+      "evidence_sources": [
+        "reports/stages/web_demo_readiness.json"
+      ],
+      "role": "demo",
+      "slide_number": 9,
+      "speaker_note": "Show answer, chunks, KG triples, KG graph, and Why This Result.",
+      "title": "The web demo turns raw evidence into an inspectable explanation surface",
+      "visual": "reports/final/assets/web_demo_ai.png"
+    },
+    {
+      "claim": "The next hardening step is human-reviewed chunk/span gold labels and broader document coverage.",
+      "evidence_sources": [
+        "data/cqs/06_phak_ch4_0.gold.json",
+        "TASKS.md"
+      ],
+      "role": "discussion",
+      "slide_number": 10,
+      "speaker_note": "Be explicit about what the project does not prove yet.",
+      "title": "Current limitations define the next evaluation work",
+      "visual": "limitation to next-work ladder"
+    },
+    {
+      "claim": "Learning and decision-support only; not a POH, checklist, ATC, instructor, or pilot-judgment substitute.",
+      "evidence_sources": [
+        "src/aviation_agentic_ai/advisory.py"
+      ],
+      "role": "boundary",
+      "slide_number": 11,
+      "speaker_note": "Say the full advisory boundary before and after the demo if asked about real flight use.",
+      "title": "The assistant is for aviation learning support, not operational authority",
+      "visual": "boundary statement"
+    },
+    {
+      "claim": "The work is defensible because its claims are linked to artifacts, metrics, and reproducibility commands.",
+      "evidence_sources": [
+        "reports/stages/index.json",
+        "reports/final/project_academic_report.md",
+        "reports/final/project_defense_notes.md"
+      ],
+      "role": "conclusion",
+      "slide_number": 12,
+      "speaker_note": "End on this slide for Q&A.",
+      "title": "The final contribution is an auditable prototype and a reproducible experiment protocol",
+      "visual": "takeaway checklist"
+    },
+    {
+      "claim": "All deck claims map back to local source files, reports, and generated evidence artifacts.",
+      "evidence_sources": [
+        "reports/stages/index.json",
+        "reports/final/aviation_graphrag_defense_deck_sources.json",
+        "reports/final/project_report_sources.json"
+      ],
+      "role": "appendix",
+      "slide_number": 13,
+      "speaker_note": "Use this appendix slide only when asked where a metric or artifact came from.",
+      "title": "The artifact index makes the experiment reproducible after the talk",
+      "visual": "artifact index grid"
+    }
+  ],
+  "source_paths": [
+    "GOALS.md",
+    "README.md",
+    "TASKS.md",
+    "configs/default.yaml",
+    "configs/extraction_profile.yaml",
+    "configs/ontology_generation.yaml",
+    "data/cqs/06_phak_ch4_0.gold.json",
+    "data/kg/06_phak_ch4_0.kg.jsonl",
+    "data/kg/06_phak_ch4_0.kg.ttl",
+    "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+    "data/kg/06_phak_ch4_0.structure_aware.kg.ttl",
+    "data/ontology/curated/06_phak_ch4_0.curated.ttl",
+    "docs/ontology_design.md",
+    "reports/final/assets/kg_evidence_ai.png",
+    "reports/final/assets/pipeline_hero_ai.png",
+    "reports/final/assets/project_cover_ai.png",
+    "reports/final/assets/visual_assets_manifest.json",
+    "reports/final/assets/web_demo_ai.png",
+    "reports/final/aviation_graphrag_defense_deck.pptx",
+    "reports/final/aviation_graphrag_defense_deck_sources.json",
+    "reports/final/defense_deck_outline.md",
+    "reports/final/project_academic_report.md",
+    "reports/final/project_academic_report_sources.json",
+    "reports/final/project_defense_notes.json",
+    "reports/final/project_defense_notes.md",
+    "reports/stages/chunking_comparison.json",
+    "reports/stages/chunking_comparison.md",
+    "reports/stages/curated_ontology_evaluation.json",
+    "reports/stages/curated_ontology_evaluation.md",
+    "reports/stages/evidence_level_evaluation.json",
+    "reports/stages/evidence_level_evaluation.md",
+    "reports/stages/graphrag_review.json",
+    "reports/stages/graphrag_review.md",
+    "reports/stages/hybrid_rag_experiment.json",
+    "reports/stages/hybrid_rag_experiment.md",
+    "reports/stages/hybrid_rag_structure_aware.json",
+    "reports/stages/hybrid_rag_structure_aware.md",
+    "reports/stages/index.json",
+    "reports/stages/kg_validation.json",
+    "reports/stages/kg_validation.md",
+    "reports/stages/structure_aware_kg_validation.json",
+    "reports/stages/structure_aware_kg_validation.md",
+    "reports/stages/web_demo_readiness.json",
+    "reports/stages/web_demo_readiness.md",
+    "tmp/goal.md"
+  ],
+  "visual_assets": [
+    {
+      "fallback_path": "reports/final/assets/project_cover.svg",
+      "path": "reports/final/assets/project_cover_ai.png",
+      "prompt_role": "AI aviation GraphRAG research cover; no embedded text.",
+      "purpose": "Apple-style title-slide cover visual for the defense deck."
+    },
+    {
+      "fallback_path": "reports/final/assets/pipeline_overview.svg",
+      "path": "reports/final/assets/pipeline_hero_ai.png",
+      "prompt_role": "AI aviation GraphRAG pipeline hero; no embedded text.",
+      "purpose": "Large pipeline hero visual for PDF -> chunks -> KG -> Hybrid RAG."
+    },
+    {
+      "fallback_path": "reports/final/assets/ontology_kg_graphrag_concept.svg",
+      "path": "reports/final/assets/kg_evidence_ai.png",
+      "prompt_role": "AI aviation KG evidence component; no embedded text.",
+      "purpose": "Reusable KG evidence visual for ontology and GraphRAG slides."
+    },
+    {
+      "fallback_path": null,
+      "path": "reports/final/assets/web_demo_ai.png",
+      "prompt_role": "AI web demo mockup; abstract placeholder text only.",
+      "purpose": "Apple-inspired web demo mockup for the interface explanation slide."
+    }
+  ]
+}

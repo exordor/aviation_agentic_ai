@@ -26,6 +26,12 @@ from aviation_agentic_ai.ontology.generation import generate_ontology
 from aviation_agentic_ai.ontology.reporting import write_stats_json, write_stats_markdown
 from aviation_agentic_ai.ontology.source_scope import write_source_scope_reports
 from aviation_agentic_ai.ontology.stats import collect_stats, load_graph
+from aviation_agentic_ai.reporting.academic_outputs import (
+    write_academic_report,
+    write_defense_deck_outline,
+    write_defense_notes,
+    write_visual_assets,
+)
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
 from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
 from aviation_agentic_ai.reporting.graphrag_review import write_graphrag_review
@@ -813,6 +819,114 @@ def report_project(
     click.echo(f"Wrote {project_relative_path(sources_path)}")
     mode = "AI-polished" if result["used_ai"] else "deterministic"
     click.echo(f"Generated {mode} project report.")
+
+
+@report.command("academic-paper")
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Directory for academic report outputs.",
+)
+@click.option(
+    "--stage-index",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Stage index JSON to use as primary evidence.",
+)
+@click.option("--ai/--no-ai", "use_ai", default=False, show_default=True)
+def report_academic_paper(
+    output_dir: Path | None,
+    stage_index: Path | None,
+    use_ai: bool,
+) -> None:
+    """Generate a paper-style academic project report from evidence."""
+    if use_ai:
+        raise click.ClickException(
+            "AI polishing is intentionally disabled for this command in v1. "
+            "Use --no-ai and review the deterministic draft."
+        )
+    output = output_dir or resolve_project_path("reports/final")
+    md_path, sources_path, result = write_academic_report(
+        output,
+        stage_index_path=stage_index,
+    )
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Wrote {project_relative_path(sources_path)}")
+    click.echo(
+        "Generated deterministic academic report from "
+        f"{len(result['summary']['source_paths'])} evidence sources."
+    )
+
+
+@report.command("defense-notes")
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Directory for defense note outputs.",
+)
+@click.option(
+    "--stage-index",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Stage index JSON to use as primary evidence.",
+)
+def report_defense_notes(output_dir: Path | None, stage_index: Path | None) -> None:
+    """Generate project defense notes and Q&A from evidence."""
+    output = output_dir or resolve_project_path("reports/final")
+    md_path, json_path, notes = write_defense_notes(
+        output,
+        stage_index_path=stage_index,
+    )
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Generated {len(notes['qa_pairs'])} defense Q&A pairs.")
+
+
+@report.command("defense-deck-outline")
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Directory for defense deck outline outputs.",
+)
+@click.option(
+    "--stage-index",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Stage index JSON to use as primary evidence.",
+)
+def report_defense_deck_outline(output_dir: Path | None, stage_index: Path | None) -> None:
+    """Generate an academic PPT outline and source pack."""
+    output = output_dir or resolve_project_path("reports/final")
+    md_path, json_path, outline = write_defense_deck_outline(
+        output,
+        stage_index_path=stage_index,
+    )
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Generated {len(outline['slides'])} slide outlines.")
+
+
+@report.command("visual-assets")
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Directory for final visual assets.",
+)
+def report_visual_assets(output_dir: Path | None) -> None:
+    """Generate SVG fallback assets and record any externally generated PNG assets."""
+    output = output_dir or resolve_project_path("reports/final")
+    paths, manifest = write_visual_assets(output)
+    for path in paths:
+        click.echo(f"Wrote {project_relative_path(path)}")
+    click.echo(
+        "Wrote visual asset manifest; AI PNG assets present: "
+        f"{manifest['uses_gateway_or_api']}. "
+        "No credentials or gateway URL were recorded."
+    )
 
 
 @report.command("hybrid-rag")

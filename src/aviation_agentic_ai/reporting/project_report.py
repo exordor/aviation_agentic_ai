@@ -48,6 +48,24 @@ def _read_text_source(
     }
 
 
+def _read_binary_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    if not path.exists():
+        return {
+            "path": project_relative_path(path, base=base),
+            "present": False,
+            "binary": True,
+            "size_bytes": 0,
+        }
+    return {
+        "path": project_relative_path(path, base=base),
+        "present": True,
+        "binary": True,
+        "format": path.suffix.removeprefix(".") or "binary",
+        "size_bytes": path.stat().st_size,
+        "excerpt": "",
+    }
+
+
 def _read_yaml_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dict[str, Any]:
     if not path.exists():
         return {
@@ -156,6 +174,8 @@ def _read_artifact_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dic
         return _read_json_source(path, base=base)
     if path.suffix in {".yaml", ".yml"}:
         return _read_yaml_source(path, base=base)
+    if path.suffix.lower() in {".pptx", ".pdf", ".png", ".jpg", ".jpeg", ".webp"}:
+        return _read_binary_source(path, base=base)
     return _read_text_source(path, base=base, max_chars=8000)
 
 

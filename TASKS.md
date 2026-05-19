@@ -112,13 +112,21 @@ Related goals: G3, G4, G6, G8.
 
 Related goals: G1, G5, G6, G7, G8.
 
-- [ ] Update `README.md` after real experiment results are available.
+- [x] Update `README.md` after real experiment results are available.
   - Acceptance: README no longer points to archived stage filenames as if they were current files.
-- [ ] Complete `reports/final/project_report.md`.
+- [x] Complete deterministic final and academic reports.
+  - Evidence: `reports/final/project_report.md`, `reports/final/project_academic_report.md`, `reports/final/project_academic_report_sources.json`.
   - Acceptance: includes motivation, architecture, ontology design, KG deliverable, GraphRAG pipeline, chunking comparison, vector/graph/hybrid analysis, limitations, advisory boundary, and reproducibility appendix.
-- [ ] Add a project-defense section or note.
-  - Candidate output: `reports/final/project_defense_notes.md`.
+- [x] Add project-defense notes and academic PPT outline.
+  - Evidence: `reports/final/project_defense_notes.md`, `reports/final/project_defense_notes.json`, `reports/final/defense_deck_outline.md`, `reports/final/aviation_graphrag_defense_deck_sources.json`.
   - Acceptance: answers what was built, why ontology is needed, why KG is a deliverable, why GraphRAG is used, why chunking strategies are compared, and where the system can fail.
+- [x] Generate academic defense PPT and AI-enhanced visual assets.
+  - Commands:
+    - `uv run aviation-ai report visual-assets`
+    - `uv run aviation-ai report defense-deck-outline`
+    - `node scripts/build_defense_deck.mjs`
+  - Evidence: `reports/final/aviation_graphrag_defense_deck.pptx`, `reports/final/assets/*_ai.png`, `reports/final/assets/*.svg`, `reports/final/assets/visual_assets_manifest.json`.
+  - Acceptance: PPT uses evidence-backed action titles, AI presentation visuals with local SVG fallbacks, source citations, an artifact-index appendix, and zero layout-check errors/warnings.
 - [x] Implement a minimal web interface demonstrator.
   - Command: `uv run aviation-ai web serve`
   - Evidence: `reports/stages/web_demo_readiness.md`
