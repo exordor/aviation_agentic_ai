@@ -46,6 +46,8 @@ def _write_project_fixture(root: Path) -> Path:
                 "current_active_artifacts": {
                     "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.md",
                     "kg_validation": "reports/stages/kg_validation.md",
+                    "chunking_comparison": "reports/stages/chunking_comparison.md",
+                    "hybrid_rag_experiment": "reports/stages/hybrid_rag_experiment.md",
                 },
                 "categories": {
                     "ontology_evaluation": [{"path": "reports/archive/ontology.json"}],
@@ -95,6 +97,94 @@ def _write_project_fixture(root: Path) -> Path:
         + "\n",
         encoding="utf-8",
     )
+    (root / "reports" / "stages" / "chunking_comparison.md").write_text(
+        "# Chunking Comparison\n",
+        encoding="utf-8",
+    )
+    (root / "reports" / "stages" / "chunking_comparison.json").write_text(
+        json.dumps(
+            {
+                "metadata": {"questions_total": 10},
+                "ranking": [
+                    {
+                        "strategy": "structure_aware",
+                        "recall_at_5": 1.0,
+                        "mrr_at_5": 0.82,
+                        "context_precision_at_5": 0.52,
+                    }
+                ],
+                "strategies": {
+                    "fixed_window": {
+                        "aggregate": {
+                            "retrieval": {
+                                "recall_at_5": 1.0,
+                                "mrr_at_5": 0.7583,
+                                "context_precision_at_5": 0.42,
+                            },
+                            "chunking": {"chunk_count": 35},
+                        }
+                    },
+                    "structure_aware": {
+                        "aggregate": {
+                            "chunking": {"chunk_count": 267},
+                        }
+                    },
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (root / "reports" / "stages" / "hybrid_rag_experiment.md").write_text(
+        "# Hybrid RAG Experiment\n",
+        encoding="utf-8",
+    )
+    (root / "reports" / "stages" / "hybrid_rag_experiment.json").write_text(
+        json.dumps(
+            {
+                "metadata": {
+                    "questions_total": 10,
+                    "chunking_strategy": "fixed_window",
+                    "collection_name": "phak_ch4_chunks",
+                    "run_manifest": {
+                        "llm": {
+                            "provider": "mock",
+                            "model": "mock-model",
+                        }
+                    },
+                },
+                "aggregate": {
+                    "vector": {
+                        "retrieval": {"recall_at_5": 1.0, "mrr_at_5": 0.7583},
+                        "llm_answer": {"citation_completeness": 1.0},
+                    },
+                    "graph": {
+                        "retrieval": {"recall_at_5": 0.8, "mrr_at_5": 0.65},
+                        "kg_evidence": {"evidence_coverage": 0.9},
+                        "llm_answer": {"citation_completeness": 1.0},
+                    },
+                    "hybrid": {
+                        "retrieval": {"recall_at_5": 0.9, "mrr_at_5": 0.7533},
+                        "kg_evidence": {
+                            "evidence_coverage": 0.9,
+                            "provenance_complete_rate": 1.0,
+                            "avg_invalid_triple_count": 0.0,
+                        },
+                        "llm_answer": {
+                            "citation_completeness": 1.0,
+                            "insufficient_evidence_abstention": 0.0,
+                        },
+                    },
+                    "hybrid_lift": {
+                        "vs_vector_recall_at_5": -0.1,
+                        "vs_graph_recall_at_5": 0.1,
+                    },
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     return index_path
 
 
@@ -130,6 +220,8 @@ def test_deterministic_project_report_needs_no_ai(tmp_path: Path) -> None:
     assert "Aviation Agentic AI Project Report" in markdown
     assert "Hybrid RAG protocol and layered metrics" in markdown
     assert "Triples=3" in markdown
+    assert "Best chunking strategy: structure_aware" in markdown
+    assert "vs vector Recall@5=-0.1" in markdown
 
 
 def test_ai_project_report_uses_mock_llm_and_prompt_constraints(tmp_path: Path) -> None:

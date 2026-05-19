@@ -62,6 +62,77 @@ def _read_yaml_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dict[st
     }
 
 
+def _compact_chunking_report(data: dict[str, Any]) -> dict[str, Any]:
+    strategies: dict[str, Any] = {}
+    for name, strategy in data.get("strategies", {}).items():
+        if not isinstance(strategy, dict):
+            continue
+        records = strategy.get("records", [])
+        strategies[name] = {
+            "aggregate": strategy.get("aggregate", {}),
+            "chunks_path": strategy.get("chunks_path"),
+            "collection_name": strategy.get("collection_name"),
+            "explanation": strategy.get("explanation"),
+            "recommendation": strategy.get("recommendation"),
+            "records_total": len(records) if isinstance(records, list) else "unknown",
+            "tradeoff": strategy.get("tradeoff"),
+        }
+    return {
+        "metadata": data.get("metadata", {}),
+        "ranking": data.get("ranking", []),
+        "strategies": strategies,
+        "source_compaction": "strategy records and retrieved chunk texts omitted",
+    }
+
+
+def _compact_hybrid_record(record: dict[str, Any]) -> dict[str, Any]:
+    compact_results: dict[str, Any] = {}
+    for mode, result in record.get("results", {}).items():
+        if not isinstance(result, dict):
+            continue
+        metrics = result.get("metrics", {})
+        retrieval = metrics.get("retrieval", {}) if isinstance(metrics, dict) else {}
+        compact_results[mode] = {
+            "metrics": metrics,
+            "matched_chunk_ids": retrieval.get("matched_chunk_ids", []),
+            "matched_source_pages": retrieval.get("matched_source_pages", []),
+            "retrieved_chunk_ids": retrieval.get("retrieved_chunk_ids", []),
+            "retrieved_source_pages": retrieval.get("retrieved_source_pages", []),
+        }
+    gold = record.get("gold", {})
+    return {
+        "cq_id": record.get("cq_id"),
+        "gold_level": gold.get("gold_level") if isinstance(gold, dict) else None,
+        "key_entities": record.get("key_entities", []),
+        "question": record.get("question"),
+        "results": compact_results,
+        "source_page": record.get("source_page"),
+    }
+
+
+def _compact_hybrid_report(data: dict[str, Any]) -> dict[str, Any]:
+    records = data.get("records", [])
+    return {
+        "aggregate": data.get("aggregate", {}),
+        "metadata": data.get("metadata", {}),
+        "records": [
+            _compact_hybrid_record(record)
+            for record in records
+            if isinstance(record, dict)
+        ],
+        "records_total": len(records) if isinstance(records, list) else "unknown",
+        "source_compaction": "prompts, answers, triples, and full retrieved chunk texts omitted",
+    }
+
+
+def _compact_json_data(path: Path, data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+    if path.name == "chunking_comparison.json":
+        return _compact_chunking_report(data), True
+    if path.name == "hybrid_rag_experiment.json":
+        return _compact_hybrid_report(data), True
+    return data, False
+
+
 def _read_json_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dict[str, Any]:
     if not path.exists():
         return {
@@ -70,10 +141,13 @@ def _read_json_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dict[st
             "data": {},
         }
     data = json.loads(path.read_text(encoding="utf-8"))
+    data = data if isinstance(data, dict) else {"value": data}
+    compacted_data, compacted = _compact_json_data(path, data)
     return {
         "path": project_relative_path(path, base=base),
         "present": True,
-        "data": data if isinstance(data, dict) else {"value": data},
+        "data": compacted_data,
+        "compacted": compacted,
     }
 
 
@@ -162,6 +236,112 @@ def _present_marker(source: dict[str, Any]) -> str:
     return "present" if source.get("present") else "missing"
 
 
+def _metric_value(data: dict[str, Any], *keys: str, default: str = "TBD") -> Any:
+    current: Any = data
+    for key in keys:
+        if not isinstance(current, dict) or key not in current:
+            return default
+        current = current[key]
+    return current
+
+
+def _chunking_summary_lines(
+    artifact_sources: dict[str, Any],
+    categories: dict[str, Any],
+) -> list[str]:
+    report = artifact_sources.get("chunking_comparison")
+    data = artifact_sources.get("chunking_comparison_json", {}).get("data", {})
+    if not isinstance(data, dict) or not data:
+        return [
+            f"RAG experiment artifacts listed: {len(categories.get('rag_experiments', []))}. "
+            "Chunking comparison should discuss retrieval tradeoffs rather than collapse "
+            "them into a single score.",
+        ]
+
+    ranking = data.get("ranking", [])
+    strategies = data.get("strategies", {})
+    metadata = data.get("metadata", {})
+    best = ranking[0] if ranking and isinstance(ranking[0], dict) else {}
+    best_name = best.get("strategy", "TBD")
+    fixed = strategies.get("fixed_window", {}) if isinstance(strategies, dict) else {}
+    fixed_retrieval = _metric_value(fixed, "aggregate", "retrieval", default={})
+    fixed_chunking = _metric_value(fixed, "aggregate", "chunking", default={})
+    best_strategy = strategies.get(best_name, {}) if isinstance(strategies, dict) else {}
+    best_chunking = _metric_value(best_strategy, "aggregate", "chunking", default={})
+    report_path = report.get("path", "reports/stages/chunking_comparison.md") if report else "TBD"
+    return [
+        f"Chunking comparison evidence: `{report_path}`. It evaluated "
+        f"{metadata.get('questions_total', 'TBD')} boundary CQs across "
+        f"{len(strategies) if isinstance(strategies, dict) else 'TBD'} strategies.",
+        f"Best chunking strategy: {best_name} with Recall@5="
+        f"{best.get('recall_at_5', 'TBD')}, MRR@5={best.get('mrr_at_5', 'TBD')}, "
+        f"and Context Precision@5={best.get('context_precision_at_5', 'TBD')}.",
+        "Fixed-window remains the KG-aligned strategy for the current Hybrid RAG run: "
+        f"Recall@5={fixed_retrieval.get('recall_at_5', 'TBD')}, "
+        f"MRR@5={fixed_retrieval.get('mrr_at_5', 'TBD')}, Context Precision@5="
+        f"{fixed_retrieval.get('context_precision_at_5', 'TBD')}, chunks="
+        f"{fixed_chunking.get('chunk_count', 'TBD')}.",
+        f"Interpretation: {best_name} improves ranking quality and context precision by "
+        "preserving handbook structure, but its finer granularity increases chunk count "
+        f"to {best_chunking.get('chunk_count', 'TBD')}. It is a candidate for future "
+        "KG re-extraction rather than being mixed with the current fixed-window KG.",
+    ]
+
+
+def _hybrid_summary_lines(
+    artifact_sources: dict[str, Any],
+    retrieval_config: dict[str, Any],
+) -> list[str]:
+    report = artifact_sources.get("hybrid_rag_experiment")
+    data = artifact_sources.get("hybrid_rag_experiment_json", {}).get("data", {})
+    if not isinstance(data, dict) or not data:
+        return [
+            "Hybrid RAG uses separate retrieval, KG evidence, and LLM answer metrics. "
+            f"Configured retrieval defaults include vector_top_k="
+            f"{retrieval_config.get('vector_top_k', 'TBD')}, graph_hops="
+            f"{retrieval_config.get('graph_hops', 'TBD')}, and hybrid_top_k="
+            f"{retrieval_config.get('hybrid_top_k', 'TBD')}.",
+        ]
+
+    metadata = data.get("metadata", {})
+    aggregate = data.get("aggregate", {})
+    vector = aggregate.get("vector", {})
+    graph = aggregate.get("graph", {})
+    hybrid = aggregate.get("hybrid", {})
+    lift = aggregate.get("hybrid_lift", {})
+    manifest = metadata.get("run_manifest", {})
+    llm = manifest.get("llm", {}) if isinstance(manifest, dict) else {}
+    report_path = report.get("path", "reports/stages/hybrid_rag_experiment.md") if report else "TBD"
+    return [
+        f"Hybrid RAG evidence: `{report_path}`. It evaluated "
+        f"{metadata.get('questions_total', 'TBD')} boundary CQs using "
+        f"`{metadata.get('chunking_strategy', 'TBD')}` chunks, collection "
+        f"`{metadata.get('collection_name', 'TBD')}`, and LLM "
+        f"{llm.get('provider', 'TBD')}/{llm.get('model', 'TBD')}.",
+        "Retrieval metrics: vector Recall@5="
+        f"{_metric_value(vector, 'retrieval', 'recall_at_5')}, graph Recall@5="
+        f"{_metric_value(graph, 'retrieval', 'recall_at_5')}, hybrid Recall@5="
+        f"{_metric_value(hybrid, 'retrieval', 'recall_at_5')}; vector MRR@5="
+        f"{_metric_value(vector, 'retrieval', 'mrr_at_5')}, graph MRR@5="
+        f"{_metric_value(graph, 'retrieval', 'mrr_at_5')}, hybrid MRR@5="
+        f"{_metric_value(hybrid, 'retrieval', 'mrr_at_5')}.",
+        "KG evidence metrics: graph coverage="
+        f"{_metric_value(graph, 'kg_evidence', 'evidence_coverage')}, hybrid coverage="
+        f"{_metric_value(hybrid, 'kg_evidence', 'evidence_coverage')}, hybrid provenance "
+        f"complete={_metric_value(hybrid, 'kg_evidence', 'provenance_complete_rate')}, "
+        f"hybrid invalid triples={_metric_value(hybrid, 'kg_evidence', 'avg_invalid_triple_count')}.",
+        "LLM answer metrics: vector citation completeness="
+        f"{_metric_value(vector, 'llm_answer', 'citation_completeness')}, graph="
+        f"{_metric_value(graph, 'llm_answer', 'citation_completeness')}, hybrid="
+        f"{_metric_value(hybrid, 'llm_answer', 'citation_completeness')}; hybrid "
+        "insufficient-evidence abstention="
+        f"{_metric_value(hybrid, 'llm_answer', 'insufficient_evidence_abstention')}.",
+        "Hybrid lift is reported as layered evidence, not a mixed total score: "
+        f"vs vector Recall@5={lift.get('vs_vector_recall_at_5', 'TBD')}, "
+        f"vs graph Recall@5={lift.get('vs_graph_recall_at_5', 'TBD')}.",
+    ]
+
+
 def build_project_report_draft(evidence: dict[str, Any]) -> str:
     stage_index = evidence.get("stage_index", {}).get("data", {})
     categories = stage_index.get("categories", {})
@@ -178,6 +358,29 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     kg_path = kg_validation.get("kg_path", current_artifacts.get("validated_kg", "TBD"))
     kg_triples = kg_validation.get("triples_total", "TBD")
     kg_errors = kg_validation.get("errors_total", "TBD")
+    chunking_lines = _chunking_summary_lines(artifact_sources, categories)
+    hybrid_lines = _hybrid_summary_lines(artifact_sources, retrieval_config)
+    has_chunking = bool(
+        artifact_sources.get("chunking_comparison_json", {}).get("data", {})
+    )
+    has_hybrid = bool(
+        artifact_sources.get("hybrid_rag_experiment_json", {}).get("data", {})
+    )
+    if has_chunking and has_hybrid:
+        next_work_lines = [
+            "1. Review the chunking and Hybrid RAG reports for project-defense claims.",
+            "2. Decide whether to re-extract the KG with `structure_aware` chunks.",
+            "3. Refine gold labels from source-page to chunk/span evidence.",
+            "4. Generate the AI-polished final report after review.",
+            "5. Implement the minimal web interface demonstrator.",
+        ]
+    else:
+        next_work_lines = [
+            "1. Run report hygiene to maintain a readable stage dashboard.",
+            "2. Run chunking comparison and Hybrid RAG experiments with recorded run manifests.",
+            "3. Refine gold labels from source-page to chunk/span evidence.",
+            "4. Use the AI report command to polish this deterministic draft.",
+        ]
     lines = [
         "# Aviation Agentic AI Project Report",
         "",
@@ -220,22 +423,20 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "",
         "## Chunking comparison design",
         "",
-        f"RAG experiment artifacts listed: {len(categories.get('rag_experiments', []))}. "
-        "Chunking comparison should discuss retrieval tradeoffs rather than collapse them "
-        "into a single score.",
+        *chunking_lines,
         "",
         "## Hybrid RAG protocol and layered metrics",
         "",
-        "Hybrid RAG uses separate retrieval, KG evidence, and LLM answer metrics. "
-        f"Configured retrieval defaults include vector_top_k="
-        f"{retrieval_config.get('vector_top_k', 'TBD')}, graph_hops="
-        f"{retrieval_config.get('graph_hops', 'TBD')}, and hybrid_top_k="
-        f"{retrieval_config.get('hybrid_top_k', 'TBD')}.",
+        *hybrid_lines,
         "",
         "## Current results and limitations",
         "",
-        "Current results must be reported only when present in the evidence pack. Missing "
-        "full-loop experiments should be labeled TBD / Not yet run.",
+        "Current evidence now covers the explainable curated ontology, validated KG, "
+        "chunking comparison, and fixed-window Hybrid RAG loop when their reports are "
+        "present in the stage index.",
+        "Limitations: gold labels are still source-page level, the current KG is aligned "
+        "to fixed-window chunks, and the Hybrid RAG run improved graph recall but did "
+        "not beat vector-only Recall@5 on this coarse benchmark.",
         "",
         "## Advisory assistant boundary",
         "",
@@ -243,13 +444,13 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "",
         "## Next work plan",
         "",
-        "1. Run report hygiene to maintain a readable stage dashboard.",
-        "2. Run chunking comparison and Hybrid RAG experiments with recorded run manifests.",
-        "3. Refine gold labels from source-page to chunk/span evidence.",
-        "4. Use the AI report command to polish this deterministic draft.",
+        *next_work_lines,
         "",
         "## Reproducibility appendix",
         "",
+        "- `uv run aviation-ai report chunking-comparison`",
+        "- `uv run aviation-ai index build`",
+        "- `uv run aviation-ai report hybrid-rag`",
         "- `uv run aviation-ai report hygiene --apply`",
         "- `uv run aviation-ai report project --no-ai`",
         "- `uv run aviation-ai report project --ai`",

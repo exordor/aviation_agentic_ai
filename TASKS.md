@@ -15,12 +15,11 @@ A task should be small enough to finish, verify, and check off. When a task prod
 
 ## Active Task Queue
 
-1. Build the Chroma index from the validated chunk/KG setup.
-2. Run the Hybrid RAG experiment loop with validated chunks, KG, index, retrieval evidence, and LLM answers.
-3. Run the real chunking comparison experiment and record retrieval metrics.
-4. Use the experiment results to explain why GraphRAG helps or does not help compared with vector-only retrieval.
-5. Implement a minimal web interface once the core pipeline has stable outputs.
-6. Regenerate the final project report from evidence after the experiments are complete.
+1. Use the chunking and Hybrid RAG results to explain why GraphRAG helps or does not help compared with vector-only retrieval.
+2. Decide whether to re-extract the KG with `structure_aware` chunks after reviewing the chunking comparison.
+3. Refine gold labels from page-level to chunk/span-level evidence.
+4. Implement a minimal web interface once the core pipeline has stable outputs.
+5. Regenerate the AI-polished final project report after the experiment outputs are reviewed.
 
 Related goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.
 
@@ -39,9 +38,10 @@ Related goals: G2, G3, G4, G5.
 - [x] Create an explainable curated ontology as the active KG schema.
   - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/ontology_design.md`.
   - Acceptance: curated ontology is TBox-only, has 35 classes, 9 object properties, complete label/comment coverage, and passes ontology evaluation.
-- [ ] Run full chunking comparison for all strategies.
+- [x] Run full chunking comparison for all strategies.
   - Command: `uv run aviation-ai report chunking-comparison`
-  - Expected evidence: `reports/stages/chunking_comparison.json`, `reports/stages/chunking_comparison.md`.
+  - Evidence: `reports/stages/chunking_comparison.json`, `reports/stages/chunking_comparison.md`.
+  - Result: `structure_aware` ranked first; `fixed_window` remained competitive on Recall@5 and remains the current KG-aligned strategy.
   - Acceptance: each strategy has Recall@5, MRR@5, Context Precision@5, chunk stats, and an explanation paragraph.
 - [x] Run the focused KG extraction and validation workflow.
   - Commands:
@@ -50,19 +50,20 @@ Related goals: G2, G3, G4, G5.
     - `uv run aviation-ai kg validate`
   - Evidence: `data/kg/06_phak_ch4_0.kg.jsonl`, `data/kg/06_phak_ch4_0.kg.ttl`, `reports/stages/kg_validation.md`.
   - Acceptance: KG triples are constrained by the ontology/extraction profile, and unsupported classes/properties or missing provenance are rejected deterministically.
-- [ ] Build or refresh the Chroma vector index for the selected chunking strategy.
+- [x] Build or refresh the Chroma vector index for the selected chunking strategy.
   - Command: `uv run aviation-ai index build`
-  - Expected evidence: local collection under `data/indexes/chroma`.
+  - Evidence: local ignored collection under `data/indexes/chroma`, collection `phak_ch4_chunks`.
   - Acceptance: collection name, index path, chunk path, and strategy are recorded in run manifests.
-- [ ] Run Hybrid RAG evaluation on the 10 boundary CQs.
+- [x] Run Hybrid RAG evaluation on the 10 boundary CQs.
   - Command: `uv run aviation-ai report hybrid-rag`
-  - Expected evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.
+  - Evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.
+  - Result: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph/hybrid KG evidence coverage = 0.9; LLM citation completeness = 1.0 across modes.
   - Acceptance: report compares vector, graph, and hybrid/GraphRAG modes, and separates retrieval metrics, KG evidence metrics, and LLM answer metrics without a mixed total score.
-- [ ] Regenerate the final project report after experiment reports exist.
+- [x] Regenerate the final project report after experiment reports exist.
   - Commands:
-    - `uv run aviation-ai report hygiene --apply`
     - `uv run aviation-ai report project --no-ai`
-    - `uv run aviation-ai report project --ai`
+  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.
+  - Current scope: deterministic evidence has been refreshed; postpone `--ai` until the chunking and Hybrid RAG outputs are reviewed.
   - Acceptance: final report replaces TBD / Not yet run sections with evidence-backed results where available.
 
 ## P1 - Evaluation Quality Tasks
@@ -75,8 +76,10 @@ Related goals: G3, G4, G6, G8.
 - [ ] Analyze chunking failures.
   - Acceptance: report identifies whether misses come from page boundaries, sentence breaks, section structure, or embedding mismatch.
 - [ ] Analyze GraphRAG tradeoffs.
+  - Current evidence: hybrid improved graph Recall@5 by +0.1 but trailed vector-only Recall@5 by -0.1; graph/hybrid modes added KG evidence coverage that vector-only did not provide.
   - Acceptance: report explains when graph retrieval improves evidence coverage, when vector retrieval is sufficient, and when KG sparsity limits hybrid gains.
 - [ ] Select the default chunking strategy for the next project phase.
+  - Current candidate: `structure_aware` for future KG re-extraction; keep `fixed_window` for the current Hybrid RAG report because KG triples reference fixed-window chunk ids.
   - Acceptance: decision is justified by retrieval metrics plus chunk cost/stability, not Recall alone.
 - [ ] Review KG extraction failure cases.
   - Acceptance: unsupported triples, weak evidence, missing provenance, and key-entity coverage gaps are summarized.

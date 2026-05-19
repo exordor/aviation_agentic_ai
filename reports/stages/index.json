@@ -189,6 +189,36 @@
         "path": "reports/stages/generation_runs"
       }
     ],
+    "rag_experiments": [
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "rag_experiments",
+        "format": "json",
+        "path": "reports/stages/chunking_comparison.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "rag_experiments",
+        "format": "md",
+        "path": "reports/stages/chunking_comparison.md"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "rag_experiments",
+        "format": "json",
+        "path": "reports/stages/hybrid_rag_experiment.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "rag_experiments",
+        "format": "md",
+        "path": "reports/stages/hybrid_rag_experiment.md"
+      }
+    ],
     "ontology_evaluation": [
       {
         "archived_to": "reports/archive/stages/2026-05-18/generated_boundary_ontology_evaluation.json",
@@ -481,7 +511,9 @@
     "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.md",
     "validated_kg": "data/kg/06_phak_ch4_0.kg.jsonl",
     "kg_ttl_export": "data/kg/06_phak_ch4_0.kg.ttl",
-    "kg_validation": "reports/stages/kg_validation.md"
+    "kg_validation": "reports/stages/kg_validation.md",
+    "chunking_comparison": "reports/stages/chunking_comparison.md",
+    "hybrid_rag_experiment": "reports/stages/hybrid_rag_experiment.md"
   },
   "tracking": {
     "goals": "GOALS.md",

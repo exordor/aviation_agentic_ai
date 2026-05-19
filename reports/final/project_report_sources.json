@@ -143,6 +143,208 @@
       "present": true,
       "truncated": true
     },
+    "chunking_comparison": {
+      "excerpt": "# Chunking Comparison\n\n- Run ID: `chunking-comparison-20260519T004847Z`\n- Questions: 10\n- Vector top k: 5\n- Target chars: 1200\n- Overlap chars: 150\n- Rebuild chunks: True\n- Rebuild indexes: True\n\n## Ranking\n\n| Rank | Strategy | Recall@5 | MRR@5 | Context Precision@5 |\n| ---: | --- | ---: | ---: | ---: |\n| 1 | structure_aware | 1.0 | 0.82 | 0.52 |\n| 2 | sentence_recursive | 1.0 | 0.7917 | 0.46 |\n| 3 | fixed_window | 1.0 | 0.7583 | 0.42 |\n| 4 | semantic_meta_like | 0.9 | 0.7333 | 0.5 |\n\n## Strategy Details\n\n| Strategy | Chunks | Avg chars | P95 chars | Boundary preservation | Tradeoff | Recommendation |\n| --- | ---: | ---: | ---: | ---: | --- | --- |\n| fixed_window | 35 | 1034.11 | 1196 | 0.3714 | Controllable baseline, but it can cut through semantic boundaries. | Use as a stable baseline and regression check. |\n| sentence_recursive | 35 | 1022.11 | 1191 | 0.2571 | Reduces mid-sentence cuts while keeping chunk sizes predictable. | Use when sentence integrity matters more than strict size regularity. |\n| structure_aware | 267 | 233.36 | 1080 | 1.0 | Better preserves handbook section and list boundaries. | Prefer for handbook chapters with headings, lists, and page-local sections. |\n| semantic_meta_like | 56 | 580.55 | 712 | 1.0 | Approximates semantic boundary detection; more context-aware but less deterministic than rule-only strategies. | Use for exploratory retrieval runs where semantic boundary quality is worth extra complexity. |\n\n## Strategy Explanations\n\n### fixed_window\n\nControllable baseline, but it can cut through semantic boundaries. It ties for the best source-page Recall@5 in this run.\n\n- Retrieval: Recall@5=1.0, MRR@5=0.7583, Context Precision@5=0.42\n- Recommendation: Use as a stable baseline and regression check.\n\n### sentence_recursive\n\nReduces mid-sentence cuts while keeping chunk sizes predictable. It ties for the best source-page Recall@5 in this run.\n\n- Retrieval: Recall@5=1.0, MRR@5=0.7917, Context Precision@5=0.46\n- Recommendation: Use when sentence integrity matters more than strict size regularity.\n\n### structure_aware\n\nBetter preserves handbook section and list boundaries. It ties for the best source-page Recall@5 in this run. It places relevant evidence near the top of the result list. High boundary preservation indicates fewer semantic or structural cuts.\n\n- Retrieval: Recall@5=1.0, MRR@5=0.82, Context Precision@5=0.52\n- Recommendation: Prefer for handbook chapters with headings, lists, and page-local sections.\n\n### semantic_meta_like\n\nApproximates semantic boundary detection; more context-aware but less deterministic than rule-only strategies. High boundary preservation indicates fewer semantic or structural cuts.\n\n- Retrieval: Recall@5=0.9, MRR@5=0.7333, Context Precision@5=0.5\n- Recommendation: Use for exploratory retrieval runs where semantic boundary quality is worth extra complexity.\n\n",
+      "path": "reports/stages/chunking_comparison.md",
+      "present": true,
+      "truncated": false
+    },
+    "chunking_comparison_json": {
+      "compacted": true,
+      "data": {
+        "metadata": {
+          "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+          "collection_name": "phak_ch4_chunks",
+          "gold_labels_path": null,
+          "index_dir": "data/indexes/chroma",
+          "max_chars": 1200,
+          "overlap_chars": 150,
+          "pdf_path": "data/raw/06_phak_ch4_0.pdf",
+          "questions_total": 10,
+          "rebuild_chunks": true,
+          "rebuild_indexes": true,
+          "run_manifest": {
+            "artifacts": {
+              "base_chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+              "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+              "index_dir": "data/indexes/chroma",
+              "pdf_path": "data/raw/06_phak_ch4_0.pdf"
+            },
+            "chunking_strategy": "multiple",
+            "collection_name": "phak_ch4_chunks",
+            "command": "aviation-ai report chunking-comparison",
+            "created_at": "2026-05-19T00:48:47.818975+00:00",
+            "document": {
+              "chapter": "4",
+              "document_id": "06_phak_ch4_0",
+              "page_end": null,
+              "page_start": null,
+              "revision_date": null,
+              "source_path": "data/raw/06_phak_ch4_0.pdf",
+              "source_type": "faa_handbook_chapter",
+              "title": "06 phak ch4 0"
+            },
+            "embedding": {
+              "backend": "chromadb_default_embedding_function",
+              "collection_name": "phak_ch4_chunks",
+              "collections": [
+                "phak_ch4_chunks",
+                "phak_ch4_chunks_sentence_recursive",
+                "phak_ch4_chunks_structure_aware",
+                "phak_ch4_chunks_semantic_meta_like"
+              ],
+              "index_dir": "data/indexes/chroma"
+            },
+            "experiment_name": "chunking_comparison",
+            "llm": {
+              "model": "not_used",
+              "provider": "none"
+            },
+            "parameters": {
+              "gold_labels_path": null,
+              "max_chars": 1200,
+              "max_questions": null,
+              "overlap_chars": 150,
+              "strategies": [
+                "fixed_window",
+                "sentence_recursive",
+                "structure_aware",
+                "semantic_meta_like"
+              ],
+              "vector_top_k": 5
+            },
+            "rebuild_policy": {
+              "chunks": true,
+              "indexes": true,
+              "kg": false
+            },
+            "run_id": "chunking-comparison-20260519T004847Z"
+          },
+          "strategy_collections": [
+            "phak_ch4_chunks",
+            "phak_ch4_chunks_sentence_recursive",
+            "phak_ch4_chunks_structure_aware",
+            "phak_ch4_chunks_semantic_meta_like"
+          ],
+          "vector_top_k": 5
+        },
+        "ranking": [
+          {
+            "context_precision_at_5": 0.52,
+            "mrr_at_5": 0.82,
+            "recall_at_5": 1.0,
+            "strategy": "structure_aware"
+          },
+          {
+            "context_precision_at_5": 0.46,
+            "mrr_at_5": 0.7917,
+            "recall_at_5": 1.0,
+            "strategy": "sentence_recursive"
+          },
+          {
+            "context_precision_at_5": 0.42,
+            "mrr_at_5": 0.7583,
+            "recall_at_5": 1.0,
+            "strategy": "fixed_window"
+          },
+          {
+            "context_precision_at_5": 0.5,
+            "mrr_at_5": 0.7333,
+            "recall_at_5": 0.9,
+            "strategy": "semantic_meta_like"
+          }
+        ],
+        "source_compaction": "strategy records and retrieved chunk texts omitted",
+        "strategies": {
+          "fixed_window": {
+            "aggregate": {
+              "chunking": {
+                "avg_chars": 1034.11,
+                "boundary_preservation_rate": 0.3714,
+                "chunk_count": 35,
+                "p95_chars": 1196
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.42,
+                "mrr_at_5": 0.7583,
+                "recall_at_5": 1.0
+              }
+            },
+            "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+            "collection_name": "phak_ch4_chunks",
+            "explanation": "Controllable baseline, but it can cut through semantic boundaries. It ties for the best source-page Recall@5 in this run.",
+            "recommendation": "Use as a stable baseline and regression check.",
+            "records_total": 10,
+            "tradeoff": "Controllable baseline, but it can cut through semantic boundaries."
+          },
+          "semantic_meta_like": {
+            "aggregate": {
+              "chunking": {
+                "avg_chars": 580.55,
+                "boundary_preservation_rate": 1.0,
+                "chunk_count": 56,
+                "p95_chars": 712
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.5,
+                "mrr_at_5": 0.7333,
+                "recall_at_5": 0.9
+              }
+            },
+            "chunks_path": "data/chunks/06_phak_ch4_0.semantic_meta_like.jsonl",
+            "collection_name": "phak_ch4_chunks_semantic_meta_like",
+            "explanation": "Approximates semantic boundary detection; more context-aware but less deterministic than rule-only strategies. High boundary preservation indicates fewer semantic or structural cuts.",
+            "recommendation": "Use for exploratory retrieval runs where semantic boundary quality is worth extra complexity.",
+            "records_total": 10,
+            "tradeoff": "Approximates semantic boundary detection; more context-aware but less deterministic than rule-only strategies."
+          },
+          "sentence_recursive": {
+            "aggregate": {
+              "chunking": {
+                "avg_chars": 1022.11,
+                "boundary_preservation_rate": 0.2571,
+                "chunk_count": 35,
+                "p95_chars": 1191
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.46,
+                "mrr_at_5": 0.7917,
+                "recall_at_5": 1.0
+              }
+            },
+            "chunks_path": "data/chunks/06_phak_ch4_0.sentence_recursive.jsonl",
+            "collection_name": "phak_ch4_chunks_sentence_recursive",
+            "explanation": "Reduces mid-sentence cuts while keeping chunk sizes predictable. It ties for the best source-page Recall@5 in this run.",
+            "recommendation": "Use when sentence integrity matters more than strict size regularity.",
+            "records_total": 10,
+            "tradeoff": "Reduces mid-sentence cuts while keeping chunk sizes predictable."
+          },
+          "structure_aware": {
+            "aggregate": {
+              "chunking": {
+                "avg_chars": 233.36,
+                "boundary_preservation_rate": 1.0,
+                "chunk_count": 267,
+                "p95_chars": 1080
+              },
+              "retrieval": {
+                "context_precision_at_5": 0.52,
+                "mrr_at_5": 0.82,
+                "recall_at_5": 1.0
+              }
+            },
+            "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+            "collection_name": "phak_ch4_chunks_structure_aware",
+            "explanation": "Better preserves handbook section and list boundaries. It ties for the best source-page Recall@5 in this run. It places relevant evidence near the top of the result list. High boundary preservation indicates fewer semantic or structural cuts.",
+            "recommendation": "Prefer for handbook chapters with headings, lists, and page-local sections.",
+            "records_total": 10,
+            "tradeoff": "Better preserves handbook section and list boundaries."
+          }
+        }
+      },
+      "path": "reports/stages/chunking_comparison.json",
+      "present": true
+    },
     "curated_ontology_evaluation": {
       "excerpt": "# Ontology Evaluation Report\n\n- Ontology: `data/ontology/curated/06_phak_ch4_0.curated.ttl`\n- CQ file: `data/cqs/06_phak_ch4_0.json`\n- CQ standard: AI-generated silver CQs, not domain-expert gold annotations\n- AI review enabled: no\n\n## Overall Judgment\n\n- RDF-valid TBox extraction prototype: yes\n- Valid TBox prototype: yes\n- Publication-ready ontology: no\n\n- The ontology is an RDF-valid TBox extraction prototype.\n- All high-severity ontology quality gates passed.\n- No ABox individuals were detected in the ontology.\n\n## Structural Metrics\n\n- RDF valid: yes\n- Triples: 188\n- Classes: 35\n- Object properties: 9\n- Datatype properties: 0\n- Declared named individuals: 0\n- Non-schema typed resources: 0\n- TBox only: yes\n- Root classes: 1\n- Leaf classes: 30\n- Isolated classes: 0\n- OWL restrictions: 0\n- `owl:someValuesFrom`: 0\n- Class label coverage: 1.0\n- Class comment coverage: 1.0\n- Property label coverage: 1.0\n- Property comment coverage: 1.0\n- Out-of-namespace schema terms: 0\n- Properties missing domain: None\n- Properties missing range: None\n\n## Quality Gates\n\n| Gate | Status | Severity | Evidence |\n| --- | --- | --- | --- |\n| RDF/Turtle parses successfully | pass | high | RDF parser completed without errors. |\n| No ABox-like typed resources | pass | high | Non-schema typed resources: 0; declared named individuals: 0. |\n| Ontology metadata declaration is present | pass | high | owl:Ontology declarations: 1. |\n| Minimum human-readable label coverage is met | pass | high | Class labels: 1.0; property labels: 1.0. |\n| Property domain/range completeness is acceptable | pass | high | Missing domain: 0; missing range: 0. |\n| Schema terms stay inside the configured aviation namespace | pass | high | Out-of-namespace schema terms: 0. |\n| No high-severity semantic smells are detected | pass | high | High-severity semantic smells: 0. |\n| Silver-CQ unique entity lexical coverage is above threshold | fail | medium | Unique entity coverage ratio: 0.4514. |\n\n## Semantic Smell Checks\n\n- Total smells: 0\n- High-severity smells: 0\n\n\n## CQ Lexical Coverage\n\n- CQs: 334\n- Entity mentions: 754 / 1154\n- Entity mention coverage ratio: 0.6534\n- Unique entity coverage ratio: 0.4514\n- Top missing entities: lower surface, upper surface, viscosity, acceleration, mass, friction, object, velocity, water vapor, causal relation\n\n## Silver Answerability Heuristics\n\n- Standard: deterministic silver heuristics from normalized CQ terms and OWL schema structure; not gold-standard answerability.\n- Yes / partial / no: 10 / 290 / 34\n- Heuristic support score: 0.4641\n- Expected-answer term coverage ratio: 0.7587\n- Property/relation coverage ratio: 0.0689\n- Answer property coverage ratio: 0.0539\n- Connected class/property ratio: 0.015\n- Object property matches: 23\n- Datatype property matches: 0\n\n## AI Review\n\n- AI review skipped. Run with `--ai-review` after configuring a rotated API key.\n",
       "path": "reports/stages/curated_ontology_evaluation.md",
@@ -150,6 +352,7 @@
       "truncated": false
     },
     "curated_ontology_evaluation_json": {
+      "compacted": false,
       "data": {
         "ai_review": {
           "enabled": false,
@@ -8215,6 +8418,2743 @@
       "path": "reports/stages/curated_ontology_evaluation.json",
       "present": true
     },
+    "hybrid_rag_experiment": {
+      "excerpt": "# Hybrid RAG Experiment\n\n- Run ID: `hybrid-rag-20260519T005213Z`\n- Questions: 10\n- Chunks: `data/chunks/06_phak_ch4_0.jsonl`\n- KG: `data/kg/06_phak_ch4_0.kg.jsonl`\n- Chroma collection: `phak_ch4_chunks`\n- Chunking strategy: `fixed_window`\n- Rebuild chunks/index/KG: False / False / False\n\n## Agent Boundary\n\nThis system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.\n\n## Aggregate Metrics\n\n### Retrieval\n\n| Mode | Recall@5 | MRR@5 | Context Precision@5 |\n| --- | ---: | ---: | ---: |\n| vector | 1.0 | 0.7583 | 0.42 |\n| graph | 0.8 | 0.65 | 0.49 |\n| hybrid | 0.9 | 0.7533 | 0.4 |\n\n### KG Evidence\n\n| Mode | Evidence coverage | Avg triples | Provenance complete | Avg invalid triples |\n| --- | ---: | ---: | ---: | ---: |\n| vector | 0.0 | 0.0 | 0.0 | 0.0 |\n| graph | 0.9 | 7.3 | 1.0 | 0.0 |\n| hybrid | 0.9 | 7.3 | 1.0 | 0.0 |\n\n### LLM Answer\n\n| Mode | Citation completeness | Insufficient-evidence abstention | Answer present |\n| --- | ---: | ---: | ---: |\n| vector | 1.0 | 0.2 | 1.0 |\n| graph | 1.0 | 0.1 | 1.0 |\n| hybrid | 1.0 | 0.0 | 1.0 |\n\n## Hybrid Lift\n\n- vs vector Recall@5: -0.1\n- vs graph Recall@5: 0.1\n\n## Question Results\n\n### 06-phak-ch4-0-p00-fa9830b888\n\n- Question: How should atmosphere, air, and constituent gases be modeled as a composition structure?\n- Source page: 0\n- Gold level: page\n- Retrieval Recall@5: True\n- KG evidence coverage: True\n- Citation complete: True\n- Hybrid answer: Model it as a hierarchical composition:\n\n- **Atmosphere** = an **envelope of air** surrounding Earth, so it contains **air** as a component.  \n- **Air** = a **mixture of gases** / fluid, so it contains **constituent gases** as components.  \n- **Constituent gases** = primarily **78% nitrogen**, **21% oxygen**, and **1% other gases** such as argon and helium.\n\nA simple structure would be:\n\n**Atmosphere \u2192 Air \u2192 Gases (nitrogen, oxygen, other gases)**\n\nThis is grounded by the retrieved materials, which state that the atmosphere is an envelope of air and that air is a mixture of gases, with the atmosphere composed of 78% nitrogen, 21% oxygen, and 1% other gases. [chunk_id=06_phak_ch4_0-fixed_window-p00-c00 page=0; chunk_id=06_phak_ch4_0-fixed_window-p01-c00 page=1]\n\n**Citations:** chunk_id=06_phak_ch4_0-fixed_window-p00-c00 page=0 KG triple_id=06_phak_ch4_0-fixed_window-p00-c00-kg00-8748d82ca7; KG triple_id=06_phak_ch4_0-fixed_window-p00-c00-kg01-b36f7b1b3c; KG triple_id=06_phak_ch4_0-fixed_window-p00-c00-kg02-30f9108dc2; chunk_id=06_phak_ch4_0-fixed_window-p01-c00 page=1 KG triple_id=06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b\n\n### 06-phak-ch4-0-p01-dbcda7dbf4\n\n- Question: What classes and relations represent air as a fluid with viscosity, friction, and a boundary layer on a wing?\n- Source page: 1\n- Gold level: page\n- Retrieval Recall@5: True\n- KG evidence coverage: True\n- Citation complete: True\n- Hybrid answer: The current PHAK Chapter 4 materials support modeling:\n\n- **Air** as a **Fluid**: `Cl_Air -hasComponent-> Cl_Fluid` ([chunk p1 c00, triple 06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b]; also [chunk p1 c01, triple 06_phak_ch4_0-fixed_window-p01-c01-kg00-898cdb205b])\n- **Viscosity** as a concept that **affects flow**: `Cl_Viscosity -affects-> Cl_Flow` ([chunk p1 c00, triple 06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3])\n- **Friction** as the mechanism by which the air adheres to the wing and forms the boundary layer, with the text stating: \u201cOnce the boundary layer of the air adheres to the wing by friction...\u201d ([chunk p2 c00, triple 06_phak_ch4_0-fixed_window-p02-c00-kg02-77b9f87c3e])\n- **Boundary layer** as the layer of air molecules near the wing surface: `boundary layer -hasComponent-> air molecules near the surface of the wing` ([chunk p1 c03, triple 06_phak_ch4_0-fixed_window-p01-c03-kg00-52eb682acd])\n\nA grounded relation chain from the evidence is:\n**Air (Fluid) \u2192 viscosity affects flow \u2192 friction causes adhesion to wing surface \u2192 boundary layer forms on the wing.**\n\nCitations: [p1 c00 / 06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b], [p1 c00 / 06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3], [p1 c03 / 06_phak_ch4_0-fixed_window-p01-c03-kg00-52eb682acd], [p2 c00 / 06_phak_ch4_0-fixed_window-p02-c00-kg02-77b9f87c3e].\n\n### 06-phak-ch4-0-p02-dafae1ecbc\n\n- Question: How should standard atmosphere values for pressure, temperature, and density be modeled?\n- Source page: 2\n- Gold level: page\n- Retrieval Recall@5: True\n- KG evidence coverage: True\n- Citation complete: True\n- Hybrid answer: Model standard atmosphere as a reference atmosphere with fixed sea-level values and defined lapse rates:\n\n- **Sea level standard values:** pressure **29.92 inHg (1,013.2 mb)** and temperature **59 \u00b0F / 15 \u00b0C**. [chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2; chunk_id=06_phak_ch4_0-fixed_window-p02-c00 page=2; KG triple ids: 06_phak_ch4_0-fixed_window-p02-c02-kg05-4ed6928f68, 06_phak_ch4_0-fixed_window-p02-c02-kg06-54921c8ed3, 06_phak_ch4_0-fixed_window-p02-c00]\n- **Temperature lapse rate:** decreases about **3.5 \u00b0F or 2 \u00b0C per 1,000 ft** up to **36,000 ft**, then remains constant to **80,000 ft**. [chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2; chunk_id=06_phak_ch4_0-fixed_window-p02-c03 page=2]\n- **Pressure lapse rate:** decreases about **1 inHg per 1,000 ft** up to **10,000 ft**. [chunk_id=06_phak_ch4_0-fixed_window-p02-c03 page=2]\n\nDensity is not given as a single fixed sea-level value in the retrieved text, but the materials state that **pressure and temperature affect density**, and density varies **directly with pressure** and **inversely with temperature**. [chunk_id=06_phak_ch4_0-fixed_window-p03-c02 page=3; chunk_id=06_phak_ch4_0-fixed_window-p04-c01 page=4; KG triple ids: 06_phak_ch4_0-fixed_window-p04-c01-kg05-2bf419b2a5, 06_phak_ch4_0-fixed_window-p04-c01-kg06-b55090d06e]\n\nCitations: [chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2], [chunk_id=06_phak_ch4_0-fixed_window-p02-c03 page=2], [chunk_id=06_phak_ch4_0-fixed_window-p02-c00 page=2], [chunk_id=06_phak_ch4_0-fixed_window-p03-c02 page=3], [chunk_id=06_phak_ch4_0-fixed_window-p04-c01 page=4].\n\n### 06-phak-ch4-0-p03-f463ba25ee\n\n- Question: What causal schema links pressure altitude, density altitude, humidity, air density, and aircraft performance?\n- Source page: 3\n- Gold level: page\n- Retrieval Recall@5: True\n- KG evidence coverage: True\n- Citation complete: True\n- Hybrid answer: The causal schema in the retrieved PHAK Chapter 4 evidence is:\n\n**Pressure altitude + nonstandard temperature \u2192 density altitude; and humidity/altitude/temperature affect air density; air density then drives aircraft performance.**\n\nMore specifically:\n- **Density altitude** is defined as **pressure altitude corrected for nonstandard temperature** ([chunk_id=06_phak_ch4_0-fixed_window-p03-c02 page=3], [chunk_id=06_phak_ch4_0-fixed_window-p03-c01 page=3]).\n- **Air density** is affected by **altitude, temperature, and humidity** ([chunk_id=06_phak_ch4_0-fixed_window-p03-c03 page=3], [chunk_id=06_phak_ch4_0-fixed_window-p04-c01 page=4]).\n- As **air density decreases** (higher density altitude), **aircraft performance decreases**; as **air density increases**, performance increases ([chunk_id=06_phak_ch4_0-fixed_window-p03-c01 page=3], [chunk_id=06_phak_ch4_0-fixed_window-p03-c03 page=3]).\n- The text also notes that **humidity** is a contributing factor and **high humidity** is one of the conditions associated with **high density altitude**, with an observed **decrease in overall performance** ([chunk_id=06_phak_ch4_0-fixed_window-p03-c03 page=3], [chunk_id=06_phak_ch4_0-fixed_window-p04-c02 page=4], [chunk_id=06_phak_ch4_0-fixed_window-p04-c01 page=4]).\n\nCitations: chunk_id=06_phak_ch4_0-fixed_window-p03-c02 page=3; chunk_id=06_phak_ch4_0-fixed_window-p03-c01 page=3; chunk_id=06_phak_ch4_0-fixed_window-p03-c03 page=3; chunk_id=06_phak_ch4_0-fixed_window-p04-c01 page=4; chunk_id=06_phak_c",
+      "path": "reports/stages/hybrid_rag_experiment.md",
+      "present": true,
+      "truncated": true
+    },
+    "hybrid_rag_experiment_json": {
+      "compacted": true,
+      "data": {
+        "aggregate": {
+          "graph": {
+            "citation_completeness": 1.0,
+            "evidence_coverage": 0.9,
+            "kg_evidence": {
+              "avg_invalid_triple_count": 0.0,
+              "avg_related_triple_count": 7.3,
+              "avg_supporting_triple_count": 7.3,
+              "evidence_coverage": 0.9,
+              "provenance_complete_rate": 1.0
+            },
+            "llm_answer": {
+              "answer_present": 1.0,
+              "citation_completeness": 1.0,
+              "insufficient_evidence_abstention": 0.1
+            },
+            "recall_at_5": 0.8,
+            "retrieval": {
+              "context_precision_at_5": 0.49,
+              "mrr_at_5": 0.65,
+              "recall_at_5": 0.8
+            }
+          },
+          "hybrid": {
+            "citation_completeness": 1.0,
+            "evidence_coverage": 0.9,
+            "kg_evidence": {
+              "avg_invalid_triple_count": 0.0,
+              "avg_related_triple_count": 7.3,
+              "avg_supporting_triple_count": 7.3,
+              "evidence_coverage": 0.9,
+              "provenance_complete_rate": 1.0
+            },
+            "llm_answer": {
+              "answer_present": 1.0,
+              "citation_completeness": 1.0,
+              "insufficient_evidence_abstention": 0.0
+            },
+            "recall_at_5": 0.9,
+            "retrieval": {
+              "context_precision_at_5": 0.4,
+              "mrr_at_5": 0.7533,
+              "recall_at_5": 0.9
+            }
+          },
+          "hybrid_lift": {
+            "vs_graph_recall_at_5": 0.1,
+            "vs_vector_recall_at_5": -0.1
+          },
+          "vector": {
+            "citation_completeness": 1.0,
+            "evidence_coverage": 0.0,
+            "kg_evidence": {
+              "avg_invalid_triple_count": 0.0,
+              "avg_related_triple_count": 0.0,
+              "avg_supporting_triple_count": 0.0,
+              "evidence_coverage": 0.0,
+              "provenance_complete_rate": 0.0
+            },
+            "llm_answer": {
+              "answer_present": 1.0,
+              "citation_completeness": 1.0,
+              "insufficient_evidence_abstention": 0.2
+            },
+            "recall_at_5": 1.0,
+            "retrieval": {
+              "context_precision_at_5": 0.42,
+              "mrr_at_5": 0.7583,
+              "recall_at_5": 1.0
+            }
+          }
+        },
+        "metadata": {
+          "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+          "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+          "chunking_strategy": "fixed_window",
+          "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+          "collection_name": "phak_ch4_chunks",
+          "gold_labels_path": null,
+          "graph_hops": 2,
+          "hybrid_top_k": 8,
+          "index_dir": "data/indexes/chroma",
+          "kg_path": "data/kg/06_phak_ch4_0.kg.jsonl",
+          "questions_total": 10,
+          "rebuild_chunks": false,
+          "rebuild_indexes": false,
+          "rebuild_kg": false,
+          "run_manifest": {
+            "artifacts": {
+              "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+              "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+              "index_dir": "data/indexes/chroma",
+              "kg_path": "data/kg/06_phak_ch4_0.kg.jsonl"
+            },
+            "chunking_strategy": "fixed_window",
+            "collection_name": "phak_ch4_chunks",
+            "command": "aviation-ai report hybrid-rag",
+            "created_at": "2026-05-19T00:52:13.034362+00:00",
+            "document": {},
+            "embedding": {
+              "backend": "chromadb_default_embedding_function",
+              "collection_name": "phak_ch4_chunks",
+              "collections": [
+                "phak_ch4_chunks"
+              ],
+              "index_dir": "data/indexes/chroma"
+            },
+            "experiment_name": "hybrid_rag",
+            "llm": {
+              "model": "gpt-5.4-mini",
+              "provider": "openai"
+            },
+            "parameters": {
+              "gold_labels_path": null,
+              "graph_hops": 2,
+              "hybrid_top_k": 8,
+              "max_questions": null,
+              "vector_top_k": 5
+            },
+            "rebuild_policy": {
+              "chunks": false,
+              "indexes": false,
+              "kg": false
+            },
+            "run_id": "hybrid-rag-20260519T005213Z"
+          },
+          "vector_top_k": 5
+        },
+        "records": [
+          {
+            "cq_id": "06-phak-ch4-0-p00-fa9830b888",
+            "gold_level": "page",
+            "key_entities": [
+              "atmosphere",
+              "air",
+              "nitrogen",
+              "oxygen",
+              "trace gases"
+            ],
+            "question": "How should atmosphere, air, and constituent gases be modeled as a composition structure?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00"
+                ],
+                "matched_source_pages": [
+                  0
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "air",
+                      "atmosphere",
+                      "nitrogen",
+                      "oxygen"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p00-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "page 0",
+                      "page 1"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.2,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p00-c00"
+                    ],
+                    "matched_source_pages": [
+                      0
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p00-c00",
+                      "06_phak_ch4_0-fixed_window-p02-c01",
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p01-c00"
+                    ],
+                    "retrieved_source_pages": [
+                      0,
+                      2,
+                      5,
+                      7,
+                      1
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p01-c00"
+                ],
+                "retrieved_source_pages": [
+                  0,
+                  2,
+                  5,
+                  7,
+                  1
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00"
+                ],
+                "matched_source_pages": [
+                  0
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "air",
+                      "atmosphere",
+                      "nitrogen",
+                      "oxygen"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p00-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p00-c00-kg00-8748d82ca7",
+                      "06_phak_ch4_0-fixed_window-p00-c00-kg01-b36f7b1b3c",
+                      "06_phak_ch4_0-fixed_window-p00-c00-kg02-30f9108dc2",
+                      "06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b",
+                      "page 0",
+                      "page 1"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.2,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p00-c00"
+                    ],
+                    "matched_source_pages": [
+                      0
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p00-c00",
+                      "06_phak_ch4_0-fixed_window-p02-c01",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p05-c00"
+                    ],
+                    "retrieved_source_pages": [
+                      0,
+                      2,
+                      1,
+                      3,
+                      5
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c00"
+                ],
+                "retrieved_source_pages": [
+                  0,
+                  2,
+                  1,
+                  3,
+                  5
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00"
+                ],
+                "matched_source_pages": [
+                  0
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p00-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p02-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "page 0",
+                      "page 1",
+                      "page 2"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.2,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p00-c00"
+                    ],
+                    "matched_source_pages": [
+                      0
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p00-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p02-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      0,
+                      1,
+                      3,
+                      2,
+                      2
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c02"
+                ],
+                "retrieved_source_pages": [
+                  0,
+                  1,
+                  3,
+                  2,
+                  2
+                ]
+              }
+            },
+            "source_page": 0
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p01-dbcda7dbf4",
+            "gold_level": "page",
+            "key_entities": [
+              "air",
+              "fluid",
+              "viscosity",
+              "friction",
+              "boundary layer",
+              "wing"
+            ],
+            "question": "What classes and relations represent air as a fluid with viscosity, friction, and a boundary layer on a wing?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01"
+                ],
+                "matched_source_pages": [
+                  1,
+                  1,
+                  1
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "air",
+                      "boundary layer",
+                      "fluid",
+                      "friction",
+                      "viscosity",
+                      "wing"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p02-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c00-kg02-77b9f87c3e",
+                      "06_phak_ch4_0-fixed_window-p02-c00-kg03-7dd3a19d10",
+                      "06_phak_ch4_0-fixed_window-p01-c03-kg00-52eb682acd",
+                      "06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b",
+                      "06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3",
+                      "06_phak_ch4_0-fixed_window-p01-c01-kg00-898cdb205b",
+                      "page 1",
+                      "page 2"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.75,
+                    "first_relevant_rank": 2,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c01"
+                    ],
+                    "matched_source_pages": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "mrr_at_5": 0.5,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p02-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c01"
+                    ],
+                    "retrieved_source_pages": [
+                      2,
+                      1,
+                      1,
+                      1
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01"
+                ],
+                "retrieved_source_pages": [
+                  2,
+                  1,
+                  1,
+                  1
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01"
+                ],
+                "matched_source_pages": [
+                  1,
+                  1,
+                  1
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "air",
+                      "boundary layer",
+                      "fluid",
+                      "friction",
+                      "viscosity",
+                      "wing"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p02-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c00-kg02-77b9f87c3e",
+                      "06_phak_ch4_0-fixed_window-p01-c03-kg00-52eb682acd",
+                      "06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b",
+                      "06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3",
+                      "06_phak_ch4_0-fixed_window-p01-c01-kg00-898cdb205b"
+                    ],
+                    "valid_page_citation": false,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.6,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c01"
+                    ],
+                    "matched_source_pages": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p02-c00",
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p01-c01"
+                    ],
+                    "retrieved_source_pages": [
+                      1,
+                      1,
+                      2,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p01-c01"
+                ],
+                "retrieved_source_pages": [
+                  1,
+                  1,
+                  2,
+                  5,
+                  1
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00"
+                ],
+                "matched_source_pages": [
+                  1,
+                  1
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "page 1"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.4,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00"
+                    ],
+                    "matched_source_pages": [
+                      1,
+                      1
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c00",
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c01",
+                      "06_phak_ch4_0-fixed_window-p08-c00"
+                    ],
+                    "retrieved_source_pages": [
+                      1,
+                      1,
+                      5,
+                      2,
+                      8
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p08-c00"
+                ],
+                "retrieved_source_pages": [
+                  1,
+                  1,
+                  5,
+                  2,
+                  8
+                ]
+              }
+            },
+            "source_page": 1
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p02-dafae1ecbc",
+            "gold_level": "page",
+            "key_entities": [
+              "standard atmosphere",
+              "atmospheric pressure",
+              "temperature",
+              "density"
+            ],
+            "question": "How should standard atmosphere values for pressure, temperature, and density be modeled?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03"
+                ],
+                "matched_source_pages": [
+                  2,
+                  2,
+                  2
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "atmospheric pressure",
+                      "density",
+                      "temperature"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p04-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03",
+                      "06_phak_ch4_0-fixed_window-p04-c01-kg05-2bf419b2a5",
+                      "06_phak_ch4_0-fixed_window-p02-c02-kg04-cfd439979e",
+                      "06_phak_ch4_0-fixed_window-p02-c03-kg03-c590adea72",
+                      "page 2",
+                      "page 4"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.75,
+                    "first_relevant_rank": 2,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p02-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03"
+                    ],
+                    "matched_source_pages": [
+                      2,
+                      2,
+                      2
+                    ],
+                    "mrr_at_5": 0.5,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p04-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03"
+                    ],
+                    "retrieved_source_pages": [
+                      4,
+                      2,
+                      2,
+                      2
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p04-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03"
+                ],
+                "retrieved_source_pages": [
+                  4,
+                  2,
+                  2,
+                  2
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p02-c01"
+                ],
+                "matched_source_pages": [
+                  2,
+                  2,
+                  2
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "atmospheric pressure",
+                      "density",
+                      "temperature"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03",
+                      "06_phak_ch4_0-fixed_window-p04-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c00",
+                      "06_phak_ch4_0-fixed_window-p04-c01-kg05-2bf419b2a5",
+                      "06_phak_ch4_0-fixed_window-p04-c01-kg06-b55090d06e",
+                      "06_phak_ch4_0-fixed_window-p02-c02-kg05-4ed6928f68",
+                      "06_phak_ch4_0-fixed_window-p02-c02-kg06-54921c8ed3",
+                      "page 2",
+                      "page 3",
+                      "page 4"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.6,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03",
+                      "06_phak_ch4_0-fixed_window-p02-c01"
+                    ],
+                    "matched_source_pages": [
+                      2,
+                      2,
+                      2
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c00",
+                      "06_phak_ch4_0-fixed_window-p04-c01",
+                      "06_phak_ch4_0-fixed_window-p02-c01"
+                    ],
+                    "retrieved_source_pages": [
+                      2,
+                      2,
+                      3,
+                      4,
+                      2
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c00",
+                  "06_phak_ch4_0-fixed_window-p04-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c01"
+                ],
+                "retrieved_source_pages": [
+                  2,
+                  2,
+                  3,
+                  4,
+                  2
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p02-c00"
+                ],
+                "matched_source_pages": [
+                  2,
+                  2,
+                  2
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c02",
+                      "page 2",
+                      "page 3"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.6,
+                    "first_relevant_rank": 2,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03",
+                      "06_phak_ch4_0-fixed_window-p02-c00"
+                    ],
+                    "matched_source_pages": [
+                      2,
+                      2,
+                      2
+                    ],
+                    "mrr_at_5": 0.5,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p03-c00",
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c00"
+                    ],
+                    "retrieved_source_pages": [
+                      3,
+                      2,
+                      2,
+                      3,
+                      2
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c00"
+                ],
+                "retrieved_source_pages": [
+                  3,
+                  2,
+                  2,
+                  3,
+                  2
+                ]
+              }
+            },
+            "source_page": 2
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p03-f463ba25ee",
+            "gold_level": "page",
+            "key_entities": [
+              "pressure altitude",
+              "density altitude",
+              "humidity",
+              "air density",
+              "aircraft performance"
+            ],
+            "question": "What causal schema links pressure altitude, density altitude, humidity, air density, and aircraft performance?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03"
+                ],
+                "matched_source_pages": [
+                  3,
+                  3
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "air density",
+                      "aircraft performance",
+                      "humidity"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c01-kg00-851d22d42a",
+                      "06_phak_ch4_0-fixed_window-p03-c03-kg02-db67ae14db"
+                    ],
+                    "valid_page_citation": false,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 1.0,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c03"
+                    ],
+                    "matched_source_pages": [
+                      3,
+                      3
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c03"
+                    ],
+                    "retrieved_source_pages": [
+                      3,
+                      3
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03"
+                ],
+                "retrieved_source_pages": [
+                  3,
+                  3
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02"
+                ],
+                "matched_source_pages": [
+                  3,
+                  3,
+                  3
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "air density",
+                      "aircraft performance",
+                      "humidity"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p04-c02",
+                      "06_phak_ch4_0-fixed_window-p03-c02",
+                      "06_phak_ch4_0-fixed_window-p04-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c01-kg00-851d22d42a",
+                      "06_phak_ch4_0-fixed_window-p03-c01-kg02-a140c7af03",
+                      "06_phak_ch4_0-fixed_window-p03-c03-kg00-cd15092b29",
+                      "06_phak_ch4_0-fixed_window-p03-c03-kg01-851d22d42a",
+                      "06_phak_ch4_0-fixed_window-p03-c03-kg02-db67ae14db",
+                      "06_phak_ch4_0-fixed_window-p03-c03-kg03-5f41309182",
+                      "06_phak_ch4_0-fixed_window-p03-c03-kg04-2bf419b2a5",
+                      "06_phak_ch4_0-fixed_window-p03-c03-kg05-3d55cb1ee1",
+                      "page 3",
+                      "page 4"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.6,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c02"
+                    ],
+                    "matched_source_pages": [
+                      3,
+                      3,
+                      3
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p04-c02",
+                      "06_phak_ch4_0-fixed_window-p03-c02",
+                      "06_phak_ch4_0-fixed_window-p04-c01"
+                    ],
+                    "retrieved_source_pages": [
+                      3,
+                      3,
+                      4,
+                      3,
+                      4
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p04-c01"
+                ],
+                "retrieved_source_pages": [
+                  3,
+                  3,
+                  4,
+                  3,
+                  4
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02"
+                ],
+                "matched_source_pages": [
+                  3,
+                  3,
+                  3
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p04-c02",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c02",
+                      "06_phak_ch4_0-fixed_window-p04-c01",
+                      "page 3",
+                      "page 4"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.6,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c02"
+                    ],
+                    "matched_source_pages": [
+                      3,
+                      3,
+                      3
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p04-c02",
+                      "06_phak_ch4_0-fixed_window-p03-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c02",
+                      "06_phak_ch4_0-fixed_window-p04-c01"
+                    ],
+                    "retrieved_source_pages": [
+                      3,
+                      4,
+                      3,
+                      3,
+                      4
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p04-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p04-c01"
+                ],
+                "retrieved_source_pages": [
+                  3,
+                  4,
+                  3,
+                  3,
+                  4
+                ]
+              }
+            },
+            "source_page": 3
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+            "gold_level": "page",
+            "key_entities": [
+              "Newton's laws",
+              "force",
+              "mass",
+              "acceleration",
+              "action",
+              "reaction"
+            ],
+            "question": "How should Newton's laws be represented as force and motion relations for aircraft?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [],
+                "matched_source_pages": [],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "action",
+                      "force"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p04-c03",
+                      "06_phak_ch4_0-fixed_window-p04-c04",
+                      "06_phak_ch4_0-fixed_window-p04-c03-kg04-61250fc89b",
+                      "06_phak_ch4_0-fixed_window-p04-c04-kg03-bb6c8ab2da",
+                      "page 4"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.0,
+                    "first_relevant_rank": null,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [],
+                    "matched_source_pages": [],
+                    "mrr_at_5": 0.0,
+                    "recall_at_5": false,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p04-c03",
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p04-c04",
+                      "06_phak_ch4_0-fixed_window-p01-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c00"
+                    ],
+                    "retrieved_source_pages": [
+                      4,
+                      1,
+                      4,
+                      1,
+                      2
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p01-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c00"
+                ],
+                "retrieved_source_pages": [
+                  4,
+                  1,
+                  4,
+                  1,
+                  2
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [],
+                "matched_source_pages": [],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "action",
+                      "force"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p04-c04",
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p04-c04-kg03-bb6c8ab2da",
+                      "page 4",
+                      "page 5"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.0,
+                    "first_relevant_rank": null,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [],
+                    "matched_source_pages": [],
+                    "mrr_at_5": 0.0,
+                    "recall_at_5": false,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p04-c03",
+                      "06_phak_ch4_0-fixed_window-p04-c04",
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p00-c00",
+                      "06_phak_ch4_0-fixed_window-p01-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      4,
+                      4,
+                      1,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c02"
+                ],
+                "retrieved_source_pages": [
+                  4,
+                  4,
+                  1,
+                  0,
+                  1
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "matched_source_pages": [
+                  5,
+                  5
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p04-c04",
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "page 4",
+                      "page 5"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.4,
+                    "first_relevant_rank": 4,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p05-c02"
+                    ],
+                    "matched_source_pages": [
+                      5,
+                      5
+                    ],
+                    "mrr_at_5": 0.25,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p04-c03",
+                      "06_phak_ch4_0-fixed_window-p04-c04",
+                      "06_phak_ch4_0-fixed_window-p00-c00",
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p05-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      4,
+                      4,
+                      0,
+                      5,
+                      5
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "retrieved_source_pages": [
+                  4,
+                  4,
+                  0,
+                  5,
+                  5
+                ]
+              }
+            },
+            "source_page": 5
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p05-bb9a93ef72",
+            "gold_level": "page",
+            "key_entities": [
+              "Bernoulli principle",
+              "venturi",
+              "velocity",
+              "pressure",
+              "airflow"
+            ],
+            "question": "What relation captures Bernoulli and venturi pressure decrease as air velocity increases?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "matched_source_pages": [
+                  5
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "pressure"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p05-c02-kg00-45048a4272",
+                      "06_phak_ch4_0-fixed_window-p05-c00-kg01-cd6545eea2",
+                      "page 5"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.2,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c02"
+                    ],
+                    "matched_source_pages": [
+                      5
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c02",
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p03-c04",
+                      "06_phak_ch4_0-fixed_window-p04-c01"
+                    ],
+                    "retrieved_source_pages": [
+                      5,
+                      2,
+                      3,
+                      3,
+                      4
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-fixed_window-p04-c01"
+                ],
+                "retrieved_source_pages": [
+                  5,
+                  2,
+                  3,
+                  3,
+                  4
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "matched_source_pages": [
+                  5,
+                  5,
+                  5
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "pressure"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p05-c01",
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p05-c00-kg01-cd6545eea2",
+                      "page 5"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.6,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p05-c01",
+                      "06_phak_ch4_0-fixed_window-p05-c02"
+                    ],
+                    "matched_source_pages": [
+                      5,
+                      5,
+                      5
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p03-c04",
+                      "06_phak_ch4_0-fixed_window-p05-c01",
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      5,
+                      3,
+                      5,
+                      5,
+                      2
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c02"
+                ],
+                "retrieved_source_pages": [
+                  5,
+                  3,
+                  5,
+                  5,
+                  2
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c00"
+                ],
+                "matched_source_pages": [
+                  5,
+                  5
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p05-c01",
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "page 5",
+                      "page 6"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.4,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c01",
+                      "06_phak_ch4_0-fixed_window-p05-c00"
+                    ],
+                    "matched_source_pages": [
+                      5,
+                      5
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c01",
+                      "06_phak_ch4_0-fixed_window-p07-c01",
+                      "06_phak_ch4_0-fixed_window-p05-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p03-c04"
+                    ],
+                    "retrieved_source_pages": [
+                      5,
+                      7,
+                      5,
+                      6,
+                      3
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c04"
+                ],
+                "retrieved_source_pages": [
+                  5,
+                  7,
+                  5,
+                  6,
+                  3
+                ]
+              }
+            },
+            "source_page": 5
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p06-a653e00686",
+            "gold_level": "page",
+            "key_entities": [
+              "airfoil",
+              "leading edge",
+              "trailing edge",
+              "chord line",
+              "mean camber line",
+              "upper surface",
+              "lower surface"
+            ],
+            "question": "What partonomy should represent airfoil structure and section geometry?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c00"
+                ],
+                "matched_source_pages": [
+                  6,
+                  6
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "airfoil",
+                      "chord line",
+                      "leading edge",
+                      "lower surface",
+                      "trailing edge"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p05-c03",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p05-c03-kg04-7543176b0f",
+                      "06_phak_ch4_0-fixed_window-p06-c03-kg01-d374f2f475",
+                      "06_phak_ch4_0-fixed_window-p05-c03-kg00-c2d45fd4f6",
+                      "06_phak_ch4_0-fixed_window-p05-c03-kg01-a87aa93e4f",
+                      "06_phak_ch4_0-fixed_window-p05-c03-kg02-1560082613",
+                      "06_phak_ch4_0-fixed_window-p05-c03-kg03-e6f8bc1000"
+                    ],
+                    "valid_page_citation": false,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.5,
+                    "first_relevant_rank": 2,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p06-c00"
+                    ],
+                    "matched_source_pages": [
+                      6,
+                      6
+                    ],
+                    "mrr_at_5": 0.5,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c03",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p06-c00"
+                    ],
+                    "retrieved_source_pages": [
+                      5,
+                      6,
+                      5,
+                      6
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c00"
+                ],
+                "retrieved_source_pages": [
+                  5,
+                  6,
+                  5,
+                  6
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03"
+                ],
+                "matched_source_pages": [
+                  6,
+                  6
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "airfoil",
+                      "chord line",
+                      "leading edge",
+                      "lower surface",
+                      "trailing edge"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p05-c03",
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "page 5",
+                      "page 6"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.4,
+                    "first_relevant_rank": 3,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c03"
+                    ],
+                    "matched_source_pages": [
+                      6,
+                      6
+                    ],
+                    "mrr_at_5": 0.3333,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c03",
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p07-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      5,
+                      5,
+                      6,
+                      6,
+                      7
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p07-c02"
+                ],
+                "retrieved_source_pages": [
+                  5,
+                  5,
+                  6,
+                  6,
+                  7
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c02"
+                ],
+                "matched_source_pages": [
+                  6,
+                  6
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": true,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p05-c03",
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "page 5",
+                      "page 6"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.4,
+                    "first_relevant_rank": 3,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c02"
+                    ],
+                    "matched_source_pages": [
+                      6,
+                      6
+                    ],
+                    "mrr_at_5": 0.3333,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p05-c03",
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p06-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      5,
+                      5,
+                      6,
+                      7,
+                      6
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c02"
+                ],
+                "retrieved_source_pages": [
+                  5,
+                  5,
+                  6,
+                  7,
+                  6
+                ]
+              }
+            },
+            "source_page": 6
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p07-9737986760",
+            "gold_level": "page",
+            "key_entities": [
+              "lift",
+              "pressure difference",
+              "downwash",
+              "flow turning",
+              "airfoil"
+            ],
+            "question": "How should lift be modeled as an aerodynamic force produced by pressure differences and flow turning?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [],
+                "matched_source_pages": [],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "airfoil",
+                      "flow turning",
+                      "lift"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": true,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p08-c00",
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p04-c03",
+                      "06_phak_ch4_0-fixed_window-p05-c01",
+                      "06_phak_ch4_0-fixed_window-p08-c00-kg02-09be8462ad",
+                      "06_phak_ch4_0-fixed_window-p03-c01-kg01-654437250f",
+                      "06_phak_ch4_0-fixed_window-p04-c03-kg03-8c9532872d",
+                      "06_phak_ch4_0-fixed_window-p05-c01-kg01-618e279253",
+                      "page 3",
+                      "page 4",
+                      "page 5",
+                      "page 8"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.0,
+                    "first_relevant_rank": null,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [],
+                    "matched_source_pages": [],
+                    "mrr_at_5": 0.0,
+                    "recall_at_5": false,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p08-c00",
+                      "06_phak_ch4_0-fixed_window-p02-c00",
+                      "06_phak_ch4_0-fixed_window-p03-c01",
+                      "06_phak_ch4_0-fixed_window-p04-c02",
+                      "06_phak_ch4_0-fixed_window-p04-c03"
+                    ],
+                    "retrieved_source_pages": [
+                      8,
+                      2,
+                      3,
+                      4,
+                      4
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p04-c02",
+                  "06_phak_ch4_0-fixed_window-p04-c03"
+                ],
+                "retrieved_source_pages": [
+                  8,
+                  2,
+                  3,
+                  4,
+                  4
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c02"
+                ],
+                "matched_source_pages": [
+                  7
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "airfoil",
+                      "flow turning",
+                      "lift"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p08-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c01",
+                      "06_phak_ch4_0-fixed_window-p08-c00-kg02-09be8462ad",
+                      "06_phak_ch4_0-fixed_window-p05-c01-kg01-618e279253",
+                      "page 4",
+                      "page 7",
+                      "page 8"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.2,
+                    "first_relevant_rank": 5,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p07-c02"
+                    ],
+                    "matched_source_pages": [
+                      7
+                    ],
+                    "mrr_at_5": 0.2,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p08-c00",
+                      "06_phak_ch4_0-fixed_window-p04-c03",
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p02-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      8,
+                      4,
+                      5,
+                      2,
+                      7
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02"
+                ],
+                "retrieved_source_pages": [
+                  8,
+                  4,
+                  5,
+                  2,
+                  7
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c01"
+                ],
+                "matched_source_pages": [
+                  7,
+                  7
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c01",
+                      "06_phak_ch4_0-fixed_window-p08-c00",
+                      "page 7",
+                      "page 8"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.4,
+                    "first_relevant_rank": 2,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c01"
+                    ],
+                    "matched_source_pages": [
+                      7,
+                      7
+                    ],
+                    "mrr_at_5": 0.5,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p05-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c01",
+                      "06_phak_ch4_0-fixed_window-p04-c03",
+                      "06_phak_ch4_0-fixed_window-p08-c00"
+                    ],
+                    "retrieved_source_pages": [
+                      5,
+                      7,
+                      7,
+                      4,
+                      8
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p08-c00"
+                ],
+                "retrieved_source_pages": [
+                  5,
+                  7,
+                  7,
+                  4,
+                  8
+                ]
+              }
+            },
+            "source_page": 7
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p07-59d55c9639",
+            "gold_level": "page",
+            "key_entities": [
+              "angle of attack",
+              "pressure distribution",
+              "center of pressure",
+              "airfoil"
+            ],
+            "question": "What schema links angle of attack to airfoil pressure distribution and center of pressure movement?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02"
+                ],
+                "matched_source_pages": [
+                  7,
+                  7
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "airfoil",
+                      "pressure distribution"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p07-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c00-kg00-865d5a01fd",
+                      "06_phak_ch4_0-fixed_window-p07-c02-kg00-865d5a01fd",
+                      "page 7"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.5,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p07-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02"
+                    ],
+                    "matched_source_pages": [
+                      7,
+                      7
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p07-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c03"
+                    ],
+                    "retrieved_source_pages": [
+                      7,
+                      7,
+                      6,
+                      6
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03"
+                ],
+                "retrieved_source_pages": [
+                  7,
+                  7,
+                  6,
+                  6
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c01"
+                ],
+                "matched_source_pages": [
+                  7,
+                  7,
+                  7
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": true,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [
+                      "airfoil",
+                      "pressure distribution"
+                    ],
+                    "key_entity_coverage": true,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 8,
+                    "supporting_triple_count": 8,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p07-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c00-kg00-865d5a01fd",
+                      "06_phak_ch4_0-fixed_window-p07-c02-kg00-865d5a01fd",
+                      "page 7"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.6,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p07-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c01"
+                    ],
+                    "matched_source_pages": [
+                      7,
+                      7,
+                      7
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p07-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p07-c01"
+                    ],
+                    "retrieved_source_pages": [
+                      7,
+                      7,
+                      6,
+                      6,
+                      7
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p07-c01"
+                ],
+                "retrieved_source_pages": [
+                  7,
+                  7,
+                  6,
+                  6,
+                  7
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01"
+                ],
+                "matched_source_pages": [
+                  7,
+                  7,
+                  7
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c01",
+                      "page 7"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.6,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c01"
+                    ],
+                    "matched_source_pages": [
+                      7,
+                      7,
+                      7
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p07-c02",
+                      "06_phak_ch4_0-fixed_window-p07-c00",
+                      "06_phak_ch4_0-fixed_window-p06-c00",
+                      "06_phak_ch4_0-fixed_window-p07-c01",
+                      "06_phak_ch4_0-fixed_window-p05-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      7,
+                      7,
+                      6,
+                      7,
+                      5
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "retrieved_source_pages": [
+                  7,
+                  7,
+                  6,
+                  7,
+                  5
+                ]
+              }
+            },
+            "source_page": 7
+          },
+          {
+            "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+            "gold_level": "page",
+            "key_entities": [
+              "wingtip vortex",
+              "wing tip",
+              "winglet",
+              "pressure difference",
+              "induced drag"
+            ],
+            "question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+            "results": {
+              "graph": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01"
+                ],
+                "matched_source_pages": [
+                  8
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 1,
+                    "supporting_triple_count": 1,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p08-c01",
+                      "06_phak_ch4_0-fixed_window-p08-c01-kg05-ee7a4b62dd",
+                      "page 8"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 1.0,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p08-c01"
+                    ],
+                    "matched_source_pages": [
+                      8
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p08-c01"
+                    ],
+                    "retrieved_source_pages": [
+                      8
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01"
+                ],
+                "retrieved_source_pages": [
+                  8
+                ]
+              },
+              "hybrid": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01"
+                ],
+                "matched_source_pages": [
+                  8
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 1.0,
+                    "related_triple_count": 1,
+                    "supporting_triple_count": 1,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": false,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p08-c01",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p08-c01-kg05-ee7a4b62dd",
+                      "page 6",
+                      "page 8"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": true
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.2,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p08-c01"
+                    ],
+                    "matched_source_pages": [
+                      8
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p08-c01",
+                      "06_phak_ch4_0-fixed_window-p06-c01",
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p05-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      8,
+                      6,
+                      1,
+                      6,
+                      5
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "retrieved_source_pages": [
+                  8,
+                  6,
+                  1,
+                  6,
+                  5
+                ]
+              },
+              "vector": {
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01"
+                ],
+                "matched_source_pages": [
+                  8
+                ],
+                "metrics": {
+                  "kg_evidence": {
+                    "evidence_coverage": false,
+                    "invalid_triple_count": 0,
+                    "key_entities_covered": [],
+                    "key_entity_coverage": false,
+                    "provenance_complete_rate": 0.0,
+                    "related_triple_count": 0,
+                    "supporting_triple_count": 0,
+                    "unsupported_triple_count": 0
+                  },
+                  "llm_answer": {
+                    "answer_present": true,
+                    "citation_completeness": true,
+                    "insufficient_evidence_abstention": true,
+                    "valid_chunk_citation": true,
+                    "valid_citations": [
+                      "06_phak_ch4_0-fixed_window-p08-c01",
+                      "page 8"
+                    ],
+                    "valid_page_citation": true,
+                    "valid_triple_citation": false
+                  },
+                  "retrieval": {
+                    "context_precision_at_5": 0.2,
+                    "first_relevant_rank": 1,
+                    "gold_level": "page",
+                    "matched_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p08-c01"
+                    ],
+                    "matched_source_pages": [
+                      8
+                    ],
+                    "mrr_at_5": 1.0,
+                    "recall_at_5": true,
+                    "retrieved_chunk_ids": [
+                      "06_phak_ch4_0-fixed_window-p08-c01",
+                      "06_phak_ch4_0-fixed_window-p06-c01",
+                      "06_phak_ch4_0-fixed_window-p01-c03",
+                      "06_phak_ch4_0-fixed_window-p06-c03",
+                      "06_phak_ch4_0-fixed_window-p05-c02"
+                    ],
+                    "retrieved_source_pages": [
+                      8,
+                      6,
+                      1,
+                      6,
+                      5
+                    ]
+                  }
+                },
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "retrieved_source_pages": [
+                  8,
+                  6,
+                  1,
+                  6,
+                  5
+                ]
+              }
+            },
+            "source_page": 8
+          }
+        ],
+        "records_total": 10,
+        "source_compaction": "prompts, answers, triples, and full retrieved chunk texts omitted"
+      },
+      "path": "reports/stages/hybrid_rag_experiment.json",
+      "present": true
+    },
     "kg_ttl_export": {
       "excerpt": "@prefix : <http://www.example.org/aviation/phak#> .\n@prefix dcterms: <http://purl.org/dc/terms/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg00_8748d82ca7 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg00-8748d82ca7\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg00_8748d82ca7 ;\n    rdf:object :Entity_e6ddfe806bf2 ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_d29735431e2e .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg01_b36f7b1b3c a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg01-b36f7b1b3c\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg01_b36f7b1b3c ;\n    rdf:object :Entity_97d09ab0508d ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg02_30f9108dc2 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg02-30f9108dc2\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg02_30f9108dc2 ;\n    rdf:object :Entity_97d09ab0508d ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_d29735431e2e .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg03_eb390520b8 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg03-eb390520b8\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg03_eb390520b8 ;\n    rdf:object :Entity_2e54a5bf9ed5 ;\n    rdf:predicate :affects ;\n    rdf:subject :Entity_0bc4d2597a9e .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p00_c00_kg04_0965835698 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p00-c00-kg04-0965835698\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p00_c00_kg04_0965835698 ;\n    rdf:object :Entity_2e54a5bf9ed5 ;\n    rdf:predicate :hasCondition ;\n    rdf:subject :Entity_d29735431e2e .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg00_898cdb205b a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg00_898cdb205b ;\n    rdf:object :Entity_15a4d680a787 ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg01_8c4f39e792 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg01-8c4f39e792\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg01_8c4f39e792 ;\n    rdf:object :Entity_b568d37122a0 ;\n    rdf:predicate :causes ;\n    rdf:subject :Entity_15a4d680a787 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg02_d6f789c778 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg02-d6f789c778\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg02_d6f789c778 ;\n    rdf:object :Entity_7e77286b3463 ;\n    rdf:predicate :hasOutcome ;\n    rdf:subject :Entity_15a4d680a787 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg03_012eeeefb3 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg03_012eeeefb3 ;\n    rdf:object :Entity_6550a96e2c5c ;\n    rdf:predicate :affects ;\n    rdf:subject :Entity_64c526067f92 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c00_kg04_b22fb4d3ff a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c00-kg04-b22fb4d3ff\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c00_kg04_b22fb4d3ff ;\n    rdf:object :Entity_b568d37122a0 ;\n    rdf:predicate :hasCondition ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c01_kg00_898cdb205b a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c01-kg00-898cdb205b\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c01_kg00_898cdb205b ;\n    rdf:object :Entity_15a4d680a787 ;\n    rdf:predicate :hasComponent ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c01_kg01_b22fb4d3ff a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c01-kg01-b22fb4d3ff\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c01_kg01_b22fb4d3ff ;\n    rdf:object :Entity_b568d37122a0 ;\n    rdf:predicate :hasCondition ;\n    rdf:subject :Entity_e6ddfe806bf2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg00_2130a146d0 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c02-kg00-2130a146d0\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg00_2130a146d0 ;\n    rdf:object :Entity_8bcd01c8388a ;\n    rdf:predicate :hasOutcome ;\n    rdf:subject :Entity_0d8b9642372c .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg01_4d653713c4 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c02-kg01-4d653713c4\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg01_4d653713c4 ;\n    rdf:object :Entity_8bcd01c8388a ;\n    rdf:predicate :causes ;\n    rdf:subject :Entity_1e73b30600d2 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg02_3fc80c9399 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c02-kg02-3fc80c9399\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg02_3fc80c9399 ;\n    rdf:object :Entity_8bcd01c8388a ;\n    rdf:predicate :causes ;\n    rdf:subject :Entity_4977a4c1b708 .\n\n:KGTriple_06_phak_ch4_0_fixed_window_p01_c02_kg04_89ba52ba48 a :Cl_KGTriple,\n        rdf:Statement ;\n    dcterms:created \"2026-05-19T00:25:29.206191+00:00\" ;\n    dcterms:creator \"llm-structured-kg-extraction\" ;\n    dcterms:identifier \"06_phak_ch4_0-fixed_window-p01-c02-kg04-89ba52ba48\" ;\n    :supportedByEvidence :Evidence_06_phak_ch4_0_fixed_window_p01_c02_kg04_89ba52ba48 ;\n    rdf:object :Entity_e6ddfe806bf2 ;\n    rdf:predicate :affects ;\n    rdf:subject :Entity_bbd659b9b867",
       "path": "data/kg/06_phak_ch4_0.kg.ttl",
@@ -8228,6 +11168,7 @@
       "truncated": false
     },
     "kg_validation_json": {
+      "compacted": false,
       "data": {
         "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
         "errors": [],
@@ -8254,9 +11195,9 @@
       "truncated": true
     }
   },
-  "generated_at": "2026-05-19T00:29:53.080112+00:00",
+  "generated_at": "2026-05-19T00:56:45.529691+00:00",
   "goals": {
-    "excerpt": "# Project Goals\n\nLast updated: 2026-05-19\n\nThis file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.\n\n## Goal vs Task\n\n- A goal describes an outcome the project must achieve.\n- A task describes a concrete action that can be completed and checked off.\n- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.\n- Reports under `reports/` provide evidence that a goal has been met.\n\n## G1 - Course Objective And Project Rationale\n\nBuild a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.\n\nSuccess criteria:\n\n- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.\n- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.\n- The project can answer why GraphRAG is needed instead of only using plain LLM prompting or vector-only RAG.\n- The project uses FAA aviation handbook material as the starting source corpus.\n- The report clearly connects implementation choices to the course objective.\n\nCurrent status: in progress.\n\n## G2 - Ontology-Grounded KG Deliverable\n\nDeliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.\n\nRationale:\n\n- The KG is a project deliverable, not only an intermediate cache.\n- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.\n- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.\n\nSuccess criteria:\n\n- A baseline or generated TBox ontology exists and can be validated.\n- The extraction profile maps focused aviation classes/properties back to the ontology design.\n- Focused ABox/KG triples are extracted only when supported by source chunks.\n- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.\n- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.\n\nCurrent status: active curated ontology is available; focused KG was extracted and validated against the curated schema.\n\n## G3 - GraphRAG Core Pipeline\n\nImplement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.\n\nTarget pipeline:\n\n```text\nPDF -> chunks -> ontology-constrained KG/ABox\n    -> Chroma vector index\n    -> graph retrieval + vector retrieval\n    -> reciprocal-rank hybrid fusion\n    -> grounded LLM answer with citations\n```\n\nSuccess criteria:\n\n- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.\n- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.\n- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.\n- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.\n- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.\n\nCurrent status: implementation exists; chunks and KG are available, but index build and full GraphRAG experiment report still need to be generated.\n\n## G4 - Evaluation And Experiment Protocol\n\nEvaluate retrieval, KG evidence, and LLM answer quality as separate layers rather than a single mixed score.\n\nSuccess criteria:\n\n- Retrieval metrics include Recall@5, MRR@5, Context Precision@5, hit ranks, and hit source identifiers.\n- KG evidence metrics include relevant triple counts, entity coverage, provenance completeness, and invalid/unsupported tr",
+    "excerpt": "# Project Goals\n\nLast updated: 2026-05-19\n\nThis file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.\n\n## Goal vs Task\n\n- A goal describes an outcome the project must achieve.\n- A task describes a concrete action that can be completed and checked off.\n- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.\n- Reports under `reports/` provide evidence that a goal has been met.\n\n## G1 - Course Objective And Project Rationale\n\nBuild a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.\n\nSuccess criteria:\n\n- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.\n- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.\n- The project can answer why GraphRAG is needed instead of only using plain LLM prompting or vector-only RAG.\n- The project uses FAA aviation handbook material as the starting source corpus.\n- The report clearly connects implementation choices to the course objective.\n\nCurrent status: in progress.\n\n## G2 - Ontology-Grounded KG Deliverable\n\nDeliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.\n\nRationale:\n\n- The KG is a project deliverable, not only an intermediate cache.\n- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.\n- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.\n\nSuccess criteria:\n\n- A baseline or generated TBox ontology exists and can be validated.\n- The extraction profile maps focused aviation classes/properties back to the ontology design.\n- Focused ABox/KG triples are extracted only when supported by source chunks.\n- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.\n- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.\n\nCurrent status: active curated ontology is available; focused KG was extracted and validated against the curated schema.\n\n## G3 - GraphRAG Core Pipeline\n\nImplement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.\n\nTarget pipeline:\n\n```text\nPDF -> chunks -> ontology-constrained KG/ABox\n    -> Chroma vector index\n    -> graph retrieval + vector retrieval\n    -> reciprocal-rank hybrid fusion\n    -> grounded LLM answer with citations\n```\n\nSuccess criteria:\n\n- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.\n- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.\n- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.\n- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.\n- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.\n\nCurrent status: implementation exists; chunks, KG, Chroma index, and a fixed-window Hybrid RAG experiment report are available. The latest evidence shows hybrid retrieval adds KG evidence coverage but does not beat vector-only Recall@5 on the current page-level benchmark.\n\n## G4 - Evaluation And Experiment Protocol\n\nEvaluate retrieval, KG evidence, and LLM answer quality as separate layers rather than a single mixed score.\n\nSuccess criteria:\n\n- Retrieval metrics include Recall@5, MRR@5, Context Precision@5, hit ranks, and hit source identifier",
     "path": "GOALS.md",
     "present": true,
     "truncated": true
@@ -8285,6 +11226,7 @@
     "secrets_allowed": false
   },
   "stage_index": {
+    "compacted": false,
     "data": {
       "applied": true,
       "archive_dir": "reports/archive/stages/2026-05-18",
@@ -8564,6 +11506,36 @@
             "path": "reports/stages/ontology_stats.json"
           }
         ],
+        "rag_experiments": [
+          {
+            "archived_to": null,
+            "artifact_type": "machine_artifact",
+            "category": "rag_experiments",
+            "format": "json",
+            "path": "reports/stages/chunking_comparison.json"
+          },
+          {
+            "archived_to": null,
+            "artifact_type": "human_report",
+            "category": "rag_experiments",
+            "format": "md",
+            "path": "reports/stages/chunking_comparison.md"
+          },
+          {
+            "archived_to": null,
+            "artifact_type": "machine_artifact",
+            "category": "rag_experiments",
+            "format": "json",
+            "path": "reports/stages/hybrid_rag_experiment.json"
+          },
+          {
+            "archived_to": null,
+            "artifact_type": "human_report",
+            "category": "rag_experiments",
+            "format": "md",
+            "path": "reports/stages/hybrid_rag_experiment.md"
+          }
+        ],
         "reviews": [
           {
             "archived_to": "reports/archive/stages/2026-05-18/review_progress.json",
@@ -8643,7 +11615,9 @@
       },
       "current_active_artifacts": {
         "active_ontology": "data/ontology/curated/06_phak_ch4_0.curated.ttl",
+        "chunking_comparison": "reports/stages/chunking_comparison.md",
         "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.md",
+        "hybrid_rag_experiment": "reports/stages/hybrid_rag_experiment.md",
         "kg_ttl_export": "data/kg/06_phak_ch4_0.kg.ttl",
         "kg_validation": "reports/stages/kg_validation.md",
         "ontology_design": "docs/ontology_design.md",
@@ -8779,7 +11753,7 @@
     "present": true
   },
   "tasks": {
-    "excerpt": "# Project Task Board\n\nLast updated: 2026-05-19\n\nThis file tracks concrete execution tasks. Durable project outcomes and scope boundaries live in `GOALS.md`.\n\nA task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.\n\n## Status Legend\n\n- `[ ]` Not started\n- `[~]` In progress\n- `[x]` Done\n- `[!]` Blocked or needs decision\n\n## Active Task Queue\n\n1. Build the Chroma index from the validated chunk/KG setup.\n2. Run the Hybrid RAG experiment loop with validated chunks, KG, index, retrieval evidence, and LLM answers.\n3. Run the real chunking comparison experiment and record retrieval metrics.\n4. Use the experiment results to explain why GraphRAG helps or does not help compared with vector-only retrieval.\n5. Implement a minimal web interface once the core pipeline has stable outputs.\n6. Regenerate the final project report from evidence after the experiments are complete.\n\nRelated goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.\n\n## P0 - Immediate Reproducibility Tasks\n\nRelated goals: G2, G3, G4, G5.\n\n- [x] Create initial commit and push `main` to GitLab.\n  - Evidence: GitLab remote `origin`, commit `5ccd437`.\n- [x] Clean report clutter by archiving old stage reports.\n  - Evidence: `reports/stages/index.md`, `reports/archive/stages/2026-05-18/`.\n- [x] Generate the first AI-assisted project report draft.\n  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.\n- [x] Verify local runtime and test environment.\n  - Evidence: `uv run ruff check .`, `uv run pytest`.\n- [x] Create an explainable curated ontology as the active KG schema.\n  - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/ontology_design.md`.\n  - Acceptance: curated ontology is TBox-only, has 35 classes, 9 object properties, complete label/comment coverage, and passes ontology evaluation.\n- [ ] Run full chunking comparison for all strategies.\n  - Command: `uv run aviation-ai report chunking-comparison`\n  - Expected evidence: `reports/stages/chunking_comparison.json`, `reports/stages/chunking_comparison.md`.\n  - Acceptance: each strategy has Recall@5, MRR@5, Context Precision@5, chunk stats, and an explanation paragraph.\n- [x] Run the focused KG extraction and validation workflow.\n  - Commands:\n    - `uv run aviation-ai chunk build`\n    - `uv run aviation-ai kg extract`\n    - `uv run aviation-ai kg validate`\n  - Evidence: `data/kg/06_phak_ch4_0.kg.jsonl`, `data/kg/06_phak_ch4_0.kg.ttl`, `reports/stages/kg_validation.md`.\n  - Acceptance: KG triples are constrained by the ontology/extraction profile, and unsupported classes/properties or missing provenance are rejected deterministically.\n- [ ] Build or refresh the Chroma vector index for the selected chunking strategy.\n  - Command: `uv run aviation-ai index build`\n  - Expected evidence: local collection under `data/indexes/chroma`.\n  - Acceptance: collection name, index path, chunk path, and strategy are recorded in run manifests.\n- [ ] Run Hybrid RAG evaluation on the 10 boundary CQs.\n  - Command: `uv run aviation-ai report hybrid-rag`\n  - Expected evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.\n  - Acceptance: report compares vector, graph, and hybrid/GraphRAG modes, and separates retrieval metrics, KG evidence metrics, and LLM answer metrics without a mixed total score.\n- [ ] Regenerate the final project report after experiment reports exist.\n  - Commands:\n    - `uv run aviation-ai report hygiene --apply`\n    - `uv run aviation-ai report project --no-ai`\n    - `uv run aviation-ai report project --ai`\n  - Acceptance: final report replaces TBD / Not yet run sections with evidence-backed results where available.\n\n## P1 - Evaluation Quality Tasks\n\nRelated goals: G3, G4, G6, G8.\n\n- [ ] Refine gold labels from `source_page` to chunk or span level.\n  - Candidate output: `data/cqs/06_phak_ch4_0.gold.json`.\n  - Acceptance: each CQ records `gold_level`, `expected_chu",
+    "excerpt": "# Project Task Board\n\nLast updated: 2026-05-19\n\nThis file tracks concrete execution tasks. Durable project outcomes and scope boundaries live in `GOALS.md`.\n\nA task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.\n\n## Status Legend\n\n- `[ ]` Not started\n- `[~]` In progress\n- `[x]` Done\n- `[!]` Blocked or needs decision\n\n## Active Task Queue\n\n1. Use the chunking and Hybrid RAG results to explain why GraphRAG helps or does not help compared with vector-only retrieval.\n2. Decide whether to re-extract the KG with `structure_aware` chunks after reviewing the chunking comparison.\n3. Refine gold labels from page-level to chunk/span-level evidence.\n4. Implement a minimal web interface once the core pipeline has stable outputs.\n5. Regenerate the AI-polished final project report after the experiment outputs are reviewed.\n\nRelated goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.\n\n## P0 - Immediate Reproducibility Tasks\n\nRelated goals: G2, G3, G4, G5.\n\n- [x] Create initial commit and push `main` to GitLab.\n  - Evidence: GitLab remote `origin`, commit `5ccd437`.\n- [x] Clean report clutter by archiving old stage reports.\n  - Evidence: `reports/stages/index.md`, `reports/archive/stages/2026-05-18/`.\n- [x] Generate the first AI-assisted project report draft.\n  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.\n- [x] Verify local runtime and test environment.\n  - Evidence: `uv run ruff check .`, `uv run pytest`.\n- [x] Create an explainable curated ontology as the active KG schema.\n  - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/ontology_design.md`.\n  - Acceptance: curated ontology is TBox-only, has 35 classes, 9 object properties, complete label/comment coverage, and passes ontology evaluation.\n- [x] Run full chunking comparison for all strategies.\n  - Command: `uv run aviation-ai report chunking-comparison`\n  - Evidence: `reports/stages/chunking_comparison.json`, `reports/stages/chunking_comparison.md`.\n  - Result: `structure_aware` ranked first; `fixed_window` remained competitive on Recall@5 and remains the current KG-aligned strategy.\n  - Acceptance: each strategy has Recall@5, MRR@5, Context Precision@5, chunk stats, and an explanation paragraph.\n- [x] Run the focused KG extraction and validation workflow.\n  - Commands:\n    - `uv run aviation-ai chunk build`\n    - `uv run aviation-ai kg extract`\n    - `uv run aviation-ai kg validate`\n  - Evidence: `data/kg/06_phak_ch4_0.kg.jsonl`, `data/kg/06_phak_ch4_0.kg.ttl`, `reports/stages/kg_validation.md`.\n  - Acceptance: KG triples are constrained by the ontology/extraction profile, and unsupported classes/properties or missing provenance are rejected deterministically.\n- [x] Build or refresh the Chroma vector index for the selected chunking strategy.\n  - Command: `uv run aviation-ai index build`\n  - Evidence: local ignored collection under `data/indexes/chroma`, collection `phak_ch4_chunks`.\n  - Acceptance: collection name, index path, chunk path, and strategy are recorded in run manifests.\n- [x] Run Hybrid RAG evaluation on the 10 boundary CQs.\n  - Command: `uv run aviation-ai report hybrid-rag`\n  - Evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.\n  - Result: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph/hybrid KG evidence coverage = 0.9; LLM citation completeness = 1.0 across modes.\n  - Acceptance: report compares vector, graph, and hybrid/GraphRAG modes, and separates retrieval metrics, KG evidence metrics, and LLM answer metrics without a mixed total score.\n- [x] Regenerate the final project report after experiment reports exist.\n  - Commands:\n    - `uv run aviation-ai report project --no-ai`\n  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.\n  - Current scope: deterministic evidence has been refreshed; postpone `--ai` until the chunking and H",
     "path": "TASKS.md",
     "present": true,
     "truncated": true
