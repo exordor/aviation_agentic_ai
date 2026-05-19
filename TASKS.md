@@ -15,11 +15,11 @@ A task should be small enough to finish, verify, and check off. When a task prod
 
 ## Active Task Queue
 
-1. Use the chunking and Hybrid RAG results to explain why GraphRAG helps or does not help compared with vector-only retrieval.
-2. Decide whether to re-extract the KG with `structure_aware` chunks after reviewing the chunking comparison.
-3. Refine gold labels from page-level to chunk/span-level evidence.
+1. Refine gold labels from page-level to chunk/span-level evidence.
+2. Use the fixed-window and structure-aware Hybrid RAG reports to write project-defense conclusions.
+3. Decide whether `structure_aware` becomes the default GraphRAG chunking strategy.
 4. Implement a minimal web interface once the core pipeline has stable outputs.
-5. Regenerate the AI-polished final project report after the experiment outputs are reviewed.
+5. Regenerate the AI-polished final project report after reviewing the new evidence.
 
 Related goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.
 
@@ -59,6 +59,18 @@ Related goals: G2, G3, G4, G5.
   - Evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.
   - Result: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph/hybrid KG evidence coverage = 0.9; LLM citation completeness = 1.0 across modes.
   - Acceptance: report compares vector, graph, and hybrid/GraphRAG modes, and separates retrieval metrics, KG evidence metrics, and LLM answer metrics without a mixed total score.
+- [x] Run GraphRAG review for the fixed-window baseline.
+  - Command: `uv run aviation-ai report graphrag-review`
+  - Evidence: `reports/stages/graphrag_review.json`, `reports/stages/graphrag_review.md`.
+  - Result: GraphRAG value is framed as structured KG evidence coverage, not fixed-window page-level Recall@5 lift over vector-only retrieval.
+- [x] Re-extract KG and rerun Hybrid RAG with `structure_aware` chunks.
+  - Commands:
+    - `uv run aviation-ai kg extract --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --output data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --ttl-output data/kg/06_phak_ch4_0.structure_aware.kg.ttl`
+    - `uv run aviation-ai kg validate --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --output-dir reports/stages --report-name structure_aware_kg_validation`
+    - `uv run aviation-ai index build --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --collection-name phak_ch4_chunks_structure_aware`
+    - `uv run aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware`
+  - Evidence: `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl`, `data/kg/06_phak_ch4_0.structure_aware.kg.ttl`, `reports/stages/structure_aware_kg_validation.md`, `reports/stages/hybrid_rag_structure_aware.md`.
+  - Result: structure-aware KG has 448 validated triples; structure-aware Hybrid RAG has vector Recall@5 = 1.0, graph Recall@5 = 0.9, hybrid Recall@5 = 1.0, and graph/hybrid KG evidence coverage = 0.9.
 - [x] Regenerate the final project report after experiment reports exist.
   - Commands:
     - `uv run aviation-ai report project --no-ai`
@@ -76,10 +88,10 @@ Related goals: G3, G4, G6, G8.
 - [ ] Analyze chunking failures.
   - Acceptance: report identifies whether misses come from page boundaries, sentence breaks, section structure, or embedding mismatch.
 - [ ] Analyze GraphRAG tradeoffs.
-  - Current evidence: hybrid improved graph Recall@5 by +0.1 but trailed vector-only Recall@5 by -0.1; graph/hybrid modes added KG evidence coverage that vector-only did not provide.
+  - Current evidence: fixed-window hybrid improved graph Recall@5 by +0.1 but trailed vector-only by -0.1; structure-aware hybrid matches vector-only Recall@5 while preserving KG evidence coverage.
   - Acceptance: report explains when graph retrieval improves evidence coverage, when vector retrieval is sufficient, and when KG sparsity limits hybrid gains.
 - [ ] Select the default chunking strategy for the next project phase.
-  - Current candidate: `structure_aware` for future KG re-extraction; keep `fixed_window` for the current Hybrid RAG report because KG triples reference fixed-window chunk ids.
+  - Current candidate: `structure_aware`, because it improves vector MRR/precision and structure-aware Hybrid RAG reaches Recall@5 = 1.0 with KG evidence coverage = 0.9.
   - Acceptance: decision is justified by retrieval metrics plus chunk cost/stability, not Recall alone.
 - [ ] Review KG extraction failure cases.
   - Acceptance: unsupported triples, weak evidence, missing provenance, and key-entity coverage gaps are summarized.

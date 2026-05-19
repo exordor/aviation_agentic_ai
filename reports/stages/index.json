@@ -217,6 +217,50 @@
         "category": "rag_experiments",
         "format": "md",
         "path": "reports/stages/hybrid_rag_experiment.md"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "rag_experiments",
+        "format": "json",
+        "path": "reports/stages/hybrid_rag_structure_aware.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "rag_experiments",
+        "format": "md",
+        "path": "reports/stages/hybrid_rag_structure_aware.md"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "rag_experiments",
+        "format": "json",
+        "path": "reports/stages/graphrag_review.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "rag_experiments",
+        "format": "md",
+        "path": "reports/stages/graphrag_review.md"
+      }
+    ],
+    "kg_validation": [
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "kg_validation",
+        "format": "json",
+        "path": "reports/stages/structure_aware_kg_validation.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "kg_validation",
+        "format": "md",
+        "path": "reports/stages/structure_aware_kg_validation.md"
       }
     ],
     "ontology_evaluation": [
@@ -513,7 +557,12 @@
     "kg_ttl_export": "data/kg/06_phak_ch4_0.kg.ttl",
     "kg_validation": "reports/stages/kg_validation.md",
     "chunking_comparison": "reports/stages/chunking_comparison.md",
-    "hybrid_rag_experiment": "reports/stages/hybrid_rag_experiment.md"
+    "hybrid_rag_experiment": "reports/stages/hybrid_rag_experiment.md",
+    "structure_aware_kg": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+    "structure_aware_kg_ttl_export": "data/kg/06_phak_ch4_0.structure_aware.kg.ttl",
+    "structure_aware_kg_validation": "reports/stages/structure_aware_kg_validation.md",
+    "hybrid_rag_structure_aware": "reports/stages/hybrid_rag_structure_aware.md",
+    "graphrag_review": "reports/stages/graphrag_review.md"
   },
   "tracking": {
     "goals": "GOALS.md",

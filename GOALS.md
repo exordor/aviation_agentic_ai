@@ -67,7 +67,7 @@ Success criteria:
 - Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.
 - Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.
 
-Current status: implementation exists; chunks, KG, Chroma index, and a fixed-window Hybrid RAG experiment report are available. The latest evidence shows hybrid retrieval adds KG evidence coverage but does not beat vector-only Recall@5 on the current page-level benchmark.
+Current status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 while preserving KG evidence coverage.
 
 ## G4 - Evaluation And Experiment Protocol
 
@@ -80,7 +80,7 @@ Success criteria:
 - LLM answer metrics include citation completeness, citation validity, and insufficient-evidence abstention behavior.
 - Gold labels support page-level ground truth now and can later be refined to chunk/span-level evidence.
 
-Current status: protocol modules and real experiment evidence exist for chunking comparison and fixed-window Hybrid RAG. Gold labels remain page-level and should be refined to chunk/span-level evidence.
+Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, and structure-aware Hybrid RAG. Gold labels remain page-level and should be refined to chunk/span-level evidence.
 
 ## G5 - Report Hygiene And Final Project Report
 
@@ -131,7 +131,7 @@ Success criteria:
 - The project can answer "what does each component do?", "why is it needed?", "why not use a simpler baseline?", and "where can the system fail?"
 - Limitations are explicit: coarse gold labels, incomplete KG coverage, LLM dependency, source-scope limits, and non-production advisory boundary.
 
-Current status: ontology design documentation, KG validation evidence, chunking comparison, and fixed-window Hybrid RAG evidence are available. The next defense task is to explain why `structure_aware` wins the chunking comparison while the current Hybrid RAG run remains fixed-window for KG alignment.
+Current status: ontology design documentation, KG validation evidence, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, and GraphRAG review evidence are available. The next defense task is to explain the tradeoff between structure-aware quality and higher KG extraction cost.
 
 ## Current Non-Goals
 
