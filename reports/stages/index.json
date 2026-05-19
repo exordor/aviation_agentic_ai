@@ -259,6 +259,20 @@
         "category": "rag_experiments",
         "format": "md",
         "path": "reports/stages/evidence_level_evaluation.md"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "rag_experiments",
+        "format": "json",
+        "path": "reports/stages/web_demo_readiness.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "rag_experiments",
+        "format": "md",
+        "path": "reports/stages/web_demo_readiness.md"
       }
     ],
     "kg_validation": [
@@ -578,7 +592,8 @@
     "hybrid_rag_structure_aware": "reports/stages/hybrid_rag_structure_aware.md",
     "graphrag_review": "reports/stages/graphrag_review.md",
     "gold_labels": "data/cqs/06_phak_ch4_0.gold.json",
-    "evidence_level_evaluation": "reports/stages/evidence_level_evaluation.md"
+    "evidence_level_evaluation": "reports/stages/evidence_level_evaluation.md",
+    "web_demo_readiness": "reports/stages/web_demo_readiness.md"
   },
   "tracking": {
     "goals": "GOALS.md",

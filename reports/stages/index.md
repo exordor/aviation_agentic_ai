@@ -16,7 +16,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 | kg_validation | 2 |
 | ontology_evaluation | 10 |
 | ontology_stats | 2 |
-| rag_experiments | 10 |
+| rag_experiments | 12 |
 | reviews | 4 |
 | source_scope | 4 |
 | stage_summaries | 2 |
@@ -43,6 +43,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - GraphRAG review: `reports/stages/graphrag_review.md`
 - Gold labels: `data/cqs/06_phak_ch4_0.gold.json`
 - Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md`
+- Web demo readiness: `reports/stages/web_demo_readiness.md`
 
 ## Current Experiment Snapshot
 
@@ -52,6 +53,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Fixed-window result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph and hybrid KG evidence coverage = 0.9.
 - Structure-aware result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.9, hybrid Recall@5 = 1.0; graph and hybrid KG evidence coverage = 0.9.
 - Evidence-level result summary: structure-aware hybrid supported 9/10 answers versus fixed-window hybrid 7/10; both hybrid runs have KG triple relevance = 0.9.
+- Web demo default strategy: `structure_aware`; live query is disabled by default for reproducible review.
 
 ## Project Tracking
 

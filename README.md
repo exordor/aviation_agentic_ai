@@ -132,6 +132,8 @@ aviation-ai index build
 aviation-ai query "How does angle of attack affect lift?"
 aviation-ai report hybrid-rag --max-questions 1
 aviation-ai report chunking-comparison --max-questions 1
+aviation-ai report web-demo-readiness
+aviation-ai web serve
 aviation-ai report hygiene --dry-run
 aviation-ai report project --no-ai
 ```
@@ -227,6 +229,39 @@ uv run aviation-ai chunk build --max-pages 1 --output tmp/smoke-chunks.jsonl
 uv run aviation-ai kg extract --chunks tmp/smoke-chunks.jsonl --output tmp/smoke-kg.jsonl --dry-run
 uv run aviation-ai kg validate --chunks tmp/smoke-chunks.jsonl --kg-file tmp/smoke-kg.jsonl
 ```
+
+## Web Demo
+
+The local web demo is an offline-first FastAPI dashboard for reviewing the
+GraphRAG pipeline evidence. The UI follows a macOS-style utility layout with a
+sidebar question list, compact toolbar controls, an answer workspace, and
+separate chunk/KG evidence inspectors. By default it reads committed reports, KG
+artifacts, gold labels, and Hybrid RAG outputs instead of calling the LLM. This
+keeps the review demo reproducible and lets a reviewer inspect answers,
+retrieved chunks, KG triples, citations, evidence-level metrics, and the
+advisory boundary from a browser.
+
+Install the optional web dependencies and run the readiness check:
+
+```bash
+uv sync --extra dev --extra graphrag --extra web
+uv run aviation-ai report web-demo-readiness
+uv run aviation-ai web serve
+```
+
+Then open `http://127.0.0.1:8000`. The default displayed strategy is
+`structure_aware`; `fixed_window` remains visible as the baseline comparison.
+
+Live LLM querying is disabled by default. To test the live GraphRAG path after
+the Chroma collection and LLM provider are configured, start the server with:
+
+```bash
+uv run aviation-ai web serve --enable-live-query
+```
+
+The web demo is for aviation learning and decision support only. It does not
+replace the aircraft POH, approved checklists, ATC instructions, instructor
+guidance, or pilot judgment.
 
 ## Development Notes
 

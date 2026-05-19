@@ -19436,9 +19436,249 @@
       "path": "data/kg/06_phak_ch4_0.kg.jsonl",
       "present": true,
       "truncated": true
+    },
+    "web_demo_readiness": {
+      "excerpt": "# Web Demo Readiness\n\n- Ready: True\n- Default strategy: `structure_aware`\n- Baseline strategy: `fixed_window`\n- Live query: disabled by default\n\n## Artifact Readiness\n\n| Artifact | Present | Path |\n| --- | ---: | --- |\n| gold_labels | True | `data/cqs/06_phak_ch4_0.gold.json` |\n| fixed_hybrid | True | `reports/stages/hybrid_rag_experiment.json` |\n| structure_aware_hybrid | True | `reports/stages/hybrid_rag_structure_aware.json` |\n| evidence_level_evaluation | True | `reports/stages/evidence_level_evaluation.json` |\n| graphrag_review | True | `reports/stages/graphrag_review.json` |\n| structure_aware_kg | True | `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl` |\n| structure_aware_chunks | True | `data/chunks/06_phak_ch4_0.structure_aware.jsonl` |\n\n## Evidence Summary\n\n| Strategy | Chunk Recall@5 | Span hit rate | KG triple relevance | Supported answers |\n| --- | ---: | ---: | ---: | ---: |\n| fixed_window | 0.8 | 0.8 | 0.9 | 7 |\n| structure_aware | 0.9 | 0.8 | 0.9 | 9 |\n\n## Demo Script\n\n- Open the local FastAPI web demo.\n- Confirm artifact readiness and advisory boundary in the sidebar.\n- Select a boundary CQ and compare vector, graph, and hybrid evidence.\n- Switch between structure-aware and fixed-window experiments.\n- Explain GraphRAG as structured KG evidence support, not a single-score winner.\n\n## Apple-Style UI Smoke Checklist\n\n- macOS-style sidebar question list is visible.\n- Top toolbar exposes strategy and retrieval mode segmented controls.\n- Answer, gold label, chunk evidence, and KG triple evidence remain readable.\n- Default selection is structure_aware + hybrid.\n- Narrow viewport does not overlap controls or evidence text.\n\n## Advisory Boundary\n\nThis system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.\n",
+      "path": "reports/stages/web_demo_readiness.md",
+      "present": true,
+      "truncated": false
+    },
+    "web_demo_readiness_json": {
+      "compacted": false,
+      "data": {
+        "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+        "artifacts": {
+          "evidence_level_evaluation": {
+            "path": "reports/stages/evidence_level_evaluation.json",
+            "present": true
+          },
+          "fixed_hybrid": {
+            "path": "reports/stages/hybrid_rag_experiment.json",
+            "present": true
+          },
+          "gold_labels": {
+            "path": "data/cqs/06_phak_ch4_0.gold.json",
+            "present": true
+          },
+          "graphrag_review": {
+            "path": "reports/stages/graphrag_review.json",
+            "present": true
+          },
+          "structure_aware_chunks": {
+            "path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+            "present": true
+          },
+          "structure_aware_hybrid": {
+            "path": "reports/stages/hybrid_rag_structure_aware.json",
+            "present": true
+          },
+          "structure_aware_kg": {
+            "path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+            "present": true
+          }
+        },
+        "baseline_strategy": "fixed_window",
+        "consistency_checks": {
+          "advisory_boundary_defined": true,
+          "evidence_level_ready": true,
+          "fixed_window_ready": true,
+          "graphrag_review_ready": true,
+          "layered_scoring_policy": true,
+          "structure_aware_ready": true
+        },
+        "demo_script": [
+          "Open the local FastAPI web demo.",
+          "Confirm artifact readiness and advisory boundary in the sidebar.",
+          "Select a boundary CQ and compare vector, graph, and hybrid evidence.",
+          "Switch between structure-aware and fixed-window experiments.",
+          "Explain GraphRAG as structured KG evidence support, not a single-score winner."
+        ],
+        "metadata": {
+          "created_at": "2026-05-19T02:10:23.032125+00:00",
+          "project_root": ".",
+          "purpose": "offline_first_fastapi_web_demo_readiness"
+        },
+        "metrics": {
+          "fixed_window_hybrid": {
+            "answer_support_distribution": {
+              "partially_supported": 3,
+              "supported": 7
+            },
+            "chunk_recall_at_5": 0.8,
+            "citation_validity": 1.0,
+            "key_entity_coverage": 0.9,
+            "kg_triple_relevance": 0.9,
+            "questions_total": 10,
+            "span_hit_rate": 0.8
+          },
+          "structure_aware_hybrid": {
+            "answer_support_distribution": {
+              "partially_supported": 1,
+              "supported": 9
+            },
+            "chunk_recall_at_5": 0.9,
+            "citation_validity": 1.0,
+            "key_entity_coverage": 0.9,
+            "kg_triple_relevance": 0.9,
+            "questions_total": 10,
+            "span_hit_rate": 0.8
+          },
+          "summary": {
+            "evidence_level": {
+              "fixed_window": {
+                "graph": {
+                  "answer_support_distribution": {
+                    "insufficient_evidence": 1,
+                    "partially_supported": 2,
+                    "supported": 7
+                  },
+                  "chunk_recall_at_5": 0.8,
+                  "citation_validity": 1.0,
+                  "key_entity_coverage": 0.9,
+                  "kg_triple_relevance": 0.9,
+                  "questions_total": 10,
+                  "span_hit_rate": 0.7
+                },
+                "hybrid": {
+                  "answer_support_distribution": {
+                    "partially_supported": 3,
+                    "supported": 7
+                  },
+                  "chunk_recall_at_5": 0.8,
+                  "citation_validity": 1.0,
+                  "key_entity_coverage": 0.9,
+                  "kg_triple_relevance": 0.9,
+                  "questions_total": 10,
+                  "span_hit_rate": 0.8
+                },
+                "vector": {
+                  "answer_support_distribution": {
+                    "insufficient_evidence": 2,
+                    "partially_supported": 8
+                  },
+                  "chunk_recall_at_5": 1.0,
+                  "citation_validity": 1.0,
+                  "key_entity_coverage": 0.0,
+                  "kg_triple_relevance": 0.0,
+                  "questions_total": 10,
+                  "span_hit_rate": 0.9
+                }
+              },
+              "structure_aware": {
+                "graph": {
+                  "answer_support_distribution": {
+                    "insufficient_evidence": 1,
+                    "partially_supported": 2,
+                    "supported": 7
+                  },
+                  "chunk_recall_at_5": 0.7,
+                  "citation_validity": 1.0,
+                  "key_entity_coverage": 0.9,
+                  "kg_triple_relevance": 0.9,
+                  "questions_total": 10,
+                  "span_hit_rate": 0.7
+                },
+                "hybrid": {
+                  "answer_support_distribution": {
+                    "partially_supported": 1,
+                    "supported": 9
+                  },
+                  "chunk_recall_at_5": 0.9,
+                  "citation_validity": 1.0,
+                  "key_entity_coverage": 0.9,
+                  "kg_triple_relevance": 0.9,
+                  "questions_total": 10,
+                  "span_hit_rate": 0.8
+                },
+                "vector": {
+                  "answer_support_distribution": {
+                    "insufficient_evidence": 2,
+                    "partially_supported": 8
+                  },
+                  "chunk_recall_at_5": 0.7,
+                  "citation_validity": 1.0,
+                  "key_entity_coverage": 0.0,
+                  "kg_triple_relevance": 0.0,
+                  "questions_total": 10,
+                  "span_hit_rate": 0.6
+                }
+              }
+            },
+            "hybrid_reports": {
+              "fixed_window": {
+                "citation_completeness": 1.0,
+                "evidence_coverage": 0.9,
+                "kg_evidence": {
+                  "avg_invalid_triple_count": 0.0,
+                  "avg_related_triple_count": 7.3,
+                  "avg_supporting_triple_count": 7.3,
+                  "evidence_coverage": 0.9,
+                  "provenance_complete_rate": 1.0
+                },
+                "llm_answer": {
+                  "answer_present": 1.0,
+                  "citation_completeness": 1.0,
+                  "insufficient_evidence_abstention": 0.0
+                },
+                "recall_at_5": 0.9,
+                "retrieval": {
+                  "context_precision_at_5": 0.4,
+                  "mrr_at_5": 0.7533,
+                  "recall_at_5": 0.9
+                }
+              },
+              "structure_aware": {
+                "citation_completeness": 1.0,
+                "evidence_coverage": 0.9,
+                "kg_evidence": {
+                  "avg_invalid_triple_count": 0.0,
+                  "avg_related_triple_count": 7.3,
+                  "avg_supporting_triple_count": 7.3,
+                  "evidence_coverage": 0.9,
+                  "provenance_complete_rate": 1.0
+                },
+                "llm_answer": {
+                  "answer_present": 1.0,
+                  "citation_completeness": 1.0,
+                  "insufficient_evidence_abstention": 0.0
+                },
+                "recall_at_5": 1.0,
+                "retrieval": {
+                  "context_precision_at_5": 0.52,
+                  "mrr_at_5": 0.7367,
+                  "recall_at_5": 1.0
+                }
+              }
+            },
+            "review_recommendations": [
+              "Report GraphRAG as adding structured KG evidence, not as current page Recall@5 winner.",
+              "Use structure-aware chunks for the next KG extraction candidate.",
+              "Refine gold labels to chunk/span-level evidence before optimizing fusion."
+            ],
+            "scoring_policy": "layered_metrics_no_mixed_overall_score",
+            "selected_default_strategy": "structure_aware"
+          }
+        },
+        "ready": true,
+        "recommendations": [
+          "Use structure_aware as the default demo strategy when all artifacts are present.",
+          "Keep fixed_window visible as the baseline comparison.",
+          "Keep live query disabled by default for reproducible review demos."
+        ],
+        "selected_default_strategy": "structure_aware",
+        "ui_smoke_checklist": [
+          "macOS-style sidebar question list is visible.",
+          "Top toolbar exposes strategy and retrieval mode segmented controls.",
+          "Answer, gold label, chunk evidence, and KG triple evidence remain readable.",
+          "Default selection is structure_aware + hybrid.",
+          "Narrow viewport does not overlap controls or evidence text."
+        ]
+      },
+      "path": "reports/stages/web_demo_readiness.json",
+      "present": true
     }
   },
-  "generated_at": "2026-05-19T01:40:26.061302+00:00",
+  "generated_at": "2026-05-19T02:10:39.275934+00:00",
   "goals": {
     "excerpt": "# Project Goals\n\nLast updated: 2026-05-19\n\nThis file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.\n\n## Goal vs Task\n\n- A goal describes an outcome the project must achieve.\n- A task describes a concrete action that can be completed and checked off.\n- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.\n- Reports under `reports/` provide evidence that a goal has been met.\n\n## G1 - Course Objective And Project Rationale\n\nBuild a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.\n\nSuccess criteria:\n\n- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.\n- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.\n- The project can answer why GraphRAG is needed instead of only using plain LLM prompting or vector-only RAG.\n- The project uses FAA aviation handbook material as the starting source corpus.\n- The report clearly connects implementation choices to the course objective.\n\nCurrent status: in progress.\n\n## G2 - Ontology-Grounded KG Deliverable\n\nDeliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.\n\nRationale:\n\n- The KG is a project deliverable, not only an intermediate cache.\n- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.\n- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.\n\nSuccess criteria:\n\n- A baseline or generated TBox ontology exists and can be validated.\n- The extraction profile maps focused aviation classes/properties back to the ontology design.\n- Focused ABox/KG triples are extracted only when supported by source chunks.\n- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.\n- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.\n\nCurrent status: active curated ontology is available; focused KG was extracted and validated against the curated schema.\n\n## G3 - GraphRAG Core Pipeline\n\nImplement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.\n\nTarget pipeline:\n\n```text\nPDF -> chunks -> ontology-constrained KG/ABox\n    -> Chroma vector index\n    -> graph retrieval + vector retrieval\n    -> reciprocal-rank hybrid fusion\n    -> grounded LLM answer with citations\n```\n\nSuccess criteria:\n\n- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.\n- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.\n- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.\n- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.\n- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.\n\nCurrent status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 while preserving KG evidence coverage.\n\n## G4 - Evaluation And Experiment Protocol\n\nEvaluate retrieval, KG evidence, and LLM answer quality as separate layers rather than a single mixed score.\n\nSuccess criteria:\n\n- Retrieval metrics include Recall@5, MRR@5, Context Precision@5, hit ranks, and hit source identifiers.\n- KG ev",
     "path": "GOALS.md",
@@ -19835,6 +20075,20 @@
             "category": "rag_experiments",
             "format": "md",
             "path": "reports/stages/evidence_level_evaluation.md"
+          },
+          {
+            "archived_to": null,
+            "artifact_type": "machine_artifact",
+            "category": "rag_experiments",
+            "format": "json",
+            "path": "reports/stages/web_demo_readiness.json"
+          },
+          {
+            "archived_to": null,
+            "artifact_type": "human_report",
+            "category": "rag_experiments",
+            "format": "md",
+            "path": "reports/stages/web_demo_readiness.md"
           }
         ],
         "reviews": [
@@ -19929,7 +20183,8 @@
         "structure_aware_kg": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
         "structure_aware_kg_ttl_export": "data/kg/06_phak_ch4_0.structure_aware.kg.ttl",
         "structure_aware_kg_validation": "reports/stages/structure_aware_kg_validation.md",
-        "validated_kg": "data/kg/06_phak_ch4_0.kg.jsonl"
+        "validated_kg": "data/kg/06_phak_ch4_0.kg.jsonl",
+        "web_demo_readiness": "reports/stages/web_demo_readiness.md"
       },
       "final_report_readiness": {
         "project_report": "reports/final/project_report.md",
@@ -20061,7 +20316,7 @@
     "present": true
   },
   "tasks": {
-    "excerpt": "# Project Task Board\n\nLast updated: 2026-05-19\n\nThis file tracks concrete execution tasks. Durable project outcomes and scope boundaries live in `GOALS.md`.\n\nA task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.\n\n## Status Legend\n\n- `[ ]` Not started\n- `[~]` In progress\n- `[x]` Done\n- `[!]` Blocked or needs decision\n\n## Active Task Queue\n\n1. Review the auto-drafted chunk/span gold labels and adjust weak spans before final claims.\n2. Use the fixed-window, structure-aware, and evidence-level reports to write project-defense conclusions.\n3. Decide whether `structure_aware` becomes the default GraphRAG chunking strategy.\n4. Implement a minimal web interface once the core pipeline has stable outputs.\n5. Regenerate the AI-polished final project report after reviewing the new evidence.\n\nRelated goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.\n\n## P0 - Immediate Reproducibility Tasks\n\nRelated goals: G2, G3, G4, G5.\n\n- [x] Create initial commit and push `main` to GitLab.\n  - Evidence: GitLab remote `origin`, commit `5ccd437`.\n- [x] Clean report clutter by archiving old stage reports.\n  - Evidence: `reports/stages/index.md`, `reports/archive/stages/2026-05-18/`.\n- [x] Generate the first AI-assisted project report draft.\n  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.\n- [x] Verify local runtime and test environment.\n  - Evidence: `uv run ruff check .`, `uv run pytest`.\n- [x] Create an explainable curated ontology as the active KG schema.\n  - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/ontology_design.md`.\n  - Acceptance: curated ontology is TBox-only, has 35 classes, 9 object properties, complete label/comment coverage, and passes ontology evaluation.\n- [x] Run full chunking comparison for all strategies.\n  - Command: `uv run aviation-ai report chunking-comparison`\n  - Evidence: `reports/stages/chunking_comparison.json`, `reports/stages/chunking_comparison.md`.\n  - Result: `structure_aware` ranked first; `fixed_window` remained competitive on Recall@5 and remains the current KG-aligned strategy.\n  - Acceptance: each strategy has Recall@5, MRR@5, Context Precision@5, chunk stats, and an explanation paragraph.\n- [x] Run the focused KG extraction and validation workflow.\n  - Commands:\n    - `uv run aviation-ai chunk build`\n    - `uv run aviation-ai kg extract`\n    - `uv run aviation-ai kg validate`\n  - Evidence: `data/kg/06_phak_ch4_0.kg.jsonl`, `data/kg/06_phak_ch4_0.kg.ttl`, `reports/stages/kg_validation.md`.\n  - Acceptance: KG triples are constrained by the ontology/extraction profile, and unsupported classes/properties or missing provenance are rejected deterministically.\n- [x] Build or refresh the Chroma vector index for the selected chunking strategy.\n  - Command: `uv run aviation-ai index build`\n  - Evidence: local ignored collection under `data/indexes/chroma`, collection `phak_ch4_chunks`.\n  - Acceptance: collection name, index path, chunk path, and strategy are recorded in run manifests.\n- [x] Run Hybrid RAG evaluation on the 10 boundary CQs.\n  - Command: `uv run aviation-ai report hybrid-rag`\n  - Evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.\n  - Result: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph/hybrid KG evidence coverage = 0.9; LLM citation completeness = 1.0 across modes.\n  - Acceptance: report compares vector, graph, and hybrid/GraphRAG modes, and separates retrieval metrics, KG evidence metrics, and LLM answer metrics without a mixed total score.\n- [x] Run GraphRAG review for the fixed-window baseline.\n  - Command: `uv run aviation-ai report graphrag-review`\n  - Evidence: `reports/stages/graphrag_review.json`, `reports/stages/graphrag_review.md`.\n  - Result: GraphRAG value is framed as structured KG evidence coverage, not fixed-window page-level Recall@5 lift over vector-only retrieval.\n- [x] Re-extract ",
+    "excerpt": "# Project Task Board\n\nLast updated: 2026-05-19\n\nThis file tracks concrete execution tasks. Durable project outcomes and scope boundaries live in `GOALS.md`.\n\nA task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.\n\n## Status Legend\n\n- `[ ]` Not started\n- `[~]` In progress\n- `[x]` Done\n- `[!]` Blocked or needs decision\n\n## Active Task Queue\n\n1. Review the auto-drafted chunk/span gold labels and adjust weak spans before final claims.\n2. Use the fixed-window, structure-aware, and evidence-level reports to write project-defense conclusions.\n3. Decide whether `structure_aware` becomes the default GraphRAG chunking strategy.\n4. Smoke-test the FastAPI web demo in a browser and capture final review notes.\n5. Regenerate the AI-polished final project report after reviewing the web demo evidence.\n\nRelated goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.\n\n## P0 - Immediate Reproducibility Tasks\n\nRelated goals: G2, G3, G4, G5.\n\n- [x] Create initial commit and push `main` to GitLab.\n  - Evidence: GitLab remote `origin`, commit `5ccd437`.\n- [x] Clean report clutter by archiving old stage reports.\n  - Evidence: `reports/stages/index.md`, `reports/archive/stages/2026-05-18/`.\n- [x] Generate the first AI-assisted project report draft.\n  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.\n- [x] Verify local runtime and test environment.\n  - Evidence: `uv run ruff check .`, `uv run pytest`.\n- [x] Create an explainable curated ontology as the active KG schema.\n  - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/ontology_design.md`.\n  - Acceptance: curated ontology is TBox-only, has 35 classes, 9 object properties, complete label/comment coverage, and passes ontology evaluation.\n- [x] Run full chunking comparison for all strategies.\n  - Command: `uv run aviation-ai report chunking-comparison`\n  - Evidence: `reports/stages/chunking_comparison.json`, `reports/stages/chunking_comparison.md`.\n  - Result: `structure_aware` ranked first; `fixed_window` remained competitive on Recall@5 and remains the current KG-aligned strategy.\n  - Acceptance: each strategy has Recall@5, MRR@5, Context Precision@5, chunk stats, and an explanation paragraph.\n- [x] Run the focused KG extraction and validation workflow.\n  - Commands:\n    - `uv run aviation-ai chunk build`\n    - `uv run aviation-ai kg extract`\n    - `uv run aviation-ai kg validate`\n  - Evidence: `data/kg/06_phak_ch4_0.kg.jsonl`, `data/kg/06_phak_ch4_0.kg.ttl`, `reports/stages/kg_validation.md`.\n  - Acceptance: KG triples are constrained by the ontology/extraction profile, and unsupported classes/properties or missing provenance are rejected deterministically.\n- [x] Build or refresh the Chroma vector index for the selected chunking strategy.\n  - Command: `uv run aviation-ai index build`\n  - Evidence: local ignored collection under `data/indexes/chroma`, collection `phak_ch4_chunks`.\n  - Acceptance: collection name, index path, chunk path, and strategy are recorded in run manifests.\n- [x] Run Hybrid RAG evaluation on the 10 boundary CQs.\n  - Command: `uv run aviation-ai report hybrid-rag`\n  - Evidence: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_experiment.md`.\n  - Result: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph/hybrid KG evidence coverage = 0.9; LLM citation completeness = 1.0 across modes.\n  - Acceptance: report compares vector, graph, and hybrid/GraphRAG modes, and separates retrieval metrics, KG evidence metrics, and LLM answer metrics without a mixed total score.\n- [x] Run GraphRAG review for the fixed-window baseline.\n  - Command: `uv run aviation-ai report graphrag-review`\n  - Evidence: `reports/stages/graphrag_review.json`, `reports/stages/graphrag_review.md`.\n  - Result: GraphRAG value is framed as structured KG evidence coverage, not fixed-window page-level Recall@5 lift over vector-only retrieval.\n- [x] Re-ext",
     "path": "TASKS.md",
     "present": true,
     "truncated": true

@@ -1,0 +1,229 @@
+{
+  "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+  "artifacts": {
+    "evidence_level_evaluation": {
+      "path": "reports/stages/evidence_level_evaluation.json",
+      "present": true
+    },
+    "fixed_hybrid": {
+      "path": "reports/stages/hybrid_rag_experiment.json",
+      "present": true
+    },
+    "gold_labels": {
+      "path": "data/cqs/06_phak_ch4_0.gold.json",
+      "present": true
+    },
+    "graphrag_review": {
+      "path": "reports/stages/graphrag_review.json",
+      "present": true
+    },
+    "structure_aware_chunks": {
+      "path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+      "present": true
+    },
+    "structure_aware_hybrid": {
+      "path": "reports/stages/hybrid_rag_structure_aware.json",
+      "present": true
+    },
+    "structure_aware_kg": {
+      "path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+      "present": true
+    }
+  },
+  "baseline_strategy": "fixed_window",
+  "consistency_checks": {
+    "advisory_boundary_defined": true,
+    "evidence_level_ready": true,
+    "fixed_window_ready": true,
+    "graphrag_review_ready": true,
+    "layered_scoring_policy": true,
+    "structure_aware_ready": true
+  },
+  "demo_script": [
+    "Open the local FastAPI web demo.",
+    "Confirm artifact readiness and advisory boundary in the sidebar.",
+    "Select a boundary CQ and compare vector, graph, and hybrid evidence.",
+    "Switch between structure-aware and fixed-window experiments.",
+    "Explain GraphRAG as structured KG evidence support, not a single-score winner."
+  ],
+  "metadata": {
+    "created_at": "2026-05-19T02:10:23.032125+00:00",
+    "project_root": ".",
+    "purpose": "offline_first_fastapi_web_demo_readiness"
+  },
+  "metrics": {
+    "fixed_window_hybrid": {
+      "answer_support_distribution": {
+        "partially_supported": 3,
+        "supported": 7
+      },
+      "chunk_recall_at_5": 0.8,
+      "citation_validity": 1.0,
+      "key_entity_coverage": 0.9,
+      "kg_triple_relevance": 0.9,
+      "questions_total": 10,
+      "span_hit_rate": 0.8
+    },
+    "structure_aware_hybrid": {
+      "answer_support_distribution": {
+        "partially_supported": 1,
+        "supported": 9
+      },
+      "chunk_recall_at_5": 0.9,
+      "citation_validity": 1.0,
+      "key_entity_coverage": 0.9,
+      "kg_triple_relevance": 0.9,
+      "questions_total": 10,
+      "span_hit_rate": 0.8
+    },
+    "summary": {
+      "evidence_level": {
+        "fixed_window": {
+          "graph": {
+            "answer_support_distribution": {
+              "insufficient_evidence": 1,
+              "partially_supported": 2,
+              "supported": 7
+            },
+            "chunk_recall_at_5": 0.8,
+            "citation_validity": 1.0,
+            "key_entity_coverage": 0.9,
+            "kg_triple_relevance": 0.9,
+            "questions_total": 10,
+            "span_hit_rate": 0.7
+          },
+          "hybrid": {
+            "answer_support_distribution": {
+              "partially_supported": 3,
+              "supported": 7
+            },
+            "chunk_recall_at_5": 0.8,
+            "citation_validity": 1.0,
+            "key_entity_coverage": 0.9,
+            "kg_triple_relevance": 0.9,
+            "questions_total": 10,
+            "span_hit_rate": 0.8
+          },
+          "vector": {
+            "answer_support_distribution": {
+              "insufficient_evidence": 2,
+              "partially_supported": 8
+            },
+            "chunk_recall_at_5": 1.0,
+            "citation_validity": 1.0,
+            "key_entity_coverage": 0.0,
+            "kg_triple_relevance": 0.0,
+            "questions_total": 10,
+            "span_hit_rate": 0.9
+          }
+        },
+        "structure_aware": {
+          "graph": {
+            "answer_support_distribution": {
+              "insufficient_evidence": 1,
+              "partially_supported": 2,
+              "supported": 7
+            },
+            "chunk_recall_at_5": 0.7,
+            "citation_validity": 1.0,
+            "key_entity_coverage": 0.9,
+            "kg_triple_relevance": 0.9,
+            "questions_total": 10,
+            "span_hit_rate": 0.7
+          },
+          "hybrid": {
+            "answer_support_distribution": {
+              "partially_supported": 1,
+              "supported": 9
+            },
+            "chunk_recall_at_5": 0.9,
+            "citation_validity": 1.0,
+            "key_entity_coverage": 0.9,
+            "kg_triple_relevance": 0.9,
+            "questions_total": 10,
+            "span_hit_rate": 0.8
+          },
+          "vector": {
+            "answer_support_distribution": {
+              "insufficient_evidence": 2,
+              "partially_supported": 8
+            },
+            "chunk_recall_at_5": 0.7,
+            "citation_validity": 1.0,
+            "key_entity_coverage": 0.0,
+            "kg_triple_relevance": 0.0,
+            "questions_total": 10,
+            "span_hit_rate": 0.6
+          }
+        }
+      },
+      "hybrid_reports": {
+        "fixed_window": {
+          "citation_completeness": 1.0,
+          "evidence_coverage": 0.9,
+          "kg_evidence": {
+            "avg_invalid_triple_count": 0.0,
+            "avg_related_triple_count": 7.3,
+            "avg_supporting_triple_count": 7.3,
+            "evidence_coverage": 0.9,
+            "provenance_complete_rate": 1.0
+          },
+          "llm_answer": {
+            "answer_present": 1.0,
+            "citation_completeness": 1.0,
+            "insufficient_evidence_abstention": 0.0
+          },
+          "recall_at_5": 0.9,
+          "retrieval": {
+            "context_precision_at_5": 0.4,
+            "mrr_at_5": 0.7533,
+            "recall_at_5": 0.9
+          }
+        },
+        "structure_aware": {
+          "citation_completeness": 1.0,
+          "evidence_coverage": 0.9,
+          "kg_evidence": {
+            "avg_invalid_triple_count": 0.0,
+            "avg_related_triple_count": 7.3,
+            "avg_supporting_triple_count": 7.3,
+            "evidence_coverage": 0.9,
+            "provenance_complete_rate": 1.0
+          },
+          "llm_answer": {
+            "answer_present": 1.0,
+            "citation_completeness": 1.0,
+            "insufficient_evidence_abstention": 0.0
+          },
+          "recall_at_5": 1.0,
+          "retrieval": {
+            "context_precision_at_5": 0.52,
+            "mrr_at_5": 0.7367,
+            "recall_at_5": 1.0
+          }
+        }
+      },
+      "review_recommendations": [
+        "Report GraphRAG as adding structured KG evidence, not as current page Recall@5 winner.",
+        "Use structure-aware chunks for the next KG extraction candidate.",
+        "Refine gold labels to chunk/span-level evidence before optimizing fusion."
+      ],
+      "scoring_policy": "layered_metrics_no_mixed_overall_score",
+      "selected_default_strategy": "structure_aware"
+    }
+  },
+  "ready": true,
+  "recommendations": [
+    "Use structure_aware as the default demo strategy when all artifacts are present.",
+    "Keep fixed_window visible as the baseline comparison.",
+    "Keep live query disabled by default for reproducible review demos."
+  ],
+  "selected_default_strategy": "structure_aware",
+  "ui_smoke_checklist": [
+    "macOS-style sidebar question list is visible.",
+    "Top toolbar exposes strategy and retrieval mode segmented controls.",
+    "Answer, gold label, chunk evidence, and KG triple evidence remain readable.",
+    "Default selection is structure_aware + hybrid.",
+    "Narrow viewport does not overlap controls or evidence text."
+  ]
+}

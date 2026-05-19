@@ -118,7 +118,9 @@ Success criteria:
 - The interface makes the advisory boundary visible: learning and decision support only, not a replacement for POH, approved checklists, ATC, instructor guidance, or pilot judgment.
 - The interface can display experiment evidence or pipeline status so the project is understandable to a reviewer.
 
-Current status: not started.
+Current status: offline-first FastAPI demo implemented with a macOS-style
+utility layout. It reads existing GraphRAG reports, gold labels, KG artifacts,
+and evidence-level metrics by default; live query is opt-in.
 
 ## G8 - Pipeline Explanation And Project Defense
 
@@ -131,7 +133,7 @@ Success criteria:
 - The project can answer "what does each component do?", "why is it needed?", "why not use a simpler baseline?", and "where can the system fail?"
 - Limitations are explicit: coarse gold labels, incomplete KG coverage, LLM dependency, source-scope limits, and non-production advisory boundary.
 
-Current status: ontology design documentation, KG validation evidence, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, GraphRAG review, and evidence-level evaluation are available. The next defense task is to explain why structure-aware improves evidence support while costing more KG extraction work.
+Current status: ontology design documentation, KG validation evidence, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, GraphRAG review, evidence-level evaluation, and web demo readiness are available. The next defense task is to explain why structure-aware improves evidence support while costing more KG extraction work and why the web demo is offline-first by default.
 
 ## Current Non-Goals
 
@@ -152,5 +154,5 @@ Current status: ontology design documentation, KG validation evidence, chunking 
 | G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports | `TASKS.md` P0/P1 |
 | G5 | `reports/stages/index.md`, `reports/final/` | `TASKS.md` P2 |
 | G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
-| G7 | web app code, UI screenshots, demo instructions | `TASKS.md` P2 |
+| G7 | web app code, `reports/stages/web_demo_readiness.md`, demo instructions | `TASKS.md` P2 |
 | G8 | final report, comparison reports, defense notes | `TASKS.md` P1/P2 |

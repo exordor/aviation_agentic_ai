@@ -42,6 +42,8 @@ Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md` shows s
 ## Current results and limitations
 
 Current evidence now covers the explainable curated ontology, fixed-window KG, structure-aware KG, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, and GraphRAG review when their reports are present in the stage index.
+Web demo readiness: ready=True, default strategy=structure_aware.
+The web demo is an offline-first FastAPI interface with a macOS-style sidebar, toolbar controls, answer workspace, chunk evidence, KG triple evidence, and advisory boundary display.
 Limitations: chunk/span gold labels are auto-drafted and still require human review, structure-aware KG extraction is more expensive because it uses many smaller chunks, and GraphRAG should be defended as structured evidence support rather than a single-score Recall improvement.
 
 ## Advisory assistant boundary
@@ -51,10 +53,10 @@ This system is for aviation learning and decision-support only. Do not claim to 
 ## Next work plan
 
 1. Review the auto-drafted chunk/span gold labels and fix weak spans.
-2. Write project-defense conclusions from fixed-window and structure-aware runs.
-3. Decide whether `structure_aware` becomes the default GraphRAG strategy.
+2. Smoke-test the FastAPI web demo and capture final review notes.
+3. Write project-defense conclusions from fixed-window and structure-aware runs.
 4. Generate the AI-polished final report after review.
-5. Implement the minimal web interface demonstrator.
+5. Prepare final submission checks.
 
 ## Reproducibility appendix
 
@@ -68,6 +70,8 @@ This system is for aviation learning and decision-support only. Do not claim to 
 - `uv run aviation-ai report graphrag-review`
 - `uv run aviation-ai cqs gold-draft`
 - `uv run aviation-ai report evidence-eval`
+- `uv run aviation-ai report web-demo-readiness`
+- `uv run aviation-ai web serve`
 - `uv run aviation-ai report hygiene --apply`
 - `uv run aviation-ai report project --no-ai`
 - `uv run aviation-ai report project --ai`

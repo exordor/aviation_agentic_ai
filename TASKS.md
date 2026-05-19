@@ -18,8 +18,8 @@ A task should be small enough to finish, verify, and check off. When a task prod
 1. Review the auto-drafted chunk/span gold labels and adjust weak spans before final claims.
 2. Use the fixed-window, structure-aware, and evidence-level reports to write project-defense conclusions.
 3. Decide whether `structure_aware` becomes the default GraphRAG chunking strategy.
-4. Implement a minimal web interface once the core pipeline has stable outputs.
-5. Regenerate the AI-polished final project report after reviewing the new evidence.
+4. Smoke-test the FastAPI web demo in a browser and capture final review notes.
+5. Regenerate the AI-polished final project report after reviewing the web demo evidence.
 
 Related goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.
 
@@ -119,11 +119,15 @@ Related goals: G1, G5, G6, G7, G8.
 - [ ] Add a project-defense section or note.
   - Candidate output: `reports/final/project_defense_notes.md`.
   - Acceptance: answers what was built, why ontology is needed, why KG is a deliverable, why GraphRAG is used, why chunking strategies are compared, and where the system can fail.
-- [ ] Implement a minimal web interface demonstrator.
-  - Candidate scope: ask-question page, retrieval mode selector, answer panel, citation/evidence panel, KG triple evidence panel, advisory boundary notice.
+- [x] Implement a minimal web interface demonstrator.
+  - Command: `uv run aviation-ai web serve`
+  - Evidence: `reports/stages/web_demo_readiness.md`
+  - Scope: offline-first FastAPI page with macOS-style sidebar question list, fixed-window/structure-aware comparison, vector/graph/hybrid toolbar controls, answer panel, citation/evidence chunks, KG triple evidence, metrics, and advisory boundary notice.
   - Acceptance: reviewer can run it locally and see the pipeline output without reading raw JSON reports.
-- [ ] Add web interface run instructions and screenshots or smoke-test evidence.
-  - Acceptance: README or final report explains how to start the interface and what each UI section demonstrates.
+- [~] Add web interface run instructions and screenshots or smoke-test evidence.
+  - Current evidence: README includes `uv sync --extra dev --extra graphrag --extra web` and `uv run aviation-ai web serve`.
+  - Current smoke evidence: local browser check confirmed the default structure-aware hybrid view loads with answer, chunks, and KG triples.
+  - Acceptance: final report explains how to start the interface and what each UI section demonstrates.
 - [ ] Review `THIRD_PARTY.md` and license attribution.
   - Acceptance: all copied/adapted external assets and papers are attributed; generated local artifacts are clearly identified.
 - [ ] Run final quality gate before submission.
