@@ -35,8 +35,10 @@ from aviation_agentic_ai.reporting.hygiene import run_report_hygiene
 from aviation_agentic_ai.reporting.overnight import write_overnight_summary
 from aviation_agentic_ai.reporting.project_report import write_project_report
 from aviation_agentic_ai.reporting.reviews import write_review_progress
+from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
 from aviation_agentic_ai.retrieval.hybrid import run_query, write_query_result
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME, build_chroma_index
+from aviation_agentic_ai.web.server import serve_web_app
 
 
 def _default_ontology_path() -> Path:
@@ -58,6 +60,29 @@ def _ontology_generation_config() -> dict:
 @click.group()
 def main() -> None:
     """Aviation Agentic AI CLI."""
+
+
+@main.group()
+def web() -> None:
+    """Local web demo commands."""
+
+
+@web.command("serve")
+@click.option("--host", default="127.0.0.1", show_default=True)
+@click.option("--port", type=int, default=8000, show_default=True)
+@click.option("--reload/--no-reload", default=False, show_default=True)
+@click.option("--enable-live-query", is_flag=True, help="Allow the web demo to call the LLM.")
+def web_serve(host: str, port: int, reload: bool, enable_live_query: bool) -> None:
+    """Serve the offline-first FastAPI web demo."""
+    try:
+        serve_web_app(
+            host=host,
+            port=port,
+            reload=reload,
+            enable_live_query=enable_live_query,
+        )
+    except RuntimeError as exc:
+        raise click.ClickException(str(exc)) from exc
 
 
 @main.group()
@@ -908,6 +933,25 @@ def report_evidence_eval(
     click.echo(f"Wrote {project_relative_path(json_path)}")
     click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"Evaluated evidence-level metrics for {result['metadata']['labels_total']} CQs.")
+
+
+@report.command("web-demo-readiness")
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="web_demo_readiness", show_default=True)
+def report_web_demo_readiness(output_dir: Path | None, report_name: str) -> None:
+    """Write offline-first web demo readiness reports."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_web_demo_readiness(
+        report_dir,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        "Web demo readiness: "
+        f"{result['ready']}; default strategy: {result['selected_default_strategy']}."
+    )
 
 
 @report.command("chunking-comparison")

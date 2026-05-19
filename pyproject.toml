@@ -28,6 +28,10 @@ graphrag = [
   "networkx>=3.2",
   "sentence-transformers>=3.0",
 ]
+web = [
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+]
 ontogpt = [
   "ontogpt>=1.1",
 ]

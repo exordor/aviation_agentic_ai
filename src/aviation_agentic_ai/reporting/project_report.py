@@ -421,6 +421,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     )
     structure_kg_triples = structure_kg_validation.get("triples_total", "TBD")
     structure_kg_errors = structure_kg_validation.get("errors_total", "TBD")
+    web_readiness = artifact_sources.get("web_demo_readiness_json", {}).get("data", {})
     chunking_lines = _chunking_summary_lines(artifact_sources, categories)
     hybrid_lines = _hybrid_summary_lines(artifact_sources, retrieval_config)
     has_chunking = bool(
@@ -435,6 +436,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     has_evidence_eval = bool(
         artifact_sources.get("evidence_level_evaluation_json", {}).get("data", {})
     )
+    has_web_readiness = isinstance(web_readiness, dict) and bool(web_readiness)
     if has_chunking and has_hybrid:
         if has_structure_hybrid:
             first_next_work = (
@@ -442,13 +444,22 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
                 if has_evidence_eval
                 else "1. Refine gold labels from source-page to chunk/span evidence."
             )
-            next_work_lines = [
-                first_next_work,
-                "2. Write project-defense conclusions from fixed-window and structure-aware runs.",
-                "3. Decide whether `structure_aware` becomes the default GraphRAG strategy.",
-                "4. Generate the AI-polished final report after review.",
-                "5. Implement the minimal web interface demonstrator.",
-            ]
+            if has_web_readiness:
+                next_work_lines = [
+                    first_next_work,
+                    "2. Smoke-test the FastAPI web demo and capture final review notes.",
+                    "3. Write project-defense conclusions from fixed-window and structure-aware runs.",
+                    "4. Generate the AI-polished final report after review.",
+                    "5. Prepare final submission checks.",
+                ]
+            else:
+                next_work_lines = [
+                    first_next_work,
+                    "2. Write project-defense conclusions from fixed-window and structure-aware runs.",
+                    "3. Decide whether `structure_aware` becomes the default GraphRAG strategy.",
+                    "4. Generate the AI-polished final report after review.",
+                    "5. Implement the minimal web interface demonstrator.",
+                ]
         else:
             next_work_lines = [
                 "1. Review the chunking and Hybrid RAG reports for project-defense claims.",
@@ -484,6 +495,13 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
             [
                 "- `uv run aviation-ai cqs gold-draft`",
                 "- `uv run aviation-ai report evidence-eval`",
+            ]
+        )
+    if has_web_readiness:
+        reproducibility_lines.extend(
+            [
+                "- `uv run aviation-ai report web-demo-readiness`",
+                "- `uv run aviation-ai web serve`",
             ]
         )
     reproducibility_lines.extend(
@@ -550,6 +568,13 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "structure-aware KG, chunking comparison, fixed-window Hybrid RAG, "
         "structure-aware Hybrid RAG, and GraphRAG review when their reports are present "
         "in the stage index.",
+        "Web demo readiness: "
+        f"ready={web_readiness.get('ready', 'TBD') if isinstance(web_readiness, dict) else 'TBD'}, "
+        "default strategy="
+        f"{web_readiness.get('selected_default_strategy', 'TBD') if isinstance(web_readiness, dict) else 'TBD'}.",
+        "The web demo is an offline-first FastAPI interface with a macOS-style "
+        "sidebar, toolbar controls, answer workspace, chunk evidence, KG triple "
+        "evidence, and advisory boundary display.",
         "Limitations: chunk/span gold labels are auto-drafted and still require "
         "human review, structure-aware KG extraction is more expensive because it "
         "uses many smaller chunks, and GraphRAG should be defended as structured "

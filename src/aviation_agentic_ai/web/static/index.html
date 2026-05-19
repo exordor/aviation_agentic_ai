@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aviation Agentic AI Demo</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <header class="app-identity">
+          <div class="brand-mark">GA</div>
+          <div>
+            <h1>Aviation GraphRAG</h1>
+            <p>Evidence review workspace</p>
+          </div>
+        </header>
+
+        <section class="sidebar-section status-section">
+          <div class="section-label">Experiment</div>
+          <dl class="status-grid" id="status-grid"></dl>
+        </section>
+
+        <section class="sidebar-section question-section">
+          <div class="section-label">Boundary CQs</div>
+          <div
+            id="question-list"
+            class="question-list"
+            role="listbox"
+            aria-label="Boundary competency questions"
+          ></div>
+        </section>
+
+        <section class="sidebar-section boundary">
+          <div class="section-label">Advisory Boundary</div>
+          <p id="advisory-boundary">Loading boundary...</p>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="toolbar">
+          <div class="toolbar-group" aria-label="Chunking strategy">
+            <button class="segmented active" data-experiment="structure_aware">Structure-aware</button>
+            <button class="segmented" data-experiment="fixed_window">Fixed-window</button>
+          </div>
+          <div class="toolbar-group" role="tablist" aria-label="Retrieval mode">
+            <button class="tab active" data-mode="hybrid">Hybrid</button>
+            <button class="tab" data-mode="graph">Graph</button>
+            <button class="tab" data-mode="vector">Vector</button>
+          </div>
+          <span id="live-status" class="status-pill">Live disabled</span>
+        </header>
+
+        <section class="question-header">
+          <p id="question-meta" class="question-meta">No question selected</p>
+          <h2 id="question-title">Select a question</h2>
+          <div id="entity-strip" class="entity-strip"></div>
+        </section>
+
+        <section class="metrics-strip" id="metrics-strip" aria-label="Evidence metrics"></section>
+
+        <section class="content-grid">
+          <article class="panel answer-panel">
+            <div class="section-heading">
+              <h3>Grounded Answer</h3>
+              <span id="support-badge" class="status-pill">No data</span>
+            </div>
+            <div id="answer-content" class="answer-content">No answer loaded.</div>
+          </article>
+
+          <aside class="panel inspector-panel">
+            <div class="section-heading">
+              <h3>Gold Label</h3>
+            </div>
+            <dl class="gold-grid" id="gold-grid"></dl>
+          </aside>
+        </section>
+
+        <section class="evidence-grid">
+          <article class="panel">
+            <div class="section-heading">
+              <h3>Retrieved Chunks</h3>
+              <span id="chunk-count" class="count">0</span>
+            </div>
+            <div id="chunks-list" class="stack"></div>
+          </article>
+
+          <article class="panel">
+            <div class="section-heading">
+              <h3>KG Triple Evidence</h3>
+              <span id="triple-count" class="count">0</span>
+            </div>
+            <div id="triples-list" class="stack"></div>
+          </article>
+        </section>
+
+        <section class="panel live-panel">
+          <div class="section-heading">
+            <h3>Optional Live Query</h3>
+            <span class="status-pill muted">Opt-in</span>
+          </div>
+          <form id="live-form">
+            <input
+              id="live-question"
+              type="text"
+              autocomplete="off"
+              placeholder="Ask a PHAK Chapter 4 question"
+            />
+            <button type="submit">Run Hybrid Query</button>
+          </form>
+          <pre id="live-output"></pre>
+        </section>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
