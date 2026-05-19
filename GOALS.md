@@ -80,7 +80,7 @@ Success criteria:
 - LLM answer metrics include citation completeness, citation validity, and insufficient-evidence abstention behavior.
 - Gold labels support page-level ground truth now and can later be refined to chunk/span-level evidence.
 
-Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, and structure-aware Hybrid RAG. Gold labels remain page-level and should be refined to chunk/span-level evidence.
+Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, draft chunk/span gold labels, and evidence-level evaluation. The gold labels are auto-drafted and still require review before final claims.
 
 ## G5 - Report Hygiene And Final Project Report
 
@@ -131,7 +131,7 @@ Success criteria:
 - The project can answer "what does each component do?", "why is it needed?", "why not use a simpler baseline?", and "where can the system fail?"
 - Limitations are explicit: coarse gold labels, incomplete KG coverage, LLM dependency, source-scope limits, and non-production advisory boundary.
 
-Current status: ontology design documentation, KG validation evidence, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, and GraphRAG review evidence are available. The next defense task is to explain the tradeoff between structure-aware quality and higher KG extraction cost.
+Current status: ontology design documentation, KG validation evidence, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, GraphRAG review, and evidence-level evaluation are available. The next defense task is to explain why structure-aware improves evidence support while costing more KG extraction work.
 
 ## Current Non-Goals
 

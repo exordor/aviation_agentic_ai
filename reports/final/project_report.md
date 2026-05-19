@@ -37,11 +37,12 @@ LLM answer metrics: vector citation completeness=1.0, graph=1.0, hybrid=1.0; hyb
 Hybrid lift is reported as layered evidence, not a mixed total score: vs vector Recall@5=-0.1, vs graph Recall@5=0.1.
 Structure-aware Hybrid RAG evidence: `reports/stages/hybrid_rag_structure_aware.md`. It evaluated 10 boundary CQs with hybrid Recall@5=1.0, KG evidence coverage=0.9, and lift vs vector Recall@5=0.0.
 GraphRAG interpretation evidence: `reports/stages/graphrag_review.md` explains retrieval, KG evidence, and LLM answer behavior separately.
+Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md` shows structure-aware hybrid span hit rate=0.8 and supported answers=9; fixed-window hybrid span hit rate=0.8 and supported answers=7.
 
 ## Current results and limitations
 
 Current evidence now covers the explainable curated ontology, fixed-window KG, structure-aware KG, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, and GraphRAG review when their reports are present in the stage index.
-Limitations: gold labels are still source-page level, structure-aware KG extraction is more expensive because it uses many smaller chunks, and GraphRAG should be defended as structured evidence support rather than a single-score Recall improvement.
+Limitations: chunk/span gold labels are auto-drafted and still require human review, structure-aware KG extraction is more expensive because it uses many smaller chunks, and GraphRAG should be defended as structured evidence support rather than a single-score Recall improvement.
 
 ## Advisory assistant boundary
 
@@ -49,7 +50,7 @@ This system is for aviation learning and decision-support only. Do not claim to 
 
 ## Next work plan
 
-1. Refine gold labels from source-page to chunk/span evidence.
+1. Review the auto-drafted chunk/span gold labels and fix weak spans.
 2. Write project-defense conclusions from fixed-window and structure-aware runs.
 3. Decide whether `structure_aware` becomes the default GraphRAG strategy.
 4. Generate the AI-polished final report after review.
@@ -65,6 +66,8 @@ This system is for aviation learning and decision-support only. Do not claim to 
 - `uv run aviation-ai index build --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --collection-name phak_ch4_chunks_structure_aware`
 - `uv run aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware`
 - `uv run aviation-ai report graphrag-review`
+- `uv run aviation-ai cqs gold-draft`
+- `uv run aviation-ai report evidence-eval`
 - `uv run aviation-ai report hygiene --apply`
 - `uv run aviation-ai report project --no-ai`
 - `uv run aviation-ai report project --ai`

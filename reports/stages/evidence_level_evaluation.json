@@ -1,0 +1,4492 @@
+{
+  "experiments": {
+    "fixed_window": {
+      "aggregate": {
+        "graph": {
+          "answer_support_distribution": {
+            "insufficient_evidence": 1,
+            "partially_supported": 2,
+            "supported": 7
+          },
+          "chunk_recall_at_5": 0.8,
+          "citation_validity": 1.0,
+          "key_entity_coverage": 0.9,
+          "kg_triple_relevance": 0.9,
+          "questions_total": 10,
+          "span_hit_rate": 0.7
+        },
+        "hybrid": {
+          "answer_support_distribution": {
+            "partially_supported": 3,
+            "supported": 7
+          },
+          "chunk_recall_at_5": 0.8,
+          "citation_validity": 1.0,
+          "key_entity_coverage": 0.9,
+          "kg_triple_relevance": 0.9,
+          "questions_total": 10,
+          "span_hit_rate": 0.8
+        },
+        "vector": {
+          "answer_support_distribution": {
+            "insufficient_evidence": 2,
+            "partially_supported": 8
+          },
+          "chunk_recall_at_5": 1.0,
+          "citation_validity": 1.0,
+          "key_entity_coverage": 0.0,
+          "kg_triple_relevance": 0.0,
+          "questions_total": 10,
+          "span_hit_rate": 0.9
+        }
+      },
+      "label": "fixed_window",
+      "metadata": {
+        "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+        "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+        "chunking_strategy": "fixed_window",
+        "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+        "collection_name": "phak_ch4_chunks",
+        "gold_labels_path": null,
+        "graph_hops": 2,
+        "hybrid_top_k": 8,
+        "index_dir": "data/indexes/chroma",
+        "kg_path": "data/kg/06_phak_ch4_0.kg.jsonl",
+        "questions_total": 10,
+        "rebuild_chunks": false,
+        "rebuild_indexes": false,
+        "rebuild_kg": false,
+        "run_manifest": {
+          "artifacts": {
+            "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+            "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+            "index_dir": "data/indexes/chroma",
+            "kg_path": "data/kg/06_phak_ch4_0.kg.jsonl"
+          },
+          "chunking_strategy": "fixed_window",
+          "collection_name": "phak_ch4_chunks",
+          "command": "aviation-ai report hybrid-rag",
+          "created_at": "2026-05-19T00:52:13.034362+00:00",
+          "document": {},
+          "embedding": {
+            "backend": "chromadb_default_embedding_function",
+            "collection_name": "phak_ch4_chunks",
+            "collections": [
+              "phak_ch4_chunks"
+            ],
+            "index_dir": "data/indexes/chroma"
+          },
+          "experiment_name": "hybrid_rag",
+          "llm": {
+            "model": "gpt-5.4-mini",
+            "provider": "openai"
+          },
+          "parameters": {
+            "gold_labels_path": null,
+            "graph_hops": 2,
+            "hybrid_top_k": 8,
+            "max_questions": null,
+            "vector_top_k": 5
+          },
+          "rebuild_policy": {
+            "chunks": false,
+            "indexes": false,
+            "kg": false
+          },
+          "run_id": "hybrid-rag-20260519T005213Z"
+        },
+        "vector_top_k": 5
+      },
+      "present": true,
+      "records": [
+        {
+          "cq_id": "06-phak-ch4-0-p00-fa9830b888",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p00-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p01-c00"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "page 0",
+                  "page 1"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air",
+                  "atmosphere",
+                  "nitrogen",
+                  "oxygen"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 489,
+                    "char_start": 428,
+                    "page": 0,
+                    "text": "The atmosphere is an envelope of air that surrounds the Earth"
+                  },
+                  {
+                    "char_end": 738,
+                    "char_start": 685,
+                    "page": 0,
+                    "text": "The atmosphere is composed of 78 percent nitrogen, 21"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p00-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c00"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p00-c00-kg00-8748d82ca7",
+                  "06_phak_ch4_0-fixed_window-p00-c00-kg01-b36f7b1b3c",
+                  "06_phak_ch4_0-fixed_window-p00-c00-kg02-30f9108dc2",
+                  "06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b",
+                  "page 0",
+                  "page 1"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air",
+                  "atmosphere",
+                  "nitrogen",
+                  "oxygen"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 489,
+                    "char_start": 428,
+                    "page": 0,
+                    "text": "The atmosphere is an envelope of air that surrounds the Earth"
+                  },
+                  {
+                    "char_end": 738,
+                    "char_start": 685,
+                    "page": 0,
+                    "text": "The atmosphere is composed of 78 percent nitrogen, 21"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p00-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "page 0",
+                  "page 1",
+                  "page 2"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 489,
+                    "char_start": 428,
+                    "page": 0,
+                    "text": "The atmosphere is an envelope of air that surrounds the Earth"
+                  },
+                  {
+                    "char_end": 738,
+                    "char_start": 685,
+                    "page": 0,
+                    "text": "The atmosphere is composed of 78 percent nitrogen, 21"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should atmosphere, air, and constituent gases be modeled as a composition structure?",
+          "source_page": 0
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p01-dbcda7dbf4",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c07",
+                  "06_phak_ch4_0-structure_aware-p01-c08"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c00-kg02-77b9f87c3e",
+                  "06_phak_ch4_0-fixed_window-p02-c00-kg03-7dd3a19d10",
+                  "06_phak_ch4_0-fixed_window-p01-c03-kg00-52eb682acd",
+                  "06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b",
+                  "06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3",
+                  "06_phak_ch4_0-fixed_window-p01-c01-kg00-898cdb205b",
+                  "page 1",
+                  "page 2"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air",
+                  "boundary layer",
+                  "fluid",
+                  "friction",
+                  "viscosity",
+                  "wing"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1086,
+                    "char_start": 1039,
+                    "page": 1,
+                    "text": "ow-viscosity fluids are \u201cthin\u201d and flow easily."
+                  },
+                  {
+                    "char_end": 1844,
+                    "char_start": 1823,
+                    "page": 1,
+                    "text": "the viscosity of air."
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c07",
+                  "06_phak_ch4_0-structure_aware-p01-c08"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p01-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c00-kg02-77b9f87c3e",
+                  "06_phak_ch4_0-fixed_window-p01-c03-kg00-52eb682acd",
+                  "06_phak_ch4_0-fixed_window-p01-c00-kg00-898cdb205b",
+                  "06_phak_ch4_0-fixed_window-p01-c00-kg03-012eeeefb3",
+                  "06_phak_ch4_0-fixed_window-p01-c01-kg00-898cdb205b"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air",
+                  "boundary layer",
+                  "fluid",
+                  "friction",
+                  "viscosity",
+                  "wing"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1086,
+                    "char_start": 1039,
+                    "page": 1,
+                    "text": "ow-viscosity fluids are \u201cthin\u201d and flow easily."
+                  },
+                  {
+                    "char_end": 1844,
+                    "char_start": 1823,
+                    "page": 1,
+                    "text": "the viscosity of air."
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c07",
+                  "06_phak_ch4_0-structure_aware-p01-c08"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p08-c00"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "page 1"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1086,
+                    "char_start": 1039,
+                    "page": 1,
+                    "text": "ow-viscosity fluids are \u201cthin\u201d and flow easily."
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 1,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What classes and relations represent air as a fluid with viscosity, friction, and a boundary layer on a wing?",
+          "source_page": 1
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p02-dafae1ecbc",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c107",
+                  "06_phak_ch4_0-structure_aware-p02-c21"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p04-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p04-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c01-kg05-2bf419b2a5",
+                  "06_phak_ch4_0-fixed_window-p02-c02-kg04-cfd439979e",
+                  "06_phak_ch4_0-fixed_window-p02-c03-kg03-c590adea72",
+                  "page 2",
+                  "page 4"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "atmospheric pressure",
+                  "density",
+                  "temperature"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2736,
+                    "char_start": 2684,
+                    "page": 2,
+                    "text": "Due to the changing atmospheric pressure, a standard"
+                  },
+                  {
+                    "char_end": 2792,
+                    "char_start": 2761,
+                    "page": 2,
+                    "text": "The standard atmosphere at sea"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c107",
+                  "06_phak_ch4_0-structure_aware-p02-c21"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c00",
+                  "06_phak_ch4_0-fixed_window-p04-c01",
+                  "06_phak_ch4_0-fixed_window-p02-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p04-c01-kg05-2bf419b2a5",
+                  "06_phak_ch4_0-fixed_window-p04-c01-kg06-b55090d06e",
+                  "06_phak_ch4_0-fixed_window-p02-c02-kg05-4ed6928f68",
+                  "06_phak_ch4_0-fixed_window-p02-c02-kg06-54921c8ed3",
+                  "page 2",
+                  "page 3",
+                  "page 4"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "atmospheric pressure",
+                  "density",
+                  "temperature"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2736,
+                    "char_start": 2684,
+                    "page": 2,
+                    "text": "Due to the changing atmospheric pressure, a standard"
+                  },
+                  {
+                    "char_end": 2792,
+                    "char_start": 2761,
+                    "page": 2,
+                    "text": "The standard atmosphere at sea"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c107",
+                  "06_phak_ch4_0-structure_aware-p02-c21"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p02-c00"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c00"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "page 2",
+                  "page 3"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2736,
+                    "char_start": 2684,
+                    "page": 2,
+                    "text": "Due to the changing atmospheric pressure, a standard"
+                  },
+                  {
+                    "char_end": 2792,
+                    "char_start": 2761,
+                    "page": 2,
+                    "text": "The standard atmosphere at sea"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should standard atmosphere values for pressure, temperature, and density be modeled?",
+          "source_page": 2
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p03-f463ba25ee",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c06",
+                  "06_phak_ch4_0-structure_aware-p03-c10"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c03"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c01-kg00-851d22d42a",
+                  "06_phak_ch4_0-fixed_window-p03-c03-kg02-db67ae14db"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air density",
+                  "aircraft performance",
+                  "humidity"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2111,
+                    "char_start": 2086,
+                    "page": 3,
+                    "text": "ease in air density means"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 1,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c06",
+                  "06_phak_ch4_0-structure_aware-p03-c10"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p04-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p04-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c01-kg00-851d22d42a",
+                  "06_phak_ch4_0-fixed_window-p03-c01-kg02-a140c7af03",
+                  "06_phak_ch4_0-fixed_window-p03-c03-kg00-cd15092b29",
+                  "06_phak_ch4_0-fixed_window-p03-c03-kg01-851d22d42a",
+                  "06_phak_ch4_0-fixed_window-p03-c03-kg02-db67ae14db",
+                  "06_phak_ch4_0-fixed_window-p03-c03-kg03-5f41309182",
+                  "06_phak_ch4_0-fixed_window-p03-c03-kg04-2bf419b2a5",
+                  "06_phak_ch4_0-fixed_window-p03-c03-kg05-3d55cb1ee1",
+                  "page 3",
+                  "page 4"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air density",
+                  "aircraft performance",
+                  "humidity"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2415,
+                    "char_start": 2353,
+                    "page": 3,
+                    "text": "a specific density, its pressure altitude and density altitude"
+                  },
+                  {
+                    "char_end": 2111,
+                    "char_start": 2086,
+                    "page": 3,
+                    "text": "ease in air density means"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c06",
+                  "06_phak_ch4_0-structure_aware-p03-c10"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p04-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p04-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p04-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p04-c01",
+                  "page 3",
+                  "page 4"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2415,
+                    "char_start": 2353,
+                    "page": 3,
+                    "text": "a specific density, its pressure altitude and density altitude"
+                  },
+                  {
+                    "char_end": 2111,
+                    "char_start": 2086,
+                    "page": 3,
+                    "text": "ease in air density means"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What causal schema links pressure altitude, density altitude, humidity, air density, and aircraft performance?",
+          "source_page": 3
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c44",
+                  "06_phak_ch4_0-structure_aware-p05-c45"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p01-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c00"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p04-c03-kg04-61250fc89b",
+                  "06_phak_ch4_0-fixed_window-p04-c04-kg03-bb6c8ab2da",
+                  "page 4"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "action",
+                  "force"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c44",
+                  "06_phak_ch4_0-structure_aware-p05-c45"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p04-c04-kg03-bb6c8ab2da",
+                  "page 4",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "action",
+                  "force"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c44",
+                  "06_phak_ch4_0-structure_aware-p05-c45"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p04-c04",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "page 4",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 313,
+                    "char_start": 251,
+                    "page": 5,
+                    "text": "acceleration is inversely proportional to the mass of the body"
+                  },
+                  {
+                    "char_end": 688,
+                    "char_start": 666,
+                    "page": 5,
+                    "text": "and opposite reaction."
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should Newton's laws be represented as force and motion relations for aircraft?",
+          "source_page": 5
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p05-bb9a93ef72",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c46"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-fixed_window-p04-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c02-kg00-45048a4272",
+                  "06_phak_ch4_0-fixed_window-p05-c00-kg01-cd6545eea2",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "pressure"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c46"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p05-c00-kg01-cd6545eea2",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "pressure"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1067,
+                    "char_start": 1035,
+                    "page": 5,
+                    "text": "inciple of Differential Pressure"
+                  },
+                  {
+                    "char_end": 1184,
+                    "char_start": 1124,
+                    "page": 5,
+                    "text": "Bernoulli, a Swiss mathematician, explained how the pressure"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c46"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c00"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c04"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "page 5",
+                  "page 6"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1067,
+                    "char_start": 1035,
+                    "page": 5,
+                    "text": "inciple of Differential Pressure"
+                  },
+                  {
+                    "char_end": 1184,
+                    "char_start": 1124,
+                    "page": 5,
+                    "text": "Bernoulli, a Swiss mathematician, explained how the pressure"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What relation captures Bernoulli and venturi pressure decrease as air velocity increases?",
+          "source_page": 5
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p06-a653e00686",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c02",
+                  "06_phak_ch4_0-structure_aware-p06-c17",
+                  "06_phak_ch4_0-structure_aware-p06-c18",
+                  "06_phak_ch4_0-structure_aware-p06-c19"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c00"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c03-kg04-7543176b0f",
+                  "06_phak_ch4_0-fixed_window-p06-c03-kg01-d374f2f475",
+                  "06_phak_ch4_0-fixed_window-p05-c03-kg00-c2d45fd4f6",
+                  "06_phak_ch4_0-fixed_window-p05-c03-kg01-a87aa93e4f",
+                  "06_phak_ch4_0-fixed_window-p05-c03-kg02-1560082613",
+                  "06_phak_ch4_0-fixed_window-p05-c03-kg03-e6f8bc1000"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "chord line",
+                  "leading edge",
+                  "lower surface",
+                  "trailing edge"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 399,
+                    "char_start": 337,
+                    "page": 6,
+                    "text": "from the leading edge to the trailing edge, is the mean camber"
+                  },
+                  {
+                    "char_end": 17,
+                    "char_start": 4,
+                    "page": 6,
+                    "text": "Early airfoil"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c02",
+                  "06_phak_ch4_0-structure_aware-p06-c17",
+                  "06_phak_ch4_0-structure_aware-p06-c18",
+                  "06_phak_ch4_0-structure_aware-p06-c19"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p07-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "page 5",
+                  "page 6"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "chord line",
+                  "leading edge",
+                  "lower surface",
+                  "trailing edge"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 399,
+                    "char_start": 337,
+                    "page": 6,
+                    "text": "from the leading edge to the trailing edge, is the mean camber"
+                  },
+                  {
+                    "char_end": 17,
+                    "char_start": 4,
+                    "page": 6,
+                    "text": "Early airfoil"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "insufficient_evidence",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c02",
+                  "06_phak_ch4_0-structure_aware-p06-c17",
+                  "06_phak_ch4_0-structure_aware-p06-c18",
+                  "06_phak_ch4_0-structure_aware-p06-c19"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c02"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": true,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p05-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "page 5",
+                  "page 6"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 399,
+                    "char_start": 337,
+                    "page": 6,
+                    "text": "from the leading edge to the trailing edge, is the mean camber"
+                  },
+                  {
+                    "char_end": 17,
+                    "char_start": 4,
+                    "page": 6,
+                    "text": "Early airfoil"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What partonomy should represent airfoil structure and section geometry?",
+          "source_page": 6
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p07-9737986760",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "insufficient_evidence",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c03",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c26"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p04-c02",
+                  "06_phak_ch4_0-fixed_window-p04-c03"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": true,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p03-c01",
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p08-c00-kg02-09be8462ad",
+                  "06_phak_ch4_0-fixed_window-p03-c01-kg01-654437250f",
+                  "06_phak_ch4_0-fixed_window-p04-c03-kg03-8c9532872d",
+                  "06_phak_ch4_0-fixed_window-p05-c01-kg01-618e279253",
+                  "page 3",
+                  "page 4",
+                  "page 5",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "flow turning",
+                  "lift"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c03",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c26"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p08-c00-kg02-09be8462ad",
+                  "06_phak_ch4_0-fixed_window-p05-c01-kg01-618e279253",
+                  "page 4",
+                  "page 7",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "flow turning",
+                  "lift"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c03",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c26"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c01"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p04-c03",
+                  "06_phak_ch4_0-fixed_window-p08-c00"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "page 7",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should lift be modeled as an aerodynamic force produced by pressure differences and flow turning?",
+          "source_page": 7
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p07-59d55c9639",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c00-kg00-865d5a01fd",
+                  "06_phak_ch4_0-fixed_window-p07-c02-kg00-865d5a01fd",
+                  "page 7"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "pressure distribution"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 222,
+                    "char_start": 171,
+                    "page": 7,
+                    "text": "Pressure distribution on an airfoil and CP changes"
+                  },
+                  {
+                    "char_end": 24,
+                    "char_start": 4,
+                    "page": 7,
+                    "text": "High angle of attack"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c01"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p07-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c00-kg00-865d5a01fd",
+                  "06_phak_ch4_0-fixed_window-p07-c02-kg00-865d5a01fd",
+                  "page 7"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "pressure distribution"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 222,
+                    "char_start": 171,
+                    "page": 7,
+                    "text": "Pressure distribution on an airfoil and CP changes"
+                  },
+                  {
+                    "char_end": 24,
+                    "char_start": 4,
+                    "page": 7,
+                    "text": "High angle of attack"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "page 7"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 222,
+                    "char_start": 171,
+                    "page": 7,
+                    "text": "Pressure distribution on an airfoil and CP changes"
+                  },
+                  {
+                    "char_end": 24,
+                    "char_start": 4,
+                    "page": 7,
+                    "text": "High angle of attack"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What schema links angle of attack to airfoil pressure distribution and center of pressure movement?",
+          "source_page": 7
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p08-c05",
+                  "06_phak_ch4_0-structure_aware-p08-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-fixed_window-p08-c01-kg05-ee7a4b62dd",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 1,
+                "supporting_triple_count": 1,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1729,
+                    "char_start": 1693,
+                    "page": 8,
+                    "text": "Winglets can be added to the tip of"
+                  },
+                  {
+                    "char_end": 1787,
+                    "char_start": 1761,
+                    "page": 8,
+                    "text": "The winglets act as a dam"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p08-c05",
+                  "06_phak_ch4_0-structure_aware-p08-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p08-c01-kg05-ee7a4b62dd",
+                  "page 6",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 1,
+                "supporting_triple_count": 1,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1729,
+                    "char_start": 1693,
+                    "page": 8,
+                    "text": "Winglets can be added to the tip of"
+                  },
+                  {
+                    "char_end": 1787,
+                    "char_start": 1761,
+                    "page": 8,
+                    "text": "The winglets act as a dam"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "insufficient_evidence",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p08-c05",
+                  "06_phak_ch4_0-structure_aware-p08-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c03",
+                  "06_phak_ch4_0-fixed_window-p06-c03",
+                  "06_phak_ch4_0-fixed_window-p05-c02"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": true,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1729,
+                    "char_start": 1693,
+                    "page": 8,
+                    "text": "Winglets can be added to the tip of"
+                  },
+                  {
+                    "char_end": 1787,
+                    "char_start": 1761,
+                    "page": 8,
+                    "text": "The winglets act as a dam"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+          "source_page": 8
+        }
+      ]
+    },
+    "structure_aware": {
+      "aggregate": {
+        "graph": {
+          "answer_support_distribution": {
+            "insufficient_evidence": 1,
+            "partially_supported": 2,
+            "supported": 7
+          },
+          "chunk_recall_at_5": 0.7,
+          "citation_validity": 1.0,
+          "key_entity_coverage": 0.9,
+          "kg_triple_relevance": 0.9,
+          "questions_total": 10,
+          "span_hit_rate": 0.7
+        },
+        "hybrid": {
+          "answer_support_distribution": {
+            "partially_supported": 1,
+            "supported": 9
+          },
+          "chunk_recall_at_5": 0.9,
+          "citation_validity": 1.0,
+          "key_entity_coverage": 0.9,
+          "kg_triple_relevance": 0.9,
+          "questions_total": 10,
+          "span_hit_rate": 0.8
+        },
+        "vector": {
+          "answer_support_distribution": {
+            "insufficient_evidence": 2,
+            "partially_supported": 8
+          },
+          "chunk_recall_at_5": 0.7,
+          "citation_validity": 1.0,
+          "key_entity_coverage": 0.0,
+          "kg_triple_relevance": 0.0,
+          "questions_total": 10,
+          "span_hit_rate": 0.6
+        }
+      },
+      "label": "structure_aware",
+      "metadata": {
+        "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+        "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+        "chunking_strategy": "structure_aware",
+        "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+        "collection_name": "phak_ch4_chunks_structure_aware",
+        "gold_labels_path": null,
+        "graph_hops": 2,
+        "hybrid_top_k": 8,
+        "index_dir": "data/indexes/chroma",
+        "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+        "questions_total": 10,
+        "rebuild_chunks": false,
+        "rebuild_indexes": false,
+        "rebuild_kg": false,
+        "run_manifest": {
+          "artifacts": {
+            "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+            "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+            "index_dir": "data/indexes/chroma",
+            "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"
+          },
+          "chunking_strategy": "structure_aware",
+          "collection_name": "phak_ch4_chunks_structure_aware",
+          "command": "aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware",
+          "created_at": "2026-05-19T01:24:26.466498+00:00",
+          "document": {},
+          "embedding": {
+            "backend": "chromadb_default_embedding_function",
+            "collection_name": "phak_ch4_chunks_structure_aware",
+            "collections": [
+              "phak_ch4_chunks_structure_aware"
+            ],
+            "index_dir": "data/indexes/chroma"
+          },
+          "experiment_name": "hybrid_rag",
+          "llm": {
+            "model": "gpt-5.4-mini",
+            "provider": "openai"
+          },
+          "parameters": {
+            "gold_labels_path": null,
+            "graph_hops": 2,
+            "hybrid_top_k": 8,
+            "max_questions": null,
+            "vector_top_k": 5
+          },
+          "rebuild_policy": {
+            "chunks": false,
+            "indexes": false,
+            "kg": false
+          },
+          "run_id": "hybrid-rag-20260519T012426Z"
+        },
+        "vector_top_k": 5
+      },
+      "present": true,
+      "records": [
+        {
+          "cq_id": "06-phak-ch4-0-p00-fa9830b888",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p00-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p00-c06"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p07-c24",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p00-c06",
+                  "06_phak_ch4_0-structure_aware-p00-c07"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c06",
+                  "06_phak_ch4_0-structure_aware-p00-c04-kg00-8748d82ca7",
+                  "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b",
+                  "06_phak_ch4_0-structure_aware-p00-c04-kg02-bf8ee5a3ea",
+                  "06_phak_ch4_0-structure_aware-p00-c06-kg02-cb7d201076",
+                  "page 0"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air",
+                  "atmosphere",
+                  "oxygen"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 489,
+                    "char_start": 428,
+                    "page": 0,
+                    "text": "The atmosphere is an envelope of air that surrounds the Earth"
+                  },
+                  {
+                    "char_end": 738,
+                    "char_start": 685,
+                    "page": 0,
+                    "text": "The atmosphere is composed of 78 percent nitrogen, 21"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p00-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c05"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c03",
+                  "06_phak_ch4_0-structure_aware-p07-c24",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c00"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c06",
+                  "06_phak_ch4_0-structure_aware-p00-c07",
+                  "06_phak_ch4_0-structure_aware-p00-c04-kg00-8748d82ca7",
+                  "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b",
+                  "06_phak_ch4_0-structure_aware-p00-c06-kg02-cb7d201076",
+                  "06_phak_ch4_0-structure_aware-p00-c07-kg00-bcf45f34cc"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air",
+                  "atmosphere",
+                  "oxygen"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 489,
+                    "char_start": 428,
+                    "page": 0,
+                    "text": "The atmosphere is an envelope of air that surrounds the Earth"
+                  },
+                  {
+                    "char_end": 738,
+                    "char_start": 685,
+                    "page": 0,
+                    "text": "The atmosphere is composed of 78 percent nitrogen, 21"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p00-c00",
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c05",
+                  "06_phak_ch4_0-structure_aware-p00-c06"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p00-c04"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p00-c03",
+                  "06_phak_ch4_0-structure_aware-p03-c00",
+                  "06_phak_ch4_0-structure_aware-p01-c03",
+                  "06_phak_ch4_0-structure_aware-p02-c110"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "page 0"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 489,
+                    "char_start": 428,
+                    "page": 0,
+                    "text": "The atmosphere is an envelope of air that surrounds the Earth"
+                  },
+                  {
+                    "char_end": 738,
+                    "char_start": 685,
+                    "page": 0,
+                    "text": "The atmosphere is composed of 78 percent nitrogen, 21"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should atmosphere, air, and constituent gases be modeled as a composition structure?",
+          "source_page": 0
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p01-dbcda7dbf4",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c07",
+                  "06_phak_ch4_0-structure_aware-p01-c08"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c08"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p02-c101",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c08",
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p01-c01"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p02-c101",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c08",
+                  "06_phak_ch4_0-structure_aware-p00-c04",
+                  "06_phak_ch4_0-structure_aware-p01-c01",
+                  "06_phak_ch4_0-structure_aware-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p02-c101-kg03-856c4e4d9d",
+                  "06_phak_ch4_0-structure_aware-p01-c06-kg00-d540390ba0",
+                  "06_phak_ch4_0-structure_aware-p01-c08-kg03-b158087c7c",
+                  "06_phak_ch4_0-structure_aware-p02-c101-kg00-88fb08cc69",
+                  "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b",
+                  "06_phak_ch4_0-structure_aware-p01-c01-kg00-9af2938ab8",
+                  "06_phak_ch4_0-structure_aware-p01-c02-kg00-178e9ee3e0",
+                  "06_phak_ch4_0-structure_aware-p01-c02-kg01-a5b105db61",
+                  "page 0",
+                  "page 1",
+                  "page 2"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air",
+                  "boundary layer",
+                  "fluid",
+                  "friction",
+                  "viscosity",
+                  "wing"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1844,
+                    "char_start": 1823,
+                    "page": 1,
+                    "text": "the viscosity of air."
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 1,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c07",
+                  "06_phak_ch4_0-structure_aware-p01-c08"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p01-c06"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p02-c101",
+                  "06_phak_ch4_0-structure_aware-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p02-c102",
+                  "06_phak_ch4_0-structure_aware-p01-c03"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p02-c101",
+                  "06_phak_ch4_0-structure_aware-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c08",
+                  "06_phak_ch4_0-structure_aware-p02-c101-kg03-856c4e4d9d",
+                  "06_phak_ch4_0-structure_aware-p01-c06-kg00-d540390ba0",
+                  "06_phak_ch4_0-structure_aware-p01-c08-kg03-b158087c7c",
+                  "06_phak_ch4_0-structure_aware-p02-c101-kg00-88fb08cc69",
+                  "06_phak_ch4_0-structure_aware-p01-c02-kg00-178e9ee3e0",
+                  "06_phak_ch4_0-structure_aware-p01-c02-kg01-a5b105db61"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air",
+                  "boundary layer",
+                  "fluid",
+                  "friction",
+                  "viscosity",
+                  "wing"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1844,
+                    "char_start": 1823,
+                    "page": 1,
+                    "text": "the viscosity of air."
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 1,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "insufficient_evidence",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p01-c00",
+                  "06_phak_ch4_0-fixed_window-p01-c01",
+                  "06_phak_ch4_0-fixed_window-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p01-c06",
+                  "06_phak_ch4_0-structure_aware-p01-c07",
+                  "06_phak_ch4_0-structure_aware-p01-c08"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p02-c102",
+                  "06_phak_ch4_0-structure_aware-p01-c03",
+                  "06_phak_ch4_0-structure_aware-p02-c103",
+                  "06_phak_ch4_0-structure_aware-p02-c101"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": true,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p01-c02",
+                  "06_phak_ch4_0-structure_aware-p02-c102",
+                  "06_phak_ch4_0-structure_aware-p02-c103",
+                  "06_phak_ch4_0-structure_aware-p02-c101",
+                  "page 1",
+                  "page 2"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What classes and relations represent air as a fluid with viscosity, friction, and a boundary layer on a wing?",
+          "source_page": 1
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p02-dafae1ecbc",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "insufficient_evidence",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c107",
+                  "06_phak_ch4_0-structure_aware-p02-c21"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p02-c106"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p02-c35",
+                  "06_phak_ch4_0-structure_aware-p02-c49",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c32",
+                  "06_phak_ch4_0-structure_aware-p02-c34"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": true,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p02-c49",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c32",
+                  "06_phak_ch4_0-structure_aware-p02-c36",
+                  "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+                  "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c",
+                  "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+                  "page 2"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "atmospheric pressure",
+                  "standard atmosphere",
+                  "temperature"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c107",
+                  "06_phak_ch4_0-structure_aware-p02-c21"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p02-c106"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p02-c35",
+                  "06_phak_ch4_0-structure_aware-p03-c01",
+                  "06_phak_ch4_0-structure_aware-p02-c49",
+                  "06_phak_ch4_0-structure_aware-p02-c50",
+                  "06_phak_ch4_0-structure_aware-p02-c106"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p02-c49",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c32",
+                  "06_phak_ch4_0-structure_aware-p02-c47",
+                  "06_phak_ch4_0-structure_aware-p02-c49-kg01-af3d2c1ffc",
+                  "06_phak_ch4_0-structure_aware-p02-c49-kg02-acb42ecf0e",
+                  "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+                  "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c",
+                  "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff",
+                  "page 2"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "atmospheric pressure",
+                  "standard atmosphere",
+                  "temperature"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "insufficient_evidence",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p02-c00",
+                  "06_phak_ch4_0-fixed_window-p02-c02",
+                  "06_phak_ch4_0-fixed_window-p02-c03",
+                  "06_phak_ch4_0-structure_aware-p02-c106",
+                  "06_phak_ch4_0-structure_aware-p02-c107",
+                  "06_phak_ch4_0-structure_aware-p02-c21"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p03-c01",
+                  "06_phak_ch4_0-structure_aware-p02-c50",
+                  "06_phak_ch4_0-structure_aware-p02-c51",
+                  "06_phak_ch4_0-structure_aware-p02-c47",
+                  "06_phak_ch4_0-structure_aware-p02-c48"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": true,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p03-c01",
+                  "06_phak_ch4_0-structure_aware-p02-c50",
+                  "06_phak_ch4_0-structure_aware-p02-c51",
+                  "06_phak_ch4_0-structure_aware-p02-c47",
+                  "06_phak_ch4_0-structure_aware-p02-c48",
+                  "page 2",
+                  "page 3"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should standard atmosphere values for pressure, temperature, and density be modeled?",
+          "source_page": 2
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p03-f463ba25ee",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c06",
+                  "06_phak_ch4_0-structure_aware-p03-c10"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p03-c05"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p04-c03",
+                  "06_phak_ch4_0-structure_aware-p03-c05"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p04-c03",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c04-kg03-b3bc48b215",
+                  "06_phak_ch4_0-structure_aware-p04-c03-kg00-3d55cb1ee1",
+                  "06_phak_ch4_0-structure_aware-p04-c03-kg02-5bc39328d7",
+                  "06_phak_ch4_0-structure_aware-p04-c03-kg03-ff8b142e2f",
+                  "06_phak_ch4_0-structure_aware-p04-c03-kg04-3722b6cd1a",
+                  "06_phak_ch4_0-structure_aware-p03-c04-kg00-851d22d42a",
+                  "06_phak_ch4_0-structure_aware-p03-c05-kg01-4f32705e99",
+                  "page 3",
+                  "page 4"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air density",
+                  "aircraft performance",
+                  "density altitude",
+                  "humidity"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2415,
+                    "char_start": 2353,
+                    "page": 3,
+                    "text": "a specific density, its pressure altitude and density altitude"
+                  },
+                  {
+                    "char_end": 2111,
+                    "char_start": 2086,
+                    "page": 3,
+                    "text": "ease in air density means"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c06",
+                  "06_phak_ch4_0-structure_aware-p03-c10"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p03-c05"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c07",
+                  "06_phak_ch4_0-structure_aware-p04-c03",
+                  "06_phak_ch4_0-structure_aware-p04-c08"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p04-c03",
+                  "06_phak_ch4_0-structure_aware-p03-c04-kg03-b3bc48b215",
+                  "06_phak_ch4_0-structure_aware-p04-c03-kg00-3d55cb1ee1",
+                  "06_phak_ch4_0-structure_aware-p04-c03-kg02-5bc39328d7",
+                  "06_phak_ch4_0-structure_aware-p04-c03-kg03-ff8b142e2f",
+                  "06_phak_ch4_0-structure_aware-p04-c03-kg04-3722b6cd1a",
+                  "06_phak_ch4_0-structure_aware-p03-c05-kg01-4f32705e99"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "air density",
+                  "aircraft performance",
+                  "density altitude",
+                  "humidity"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2415,
+                    "char_start": 2353,
+                    "page": 3,
+                    "text": "a specific density, its pressure altitude and density altitude"
+                  },
+                  {
+                    "char_end": 2111,
+                    "char_start": 2086,
+                    "page": 3,
+                    "text": "ease in air density means"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p03-c02",
+                  "06_phak_ch4_0-fixed_window-p03-c03",
+                  "06_phak_ch4_0-fixed_window-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c06",
+                  "06_phak_ch4_0-structure_aware-p03-c10"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c06"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p03-c07",
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p04-c08",
+                  "06_phak_ch4_0-structure_aware-p03-c06"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p03-c05",
+                  "06_phak_ch4_0-structure_aware-p03-c04",
+                  "06_phak_ch4_0-structure_aware-p04-c08",
+                  "06_phak_ch4_0-structure_aware-p03-c06",
+                  "page 3",
+                  "page 4"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 2415,
+                    "char_start": 2353,
+                    "page": 3,
+                    "text": "a specific density, its pressure altitude and density altitude"
+                  },
+                  {
+                    "char_end": 2111,
+                    "char_start": 2086,
+                    "page": 3,
+                    "text": "ease in air density means"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What causal schema links pressure altitude, density altitude, humidity, air density, and aircraft performance?",
+          "source_page": 3
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c44",
+                  "06_phak_ch4_0-structure_aware-p05-c45"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c44"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p04-c10",
+                  "06_phak_ch4_0-structure_aware-p04-c11",
+                  "06_phak_ch4_0-structure_aware-p00-c02",
+                  "06_phak_ch4_0-structure_aware-p04-c12",
+                  "06_phak_ch4_0-structure_aware-p05-c44"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p00-c02",
+                  "06_phak_ch4_0-structure_aware-p04-c12",
+                  "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e",
+                  "06_phak_ch4_0-structure_aware-p04-c12-kg00-c9bac8bd38",
+                  "page 0",
+                  "page 4"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "action",
+                  "force",
+                  "reaction"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c44",
+                  "06_phak_ch4_0-structure_aware-p05-c45"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c43"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p00-c02",
+                  "06_phak_ch4_0-structure_aware-p04-c11",
+                  "06_phak_ch4_0-structure_aware-p04-c10",
+                  "06_phak_ch4_0-structure_aware-p04-c12",
+                  "06_phak_ch4_0-structure_aware-p05-c43"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p00-c02",
+                  "06_phak_ch4_0-structure_aware-p04-c11",
+                  "06_phak_ch4_0-structure_aware-p04-c12",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c44",
+                  "06_phak_ch4_0-structure_aware-p04-c11-kg00-45483e222a",
+                  "06_phak_ch4_0-structure_aware-p04-c12-kg00-c9bac8bd38",
+                  "06_phak_ch4_0-structure_aware-p05-c44-kg01-63f0c56092",
+                  "page 0",
+                  "page 4",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "action",
+                  "force",
+                  "reaction"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 313,
+                    "char_start": 251,
+                    "page": 5,
+                    "text": "acceleration is inversely proportional to the mass of the body"
+                  },
+                  {
+                    "char_end": 688,
+                    "char_start": 666,
+                    "page": 5,
+                    "text": "and opposite reaction."
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c44",
+                  "06_phak_ch4_0-structure_aware-p05-c45"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c43"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p00-c02",
+                  "06_phak_ch4_0-structure_aware-p04-c11",
+                  "06_phak_ch4_0-structure_aware-p04-c12",
+                  "06_phak_ch4_0-structure_aware-p04-c10",
+                  "06_phak_ch4_0-structure_aware-p05-c43"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p04-c11",
+                  "06_phak_ch4_0-structure_aware-p04-c12",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "page 4",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 313,
+                    "char_start": 251,
+                    "page": 5,
+                    "text": "acceleration is inversely proportional to the mass of the body"
+                  },
+                  {
+                    "char_end": 688,
+                    "char_start": 666,
+                    "page": 5,
+                    "text": "and opposite reaction."
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should Newton's laws be represented as force and motion relations for aircraft?",
+          "source_page": 5
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p05-bb9a93ef72",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c46"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p06-c25",
+                  "06_phak_ch4_0-structure_aware-p01-c07",
+                  "06_phak_ch4_0-structure_aware-p01-c08"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c43-kg00-d7a16bc022",
+                  "06_phak_ch4_0-structure_aware-p05-c45-kg05-44dec62d93",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "pressure",
+                  "velocity",
+                  "venturi"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1067,
+                    "char_start": 1035,
+                    "page": 5,
+                    "text": "inciple of Differential Pressure"
+                  },
+                  {
+                    "char_end": 1184,
+                    "char_start": 1124,
+                    "page": 5,
+                    "text": "Bernoulli, a Swiss mathematician, explained how the pressure"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c46"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c43"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p06-c25",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p06-c24",
+                  "06_phak_ch4_0-structure_aware-p01-c07"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c43-kg00-d7a16bc022",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "pressure",
+                  "velocity",
+                  "venturi"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1067,
+                    "char_start": 1035,
+                    "page": 5,
+                    "text": "inciple of Differential Pressure"
+                  },
+                  {
+                    "char_end": 1184,
+                    "char_start": 1124,
+                    "page": 5,
+                    "text": "Bernoulli, a Swiss mathematician, explained how the pressure"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p05-c00",
+                  "06_phak_ch4_0-fixed_window-p05-c01",
+                  "06_phak_ch4_0-fixed_window-p05-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c46"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c43"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p06-c25",
+                  "06_phak_ch4_0-structure_aware-p06-c24",
+                  "06_phak_ch4_0-structure_aware-p07-c21",
+                  "06_phak_ch4_0-structure_aware-p05-c43"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p05-c45",
+                  "06_phak_ch4_0-structure_aware-p05-c43",
+                  "page 5"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1067,
+                    "char_start": 1035,
+                    "page": 5,
+                    "text": "inciple of Differential Pressure"
+                  },
+                  {
+                    "char_end": 1184,
+                    "char_start": 1124,
+                    "page": 5,
+                    "text": "Bernoulli, a Swiss mathematician, explained how the pressure"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What relation captures Bernoulli and venturi pressure decrease as air velocity increases?",
+          "source_page": 5
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p06-a653e00686",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c02",
+                  "06_phak_ch4_0-structure_aware-p06-c17",
+                  "06_phak_ch4_0-structure_aware-p06-c18",
+                  "06_phak_ch4_0-structure_aware-p06-c19"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c48",
+                  "06_phak_ch4_0-structure_aware-p05-c49",
+                  "06_phak_ch4_0-structure_aware-p06-c04"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p05-c48",
+                  "06_phak_ch4_0-structure_aware-p05-c49"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "leading edge",
+                  "lower surface",
+                  "trailing edge"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 17,
+                    "char_start": 4,
+                    "page": 6,
+                    "text": "Early airfoil"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 1,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c02",
+                  "06_phak_ch4_0-structure_aware-p06-c17",
+                  "06_phak_ch4_0-structure_aware-p06-c18",
+                  "06_phak_ch4_0-structure_aware-p06-c19"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p06-c17"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c48",
+                  "06_phak_ch4_0-structure_aware-p05-c49",
+                  "06_phak_ch4_0-structure_aware-p06-c15",
+                  "06_phak_ch4_0-structure_aware-p06-c04",
+                  "06_phak_ch4_0-structure_aware-p06-c17"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p05-c48",
+                  "06_phak_ch4_0-structure_aware-p05-c49",
+                  "06_phak_ch4_0-structure_aware-p05-c48-kg00-e6f8bc1000",
+                  "06_phak_ch4_0-structure_aware-p05-c48-kg01-c2d45fd4f6",
+                  "06_phak_ch4_0-structure_aware-p05-c48-kg02-a87aa93e4f",
+                  "06_phak_ch4_0-structure_aware-p05-c49-kg00-eab0721eca",
+                  "06_phak_ch4_0-structure_aware-p05-c49-kg01-bdaad57a7f",
+                  "06_phak_ch4_0-structure_aware-p05-c49-kg02-8e3723e3ee"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "leading edge",
+                  "lower surface",
+                  "trailing edge"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 17,
+                    "char_start": 4,
+                    "page": 6,
+                    "text": "Early airfoil"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 1,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p06-c00",
+                  "06_phak_ch4_0-fixed_window-p06-c01",
+                  "06_phak_ch4_0-fixed_window-p06-c02",
+                  "06_phak_ch4_0-structure_aware-p06-c17",
+                  "06_phak_ch4_0-structure_aware-p06-c18",
+                  "06_phak_ch4_0-structure_aware-p06-c19"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p06-c17"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p05-c48",
+                  "06_phak_ch4_0-structure_aware-p06-c15",
+                  "06_phak_ch4_0-structure_aware-p06-c17",
+                  "06_phak_ch4_0-structure_aware-p06-c13",
+                  "06_phak_ch4_0-structure_aware-p06-c12"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p05-c48",
+                  "06_phak_ch4_0-structure_aware-p06-c15",
+                  "06_phak_ch4_0-structure_aware-p06-c17",
+                  "page 5",
+                  "page 6"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What partonomy should represent airfoil structure and section geometry?",
+          "source_page": 6
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p07-9737986760",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c03",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c26"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p02-c103",
+                  "06_phak_ch4_0-structure_aware-p02-c105",
+                  "06_phak_ch4_0-structure_aware-p04-c09",
+                  "06_phak_ch4_0-structure_aware-p05-c44",
+                  "06_phak_ch4_0-structure_aware-p06-c19"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p02-c105",
+                  "06_phak_ch4_0-structure_aware-p06-c19",
+                  "06_phak_ch4_0-structure_aware-p06-c20",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c20",
+                  "06_phak_ch4_0-structure_aware-p02-c105-kg01-95989858d4",
+                  "06_phak_ch4_0-structure_aware-p06-c19-kg06-654437250f",
+                  "06_phak_ch4_0-structure_aware-p07-c19-kg01-9844b11d81",
+                  "06_phak_ch4_0-structure_aware-p07-c20-kg00-49247f068d",
+                  "page 2",
+                  "page 6",
+                  "page 7"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "lift"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c03",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c26"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c22"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p04-c09",
+                  "06_phak_ch4_0-structure_aware-p02-c103",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p02-c105",
+                  "06_phak_ch4_0-structure_aware-p07-c23"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p04-c09",
+                  "06_phak_ch4_0-structure_aware-p02-c103",
+                  "06_phak_ch4_0-structure_aware-p02-c105",
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p02-c105-kg01-95989858d4",
+                  "06_phak_ch4_0-structure_aware-p04-c09-kg02-813c55c60f",
+                  "06_phak_ch4_0-structure_aware-p07-c19-kg01-9844b11d81",
+                  "06_phak_ch4_0-structure_aware-p07-c20-kg00-49247f068d",
+                  "page 2",
+                  "page 4",
+                  "page 7",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "lift"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c03",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c26"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c22"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p05-c47",
+                  "06_phak_ch4_0-structure_aware-p04-c09"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p04-c09",
+                  "page 4",
+                  "page 7",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [],
+                "span_hit": false,
+                "span_hit_count": 0,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should lift be modeled as an aerodynamic force produced by pressure differences and flow turning?",
+          "source_page": 7
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p07-59d55c9639",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p06-c23",
+                  "06_phak_ch4_0-structure_aware-p06-c24"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p07-c19-kg00-e0ca3cf11d"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "pressure distribution"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 222,
+                    "char_start": 171,
+                    "page": 7,
+                    "text": "Pressure distribution on an airfoil and CP changes"
+                  },
+                  {
+                    "char_end": 24,
+                    "char_start": 4,
+                    "page": 7,
+                    "text": "High angle of attack"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p07-c22"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p06-c19",
+                  "06_phak_ch4_0-structure_aware-p06-c23"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p07-c19-kg00-e0ca3cf11d",
+                  "page 7"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": true,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [
+                  "airfoil",
+                  "pressure distribution"
+                ],
+                "key_entity_coverage": true,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 8,
+                "supporting_triple_count": 8,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 222,
+                    "char_start": 171,
+                    "page": 7,
+                    "text": "Pressure distribution on an airfoil and CP changes"
+                  },
+                  {
+                    "char_end": 24,
+                    "char_start": 4,
+                    "page": 7,
+                    "text": "High angle of attack"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": true,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p07-c00",
+                  "06_phak_ch4_0-fixed_window-p07-c01",
+                  "06_phak_ch4_0-fixed_window-p07-c02",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p07-c23"
+                ],
+                "matched_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22"
+                ],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "06_phak_ch4_0-structure_aware-p07-c22",
+                  "06_phak_ch4_0-structure_aware-p06-c19",
+                  "06_phak_ch4_0-structure_aware-p06-c17"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p07-c23",
+                  "06_phak_ch4_0-structure_aware-p07-c19",
+                  "page 7"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 222,
+                    "char_start": 171,
+                    "page": 7,
+                    "text": "Pressure distribution on an airfoil and CP changes"
+                  },
+                  {
+                    "char_end": 24,
+                    "char_start": 4,
+                    "page": 7,
+                    "text": "High angle of attack"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "What schema links angle of attack to airfoil pressure distribution and center of pressure movement?",
+          "source_page": 7
+        },
+        {
+          "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+          "gold_level": "span",
+          "modes": {
+            "graph": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p08-c05",
+                  "06_phak_ch4_0-structure_aware-p08-c06"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p08-c04"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p08-c04",
+                  "06_phak_ch4_0-structure_aware-p08-c04-kg01-5aec0888c9"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 1,
+                "supporting_triple_count": 1,
+                "unsupported_triple_count": 0
+              },
+              "mode": "graph",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1729,
+                    "char_start": 1693,
+                    "page": 8,
+                    "text": "Winglets can be added to the tip of"
+                  },
+                  {
+                    "char_end": 1787,
+                    "char_start": 1761,
+                    "page": 8,
+                    "text": "The winglets act as a dam"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "hybrid": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p08-c05",
+                  "06_phak_ch4_0-structure_aware-p08-c06"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p08-c04",
+                  "06_phak_ch4_0-structure_aware-p08-c08",
+                  "06_phak_ch4_0-structure_aware-p02-c101",
+                  "06_phak_ch4_0-structure_aware-p07-c25",
+                  "06_phak_ch4_0-structure_aware-p06-c23"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p08-c04",
+                  "06_phak_ch4_0-structure_aware-p08-c04-kg01-5aec0888c9"
+                ],
+                "valid_page_citation": false,
+                "valid_triple_citation": true
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 1.0,
+                "related_triple_count": 1,
+                "supporting_triple_count": 1,
+                "unsupported_triple_count": 0
+              },
+              "mode": "hybrid",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1729,
+                    "char_start": 1693,
+                    "page": 8,
+                    "text": "Winglets can be added to the tip of"
+                  },
+                  {
+                    "char_end": 1787,
+                    "char_start": 1761,
+                    "page": 8,
+                    "text": "The winglets act as a dam"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            },
+            "vector": {
+              "answer_support": "partially_supported",
+              "chunk": {
+                "chunk_recall_at_5": false,
+                "expected_chunk_ids": [
+                  "06_phak_ch4_0-fixed_window-p08-c00",
+                  "06_phak_ch4_0-fixed_window-p08-c01",
+                  "06_phak_ch4_0-structure_aware-p08-c02",
+                  "06_phak_ch4_0-structure_aware-p08-c05",
+                  "06_phak_ch4_0-structure_aware-p08-c06"
+                ],
+                "matched_chunk_ids": [],
+                "retrieved_chunk_ids": [
+                  "06_phak_ch4_0-structure_aware-p08-c04",
+                  "06_phak_ch4_0-structure_aware-p08-c08",
+                  "06_phak_ch4_0-structure_aware-p02-c101",
+                  "06_phak_ch4_0-structure_aware-p07-c25",
+                  "06_phak_ch4_0-structure_aware-p06-c23"
+                ]
+              },
+              "citation": {
+                "answer_present": true,
+                "citation_completeness": true,
+                "insufficient_evidence_abstention": false,
+                "valid_chunk_citation": true,
+                "valid_citations": [
+                  "06_phak_ch4_0-structure_aware-p08-c04",
+                  "page 8"
+                ],
+                "valid_page_citation": true,
+                "valid_triple_citation": false
+              },
+              "kg_evidence": {
+                "evidence_coverage": false,
+                "invalid_triple_count": 0,
+                "key_entities_covered": [],
+                "key_entity_coverage": false,
+                "provenance_complete_rate": 0.0,
+                "related_triple_count": 0,
+                "supporting_triple_count": 0,
+                "unsupported_triple_count": 0
+              },
+              "mode": "vector",
+              "span": {
+                "matched_spans": [
+                  {
+                    "char_end": 1729,
+                    "char_start": 1693,
+                    "page": 8,
+                    "text": "Winglets can be added to the tip of"
+                  },
+                  {
+                    "char_end": 1787,
+                    "char_start": 1761,
+                    "page": 8,
+                    "text": "The winglets act as a dam"
+                  }
+                ],
+                "span_hit": true,
+                "span_hit_count": 2,
+                "span_total": 2
+              }
+            }
+          },
+          "question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+          "source_page": 8
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "fixed_hybrid_path": "reports/stages/hybrid_rag_experiment.json",
+    "gold_labels_path": "data/cqs/06_phak_ch4_0.gold.json",
+    "labels_total": 10,
+    "scoring_policy": "layered_metrics_no_mixed_overall_score",
+    "structure_aware_hybrid_path": "reports/stages/hybrid_rag_structure_aware.json"
+  }
+}

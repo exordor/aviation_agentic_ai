@@ -34,6 +34,11 @@ Hybrid lift:
 | graph | 0.9 | 0.7033 | 0.56 | 0.9 | 1.0 |
 | hybrid | 1.0 | 0.7367 | 0.52 | 0.9 | 1.0 |
 
+## Evidence-Level Evaluation
+
+- `fixed_window` hybrid: Chunk Recall@5=0.8, Span hit rate=0.8, KG triple relevance=0.9, supported answers=7, partial=3.
+- `structure_aware` hybrid: Chunk Recall@5=0.9, Span hit rate=0.8, KG triple relevance=0.9, supported answers=9, partial=1.
+
 ## Interpretations
 
 - GraphRAG value is evidence structure, not current page-level Recall lift.
@@ -51,6 +56,9 @@ Hybrid lift:
 - Structure-aware Hybrid RAG is available as a second experiment.
   Evidence: Its metrics are recorded separately and should be compared with fixed-window.
   Implication: Use the paired reports to decide the default chunking strategy.
+- Evidence-level scoring favors structure-aware hybrid retrieval.
+  Evidence: Structure-aware hybrid supported answers=9; fixed-window hybrid supported answers=7.
+  Implication: Use structure-aware as the default candidate after gold labels are reviewed.
 
 ## Recommendations
 

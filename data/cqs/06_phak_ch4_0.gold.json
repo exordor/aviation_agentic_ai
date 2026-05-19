@@ -1,0 +1,374 @@
+{
+  "labels": [
+    {
+      "answer_key": "Atmosphere and Air should be material or physical classes connected to Gas constituents such as Nitrogen, Oxygen, and TraceGas by composition relations, with percentage values represented as quantities.",
+      "cq_id": "06-phak-ch4-0-p00-fa9830b888",
+      "evidence_spans": [
+        {
+          "char_end": 489,
+          "char_start": 428,
+          "page": 0,
+          "text": "The atmosphere is an envelope of air that surrounds the Earth"
+        },
+        {
+          "char_end": 738,
+          "char_start": 685,
+          "page": 0,
+          "text": "The atmosphere is composed of 78 percent nitrogen, 21"
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p00-c00",
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-structure_aware-p00-c05",
+        "06_phak_ch4_0-structure_aware-p00-c06"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "air",
+        "nitrogen",
+        "oxygen",
+        "trace gases"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0
+    },
+    {
+      "answer_key": "Air should be a Fluid with viscosity and flow behavior; friction between air and wing surface should be modeled as causing or maintaining a BoundaryLayer adjacent to the surface.",
+      "cq_id": "06-phak-ch4-0-p01-dbcda7dbf4",
+      "evidence_spans": [
+        {
+          "char_end": 1086,
+          "char_start": 1039,
+          "page": 1,
+          "text": "ow-viscosity fluids are \u201cthin\u201d and flow easily."
+        },
+        {
+          "char_end": 1844,
+          "char_start": 1823,
+          "page": 1,
+          "text": "the viscosity of air."
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p01-c00",
+        "06_phak_ch4_0-fixed_window-p01-c01",
+        "06_phak_ch4_0-fixed_window-p01-c02",
+        "06_phak_ch4_0-structure_aware-p01-c06",
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-structure_aware-p01-c08"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "fluid",
+        "viscosity",
+        "friction",
+        "boundary layer",
+        "wing"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1
+    },
+    {
+      "answer_key": "StandardAtmosphere should be a reference situation with pressure, temperature, density, altitude, and unit-bearing measurements such as inches of mercury and millibars.",
+      "cq_id": "06-phak-ch4-0-p02-dafae1ecbc",
+      "evidence_spans": [
+        {
+          "char_end": 2736,
+          "char_start": 2684,
+          "page": 2,
+          "text": "Due to the changing atmospheric pressure, a standard"
+        },
+        {
+          "char_end": 2792,
+          "char_start": 2761,
+          "page": 2,
+          "text": "The standard atmosphere at sea"
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p02-c00",
+        "06_phak_ch4_0-fixed_window-p02-c02",
+        "06_phak_ch4_0-fixed_window-p02-c03",
+        "06_phak_ch4_0-structure_aware-p02-c106",
+        "06_phak_ch4_0-structure_aware-p02-c107",
+        "06_phak_ch4_0-structure_aware-p02-c21"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "atmospheric pressure",
+        "temperature",
+        "density"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2
+    },
+    {
+      "answer_key": "PressureAltitude and DensityAltitude should be altitude quantities; temperature, pressure, and humidity conditions affect AirDensity, and changed AirDensity affects AircraftPerformance.",
+      "cq_id": "06-phak-ch4-0-p03-f463ba25ee",
+      "evidence_spans": [
+        {
+          "char_end": 2415,
+          "char_start": 2353,
+          "page": 3,
+          "text": "a specific density, its pressure altitude and density altitude"
+        },
+        {
+          "char_end": 2111,
+          "char_start": 2086,
+          "page": 3,
+          "text": "ease in air density means"
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p03-c02",
+        "06_phak_ch4_0-fixed_window-p03-c03",
+        "06_phak_ch4_0-fixed_window-p03-c04",
+        "06_phak_ch4_0-structure_aware-p03-c05",
+        "06_phak_ch4_0-structure_aware-p03-c06",
+        "06_phak_ch4_0-structure_aware-p03-c10"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure altitude",
+        "density altitude",
+        "humidity",
+        "air density",
+        "aircraft performance"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3
+    },
+    {
+      "answer_key": "NewtonLaw concepts should relate Force, Mass, Acceleration, Action, and Reaction, including propulsion examples where rearward gas or air motion produces forward aircraft force.",
+      "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+      "evidence_spans": [
+        {
+          "char_end": 313,
+          "char_start": 251,
+          "page": 5,
+          "text": "acceleration is inversely proportional to the mass of the body"
+        },
+        {
+          "char_end": 688,
+          "char_start": 666,
+          "page": 5,
+          "text": "and opposite reaction."
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p05-c00",
+        "06_phak_ch4_0-fixed_window-p05-c01",
+        "06_phak_ch4_0-fixed_window-p05-c02",
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-structure_aware-p05-c44",
+        "06_phak_ch4_0-structure_aware-p05-c45"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "Newton's laws",
+        "force",
+        "mass",
+        "acceleration",
+        "action",
+        "reaction"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5
+    },
+    {
+      "answer_key": "BernoulliPrinciple or VenturiFlow should connect FlowVelocity and Pressure with an inverse qualitative relation: increasing velocity corresponds to decreasing static pressure.",
+      "cq_id": "06-phak-ch4-0-p05-bb9a93ef72",
+      "evidence_spans": [
+        {
+          "char_end": 1067,
+          "char_start": 1035,
+          "page": 5,
+          "text": "inciple of Differential Pressure"
+        },
+        {
+          "char_end": 1184,
+          "char_start": 1124,
+          "page": 5,
+          "text": "Bernoulli, a Swiss mathematician, explained how the pressure"
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p05-c00",
+        "06_phak_ch4_0-fixed_window-p05-c01",
+        "06_phak_ch4_0-fixed_window-p05-c02",
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-structure_aware-p05-c45",
+        "06_phak_ch4_0-structure_aware-p05-c46"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "Bernoulli principle",
+        "venturi",
+        "velocity",
+        "pressure",
+        "airflow"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5
+    },
+    {
+      "answer_key": "Airfoil should have parts or geometric features such as LeadingEdge, TrailingEdge, ChordLine, MeanCamberLine, UpperSurface, and LowerSurface.",
+      "cq_id": "06-phak-ch4-0-p06-a653e00686",
+      "evidence_spans": [
+        {
+          "char_end": 399,
+          "char_start": 337,
+          "page": 6,
+          "text": "from the leading edge to the trailing edge, is the mean camber"
+        },
+        {
+          "char_end": 17,
+          "char_start": 4,
+          "page": 6,
+          "text": "Early airfoil"
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p06-c00",
+        "06_phak_ch4_0-fixed_window-p06-c01",
+        "06_phak_ch4_0-fixed_window-p06-c02",
+        "06_phak_ch4_0-structure_aware-p06-c17",
+        "06_phak_ch4_0-structure_aware-p06-c18",
+        "06_phak_ch4_0-structure_aware-p06-c19"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "airfoil",
+        "leading edge",
+        "trailing edge",
+        "chord line",
+        "mean camber line",
+        "upper surface",
+        "lower surface"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6
+    },
+    {
+      "answer_key": "Lift should be an AerodynamicForce caused by pressure distribution, positive pressure below, lower pressure above, downwash, and flow turning around an airfoil.",
+      "cq_id": "06-phak-ch4-0-p07-9737986760",
+      "evidence_spans": [
+        {
+          "char_end": 512,
+          "char_start": 485,
+          "page": 7,
+          "text": "airfoil creates a downwash."
+        },
+        {
+          "char_end": 222,
+          "char_start": 171,
+          "page": 7,
+          "text": "Pressure distribution on an airfoil and CP changes"
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p07-c00",
+        "06_phak_ch4_0-fixed_window-p07-c01",
+        "06_phak_ch4_0-fixed_window-p07-c03",
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-structure_aware-p07-c22",
+        "06_phak_ch4_0-structure_aware-p07-c26"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lift",
+        "pressure difference",
+        "downwash",
+        "flow turning",
+        "airfoil"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7
+    },
+    {
+      "answer_key": "AngleOfAttack should be an angular quantity of an Airfoil relative to airflow, affecting PressureDistribution and CenterOfPressure location.",
+      "cq_id": "06-phak-ch4-0-p07-59d55c9639",
+      "evidence_spans": [
+        {
+          "char_end": 222,
+          "char_start": 171,
+          "page": 7,
+          "text": "Pressure distribution on an airfoil and CP changes"
+        },
+        {
+          "char_end": 24,
+          "char_start": 4,
+          "page": 7,
+          "text": "High angle of attack"
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p07-c00",
+        "06_phak_ch4_0-fixed_window-p07-c01",
+        "06_phak_ch4_0-fixed_window-p07-c02",
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-structure_aware-p07-c22",
+        "06_phak_ch4_0-structure_aware-p07-c23"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "angle of attack",
+        "pressure distribution",
+        "center of pressure",
+        "airfoil"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7
+    },
+    {
+      "answer_key": "WingtipVortex should be a flow phenomenon caused by pressure difference around a wing tip; Winglet should be a wing component that mitigates or reduces vortex-related induced effects.",
+      "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+      "evidence_spans": [
+        {
+          "char_end": 1729,
+          "char_start": 1693,
+          "page": 8,
+          "text": "Winglets can be added to the tip of"
+        },
+        {
+          "char_end": 1787,
+          "char_start": 1761,
+          "page": 8,
+          "text": "The winglets act as a dam"
+        }
+      ],
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-fixed_window-p08-c00",
+        "06_phak_ch4_0-fixed_window-p08-c01",
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-structure_aware-p08-c05",
+        "06_phak_ch4_0-structure_aware-p08-c06"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "wingtip vortex",
+        "wing tip",
+        "winglet",
+        "pressure difference",
+        "induced drag"
+      ],
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8
+    }
+  ],
+  "metadata": {
+    "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
+    "chunks_paths": [
+      "data/chunks/06_phak_ch4_0.jsonl",
+      "data/chunks/06_phak_ch4_0.structure_aware.jsonl"
+    ],
+    "generated_at": "2026-05-19T01:35:50.322849+00:00",
+    "generator": "aviation-ai cqs gold-draft",
+    "notes": "Auto-drafted from source chunks; review spans before final claims.",
+    "review_required": true
+  }
+}

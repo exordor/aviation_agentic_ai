@@ -15,8 +15,8 @@ A task should be small enough to finish, verify, and check off. When a task prod
 
 ## Active Task Queue
 
-1. Refine gold labels from page-level to chunk/span-level evidence.
-2. Use the fixed-window and structure-aware Hybrid RAG reports to write project-defense conclusions.
+1. Review the auto-drafted chunk/span gold labels and adjust weak spans before final claims.
+2. Use the fixed-window, structure-aware, and evidence-level reports to write project-defense conclusions.
 3. Decide whether `structure_aware` becomes the default GraphRAG chunking strategy.
 4. Implement a minimal web interface once the core pipeline has stable outputs.
 5. Regenerate the AI-polished final project report after reviewing the new evidence.
@@ -77,21 +77,31 @@ Related goals: G2, G3, G4, G5.
   - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.
   - Current scope: deterministic evidence has been refreshed; postpone `--ai` until the chunking and Hybrid RAG outputs are reviewed.
   - Acceptance: final report replaces TBD / Not yet run sections with evidence-backed results where available.
+- [x] Generate draft chunk/span gold labels and evidence-level evaluation.
+  - Commands:
+    - `uv run aviation-ai cqs gold-draft`
+    - `uv run aviation-ai report evidence-eval`
+    - `uv run aviation-ai report graphrag-review`
+  - Evidence: `data/cqs/06_phak_ch4_0.gold.json`, `reports/stages/evidence_level_evaluation.md`, `reports/stages/graphrag_review.md`.
+  - Result: structure-aware hybrid has Chunk Recall@5 = 0.9, Span hit rate = 0.8, KG triple relevance = 0.9, and 9 supported answers; fixed-window hybrid has 7 supported answers.
+  - Acceptance: evidence-level metrics remain layered and do not create a mixed overall score.
 
 ## P1 - Evaluation Quality Tasks
 
 Related goals: G3, G4, G6, G8.
 
-- [ ] Refine gold labels from `source_page` to chunk or span level.
+- [~] Refine gold labels from `source_page` to chunk or span level.
   - Candidate output: `data/cqs/06_phak_ch4_0.gold.json`.
+  - Current evidence: `data/cqs/06_phak_ch4_0.gold.json` exists as an auto-draft and is marked `review_required`.
   - Acceptance: each CQ records `gold_level`, `expected_chunk_ids` or `evidence_spans`, and `key_entities` where available.
 - [ ] Analyze chunking failures.
   - Acceptance: report identifies whether misses come from page boundaries, sentence breaks, section structure, or embedding mismatch.
-- [ ] Analyze GraphRAG tradeoffs.
+- [x] Analyze GraphRAG tradeoffs.
   - Current evidence: fixed-window hybrid improved graph Recall@5 by +0.1 but trailed vector-only by -0.1; structure-aware hybrid matches vector-only Recall@5 while preserving KG evidence coverage.
+  - Evidence-level result: structure-aware hybrid supported 9 answers versus 7 for fixed-window hybrid.
   - Acceptance: report explains when graph retrieval improves evidence coverage, when vector retrieval is sufficient, and when KG sparsity limits hybrid gains.
 - [ ] Select the default chunking strategy for the next project phase.
-  - Current candidate: `structure_aware`, because it improves vector MRR/precision and structure-aware Hybrid RAG reaches Recall@5 = 1.0 with KG evidence coverage = 0.9.
+  - Current candidate: `structure_aware`, because it improves vector MRR/precision, structure-aware Hybrid RAG reaches Recall@5 = 1.0 with KG evidence coverage = 0.9, and evidence-level evaluation shows more supported answers.
   - Acceptance: decision is justified by retrieval metrics plus chunk cost/stability, not Recall alone.
 - [ ] Review KG extraction failure cases.
   - Acceptance: unsupported triples, weak evidence, missing provenance, and key-entity coverage gaps are summarized.
