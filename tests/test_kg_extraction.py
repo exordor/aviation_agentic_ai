@@ -7,6 +7,8 @@ from aviation_agentic_ai.kg.extraction import (
     validate_kg_file,
     validate_kg_triples,
     write_kg_jsonl,
+    write_kg_ttl,
+    write_kg_validation_reports,
 )
 
 
@@ -106,6 +108,62 @@ def test_extract_kg_dry_run_writes_valid_seed_triples(tmp_path: Path) -> None:
     assert report["valid"]
 
 
+def test_extract_kg_llm_filters_unsupported_or_bad_evidence(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from aviation_agentic_ai.kg import extraction
+
+    profile_path = tmp_path / "profile.yaml"
+    chunks_path = tmp_path / "chunks.jsonl"
+    output_path = tmp_path / "kg.jsonl"
+    write_profile(profile_path)
+    write_chunks_jsonl([make_chunk()], chunks_path)
+
+    monkeypatch.setattr(
+        extraction,
+        "_invoke_llm_text",
+        lambda *_args, **_kwargs: """
+{
+  "triples": [
+    {
+      "subject": "air",
+      "predicate": "affects",
+      "object": "wing",
+      "subject_class": "Cl_Air",
+      "object_class": "Cl_Wing",
+      "evidence_text": "Air flows over the wing and affects lift.",
+      "confidence": 0.9
+    },
+    {
+      "subject": "air",
+      "predicate": "affects",
+      "object": "unknown",
+      "subject_class": "Cl_Air",
+      "object_class": "Cl_Other",
+      "evidence_text": "Air flows over the wing and affects lift.",
+      "confidence": 0.9
+    },
+    {
+      "subject": "air",
+      "predicate": "affects",
+      "object": "wing",
+      "subject_class": "Cl_Air",
+      "object_class": "Cl_Wing",
+      "evidence_text": "not an exact quote",
+      "confidence": 0.9
+    }
+  ]
+}
+""",
+    )
+
+    _path, triples, report = extract_kg_file(chunks_path, output_path, profile_path)
+
+    assert report["valid"]
+    assert len(triples) == 1
+    assert triples[0].object_class == "Cl_Wing"
+
+
 def test_validate_kg_file_reports_valid_artifact(tmp_path: Path) -> None:
     profile_path = tmp_path / "profile.yaml"
     chunks_path = tmp_path / "chunks.jsonl"
@@ -118,3 +176,34 @@ def test_validate_kg_file_reports_valid_artifact(tmp_path: Path) -> None:
 
     assert report["valid"]
     assert report["triples_total"] == 1
+
+
+def test_write_kg_ttl_exports_reified_evidence(tmp_path: Path) -> None:
+    ttl_path = tmp_path / "kg.ttl"
+
+    path = write_kg_ttl([make_triple()], ttl_path)
+
+    assert path.exists()
+    text = path.read_text(encoding="utf-8")
+    assert "KGTriple_t1" in text
+    assert "Air flows over the wing and affects lift." in text
+    assert "supportedByEvidence" in text
+
+
+def test_write_kg_validation_reports(tmp_path: Path) -> None:
+    report = {
+        "valid": True,
+        "kg_path": "data/kg/test.jsonl",
+        "chunks_path": "data/chunks/test.jsonl",
+        "profile_path": "configs/extraction_profile.yaml",
+        "ontology_path": "data/ontology/curated/test.ttl",
+        "triples_total": 1,
+        "errors_total": 0,
+        "errors": [],
+    }
+
+    json_path, md_path = write_kg_validation_reports(report, tmp_path)
+
+    assert json_path.exists()
+    assert md_path.exists()
+    assert "KG Validation Report" in md_path.read_text(encoding="utf-8")

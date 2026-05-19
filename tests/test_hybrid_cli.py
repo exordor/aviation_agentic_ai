@@ -147,6 +147,45 @@ def test_cli_kg_extract_max_tokens_override(tmp_path: Path, monkeypatch) -> None
     assert calls["max_tokens"] == 7000
 
 
+def test_cli_kg_extract_can_write_ttl_export(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    calls = {}
+
+    def fake_extract_kg_file(*_args, **kwargs):
+        calls.update(kwargs)
+        return tmp_path / "kg.jsonl", [object()], {"errors_total": 0}
+
+    def fake_write_kg_ttl(_triples, output_path):
+        output_path.write_text("@prefix : <http://example.org/> .\n", encoding="utf-8")
+        return output_path
+
+    monkeypatch.setattr(cli, "extract_kg_file", fake_extract_kg_file)
+    monkeypatch.setattr(cli, "write_kg_ttl", fake_write_kg_ttl)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "kg",
+            "extract",
+            "--chunks",
+            str(tmp_path / "chunks.jsonl"),
+            "--output",
+            str(tmp_path / "kg.jsonl"),
+            "--profile",
+            str(tmp_path / "profile.yaml"),
+            "--ontology-file",
+            str(tmp_path / "ontology.ttl"),
+            "--ttl-output",
+            str(tmp_path / "kg.ttl"),
+            "--dry-run",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "kg.ttl" in result.output
+
+
 def test_cli_report_chunking_comparison_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai import cli
 

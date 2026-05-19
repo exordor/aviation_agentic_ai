@@ -8,7 +8,7 @@ from hashlib import sha1
 from pathlib import Path
 from typing import Any
 
-from rdflib import Graph, OWL, RDF, URIRef
+from rdflib import DCTERMS, Graph, Literal, Namespace, OWL, RDF, RDFS, URIRef
 
 from aviation_agentic_ai.chunking.chunks import SourceChunk, read_chunks_jsonl
 from aviation_agentic_ai.config import load_yaml
@@ -165,7 +165,9 @@ def _build_extraction_prompt(chunk: SourceChunk, profile: ExtractionProfile) -> 
         "Extract focused aviation knowledge graph triples from the source chunk. "
         "Return JSON only with a top-level 'triples' array. Use only the allowed "
         "classes and predicates. Evidence text must be an exact short quote from "
-        "the chunk. Do not invent facts beyond the chunk.\n\n"
+        "the chunk. Do not invent facts beyond the chunk. If no allowed class or "
+        "predicate fits, return an empty triples array. Never create placeholder "
+        "classes such as Cl_Other.\n\n"
         f"Allowed classes: {list(profile.instantiable_classes)}\n"
         f"Allowed predicates: {list(profile.relation_properties)}\n\n"
         "Each triple must include: subject, predicate, object, subject_class, "
@@ -214,6 +216,9 @@ def _llm_triples_for_chunk(
         raise ValueError("Expected top-level 'triples' array from KG extraction LLM.")
 
     triples: list[KGTriple] = []
+    allowed_classes = set(profile.instantiable_classes)
+    allowed_predicates = set(profile.relation_properties)
+    chunk_text = _normalize_for_contains(chunk.text)
     for index, raw in enumerate(raw_triples):
         if not isinstance(raw, dict):
             continue
@@ -225,6 +230,15 @@ def _llm_triples_for_chunk(
             "subject_class": str(raw.get("subject_class", "")),
             "object_class": str(raw.get("object_class", "")),
         }
+        evidence_text = str(raw.get("evidence_text", "")).strip()
+        if (
+            normalized["subject_class"] not in allowed_classes
+            or normalized["object_class"] not in allowed_classes
+            or normalized["predicate"] not in allowed_predicates
+            or not evidence_text
+            or _normalize_for_contains(evidence_text) not in chunk_text
+        ):
+            continue
         triples.append(
             KGTriple(
                 triple_id=_stable_triple_id(chunk.chunk_id, index, normalized),
@@ -237,7 +251,7 @@ def _llm_triples_for_chunk(
                 page=chunk.page,
                 section=str(raw.get("section") or f"page-{chunk.page}"),
                 chunk_id=chunk.chunk_id,
-                evidence_text=str(raw.get("evidence_text", "")),
+                evidence_text=evidence_text,
                 model="llm-structured-kg-extraction",
                 confidence=max(0.0, min(confidence, 1.0)),
                 extracted_at=extracted_at,
@@ -251,6 +265,66 @@ def write_kg_jsonl(triples: list[KGTriple], output_path: str | Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [json.dumps(triple.to_dict(), sort_keys=True) for triple in triples]
     path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+    return path
+
+
+def _entity_iri(namespace: Namespace, label: str, class_name: str) -> URIRef:
+    digest = sha1(f"{class_name}:{label.lower()}".encode("utf-8")).hexdigest()[:12]
+    return namespace[f"Entity_{digest}"]
+
+
+def write_kg_ttl(
+    triples: list[KGTriple],
+    output_path: str | Path,
+    namespace: str = "http://www.example.org/aviation/phak#",
+) -> Path:
+    """Export KG triples to Turtle for inspection while preserving JSONL as runtime format."""
+    graph = Graph()
+    ns = Namespace(namespace)
+    graph.bind("", ns)
+    graph.bind("dcterms", DCTERMS)
+    graph.bind("owl", OWL)
+    graph.bind("rdf", RDF)
+    graph.bind("rdfs", RDFS)
+
+    for triple in triples:
+        statement = ns[f"KGTriple_{triple.triple_id.replace('-', '_')}"]
+        subject = _entity_iri(ns, triple.subject, triple.subject_class)
+        obj = _entity_iri(ns, triple.object, triple.object_class)
+        evidence = ns[f"Evidence_{triple.triple_id.replace('-', '_')}"]
+        predicate = ns[triple.predicate]
+
+        graph.add((subject, RDF.type, ns[triple.subject_class]))
+        graph.add((subject, RDFS.label, Literal(triple.subject)))
+        graph.add((obj, RDF.type, ns[triple.object_class]))
+        graph.add((obj, RDFS.label, Literal(triple.object)))
+        graph.add((subject, predicate, obj))
+
+        graph.add((statement, RDF.type, RDF.Statement))
+        graph.add((statement, RDF.type, ns.Cl_KGTriple))
+        graph.add((statement, RDF.subject, subject))
+        graph.add((statement, RDF.predicate, predicate))
+        graph.add((statement, RDF.object, obj))
+        graph.add((statement, ns.supportedByEvidence, evidence))
+        graph.add((statement, DCTERMS.identifier, Literal(triple.triple_id)))
+        graph.add((statement, DCTERMS.creator, Literal(triple.model)))
+        graph.add((statement, DCTERMS.created, Literal(triple.extracted_at)))
+
+        graph.add((evidence, RDF.type, ns.Cl_Evidence))
+        graph.add((evidence, RDFS.comment, Literal(triple.evidence_text)))
+        graph.add((evidence, DCTERMS.source, Literal(triple.source_document)))
+        graph.add(
+            (
+                evidence,
+                DCTERMS.bibliographicCitation,
+                Literal(f"page={triple.page}; section={triple.section}; chunk_id={triple.chunk_id}"),
+            )
+        )
+        graph.add((evidence, DCTERMS.conformsTo, Literal(f"confidence={triple.confidence:.3f}")))
+
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    graph.serialize(destination=str(path), format="turtle")
     return path
 
 
@@ -394,8 +468,38 @@ def validate_kg_file(
         "kg_path": project_relative_path(kg_path),
         "chunks_path": project_relative_path(chunks_path),
         "profile_path": project_relative_path(profile_path),
+        "ontology_path": project_relative_path(ontology_path) if ontology_path else None,
         **validate_kg_triples(triples, chunks, profile, ontology_path=ontology_path),
     }
+
+
+def write_kg_validation_reports(report: dict[str, Any], output_dir: str | Path) -> tuple[Path, Path]:
+    output = Path(output_dir)
+    output.mkdir(parents=True, exist_ok=True)
+    json_path = output / "kg_validation.json"
+    md_path = output / "kg_validation.md"
+    json_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    status = "valid" if report["valid"] else "invalid"
+    lines = [
+        "# KG Validation Report",
+        "",
+        f"- Status: {status}",
+        f"- KG: `{report['kg_path']}`",
+        f"- Chunks: `{report['chunks_path']}`",
+        f"- Profile: `{report['profile_path']}`",
+        f"- Ontology: `{report.get('ontology_path')}`",
+        f"- Triples: {report['triples_total']}",
+        f"- Validation errors: {report['errors_total']}",
+    ]
+    if report["errors"]:
+        lines.extend(["", "## First Errors", ""])
+        for error in report["errors"][:10]:
+            lines.append(
+                f"- `{error['triple_id']}` {error['field']}: {error['error']}"
+            )
+    md_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    return json_path, md_path
 
 
 def extract_kg_file(

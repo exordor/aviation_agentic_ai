@@ -11,7 +11,13 @@ from aviation_agentic_ai.chunking.chunks import (
     chunk_output_path_for_strategy,
 )
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
-from aviation_agentic_ai.kg.extraction import KGValidationError, extract_kg_file, validate_kg_file
+from aviation_agentic_ai.kg.extraction import (
+    KGValidationError,
+    extract_kg_file,
+    validate_kg_file,
+    write_kg_ttl,
+    write_kg_validation_reports,
+)
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.ontology.cq import CQValidationError, generate_cqs, load_cq_artifact
 from aviation_agentic_ai.ontology.evaluation import evaluate_ontology
@@ -32,6 +38,11 @@ from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME, buil
 
 def _default_ontology_path() -> Path:
     config = load_default_config()
+    curated = config["paths"].get("curated_ontology")
+    if curated:
+        curated_path = resolve_project_path(curated)
+        if curated_path.exists():
+            return curated_path
     return resolve_project_path(config["paths"]["baseline_ontology"])
 
 
@@ -304,6 +315,7 @@ def kg() -> None:
 @click.option("--output", "output_path", type=click.Path(path_type=Path), default=None)
 @click.option("--profile", "profile_path", type=click.Path(path_type=Path), default=None)
 @click.option("--ontology-file", type=click.Path(path_type=Path), default=None)
+@click.option("--ttl-output", type=click.Path(path_type=Path), default=None)
 @click.option("--max-chunks", type=int, default=None)
 @click.option("--dry-run", is_flag=True, help="Use deterministic profile-seed triples.")
 @click.option(
@@ -323,6 +335,7 @@ def kg_extract(
     output_path: Path | None,
     profile_path: Path | None,
     ontology_file: Path | None,
+    ttl_output: Path | None,
     max_chunks: int | None,
     dry_run: bool,
     temperature: float,
@@ -354,6 +367,9 @@ def kg_extract(
         f"Wrote {project_relative_path(path)} with {len(triples)} triples "
         f"({report['errors_total']} validation errors)."
     )
+    if ttl_output is not None:
+        ttl_path = write_kg_ttl(triples, ttl_output)
+        click.echo(f"Wrote {project_relative_path(ttl_path)}")
 
 
 @kg.command("validate")
@@ -361,11 +377,13 @@ def kg_extract(
 @click.option("--chunks", "chunks_path", type=click.Path(path_type=Path), default=None)
 @click.option("--profile", "profile_path", type=click.Path(path_type=Path), default=None)
 @click.option("--ontology-file", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
 def kg_validate(
     kg_path: Path | None,
     chunks_path: Path | None,
     profile_path: Path | None,
     ontology_file: Path | None,
+    output_dir: Path | None,
 ) -> None:
     """Validate KG artifacts."""
     config = load_default_config()
@@ -380,6 +398,10 @@ def kg_validate(
             f"KG validation failed with {report['errors_total']} errors: "
             f"{report['errors'][:3]}"
         )
+    if output_dir is not None:
+        json_path, md_path = write_kg_validation_reports(report, output_dir)
+        click.echo(f"Wrote {project_relative_path(json_path)}")
+        click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"OK: validated {report['triples_total']} KG triples.")
 
 
