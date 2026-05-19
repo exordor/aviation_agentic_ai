@@ -5,6 +5,22 @@ External repositories are not vendored into the source tree.
 
 ## Reference Projects
 
+### FAA Pilot's Handbook of Aeronautical Knowledge
+
+- Local source excerpt:
+  `data/raw/06_phak_ch4_0.pdf`
+- Source type:
+  FAA handbook chapter excerpt used as the bounded corpus for coursework
+  experiments.
+- Use in this project:
+  - Input document for chunking, ontology-grounded KG extraction, vector
+    indexing, GraphRAG retrieval, and evaluation.
+  - The project stores derived chunks, KG triples, and reports with provenance
+    back to source pages/chunks.
+- Integration rule:
+  - Keep the source scope explicit in reports.
+  - Do not claim coverage beyond the included PHAK Chapter 4 excerpt.
+
 ### Towards Automated Ontology Generation from Unstructured Text
 
 - Local reference paper:
@@ -62,6 +78,35 @@ External repositories are not vendored into the source tree.
   - Optional dependency and reference design for ontology-grounded extraction.
   - If used directly, wrap it behind project-owned interfaces.
   - If source/templates are copied or adapted, document the copied files and preserve attribution.
+
+## Generated Presentation Assets
+
+### AI-Generated Explanatory Images
+
+- Local generated assets:
+  `reports/final/assets/*_ai.png`
+- Local deterministic fallbacks:
+  `reports/final/assets/*.svg`
+- Manifest:
+  `reports/final/assets/visual_assets_manifest.json`
+- Use in this project:
+  - Presentation-only visuals for the final academic defense deck.
+  - They illustrate the project pipeline, KG evidence, and web demo narrative.
+- Integration rule:
+  - Metrics, labels, source citations, and artifact paths remain editable PPT
+    objects backed by local reports.
+  - The manifest records whether AI PNG assets are present but never records
+    API keys, tokens, gateway credentials, or private endpoint URLs.
+
+## Runtime And Tooling Dependencies
+
+- ChromaDB is used as a local vector index backend; generated collections under
+  `data/indexes/chroma` are ignored and not committed.
+- FastAPI and Uvicorn are optional web-demo dependencies; the offline smoke
+  report uses FastAPI TestClient and does not call the LLM.
+- The Presentations runtime is used to build the editable PPTX under
+  `reports/final/`; scratch render/check files are kept under ignored
+  `outputs/`.
 
 ## Artifact Policy
 

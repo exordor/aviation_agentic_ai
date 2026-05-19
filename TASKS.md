@@ -15,11 +15,10 @@ A task should be small enough to finish, verify, and check off. When a task prod
 
 ## Active Task Queue
 
-1. Review the auto-drafted chunk/span gold labels and adjust weak spans before final claims.
-2. Use the fixed-window, structure-aware, and evidence-level reports to write project-defense conclusions.
-3. Decide whether `structure_aware` becomes the default GraphRAG chunking strategy.
-4. Smoke-test the FastAPI web demo in a browser and capture final review notes.
-5. Regenerate the AI-polished final project report after reviewing the web demo evidence.
+1. Run the final quality gate and commit/push the current experiment evidence.
+2. Add GitLab CI for `ruff` and `pytest` if more automation is needed.
+3. Optional: mirror high-priority tasks into GitLab issues after the repository is stable.
+4. Optional next research step: expand beyond PHAK Chapter 4 only after document metadata and section schema are applied.
 
 Related goals: G2, G3, G4, G5, G7, G8 in `GOALS.md`.
 
@@ -83,29 +82,40 @@ Related goals: G2, G3, G4, G5.
     - `uv run aviation-ai report evidence-eval`
     - `uv run aviation-ai report graphrag-review`
   - Evidence: `data/cqs/06_phak_ch4_0.gold.json`, `reports/stages/evidence_level_evaluation.md`, `reports/stages/graphrag_review.md`.
-  - Result: structure-aware hybrid has Chunk Recall@5 = 0.9, Span hit rate = 0.8, KG triple relevance = 0.9, and 9 supported answers; fixed-window hybrid has 7 supported answers.
+  - Result: gold labels are now marked `manual_reviewed`; structure-aware hybrid has Chunk Recall@5 = 1.0, Span hit rate = 0.7, KG triple relevance = 0.9, citation validity = 1.0, and 9 supported answers; fixed-window hybrid has 8 supported answers.
   - Acceptance: evidence-level metrics remain layered and do not create a mixed overall score.
+- [x] Write final evaluation and submission-readiness review.
+  - Commands:
+    - `uv run aviation-ai report final-evaluation`
+    - `uv run aviation-ai report web-demo-smoke`
+  - Evidence: `reports/stages/final_evaluation_review.md`, `reports/stages/web_demo_final_smoke.md`.
+  - Result: `structure_aware` is selected as the default demo and next-phase GraphRAG strategy; fixed-window remains the baseline. Web smoke checks passed for static HTML, status/explanation/questions/detail APIs, KG graph, live-query lockout, and favicon.
+  - Acceptance: final review separates strategy decision, chunking failures, KG/evidence failures, and citation completeness without a mixed total score.
 
 ## P1 - Evaluation Quality Tasks
 
 Related goals: G3, G4, G6, G8.
 
-- [~] Refine gold labels from `source_page` to chunk or span level.
+- [x] Refine gold labels from `source_page` to chunk or span level.
   - Candidate output: `data/cqs/06_phak_ch4_0.gold.json`.
-  - Current evidence: `data/cqs/06_phak_ch4_0.gold.json` exists as an auto-draft and is marked `review_required`.
+  - Current evidence: `data/cqs/06_phak_ch4_0.gold.json` is marked `manual_reviewed` with span-level labels for all 10 boundary CQs.
   - Acceptance: each CQ records `gold_level`, `expected_chunk_ids` or `evidence_spans`, and `key_entities` where available.
-- [ ] Analyze chunking failures.
+- [x] Analyze chunking failures.
+  - Evidence: `reports/stages/chunking_comparison.md`, `reports/stages/final_evaluation_review.md`.
   - Acceptance: report identifies whether misses come from page boundaries, sentence breaks, section structure, or embedding mismatch.
 - [x] Analyze GraphRAG tradeoffs.
   - Current evidence: fixed-window hybrid improved graph Recall@5 by +0.1 but trailed vector-only by -0.1; structure-aware hybrid matches vector-only Recall@5 while preserving KG evidence coverage.
   - Evidence-level result: structure-aware hybrid supported 9 answers versus 7 for fixed-window hybrid.
   - Acceptance: report explains when graph retrieval improves evidence coverage, when vector retrieval is sufficient, and when KG sparsity limits hybrid gains.
-- [ ] Select the default chunking strategy for the next project phase.
-  - Current candidate: `structure_aware`, because it improves vector MRR/precision, structure-aware Hybrid RAG reaches Recall@5 = 1.0 with KG evidence coverage = 0.9, and evidence-level evaluation shows more supported answers.
+- [x] Select the default chunking strategy for the next project phase.
+  - Decision: `structure_aware`, because it improves vector MRR/precision, structure-aware Hybrid RAG reaches Recall@5 = 1.0 with KG evidence coverage = 0.9, and evidence-level evaluation shows more supported answers.
+  - Evidence: `reports/stages/final_evaluation_review.md`.
   - Acceptance: decision is justified by retrieval metrics plus chunk cost/stability, not Recall alone.
-- [ ] Review KG extraction failure cases.
+- [x] Review KG extraction failure cases.
+  - Evidence: `reports/stages/final_evaluation_review.md`.
   - Acceptance: unsupported triples, weak evidence, missing provenance, and key-entity coverage gaps are summarized.
-- [ ] Confirm citation completeness on LLM answers.
+- [x] Confirm citation completeness on LLM answers.
+  - Evidence: `reports/stages/final_evaluation_review.md`.
   - Acceptance: each accepted answer cites at least one valid chunk/page/triple source or abstains when evidence is insufficient.
 
 ## P2 - Final Submission Tasks
@@ -132,17 +142,20 @@ Related goals: G1, G5, G6, G7, G8.
   - Evidence: `reports/stages/web_demo_readiness.md`
   - Scope: offline-first FastAPI page with macOS-style sidebar question list, deterministic demo narrative, pipeline explanation, fixed-window/structure-aware comparison, vector/graph/hybrid toolbar controls, Why This Result panel, answer panel, citation/evidence chunks, KG triple evidence, question-scoped KG relationship graph, metrics, and advisory boundary notice.
   - Acceptance: reviewer can run it locally, inspect retrieved KG relationships for each CQ, understand why each retrieval mode behaves differently, and see the pipeline output without reading raw JSON reports.
-- [~] Add web interface run instructions and screenshots or smoke-test evidence.
+- [x] Add web interface run instructions and screenshots or smoke-test evidence.
   - Current evidence: README includes `uv sync --extra dev --extra graphrag --extra web` and `uv run aviation-ai web serve`.
-  - Current smoke evidence: local browser check confirmed the default structure-aware hybrid view loads with answer, chunks, and KG triples.
+  - Current smoke evidence: `reports/stages/web_demo_final_smoke.md` confirms the default structure-aware hybrid view API/static checks, KG graph, and live-query lockout.
   - Acceptance: final report explains how to start the interface and what each UI section demonstrates.
-- [ ] Review `THIRD_PARTY.md` and license attribution.
+- [x] Review `THIRD_PARTY.md` and license attribution.
   - Acceptance: all copied/adapted external assets and papers are attributed; generated local artifacts are clearly identified.
-- [ ] Run final quality gate before submission.
+- [x] Run final quality gate before submission.
   - Commands:
     - `uv run ruff check .`
     - `uv run pytest`
     - `git status --short`
+    - PPT layout and archive checks.
+    - Secret scan excluding ignored `.env` and empty `.env.example` placeholders.
+  - Evidence: Ruff passed; Pytest passed with 116 tests; PPT layout check reported 0 errors/0 warnings; `unzip -t` reported no PPTX archive errors; refined secret scan found no committed secrets.
   - Acceptance: checks pass and only intentional files are changed.
 
 ## P3 - Automation And GitLab Tasks

@@ -34,6 +34,7 @@ from aviation_agentic_ai.reporting.academic_outputs import (
 )
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
 from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
+from aviation_agentic_ai.reporting.final_evaluation import write_final_evaluation_review
 from aviation_agentic_ai.reporting.graphrag_review import write_graphrag_review
 from aviation_agentic_ai.reporting.hybrid_rag import write_hybrid_rag_experiment
 from aviation_agentic_ai.reporting.generation_runs import write_generation_run_summary
@@ -42,6 +43,7 @@ from aviation_agentic_ai.reporting.overnight import write_overnight_summary
 from aviation_agentic_ai.reporting.project_report import write_project_report
 from aviation_agentic_ai.reporting.reviews import write_review_progress
 from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
+from aviation_agentic_ai.reporting.web_demo_smoke import write_web_demo_smoke
 from aviation_agentic_ai.retrieval.hybrid import run_query, write_query_result
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME, build_chroma_index
 from aviation_agentic_ai.web.server import serve_web_app
@@ -1049,6 +1051,48 @@ def report_evidence_eval(
     click.echo(f"Evaluated evidence-level metrics for {result['metadata']['labels_total']} CQs.")
 
 
+@report.command("final-evaluation")
+@click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
+@click.option("--chunking-comparison", type=click.Path(path_type=Path), default=None)
+@click.option("--fixed-hybrid", type=click.Path(path_type=Path), default=None)
+@click.option("--structure-aware-hybrid", type=click.Path(path_type=Path), default=None)
+@click.option("--evidence-eval", type=click.Path(path_type=Path), default=None)
+@click.option("--graphrag-review", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="final_evaluation_review", show_default=True)
+def report_final_evaluation(
+    gold_labels: Path | None,
+    chunking_comparison: Path | None,
+    fixed_hybrid: Path | None,
+    structure_aware_hybrid: Path | None,
+    evidence_eval: Path | None,
+    graphrag_review: Path | None,
+    output_dir: Path | None,
+    report_name: str,
+) -> None:
+    """Write final layered evaluation and submission-readiness review."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_final_evaluation_review(
+        report_dir,
+        gold_labels_path=gold_labels
+        or resolve_project_path("data/cqs/06_phak_ch4_0.gold.json"),
+        chunking_comparison_path=chunking_comparison or report_dir / "chunking_comparison.json",
+        fixed_hybrid_path=fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
+        structure_aware_hybrid_path=structure_aware_hybrid
+        or report_dir / "hybrid_rag_structure_aware.json",
+        evidence_eval_path=evidence_eval or report_dir / "evidence_level_evaluation.json",
+        graphrag_review_path=graphrag_review or report_dir / "graphrag_review.json",
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        "Final evaluation review complete; recommended default strategy: "
+        f"{result['default_strategy_decision']['recommended_default']}."
+    )
+
+
 @report.command("web-demo-readiness")
 @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
 @click.option("--report-name", default="web_demo_readiness", show_default=True)
@@ -1066,6 +1110,22 @@ def report_web_demo_readiness(output_dir: Path | None, report_name: str) -> None
         "Web demo readiness: "
         f"{result['ready']}; default strategy: {result['selected_default_strategy']}."
     )
+
+
+@report.command("web-demo-smoke")
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="web_demo_final_smoke", show_default=True)
+def report_web_demo_smoke(output_dir: Path | None, report_name: str) -> None:
+    """Run offline FastAPI web demo smoke checks and write evidence reports."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_web_demo_smoke(
+        report_dir,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Web demo final smoke: {result['ready']}.")
 
 
 @report.command("chunking-comparison")

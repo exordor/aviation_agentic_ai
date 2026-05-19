@@ -33,7 +33,14 @@
       "claim": "The web demo is a learning/decision-support explanation surface, not an operational flight authority.",
       "evidence_sources": [
         "reports/stages/web_demo_readiness.json",
+        "reports/stages/web_demo_final_smoke.json",
         "src/aviation_agentic_ai/advisory.py"
+      ]
+    },
+    {
+      "claim": "The final evaluation selects structure-aware as the default demo and next-phase GraphRAG strategy.",
+      "evidence_sources": [
+        "reports/stages/final_evaluation_review.json"
       ]
     }
   ],
@@ -61,7 +68,7 @@
       "explanation": "Some CQs retrieve relevant text but lack extracted triples covering the key entity; this is a KG extraction and schema coverage issue."
     }
   ],
-  "generated_at": "2026-05-19T03:50:29.133149+00:00",
+  "generated_at": "2026-05-19T04:23:12.010408+00:00",
   "metrics_talking_points": [
     "Chunking: structure-aware is currently best by retrieval ranking (Recall@5=1.0, MRR@5=0.82).",
     "Fixed-window Hybrid RAG should be described as KG-aligned baseline, with hybrid KG evidence coverage=0.9.",
@@ -100,9 +107,10 @@
       "question": "Why is structure-aware chunking recommended?"
     },
     {
-      "answer": "Gold labels need human review at chunk/span level, the corpus is still only PHAK Chapter 4, and LLM extraction must remain validator-gated.",
+      "answer": "Gold labels are reviewed for source alignment but are not external aviation examiner certification; the corpus is still only PHAK Chapter 4, and LLM extraction must remain validator-gated.",
       "evidence_sources": [
         "data/cqs/06_phak_ch4_0.gold.json",
+        "reports/stages/final_evaluation_review.json",
         "reports/stages/evidence_level_evaluation.json"
       ],
       "question": "What is still weak?"
@@ -155,6 +163,8 @@
     "reports/stages/curated_ontology_evaluation.md",
     "reports/stages/evidence_level_evaluation.json",
     "reports/stages/evidence_level_evaluation.md",
+    "reports/stages/final_evaluation_review.json",
+    "reports/stages/final_evaluation_review.md",
     "reports/stages/graphrag_review.json",
     "reports/stages/graphrag_review.md",
     "reports/stages/hybrid_rag_experiment.json",
@@ -166,9 +176,10 @@
     "reports/stages/kg_validation.md",
     "reports/stages/structure_aware_kg_validation.json",
     "reports/stages/structure_aware_kg_validation.md",
+    "reports/stages/web_demo_final_smoke.json",
+    "reports/stages/web_demo_final_smoke.md",
     "reports/stages/web_demo_readiness.json",
-    "reports/stages/web_demo_readiness.md",
-    "tmp/goal.md"
+    "reports/stages/web_demo_readiness.md"
   ],
   "source_policy": {
     "env_files_read": false,

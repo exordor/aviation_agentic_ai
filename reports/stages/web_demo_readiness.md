@@ -21,8 +21,8 @@
 
 | Strategy | Chunk Recall@5 | Span hit rate | KG triple relevance | Supported answers |
 | --- | ---: | ---: | ---: | ---: |
-| fixed_window | 0.8 | 0.8 | 0.9 | 7 |
-| structure_aware | 0.9 | 0.8 | 0.9 | 9 |
+| fixed_window | 0.8 | 0.9 | 0.9 | 8 |
+| structure_aware | 1.0 | 0.7 | 0.9 | 9 |
 
 ## KG Graph Readiness
 

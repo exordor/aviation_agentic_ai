@@ -1,0 +1,178 @@
+{
+  "checks": [
+    {
+      "detail": "FastAPI TestClient loaded.",
+      "id": "web_dependencies_importable",
+      "passed": true
+    },
+    {
+      "detail": "HTTP 200",
+      "id": "root_page_served",
+      "passed": true
+    },
+    {
+      "detail": "Token `question-list` present in static HTML.",
+      "id": "root_contains_question-list",
+      "passed": true
+    },
+    {
+      "detail": "Token `toolbar-group` present in static HTML.",
+      "id": "root_contains_toolbar-group",
+      "passed": true
+    },
+    {
+      "detail": "Token `Demo Narrative` present in static HTML.",
+      "id": "root_contains_demo_narrative",
+      "passed": true
+    },
+    {
+      "detail": "Token `Pipeline Explanation` present in static HTML.",
+      "id": "root_contains_pipeline_explanation",
+      "passed": true
+    },
+    {
+      "detail": "Token `Why This Result` present in static HTML.",
+      "id": "root_contains_why_this_result",
+      "passed": true
+    },
+    {
+      "detail": "Token `KG Relationship Graph` present in static HTML.",
+      "id": "root_contains_kg_relationship_graph",
+      "passed": true
+    },
+    {
+      "detail": "Token `Retrieved Chunks` present in static HTML.",
+      "id": "root_contains_retrieved_chunks",
+      "passed": true
+    },
+    {
+      "detail": "Token `Optional Live Query` present in static HTML.",
+      "id": "root_contains_optional_live_query",
+      "passed": true
+    },
+    {
+      "detail": "HTTP 200",
+      "id": "status_api_ok",
+      "passed": true
+    },
+    {
+      "detail": "default_strategy=structure_aware",
+      "id": "status_default_strategy_structure_aware",
+      "passed": true
+    },
+    {
+      "detail": "live_query_enabled=False",
+      "id": "status_live_query_disabled",
+      "passed": true
+    },
+    {
+      "detail": "Advisory boundary returned by API.",
+      "id": "status_advisory_boundary_present",
+      "passed": true
+    },
+    {
+      "detail": "HTTP 200",
+      "id": "explanation_api_ok",
+      "passed": true
+    },
+    {
+      "detail": "Pipeline steps returned.",
+      "id": "explanation_has_pipeline",
+      "passed": true
+    },
+    {
+      "detail": "Strategy decision available.",
+      "id": "explanation_recommends_structure_aware",
+      "passed": true
+    },
+    {
+      "detail": "HTTP 200",
+      "id": "questions_api_ok",
+      "passed": true
+    },
+    {
+      "detail": "questions=10",
+      "id": "questions_count_10",
+      "passed": true
+    },
+    {
+      "detail": "Every question summary exposes source_page.",
+      "id": "questions_have_source_pages",
+      "passed": true
+    },
+    {
+      "detail": "HTTP 200",
+      "id": "question_detail_api_ok",
+      "passed": true
+    },
+    {
+      "detail": "Structure-aware hybrid payload is present.",
+      "id": "question_detail_has_structure_hybrid",
+      "passed": true
+    },
+    {
+      "detail": "Gold label returned with question detail.",
+      "id": "question_detail_has_gold_label",
+      "passed": true
+    },
+    {
+      "detail": "HTTP 200",
+      "id": "kg_graph_api_ok",
+      "passed": true
+    },
+    {
+      "detail": "hybrid_edges=8",
+      "id": "kg_graph_hybrid_has_edges",
+      "passed": true
+    },
+    {
+      "detail": "vector_edges=0",
+      "id": "kg_graph_vector_empty_state",
+      "passed": true
+    },
+    {
+      "detail": "HTTP 403",
+      "id": "live_query_disabled_by_default",
+      "passed": true
+    },
+    {
+      "detail": "HTTP 204",
+      "id": "favicon_no_content",
+      "passed": true
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-05-19T04:12:30.739336+00:00",
+    "method": "fastapi_testclient_static_and_api_checks",
+    "project_root": ".",
+    "purpose": "offline_fastapi_web_demo_smoke"
+  },
+  "notes": [
+    "This smoke report verifies local static HTML and offline API behavior.",
+    "It does not replace a visual browser screenshot or deployment test.",
+    "Live query remains disabled by default for reproducible demonstrations."
+  ],
+  "payloads": {
+    "explanation": {
+      "default_path": "structure_aware + hybrid",
+      "pipeline_steps": 7,
+      "recommended_strategy": "structure_aware"
+    },
+    "kg_graph": {
+      "cq_id": "06-phak-ch4-0-p00-fa9830b888",
+      "hybrid_edges": 8,
+      "hybrid_nodes": 11,
+      "vector_edges": 0
+    },
+    "questions": {
+      "count": 10,
+      "first_cq_id": "06-phak-ch4-0-p00-fa9830b888"
+    },
+    "status": {
+      "default_strategy": "structure_aware",
+      "live_query_enabled": false,
+      "ready": true
+    }
+  },
+  "ready": true
+}

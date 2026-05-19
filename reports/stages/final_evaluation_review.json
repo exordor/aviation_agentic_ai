@@ -1,0 +1,364 @@
+{
+  "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+  "chunking_failure_analysis": {
+    "fixed_window": {
+      "chunk_stats": {},
+      "chunks_path": "data/chunks/06_phak_ch4_0.jsonl",
+      "collection_name": "phak_ch4_chunks",
+      "explanation": "Controllable baseline, but it can cut through semantic boundaries. It ties for the best source-page Recall@5 in this run.",
+      "metrics": {
+        "chunking": {
+          "avg_chars": 1034.11,
+          "boundary_preservation_rate": 0.3714,
+          "chunk_count": 35,
+          "p95_chars": 1196
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.42,
+          "mrr_at_5": 0.7583,
+          "recall_at_5": 1.0
+        }
+      }
+    },
+    "interpretation": [
+      "Fixed-window is stable and reproducible but may split evidence at artificial boundaries.",
+      "Structure-aware chunking preserves handbook sections, improving context precision and explanation quality.",
+      "Semantic/meta-like chunking is closer to semantic boundary detection but is costlier and less reproducible in this v1 implementation."
+    ],
+    "ranking": [
+      {
+        "context_precision_at_5": 0.52,
+        "mrr_at_5": 0.82,
+        "recall_at_5": 1.0,
+        "strategy": "structure_aware"
+      },
+      {
+        "context_precision_at_5": 0.46,
+        "mrr_at_5": 0.7917,
+        "recall_at_5": 1.0,
+        "strategy": "sentence_recursive"
+      },
+      {
+        "context_precision_at_5": 0.42,
+        "mrr_at_5": 0.7583,
+        "recall_at_5": 1.0,
+        "strategy": "fixed_window"
+      },
+      {
+        "context_precision_at_5": 0.5,
+        "mrr_at_5": 0.7333,
+        "recall_at_5": 0.9,
+        "strategy": "semantic_meta_like"
+      }
+    ],
+    "semantic_meta_like": {
+      "chunk_stats": {},
+      "chunks_path": "data/chunks/06_phak_ch4_0.semantic_meta_like.jsonl",
+      "collection_name": "phak_ch4_chunks_semantic_meta_like",
+      "explanation": "Approximates semantic boundary detection; more context-aware but less deterministic than rule-only strategies. High boundary preservation indicates fewer semantic or structural cuts.",
+      "metrics": {
+        "chunking": {
+          "avg_chars": 580.55,
+          "boundary_preservation_rate": 1.0,
+          "chunk_count": 56,
+          "p95_chars": 712
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.5,
+          "mrr_at_5": 0.7333,
+          "recall_at_5": 0.9
+        }
+      }
+    },
+    "structure_aware": {
+      "chunk_stats": {},
+      "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+      "collection_name": "phak_ch4_chunks_structure_aware",
+      "explanation": "Better preserves handbook section and list boundaries. It ties for the best source-page Recall@5 in this run. It places relevant evidence near the top of the result list. High boundary preservation indicates fewer semantic or structural cuts.",
+      "metrics": {
+        "chunking": {
+          "avg_chars": 233.36,
+          "boundary_preservation_rate": 1.0,
+          "chunk_count": 267,
+          "p95_chars": 1080
+        },
+        "retrieval": {
+          "context_precision_at_5": 0.52,
+          "mrr_at_5": 0.82,
+          "recall_at_5": 1.0
+        }
+      }
+    }
+  },
+  "citation_completeness": {
+    "fixed_window": {
+      "graph": {
+        "answer_support_distribution": {
+          "insufficient_evidence": 1,
+          "partially_supported": 2,
+          "supported": 7
+        },
+        "citation_validity": 1.0
+      },
+      "hybrid": {
+        "answer_support_distribution": {
+          "partially_supported": 2,
+          "supported": 8
+        },
+        "citation_validity": 1.0
+      },
+      "vector": {
+        "answer_support_distribution": {
+          "insufficient_evidence": 2,
+          "partially_supported": 8
+        },
+        "citation_validity": 1.0
+      }
+    },
+    "structure_aware": {
+      "graph": {
+        "answer_support_distribution": {
+          "insufficient_evidence": 1,
+          "partially_supported": 3,
+          "supported": 6
+        },
+        "citation_validity": 1.0
+      },
+      "hybrid": {
+        "answer_support_distribution": {
+          "partially_supported": 1,
+          "supported": 9
+        },
+        "citation_validity": 1.0
+      },
+      "vector": {
+        "answer_support_distribution": {
+          "insufficient_evidence": 2,
+          "partially_supported": 8
+        },
+        "citation_validity": 1.0
+      }
+    }
+  },
+  "default_strategy_decision": {
+    "baseline": "fixed_window",
+    "chunking_best_by_retrieval": "structure_aware",
+    "decision_status": "selected_for_demo_and_next_phase",
+    "evidence_level_delta": {
+      "chunk_recall_at_5": 0.2,
+      "span_hit_rate": -0.2,
+      "supported_answer_count": 1
+    },
+    "rationale": [
+      "Structure-aware chunks ranked first in chunking comparison by Recall@5/MRR@5/Context Precision@5.",
+      "Structure-aware Hybrid RAG keeps vector-level page recall while exposing KG evidence.",
+      "Fixed-window remains the baseline because the first KG and reports are reproducible artifacts.",
+      "GraphRAG should be presented as structured evidence support, not as a single blended score."
+    ],
+    "recommended_default": "structure_aware"
+  },
+  "gold_label_review": {
+    "gold_levels": {
+      "span": 10
+    },
+    "label_checks": [
+      {
+        "cq_id": "06-phak-ch4-0-p00-fa9830b888",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 4,
+        "gold_level": "span",
+        "key_entity_count": 5,
+        "source_page": 0
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p01-dbcda7dbf4",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 8,
+        "gold_level": "span",
+        "key_entity_count": 6,
+        "source_page": 1
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p02-dafae1ecbc",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 6,
+        "gold_level": "span",
+        "key_entity_count": 4,
+        "source_page": 2
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p03-f463ba25ee",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 7,
+        "gold_level": "span",
+        "key_entity_count": 5,
+        "source_page": 3
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 6,
+        "gold_level": "span",
+        "key_entity_count": 6,
+        "source_page": 5
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p05-bb9a93ef72",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 6,
+        "gold_level": "span",
+        "key_entity_count": 5,
+        "source_page": 5
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p06-a653e00686",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 7,
+        "gold_level": "span",
+        "key_entity_count": 7,
+        "source_page": 6
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p07-9737986760",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 7,
+        "gold_level": "span",
+        "key_entity_count": 5,
+        "source_page": 7
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p07-59d55c9639",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 6,
+        "gold_level": "span",
+        "key_entity_count": 4,
+        "source_page": 7
+      },
+      {
+        "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+        "evidence_span_count": 2,
+        "expected_chunk_count": 6,
+        "gold_level": "span",
+        "key_entity_count": 5,
+        "source_page": 8
+      }
+    ],
+    "labels_total": 10,
+    "metadata_notes": "Reviewed against fixed-window and structure-aware chunks; span texts were normalized to complete evidence snippets. Labels are course-project gold, not external aviation examiner certification.",
+    "present": true,
+    "review_required": false,
+    "review_status": "manual_reviewed",
+    "source_pages": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  "graphrag_review_summary": {
+    "interpretation_count": 6,
+    "present": true,
+    "recommendations": [
+      "Report GraphRAG as adding structured KG evidence, not as current page Recall@5 winner.",
+      "Use structure-aware chunks for the next KG extraction candidate.",
+      "Refine gold labels to chunk/span-level evidence before optimizing fusion."
+    ]
+  },
+  "hybrid_failure_analysis": {
+    "fixed_window_evidence_failures": [
+      {
+        "answer_support": "partially_supported",
+        "chunk_recall_at_5": false,
+        "citation_completeness": true,
+        "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+        "gold_level": "span",
+        "key_entity_coverage": true,
+        "kg_evidence_coverage": true,
+        "mode": "hybrid",
+        "question": "How should Newton's laws be represented as force and motion relations for aircraft?",
+        "source_page": 5,
+        "span_hit": false
+      },
+      {
+        "answer_support": "partially_supported",
+        "chunk_recall_at_5": true,
+        "citation_completeness": true,
+        "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+        "gold_level": "span",
+        "key_entity_coverage": false,
+        "kg_evidence_coverage": false,
+        "mode": "hybrid",
+        "question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+        "source_page": 8,
+        "span_hit": true
+      }
+    ],
+    "fixed_window_hybrid_retrieval_failures": [
+      {
+        "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+        "first_relevant_rank": null,
+        "mode": "hybrid",
+        "question": "How should Newton's laws be represented as force and motion relations for aircraft?",
+        "retrieved_chunk_ids": [
+          "06_phak_ch4_0-fixed_window-p04-c03",
+          "06_phak_ch4_0-fixed_window-p04-c04",
+          "06_phak_ch4_0-fixed_window-p01-c03",
+          "06_phak_ch4_0-fixed_window-p00-c00",
+          "06_phak_ch4_0-fixed_window-p01-c02"
+        ],
+        "retrieved_source_pages": [
+          4,
+          4,
+          1,
+          0,
+          1
+        ],
+        "source_page": 5
+      }
+    ],
+    "structure_aware_evidence_failures": [
+      {
+        "answer_support": "partially_supported",
+        "chunk_recall_at_5": true,
+        "citation_completeness": true,
+        "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+        "gold_level": "span",
+        "key_entity_coverage": false,
+        "kg_evidence_coverage": false,
+        "mode": "hybrid",
+        "question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+        "source_page": 8,
+        "span_hit": true
+      }
+    ],
+    "structure_aware_hybrid_retrieval_failures": []
+  },
+  "metadata": {
+    "created_at": "2026-05-19T04:12:30.124229+00:00",
+    "scoring_policy": "layered_metrics_no_mixed_overall_score",
+    "source_paths": {
+      "chunking_comparison": "reports/stages/chunking_comparison.json",
+      "evidence_eval": "reports/stages/evidence_level_evaluation.json",
+      "fixed_hybrid": "reports/stages/hybrid_rag_experiment.json",
+      "gold_labels": "data/cqs/06_phak_ch4_0.gold.json",
+      "graphrag_review": "reports/stages/graphrag_review.json",
+      "structure_aware_hybrid": "reports/stages/hybrid_rag_structure_aware.json"
+    }
+  },
+  "remaining_limitations": [
+    "Gold labels are reviewed for evidence alignment but are not certified by an aviation domain examiner.",
+    "The KG is scoped to PHAK Chapter 4 and does not yet cover emergency/procedure manuals.",
+    "Page-level Recall@5 is a coarse benchmark and under-represents structured evidence value.",
+    "The local web demo is offline-first and does not prove production-scale deployment readiness."
+  ],
+  "submission_claims": [
+    "The project implements a reproducible PDF-to-chunks-to-KG-to-vector-index-to-Hybrid-RAG pipeline for PHAK Chapter 4.",
+    "Evaluation is intentionally layered into retrieval, KG evidence, and LLM answer/citation metrics.",
+    "Structure-aware chunking is the recommended demo/default strategy; fixed-window remains the baseline.",
+    "The advisory assistant boundary is explicit: this is flight learning and decision support, not a substitute for POH, checklist, ATC, instructor, or pilot judgment."
+  ]
+}

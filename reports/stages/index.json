@@ -265,6 +265,20 @@
         "artifact_type": "machine_artifact",
         "category": "rag_experiments",
         "format": "json",
+        "path": "reports/stages/final_evaluation_review.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "rag_experiments",
+        "format": "md",
+        "path": "reports/stages/final_evaluation_review.md"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "rag_experiments",
+        "format": "json",
         "path": "reports/stages/web_demo_readiness.json"
       },
       {
@@ -273,6 +287,20 @@
         "category": "rag_experiments",
         "format": "md",
         "path": "reports/stages/web_demo_readiness.md"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "machine_artifact",
+        "category": "rag_experiments",
+        "format": "json",
+        "path": "reports/stages/web_demo_final_smoke.json"
+      },
+      {
+        "archived_to": null,
+        "artifact_type": "human_report",
+        "category": "rag_experiments",
+        "format": "md",
+        "path": "reports/stages/web_demo_final_smoke.md"
       }
     ],
     "kg_validation": [
@@ -462,7 +490,7 @@
     "sources": "reports/final/project_report_sources.json",
     "stage_index": "reports/stages/index.json"
   },
-  "generated_at": "2026-05-18T23:29:36.777653+00:00",
+  "generated_at": "2026-05-19T04:13:26+00:00",
   "moved_items": [
     {
       "from": "reports/stages/cq_gap_review.json",
@@ -593,7 +621,9 @@
     "graphrag_review": "reports/stages/graphrag_review.md",
     "gold_labels": "data/cqs/06_phak_ch4_0.gold.json",
     "evidence_level_evaluation": "reports/stages/evidence_level_evaluation.md",
+    "final_evaluation_review": "reports/stages/final_evaluation_review.md",
     "web_demo_readiness": "reports/stages/web_demo_readiness.md",
+    "web_demo_final_smoke": "reports/stages/web_demo_final_smoke.md",
     "academic_report": "reports/final/project_academic_report.md",
     "academic_report_sources": "reports/final/project_academic_report_sources.json",
     "defense_notes": "reports/final/project_defense_notes.md",

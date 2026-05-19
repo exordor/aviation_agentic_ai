@@ -46,9 +46,9 @@ Sources: `reports/stages/chunking_comparison.json`, `reports/stages/evidence_lev
 
 ### What is still weak?
 
-Gold labels need human review at chunk/span level, the corpus is still only PHAK Chapter 4, and LLM extraction must remain validator-gated.
+Gold labels are reviewed for source alignment but are not external aviation examiner certification; the corpus is still only PHAK Chapter 4, and LLM extraction must remain validator-gated.
 
-Sources: `data/cqs/06_phak_ch4_0.gold.json`, `reports/stages/evidence_level_evaluation.json`
+Sources: `data/cqs/06_phak_ch4_0.gold.json`, `reports/stages/final_evaluation_review.json`, `reports/stages/evidence_level_evaluation.json`
 
 ### Can this replace POH, checklist, ATC, instructor, or pilot judgment?
 
@@ -94,6 +94,8 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `reports/stages/curated_ontology_evaluation.md`
 - `reports/stages/evidence_level_evaluation.json`
 - `reports/stages/evidence_level_evaluation.md`
+- `reports/stages/final_evaluation_review.json`
+- `reports/stages/final_evaluation_review.md`
 - `reports/stages/graphrag_review.json`
 - `reports/stages/graphrag_review.md`
 - `reports/stages/hybrid_rag_experiment.json`
@@ -105,6 +107,7 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `reports/stages/kg_validation.md`
 - `reports/stages/structure_aware_kg_validation.json`
 - `reports/stages/structure_aware_kg_validation.md`
+- `reports/stages/web_demo_final_smoke.json`
+- `reports/stages/web_demo_final_smoke.md`
 - `reports/stages/web_demo_readiness.json`
 - `reports/stages/web_demo_readiness.md`
-- `tmp/goal.md`

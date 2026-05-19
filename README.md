@@ -133,6 +133,8 @@ aviation-ai query "How does angle of attack affect lift?"
 aviation-ai report hybrid-rag --max-questions 1
 aviation-ai report chunking-comparison --max-questions 1
 aviation-ai report web-demo-readiness
+aviation-ai report web-demo-smoke
+aviation-ai report final-evaluation
 aviation-ai web serve
 aviation-ai report hygiene --dry-run
 aviation-ai report project --no-ai
@@ -218,9 +220,18 @@ uv run aviation-ai report hybrid-rag
 Hybrid reports keep retrieval, KG evidence, and LLM answer metrics separate.
 They also record the LLM provider/model name, Chroma collection, chunking
 strategy, graph/vector top-k settings, and whether chunks/indexes/KG were
-rebuilt for that report run. Gold labels default to CQ `source_page` matching
-and can be refined with optional `--gold-labels` JSON/JSONL entries containing
-`expected_chunk_ids` or `evidence_spans`.
+rebuilt for that report run. Reviewed gold labels live at
+`data/cqs/06_phak_ch4_0.gold.json`; they use chunk/span evidence for all 10
+boundary CQs while remaining course-project labels rather than external aviation
+examiner certification. The final evaluation command summarizes strategy
+selection, failure cases, and citation completeness without producing a mixed
+overall score:
+
+```bash
+uv run aviation-ai report evidence-eval
+uv run aviation-ai report graphrag-review
+uv run aviation-ai report final-evaluation
+```
 
 For local smoke tests without an LLM call, use deterministic seed triples:
 
@@ -250,11 +261,15 @@ Install the optional web dependencies and run the readiness check:
 ```bash
 uv sync --extra dev --extra graphrag --extra web
 uv run aviation-ai report web-demo-readiness
+uv run aviation-ai report web-demo-smoke
 uv run aviation-ai web serve
 ```
 
 Then open `http://127.0.0.1:8000`. The default displayed strategy is
 `structure_aware`; `fixed_window` remains visible as the baseline comparison.
+The smoke report writes `reports/stages/web_demo_final_smoke.md` and verifies
+the static page, status/explanation/question APIs, detail endpoint, KG graph,
+default live-query lockout, and favicon through FastAPI TestClient.
 
 Live LLM querying is disabled by default. To test the live GraphRAG path after
 the Chroma collection and LLM provider are configured, start the server with:

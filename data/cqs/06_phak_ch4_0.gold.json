@@ -8,13 +8,13 @@
           "char_end": 489,
           "char_start": 428,
           "page": 0,
-          "text": "The atmosphere is an envelope of air that surrounds the Earth"
+          "text": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface."
         },
         {
           "char_end": 738,
           "char_start": 685,
           "page": 0,
-          "text": "The atmosphere is composed of 78 percent nitrogen, 21"
+          "text": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium."
         }
       ],
       "expected_chunk_ids": [
@@ -42,19 +42,21 @@
           "char_end": 1086,
           "char_start": 1039,
           "page": 1,
-          "text": "ow-viscosity fluids are \u201cthin\u201d and flow easily."
+          "text": "low-viscosity fluids are \u201cthin\u201d and flow easily. Air has a low viscosity and flows easily."
         },
         {
           "char_end": 1844,
           "char_start": 1823,
           "page": 1,
-          "text": "the viscosity of air."
+          "text": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer."
         }
       ],
       "expected_chunk_ids": [
         "06_phak_ch4_0-fixed_window-p01-c00",
         "06_phak_ch4_0-fixed_window-p01-c01",
         "06_phak_ch4_0-fixed_window-p01-c02",
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-structure_aware-p01-c05",
         "06_phak_ch4_0-structure_aware-p01-c06",
         "06_phak_ch4_0-structure_aware-p01-c07",
         "06_phak_ch4_0-structure_aware-p01-c08"
@@ -79,13 +81,13 @@
           "char_end": 2736,
           "char_start": 2684,
           "page": 2,
-          "text": "Due to the changing atmospheric pressure, a standard"
+          "text": "Due to the changing atmospheric pressure, a standard reference was developed."
         },
         {
           "char_end": 2792,
           "char_start": 2761,
           "page": 2,
-          "text": "The standard atmosphere at sea"
+          "text": "The standard atmosphere at sea level is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface pressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb."
         }
       ],
       "expected_chunk_ids": [
@@ -114,19 +116,20 @@
           "char_end": 2415,
           "char_start": 2353,
           "page": 3,
-          "text": "a specific density, its pressure altitude and density altitude"
+          "text": "Density altitude is pressure altitude corrected for nonstandard temperature."
         },
         {
           "char_end": 2111,
           "char_start": 2086,
           "page": 3,
-          "text": "ease in air density means"
+          "text": "A decrease in air density means a high density altitude; an increase in air density means a lower density altitude."
         }
       ],
       "expected_chunk_ids": [
         "06_phak_ch4_0-fixed_window-p03-c02",
         "06_phak_ch4_0-fixed_window-p03-c03",
         "06_phak_ch4_0-fixed_window-p03-c04",
+        "06_phak_ch4_0-structure_aware-p03-c04",
         "06_phak_ch4_0-structure_aware-p03-c05",
         "06_phak_ch4_0-structure_aware-p03-c06",
         "06_phak_ch4_0-structure_aware-p03-c10"
@@ -150,13 +153,13 @@
           "char_end": 313,
           "char_start": 251,
           "page": 5,
-          "text": "acceleration is inversely proportional to the mass of the body"
+          "text": "When a body is acted upon by a constant force, its resulting acceleration is inversely proportional to the mass of the body and is directly proportional to the applied force."
         },
         {
           "char_end": 688,
           "char_start": 666,
           "page": 5,
-          "text": "and opposite reaction."
+          "text": "Newton\u2019s Third Law: \u201cFor every action, there is an equal and opposite reaction.\u201d"
         }
       ],
       "expected_chunk_ids": [
@@ -187,13 +190,13 @@
           "char_end": 1067,
           "char_start": 1035,
           "page": 5,
-          "text": "inciple of Differential Pressure"
+          "text": "Bernoulli\u2019s Principle states that as the velocity of a moving fluid (liquid or gas) increases, the pressure within the fluid decreases."
         },
         {
           "char_end": 1184,
           "char_start": 1124,
           "page": 5,
-          "text": "Bernoulli, a Swiss mathematician, explained how the pressure"
+          "text": "A practical application of Bernoulli\u2019s Principle is the venturi tube."
         }
       ],
       "expected_chunk_ids": [
@@ -223,19 +226,20 @@
           "char_end": 399,
           "char_start": 337,
           "page": 6,
-          "text": "from the leading edge to the trailing edge, is the mean camber"
+          "text": "from the leading edge to the trailing edge, is the mean camber line."
         },
         {
           "char_end": 17,
           "char_start": 4,
           "page": 6,
-          "text": "Early airfoil"
+          "text": "Trailing edge Leading edge Mean camber line Chord line"
         }
       ],
       "expected_chunk_ids": [
         "06_phak_ch4_0-fixed_window-p06-c00",
         "06_phak_ch4_0-fixed_window-p06-c01",
         "06_phak_ch4_0-fixed_window-p06-c02",
+        "06_phak_ch4_0-structure_aware-p06-c10",
         "06_phak_ch4_0-structure_aware-p06-c17",
         "06_phak_ch4_0-structure_aware-p06-c18",
         "06_phak_ch4_0-structure_aware-p06-c19"
@@ -261,13 +265,13 @@
           "char_end": 512,
           "char_start": 485,
           "page": 7,
-          "text": "airfoil creates a downwash."
+          "text": "The downward backward flow from the top surface of an airfoil creates a downwash."
         },
         {
           "char_end": 222,
           "char_start": 171,
           "page": 7,
-          "text": "Pressure distribution on an airfoil and CP changes"
+          "text": "Figure 4-7 shows the pressure distribution along an airfoil at three different angles of attack."
         }
       ],
       "expected_chunk_ids": [
@@ -275,6 +279,7 @@
         "06_phak_ch4_0-fixed_window-p07-c01",
         "06_phak_ch4_0-fixed_window-p07-c03",
         "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-structure_aware-p07-c23",
         "06_phak_ch4_0-structure_aware-p07-c22",
         "06_phak_ch4_0-structure_aware-p07-c26"
       ],
@@ -297,13 +302,13 @@
           "char_end": 222,
           "char_start": 171,
           "page": 7,
-          "text": "Pressure distribution on an airfoil and CP changes"
+          "text": "Figure 4-7 shows the pressure distribution along an airfoil at three different angles of attack."
         },
         {
           "char_end": 24,
           "char_start": 4,
           "page": 7,
-          "text": "High angle of attack"
+          "text": "At high angles of attack, the CP moves forward, while at low angles of attack the CP moves aft."
         }
       ],
       "expected_chunk_ids": [
@@ -332,19 +337,20 @@
           "char_end": 1729,
           "char_start": 1693,
           "page": 8,
-          "text": "Winglets can be added to the tip of"
+          "text": "This action creates a rotating flow called a tip vortex."
         },
         {
           "char_end": 1787,
           "char_start": 1761,
           "page": 8,
-          "text": "The winglets act as a dam"
+          "text": "Winglets can be added to the tip of an airfoil to reduce this flow. The winglets act as a dam preventing the vortex from forming."
         }
       ],
       "expected_chunk_ids": [
         "06_phak_ch4_0-fixed_window-p08-c00",
         "06_phak_ch4_0-fixed_window-p08-c01",
         "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-structure_aware-p08-c04",
         "06_phak_ch4_0-structure_aware-p08-c05",
         "06_phak_ch4_0-structure_aware-p08-c06"
       ],
@@ -367,8 +373,10 @@
       "data/chunks/06_phak_ch4_0.structure_aware.jsonl"
     ],
     "generated_at": "2026-05-19T01:35:50.322849+00:00",
-    "generator": "aviation-ai cqs gold-draft",
-    "notes": "Auto-drafted from source chunks; review spans before final claims.",
-    "review_required": true
+    "generator": "aviation-ai cqs gold-draft + manual review",
+    "notes": "Reviewed against fixed-window and structure-aware chunks; span texts were normalized to complete evidence snippets. Labels are course-project gold, not external aviation examiner certification.",
+    "review_required": false,
+    "review_status": "manual_reviewed",
+    "reviewed_at": "2026-05-19"
   }
 }

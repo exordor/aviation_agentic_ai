@@ -8,6 +8,7 @@ from click.testing import CliRunner
 
 from aviation_agentic_ai.cli import main
 from aviation_agentic_ai.reporting.web_demo import build_web_demo_readiness
+from aviation_agentic_ai.reporting.web_demo_smoke import build_web_demo_smoke
 from aviation_agentic_ai.web.data import (
     build_demo_explanation,
     build_demo_status,
@@ -341,6 +342,20 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert favicon.status_code == 204
 
 
+def test_web_demo_smoke_uses_fastapi_testclient(tmp_path: Path) -> None:
+    pytest.importorskip("fastapi")
+    _write_web_fixture(tmp_path)
+
+    result = build_web_demo_smoke(tmp_path)
+
+    assert result["ready"]
+    assert result["payloads"]["status"]["default_strategy"] == "structure_aware"
+    assert result["payloads"]["questions"]["count"] == 10
+    assert result["payloads"]["kg_graph"]["hybrid_edges"] == 2
+    assert result["payloads"]["kg_graph"]["vector_edges"] == 0
+    assert "overall_score" not in result
+
+
 def test_cli_report_web_demo_readiness_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai import cli
 
@@ -369,6 +384,28 @@ def test_cli_report_web_demo_readiness_uses_mocked_writer(tmp_path: Path, monkey
 
     assert result.exit_code == 0, result.output
     assert "Web demo readiness: True" in result.output
+
+
+def test_cli_report_web_demo_smoke_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(output_dir, *, report_name):
+        output = Path(output_dir)
+        output.mkdir(parents=True, exist_ok=True)
+        json_path = output / f"{report_name}.json"
+        md_path = output / f"{report_name}.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# Web Demo Final Smoke\n", encoding="utf-8")
+        return json_path, md_path, {"ready": True}
+
+    monkeypatch.setattr(cli, "write_web_demo_smoke", fake_writer)
+    result = CliRunner().invoke(
+        main,
+        ["report", "web-demo-smoke", "--output-dir", str(tmp_path)],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Web demo final smoke: True" in result.output
 
 
 def test_cli_web_serve_uses_mocked_server(monkeypatch) -> None:

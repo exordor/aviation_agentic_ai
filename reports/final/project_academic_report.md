@@ -6,7 +6,7 @@ This project builds a reproducible aviation-domain GraphRAG prototype over FAA P
 
 ## 1. Introduction
 
-The course objective is to explain a full AI pipeline that can answer what the system does, why each design choice exists, and what evidence supports the claims. This implementation focuses on aviation learning and decision support, not operational flight authority. Sources: `tmp/goal.md`, `GOALS.md`, `src/aviation_agentic_ai/advisory.py`.
+The course objective is to explain a full AI pipeline that can answer what the system does, why each design choice exists, and what evidence supports the claims. This implementation focuses on aviation learning and decision support, not operational flight authority. Sources: `GOALS.md`, `src/aviation_agentic_ai/advisory.py`.
 
 ## 2. Background and Research Gap
 
@@ -38,7 +38,7 @@ The result is consistent with the document type: aviation handbooks have page, s
 
 Fixed-window vector Recall@5=1.0 and fixed-window hybrid Recall@5=0.9; fixed-window hybrid KG evidence coverage=0.9. Structure-aware vector Recall@5=1.0 and structure-aware hybrid Recall@5=1.0; structure-aware hybrid KG evidence coverage=0.9. Sources: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_structure_aware.json`.
 
-Evidence-level scoring is more useful for defending GraphRAG: structure-aware hybrid supports 9 answers versus 7 for fixed-window hybrid. Source: `reports/stages/evidence_level_evaluation.json`.
+Evidence-level scoring is more useful for defending GraphRAG: structure-aware hybrid supports 9 answers versus 8 for fixed-window hybrid. Source: `reports/stages/evidence_level_evaluation.json`.
 
 ## 8. Discussion
 
@@ -46,11 +46,15 @@ The main interpretation is that vector-only retrieval can remain competitive on 
 
 ## 9. Limitations and Threats to Validity
 
-The gold labels are still coarse and partially auto-drafted; chunk/span-level labels need human review. The dataset is limited to PHAK Chapter 4. KG extraction depends on LLM structured output and therefore requires deterministic validation. Visual assets are local deterministic SVG diagrams for explanation only and must not be treated as experiment evidence.
+The gold labels are reviewed for source alignment, but they remain course-project labels rather than external aviation examiner certification. The dataset is limited to PHAK Chapter 4. KG extraction depends on LLM structured output and therefore requires deterministic validation. Visual assets are explanatory presentation artifacts and must not be treated as experiment evidence.
 
 ## 10. Web Demonstrator
 
-The web demo readiness report marks ready=True, default strategy=structure_aware, and explanation ready=True. The demo presents answer evidence, KG triples, relationship graph, mode comparison, pipeline explanation, and advisory boundary. Source: `reports/stages/web_demo_readiness.json`.
+The web demo readiness report marks ready=True, default strategy=structure_aware, and explanation ready=True. The final smoke report marks ready=True. The demo presents answer evidence, KG triples, relationship graph, mode comparison, pipeline explanation, and advisory boundary. Sources: `reports/stages/web_demo_readiness.json`, `reports/stages/web_demo_final_smoke.json`.
+
+## 10.1 Final Evaluation Decision
+
+The final evaluation selects `structure_aware` as the default demo and next-phase GraphRAG strategy while keeping `fixed_window` as the baseline. Gold label review status is `manual_reviewed` with review_required=False. Source: `reports/stages/final_evaluation_review.json`.
 
 ## 11. Advisory Boundary
 
@@ -67,7 +71,9 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `uv run aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware`
 - `uv run aviation-ai report graphrag-review`
 - `uv run aviation-ai report evidence-eval`
+- `uv run aviation-ai report final-evaluation`
 - `uv run aviation-ai report web-demo-readiness`
+- `uv run aviation-ai report web-demo-smoke`
 - `uv run aviation-ai report academic-paper --no-ai`
 - `uv run aviation-ai report defense-notes`
 - `uv run aviation-ai report defense-deck-outline`
@@ -105,6 +111,8 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/curated_ontology_evaluation.md`
 - `reports/stages/evidence_level_evaluation.json`
 - `reports/stages/evidence_level_evaluation.md`
+- `reports/stages/final_evaluation_review.json`
+- `reports/stages/final_evaluation_review.md`
 - `reports/stages/graphrag_review.json`
 - `reports/stages/graphrag_review.md`
 - `reports/stages/hybrid_rag_experiment.json`
@@ -116,6 +124,7 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/kg_validation.md`
 - `reports/stages/structure_aware_kg_validation.json`
 - `reports/stages/structure_aware_kg_validation.md`
+- `reports/stages/web_demo_final_smoke.json`
+- `reports/stages/web_demo_final_smoke.md`
 - `reports/stages/web_demo_readiness.json`
 - `reports/stages/web_demo_readiness.md`
-- `tmp/goal.md`

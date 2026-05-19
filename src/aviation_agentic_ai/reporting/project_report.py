@@ -179,6 +179,13 @@ def _read_artifact_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dic
     return _read_text_source(path, base=base, max_chars=8000)
 
 
+def _read_course_goal_source(root: Path) -> dict[str, Any]:
+    goals = root / "GOALS.md"
+    if goals.exists():
+        return _read_text_source(goals, base=root)
+    return _read_text_source(root / "tmp" / "goal.md", base=root)
+
+
 def _read_current_artifacts(
     root: Path,
     current_artifacts: dict[str, Any],
@@ -232,7 +239,7 @@ def build_project_evidence_pack(
         "readme": _read_text_source(root / "README.md", base=root),
         "goals": _read_text_source(root / "GOALS.md", base=root),
         "tasks": _read_text_source(root / "TASKS.md", base=root),
-        "course_goal": _read_text_source(root / "tmp" / "goal.md", base=root),
+        "course_goal": _read_course_goal_source(root),
         "configs": {
             "default": _read_yaml_source(root / "configs" / "default.yaml", base=root),
             "ontology_generation": _read_yaml_source(
@@ -442,8 +449,23 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     structure_kg_triples = structure_kg_validation.get("triples_total", "TBD")
     structure_kg_errors = structure_kg_validation.get("errors_total", "TBD")
     web_readiness = artifact_sources.get("web_demo_readiness_json", {}).get("data", {})
+    web_smoke = artifact_sources.get("web_demo_final_smoke_json", {}).get("data", {})
+    final_evaluation = artifact_sources.get("final_evaluation_review_json", {}).get(
+        "data",
+        {},
+    )
     web_explanation = (
         web_readiness.get("explanation", {}) if isinstance(web_readiness, dict) else {}
+    )
+    default_decision = (
+        final_evaluation.get("default_strategy_decision", {})
+        if isinstance(final_evaluation, dict)
+        else {}
+    )
+    gold_review = (
+        final_evaluation.get("gold_label_review", {})
+        if isinstance(final_evaluation, dict)
+        else {}
     )
     chunking_lines = _chunking_summary_lines(artifact_sources, categories)
     hybrid_lines = _hybrid_summary_lines(artifact_sources, retrieval_config)
@@ -460,28 +482,29 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         artifact_sources.get("evidence_level_evaluation_json", {}).get("data", {})
     )
     has_web_readiness = isinstance(web_readiness, dict) and bool(web_readiness)
+    has_web_smoke = isinstance(web_smoke, dict) and bool(web_smoke)
+    has_final_evaluation = isinstance(final_evaluation, dict) and bool(final_evaluation)
     if has_chunking and has_hybrid:
         if has_structure_hybrid:
-            first_next_work = (
-                "1. Review the auto-drafted chunk/span gold labels and fix weak spans."
-                if has_evidence_eval
-                else "1. Refine gold labels from source-page to chunk/span evidence."
-            )
-            if has_web_readiness:
+            if has_final_evaluation and has_web_smoke:
+                next_work_lines = [
+                    "1. Run final quality gates and keep the repository ready for submission.",
+                    "2. Add GitLab CI for `ruff` and `pytest` if automated checks are required.",
+                    "3. Optionally mirror the remaining P3 tasks into GitLab issues.",
+                    "4. Expand beyond PHAK Chapter 4 only after document metadata and section schema are enforced.",
+                ]
+            else:
+                first_next_work = (
+                    "1. Review the chunk/span gold labels and fix weak spans."
+                    if has_evidence_eval
+                    else "1. Refine gold labels from source-page to chunk/span evidence."
+                )
                 next_work_lines = [
                     first_next_work,
                     "2. Smoke-test the FastAPI web demo and capture final review notes.",
                     "3. Write project-defense conclusions from fixed-window and structure-aware runs.",
                     "4. Generate the AI-polished final report after review.",
                     "5. Prepare final submission checks.",
-                ]
-            else:
-                next_work_lines = [
-                    first_next_work,
-                    "2. Write project-defense conclusions from fixed-window and structure-aware runs.",
-                    "3. Decide whether `structure_aware` becomes the default GraphRAG strategy.",
-                    "4. Generate the AI-polished final report after review.",
-                    "5. Implement the minimal web interface demonstrator.",
                 ]
         else:
             next_work_lines = [
@@ -527,6 +550,10 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
                 "- `uv run aviation-ai web serve`",
             ]
         )
+    if has_web_smoke:
+        reproducibility_lines.append("- `uv run aviation-ai report web-demo-smoke`")
+    if has_final_evaluation:
+        reproducibility_lines.append("- `uv run aviation-ai report final-evaluation`")
     reproducibility_lines.extend(
         [
             "- `uv run aviation-ai report hygiene --apply`",
@@ -605,10 +632,19 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         f"{web_explanation.get('default_path', 'TBD') if isinstance(web_explanation, dict) else 'TBD'}, "
         "recommended strategy="
         f"{web_explanation.get('recommended_strategy', 'TBD') if isinstance(web_explanation, dict) else 'TBD'}.",
-        "Limitations: chunk/span gold labels are auto-drafted and still require "
-        "human review, structure-aware KG extraction is more expensive because it "
-        "uses many smaller chunks, and GraphRAG should be defended as structured "
-        "evidence support rather than a single-score Recall improvement.",
+        "Final evaluation review: "
+        f"default strategy={default_decision.get('recommended_default', 'TBD')}, "
+        f"baseline={default_decision.get('baseline', 'TBD')}, gold review status="
+        f"{gold_review.get('review_status', 'TBD')}, review required="
+        f"{gold_review.get('review_required', 'TBD')}.",
+        "Web demo smoke: "
+        f"ready={web_smoke.get('ready', 'TBD') if isinstance(web_smoke, dict) else 'TBD'} "
+        "for static/API checks.",
+        "Limitations: chunk/span gold labels are reviewed for source alignment but "
+        "are not external aviation examiner certification, structure-aware KG "
+        "extraction is more expensive because it uses many smaller chunks, and "
+        "GraphRAG should be defended as structured evidence support rather than a "
+        "single-score Recall improvement.",
         "",
         "## Advisory assistant boundary",
         "",

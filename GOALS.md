@@ -80,7 +80,7 @@ Success criteria:
 - LLM answer metrics include citation completeness, citation validity, and insufficient-evidence abstention behavior.
 - Gold labels support page-level ground truth now and can later be refined to chunk/span-level evidence.
 
-Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, draft chunk/span gold labels, and evidence-level evaluation. The gold labels are auto-drafted and still require review before final claims.
+Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, reviewed chunk/span gold labels, evidence-level evaluation, and final evaluation review. The gold labels are course-project gold and not external aviation examiner certification.
 
 ## G5 - Report Hygiene And Final Project Report
 
@@ -96,7 +96,8 @@ Success criteria:
 Current status: report hygiene, deterministic final report, academic-style
 report, project-defense notes, AI-enhanced visual assets with local SVG
 fallbacks, and an editable academic defense PPTX are available under
-`reports/final/`.
+`reports/final/`. Final evaluation and web smoke evidence are recorded under
+`reports/stages/`.
 
 ## G6 - Future Advisory Assistant Boundary
 
@@ -127,6 +128,8 @@ and evidence-level metrics by default; live query is opt-in. The interface now
 includes a deterministic demo narrative, pipeline explanation, mode comparison,
 Why This Result panel, and question-scoped KG relationship graph so reviewers
 can see why evidence was selected, not only read the answer and evidence lists.
+Offline FastAPI smoke evidence is available in
+`reports/stages/web_demo_final_smoke.md`.
 
 ## G8 - Pipeline Explanation And Project Defense
 
@@ -142,6 +145,7 @@ Success criteria:
 Current status: ontology design documentation, KG validation evidence, chunking
 comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, GraphRAG
 review, evidence-level evaluation, web demo readiness, academic report,
+final evaluation review, web demo readiness/smoke evidence, academic report,
 defense notes, and AI-enhanced defense PPT are available. The current defense framing is:
 structure-aware improves evidence support while costing more KG extraction work;
 GraphRAG should be defended as structured evidence coverage rather than a simple
@@ -164,8 +168,8 @@ reproducible review.
 | G1 | `GOALS.md`, `README.md`, `reports/final/project_report.md`, optional local note `tmp/goal.md` | `TASKS.md` P2 |
 | G2 | `data/ontology/`, `configs/extraction_profile.yaml`, KG reports | `TASKS.md` P0/P1 |
 | G3 | chunk/index/query CLI outputs, Hybrid RAG report | `TASKS.md` P0 |
-| G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports | `TASKS.md` P0/P1 |
+| G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports, `reports/stages/final_evaluation_review.md` | `TASKS.md` P0/P1 |
 | G5 | `reports/stages/index.md`, `reports/final/project_report.md`, `reports/final/project_academic_report.md`, defense PPT | `TASKS.md` P2 |
 | G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
-| G7 | web app code, `reports/stages/web_demo_readiness.md`, demo instructions | `TASKS.md` P2 |
+| G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TASKS.md` P2 |
 | G8 | final report, academic report, comparison reports, defense notes, defense PPT | `TASKS.md` P1/P2 |

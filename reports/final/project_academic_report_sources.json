@@ -15,6 +15,7 @@
     "defense_deck_sources": "reports/final/aviation_graphrag_defense_deck_sources.json",
     "defense_notes": "reports/final/project_defense_notes.md",
     "evidence_level_evaluation": "reports/stages/evidence_level_evaluation.md",
+    "final_evaluation_review": "reports/stages/final_evaluation_review.md",
     "gold_labels": "data/cqs/06_phak_ch4_0.gold.json",
     "graphrag_review": "reports/stages/graphrag_review.md",
     "hybrid_rag_experiment": "reports/stages/hybrid_rag_experiment.md",
@@ -27,9 +28,10 @@
     "structure_aware_kg_validation": "reports/stages/structure_aware_kg_validation.md",
     "validated_kg": "data/kg/06_phak_ch4_0.kg.jsonl",
     "visual_assets_manifest": "reports/final/assets/visual_assets_manifest.json",
+    "web_demo_final_smoke": "reports/stages/web_demo_final_smoke.md",
     "web_demo_readiness": "reports/stages/web_demo_readiness.md"
   },
-  "generated_at": "2026-05-19T03:50:19.541219+00:00",
+  "generated_at": "2026-05-19T04:23:11.777559+00:00",
   "graphrag_interpretations": [
     {
       "claim": "GraphRAG value is evidence structure, not current page-level Recall lift.",
@@ -58,7 +60,7 @@
     },
     {
       "claim": "Evidence-level scoring favors structure-aware hybrid retrieval.",
-      "evidence": "Structure-aware hybrid supported answers=9; fixed-window hybrid supported answers=7.",
+      "evidence": "Structure-aware hybrid supported answers=9; fixed-window hybrid supported answers=8.",
       "implication": "Use structure-aware as the default candidate after gold labels are reviewed."
     }
   ],
@@ -96,7 +98,14 @@
       "claim": "The web demo is a learning/decision-support explanation surface, not an operational flight authority.",
       "evidence_sources": [
         "reports/stages/web_demo_readiness.json",
+        "reports/stages/web_demo_final_smoke.json",
         "src/aviation_agentic_ai/advisory.py"
+      ]
+    },
+    {
+      "claim": "The final evaluation selects structure-aware as the default demo and next-phase GraphRAG strategy.",
+      "evidence_sources": [
+        "reports/stages/final_evaluation_review.json"
       ]
     }
   ],
@@ -109,10 +118,16 @@
       "fixed_window_chunks": 35,
       "structure_aware_chunks": 267
     },
+    "final_evaluation": {
+      "baseline_strategy": "fixed_window",
+      "default_strategy": "structure_aware",
+      "gold_review_required": false,
+      "gold_review_status": "manual_reviewed"
+    },
     "hybrid_rag": {
       "fixed_hybrid_kg_coverage": 0.9,
       "fixed_hybrid_recall_at_5": 0.9,
-      "fixed_supported_answers": 7,
+      "fixed_supported_answers": 8,
       "fixed_vector_recall_at_5": 1.0,
       "structure_hybrid_kg_coverage": 0.9,
       "structure_hybrid_recall_at_5": 1.0,
@@ -134,7 +149,8 @@
     "web_demo": {
       "default_strategy": "structure_aware",
       "explanation_ready": true,
-      "ready": true
+      "ready": true,
+      "smoke_ready": true
     }
   },
   "skills_used": [
@@ -177,6 +193,8 @@
     "reports/stages/curated_ontology_evaluation.md",
     "reports/stages/evidence_level_evaluation.json",
     "reports/stages/evidence_level_evaluation.md",
+    "reports/stages/final_evaluation_review.json",
+    "reports/stages/final_evaluation_review.md",
     "reports/stages/graphrag_review.json",
     "reports/stages/graphrag_review.md",
     "reports/stages/hybrid_rag_experiment.json",
@@ -188,9 +206,10 @@
     "reports/stages/kg_validation.md",
     "reports/stages/structure_aware_kg_validation.json",
     "reports/stages/structure_aware_kg_validation.md",
+    "reports/stages/web_demo_final_smoke.json",
+    "reports/stages/web_demo_final_smoke.md",
     "reports/stages/web_demo_readiness.json",
-    "reports/stages/web_demo_readiness.md",
-    "tmp/goal.md"
+    "reports/stages/web_demo_readiness.md"
   ],
   "source_policy": {
     "env_files_read": false,

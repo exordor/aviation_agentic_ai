@@ -19,7 +19,7 @@
 - Role: `motivation`
 - Claim: The project can explain what it does, why each component exists, and how results are evaluated.
 - Visual: course objective and deliverable map
-- Sources: `tmp/goal.md`, `GOALS.md`, `TASKS.md`
+- Sources: `GOALS.md`, `TASKS.md`
 - Speaker note: Frame the work as a reproducible research prototype.
 
 ### 3. The pipeline preserves traceability from PDF text to grounded answers
@@ -65,7 +65,7 @@
 ### 8. Evidence-level scoring favors the structure-aware hybrid run
 
 - Role: `result`
-- Claim: Structure-aware hybrid supports 9 answers versus 7 for fixed-window hybrid.
+- Claim: Structure-aware hybrid supports 9 answers versus 8 for fixed-window hybrid.
 - Visual: supported answer distribution
 - Sources: `reports/stages/evidence_level_evaluation.json`
 - Speaker note: Use this as the strongest experiment-level defense claim.
@@ -73,17 +73,17 @@
 ### 9. The web demo turns raw evidence into an inspectable explanation surface
 
 - Role: `demo`
-- Claim: Readiness=True; default strategy=structure_aware.
+- Claim: Readiness=True; default strategy=structure_aware; smoke=True.
 - Visual: reports/final/assets/web_demo_ai.png
-- Sources: `reports/stages/web_demo_readiness.json`
+- Sources: `reports/stages/web_demo_readiness.json`, `reports/stages/web_demo_final_smoke.json`
 - Speaker note: Show answer, chunks, KG triples, KG graph, and Why This Result.
 
 ### 10. Current limitations define the next evaluation work
 
 - Role: `discussion`
-- Claim: The next hardening step is human-reviewed chunk/span gold labels and broader document coverage.
+- Claim: Gold labels are reviewed for source alignment; the next hardening step is external review, CI, and broader document coverage.
 - Visual: limitation to next-work ladder
-- Sources: `data/cqs/06_phak_ch4_0.gold.json`, `TASKS.md`
+- Sources: `data/cqs/06_phak_ch4_0.gold.json`, `reports/stages/final_evaluation_review.json`, `TASKS.md`
 - Speaker note: Be explicit about what the project does not prove yet.
 
 ### 11. The assistant is for aviation learning support, not operational authority
@@ -152,6 +152,8 @@
 - `reports/stages/curated_ontology_evaluation.md`
 - `reports/stages/evidence_level_evaluation.json`
 - `reports/stages/evidence_level_evaluation.md`
+- `reports/stages/final_evaluation_review.json`
+- `reports/stages/final_evaluation_review.md`
 - `reports/stages/graphrag_review.json`
 - `reports/stages/graphrag_review.md`
 - `reports/stages/hybrid_rag_experiment.json`
@@ -163,6 +165,7 @@
 - `reports/stages/kg_validation.md`
 - `reports/stages/structure_aware_kg_validation.json`
 - `reports/stages/structure_aware_kg_validation.md`
+- `reports/stages/web_demo_final_smoke.json`
+- `reports/stages/web_demo_final_smoke.md`
 - `reports/stages/web_demo_readiness.json`
 - `reports/stages/web_demo_readiness.md`
-- `tmp/goal.md`

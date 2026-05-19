@@ -100,6 +100,8 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
     kg_validation = _artifact_data(evidence, "kg_validation")
     structure_kg_validation = _artifact_data(evidence, "structure_aware_kg_validation")
     web_demo = _artifact_data(evidence, "web_demo_readiness")
+    web_smoke = _artifact_data(evidence, "web_demo_final_smoke")
+    final_evaluation = _artifact_data(evidence, "final_evaluation_review")
     ranking = chunking.get("ranking", []) if isinstance(chunking.get("ranking"), list) else []
     best_chunking = ranking[0] if ranking else {}
     fixed_hybrid_agg = fixed_hybrid.get("aggregate", {})
@@ -150,8 +152,13 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
                 "claim": "The web demo is a learning/decision-support explanation surface, not an operational flight authority.",
                 "evidence_sources": [
                     "reports/stages/web_demo_readiness.json",
+                    "reports/stages/web_demo_final_smoke.json",
                     "src/aviation_agentic_ai/advisory.py",
                 ],
+            },
+            {
+                "claim": "The final evaluation selects structure-aware as the default demo and next-phase GraphRAG strategy.",
+                "evidence_sources": ["reports/stages/final_evaluation_review.json"],
             },
         ],
         "metrics": {
@@ -258,6 +265,29 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
                 "ready": web_demo.get("ready", "TBD"),
                 "default_strategy": web_demo.get("selected_default_strategy", "TBD"),
                 "explanation_ready": _metric(web_demo, "explanation", "ready"),
+                "smoke_ready": web_smoke.get("ready", "TBD"),
+            },
+            "final_evaluation": {
+                "default_strategy": _metric(
+                    final_evaluation,
+                    "default_strategy_decision",
+                    "recommended_default",
+                ),
+                "baseline_strategy": _metric(
+                    final_evaluation,
+                    "default_strategy_decision",
+                    "baseline",
+                ),
+                "gold_review_status": _metric(
+                    final_evaluation,
+                    "gold_label_review",
+                    "review_status",
+                ),
+                "gold_review_required": _metric(
+                    final_evaluation,
+                    "gold_label_review",
+                    "review_required",
+                ),
             },
         },
         "graphrag_interpretations": graphrag_review.get("interpretations", []),
@@ -288,7 +318,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "The course objective is to explain a full AI pipeline that can answer what the "
         "system does, why each design choice exists, and what evidence supports the "
         "claims. This implementation focuses on aviation learning and decision support, "
-        "not operational flight authority. Sources: `tmp/goal.md`, `GOALS.md`, "
+        "not operational flight authority. Sources: `GOALS.md`, "
         "`src/aviation_agentic_ai/advisory.py`.",
         "",
         "## 2. Background and Research Gap",
@@ -377,19 +407,30 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "",
         "## 9. Limitations and Threats to Validity",
         "",
-        "The gold labels are still coarse and partially auto-drafted; chunk/span-level "
-        "labels need human review. The dataset is limited to PHAK Chapter 4. KG extraction "
-        "depends on LLM structured output and therefore requires deterministic validation. "
-        "Visual assets are local deterministic SVG diagrams for explanation only and must not "
-        "be treated as experiment evidence.",
+        "The gold labels are reviewed for source alignment, but they remain course-project "
+        "labels rather than external aviation examiner certification. The dataset is "
+        "limited to PHAK Chapter 4. KG extraction depends on LLM structured output and "
+        "therefore requires deterministic validation. Visual assets are explanatory "
+        "presentation artifacts and must not be treated as experiment evidence.",
         "",
         "## 10. Web Demonstrator",
         "",
         f"The web demo readiness report marks ready={metrics['web_demo']['ready']}, "
         f"default strategy={metrics['web_demo']['default_strategy']}, and explanation "
-        f"ready={metrics['web_demo']['explanation_ready']}. The demo presents answer "
-        "evidence, KG triples, relationship graph, mode comparison, pipeline explanation, "
-        "and advisory boundary. Source: `reports/stages/web_demo_readiness.json`.",
+        f"ready={metrics['web_demo']['explanation_ready']}. The final smoke report marks "
+        f"ready={metrics['web_demo']['smoke_ready']}. The demo presents answer evidence, "
+        "KG triples, relationship graph, mode comparison, pipeline explanation, and "
+        "advisory boundary. Sources: `reports/stages/web_demo_readiness.json`, "
+        "`reports/stages/web_demo_final_smoke.json`.",
+        "",
+        "## 10.1 Final Evaluation Decision",
+        "",
+        f"The final evaluation selects `{metrics['final_evaluation']['default_strategy']}` "
+        "as the default demo and next-phase GraphRAG strategy while keeping "
+        f"`{metrics['final_evaluation']['baseline_strategy']}` as the baseline. Gold "
+        f"label review status is `{metrics['final_evaluation']['gold_review_status']}` "
+        f"with review_required={metrics['final_evaluation']['gold_review_required']}. "
+        "Source: `reports/stages/final_evaluation_review.json`.",
         "",
         "## 11. Advisory Boundary",
         "",
@@ -410,7 +451,9 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "- `uv run aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware`",
         "- `uv run aviation-ai report graphrag-review`",
         "- `uv run aviation-ai report evidence-eval`",
+        "- `uv run aviation-ai report final-evaluation`",
         "- `uv run aviation-ai report web-demo-readiness`",
+        "- `uv run aviation-ai report web-demo-smoke`",
         "- `uv run aviation-ai report academic-paper --no-ai`",
         "- `uv run aviation-ai report defense-notes`",
         "- `uv run aviation-ai report defense-deck-outline`",
@@ -510,11 +553,13 @@ def build_defense_notes(summary: dict[str, Any]) -> dict[str, Any]:
             {
                 "question": "What is still weak?",
                 "answer": (
-                    "Gold labels need human review at chunk/span level, the corpus is still "
-                    "only PHAK Chapter 4, and LLM extraction must remain validator-gated."
+                    "Gold labels are reviewed for source alignment but are not external "
+                    "aviation examiner certification; the corpus is still only PHAK "
+                    "Chapter 4, and LLM extraction must remain validator-gated."
                 ),
                 "evidence_sources": [
                     "data/cqs/06_phak_ch4_0.gold.json",
+                    "reports/stages/final_evaluation_review.json",
                     "reports/stages/evidence_level_evaluation.json",
                 ],
             },
@@ -619,7 +664,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
             "role": "motivation",
             "claim": "The project can explain what it does, why each component exists, and how results are evaluated.",
             "visual": "course objective and deliverable map",
-            "evidence_sources": ["tmp/goal.md", "GOALS.md", "TASKS.md"],
+            "evidence_sources": ["GOALS.md", "TASKS.md"],
             "speaker_note": "Frame the work as a reproducible research prototype.",
         },
         {
@@ -709,19 +754,30 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
             "role": "demo",
             "claim": (
                 f"Readiness={metrics['web_demo']['ready']}; default strategy="
-                f"{metrics['web_demo']['default_strategy']}."
+                f"{metrics['web_demo']['default_strategy']}; smoke="
+                f"{metrics['web_demo']['smoke_ready']}."
             ),
             "visual": "reports/final/assets/web_demo_ai.png",
-            "evidence_sources": ["reports/stages/web_demo_readiness.json"],
+            "evidence_sources": [
+                "reports/stages/web_demo_readiness.json",
+                "reports/stages/web_demo_final_smoke.json",
+            ],
             "speaker_note": "Show answer, chunks, KG triples, KG graph, and Why This Result.",
         },
         {
             "slide_number": 10,
             "title": "Current limitations define the next evaluation work",
             "role": "discussion",
-            "claim": "The next hardening step is human-reviewed chunk/span gold labels and broader document coverage.",
+            "claim": (
+                "Gold labels are reviewed for source alignment; the next hardening step "
+                "is external review, CI, and broader document coverage."
+            ),
             "visual": "limitation to next-work ladder",
-            "evidence_sources": ["data/cqs/06_phak_ch4_0.gold.json", "TASKS.md"],
+            "evidence_sources": [
+                "data/cqs/06_phak_ch4_0.gold.json",
+                "reports/stages/final_evaluation_review.json",
+                "TASKS.md",
+            ],
             "speaker_note": "Be explicit about what the project does not prove yet.",
         },
         {

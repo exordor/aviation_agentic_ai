@@ -36,8 +36,8 @@ Hybrid lift:
 
 ## Evidence-Level Evaluation
 
-- `fixed_window` hybrid: Chunk Recall@5=0.8, Span hit rate=0.8, KG triple relevance=0.9, supported answers=7, partial=3.
-- `structure_aware` hybrid: Chunk Recall@5=0.9, Span hit rate=0.8, KG triple relevance=0.9, supported answers=9, partial=1.
+- `fixed_window` hybrid: Chunk Recall@5=0.8, Span hit rate=0.9, KG triple relevance=0.9, supported answers=8, partial=2.
+- `structure_aware` hybrid: Chunk Recall@5=1.0, Span hit rate=0.7, KG triple relevance=0.9, supported answers=9, partial=1.
 
 ## Interpretations
 
@@ -57,7 +57,7 @@ Hybrid lift:
   Evidence: Its metrics are recorded separately and should be compared with fixed-window.
   Implication: Use the paired reports to decide the default chunking strategy.
 - Evidence-level scoring favors structure-aware hybrid retrieval.
-  Evidence: Structure-aware hybrid supported answers=9; fixed-window hybrid supported answers=7.
+  Evidence: Structure-aware hybrid supported answers=9; fixed-window hybrid supported answers=8.
   Implication: Use structure-aware as the default candidate after gold labels are reviewed.
 
 ## Recommendations

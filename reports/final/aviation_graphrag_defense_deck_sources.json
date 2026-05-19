@@ -7,7 +7,7 @@
     "primary": "dark navy",
     "rule": "one action title and one evidence object per slide"
   },
-  "generated_at": "2026-05-19T03:50:41.653697+00:00",
+  "generated_at": "2026-05-19T04:23:12.244331+00:00",
   "metrics_snapshot": {
     "chunking": {
       "best_context_precision_at_5": 0.52,
@@ -17,10 +17,16 @@
       "fixed_window_chunks": 35,
       "structure_aware_chunks": 267
     },
+    "final_evaluation": {
+      "baseline_strategy": "fixed_window",
+      "default_strategy": "structure_aware",
+      "gold_review_required": false,
+      "gold_review_status": "manual_reviewed"
+    },
     "hybrid_rag": {
       "fixed_hybrid_kg_coverage": 0.9,
       "fixed_hybrid_recall_at_5": 0.9,
-      "fixed_supported_answers": 7,
+      "fixed_supported_answers": 8,
       "fixed_vector_recall_at_5": 1.0,
       "structure_hybrid_kg_coverage": 0.9,
       "structure_hybrid_recall_at_5": 1.0,
@@ -42,7 +48,8 @@
     "web_demo": {
       "default_strategy": "structure_aware",
       "explanation_ready": true,
-      "ready": true
+      "ready": true,
+      "smoke_ready": true
     }
   },
   "presentation_type": "structured_argument",
@@ -78,7 +85,6 @@
     {
       "claim": "The project can explain what it does, why each component exists, and how results are evaluated.",
       "evidence_sources": [
-        "tmp/goal.md",
         "GOALS.md",
         "TASKS.md"
       ],
@@ -148,7 +154,7 @@
       "visual": "layered retrieval metric comparison"
     },
     {
-      "claim": "Structure-aware hybrid supports 9 answers versus 7 for fixed-window hybrid.",
+      "claim": "Structure-aware hybrid supports 9 answers versus 8 for fixed-window hybrid.",
       "evidence_sources": [
         "reports/stages/evidence_level_evaluation.json"
       ],
@@ -159,9 +165,10 @@
       "visual": "supported answer distribution"
     },
     {
-      "claim": "Readiness=True; default strategy=structure_aware.",
+      "claim": "Readiness=True; default strategy=structure_aware; smoke=True.",
       "evidence_sources": [
-        "reports/stages/web_demo_readiness.json"
+        "reports/stages/web_demo_readiness.json",
+        "reports/stages/web_demo_final_smoke.json"
       ],
       "role": "demo",
       "slide_number": 9,
@@ -170,9 +177,10 @@
       "visual": "reports/final/assets/web_demo_ai.png"
     },
     {
-      "claim": "The next hardening step is human-reviewed chunk/span gold labels and broader document coverage.",
+      "claim": "Gold labels are reviewed for source alignment; the next hardening step is external review, CI, and broader document coverage.",
       "evidence_sources": [
         "data/cqs/06_phak_ch4_0.gold.json",
+        "reports/stages/final_evaluation_review.json",
         "TASKS.md"
       ],
       "role": "discussion",
@@ -251,6 +259,8 @@
     "reports/stages/curated_ontology_evaluation.md",
     "reports/stages/evidence_level_evaluation.json",
     "reports/stages/evidence_level_evaluation.md",
+    "reports/stages/final_evaluation_review.json",
+    "reports/stages/final_evaluation_review.md",
     "reports/stages/graphrag_review.json",
     "reports/stages/graphrag_review.md",
     "reports/stages/hybrid_rag_experiment.json",
@@ -262,9 +272,10 @@
     "reports/stages/kg_validation.md",
     "reports/stages/structure_aware_kg_validation.json",
     "reports/stages/structure_aware_kg_validation.md",
+    "reports/stages/web_demo_final_smoke.json",
+    "reports/stages/web_demo_final_smoke.md",
     "reports/stages/web_demo_readiness.json",
-    "reports/stages/web_demo_readiness.md",
-    "tmp/goal.md"
+    "reports/stages/web_demo_readiness.md"
   ],
   "visual_assets": [
     {

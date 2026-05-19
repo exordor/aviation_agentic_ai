@@ -16,7 +16,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 | kg_validation | 2 |
 | ontology_evaluation | 10 |
 | ontology_stats | 2 |
-| rag_experiments | 12 |
+| rag_experiments | 16 |
 | reviews | 4 |
 | source_scope | 4 |
 | stage_summaries | 2 |
@@ -43,7 +43,9 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - GraphRAG review: `reports/stages/graphrag_review.md`
 - Gold labels: `data/cqs/06_phak_ch4_0.gold.json`
 - Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md`
+- Final evaluation review: `reports/stages/final_evaluation_review.md`
 - Web demo readiness: `reports/stages/web_demo_readiness.md`
+- Web demo final smoke: `reports/stages/web_demo_final_smoke.md`
 - Academic report: `reports/final/project_academic_report.md`
 - Project defense notes: `reports/final/project_defense_notes.md`
 - Defense deck outline: `reports/final/defense_deck_outline.md`
@@ -57,10 +59,13 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Structure-aware Hybrid RAG strategy: `structure_aware`, with independently extracted KG and collection `phak_ch4_chunks_structure_aware`.
 - Fixed-window result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph and hybrid KG evidence coverage = 0.9.
 - Structure-aware result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.9, hybrid Recall@5 = 1.0; graph and hybrid KG evidence coverage = 0.9.
-- Evidence-level result summary: structure-aware hybrid supported 9/10 answers versus fixed-window hybrid 7/10; both hybrid runs have KG triple relevance = 0.9.
+- Gold labels: reviewed chunk/span labels are marked `manual_reviewed`; they remain course-project gold, not external aviation examiner certification.
+- Evidence-level result summary: structure-aware hybrid supported 9/10 answers versus fixed-window hybrid 8/10; both hybrid runs have KG triple relevance = 0.9 and citation validity = 1.0.
+- Final evaluation decision: `structure_aware` is the default demo and next-phase GraphRAG strategy; `fixed_window` remains the baseline.
 - Web demo default strategy: `structure_aware`; live query is disabled by default for reproducible review.
 - Web demo KG visualization: question-scoped graph renders retrieved KG triples for the selected CQ, strategy, and retrieval mode.
 - Web demo explanation layer: narrative, pipeline steps, mode comparison, and Why This Result explain the demo without reading raw reports.
+- Web demo final smoke: FastAPI TestClient static/API checks passed for the root page, status, explanation, questions, detail, KG graph, live-query lockout, and favicon.
 - Academic deliverables: deterministic paper-style report, defense Q&A notes, local SVG diagrams, and editable defense PPTX are available under `reports/final/`.
 - Visual asset policy: current diagrams are local deterministic SVGs and do not call the configured LLM or image gateway.
 
