@@ -33,6 +33,7 @@
   "baseline_strategy": "fixed_window",
   "consistency_checks": {
     "advisory_boundary_defined": true,
+    "demo_explanation_ready": true,
     "evidence_level_ready": true,
     "fixed_window_ready": true,
     "graphrag_review_ready": true,
@@ -42,12 +43,21 @@
   },
   "demo_script": [
     "Open the local FastAPI web demo.",
+    "Start with the Demo Narrative and Pipeline Explanation panels.",
     "Confirm artifact readiness and advisory boundary in the sidebar.",
     "Select a boundary CQ and compare vector, graph, and hybrid evidence.",
+    "Use Why This Result to explain the current evidence shape and metric signals.",
     "Use the KG relationship graph to explain retrieved structured evidence.",
     "Switch between structure-aware and fixed-window experiments.",
     "Explain GraphRAG as structured KG evidence support, not a single-score winner."
   ],
+  "explanation": {
+    "default_path": "structure_aware + hybrid",
+    "mode_explanations": 3,
+    "pipeline_steps": 7,
+    "ready": true,
+    "recommended_strategy": "structure_aware"
+  },
   "kg_graph": {
     "default_experiment": "structure_aware",
     "default_mode": "hybrid",
@@ -60,7 +70,7 @@
     "scope": "question_scoped_retrieved_evidence"
   },
   "metadata": {
-    "created_at": "2026-05-19T02:34:08.225960+00:00",
+    "created_at": "2026-05-19T02:45:13.296047+00:00",
     "project_root": ".",
     "purpose": "offline_first_fastapi_web_demo_readiness"
   },
@@ -235,6 +245,8 @@
   "ui_smoke_checklist": [
     "macOS-style sidebar question list is visible.",
     "Top toolbar exposes strategy and retrieval mode segmented controls.",
+    "Demo Narrative, Pipeline Explanation, and Mode Comparison are visible.",
+    "Why This Result updates for the selected question and retrieval mode.",
     "Question-scoped KG graph renders nodes and edges for structure_aware + hybrid.",
     "Vector mode shows a clear empty state for KG graph evidence.",
     "Answer, gold label, chunk evidence, and KG triple evidence remain readable.",

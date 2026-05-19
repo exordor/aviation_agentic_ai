@@ -55,6 +55,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Evidence-level result summary: structure-aware hybrid supported 9/10 answers versus fixed-window hybrid 7/10; both hybrid runs have KG triple relevance = 0.9.
 - Web demo default strategy: `structure_aware`; live query is disabled by default for reproducible review.
 - Web demo KG visualization: question-scoped graph renders retrieved KG triples for the selected CQ, strategy, and retrieval mode.
+- Web demo explanation layer: narrative, pipeline steps, mode comparison, and Why This Result explain the demo without reading raw reports.
 
 ## Project Tracking
 

@@ -11,6 +11,9 @@ from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 STRUCTURE_AWARE_CHUNKS = "data/chunks/06_phak_ch4_0.structure_aware.jsonl"
 STRUCTURE_AWARE_KG = "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"
 STRUCTURE_AWARE_COLLECTION = "phak_ch4_chunks_structure_aware"
+SOURCE_PDF = "data/raw/06_phak_ch4_0.pdf"
+CURATED_ONTOLOGY = "data/ontology/curated/06_phak_ch4_0.curated.ttl"
+CHROMA_INDEX_DIR = "data/indexes/chroma"
 SUPPORTED_EXPERIMENTS = {"fixed_window", "structure_aware"}
 SUPPORTED_MODES = {"vector", "graph", "hybrid"}
 
@@ -215,6 +218,154 @@ def build_demo_status(
         "summary": build_experiment_summary(project_root),
         "fixed_window_present": fixed_present,
         "structure_aware_present": structure_present,
+    }
+
+
+def _path_status(project_root: str | Path, rel_path: str) -> dict[str, Any]:
+    return {
+        "path": rel_path,
+        "present": (_root(project_root) / rel_path).exists(),
+    }
+
+
+def _pipeline_step(
+    project_root: str | Path,
+    step_id: str,
+    title: str,
+    rel_path: str,
+    why: str,
+) -> dict[str, Any]:
+    status = _path_status(project_root, rel_path)
+    return {
+        "id": step_id,
+        "title": title,
+        "path": status["path"],
+        "present": status["present"],
+        "why": why,
+    }
+
+
+def _mode_explanations() -> dict[str, dict[str, str]]:
+    return {
+        "vector": {
+            "label": "Vector",
+            "purpose": "Find semantically similar source chunks.",
+            "strength": "Strong for page-level recall and text-grounded citations.",
+            "tradeoff": "It does not expose structured relationships, so the KG graph is empty by design.",
+        },
+        "graph": {
+            "label": "Graph",
+            "purpose": "Retrieve ontology-constrained KG triples and their provenance.",
+            "strength": "Strong for explaining relationships such as cause, component, or condition.",
+            "tradeoff": "It depends on KG coverage and can miss relevant pages when triples are sparse.",
+        },
+        "hybrid": {
+            "label": "Hybrid",
+            "purpose": "Fuse vector chunks with graph evidence for a grounded answer.",
+            "strength": "Best demo path because it shows both text evidence and structured KG evidence.",
+            "tradeoff": "Hybrid should be defended as evidence support, not as one mixed overall score.",
+        },
+    }
+
+
+def build_demo_explanation(project_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    summary = build_experiment_summary(project_root)
+    evidence_level = summary.get("evidence_level", {})
+    structure_hybrid = _metric_value(
+        evidence_level,
+        "structure_aware",
+        "hybrid",
+        default={},
+    )
+    fixed_hybrid = _metric_value(
+        evidence_level,
+        "fixed_window",
+        "hybrid",
+        default={},
+    )
+    return {
+        "narrative": {
+            "headline": "Ontology-grounded GraphRAG for aviation learning support",
+            "claim": (
+                "The demo shows how FAA handbook text becomes chunks, validated KG "
+                "evidence, vector retrieval, graph retrieval, and cited answers."
+            ),
+            "default_path": "structure_aware + hybrid",
+            "advisory_boundary": ADVISORY_BOUNDARY,
+        },
+        "pipeline_steps": [
+            _pipeline_step(
+                project_root,
+                "pdf",
+                "PDF source",
+                SOURCE_PDF,
+                "Defines the bounded source corpus for the reproducible experiment.",
+            ),
+            _pipeline_step(
+                project_root,
+                "chunks",
+                "Chunks",
+                STRUCTURE_AWARE_CHUNKS,
+                "Preserve handbook structure so retrieval can point to concise evidence.",
+            ),
+            _pipeline_step(
+                project_root,
+                "ontology",
+                "Ontology",
+                CURATED_ONTOLOGY,
+                "Constrains what classes and relationships may enter the KG.",
+            ),
+            _pipeline_step(
+                project_root,
+                "kg",
+                "Knowledge graph",
+                STRUCTURE_AWARE_KG,
+                "Stores validated triples with chunk, page, and evidence provenance.",
+            ),
+            _pipeline_step(
+                project_root,
+                "index",
+                "Chroma index",
+                CHROMA_INDEX_DIR,
+                "Supports vector retrieval over the same chunk collection.",
+            ),
+            _pipeline_step(
+                project_root,
+                "hybrid_report",
+                "Hybrid RAG report",
+                ARTIFACTS["structure_aware_hybrid"],
+                "Records vector, graph, and hybrid results for the boundary CQs.",
+            ),
+            _pipeline_step(
+                project_root,
+                "evaluation",
+                "Layered evaluation",
+                ARTIFACTS["evidence_level_evaluation"],
+                "Separates retrieval, KG evidence, and answer support metrics.",
+            ),
+        ],
+        "mode_explanations": _mode_explanations(),
+        "strategy_decision": {
+            "recommended": "structure_aware",
+            "baseline": "fixed_window",
+            "rationale": [
+                "Structure-aware chunks preserve handbook sections and improve explanation quality.",
+                "Fixed-window remains visible as the stable baseline comparison.",
+                "The default demo uses hybrid retrieval to show both text and KG evidence.",
+            ],
+            "metrics": {
+                "structure_aware_hybrid": structure_hybrid,
+                "fixed_window_hybrid": fixed_hybrid,
+            },
+        },
+        "demo_script": [
+            "Start with the default structure_aware + hybrid view.",
+            "Explain the pipeline steps before inspecting one answer.",
+            "Switch Vector, Graph, and Hybrid to show what each mode contributes.",
+            "Use the KG graph and triple detail to explain structured evidence provenance.",
+            "Close with limitations: auto-drafted gold spans, KG coverage, and advisory boundary.",
+        ],
+        "artifact_readiness": artifact_status(project_root),
     }
 
 

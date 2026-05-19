@@ -52,6 +52,44 @@
           <span id="live-status" class="status-pill">Live disabled</span>
         </header>
 
+        <section class="panel demo-narrative" aria-labelledby="demo-narrative-title">
+          <div class="narrative-copy">
+            <p class="question-meta">Demo Narrative</p>
+            <h2 id="demo-narrative-title">Loading demo narrative...</h2>
+            <p id="demo-claim" class="narrative-text"></p>
+          </div>
+          <div class="narrative-aside">
+            <span id="demo-default-path" class="status-pill supported">Default</span>
+            <p id="demo-boundary" class="narrative-note"></p>
+          </div>
+        </section>
+
+        <section class="explanation-grid" aria-label="Demo explanation">
+          <article class="panel pipeline-panel">
+            <div class="section-heading">
+              <h3>Pipeline Explanation</h3>
+              <span id="pipeline-ready-count" class="count">0/0</span>
+            </div>
+            <div id="pipeline-steps" class="pipeline-steps"></div>
+          </article>
+
+          <article class="panel mode-panel">
+            <div class="section-heading">
+              <h3>Mode Comparison</h3>
+              <span id="active-mode-label" class="count">Hybrid</span>
+            </div>
+            <div id="mode-explanations" class="mode-explanations"></div>
+          </article>
+
+          <article class="panel why-panel">
+            <div class="section-heading">
+              <h3>Why This Result</h3>
+              <span id="why-mode-label" class="count">Hybrid</span>
+            </div>
+            <dl id="result-explanation" class="result-explanation"></dl>
+          </article>
+        </section>
+
         <section class="question-header">
           <p id="question-meta" class="question-meta">No question selected</p>
           <h2 id="question-title">Select a question</h2>

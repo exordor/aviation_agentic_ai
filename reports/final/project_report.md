@@ -43,7 +43,8 @@ Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md` shows s
 
 Current evidence now covers the explainable curated ontology, fixed-window KG, structure-aware KG, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, and GraphRAG review when their reports are present in the stage index.
 Web demo readiness: ready=True, default strategy=structure_aware.
-The web demo is an offline-first FastAPI interface with a macOS-style sidebar, toolbar controls, answer workspace, chunk evidence, KG triple evidence, and advisory boundary display.
+The web demo is an offline-first FastAPI interface with a macOS-style sidebar, toolbar controls, answer workspace, chunk evidence, KG triple evidence, KG relationship graph, pipeline explanation, mode comparison, Why This Result panel, and advisory boundary display.
+Web explanation readiness: ready=True, default path=structure_aware + hybrid, recommended strategy=structure_aware.
 Limitations: chunk/span gold labels are auto-drafted and still require human review, structure-aware KG extraction is more expensive because it uses many smaller chunks, and GraphRAG should be defended as structured evidence support rather than a single-score Recall improvement.
 
 ## Advisory assistant boundary

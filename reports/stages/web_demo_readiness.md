@@ -31,11 +31,21 @@
 - Default: `structure_aware` + `hybrid`
 - Sample: `06-phak-ch4-0-p00-fa9830b888` with 8 triples
 
+## Demo Explanation Readiness
+
+- Ready: True
+- Default path: `structure_aware + hybrid`
+- Recommended strategy: `structure_aware`
+- Pipeline steps: 7
+- Mode explanations: 3
+
 ## Demo Script
 
 - Open the local FastAPI web demo.
+- Start with the Demo Narrative and Pipeline Explanation panels.
 - Confirm artifact readiness and advisory boundary in the sidebar.
 - Select a boundary CQ and compare vector, graph, and hybrid evidence.
+- Use Why This Result to explain the current evidence shape and metric signals.
 - Use the KG relationship graph to explain retrieved structured evidence.
 - Switch between structure-aware and fixed-window experiments.
 - Explain GraphRAG as structured KG evidence support, not a single-score winner.
@@ -44,6 +54,8 @@
 
 - macOS-style sidebar question list is visible.
 - Top toolbar exposes strategy and retrieval mode segmented controls.
+- Demo Narrative, Pipeline Explanation, and Mode Comparison are visible.
+- Why This Result updates for the selected question and retrieval mode.
 - Question-scoped KG graph renders nodes and edges for structure_aware + hybrid.
 - Vector mode shows a clear empty state for KG graph evidence.
 - Answer, gold label, chunk evidence, and KG triple evidence remain readable.

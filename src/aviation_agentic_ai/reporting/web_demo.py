@@ -7,7 +7,11 @@ from typing import Any
 
 from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
-from aviation_agentic_ai.web.data import ARTIFACTS, build_experiment_summary
+from aviation_agentic_ai.web.data import (
+    ARTIFACTS,
+    build_demo_explanation,
+    build_experiment_summary,
+)
 
 
 def _read_json(path: str | Path) -> dict[str, Any] | None:
@@ -64,6 +68,12 @@ def build_web_demo_readiness(
     graphrag_review = _read_json(root / ARTIFACTS["graphrag_review"])
     structure_report = _read_json(root / ARTIFACTS["structure_aware_hybrid"])
     kg_graph_sample = _kg_graph_sample(structure_report)
+    explanation = build_demo_explanation(root)
+    explanation_ready = bool(
+        explanation.get("pipeline_steps")
+        and explanation.get("mode_explanations")
+        and explanation.get("strategy_decision", {}).get("recommended")
+    )
     structure_ready = (
         artifacts["structure_aware_hybrid"]["present"]
         and artifacts["structure_aware_kg"]["present"]
@@ -101,6 +111,7 @@ def build_web_demo_readiness(
         "advisory_boundary_defined": bool(ADVISORY_BOUNDARY),
         "graphrag_review_ready": graphrag_review is not None,
         "question_scoped_kg_graph_ready": bool(kg_graph_sample),
+        "demo_explanation_ready": explanation_ready,
     }
     return {
         "metadata": {
@@ -125,11 +136,23 @@ def build_web_demo_readiness(
             "default_mode": "hybrid",
             "sample": kg_graph_sample,
         },
+        "explanation": {
+            "ready": explanation_ready,
+            "pipeline_steps": len(explanation.get("pipeline_steps", [])),
+            "mode_explanations": len(explanation.get("mode_explanations", {})),
+            "recommended_strategy": explanation.get("strategy_decision", {}).get(
+                "recommended",
+                "TBD",
+            ),
+            "default_path": explanation.get("narrative", {}).get("default_path", "TBD"),
+        },
         "advisory_boundary": ADVISORY_BOUNDARY,
         "demo_script": [
             "Open the local FastAPI web demo.",
+            "Start with the Demo Narrative and Pipeline Explanation panels.",
             "Confirm artifact readiness and advisory boundary in the sidebar.",
             "Select a boundary CQ and compare vector, graph, and hybrid evidence.",
+            "Use Why This Result to explain the current evidence shape and metric signals.",
             "Use the KG relationship graph to explain retrieved structured evidence.",
             "Switch between structure-aware and fixed-window experiments.",
             "Explain GraphRAG as structured KG evidence support, not a single-score winner.",
@@ -137,6 +160,8 @@ def build_web_demo_readiness(
         "ui_smoke_checklist": [
             "macOS-style sidebar question list is visible.",
             "Top toolbar exposes strategy and retrieval mode segmented controls.",
+            "Demo Narrative, Pipeline Explanation, and Mode Comparison are visible.",
+            "Why This Result updates for the selected question and retrieval mode.",
             "Question-scoped KG graph renders nodes and edges for structure_aware + hybrid.",
             "Vector mode shows a clear empty state for KG graph evidence.",
             "Answer, gold label, chunk evidence, and KG triple evidence remain readable.",
@@ -167,6 +192,7 @@ def write_web_demo_readiness_markdown(
     fixed = result["metrics"]["fixed_window_hybrid"]
     structure = result["metrics"]["structure_aware_hybrid"]
     kg_graph = result["kg_graph"]
+    explanation = result["explanation"]
     lines = [
         "# Web Demo Readiness",
         "",
@@ -208,6 +234,14 @@ def write_web_demo_readiness_markdown(
             "- Sample: "
             f"`{kg_graph.get('sample', {}).get('cq_id', 'TBD')}` with "
             f"{kg_graph.get('sample', {}).get('triple_count', 'TBD')} triples",
+            "",
+            "## Demo Explanation Readiness",
+            "",
+            f"- Ready: {explanation['ready']}",
+            f"- Default path: `{explanation['default_path']}`",
+            f"- Recommended strategy: `{explanation['recommended_strategy']}`",
+            f"- Pipeline steps: {explanation['pipeline_steps']}",
+            f"- Mode explanations: {explanation['mode_explanations']}",
             "",
             "## Demo Script",
             "",

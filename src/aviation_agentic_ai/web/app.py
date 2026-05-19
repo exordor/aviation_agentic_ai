@@ -11,6 +11,7 @@ from aviation_agentic_ai.web.data import (
     STRUCTURE_AWARE_CHUNKS,
     STRUCTURE_AWARE_COLLECTION,
     STRUCTURE_AWARE_KG,
+    build_demo_explanation,
     build_demo_status,
     build_experiment_summary,
     build_question_detail,
@@ -57,6 +58,10 @@ def create_app(
     @app.get("/api/status")
     def status():
         return build_demo_status(root, live_query_enabled=enable_live_query)
+
+    @app.get("/api/demo/explanation")
+    def demo_explanation():
+        return build_demo_explanation(root)
 
     @app.get("/api/questions")
     def questions():

@@ -9,6 +9,7 @@ from click.testing import CliRunner
 from aviation_agentic_ai.cli import main
 from aviation_agentic_ai.reporting.web_demo import build_web_demo_readiness
 from aviation_agentic_ai.web.data import (
+    build_demo_explanation,
     build_demo_status,
     build_question_detail,
     build_question_kg_graph,
@@ -264,6 +265,21 @@ def test_question_kg_graph_rejects_invalid_scope(tmp_path: Path) -> None:
         build_question_kg_graph(cq_ids[0], tmp_path, mode="rerank")
 
 
+def test_demo_explanation_payload_describes_pipeline_modes_and_strategy(tmp_path: Path) -> None:
+    _write_web_fixture(tmp_path)
+
+    explanation = build_demo_explanation(tmp_path)
+
+    assert explanation["narrative"]["default_path"] == "structure_aware + hybrid"
+    assert len(explanation["pipeline_steps"]) == 7
+    assert explanation["mode_explanations"]["vector"]["label"] == "Vector"
+    assert "KG graph is empty" in explanation["mode_explanations"]["vector"]["tradeoff"]
+    assert explanation["mode_explanations"]["hybrid"]["label"] == "Hybrid"
+    assert explanation["strategy_decision"]["recommended"] == "structure_aware"
+    assert explanation["strategy_decision"]["baseline"] == "fixed_window"
+    assert explanation["demo_script"]
+
+
 def test_web_demo_readiness_uses_layered_metrics(tmp_path: Path) -> None:
     _write_web_fixture(tmp_path)
 
@@ -272,6 +288,9 @@ def test_web_demo_readiness_uses_layered_metrics(tmp_path: Path) -> None:
     assert result["ready"]
     assert result["selected_default_strategy"] == "structure_aware"
     assert result["consistency_checks"]["layered_scoring_policy"]
+    assert result["consistency_checks"]["demo_explanation_ready"]
+    assert result["explanation"]["ready"]
+    assert result["explanation"]["recommended_strategy"] == "structure_aware"
     assert "overall_score" not in result
     assert "overall_score" not in result["metrics"]
 
@@ -287,6 +306,7 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
 
     root = client.get("/")
     status = client.get("/api/status")
+    explanation = client.get("/api/demo/explanation")
     questions = client.get("/api/questions")
     detail = client.get(f"/api/questions/{cq_ids[0]}")
     graph = client.get(f"/api/questions/{cq_ids[0]}/kg-graph")
@@ -299,9 +319,15 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert "toolbar-group" in root.text
     assert "Retrieved Chunks" in root.text
     assert "KG Relationship Graph" in root.text
+    assert "Demo Narrative" in root.text
+    assert "Pipeline Explanation" in root.text
+    assert "Why This Result" in root.text
     assert "kg-graph-svg" in root.text
     assert status.status_code == 200
     assert status.json()["advisory_boundary"]
+    assert explanation.status_code == 200
+    assert explanation.json()["strategy_decision"]["recommended"] == "structure_aware"
+    assert explanation.json()["mode_explanations"]["hybrid"]["label"] == "Hybrid"
     assert questions.status_code == 200
     assert len(questions.json()["questions"]) == 10
     assert detail.status_code == 200

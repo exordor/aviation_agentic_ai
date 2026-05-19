@@ -422,6 +422,9 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     structure_kg_triples = structure_kg_validation.get("triples_total", "TBD")
     structure_kg_errors = structure_kg_validation.get("errors_total", "TBD")
     web_readiness = artifact_sources.get("web_demo_readiness_json", {}).get("data", {})
+    web_explanation = (
+        web_readiness.get("explanation", {}) if isinstance(web_readiness, dict) else {}
+    )
     chunking_lines = _chunking_summary_lines(artifact_sources, categories)
     hybrid_lines = _hybrid_summary_lines(artifact_sources, retrieval_config)
     has_chunking = bool(
@@ -574,7 +577,14 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         f"{web_readiness.get('selected_default_strategy', 'TBD') if isinstance(web_readiness, dict) else 'TBD'}.",
         "The web demo is an offline-first FastAPI interface with a macOS-style "
         "sidebar, toolbar controls, answer workspace, chunk evidence, KG triple "
-        "evidence, and advisory boundary display.",
+        "evidence, KG relationship graph, pipeline explanation, mode comparison, "
+        "Why This Result panel, and advisory boundary display.",
+        "Web explanation readiness: "
+        f"ready={web_explanation.get('ready', 'TBD') if isinstance(web_explanation, dict) else 'TBD'}, "
+        "default path="
+        f"{web_explanation.get('default_path', 'TBD') if isinstance(web_explanation, dict) else 'TBD'}, "
+        "recommended strategy="
+        f"{web_explanation.get('recommended_strategy', 'TBD') if isinstance(web_explanation, dict) else 'TBD'}.",
         "Limitations: chunk/span gold labels are auto-drafted and still require "
         "human review, structure-aware KG extraction is more expensive because it "
         "uses many smaller chunks, and GraphRAG should be defended as structured "

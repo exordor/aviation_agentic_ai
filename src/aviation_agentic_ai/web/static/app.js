@@ -3,6 +3,7 @@ const state = {
   mode: "hybrid",
   questions: [],
   status: null,
+  explanation: null,
   detail: null,
   kgGraph: null,
   selectedEdgeId: null,
@@ -78,9 +79,122 @@ function selectedModePayload() {
   return state.detail?.experiments?.[state.experiment]?.modes?.[state.mode] || {};
 }
 
+function modeLabel(mode = state.mode) {
+  return state.explanation?.mode_explanations?.[mode]?.label || mode;
+}
+
 function truncate(value, length = 28) {
   const text = String(value ?? "");
   return text.length > length ? `${text.slice(0, length - 1)}...` : text;
+}
+
+function renderDemoNarrative() {
+  const narrative = state.explanation?.narrative || {};
+  $("#demo-narrative-title").textContent = narrative.headline || "Demo narrative unavailable";
+  $("#demo-claim").textContent = narrative.claim || "";
+  $("#demo-default-path").textContent = narrative.default_path || "Default TBD";
+  $("#demo-boundary").textContent = narrative.advisory_boundary || state.status?.advisory_boundary || "";
+}
+
+function pipelineStepTemplate(step) {
+  return `
+    <div class="pipeline-step${step.present ? "" : " missing"}">
+      <div class="pipeline-marker" aria-hidden="true"></div>
+      <div class="pipeline-body">
+        <div class="pipeline-title">
+          <span>${escapeHtml(step.title)}</span>
+          <span class="status-pill ${step.present ? "supported" : "partial"}">${step.present ? "ready" : "missing"}</span>
+        </div>
+        <p>${escapeHtml(step.why)}</p>
+        <code>${escapeHtml(step.path)}</code>
+      </div>
+    </div>
+  `;
+}
+
+function renderPipelineExplanation() {
+  const steps = state.explanation?.pipeline_steps || [];
+  const ready = steps.filter((step) => step.present).length;
+  $("#pipeline-ready-count").textContent = `${ready}/${steps.length}`;
+  $("#pipeline-steps").innerHTML = steps.length
+    ? steps.map(pipelineStepTemplate).join("")
+    : "<p class='evidence-text'>No pipeline explanation loaded.</p>";
+}
+
+function modeExplanationTemplate(mode, explanation) {
+  return `
+    <div class="mode-explanation${state.mode === mode ? " active" : ""}" data-mode-summary="${escapeHtml(mode)}">
+      <div class="mode-title">
+        <span>${escapeHtml(explanation.label || mode)}</span>
+        <span>${state.mode === mode ? "selected" : "available"}</span>
+      </div>
+      <p>${escapeHtml(explanation.purpose || "")}</p>
+      <p><strong>Strength:</strong> ${escapeHtml(explanation.strength || "")}</p>
+      <p><strong>Tradeoff:</strong> ${escapeHtml(explanation.tradeoff || "")}</p>
+    </div>
+  `;
+}
+
+function renderModeComparison() {
+  const explanations = state.explanation?.mode_explanations || {};
+  $("#active-mode-label").textContent = modeLabel();
+  $("#mode-explanations").innerHTML = ["vector", "graph", "hybrid"]
+    .filter((mode) => explanations[mode])
+    .map((mode) => modeExplanationTemplate(mode, explanations[mode]))
+    .join("");
+}
+
+function renderStrategyDecision() {
+  const decision = state.explanation?.strategy_decision || {};
+  const recommended = decision.recommended || "TBD";
+  const baseline = decision.baseline || "TBD";
+  const rationale = decision.rationale || [];
+  return [
+    `Recommended strategy: ${recommended}`,
+    `Baseline kept visible: ${baseline}`,
+    ...rationale,
+  ].join(" ");
+}
+
+function resultExplanationRows() {
+  const payload = selectedModePayload();
+  const evalData = payload.evidence_eval || {};
+  const chunks = payload.fused_chunks || [];
+  const triples = payload.graph_triples || [];
+  const support = evalData.answer_support || "no data";
+  const citation = evalData.citation?.citation_completeness;
+  const span = evalData.span?.span_hit;
+  const chunkRecall = evalData.chunk?.chunk_recall_at_5;
+  const graphText =
+    state.mode === "vector"
+      ? "Vector mode intentionally has no KG graph; inspect retrieved chunks instead."
+      : `${triples.length} KG triples are available for graph-level provenance.`;
+  const interpretation = {
+    vector: "This mode answers from semantically similar chunks. It is useful as the retrieval baseline.",
+    graph: "This mode foregrounds ontology-constrained relationships. Its value is explainable evidence structure.",
+    hybrid: "This mode combines chunk evidence with KG triples, so it is the recommended demo path.",
+  };
+  return [
+    ["Mode purpose", interpretation[state.mode] || "No explanation for this mode."],
+    ["Evidence shape", `${chunks.length} retrieved chunks; ${graphText}`],
+    ["Metric signal", `Chunk Recall@5=${formatValue(chunkRecall)}, Span hit=${formatValue(span)}, Citation=${formatValue(citation)}`],
+    ["Answer support", support.replaceAll("_", " ")],
+    ["Strategy note", renderStrategyDecision()],
+  ];
+}
+
+function renderResultExplanation() {
+  $("#why-mode-label").textContent = modeLabel();
+  $("#result-explanation").innerHTML = resultExplanationRows()
+    .map(([key, value]) => `<dt>${escapeHtml(key)}</dt><dd>${escapeHtml(formatValue(value))}</dd>`)
+    .join("");
+}
+
+function renderDemoExplanation() {
+  renderDemoNarrative();
+  renderPipelineExplanation();
+  renderModeComparison();
+  renderResultExplanation();
 }
 
 function renderMetrics() {
@@ -300,6 +414,7 @@ function renderQuestionContext() {
 function renderDetail() {
   $("#question-title").textContent = state.detail?.question || "Select a question";
   renderQuestions();
+  renderDemoExplanation();
   renderQuestionContext();
   renderMetrics();
   renderGold();
@@ -392,7 +507,9 @@ function bindControls() {
 async function init() {
   bindControls();
   state.status = await fetchJson("/api/status");
+  state.explanation = await fetchJson("/api/demo/explanation");
   renderStatus();
+  renderDemoExplanation();
   const questionsPayload = await fetchJson("/api/questions");
   state.questions = questionsPayload.questions || [];
   renderQuestions();
