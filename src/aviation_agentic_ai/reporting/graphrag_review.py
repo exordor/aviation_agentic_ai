@@ -103,6 +103,7 @@ def _interpretations(
     fixed: dict[str, Any],
     structure_aware: dict[str, Any],
     chunking: dict[str, Any],
+    evidence_eval: dict[str, Any],
 ) -> list[dict[str, str]]:
     fixed_vector_recall = _metric(fixed, "vector", "retrieval", "recall_at_5")
     fixed_hybrid_recall = _metric(fixed, "hybrid", "retrieval", "recall_at_5")
@@ -150,13 +151,60 @@ def _interpretations(
                 "implication": "Use the paired reports to decide the default chunking strategy.",
             }
         )
+    if evidence_eval.get("present"):
+        structure_hybrid = _metric(
+            evidence_eval,
+            "experiments",
+            "structure_aware",
+            "aggregate",
+            "hybrid",
+            default={},
+        )
+        fixed_hybrid = _metric(
+            evidence_eval,
+            "experiments",
+            "fixed_window",
+            "aggregate",
+            "hybrid",
+            default={},
+        )
+        items.append(
+            {
+                "claim": "Evidence-level scoring favors structure-aware hybrid retrieval.",
+                "evidence": (
+                    "Structure-aware hybrid supported answers="
+                    f"{_metric(structure_hybrid, 'answer_support_distribution', 'supported')}; "
+                    "fixed-window hybrid supported answers="
+                    f"{_metric(fixed_hybrid, 'answer_support_distribution', 'supported')}."
+                ),
+                "implication": "Use structure-aware as the default candidate after gold labels are reviewed.",
+            }
+        )
     return items
+
+
+def _evidence_eval_summary(evidence_eval: dict[str, Any] | None) -> dict[str, Any]:
+    if not evidence_eval:
+        return {"present": False}
+    return {
+        "present": True,
+        "metadata": evidence_eval.get("metadata", {}),
+        "experiments": {
+            name: {
+                "present": experiment.get("present", False),
+                "aggregate": experiment.get("aggregate", {}),
+            }
+            for name, experiment in evidence_eval.get("experiments", {}).items()
+            if isinstance(experiment, dict)
+        },
+    }
 
 
 def build_graphrag_review(
     chunking_comparison_path: str | Path,
     fixed_hybrid_path: str | Path,
     structure_aware_hybrid_path: str | Path | None = None,
+    evidence_eval_path: str | Path | None = None,
 ) -> dict[str, Any]:
     chunking = _load_json(chunking_comparison_path)
     fixed_experiment = _load_json(fixed_hybrid_path)
@@ -166,6 +214,9 @@ def build_graphrag_review(
         _load_json(structure_aware_hybrid_path)
         if structure_aware_hybrid_path is not None
         else None
+    )
+    evidence_eval = _evidence_eval_summary(
+        _load_json(evidence_eval_path) if evidence_eval_path is not None else None
     )
     fixed_summary = _experiment_summary("fixed_window", fixed_experiment)
     structure_summary = _experiment_summary("structure_aware", structure_experiment)
@@ -178,17 +229,23 @@ def build_graphrag_review(
             "structure_aware_hybrid_path": project_relative_path(structure_aware_hybrid_path)
             if structure_aware_hybrid_path is not None
             else None,
+            "evidence_eval_path": project_relative_path(evidence_eval_path)
+            if evidence_eval_path is not None
+            else None,
             "structure_aware_present": bool(structure_experiment),
+            "evidence_eval_present": evidence_eval["present"],
         },
         "chunking_comparison": chunking_summary,
         "experiments": {
             "fixed_window": fixed_summary,
             "structure_aware": structure_summary,
         },
+        "evidence_level_evaluation": evidence_eval,
         "interpretations": _interpretations(
             fixed_summary,
             structure_summary,
             chunking_summary,
+            evidence_eval,
         ),
         "recommendations": [
             "Report GraphRAG as adding structured KG evidence, not as current page Recall@5 winner.",
@@ -211,6 +268,7 @@ def write_graphrag_review_markdown(result: dict[str, Any], output_path: str | Pa
     fixed = result["experiments"]["fixed_window"]
     structure = result["experiments"]["structure_aware"]
     chunking = result["chunking_comparison"]
+    evidence_eval = result.get("evidence_level_evaluation", {})
     lines = [
         "# GraphRAG Review",
         "",
@@ -278,6 +336,22 @@ def write_graphrag_review_markdown(result: dict[str, Any], output_path: str | Pa
             )
     else:
         lines.append("Not yet run. Use structure-aware KG extraction before comparing defaults.")
+    lines.extend(["", "## Evidence-Level Evaluation", ""])
+    if evidence_eval.get("present"):
+        for experiment_name, experiment in evidence_eval["experiments"].items():
+            if not experiment.get("present"):
+                continue
+            hybrid = experiment.get("aggregate", {}).get("hybrid", {})
+            support = hybrid.get("answer_support_distribution", {})
+            lines.append(
+                f"- `{experiment_name}` hybrid: Chunk Recall@5="
+                f"{hybrid.get('chunk_recall_at_5', 'TBD')}, Span hit rate="
+                f"{hybrid.get('span_hit_rate', 'TBD')}, KG triple relevance="
+                f"{hybrid.get('kg_triple_relevance', 'TBD')}, supported answers="
+                f"{support.get('supported', 0)}, partial={support.get('partially_supported', 0)}."
+            )
+    else:
+        lines.append("Not yet run. Generate `reports/stages/evidence_level_evaluation.json`.")
     lines.extend(["", "## Interpretations", ""])
     for item in result["interpretations"]:
         lines.extend(
@@ -300,12 +374,14 @@ def write_graphrag_review(
     output_dir: str | Path,
     *,
     structure_aware_hybrid_path: str | Path | None = None,
+    evidence_eval_path: str | Path | None = None,
     report_name: str = "graphrag_review",
 ) -> tuple[Path, Path, dict[str, Any]]:
     result = build_graphrag_review(
         chunking_comparison_path,
         fixed_hybrid_path,
         structure_aware_hybrid_path=structure_aware_hybrid_path,
+        evidence_eval_path=evidence_eval_path,
     )
     output = Path(output_dir)
     stem = Path(report_name).stem or "graphrag_review"

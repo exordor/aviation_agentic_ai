@@ -11,6 +11,7 @@ from aviation_agentic_ai.chunking.chunks import (
     chunk_output_path_for_strategy,
 )
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
+from aviation_agentic_ai.evaluation.gold_draft import build_gold_draft
 from aviation_agentic_ai.kg.extraction import (
     KGValidationError,
     extract_kg_file,
@@ -26,6 +27,7 @@ from aviation_agentic_ai.ontology.reporting import write_stats_json, write_stats
 from aviation_agentic_ai.ontology.source_scope import write_source_scope_reports
 from aviation_agentic_ai.ontology.stats import collect_stats, load_graph
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
+from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
 from aviation_agentic_ai.reporting.graphrag_review import write_graphrag_review
 from aviation_agentic_ai.reporting.hybrid_rag import write_hybrid_rag_experiment
 from aviation_agentic_ai.reporting.generation_runs import write_generation_run_summary
@@ -230,6 +232,43 @@ def ontology_cqs(
     )
     pages = len(next(iter(result.values()))) if result else 0
     click.echo(f"Wrote CQ output for {pages} pages.")
+
+
+@main.group("cqs")
+def cqs() -> None:
+    """Competency-question gold label utilities."""
+
+
+@cqs.command("gold-draft")
+@click.option("--boundary-cqs", type=click.Path(path_type=Path), default=None)
+@click.option("--chunks", "chunks_paths", type=click.Path(path_type=Path), multiple=True)
+@click.option("--output", "output_path", type=click.Path(path_type=Path), default=None)
+@click.option("--max-chunks-per-strategy", type=int, default=3, show_default=True)
+@click.option("--max-spans", type=int, default=2, show_default=True)
+def cqs_gold_draft(
+    boundary_cqs: Path | None,
+    chunks_paths: tuple[Path, ...],
+    output_path: Path | None,
+    max_chunks_per_strategy: int,
+    max_spans: int,
+) -> None:
+    """Draft chunk/span gold labels from source chunks."""
+    config = load_default_config()
+    default_chunks = resolve_project_path(config["paths"]["chunks_file"])
+    default_structure_chunks = chunk_output_path_for_strategy(default_chunks, "structure_aware")
+    chunk_inputs = list(chunks_paths) or [
+        path for path in (default_chunks, default_structure_chunks) if path.exists()
+    ]
+    output = output_path or resolve_project_path("data/cqs/06_phak_ch4_0.gold.json")
+    payload = build_gold_draft(
+        boundary_cqs or resolve_project_path("data/cqs/06_phak_ch4_0.boundary.json"),
+        chunk_inputs,
+        output_path=output,
+        max_chunks_per_strategy=max_chunks_per_strategy,
+        max_spans=max_spans,
+    )
+    click.echo(f"Wrote {project_relative_path(output)}")
+    click.echo(f"Drafted {len(payload['labels'])} gold labels from {len(chunk_inputs)} chunk files.")
 
 
 @ontology.command("validate-cqs")
@@ -804,12 +843,14 @@ def report_hybrid_rag(
 @click.option("--chunking-comparison", type=click.Path(path_type=Path), default=None)
 @click.option("--fixed-hybrid", type=click.Path(path_type=Path), default=None)
 @click.option("--structure-aware-hybrid", type=click.Path(path_type=Path), default=None)
+@click.option("--evidence-eval", type=click.Path(path_type=Path), default=None)
 @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
 @click.option("--report-name", default="graphrag_review", show_default=True)
 def report_graphrag_review(
     chunking_comparison: Path | None,
     fixed_hybrid: Path | None,
     structure_aware_hybrid: Path | None,
+    evidence_eval: Path | None,
     output_dir: Path | None,
     report_name: str,
 ) -> None:
@@ -820,17 +861,53 @@ def report_graphrag_review(
     structure_path = structure_aware_hybrid or (
         default_structure if default_structure.exists() else None
     )
+    default_evidence = report_dir / "evidence_level_evaluation.json"
+    evidence_path = evidence_eval or (default_evidence if default_evidence.exists() else None)
     json_path, md_path, result = write_graphrag_review(
         chunking_comparison or report_dir / "chunking_comparison.json",
         fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
         report_dir,
         structure_aware_hybrid_path=structure_path,
+        evidence_eval_path=evidence_path,
         report_name=report_name,
     )
     click.echo(f"Wrote {project_relative_path(json_path)}")
     click.echo(f"Wrote {project_relative_path(md_path)}")
     structure_status = "included" if result["metadata"]["structure_aware_present"] else "missing"
-    click.echo(f"Reviewed GraphRAG reports; structure-aware experiment: {structure_status}.")
+    evidence_status = "included" if result["metadata"]["evidence_eval_present"] else "missing"
+    click.echo(
+        f"Reviewed GraphRAG reports; structure-aware experiment: {structure_status}; "
+        f"evidence evaluation: {evidence_status}."
+    )
+
+
+@report.command("evidence-eval")
+@click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
+@click.option("--fixed-hybrid", type=click.Path(path_type=Path), default=None)
+@click.option("--structure-aware-hybrid", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="evidence_level_evaluation", show_default=True)
+def report_evidence_eval(
+    gold_labels: Path | None,
+    fixed_hybrid: Path | None,
+    structure_aware_hybrid: Path | None,
+    output_dir: Path | None,
+    report_name: str,
+) -> None:
+    """Evaluate Hybrid RAG reports against chunk/span gold labels."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_evidence_level_evaluation(
+        gold_labels or resolve_project_path("data/cqs/06_phak_ch4_0.gold.json"),
+        report_dir,
+        fixed_hybrid_path=fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
+        structure_aware_hybrid_path=structure_aware_hybrid
+        or report_dir / "hybrid_rag_structure_aware.json",
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Evaluated evidence-level metrics for {result['metadata']['labels_total']} CQs.")
 
 
 @report.command("chunking-comparison")

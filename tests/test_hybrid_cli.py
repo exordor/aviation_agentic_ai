@@ -305,7 +305,7 @@ def test_cli_report_graphrag_review_uses_mocked_writer(tmp_path: Path, monkeypat
         return (
             json_path,
             md_path,
-            {"metadata": {"structure_aware_present": False}},
+            {"metadata": {"structure_aware_present": False, "evidence_eval_present": False}},
         )
 
     monkeypatch.setattr(cli, "write_graphrag_review", fake_writer)
@@ -322,3 +322,54 @@ def test_cli_report_graphrag_review_uses_mocked_writer(tmp_path: Path, monkeypat
 
     assert result.exit_code == 0, result.output
     assert "Reviewed GraphRAG reports" in result.output
+
+
+def test_cli_cqs_gold_draft_uses_mocked_builder(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_builder(*_args, output_path, **_kwargs):
+        output_path.write_text('{"labels": []}\n', encoding="utf-8")
+        return {"labels": [{}, {}]}
+
+    monkeypatch.setattr(cli, "build_gold_draft", fake_builder)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "cqs",
+            "gold-draft",
+            "--chunks",
+            str(tmp_path / "chunks.jsonl"),
+            "--output",
+            str(tmp_path / "gold.json"),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Drafted 2 gold labels" in result.output
+
+
+def test_cli_report_evidence_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "evidence_level_evaluation.json"
+        md_path = tmp_path / "evidence_level_evaluation.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"labels_total": 10}}
+
+    monkeypatch.setattr(cli, "write_evidence_level_evaluation", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "evidence-eval",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Evaluated evidence-level metrics for 10 CQs" in result.output

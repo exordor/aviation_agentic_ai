@@ -363,6 +363,36 @@ def _hybrid_summary_lines(
             f"GraphRAG interpretation evidence: `{review.get('path')}` explains "
             "retrieval, KG evidence, and LLM answer behavior separately."
         )
+    evidence_report = artifact_sources.get("evidence_level_evaluation")
+    evidence_data = artifact_sources.get("evidence_level_evaluation_json", {}).get("data", {})
+    if isinstance(evidence_data, dict) and evidence_data:
+        fixed_hybrid = _metric_value(
+            evidence_data,
+            "experiments",
+            "fixed_window",
+            "aggregate",
+            "hybrid",
+            default={},
+        )
+        structure_hybrid = _metric_value(
+            evidence_data,
+            "experiments",
+            "structure_aware",
+            "aggregate",
+            "hybrid",
+            default={},
+        )
+        structure_support = structure_hybrid.get("answer_support_distribution", {})
+        fixed_support = fixed_hybrid.get("answer_support_distribution", {})
+        lines.append(
+            "Evidence-level evaluation: "
+            f"`{evidence_report.get('path', 'reports/stages/evidence_level_evaluation.md')}` "
+            f"shows structure-aware hybrid span hit rate="
+            f"{structure_hybrid.get('span_hit_rate', 'TBD')} and supported answers="
+            f"{structure_support.get('supported', 'TBD')}; fixed-window hybrid span hit rate="
+            f"{fixed_hybrid.get('span_hit_rate', 'TBD')} and supported answers="
+            f"{fixed_support.get('supported', 'TBD')}."
+        )
     return lines
 
 
@@ -402,10 +432,18 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     has_structure_hybrid = bool(
         artifact_sources.get("hybrid_rag_structure_aware_json", {}).get("data", {})
     )
+    has_evidence_eval = bool(
+        artifact_sources.get("evidence_level_evaluation_json", {}).get("data", {})
+    )
     if has_chunking and has_hybrid:
         if has_structure_hybrid:
+            first_next_work = (
+                "1. Review the auto-drafted chunk/span gold labels and fix weak spans."
+                if has_evidence_eval
+                else "1. Refine gold labels from source-page to chunk/span evidence."
+            )
             next_work_lines = [
-                "1. Refine gold labels from source-page to chunk/span evidence.",
+                first_next_work,
                 "2. Write project-defense conclusions from fixed-window and structure-aware runs.",
                 "3. Decide whether `structure_aware` becomes the default GraphRAG strategy.",
                 "4. Generate the AI-polished final report after review.",
@@ -439,6 +477,13 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
                 "- `uv run aviation-ai index build --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --collection-name phak_ch4_chunks_structure_aware`",
                 "- `uv run aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware`",
                 "- `uv run aviation-ai report graphrag-review`",
+            ]
+        )
+    if has_evidence_eval:
+        reproducibility_lines.extend(
+            [
+                "- `uv run aviation-ai cqs gold-draft`",
+                "- `uv run aviation-ai report evidence-eval`",
             ]
         )
     reproducibility_lines.extend(
@@ -505,10 +550,10 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "structure-aware KG, chunking comparison, fixed-window Hybrid RAG, "
         "structure-aware Hybrid RAG, and GraphRAG review when their reports are present "
         "in the stage index.",
-        "Limitations: gold labels are still source-page level, structure-aware KG "
-        "extraction is more expensive because it uses many smaller chunks, and "
-        "GraphRAG should be defended as structured evidence support rather than a "
-        "single-score Recall improvement.",
+        "Limitations: chunk/span gold labels are auto-drafted and still require "
+        "human review, structure-aware KG extraction is more expensive because it "
+        "uses many smaller chunks, and GraphRAG should be defended as structured "
+        "evidence support rather than a single-score Recall improvement.",
         "",
         "## Advisory assistant boundary",
         "",
