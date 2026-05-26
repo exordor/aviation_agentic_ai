@@ -9,10 +9,12 @@ const state = {
   selectedEdgeId: null,
   cy: null,
   kgNodePositions: {},
+  sidebarCollapsed: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+const SIDEBAR_STORAGE_KEY = "aviation-demo-sidebar-collapsed";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -28,6 +30,50 @@ function formatValue(value) {
   if (typeof value === "number") return Number.isInteger(value) ? String(value) : value.toFixed(4);
   if (typeof value === "boolean") return value ? "yes" : "no";
   return String(value);
+}
+
+function readSidebarPreference() {
+  try {
+    return window.localStorage?.getItem(SIDEBAR_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function writeSidebarPreference(collapsed) {
+  try {
+    window.localStorage?.setItem(SIDEBAR_STORAGE_KEY, String(collapsed));
+  } catch {
+    // Local storage can be unavailable in restrictive browser contexts.
+  }
+}
+
+function applySidebarState() {
+  const shell = $(".app-shell");
+  const button = $("#sidebar-toggle");
+  if (!shell || !button) return;
+
+  shell.classList.toggle("sidebar-collapsed", state.sidebarCollapsed);
+  button.setAttribute("aria-expanded", String(!state.sidebarCollapsed));
+  button.setAttribute(
+    "aria-label",
+    state.sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+  );
+  button.setAttribute("title", state.sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar");
+  button.textContent = state.sidebarCollapsed ? "\u203a" : "\u2039";
+
+  if (state.cy) {
+    requestAnimationFrame(() => {
+      state.cy.resize();
+      state.cy.fit(undefined, 26);
+    });
+  }
+}
+
+function toggleSidebar() {
+  state.sidebarCollapsed = !state.sidebarCollapsed;
+  writeSidebarPreference(state.sidebarCollapsed);
+  applySidebarState();
 }
 
 function renderInlineMarkdown(value) {
@@ -633,6 +679,7 @@ async function loadKgGraph() {
 }
 
 function bindControls() {
+  $("#sidebar-toggle").addEventListener("click", toggleSidebar);
   $("#question-list").addEventListener("click", (event) => {
     const row = event.target.closest(".question-row");
     if (!row) return;
@@ -679,6 +726,8 @@ function bindControls() {
 }
 
 async function init() {
+  state.sidebarCollapsed = readSidebarPreference();
+  applySidebarState();
   bindControls();
   state.status = await fetchJson("/api/status");
   state.explanation = await fetchJson("/api/demo/explanation");

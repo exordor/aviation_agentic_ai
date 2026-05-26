@@ -4,17 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=cytoscape-kg" />
+    <link rel="stylesheet" href="/static/styles.css?v=sidebar-collapse" />
   </head>
   <body>
     <main class="app-shell">
       <aside class="sidebar">
         <header class="app-identity">
           <div class="brand-mark">GA</div>
-          <div>
+          <div class="brand-copy">
             <h1>Aviation GraphRAG</h1>
             <p>Evidence review workspace</p>
           </div>
+          <button
+            id="sidebar-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Collapse sidebar"
+            aria-expanded="true"
+            title="Collapse sidebar"
+          >
+            &lsaquo;
+          </button>
         </header>
 
         <section class="sidebar-section status-section">
@@ -173,6 +183,6 @@
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=cytoscape-kg-v3"></script>
+    <script src="/static/app.js?v=sidebar-collapse"></script>
   </body>
 </html>
