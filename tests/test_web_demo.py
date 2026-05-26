@@ -318,6 +318,7 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert root.status_code == 200
     assert "question-list" in root.text
     assert "sidebar-toggle" in root.text
+    assert "pipeline-toggle" in root.text
     assert "toolbar-group" in root.text
     assert "Retrieved Chunks" in root.text
     assert "KG Relationship Graph" in root.text

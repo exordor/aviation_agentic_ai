@@ -688,6 +688,41 @@ dd {
   margin-bottom: 12px;
 }
 
+.heading-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pipeline-toggle {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--separator);
+  border-radius: 999px;
+  background: var(--surface-subtle);
+  color: var(--secondary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 760;
+  line-height: 1;
+  padding: 0;
+}
+
+.pipeline-toggle:hover {
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+.pipeline-panel.collapsed .section-heading {
+  margin-bottom: 0;
+}
+
+.pipeline-steps[hidden] {
+  display: none;
+}
+
 .answer-content {
   display: grid;
   gap: 10px;

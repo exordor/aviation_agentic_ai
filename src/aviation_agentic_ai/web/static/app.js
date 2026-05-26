@@ -10,6 +10,7 @@ const state = {
   cy: null,
   kgNodePositions: {},
   sidebarCollapsed: false,
+  pipelineExpanded: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -74,6 +75,31 @@ function toggleSidebar() {
   state.sidebarCollapsed = !state.sidebarCollapsed;
   writeSidebarPreference(state.sidebarCollapsed);
   applySidebarState();
+}
+
+function applyPipelineState() {
+  const panel = $(".pipeline-panel");
+  const steps = $("#pipeline-steps");
+  const button = $("#pipeline-toggle");
+  if (!panel || !steps || !button) return;
+
+  panel.classList.toggle("collapsed", !state.pipelineExpanded);
+  steps.hidden = !state.pipelineExpanded;
+  button.setAttribute("aria-expanded", String(state.pipelineExpanded));
+  button.setAttribute(
+    "aria-label",
+    state.pipelineExpanded ? "Hide pipeline details" : "Show pipeline details"
+  );
+  button.setAttribute(
+    "title",
+    state.pipelineExpanded ? "Hide pipeline details" : "Show pipeline details"
+  );
+  button.textContent = state.pipelineExpanded ? "-" : "+";
+}
+
+function togglePipelineDetails() {
+  state.pipelineExpanded = !state.pipelineExpanded;
+  applyPipelineState();
 }
 
 function renderInlineMarkdown(value) {
@@ -234,6 +260,7 @@ function renderPipelineExplanation() {
   $("#pipeline-steps").innerHTML = steps.length
     ? steps.map(pipelineStepTemplate).join("")
     : "<p class='evidence-text'>No pipeline explanation loaded.</p>";
+  applyPipelineState();
 }
 
 function modeExplanationTemplate(mode, explanation) {
@@ -680,6 +707,7 @@ async function loadKgGraph() {
 
 function bindControls() {
   $("#sidebar-toggle").addEventListener("click", toggleSidebar);
+  $("#pipeline-toggle").addEventListener("click", togglePipelineDetails);
   $("#question-list").addEventListener("click", (event) => {
     const row = event.target.closest(".question-row");
     if (!row) return;
@@ -728,6 +756,7 @@ function bindControls() {
 async function init() {
   state.sidebarCollapsed = readSidebarPreference();
   applySidebarState();
+  applyPipelineState();
   bindControls();
   state.status = await fetchJson("/api/status");
   state.explanation = await fetchJson("/api/demo/explanation");

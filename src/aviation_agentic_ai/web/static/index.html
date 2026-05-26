@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=sidebar-collapse" />
+    <link rel="stylesheet" href="/static/styles.css?v=pipeline-collapse" />
   </head>
   <body>
     <main class="app-shell">
@@ -75,12 +75,25 @@
         </section>
 
         <section class="explanation-grid" aria-label="Demo explanation">
-          <article class="panel pipeline-panel">
+          <article class="panel pipeline-panel collapsed">
             <div class="section-heading">
               <h3>Pipeline Explanation</h3>
-              <span id="pipeline-ready-count" class="count">0/0</span>
+              <div class="heading-actions">
+                <span id="pipeline-ready-count" class="count">0/0</span>
+                <button
+                  id="pipeline-toggle"
+                  class="pipeline-toggle"
+                  type="button"
+                  aria-label="Show pipeline details"
+                  aria-expanded="false"
+                  aria-controls="pipeline-steps"
+                  title="Show pipeline details"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div id="pipeline-steps" class="pipeline-steps"></div>
+            <div id="pipeline-steps" class="pipeline-steps" hidden></div>
           </article>
 
           <article class="panel mode-panel">
@@ -183,6 +196,6 @@
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=sidebar-collapse"></script>
+    <script src="/static/app.js?v=pipeline-collapse"></script>
   </body>
 </html>
