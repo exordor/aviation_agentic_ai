@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=mode-collapse" />
+    <link rel="stylesheet" href="/static/styles.css?v=top-live-query" />
   </head>
   <body>
     <main class="app-shell">
@@ -62,6 +62,23 @@
           <span id="live-status" class="status-pill">Live disabled</span>
         </header>
 
+        <section class="panel live-panel">
+          <div class="section-heading">
+            <h3>Optional Live Query</h3>
+            <span class="status-pill muted">Opt-in</span>
+          </div>
+          <form id="live-form">
+            <input
+              id="live-question"
+              type="text"
+              autocomplete="off"
+              placeholder="Ask a PHAK Chapter 4 question"
+            />
+            <button type="submit">Run Hybrid Query</button>
+          </form>
+          <pre id="live-output"></pre>
+        </section>
+
         <section class="panel demo-narrative" aria-labelledby="demo-narrative-title">
           <div class="narrative-copy">
             <p class="question-meta">Demo Narrative</p>
@@ -73,6 +90,31 @@
             <p id="demo-boundary" class="narrative-note"></p>
           </div>
         </section>
+
+        <section class="question-header">
+          <p id="question-meta" class="question-meta">No question selected</p>
+          <h2 id="question-title">Select a question</h2>
+          <div id="entity-strip" class="entity-strip"></div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel answer-panel">
+            <div class="section-heading">
+              <h3>Grounded Answer</h3>
+              <span id="support-badge" class="status-pill">No data</span>
+            </div>
+            <div id="answer-content" class="answer-content">No answer loaded.</div>
+          </article>
+
+          <aside class="panel inspector-panel">
+            <div class="section-heading">
+              <h3>Gold Label</h3>
+            </div>
+            <dl class="gold-grid" id="gold-grid"></dl>
+          </aside>
+        </section>
+
+        <section class="metrics-strip" id="metrics-strip" aria-label="Evidence metrics"></section>
 
         <section class="explanation-grid" aria-label="Demo explanation">
           <article class="panel pipeline-panel collapsed">
@@ -126,31 +168,6 @@
           </article>
         </section>
 
-        <section class="question-header">
-          <p id="question-meta" class="question-meta">No question selected</p>
-          <h2 id="question-title">Select a question</h2>
-          <div id="entity-strip" class="entity-strip"></div>
-        </section>
-
-        <section class="metrics-strip" id="metrics-strip" aria-label="Evidence metrics"></section>
-
-        <section class="content-grid">
-          <article class="panel answer-panel">
-            <div class="section-heading">
-              <h3>Grounded Answer</h3>
-              <span id="support-badge" class="status-pill">No data</span>
-            </div>
-            <div id="answer-content" class="answer-content">No answer loaded.</div>
-          </article>
-
-          <aside class="panel inspector-panel">
-            <div class="section-heading">
-              <h3>Gold Label</h3>
-            </div>
-            <dl class="gold-grid" id="gold-grid"></dl>
-          </aside>
-        </section>
-
         <section class="panel kg-graph-panel" aria-labelledby="kg-graph-title">
           <div class="section-heading">
             <h3 id="kg-graph-title">KG Relationship Graph</h3>
@@ -190,25 +207,9 @@
           </article>
         </section>
 
-        <section class="panel live-panel">
-          <div class="section-heading">
-            <h3>Optional Live Query</h3>
-            <span class="status-pill muted">Opt-in</span>
-          </div>
-          <form id="live-form">
-            <input
-              id="live-question"
-              type="text"
-              autocomplete="off"
-              placeholder="Ask a PHAK Chapter 4 question"
-            />
-            <button type="submit">Run Hybrid Query</button>
-          </form>
-          <pre id="live-output"></pre>
-        </section>
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=mode-collapse"></script>
+    <script src="/static/app.js?v=top-live-query"></script>
   </body>
 </html>

@@ -818,7 +818,7 @@ dd {
 }
 
 .live-panel {
-  margin-top: 14px;
+  margin-bottom: 14px;
 }
 
 form {
@@ -862,6 +862,10 @@ pre {
   font-size: 12px;
   line-height: 1.45;
   white-space: pre-wrap;
+}
+
+#live-output:empty {
+  display: none;
 }
 
 @media (max-width: 1080px) {
