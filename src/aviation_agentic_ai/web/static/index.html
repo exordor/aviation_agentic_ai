@@ -4,17 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=cytoscape-kg" />
+    <link rel="stylesheet" href="/static/styles.css?v=mode-collapse" />
   </head>
   <body>
     <main class="app-shell">
       <aside class="sidebar">
         <header class="app-identity">
           <div class="brand-mark">GA</div>
-          <div>
+          <div class="brand-copy">
             <h1>Aviation GraphRAG</h1>
             <p>Evidence review workspace</p>
           </div>
+          <button
+            id="sidebar-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Collapse sidebar"
+            aria-expanded="true"
+            title="Collapse sidebar"
+          >
+            &lsaquo;
+          </button>
         </header>
 
         <section class="sidebar-section status-section">
@@ -65,20 +75,46 @@
         </section>
 
         <section class="explanation-grid" aria-label="Demo explanation">
-          <article class="panel pipeline-panel">
+          <article class="panel pipeline-panel collapsed">
             <div class="section-heading">
               <h3>Pipeline Explanation</h3>
-              <span id="pipeline-ready-count" class="count">0/0</span>
+              <div class="heading-actions">
+                <span id="pipeline-ready-count" class="count">0/0</span>
+                <button
+                  id="pipeline-toggle"
+                  class="pipeline-toggle"
+                  type="button"
+                  aria-label="Show pipeline details"
+                  aria-expanded="false"
+                  aria-controls="pipeline-steps"
+                  title="Show pipeline details"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div id="pipeline-steps" class="pipeline-steps"></div>
+            <div id="pipeline-steps" class="pipeline-steps" hidden></div>
           </article>
 
-          <article class="panel mode-panel">
+          <article class="panel mode-panel collapsed">
             <div class="section-heading">
               <h3>Mode Comparison</h3>
-              <span id="active-mode-label" class="count">Hybrid</span>
+              <div class="heading-actions">
+                <span id="active-mode-label" class="count">Hybrid</span>
+                <button
+                  id="mode-toggle"
+                  class="mode-toggle"
+                  type="button"
+                  aria-label="Show mode comparison details"
+                  aria-expanded="false"
+                  aria-controls="mode-explanations"
+                  title="Show mode comparison details"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div id="mode-explanations" class="mode-explanations"></div>
+            <div id="mode-explanations" class="mode-explanations" hidden></div>
           </article>
 
           <article class="panel why-panel">
@@ -173,6 +209,6 @@
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=cytoscape-kg-v3"></script>
+    <script src="/static/app.js?v=mode-collapse"></script>
   </body>
 </html>
