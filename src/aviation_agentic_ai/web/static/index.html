@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=mode-collapse" />
+    <link rel="stylesheet" href="/static/styles.css?v=answer-priority" />
   </head>
   <body>
     <main class="app-shell">
@@ -74,6 +74,31 @@
           </div>
         </section>
 
+        <section class="question-header">
+          <p id="question-meta" class="question-meta">No question selected</p>
+          <h2 id="question-title">Select a question</h2>
+          <div id="entity-strip" class="entity-strip"></div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel answer-panel">
+            <div class="section-heading">
+              <h3>Grounded Answer</h3>
+              <span id="support-badge" class="status-pill">No data</span>
+            </div>
+            <div id="answer-content" class="answer-content">No answer loaded.</div>
+          </article>
+
+          <aside class="panel inspector-panel">
+            <div class="section-heading">
+              <h3>Gold Label</h3>
+            </div>
+            <dl class="gold-grid" id="gold-grid"></dl>
+          </aside>
+        </section>
+
+        <section class="metrics-strip" id="metrics-strip" aria-label="Evidence metrics"></section>
+
         <section class="explanation-grid" aria-label="Demo explanation">
           <article class="panel pipeline-panel collapsed">
             <div class="section-heading">
@@ -124,31 +149,6 @@
             </div>
             <dl id="result-explanation" class="result-explanation"></dl>
           </article>
-        </section>
-
-        <section class="question-header">
-          <p id="question-meta" class="question-meta">No question selected</p>
-          <h2 id="question-title">Select a question</h2>
-          <div id="entity-strip" class="entity-strip"></div>
-        </section>
-
-        <section class="metrics-strip" id="metrics-strip" aria-label="Evidence metrics"></section>
-
-        <section class="content-grid">
-          <article class="panel answer-panel">
-            <div class="section-heading">
-              <h3>Grounded Answer</h3>
-              <span id="support-badge" class="status-pill">No data</span>
-            </div>
-            <div id="answer-content" class="answer-content">No answer loaded.</div>
-          </article>
-
-          <aside class="panel inspector-panel">
-            <div class="section-heading">
-              <h3>Gold Label</h3>
-            </div>
-            <dl class="gold-grid" id="gold-grid"></dl>
-          </aside>
         </section>
 
         <section class="panel kg-graph-panel" aria-labelledby="kg-graph-title">
@@ -209,6 +209,6 @@
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=mode-collapse"></script>
+    <script src="/static/app.js?v=answer-priority"></script>
   </body>
 </html>

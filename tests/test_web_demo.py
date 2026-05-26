@@ -325,6 +325,7 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert "KG Relationship Graph" in root.text
     assert "Demo Narrative" in root.text
     assert "Pipeline Explanation" in root.text
+    assert root.text.index("Grounded Answer") < root.text.index("Pipeline Explanation")
     assert "Why This Result" in root.text
     assert "kg-graph-canvas" in root.text
     assert "vendor/cytoscape.min.js" in root.text
