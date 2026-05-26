@@ -672,10 +672,45 @@ dd {
 }
 
 .answer-content {
-  white-space: pre-wrap;
+  display: grid;
+  gap: 10px;
   color: var(--text);
   font-size: 14px;
   line-height: 1.58;
+  overflow-wrap: anywhere;
+}
+
+.answer-content p,
+.answer-content ul {
+  margin: 0;
+}
+
+.answer-list,
+.answer-sublist {
+  display: grid;
+  gap: 6px;
+  padding-left: 20px;
+}
+
+.answer-sublist {
+  margin-top: 6px;
+  gap: 4px;
+  padding-left: 18px;
+}
+
+.answer-content strong {
+  font-weight: 760;
+}
+
+.answer-content code {
+  padding: 1px 5px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.045);
+  color: rgba(29, 29, 31, 0.86);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  word-break: break-word;
 }
 
 .stack {

@@ -28,6 +28,73 @@ function formatValue(value) {
   return String(value);
 }
 
+function renderInlineMarkdown(value) {
+  const codePlaceholders = [];
+  const html = escapeHtml(value).replace(/`([^`]+)`/g, (_match, code) => {
+    const index = codePlaceholders.length;
+    codePlaceholders.push(`<code>${code}</code>`);
+    return `\u0000CODE${index}\u0000`;
+  });
+
+  return html
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\u0000CODE(\d+)\u0000/g, (_match, index) => codePlaceholders[Number(index)] || "");
+}
+
+function answerListTemplate(lines) {
+  let html = '<ul class="answer-list">';
+  let itemOpen = false;
+  let nestedOpen = false;
+
+  lines.forEach((line) => {
+    const match = line.match(/^(\s*)-\s+(.*)$/);
+    if (!match) return;
+    const depth = match[1].replaceAll("\t", "  ").length >= 2 ? 1 : 0;
+    const content = renderInlineMarkdown(match[2].trim());
+
+    if (depth === 0 || !itemOpen) {
+      if (nestedOpen) {
+        html += "</ul>";
+        nestedOpen = false;
+      }
+      if (itemOpen) html += "</li>";
+      html += `<li>${content}`;
+      itemOpen = true;
+      return;
+    }
+
+    if (!nestedOpen) {
+      html += '<ul class="answer-sublist">';
+      nestedOpen = true;
+    }
+    html += `<li>${content}</li>`;
+  });
+
+  if (nestedOpen) html += "</ul>";
+  if (itemOpen) html += "</li>";
+  return `${html}</ul>`;
+}
+
+function answerParagraphTemplate(lines) {
+  return `<p>${lines.map((line) => renderInlineMarkdown(line.trim())).join("<br />")}</p>`;
+}
+
+function renderAnswerMarkdown(value) {
+  const text = String(value ?? "").replace(/\r\n?/g, "\n").trim();
+  if (!text) return "<p>No answer available for this mode.</p>";
+
+  return text
+    .split(/\n{2,}/)
+    .map((block) => block.split("\n").filter((line) => line.trim()))
+    .filter((lines) => lines.length)
+    .map((lines) =>
+      lines.every((line) => /^(\s*)-\s+/.test(line))
+        ? answerListTemplate(lines)
+        : answerParagraphTemplate(lines)
+    )
+    .join("");
+}
+
 async function fetchJson(path, options) {
   const response = await fetch(path, options);
   const payload = await response.json().catch(() => ({}));
@@ -239,7 +306,7 @@ function renderAnswer() {
   const badge = $("#support-badge");
   badge.textContent = support.replaceAll("_", " ");
   badge.className = support === "supported" ? "status-pill supported" : "status-pill partial";
-  $("#answer-content").textContent = payload.answer || "No answer available for this mode.";
+  $("#answer-content").innerHTML = renderAnswerMarkdown(payload.answer);
 }
 
 function chunkTemplate(chunk) {
