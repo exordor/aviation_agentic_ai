@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=answer-priority" />
+    <link rel="stylesheet" href="/static/styles.css?v=top-live-query" />
   </head>
   <body>
     <main class="app-shell">
@@ -61,6 +61,23 @@
           </div>
           <span id="live-status" class="status-pill">Live disabled</span>
         </header>
+
+        <section class="panel live-panel">
+          <div class="section-heading">
+            <h3>Optional Live Query</h3>
+            <span class="status-pill muted">Opt-in</span>
+          </div>
+          <form id="live-form">
+            <input
+              id="live-question"
+              type="text"
+              autocomplete="off"
+              placeholder="Ask a PHAK Chapter 4 question"
+            />
+            <button type="submit">Run Hybrid Query</button>
+          </form>
+          <pre id="live-output"></pre>
+        </section>
 
         <section class="panel demo-narrative" aria-labelledby="demo-narrative-title">
           <div class="narrative-copy">
@@ -190,25 +207,9 @@
           </article>
         </section>
 
-        <section class="panel live-panel">
-          <div class="section-heading">
-            <h3>Optional Live Query</h3>
-            <span class="status-pill muted">Opt-in</span>
-          </div>
-          <form id="live-form">
-            <input
-              id="live-question"
-              type="text"
-              autocomplete="off"
-              placeholder="Ask a PHAK Chapter 4 question"
-            />
-            <button type="submit">Run Hybrid Query</button>
-          </form>
-          <pre id="live-output"></pre>
-        </section>
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=answer-priority"></script>
+    <script src="/static/app.js?v=top-live-query"></script>
   </body>
 </html>
