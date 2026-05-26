@@ -11,6 +11,7 @@ const state = {
   kgNodePositions: {},
   sidebarCollapsed: false,
   pipelineExpanded: false,
+  modeComparisonExpanded: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -100,6 +101,35 @@ function applyPipelineState() {
 function togglePipelineDetails() {
   state.pipelineExpanded = !state.pipelineExpanded;
   applyPipelineState();
+}
+
+function applyModeComparisonState() {
+  const panel = $(".mode-panel");
+  const content = $("#mode-explanations");
+  const button = $("#mode-toggle");
+  if (!panel || !content || !button) return;
+
+  panel.classList.toggle("collapsed", !state.modeComparisonExpanded);
+  content.hidden = !state.modeComparisonExpanded;
+  button.setAttribute("aria-expanded", String(state.modeComparisonExpanded));
+  button.setAttribute(
+    "aria-label",
+    state.modeComparisonExpanded
+      ? "Hide mode comparison details"
+      : "Show mode comparison details"
+  );
+  button.setAttribute(
+    "title",
+    state.modeComparisonExpanded
+      ? "Hide mode comparison details"
+      : "Show mode comparison details"
+  );
+  button.textContent = state.modeComparisonExpanded ? "-" : "+";
+}
+
+function toggleModeComparisonDetails() {
+  state.modeComparisonExpanded = !state.modeComparisonExpanded;
+  applyModeComparisonState();
 }
 
 function renderInlineMarkdown(value) {
@@ -284,6 +314,7 @@ function renderModeComparison() {
     .filter((mode) => explanations[mode])
     .map((mode) => modeExplanationTemplate(mode, explanations[mode]))
     .join("");
+  applyModeComparisonState();
 }
 
 function renderStrategyDecision() {
@@ -708,6 +739,7 @@ async function loadKgGraph() {
 function bindControls() {
   $("#sidebar-toggle").addEventListener("click", toggleSidebar);
   $("#pipeline-toggle").addEventListener("click", togglePipelineDetails);
+  $("#mode-toggle").addEventListener("click", toggleModeComparisonDetails);
   $("#question-list").addEventListener("click", (event) => {
     const row = event.target.closest(".question-row");
     if (!row) return;
@@ -757,6 +789,7 @@ async function init() {
   state.sidebarCollapsed = readSidebarPreference();
   applySidebarState();
   applyPipelineState();
+  applyModeComparisonState();
   bindControls();
   state.status = await fetchJson("/api/status");
   state.explanation = await fetchJson("/api/demo/explanation");

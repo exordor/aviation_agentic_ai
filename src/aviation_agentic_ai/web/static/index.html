@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=pipeline-collapse" />
+    <link rel="stylesheet" href="/static/styles.css?v=mode-collapse" />
   </head>
   <body>
     <main class="app-shell">
@@ -96,12 +96,25 @@
             <div id="pipeline-steps" class="pipeline-steps" hidden></div>
           </article>
 
-          <article class="panel mode-panel">
+          <article class="panel mode-panel collapsed">
             <div class="section-heading">
               <h3>Mode Comparison</h3>
-              <span id="active-mode-label" class="count">Hybrid</span>
+              <div class="heading-actions">
+                <span id="active-mode-label" class="count">Hybrid</span>
+                <button
+                  id="mode-toggle"
+                  class="mode-toggle"
+                  type="button"
+                  aria-label="Show mode comparison details"
+                  aria-expanded="false"
+                  aria-controls="mode-explanations"
+                  title="Show mode comparison details"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div id="mode-explanations" class="mode-explanations"></div>
+            <div id="mode-explanations" class="mode-explanations" hidden></div>
           </article>
 
           <article class="panel why-panel">
@@ -196,6 +209,6 @@
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=pipeline-collapse"></script>
+    <script src="/static/app.js?v=mode-collapse"></script>
   </body>
 </html>

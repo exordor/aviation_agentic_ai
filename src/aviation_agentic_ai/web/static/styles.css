@@ -694,7 +694,8 @@ dd {
   gap: 7px;
 }
 
-.pipeline-toggle {
+.pipeline-toggle,
+.mode-toggle {
   width: 24px;
   height: 24px;
   display: grid;
@@ -710,16 +711,19 @@ dd {
   padding: 0;
 }
 
-.pipeline-toggle:hover {
+.pipeline-toggle:hover,
+.mode-toggle:hover {
   background: var(--surface-strong);
   color: var(--text);
 }
 
-.pipeline-panel.collapsed .section-heading {
+.pipeline-panel.collapsed .section-heading,
+.mode-panel.collapsed .section-heading {
   margin-bottom: 0;
 }
 
-.pipeline-steps[hidden] {
+.pipeline-steps[hidden],
+.mode-explanations[hidden] {
   display: none;
 }
 
