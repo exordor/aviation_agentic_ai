@@ -1,7 +1,9 @@
 # Third-Party Sources and Integration Policy
 
 This project is designed as an original GitLab-submittable research prototype.
-External repositories are not vendored into the source tree.
+External repositories are not vendored into the source tree. Small browser
+runtime libraries may be vendored as static distribution files when needed for
+offline demo behavior and must be attributed below.
 
 ## Reference Projects
 
@@ -104,6 +106,11 @@ External repositories are not vendored into the source tree.
   `data/indexes/chroma` are ignored and not committed.
 - FastAPI and Uvicorn are optional web-demo dependencies; the offline smoke
   report uses FastAPI TestClient and does not call the LLM.
+- Cytoscape.js 3.33.4 is vendored as
+  `src/aviation_agentic_ai/web/static/vendor/cytoscape.min.js` with its MIT
+  license at `src/aviation_agentic_ai/web/static/vendor/cytoscape.LICENSE.txt`.
+  It powers the offline KG relationship graph's node dragging, pan/zoom, and
+  edge-selection interactions without requiring a CDN.
 - The Presentations runtime is used to build the editable PPTX under
   `reports/final/`; scratch render/check files are kept under ignored
   `outputs/`.

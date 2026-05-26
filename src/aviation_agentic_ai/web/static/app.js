@@ -7,6 +7,8 @@ const state = {
   detail: null,
   kgGraph: null,
   selectedEdgeId: null,
+  cy: null,
+  kgNodePositions: {},
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -399,69 +401,180 @@ function nodePositionMap(nodes) {
   return positions;
 }
 
+function kgGraphLayoutKey() {
+  return [state.detail?.cq_id || "none", state.experiment, state.mode].join(":");
+}
+
+function ensureNodePositions(nodes) {
+  const key = kgGraphLayoutKey();
+  const existing = state.kgNodePositions[key] || {};
+  const defaults = nodePositionMap(nodes);
+  const positions = {};
+  nodes.forEach((node) => {
+    const stored = existing[node.id];
+    const fallback = defaults.get(node.id) || { x: 360, y: 160 };
+    positions[node.id] = stored || fallback;
+  });
+  state.kgNodePositions[key] = positions;
+  return positions;
+}
+
+function persistCytoscapePositions() {
+  if (!state.cy) return;
+  const positions = {};
+  state.cy.nodes().forEach((node) => {
+    positions[node.id()] = node.position();
+  });
+  state.kgNodePositions[kgGraphLayoutKey()] = positions;
+}
+
+function destroyKgGraph() {
+  if (state.cy) {
+    state.cy.destroy();
+    state.cy = null;
+  }
+}
+
 function renderKgGraph() {
   const graph = state.kgGraph || { nodes: [], edges: [], metadata: {} };
   const nodes = graph.nodes || [];
   const edges = graph.edges || [];
-  const svg = $("#kg-graph-svg");
-  const canvas = svg.closest(".graph-canvas");
+  const container = $("#kg-graph-canvas");
+  const canvas = container.closest(".graph-canvas");
   $("#kg-node-count").textContent = `${nodes.length} nodes`;
   $("#kg-edge-count").textContent = `${edges.length} edges`;
 
   if (!nodes.length || !edges.length) {
+    destroyKgGraph();
     canvas.classList.add("empty");
-    svg.innerHTML = "";
     $("#kg-graph-detail").innerHTML = graphDetailRows(null);
     return;
   }
 
+  if (!window.cytoscape) {
+    destroyKgGraph();
+    canvas.classList.add("empty");
+    $("#kg-graph-empty").textContent = "Graph library unavailable.";
+    $("#kg-graph-detail").innerHTML = graphDetailRows({
+      evidence_text: "Cytoscape.js did not load. Check /static/vendor/cytoscape.min.js.",
+    });
+    return;
+  }
+
+  destroyKgGraph();
   canvas.classList.remove("empty");
+  $("#kg-graph-empty").textContent = "No KG triples for this mode.";
   if (!edges.some((edge) => edge.id === state.selectedEdgeId)) {
     state.selectedEdgeId = edges[0].id;
   }
 
-  const positions = nodePositionMap(nodes);
-  const edgeMarkup = edges
-    .map((edge) => {
-      const source = positions.get(edge.source);
-      const target = positions.get(edge.target);
-      if (!source || !target) return "";
-      const selected = edge.id === state.selectedEdgeId ? " selected" : "";
-      const midX = (source.x + target.x) / 2;
-      const midY = (source.y + target.y) / 2 - 8;
-      return `
-        <g>
-          <line class="kg-edge${selected}" x1="${source.x}" y1="${source.y}" x2="${target.x}" y2="${target.y}" marker-end="url(#kg-arrow)" data-edge-id="${escapeHtml(edge.id)}"></line>
-          <text class="kg-edge-label" x="${midX}" y="${midY}" data-edge-id="${escapeHtml(edge.id)}">${escapeHtml(truncate(edge.predicate, 24))}</text>
-        </g>
-      `;
-    })
-    .join("");
+  const positions = ensureNodePositions(nodes);
+  const elements = [
+    ...nodes.map((node) => ({
+      data: {
+        id: node.id,
+        label: truncate(node.label, 18),
+        classLabel: truncate(node.class, 18),
+        displayLabel: `${truncate(node.label, 18)}\n${truncate(node.class, 18)}`,
+        degree: Number(node.degree || 0),
+      },
+      position: positions[node.id],
+      grabbable: true,
+    })),
+    ...edges.map((edge) => ({
+      data: {
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        label: truncate(edge.predicate, 24),
+        record: edge,
+      },
+      classes: edge.id === state.selectedEdgeId ? "selected" : "",
+    })),
+  ];
 
-  const nodeMarkup = nodes
-    .map((node) => {
-      const position = positions.get(node.id);
-      if (!position) return "";
-      const radius = Math.min(34, 22 + Number(node.degree || 0) * 3);
-      return `
-        <g class="kg-node">
-          <circle class="kg-node-circle" cx="${position.x}" cy="${position.y}" r="${radius}"></circle>
-          <text class="kg-node-label" x="${position.x}" y="${position.y - 2}">${escapeHtml(truncate(node.label, 18))}</text>
-          <text class="kg-node-class" x="${position.x}" y="${position.y + 13}">${escapeHtml(truncate(node.class, 18))}</text>
-        </g>
-      `;
-    })
-    .join("");
+  state.cy = cytoscape({
+    container,
+    elements,
+    autoungrabify: false,
+    autolock: false,
+    boxSelectionEnabled: false,
+    minZoom: 0.4,
+    maxZoom: 2.5,
+    wheelSensitivity: 0.18,
+    layout: { name: "preset", fit: true, padding: 26 },
+    style: [
+      {
+        selector: "node",
+        style: {
+          width: "58px",
+          height: "58px",
+          "background-color": "rgba(255, 255, 255, 0.96)",
+          "border-color": "rgba(0, 122, 255, 0.60)",
+          "border-width": 2,
+          color: "#1d1d1f",
+          content: "data(displayLabel)",
+          "font-size": 10,
+          "font-weight": 700,
+          "line-height": 1.1,
+          "text-halign": "center",
+          "text-valign": "center",
+          "text-wrap": "wrap",
+          "text-max-width": "72px",
+          "text-outline-color": "rgba(255, 255, 255, 0.86)",
+          "text-outline-width": 2,
+        },
+      },
+      {
+        selector: "edge",
+        style: {
+          width: 1.8,
+          "line-color": "rgba(0, 122, 255, 0.45)",
+          "target-arrow-color": "rgba(0, 122, 255, 0.55)",
+          "target-arrow-shape": "triangle",
+          "curve-style": "bezier",
+          label: "data(label)",
+          color: "rgba(60, 60, 67, 0.82)",
+          "font-size": 10,
+          "font-weight": 650,
+          "text-background-color": "rgba(255, 255, 255, 0.82)",
+          "text-background-opacity": 1,
+          "text-background-padding": 2,
+          "text-rotation": "autorotate",
+          "z-index": 1,
+        },
+      },
+      {
+        selector: "edge.selected",
+        style: {
+          width: 3,
+          "line-color": "#0057b8",
+          "target-arrow-color": "#0057b8",
+          "z-index": 3,
+        },
+      },
+      {
+        selector: "node:grabbed",
+        style: {
+          "border-color": "#0057b8",
+          "border-width": 3,
+          "overlay-color": "rgba(0, 122, 255, 0.16)",
+          "overlay-opacity": 1,
+        },
+      },
+    ],
+  });
 
-  svg.innerHTML = `
-    <defs>
-      <marker id="kg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(0, 122, 255, 0.55)"></path>
-      </marker>
-    </defs>
-    ${edgeMarkup}
-    ${nodeMarkup}
-  `;
+  state.cy.nodes().grabify();
+  state.cy.on("dragfree", "node", persistCytoscapePositions);
+  state.cy.on("tap", "edge", (event) => {
+    const edge = event.target;
+    state.selectedEdgeId = edge.id();
+    state.cy.edges().removeClass("selected");
+    edge.addClass("selected");
+    $("#kg-graph-detail").innerHTML = graphDetailRows(edge.data("record"));
+  });
+
   const selectedEdge = edges.find((edge) => edge.id === state.selectedEdgeId) || edges[0];
   $("#kg-graph-detail").innerHTML = graphDetailRows(selectedEdge);
 }
@@ -546,12 +659,6 @@ function bindControls() {
         $("#kg-graph-detail").innerHTML = graphDetailRows({ evidence_text: error.message });
       });
     });
-  });
-  $("#kg-graph-svg").addEventListener("click", (event) => {
-    const edge = event.target.closest("[data-edge-id]");
-    if (!edge) return;
-    state.selectedEdgeId = edge.dataset.edgeId;
-    renderKgGraph();
   });
   $("#live-form").addEventListener("submit", async (event) => {
     event.preventDefault();

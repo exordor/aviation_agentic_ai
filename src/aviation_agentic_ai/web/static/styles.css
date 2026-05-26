@@ -545,10 +545,12 @@ dd {
   background-size: 32px 32px;
 }
 
-#kg-graph-svg {
+#kg-graph-canvas {
   width: 100%;
   height: 320px;
   display: block;
+  touch-action: none;
+  user-select: none;
 }
 
 .graph-empty {
@@ -563,55 +565,12 @@ dd {
   padding: 20px;
 }
 
-.graph-canvas.empty #kg-graph-svg {
+.graph-canvas.empty #kg-graph-canvas {
   opacity: 0;
 }
 
 .graph-canvas.empty .graph-empty {
   display: grid;
-}
-
-.kg-edge {
-  cursor: pointer;
-  pointer-events: stroke;
-  stroke: rgba(0, 122, 255, 0.45);
-  stroke-width: 1.8;
-}
-
-.kg-edge.selected {
-  stroke: #0057b8;
-  stroke-width: 2.6;
-}
-
-.kg-edge-label {
-  cursor: pointer;
-  fill: var(--secondary);
-  font-size: 10px;
-  font-weight: 650;
-  pointer-events: auto;
-}
-
-.kg-node-circle {
-  fill: var(--surface-strong);
-  stroke: rgba(0, 122, 255, 0.60);
-  stroke-width: 2;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.10));
-}
-
-.kg-node-label {
-  fill: var(--text);
-  font-size: 11px;
-  font-weight: 720;
-  text-anchor: middle;
-  pointer-events: none;
-}
-
-.kg-node-class {
-  fill: var(--tertiary);
-  font-size: 9px;
-  font-weight: 650;
-  text-anchor: middle;
-  pointer-events: none;
 }
 
 .graph-detail {

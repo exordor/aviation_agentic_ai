@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=answer-formatting" />
+    <link rel="stylesheet" href="/static/styles.css?v=cytoscape-kg" />
   </head>
   <body>
     <main class="app-shell">
@@ -125,12 +125,11 @@
           </div>
           <div class="graph-layout">
             <div class="graph-canvas">
-              <svg
-                id="kg-graph-svg"
-                viewBox="0 0 720 320"
+              <div
+                id="kg-graph-canvas"
                 role="img"
                 aria-label="Question-scoped KG relationship graph"
-              ></svg>
+              ></div>
               <div id="kg-graph-empty" class="graph-empty">No KG triples for this mode.</div>
             </div>
             <dl id="kg-graph-detail" class="graph-detail"></dl>
@@ -173,6 +172,7 @@
         </section>
       </section>
     </main>
-    <script src="/static/app.js?v=answer-formatting"></script>
+    <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
+    <script src="/static/app.js?v=cytoscape-kg-v3"></script>
   </body>
 </html>

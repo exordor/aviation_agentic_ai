@@ -323,7 +323,8 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert "Demo Narrative" in root.text
     assert "Pipeline Explanation" in root.text
     assert "Why This Result" in root.text
-    assert "kg-graph-svg" in root.text
+    assert "kg-graph-canvas" in root.text
+    assert "vendor/cytoscape.min.js" in root.text
     assert status.status_code == 200
     assert status.json()["advisory_boundary"]
     assert explanation.status_code == 200
