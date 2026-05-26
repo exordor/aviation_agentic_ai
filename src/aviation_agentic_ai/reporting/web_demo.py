@@ -171,7 +171,7 @@ def build_web_demo_readiness(
         "recommendations": [
             "Use structure_aware as the default demo strategy when all artifacts are present.",
             "Keep fixed_window visible as the baseline comparison.",
-            "Keep live query disabled by default for reproducible review demos.",
+            "Keep live query auto-gated by artifact and LLM readiness for reproducible review demos.",
         ],
     }
 
@@ -199,7 +199,7 @@ def write_web_demo_readiness_markdown(
         f"- Ready: {result['ready']}",
         f"- Default strategy: `{result['selected_default_strategy']}`",
         f"- Baseline strategy: `{result['baseline_strategy']}`",
-        "- Live query: disabled by default",
+        "- Live query: auto-gated by artifact and LLM readiness",
         "",
         "## Artifact Readiness",
         "",

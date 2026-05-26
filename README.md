@@ -269,14 +269,18 @@ Then open `http://127.0.0.1:8000`. The default displayed strategy is
 `structure_aware`; `fixed_window` remains visible as the baseline comparison.
 The smoke report writes `reports/stages/web_demo_final_smoke.md` and verifies
 the static page, status/explanation/question APIs, detail endpoint, KG graph,
-default live-query lockout, and favicon through FastAPI TestClient.
+live-query readiness lockout, and favicon through FastAPI TestClient.
 
-Live LLM querying is disabled by default. To test the live GraphRAG path after
-the Chroma collection and LLM provider are configured, start the server with:
+Live LLM querying is auto-detected. The query box is enabled only when the
+Chroma collection, optional GraphRAG/LLM dependencies, and LLM provider
+environment are configured. To force the live GraphRAG path after setup, start
+the server with:
 
 ```bash
 uv run aviation-ai web serve --enable-live-query
 ```
+
+To force the review demo to remain offline, use `--disable-live-query`.
 
 The web demo is for aviation learning and decision support only. It does not
 replace the aircraft POH, approved checklists, ATC instructions, instructor

@@ -10,7 +10,7 @@ def serve_web_app(
     host: str = "127.0.0.1",
     port: int = 8000,
     reload: bool = False,
-    enable_live_query: bool = False,
+    enable_live_query: bool | None = None,
     project_root: str | Path = PROJECT_ROOT,
 ) -> None:
     try:

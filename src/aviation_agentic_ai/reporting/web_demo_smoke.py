@@ -112,7 +112,7 @@ def build_web_demo_smoke(
                     f"default_strategy={status.get('default_strategy')}",
                 ),
                 _check(
-                    "status_live_query_disabled",
+                    "status_live_query_unavailable",
                     status.get("live_query_enabled") is False,
                     f"live_query_enabled={status.get('live_query_enabled')}",
                 ),
@@ -265,13 +265,13 @@ def build_web_demo_smoke(
         )
         checks.append(
             _check(
-                "live_query_disabled_by_default",
-                live_response.status_code == 403,
+                "live_query_unavailable_without_readiness",
+                live_response.status_code == 503,
                 f"HTTP {live_response.status_code}",
             )
         )
     except Exception as exc:
-        _append_api_error(checks, "live_query_disabled_by_default", exc)
+        _append_api_error(checks, "live_query_unavailable_without_readiness", exc)
 
     try:
         favicon_response = client.get("/favicon.ico")
@@ -298,7 +298,7 @@ def build_web_demo_smoke(
         "notes": [
             "This smoke report verifies local static HTML and offline API behavior.",
             "It does not replace a visual browser screenshot or deployment test.",
-            "Live query remains disabled by default for reproducible demonstrations.",
+            "Live query is unavailable in smoke mode unless LLM readiness is explicitly configured.",
         ],
     }
 

@@ -320,6 +320,7 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert "sidebar-toggle" in root.text
     assert "pipeline-toggle" in root.text
     assert "mode-toggle" in root.text
+    assert "live-query-badge" in root.text
     assert "toolbar-group" in root.text
     assert "Retrieved Chunks" in root.text
     assert "KG Relationship Graph" in root.text
@@ -332,6 +333,9 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert "vendor/cytoscape.min.js" in root.text
     assert status.status_code == 200
     assert status.json()["advisory_boundary"]
+    assert status.json()["live_query_enabled"] is False
+    assert status.json()["live_query_readiness"]["enabled"] is False
+    assert status.json()["live_query_readiness"]["reason"]
     assert explanation.status_code == 200
     assert explanation.json()["strategy_decision"]["recommended"] == "structure_aware"
     assert explanation.json()["mode_explanations"]["hybrid"]["label"] == "Hybrid"
@@ -344,8 +348,90 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert graph.json()["nodes"][0]["id"] == "Lift"
     assert vector_graph.status_code == 200
     assert vector_graph.json()["metadata"]["edge_count"] == 0
-    assert live.status_code == 403
+    assert live.status_code == 503
     assert favicon.status_code == 204
+
+
+def test_live_query_does_not_call_runner_when_not_ready(tmp_path: Path, monkeypatch) -> None:
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from aviation_agentic_ai.web import app as web_app
+
+    _write_web_fixture(tmp_path)
+
+    def fail_runner(*_args, **_kwargs):
+        raise AssertionError("run_query should not be called when live query is unavailable")
+
+    monkeypatch.setattr(web_app, "run_query", fail_runner)
+    client = TestClient(web_app.create_app(project_root=tmp_path))
+    response = client.post("/api/query", json={"question": "What affects lift?", "mode": "hybrid"})
+
+    assert response.status_code == 503
+    assert response.json()["detail"]
+
+
+def test_live_query_calls_runner_with_selected_mode_and_evidence_summary(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from aviation_agentic_ai.web import app as web_app
+
+    _write_web_fixture(tmp_path)
+    calls = {}
+
+    def ready(*_args, **_kwargs):
+        return {
+            "enabled": True,
+            "reason": "Live query is ready.",
+            "provider": "vllm",
+            "model": "local-test-model",
+            "collection_name": "phak_ch4_chunks_structure_aware",
+        }
+
+    def fake_runner(question, mode, *_args, **_kwargs):
+        calls["question"] = question
+        calls["mode"] = mode
+        return {
+            "question": question,
+            "mode": mode,
+            "answer": "Grounded live answer. Citations: chunk-live, triple-live.",
+            "fused_chunks": [
+                {
+                    "chunk_id": "chunk-live",
+                    "page": 2,
+                    "source": "graph+vector",
+                    "text": "Live evidence text.",
+                }
+            ],
+            "graph_triples": [
+                {
+                    "triple_id": "triple-live",
+                    "page": 2,
+                    "subject": "Lift",
+                    "predicate": "affectedBy",
+                    "object": "AngleOfAttack",
+                }
+            ],
+        }
+
+    monkeypatch.setattr(web_app, "build_live_query_readiness", ready)
+    monkeypatch.setattr(web_app, "run_query", fake_runner)
+    client = TestClient(web_app.create_app(project_root=tmp_path, enable_live_query=True))
+    response = client.post("/api/query", json={"question": "  What affects lift?  ", "mode": "graph"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert calls == {"question": "What affects lift?", "mode": "graph"}
+    assert payload["mode"] == "graph"
+    assert payload["answer"].startswith("Grounded live answer")
+    assert payload["evidence_summary"]["chunk_count"] == 1
+    assert payload["evidence_summary"]["triple_count"] == 1
+    assert payload["evidence_summary"]["top_chunk"]["chunk_id"] == "chunk-live"
+    assert payload["evidence_summary"]["top_triple"]["triple_id"] == "triple-live"
 
 
 def test_web_demo_smoke_uses_fastapi_testclient(tmp_path: Path) -> None:
@@ -425,9 +511,29 @@ def test_cli_web_serve_uses_mocked_server(monkeypatch) -> None:
     monkeypatch.setattr(cli, "serve_web_app", fake_server)
     result = CliRunner().invoke(
         main,
+        ["web", "serve", "--port", "8123"],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls["port"] == 8123
+    assert calls["enable_live_query"] is None
+
+    calls.clear()
+    result = CliRunner().invoke(
+        main,
         ["web", "serve", "--port", "8123", "--enable-live-query"],
     )
 
     assert result.exit_code == 0, result.output
     assert calls["port"] == 8123
     assert calls["enable_live_query"] is True
+
+    calls.clear()
+    result = CliRunner().invoke(
+        main,
+        ["web", "serve", "--port", "8123", "--disable-live-query"],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls["port"] == 8123
+    assert calls["enable_live_query"] is False

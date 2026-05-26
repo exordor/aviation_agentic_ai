@@ -86,8 +86,12 @@ def web() -> None:
 @click.option("--host", default="127.0.0.1", show_default=True)
 @click.option("--port", type=int, default=8000, show_default=True)
 @click.option("--reload/--no-reload", default=False, show_default=True)
-@click.option("--enable-live-query", is_flag=True, help="Allow the web demo to call the LLM.")
-def web_serve(host: str, port: int, reload: bool, enable_live_query: bool) -> None:
+@click.option(
+    "--enable-live-query/--disable-live-query",
+    default=None,
+    help="Force-enable or force-disable live LLM querying. Default: auto-detect readiness.",
+)
+def web_serve(host: str, port: int, reload: bool, enable_live_query: bool | None) -> None:
     """Serve the offline-first FastAPI web demo."""
     try:
         serve_web_app(

@@ -12,6 +12,7 @@ const state = {
   sidebarCollapsed: false,
   pipelineExpanded: false,
   modeComparisonExpanded: false,
+  liveSubmitting: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -32,6 +33,64 @@ function formatValue(value) {
   if (typeof value === "number") return Number.isInteger(value) ? String(value) : value.toFixed(4);
   if (typeof value === "boolean") return value ? "yes" : "no";
   return String(value);
+}
+
+function liveQueryReadiness() {
+  const readiness = state.status?.live_query_readiness || {};
+  return {
+    enabled: Boolean(readiness.enabled),
+    reason: readiness.reason || "Live query readiness has not loaded.",
+    provider: readiness.provider || "unknown",
+    model: readiness.model || "unknown",
+    collectionName: readiness.collection_name || state.status?.live_query_default?.collection_name,
+  };
+}
+
+function setLiveOutput(html, kind = "info") {
+  const output = $("#live-output");
+  output.className = `live-output ${kind}`;
+  output.innerHTML = html;
+}
+
+function renderLiveQueryMessage(message, kind = "info") {
+  setLiveOutput(`<p>${escapeHtml(message)}</p>`, kind);
+}
+
+function renderLiveQueryResult(result) {
+  const summary = result.evidence_summary || {};
+  const topChunk = summary.top_chunk;
+  const topTriple = summary.top_triple;
+  const rows = [
+    ["Mode", result.mode || state.mode],
+    ["Chunks", summary.chunk_count],
+    ["KG triples", summary.triple_count],
+    [
+      "Top chunk",
+      topChunk
+        ? `${topChunk.chunk_id} page ${formatValue(topChunk.page)} · ${formatValue(topChunk.source)}`
+        : "None",
+    ],
+    [
+      "Top triple",
+      topTriple
+        ? `${formatValue(topTriple.subject)} -> ${formatValue(topTriple.predicate)} -> ${formatValue(topTriple.object)} page ${formatValue(topTriple.page)}`
+        : "None",
+    ],
+  ];
+  setLiveOutput(
+    `
+      <div class="live-answer">${renderAnswerMarkdown(result.answer || "No answer returned.")}</div>
+      <dl class="live-summary">
+        ${rows
+          .map(
+            ([key, value]) =>
+              `<dt>${escapeHtml(key)}</dt><dd>${escapeHtml(formatValue(value))}</dd>`
+          )
+          .join("")}
+      </dl>
+    `,
+    "success"
+  );
 }
 
 function readSidebarPreference() {
@@ -210,21 +269,41 @@ async function fetchJson(path, options) {
 
 function renderStatus() {
   const status = state.status || {};
+  const readiness = liveQueryReadiness();
   $("#advisory-boundary").textContent = status.advisory_boundary || "Not loaded";
-  $("#live-status").textContent = status.live_query_enabled ? "Live enabled" : "Live disabled";
-  $("#live-status").className = status.live_query_enabled
+  $("#live-status").textContent = readiness.enabled ? "Live enabled" : "Live unavailable";
+  $("#live-status").className = readiness.enabled
     ? "status-pill supported"
     : "status-pill partial";
   const ready = status.ready ? "ready" : "missing";
   const rows = [
     ["Default", status.default_strategy],
     ["Artifacts", ready],
-    ["Live query", status.live_query_enabled ? "enabled" : "disabled"],
-    ["Collection", status.live_query_default?.collection_name],
+    ["Live query", readiness.enabled ? "enabled" : "unavailable"],
+    ["LLM", `${readiness.provider} / ${readiness.model}`],
+    ["Collection", readiness.collectionName],
   ];
   $("#status-grid").innerHTML = rows
     .map(([key, value]) => `<dt>${escapeHtml(key)}</dt><dd>${escapeHtml(formatValue(value))}</dd>`)
     .join("");
+  updateLiveQueryControls();
+}
+
+function updateLiveQueryControls() {
+  const readiness = liveQueryReadiness();
+  const badge = $("#live-query-badge");
+  const input = $("#live-question");
+  const button = $("#live-form button");
+  const mode = modeLabel();
+  badge.textContent = readiness.enabled ? "LLM ready" : "Unavailable";
+  badge.className = readiness.enabled ? "status-pill supported" : "status-pill partial";
+  button.textContent = state.liveSubmitting ? "Running..." : `Run ${mode} Query`;
+  input.disabled = !readiness.enabled || state.liveSubmitting;
+  button.disabled = !readiness.enabled || state.liveSubmitting;
+  $("#live-form").classList.toggle("disabled", !readiness.enabled);
+  if (!readiness.enabled && !$("#live-output").innerHTML.trim()) {
+    renderLiveQueryMessage(`Live query unavailable: ${readiness.reason}`, "warning");
+  }
 }
 
 function renderQuestions() {
@@ -251,7 +330,8 @@ function selectedModePayload() {
 }
 
 function modeLabel(mode = state.mode) {
-  return state.explanation?.mode_explanations?.[mode]?.label || mode;
+  const fallback = { vector: "Vector", graph: "Graph", hybrid: "Hybrid" };
+  return state.explanation?.mode_explanations?.[mode]?.label || fallback[mode] || mode;
 }
 
 function truncate(value, length = 28) {
@@ -761,6 +841,7 @@ function bindControls() {
       state.mode = button.dataset.mode;
       state.selectedEdgeId = null;
       $$(".tab").forEach((item) => item.classList.toggle("active", item === button));
+      updateLiveQueryControls();
       renderDetail();
       loadKgGraph().catch((error) => {
         $("#kg-graph-detail").innerHTML = graphDetailRows({ evidence_text: error.message });
@@ -769,18 +850,28 @@ function bindControls() {
   });
   $("#live-form").addEventListener("submit", async (event) => {
     event.preventDefault();
+    const readiness = liveQueryReadiness();
+    if (!readiness.enabled) {
+      renderLiveQueryMessage(`Live query unavailable: ${readiness.reason}`, "warning");
+      return;
+    }
     const question = $("#live-question").value.trim();
     if (!question) return;
-    $("#live-output").textContent = "Running...";
+    state.liveSubmitting = true;
+    updateLiveQueryControls();
+    renderLiveQueryMessage(`Running ${modeLabel()} query...`);
     try {
       const result = await fetchJson("/api/query", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question, mode: "hybrid" }),
+        body: JSON.stringify({ question, mode: state.mode }),
       });
-      $("#live-output").textContent = result.answer || JSON.stringify(result, null, 2);
+      renderLiveQueryResult(result);
     } catch (error) {
-      $("#live-output").textContent = error.message;
+      renderLiveQueryMessage(error.message, "error");
+    } finally {
+      state.liveSubmitting = false;
+      updateLiveQueryControls();
     }
   });
 }

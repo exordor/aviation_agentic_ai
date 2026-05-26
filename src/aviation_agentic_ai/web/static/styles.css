@@ -849,7 +849,21 @@ form button {
   font-weight: 700;
 }
 
-pre {
+.live-form.disabled,
+form.disabled {
+  opacity: 0.72;
+}
+
+input:disabled,
+form button:disabled {
+  cursor: not-allowed;
+}
+
+form button:disabled {
+  background: rgba(60, 60, 67, 0.28);
+}
+
+.live-output {
   min-height: 44px;
   max-height: 220px;
   overflow: auto;
@@ -861,11 +875,43 @@ pre {
   padding: 11px;
   font-size: 12px;
   line-height: 1.45;
-  white-space: pre-wrap;
 }
 
 #live-output:empty {
   display: none;
+}
+
+.live-output p {
+  margin: 0;
+}
+
+.live-output.warning {
+  background: rgba(255, 149, 0, 0.12);
+  color: rgba(120, 64, 0, 0.92);
+}
+
+.live-output.error {
+  background: rgba(255, 59, 48, 0.10);
+  color: rgba(142, 22, 15, 0.92);
+}
+
+.live-answer {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.live-summary {
+  display: grid;
+  grid-template-columns: minmax(82px, auto) minmax(0, 1fr);
+  gap: 6px 10px;
+  margin: 0;
+}
+
+.live-summary dd {
+  max-width: none;
+  text-align: left;
+  white-space: normal;
 }
 
 @media (max-width: 1080px) {

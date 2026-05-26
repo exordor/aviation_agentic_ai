@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=top-live-query" />
+    <link rel="stylesheet" href="/static/styles.css?v=live-query-implementation" />
   </head>
   <body>
     <main class="app-shell">
@@ -65,7 +65,7 @@
         <section class="panel live-panel">
           <div class="section-heading">
             <h3>Optional Live Query</h3>
-            <span class="status-pill muted">Opt-in</span>
+            <span id="live-query-badge" class="status-pill muted">Checking</span>
           </div>
           <form id="live-form">
             <input
@@ -76,7 +76,7 @@
             />
             <button type="submit">Run Hybrid Query</button>
           </form>
-          <pre id="live-output"></pre>
+          <div id="live-output" class="live-output" aria-live="polite"></div>
         </section>
 
         <section class="panel demo-narrative" aria-labelledby="demo-narrative-title">
@@ -210,6 +210,6 @@
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=top-live-query"></script>
+    <script src="/static/app.js?v=live-query-implementation"></script>
   </body>
 </html>
