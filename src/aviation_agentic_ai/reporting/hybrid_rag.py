@@ -25,6 +25,10 @@ from aviation_agentic_ai.evaluation.protocol import (
     embedding_metadata,
 )
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.evidence_cards import (
+    build_evidence_cards,
+    evidence_cards_markdown_lines,
+)
 from aviation_agentic_ai.retrieval.hybrid import run_query
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
 
@@ -193,7 +197,7 @@ def build_hybrid_rag_experiment(
         command=command,
         embedding=embedding_metadata(index_dir, collection_name),
     )
-    return {
+    result = {
         "metadata": {
             "run_manifest": run_manifest,
             "advisory_boundary": ADVISORY_BOUNDARY,
@@ -217,6 +221,8 @@ def build_hybrid_rag_experiment(
         "aggregate": aggregate,
         "records": records,
     }
+    result["evidence_cards"] = build_evidence_cards(result, top_k=vector_top_k)
+    return result
 
 
 def write_hybrid_rag_experiment_json(result: dict[str, Any], output_path: str | Path) -> Path:
@@ -322,6 +328,9 @@ def write_hybrid_rag_experiment_markdown(result: dict[str, Any], output_path: st
                 "",
             ]
         )
+    evidence_cards = result.get("evidence_cards")
+    if isinstance(evidence_cards, dict):
+        lines.extend(evidence_cards_markdown_lines(evidence_cards))
     path.write_text("\n".join(lines), encoding="utf-8")
     return path
 

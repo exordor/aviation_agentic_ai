@@ -1,6 +1,6 @@
 # Project Goals
 
-Last updated: 2026-05-19
+Last updated: 2026-05-26
 
 This file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.
 
@@ -79,8 +79,9 @@ Success criteria:
 - KG evidence metrics include relevant triple counts, entity coverage, provenance completeness, and invalid/unsupported triple counts.
 - LLM answer metrics include citation completeness, citation validity, and insufficient-evidence abstention behavior.
 - Gold labels support page-level ground truth now and can later be refined to chunk/span-level evidence.
+- Per-question evidence cards explain gold evidence, vector retrieval, graph retrieval, hybrid fusion behavior, citation status, and failure category for each evaluated CQ.
 
-Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, reviewed chunk/span gold labels, expanded 35-question course-project gold, evidence-level evaluation, retrieval ablation, KG extraction comparison, answer evaluation, robustness evaluation, and final evaluation review. The gold labels are course-project gold and not external aviation examiner certification.
+Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, reviewed chunk/span gold labels, expanded 35-question course-project gold, evidence-level evaluation, retrieval ablation, KG extraction comparison, answer evaluation, robustness evaluation, final evaluation review, and per-question evidence cards. The gold labels are course-project gold and not external aviation examiner certification.
 
 ## G5 - Report Hygiene And Final Project Report
 
@@ -146,7 +147,8 @@ Current status: ontology design documentation, KG validation evidence, chunking
 comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, GraphRAG
 review, evidence-level evaluation, web demo readiness, academic report,
 final evaluation review, web demo readiness/smoke evidence, academic report,
-defense notes, and AI-enhanced defense PPT are available. The current defense framing is:
+defense notes, AI-enhanced defense PPT, and per-question evidence cards are
+available. The current defense framing is:
 structure-aware improves evidence support while costing more KG extraction work;
 GraphRAG should be defended as structured evidence coverage rather than a simple
 page-level Recall winner; and the web demo is offline-first by default for
@@ -190,9 +192,9 @@ Current status: in progress. The 10-CQ experiment remains the baseline, and a fi
 | G1 | `GOALS.md`, `README.md`, `reports/final/project_report.md`, optional local note `tmp/goal.md` | `TASKS.md` P2 |
 | G2 | `data/ontology/`, `configs/extraction_profile.yaml`, KG reports | `TASKS.md` P0/P1 |
 | G3 | chunk/index/query CLI outputs, Hybrid RAG report | `TASKS.md` P0 |
-| G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports, `reports/stages/final_evaluation_review.md` | `TASKS.md` P0/P1 |
+| G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports, `reports/stages/final_evaluation_review.md`, `reports/stages/evidence_cards.md` | `TASKS.md` P0/P1 |
 | G5 | `reports/stages/index.md`, `reports/final/project_report.md`, `reports/final/project_academic_report.md`, defense PPT | `TASKS.md` P2 |
 | G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
 | G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TASKS.md` P2 |
-| G8 | final report, academic report, comparison reports, defense notes, defense PPT | `TASKS.md` P1/P2 |
+| G8 | final report, academic report, comparison reports, evidence cards, defense notes, defense PPT | `TASKS.md` P1/P2 |
 | G9 | expanded gold labels, ablation reports, robustness reports, cost/latency reports | `TASKS.md` P3 |

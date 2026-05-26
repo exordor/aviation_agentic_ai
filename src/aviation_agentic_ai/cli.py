@@ -34,6 +34,7 @@ from aviation_agentic_ai.reporting.academic_outputs import (
 )
 from aviation_agentic_ai.reporting.answer_eval import write_answer_evaluation
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
+from aviation_agentic_ai.reporting.evidence_cards import write_evidence_cards
 from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
 from aviation_agentic_ai.reporting.final_evaluation import write_final_evaluation_review
 from aviation_agentic_ai.reporting.graphrag_review import write_graphrag_review
@@ -1055,6 +1056,38 @@ def report_evidence_eval(
     click.echo(f"Wrote {project_relative_path(json_path)}")
     click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"Evaluated evidence-level metrics for {result['metadata']['labels_total']} CQs.")
+
+
+@report.command("evidence-cards")
+@click.option("--hybrid-report", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="evidence_cards", show_default=True)
+@click.option("--top-k", type=int, default=5, show_default=True)
+def report_evidence_cards(
+    hybrid_report: Path | None,
+    output_dir: Path | None,
+    report_name: str,
+    top_k: int,
+) -> None:
+    """Write per-question evidence cards from an existing Hybrid RAG report."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    stage_dir = resolve_project_path(config["paths"]["stage_report_dir"])
+    structure_report = stage_dir / "hybrid_rag_structure_aware.json"
+    default_report = (
+        structure_report
+        if structure_report.exists()
+        else stage_dir / "hybrid_rag_experiment.json"
+    )
+    json_path, md_path, result = write_evidence_cards(
+        report_dir,
+        hybrid_report_path=hybrid_report or default_report,
+        report_name=report_name,
+        top_k=top_k,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Wrote {result['metadata']['cards_total']} per-question evidence cards.")
 
 
 @report.command("retrieval-ablation")

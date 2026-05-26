@@ -75,6 +75,12 @@ def test_hybrid_rag_report_calculates_metrics(tmp_path: Path) -> None:
     }
     assert "learning and decision-support" in result["metadata"]["advisory_boundary"]
     assert result["records"][0]["gold"]["gold_level"] == "page"
+    assert result["evidence_cards"]["cards"][0]["cq_id"] == result["records"][0]["cq_id"]
+    assert result["evidence_cards"]["cards"][0]["failure_category"] == "success"
+    markdown = md_path.read_text(encoding="utf-8")
+    assert "## Per-Question Evidence Cards" in markdown
+    assert "Vector top-5 chunks" in markdown
+    assert "Final answer citation status: True" in markdown
 
 
 def test_hybrid_rag_report_supports_custom_report_name(tmp_path: Path) -> None:

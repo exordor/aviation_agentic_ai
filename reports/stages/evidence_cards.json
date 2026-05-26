@@ -1,0 +1,2946 @@
+{
+  "cards": [
+    {
+      "cq_id": "06-phak-ch4-0-p00-fa9830b888",
+      "failure_category": "success",
+      "failure_reasons": [],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 0,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "atmosphere",
+          "air",
+          "nitrogen",
+          "oxygen",
+          "trace gases"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "air",
+            "atmosphere",
+            "oxygen"
+          ]
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "evidence_excerpt": "an envelope of air",
+            "object": "Cl_Air",
+            "page": 0,
+            "predicate": "hasComponent",
+            "rank": 1,
+            "subject": "Cl_Atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg00-8748d82ca7"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "evidence_excerpt": "it is a mixture of gases",
+            "object": "Cl_Fluid",
+            "page": 0,
+            "predicate": "hasComponent",
+            "rank": 2,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c24",
+            "evidence_excerpt": "it affects the position of the air loads imposed on the wing structure",
+            "object": "the position of the air loads imposed on the wing structure",
+            "page": 7,
+            "predicate": "affects",
+            "rank": 3,
+            "subject": "travel",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c24-kg00-236d0ada22"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "evidence_excerpt": "below 35,000 feet altitude",
+            "object": "Cl_Altitude",
+            "page": 0,
+            "predicate": "hasQuantity",
+            "rank": 4,
+            "subject": "Cl_Atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg02-bf8ee5a3ea"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c05",
+            "evidence_excerpt": "below 35,000 feet altitude",
+            "object": "below 35,000 feet altitude",
+            "page": 0,
+            "predicate": "hasQuantity",
+            "rank": 5,
+            "subject": "atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c05-kg00-9d032c2a9a"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c06",
+            "evidence_excerpt": "region of higher altitude",
+            "object": "the atmosphere",
+            "page": 0,
+            "predicate": "partOf",
+            "rank": 6,
+            "subject": "higher altitude",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c06-kg00-f932292260"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c06",
+            "evidence_excerpt": "the atmosphere\u2019s oxygen",
+            "object": "the atmosphere",
+            "page": 0,
+            "predicate": "partOf",
+            "rank": 7,
+            "subject": "oxygen",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c06-kg02-cb7d201076"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c07",
+            "evidence_excerpt": "Most of the atmosphere\u2019s oxygen",
+            "object": "atmosphere",
+            "page": 0,
+            "predicate": "partOf",
+            "rank": 8,
+            "subject": "oxygen",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c07-kg00-bcf45f34cc"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "evidence_excerpt": "an envelope of air",
+            "object": "Cl_Air",
+            "page": 0,
+            "predicate": "hasComponent",
+            "rank": 1,
+            "subject": "Cl_Atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg00-8748d82ca7"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "evidence_excerpt": "it is a mixture of gases",
+            "object": "Cl_Fluid",
+            "page": 0,
+            "predicate": "hasComponent",
+            "rank": 2,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c24",
+            "evidence_excerpt": "it affects the position of the air loads imposed on the wing structure",
+            "object": "the position of the air loads imposed on the wing structure",
+            "page": 7,
+            "predicate": "affects",
+            "rank": 3,
+            "subject": "travel",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c24-kg00-236d0ada22"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "evidence_excerpt": "below 35,000 feet altitude",
+            "object": "Cl_Altitude",
+            "page": 0,
+            "predicate": "hasQuantity",
+            "rank": 4,
+            "subject": "Cl_Atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg02-bf8ee5a3ea"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c05",
+            "evidence_excerpt": "below 35,000 feet altitude",
+            "object": "below 35,000 feet altitude",
+            "page": 0,
+            "predicate": "hasQuantity",
+            "rank": 5,
+            "subject": "atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c05-kg00-9d032c2a9a"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c06",
+            "evidence_excerpt": "region of higher altitude",
+            "object": "the atmosphere",
+            "page": 0,
+            "predicate": "partOf",
+            "rank": 6,
+            "subject": "higher altitude",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c06-kg00-f932292260"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c06",
+            "evidence_excerpt": "the atmosphere\u2019s oxygen",
+            "object": "the atmosphere",
+            "page": 0,
+            "predicate": "partOf",
+            "rank": 7,
+            "subject": "oxygen",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c06-kg02-cb7d201076"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c07",
+            "evidence_excerpt": "Most of the atmosphere\u2019s oxygen",
+            "object": "atmosphere",
+            "page": 0,
+            "predicate": "partOf",
+            "rank": 8,
+            "subject": "oxygen",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c07-kg00-bcf45f34cc"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p00-c04",
+            "06_phak_ch4_0-structure_aware-p00-c06",
+            "06_phak_ch4_0-structure_aware-p00-c07",
+            "06_phak_ch4_0-structure_aware-p00-c04-kg00-8748d82ca7",
+            "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b",
+            "06_phak_ch4_0-structure_aware-p00-c06-kg02-cb7d201076",
+            "06_phak_ch4_0-structure_aware-p00-c07-kg00-bcf45f34cc"
+          ],
+          "valid_page_citation": false,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 1,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "excerpt": "must understand the principles involved and learn to use or counteract these natural forces. Structure of the Atmosphere The atmosphere is an envelope of air that surrounds the...",
+            "page": 0,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+            "excerpt": "must understand the principles involved and learn to use or counteract these natural forces. Structure of the Atmosphere",
+            "page": 0,
+            "rank": 2,
+            "score": 0.016129032258064516,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c24",
+            "excerpt": "travel is very important, since it affects the position of the air loads imposed on the wing structure in both low and high AOA conditions. An airplane\u2019s aerodynamic balance and...",
+            "page": 7,
+            "rank": 3,
+            "score": 0.016129032258064516,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c05",
+            "excerpt": "region of higher altitude. Most of the atmosphere\u2019s oxygen is contained below 35,000 feet altitude. Principles of",
+            "page": 0,
+            "rank": 4,
+            "score": 0.015873015873015872,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c00",
+            "excerpt": "4-4 Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere. In order t...",
+            "page": 3,
+            "rank": 5,
+            "score": 0.015873015873015872,
+            "source": "vector"
+          }
+        ],
+        "graph_effect": "neutral",
+        "hit": true
+      },
+      "question": "How should atmosphere, air, and constituent gases be modeled as a composition structure?",
+      "vector_retrieval": {
+        "first_relevant_rank": 1,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "excerpt": "must understand the principles involved and learn to use or counteract these natural forces. Structure of the Atmosphere The atmosphere is an envelope of air that surrounds the...",
+            "page": 0,
+            "rank": 1,
+            "score": 0.5260247694058376,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+            "excerpt": "must understand the principles involved and learn to use or counteract these natural forces. Structure of the Atmosphere",
+            "page": 0,
+            "rank": 2,
+            "score": 0.5141453423619325,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c00",
+            "excerpt": "4-4 Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere. In order t...",
+            "page": 3,
+            "rank": 3,
+            "score": 0.45507067026053133,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+            "excerpt": "density. Understanding the fluid properties of air is essential to understanding the principles of flight. Viscosity",
+            "page": 1,
+            "rank": 4,
+            "score": 0.45141840471860556,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c110",
+            "excerpt": "established this as a worldwide standard, and it is often referred to as International Standard Atmosphere (ISA) or ICAO Standard Atmosphere. Any temperature or pressure",
+            "page": 2,
+            "rank": 5,
+            "score": 0.44697486870398834,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p01-dbcda7dbf4",
+      "failure_category": "hybrid fusion dilution",
+      "failure_reasons": [
+        "hybrid fusion degraded vector retrieval"
+      ],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 1,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "air",
+          "fluid",
+          "viscosity",
+          "friction",
+          "boundary layer",
+          "wing"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "air",
+            "boundary layer",
+            "fluid",
+            "friction",
+            "viscosity",
+            "wing"
+          ]
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+            "evidence_excerpt": "Once the boundary layer of the air adheres to the wing by friction",
+            "object": "boundary layer adheres to the wing by friction",
+            "page": 2,
+            "predicate": "hasCondition",
+            "rank": 1,
+            "subject": "drag",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c101-kg03-856c4e4d9d"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c06",
+            "evidence_excerpt": "air is a fluid and has viscosity properties",
+            "object": "viscosity properties",
+            "page": 1,
+            "predicate": "hasComponent",
+            "rank": 2,
+            "subject": "air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c06-kg00-d540390ba0"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c08",
+            "evidence_excerpt": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer",
+            "object": "layer of molecules that adhere to the wing surface",
+            "page": 1,
+            "predicate": "hasComponent",
+            "rank": 3,
+            "subject": "boundary layer",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c08-kg03-b158087c7c"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+            "evidence_excerpt": "the boundary layer of the air",
+            "object": "air",
+            "page": 2,
+            "predicate": "partOf",
+            "rank": 4,
+            "subject": "boundary layer",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c101-kg00-88fb08cc69"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "evidence_excerpt": "it is a mixture of gases",
+            "object": "Cl_Fluid",
+            "page": 0,
+            "predicate": "hasComponent",
+            "rank": 5,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c01",
+            "evidence_excerpt": "Air is a Fluid",
+            "object": "Fluid",
+            "page": 1,
+            "predicate": "partOf",
+            "rank": 6,
+            "subject": "Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c01-kg00-9af2938ab8"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+            "evidence_excerpt": "Air is a Fluid",
+            "object": "Cl_Fluid",
+            "page": 1,
+            "predicate": "partOf",
+            "rank": 7,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg00-178e9ee3e0"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+            "evidence_excerpt": "gasses, like air, are also fluids",
+            "object": "Cl_Fluid",
+            "page": 1,
+            "predicate": "supportedByEvidence",
+            "rank": 8,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg01-a5b105db61"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+            "evidence_excerpt": "Once the boundary layer of the air adheres to the wing by friction",
+            "object": "boundary layer adheres to the wing by friction",
+            "page": 2,
+            "predicate": "hasCondition",
+            "rank": 1,
+            "subject": "drag",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c101-kg03-856c4e4d9d"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c06",
+            "evidence_excerpt": "air is a fluid and has viscosity properties",
+            "object": "viscosity properties",
+            "page": 1,
+            "predicate": "hasComponent",
+            "rank": 2,
+            "subject": "air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c06-kg00-d540390ba0"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c08",
+            "evidence_excerpt": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer",
+            "object": "layer of molecules that adhere to the wing surface",
+            "page": 1,
+            "predicate": "hasComponent",
+            "rank": 3,
+            "subject": "boundary layer",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c08-kg03-b158087c7c"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+            "evidence_excerpt": "the boundary layer of the air",
+            "object": "air",
+            "page": 2,
+            "predicate": "partOf",
+            "rank": 4,
+            "subject": "boundary layer",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c101-kg00-88fb08cc69"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+            "evidence_excerpt": "it is a mixture of gases",
+            "object": "Cl_Fluid",
+            "page": 0,
+            "predicate": "hasComponent",
+            "rank": 5,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c01",
+            "evidence_excerpt": "Air is a Fluid",
+            "object": "Fluid",
+            "page": 1,
+            "predicate": "partOf",
+            "rank": 6,
+            "subject": "Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c01-kg00-9af2938ab8"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+            "evidence_excerpt": "Air is a Fluid",
+            "object": "Cl_Fluid",
+            "page": 1,
+            "predicate": "partOf",
+            "rank": 7,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg00-178e9ee3e0"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+            "evidence_excerpt": "gasses, like air, are also fluids",
+            "object": "Cl_Fluid",
+            "page": 1,
+            "predicate": "supportedByEvidence",
+            "rank": 8,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg01-a5b105db61"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p02-c101",
+            "06_phak_ch4_0-structure_aware-p01-c02",
+            "06_phak_ch4_0-structure_aware-p01-c06",
+            "06_phak_ch4_0-structure_aware-p01-c08",
+            "06_phak_ch4_0-structure_aware-p02-c101-kg03-856c4e4d9d",
+            "06_phak_ch4_0-structure_aware-p01-c06-kg00-d540390ba0",
+            "06_phak_ch4_0-structure_aware-p01-c08-kg03-b158087c7c",
+            "06_phak_ch4_0-structure_aware-p02-c101-kg00-88fb08cc69",
+            "06_phak_ch4_0-structure_aware-p01-c02-kg00-178e9ee3e0",
+            "06_phak_ch4_0-structure_aware-p01-c02-kg01-a5b105db61"
+          ],
+          "valid_page_citation": false,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 2,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+            "excerpt": "13.0 11.0 9.1 7.1 5.1 3.1 1.1 -0.9 -2.8 -4.8 -6.8 -8.8 -10.8 -12.7 -14.7 -16.7 -18.7 -20.7 -22.6 -24.6 59.0 55.4 51.9 48.3 44.7 41.2 37.6 34.0 30.5 26.9 23.3 19.8 16.2 12.6 9.1...",
+            "page": 2,
+            "rank": 1,
+            "score": 0.03177805800756621,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+            "excerpt": "4-2 Leading edge of wing under 1,500x magnification Figure 4-1. Microscopic surface of a wing. Air is a Fluid When most people hear the word \u201cfluid,\u201d they usually think of liqui...",
+            "page": 1,
+            "rank": 2,
+            "score": 0.031544957774465976,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c06",
+            "excerpt": "the viscosity of air. However, since air is a fluid and has viscosity properties, it resists flow around any object to some extent. Friction",
+            "page": 1,
+            "rank": 3,
+            "score": 0.016129032258064516,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c102",
+            "excerpt": "viscosity, the tendency of the air to stick to itself. When these two forces act together to resist airflow over a wing, it is called drag. Pressure",
+            "page": 2,
+            "rank": 4,
+            "score": 0.016129032258064516,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+            "excerpt": "density. Understanding the fluid properties of air is essential to understanding the principles of flight. Viscosity",
+            "page": 1,
+            "rank": 5,
+            "score": 0.015873015873015872,
+            "source": "vector"
+          }
+        ],
+        "graph_effect": "hurt",
+        "hit": true
+      },
+      "question": "What classes and relations represent air as a fluid with viscosity, friction, and a boundary layer on a wing?",
+      "vector_retrieval": {
+        "first_relevant_rank": 1,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+            "excerpt": "4-2 Leading edge of wing under 1,500x magnification Figure 4-1. Microscopic surface of a wing. Air is a Fluid When most people hear the word \u201cfluid,\u201d they usually think of liqui...",
+            "page": 1,
+            "rank": 1,
+            "score": 0.6511764457021627,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c102",
+            "excerpt": "viscosity, the tendency of the air to stick to itself. When these two forces act together to resist airflow over a wing, it is called drag. Pressure",
+            "page": 2,
+            "rank": 2,
+            "score": 0.6332483766543198,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+            "excerpt": "density. Understanding the fluid properties of air is essential to understanding the principles of flight. Viscosity",
+            "page": 1,
+            "rank": 3,
+            "score": 0.5968868431033917,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c103",
+            "excerpt": "viscosity, the tendency of the air to stick to itself. When these two forces act together to resist airflow over a wing, it is called drag. Pressure Pressure is the force applie...",
+            "page": 2,
+            "rank": 4,
+            "score": 0.5769695775840593,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+            "excerpt": "13.0 11.0 9.1 7.1 5.1 3.1 1.1 -0.9 -2.8 -4.8 -6.8 -8.8 -10.8 -12.7 -14.7 -16.7 -18.7 -20.7 -22.6 -24.6 59.0 55.4 51.9 48.3 44.7 41.2 37.6 34.0 30.5 26.9 23.3 19.8 16.2 12.6 9.1...",
+            "page": 2,
+            "rank": 5,
+            "score": 0.5651856648230404,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p02-dafae1ecbc",
+      "failure_category": "success",
+      "failure_reasons": [],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 2,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "standard atmosphere",
+          "atmospheric pressure",
+          "temperature",
+          "density"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "atmospheric pressure",
+            "standard atmosphere",
+            "temperature"
+          ]
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c35",
+            "evidence_excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000",
+            "object": "0 1,000 2,000",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 1,
+            "subject": "Atmospheric Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c35-kg00-6ec46911f1"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c49",
+            "evidence_excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "object": "0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 2,
+            "subject": "Altitude",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c49-kg00-d628f04ae4"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c49",
+            "evidence_excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "object": "(Hg)",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 3,
+            "subject": "Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c49-kg01-af3d2c1ffc"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c49",
+            "evidence_excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "object": "(\u00b0C) (\u00b0F)",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 4,
+            "subject": "Temperature",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c49-kg02-acb42ecf0e"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+            "evidence_excerpt": "Under standard conditions at sea level",
+            "object": "standard conditions at sea level",
+            "page": 2,
+            "predicate": "hasCondition",
+            "rank": 5,
+            "subject": "pressure exerted by the weight of the atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+            "evidence_excerpt": "Standard Atmosphere",
+            "object": "Standard Atmosphere",
+            "page": 2,
+            "predicate": "appliesTo",
+            "rank": 6,
+            "subject": "Standard sea level pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c34",
+            "evidence_excerpt": "Standard Atmosphere",
+            "object": "Standard Atmosphere",
+            "page": 2,
+            "predicate": "hasCondition",
+            "rank": 7,
+            "subject": "Standard sea level pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c36",
+            "evidence_excerpt": "Standard sea level pressure",
+            "object": "sea level pressure",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 8,
+            "subject": "Standard atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c35",
+            "evidence_excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000",
+            "object": "0 1,000 2,000",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 1,
+            "subject": "Atmospheric Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c35-kg00-6ec46911f1"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c49",
+            "evidence_excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "object": "0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 2,
+            "subject": "Altitude",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c49-kg00-d628f04ae4"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c49",
+            "evidence_excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "object": "(Hg)",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 3,
+            "subject": "Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c49-kg01-af3d2c1ffc"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c49",
+            "evidence_excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "object": "(\u00b0C) (\u00b0F)",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 4,
+            "subject": "Temperature",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c49-kg02-acb42ecf0e"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+            "evidence_excerpt": "Under standard conditions at sea level",
+            "object": "standard conditions at sea level",
+            "page": 2,
+            "predicate": "hasCondition",
+            "rank": 5,
+            "subject": "pressure exerted by the weight of the atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+            "evidence_excerpt": "Standard Atmosphere",
+            "object": "Standard Atmosphere",
+            "page": 2,
+            "predicate": "appliesTo",
+            "rank": 6,
+            "subject": "Standard sea level pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c34",
+            "evidence_excerpt": "Standard Atmosphere",
+            "object": "Standard Atmosphere",
+            "page": 2,
+            "predicate": "hasCondition",
+            "rank": 7,
+            "subject": "Standard sea level pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c36",
+            "evidence_excerpt": "Standard sea level pressure",
+            "object": "sea level pressure",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 8,
+            "subject": "Standard atmosphere",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p02-c49",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c32",
+            "06_phak_ch4_0-structure_aware-p02-c47",
+            "06_phak_ch4_0-structure_aware-p02-c49-kg01-af3d2c1ffc",
+            "06_phak_ch4_0-structure_aware-p02-c49-kg02-acb42ecf0e",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c",
+            "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff",
+            "page 2"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 1,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c35",
+            "excerpt": "mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000",
+            "page": 2,
+            "rank": 1,
+            "score": 0.01639344262295082,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c01",
+            "excerpt": "calibrated for the standard atmosphere. In order to properly account for the nonstandard atmosphere, certain related terms must be defined. Pressure Altitude",
+            "page": 3,
+            "rank": 2,
+            "score": 0.01639344262295082,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c49",
+            "excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000",
+            "page": 2,
+            "rank": 3,
+            "score": 0.016129032258064516,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c50",
+            "excerpt": "Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000 17,000",
+            "page": 2,
+            "rank": 4,
+            "score": 0.016129032258064516,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+            "excerpt": "Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2",
+            "page": 2,
+            "rank": 5,
+            "score": 0.015873015873015872,
+            "source": "graph"
+          }
+        ],
+        "graph_effect": "helped",
+        "hit": true
+      },
+      "question": "How should standard atmosphere values for pressure, temperature, and density be modeled?",
+      "vector_retrieval": {
+        "first_relevant_rank": 2,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c01",
+            "excerpt": "calibrated for the standard atmosphere. In order to properly account for the nonstandard atmosphere, certain related terms must be defined. Pressure Altitude",
+            "page": 3,
+            "rank": 1,
+            "score": 0.6226628546547616,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c50",
+            "excerpt": "Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000 17,000",
+            "page": 2,
+            "rank": 2,
+            "score": 0.5908152772573734,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c51",
+            "excerpt": "Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000 16,000 17,000 18,000",
+            "page": 2,
+            "rank": 3,
+            "score": 0.587512167161851,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c47",
+            "excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000",
+            "page": 2,
+            "rank": 4,
+            "score": 0.5791866000793044,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c48",
+            "excerpt": "Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere 0 1,000 2,000 3,000 4,000 5,000 6,000 7,000 8,000 9,000 10,000 11,000 12,000 13,000 14,000 15,000",
+            "page": 2,
+            "rank": 5,
+            "score": 0.5788146159003644,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p03-f463ba25ee",
+      "failure_category": "success",
+      "failure_reasons": [],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 3,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "pressure altitude",
+          "density altitude",
+          "humidity",
+          "air density",
+          "aircraft performance"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "air density",
+            "aircraft performance",
+            "density altitude",
+            "humidity"
+          ]
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c04",
+            "evidence_excerpt": "air density decreases (higher density altitude), aircraft performance decreases",
+            "object": "Cl_Outcome",
+            "page": 3,
+            "predicate": "causes",
+            "rank": 1,
+            "subject": "Cl_Density",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c04-kg03-b3bc48b215"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "evidence_excerpt": "Humidity alone is usually not considered an important factor in calculating density altitude and aircraft performance, but it is a contributing factor.",
+            "object": "Cl_Density",
+            "page": 4,
+            "predicate": "affects",
+            "rank": 2,
+            "subject": "Cl_Humidity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c03-kg00-3d55cb1ee1"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "evidence_excerpt": "Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density.",
+            "object": "Cl_AircraftPerformance",
+            "page": 4,
+            "predicate": "affects",
+            "rank": 3,
+            "subject": "Cl_Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c03-kg02-5bc39328d7"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "evidence_excerpt": "Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density.",
+            "object": "Cl_AircraftPerformance",
+            "page": 4,
+            "predicate": "affects",
+            "rank": 4,
+            "subject": "Cl_Temperature",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c03-kg03-ff8b142e2f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "evidence_excerpt": "Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density.",
+            "object": "Cl_AircraftPerformance",
+            "page": 4,
+            "predicate": "affects",
+            "rank": 5,
+            "subject": "Cl_Humidity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c03-kg04-3722b6cd1a"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c04",
+            "evidence_excerpt": "The density of air has significant effects on the aircraft\u2019s performance",
+            "object": "Cl_AircraftPerformance",
+            "page": 3,
+            "predicate": "affects",
+            "rank": 6,
+            "subject": "Cl_Density",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c04-kg00-851d22d42a"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c04",
+            "evidence_excerpt": "The density of air has significant effects on the aircraft\u2019s performance",
+            "object": "Cl_AircraftPerformance",
+            "page": 3,
+            "predicate": "affects",
+            "rank": 7,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c04-kg01-a06cfb76c4"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c05",
+            "evidence_excerpt": "Density altitude is used in calculating aircraft performance",
+            "object": "Cl_AircraftPerformance",
+            "page": 3,
+            "predicate": "appliesTo",
+            "rank": 8,
+            "subject": "Cl_Density",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c05-kg01-4f32705e99"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c04",
+            "evidence_excerpt": "air density decreases (higher density altitude), aircraft performance decreases",
+            "object": "Cl_Outcome",
+            "page": 3,
+            "predicate": "causes",
+            "rank": 1,
+            "subject": "Cl_Density",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c04-kg03-b3bc48b215"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "evidence_excerpt": "Humidity alone is usually not considered an important factor in calculating density altitude and aircraft performance, but it is a contributing factor.",
+            "object": "Cl_Density",
+            "page": 4,
+            "predicate": "affects",
+            "rank": 2,
+            "subject": "Cl_Humidity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c03-kg00-3d55cb1ee1"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "evidence_excerpt": "Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density.",
+            "object": "Cl_AircraftPerformance",
+            "page": 4,
+            "predicate": "affects",
+            "rank": 3,
+            "subject": "Cl_Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c03-kg02-5bc39328d7"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "evidence_excerpt": "Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density.",
+            "object": "Cl_AircraftPerformance",
+            "page": 4,
+            "predicate": "affects",
+            "rank": 4,
+            "subject": "Cl_Temperature",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c03-kg03-ff8b142e2f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "evidence_excerpt": "Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density.",
+            "object": "Cl_AircraftPerformance",
+            "page": 4,
+            "predicate": "affects",
+            "rank": 5,
+            "subject": "Cl_Humidity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c03-kg04-3722b6cd1a"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c04",
+            "evidence_excerpt": "The density of air has significant effects on the aircraft\u2019s performance",
+            "object": "Cl_AircraftPerformance",
+            "page": 3,
+            "predicate": "affects",
+            "rank": 6,
+            "subject": "Cl_Density",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c04-kg00-851d22d42a"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c04",
+            "evidence_excerpt": "The density of air has significant effects on the aircraft\u2019s performance",
+            "object": "Cl_AircraftPerformance",
+            "page": 3,
+            "predicate": "affects",
+            "rank": 7,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c04-kg01-a06cfb76c4"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c05",
+            "evidence_excerpt": "Density altitude is used in calculating aircraft performance",
+            "object": "Cl_AircraftPerformance",
+            "page": 3,
+            "predicate": "appliesTo",
+            "rank": 8,
+            "subject": "Cl_Density",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c05-kg01-4f32705e99"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p03-c04",
+            "06_phak_ch4_0-structure_aware-p03-c05",
+            "06_phak_ch4_0-structure_aware-p04-c03",
+            "06_phak_ch4_0-structure_aware-p03-c04-kg03-b3bc48b215",
+            "06_phak_ch4_0-structure_aware-p04-c03-kg00-3d55cb1ee1",
+            "06_phak_ch4_0-structure_aware-p04-c03-kg02-5bc39328d7",
+            "06_phak_ch4_0-structure_aware-p04-c03-kg03-ff8b142e2f",
+            "06_phak_ch4_0-structure_aware-p04-c03-kg04-3722b6cd1a",
+            "06_phak_ch4_0-structure_aware-p03-c05-kg01-4f32705e99"
+          ],
+          "valid_page_citation": false,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 1,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c04",
+            "excerpt": "and reading the indicated altitude 2. Applying a correction factor to the indicated altitude according to the reported altimeter setting Density Altitude SDP is a theoretical pr...",
+            "page": 3,
+            "rank": 1,
+            "score": 0.032266458495966696,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c05",
+            "excerpt": "a high density altitude; an increase in air density means a lower density altitude. Density altitude is used in calculating aircraft performance because under standard atmospher...",
+            "page": 3,
+            "rank": 2,
+            "score": 0.03200204813108039,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c07",
+            "excerpt": "atmospheric pressure, low temperatures, and low humidity are more indicative of low density altitude. Effect of Pressure on Density",
+            "page": 3,
+            "rank": 3,
+            "score": 0.01639344262295082,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c03",
+            "excerpt": "of zero percent, while saturated air, which cannot hold any more water vapor, has a relative humidity of 100 percent. Humidity alone is usually not considered an important facto...",
+            "page": 4,
+            "rank": 4,
+            "score": 0.016129032258064516,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c08",
+            "excerpt": "effects of humidity on density altitude include a decrease in overall performance in high humidity conditions. Theories in the Production of Lift",
+            "page": 4,
+            "rank": 5,
+            "score": 0.015625,
+            "source": "vector"
+          }
+        ],
+        "graph_effect": "neutral",
+        "hit": true
+      },
+      "question": "What causal schema links pressure altitude, density altitude, humidity, air density, and aircraft performance?",
+      "vector_retrieval": {
+        "first_relevant_rank": 1,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c07",
+            "excerpt": "atmospheric pressure, low temperatures, and low humidity are more indicative of low density altitude. Effect of Pressure on Density",
+            "page": 3,
+            "rank": 1,
+            "score": 0.5826036383557656,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c05",
+            "excerpt": "a high density altitude; an increase in air density means a lower density altitude. Density altitude is used in calculating aircraft performance because under standard atmospher...",
+            "page": 3,
+            "rank": 2,
+            "score": 0.5806294513947733,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c04",
+            "excerpt": "and reading the indicated altitude 2. Applying a correction factor to the indicated altitude according to the reported altimeter setting Density Altitude SDP is a theoretical pr...",
+            "page": 3,
+            "rank": 3,
+            "score": 0.5766972950161752,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c08",
+            "excerpt": "effects of humidity on density altitude include a decrease in overall performance in high humidity conditions. Theories in the Production of Lift",
+            "page": 4,
+            "rank": 4,
+            "score": 0.5573111962799716,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c06",
+            "excerpt": "allowing the density to vary. However, a known density occurs for any one temperature and pressure altitude. The density of the air has a pronounced effect on aircraft and engin...",
+            "page": 3,
+            "rank": 5,
+            "score": 0.5495531208299669,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p05-986bfc7e8f",
+      "failure_category": "success",
+      "failure_reasons": [],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 5,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "Newton's laws",
+          "force",
+          "mass",
+          "acceleration",
+          "action",
+          "reaction"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "action",
+            "force",
+            "reaction"
+          ]
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c10",
+            "evidence_excerpt": "Newton's basic laws of motion",
+            "object": "some important principles",
+            "page": 4,
+            "predicate": "supportedByEvidence",
+            "rank": 1,
+            "subject": "Newton's basic laws of motion",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c10-kg00-2b97066f65"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c11",
+            "evidence_excerpt": "Newton's basic laws of motion",
+            "object": "Cl_Evidence",
+            "page": 4,
+            "predicate": "supportedByEvidence",
+            "rank": 2,
+            "subject": "Cl_NewtonLaw",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c11-kg00-45483e222a"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "evidence_excerpt": "the fundamental physical laws governing the forces acting on an aircraft in flight",
+            "object": "Cl_Evidence",
+            "page": 0,
+            "predicate": "supportedByEvidence",
+            "rank": 3,
+            "subject": "Cl_Concept",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "evidence_excerpt": "what effect these natural laws and forces have on the performance characteristics of aircraft",
+            "object": "Cl_AircraftPerformance",
+            "page": 0,
+            "predicate": "affects",
+            "rank": 4,
+            "subject": "Cl_Concept",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c11",
+            "evidence_excerpt": "forces acting upon an aircraft in flight",
+            "object": "Cl_Aircraft",
+            "page": 4,
+            "predicate": "appliesTo",
+            "rank": 5,
+            "subject": "Cl_Force",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c11-kg03-7dd667a140"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c12",
+            "evidence_excerpt": "the three basic laws of motion",
+            "object": "Cl_Concept",
+            "page": 4,
+            "predicate": "hasComponent",
+            "rank": 6,
+            "subject": "Cl_NewtonLaw",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c12-kg00-c9bac8bd38"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c44",
+            "evidence_excerpt": "forces the airplane forward",
+            "object": "the airplane forward",
+            "page": 5,
+            "predicate": "causes",
+            "rank": 7,
+            "subject": "the force of equal and opposite reaction",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c44-kg01-63f0c56092"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c20",
+            "evidence_excerpt": "causes a lift force greater than the weight of the aircraft",
+            "object": "Cl_Lift",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 8,
+            "subject": "Cl_Wing",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c20-kg00-813c55c60f"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c10",
+            "evidence_excerpt": "Newton's basic laws of motion",
+            "object": "some important principles",
+            "page": 4,
+            "predicate": "supportedByEvidence",
+            "rank": 1,
+            "subject": "Newton's basic laws of motion",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c10-kg00-2b97066f65"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c11",
+            "evidence_excerpt": "Newton's basic laws of motion",
+            "object": "Cl_Evidence",
+            "page": 4,
+            "predicate": "supportedByEvidence",
+            "rank": 2,
+            "subject": "Cl_NewtonLaw",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c11-kg00-45483e222a"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "evidence_excerpt": "the fundamental physical laws governing the forces acting on an aircraft in flight",
+            "object": "Cl_Evidence",
+            "page": 0,
+            "predicate": "supportedByEvidence",
+            "rank": 3,
+            "subject": "Cl_Concept",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "evidence_excerpt": "what effect these natural laws and forces have on the performance characteristics of aircraft",
+            "object": "Cl_AircraftPerformance",
+            "page": 0,
+            "predicate": "affects",
+            "rank": 4,
+            "subject": "Cl_Concept",
+            "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c11",
+            "evidence_excerpt": "forces acting upon an aircraft in flight",
+            "object": "Cl_Aircraft",
+            "page": 4,
+            "predicate": "appliesTo",
+            "rank": 5,
+            "subject": "Cl_Force",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c11-kg03-7dd667a140"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c12",
+            "evidence_excerpt": "the three basic laws of motion",
+            "object": "Cl_Concept",
+            "page": 4,
+            "predicate": "hasComponent",
+            "rank": 6,
+            "subject": "Cl_NewtonLaw",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c12-kg00-c9bac8bd38"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c44",
+            "evidence_excerpt": "forces the airplane forward",
+            "object": "the airplane forward",
+            "page": 5,
+            "predicate": "causes",
+            "rank": 7,
+            "subject": "the force of equal and opposite reaction",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c44-kg01-63f0c56092"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c20",
+            "evidence_excerpt": "causes a lift force greater than the weight of the aircraft",
+            "object": "Cl_Lift",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 8,
+            "subject": "Cl_Wing",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c20-kg00-813c55c60f"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p00-c02",
+            "06_phak_ch4_0-structure_aware-p04-c11",
+            "06_phak_ch4_0-structure_aware-p04-c12",
+            "06_phak_ch4_0-structure_aware-p05-c43",
+            "06_phak_ch4_0-structure_aware-p05-c44",
+            "06_phak_ch4_0-structure_aware-p04-c11-kg00-45483e222a",
+            "06_phak_ch4_0-structure_aware-p04-c12-kg00-c9bac8bd38",
+            "06_phak_ch4_0-structure_aware-p05-c44-kg01-63f0c56092",
+            "page 0",
+            "page 4",
+            "page 5"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 5,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on...",
+            "page": 0,
+            "rank": 1,
+            "score": 0.032266458495966696,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c11",
+            "excerpt": "some important principles, Newton's basic laws of motion, and Bernoulli's principle of differential pressure. Newton\u2019s Basic Laws of Motion The formulation of lift has historica...",
+            "page": 4,
+            "rank": 2,
+            "score": 0.03225806451612903,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c10",
+            "excerpt": "some important principles, Newton's basic laws of motion, and Bernoulli's principle of differential pressure. Newton\u2019s Basic Laws of Motion",
+            "page": 4,
+            "rank": 3,
+            "score": 0.032018442622950824,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c12",
+            "excerpt": "the law of universal gravitation, but also described the three basic laws of motion. Newton\u2019s First Law: \u201cEvery object persists in its state of rest or uniform motion in a strai...",
+            "page": 4,
+            "rank": 4,
+            "score": 0.03149801587301587,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "excerpt": "4-6 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE Figure 4-4. Air pressure decreases in a v...",
+            "page": 5,
+            "rank": 5,
+            "score": 0.015384615384615385,
+            "source": "vector"
+          }
+        ],
+        "graph_effect": "neutral",
+        "hit": true
+      },
+      "question": "How should Newton's laws be represented as force and motion relations for aircraft?",
+      "vector_retrieval": {
+        "first_relevant_rank": 5,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on...",
+            "page": 0,
+            "rank": 1,
+            "score": 0.6324050551797122,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c11",
+            "excerpt": "some important principles, Newton's basic laws of motion, and Bernoulli's principle of differential pressure. Newton\u2019s Basic Laws of Motion The formulation of lift has historica...",
+            "page": 4,
+            "rank": 2,
+            "score": 0.5811957249182735,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c12",
+            "excerpt": "the law of universal gravitation, but also described the three basic laws of motion. Newton\u2019s First Law: \u201cEvery object persists in its state of rest or uniform motion in a strai...",
+            "page": 4,
+            "rank": 3,
+            "score": 0.565382890750641,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c10",
+            "excerpt": "some important principles, Newton's basic laws of motion, and Bernoulli's principle of differential pressure. Newton\u2019s Basic Laws of Motion",
+            "page": 4,
+            "rank": 4,
+            "score": 0.5036846230910172,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "excerpt": "4-6 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE Figure 4-4. Air pressure decreases in a v...",
+            "page": 5,
+            "rank": 5,
+            "score": 0.4757736575029592,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p05-bb9a93ef72",
+      "failure_category": "success",
+      "failure_reasons": [],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 5,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "Bernoulli principle",
+          "venturi",
+          "velocity",
+          "pressure",
+          "airflow"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "pressure",
+            "velocity",
+            "venturi"
+          ]
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "evidence_excerpt": "Air pressure decreases in a venturi tube.",
+            "object": "Cl_Evidence",
+            "page": 5,
+            "predicate": "supportedByEvidence",
+            "rank": 1,
+            "subject": "Cl_BernoulliPrinciple",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c43-kg00-d7a16bc022"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c45",
+            "evidence_excerpt": "the pressure increases",
+            "object": "Cl_Pressure",
+            "page": 5,
+            "predicate": "hasOutcome",
+            "rank": 2,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c45-kg05-44dec62d93"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c25",
+            "evidence_excerpt": "Applying Bernoulli\u2019s Principle of Pressure, the increase in the speed of the air across the top of an airfoil produces a",
+            "object": "increase in the speed of the air across the top of an airfoil produces a",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 3,
+            "subject": "Bernoulli\u2019s Principle of Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c25-kg01-1ab85aadd8"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c07",
+            "evidence_excerpt": "slows the velocity of the air flowing over the wing",
+            "object": "Cl_AircraftPerformance",
+            "page": 1,
+            "predicate": "affects",
+            "rank": 4,
+            "subject": "Cl_AirfoilSurface",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c07-kg04-7a8ce3cb0b"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c08",
+            "evidence_excerpt": "and slows the velocity of the air flowing over the wing",
+            "object": "slows the velocity of the air",
+            "page": 1,
+            "predicate": "causes",
+            "rank": 5,
+            "subject": "surface roughness",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c08-kg01-89ecf88487"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+            "evidence_excerpt": "Its effect on bodies within the air is called pressure",
+            "object": "Cl_Pressure",
+            "page": 2,
+            "predicate": "hasCondition",
+            "rank": 6,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c105-kg03-f2de4a585c"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+            "evidence_excerpt": "the higher the altitude, the less air there is above",
+            "object": "Cl_Pressure",
+            "page": 2,
+            "predicate": "affects",
+            "rank": 7,
+            "subject": "Cl_Altitude",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg02-520365d66c"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c08",
+            "evidence_excerpt": "air is a gas, it can be compressed or expanded",
+            "object": "Cl_Air",
+            "page": 3,
+            "predicate": "affects",
+            "rank": 8,
+            "subject": "Cl_Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c08-kg03-2dee05d0db"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "evidence_excerpt": "Air pressure decreases in a venturi tube.",
+            "object": "Cl_Evidence",
+            "page": 5,
+            "predicate": "supportedByEvidence",
+            "rank": 1,
+            "subject": "Cl_BernoulliPrinciple",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c43-kg00-d7a16bc022"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c45",
+            "evidence_excerpt": "the pressure increases",
+            "object": "Cl_Pressure",
+            "page": 5,
+            "predicate": "hasOutcome",
+            "rank": 2,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c45-kg05-44dec62d93"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c25",
+            "evidence_excerpt": "Applying Bernoulli\u2019s Principle of Pressure, the increase in the speed of the air across the top of an airfoil produces a",
+            "object": "increase in the speed of the air across the top of an airfoil produces a",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 3,
+            "subject": "Bernoulli\u2019s Principle of Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c25-kg01-1ab85aadd8"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c07",
+            "evidence_excerpt": "slows the velocity of the air flowing over the wing",
+            "object": "Cl_AircraftPerformance",
+            "page": 1,
+            "predicate": "affects",
+            "rank": 4,
+            "subject": "Cl_AirfoilSurface",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c07-kg04-7a8ce3cb0b"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c08",
+            "evidence_excerpt": "and slows the velocity of the air flowing over the wing",
+            "object": "slows the velocity of the air",
+            "page": 1,
+            "predicate": "causes",
+            "rank": 5,
+            "subject": "surface roughness",
+            "triple_id": "06_phak_ch4_0-structure_aware-p01-c08-kg01-89ecf88487"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+            "evidence_excerpt": "Its effect on bodies within the air is called pressure",
+            "object": "Cl_Pressure",
+            "page": 2,
+            "predicate": "hasCondition",
+            "rank": 6,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c105-kg03-f2de4a585c"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+            "evidence_excerpt": "the higher the altitude, the less air there is above",
+            "object": "Cl_Pressure",
+            "page": 2,
+            "predicate": "affects",
+            "rank": 7,
+            "subject": "Cl_Altitude",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg02-520365d66c"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p03-c08",
+            "evidence_excerpt": "air is a gas, it can be compressed or expanded",
+            "object": "Cl_Air",
+            "page": 3,
+            "predicate": "affects",
+            "rank": 8,
+            "subject": "Cl_Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p03-c08-kg03-2dee05d0db"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p05-c45",
+            "06_phak_ch4_0-structure_aware-p05-c43",
+            "06_phak_ch4_0-structure_aware-p05-c43-kg00-d7a16bc022",
+            "page 5"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 1,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c45",
+            "excerpt": "equal and opposite reaction pushes against the engine and forces the airplane forward. Bernoulli\u2019s Principle of Differential Pressure A half-century after Newton formulated his...",
+            "page": 5,
+            "rank": 1,
+            "score": 0.03252247488101534,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c25",
+            "excerpt": "This increased velocity reduces the pressure above the airfoil. Applying Bernoulli\u2019s Principle of Pressure, the increase in the speed of the air across the top of an airfoil pro...",
+            "page": 6,
+            "rank": 2,
+            "score": 0.03200204813108039,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "excerpt": "4-6 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE Figure 4-4. Air pressure decreases in a v...",
+            "page": 5,
+            "rank": 3,
+            "score": 0.03177805800756621,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c24",
+            "excerpt": "faster than the air moving along the bottom of the airfoil. This increased velocity reduces the pressure above the airfoil. Applying Bernoulli\u2019s Principle of Pressure, the incre...",
+            "page": 6,
+            "rank": 4,
+            "score": 0.015873015873015872,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c07",
+            "excerpt": "the viscosity of air. However, since air is a fluid and has viscosity properties, it resists flow around any object to some extent. Friction Another factor at work when a fluid...",
+            "page": 1,
+            "rank": 5,
+            "score": 0.015625,
+            "source": "graph"
+          }
+        ],
+        "graph_effect": "neutral",
+        "hit": true
+      },
+      "question": "What relation captures Bernoulli and venturi pressure decrease as air velocity increases?",
+      "vector_retrieval": {
+        "first_relevant_rank": 1,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c45",
+            "excerpt": "equal and opposite reaction pushes against the engine and forces the airplane forward. Bernoulli\u2019s Principle of Differential Pressure A half-century after Newton formulated his...",
+            "page": 5,
+            "rank": 1,
+            "score": 0.6406433217927121,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c25",
+            "excerpt": "This increased velocity reduces the pressure above the airfoil. Applying Bernoulli\u2019s Principle of Pressure, the increase in the speed of the air across the top of an airfoil pro...",
+            "page": 6,
+            "rank": 2,
+            "score": 0.6260336493325329,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c24",
+            "excerpt": "faster than the air moving along the bottom of the airfoil. This increased velocity reduces the pressure above the airfoil. Applying Bernoulli\u2019s Principle of Pressure, the incre...",
+            "page": 6,
+            "rank": 3,
+            "score": 0.5973631759700235,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c21",
+            "excerpt": "Newton\u2019s third law, the reaction of this downward backward flow results in an upward forward force on the airfoil. High Pressure Below A certain amount of lift is generated by p...",
+            "page": 7,
+            "rank": 4,
+            "score": 0.5405920187773157,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "excerpt": "4-6 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE Figure 4-4. Air pressure decreases in a v...",
+            "page": 5,
+            "rank": 5,
+            "score": 0.49977321782664574,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p06-a653e00686",
+      "failure_category": "hybrid fusion dilution",
+      "failure_reasons": [
+        "hybrid fusion degraded vector retrieval"
+      ],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 6,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "airfoil",
+          "leading edge",
+          "trailing edge",
+          "chord line",
+          "mean camber line",
+          "upper surface",
+          "lower surface"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "airfoil",
+            "leading edge",
+            "lower surface",
+            "trailing edge"
+          ]
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "evidence_excerpt": "upper and lower surfaces of the airfoil",
+            "object": "Cl_AirfoilSurface",
+            "page": 5,
+            "predicate": "hasComponent",
+            "rank": 1,
+            "subject": "Cl_Airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c48-kg00-e6f8bc1000"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "evidence_excerpt": "called the leading edge",
+            "object": "Cl_LeadingEdge",
+            "page": 5,
+            "predicate": "hasComponent",
+            "rank": 2,
+            "subject": "Cl_Airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c48-kg01-c2d45fd4f6"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "evidence_excerpt": "the trailing edge",
+            "object": "Cl_TrailingEdge",
+            "page": 5,
+            "predicate": "hasComponent",
+            "rank": 3,
+            "subject": "Cl_Airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c48-kg02-a87aa93e4f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "evidence_excerpt": "airfoils designed to produce lift",
+            "object": "Cl_Lift",
+            "page": 5,
+            "predicate": "causes",
+            "rank": 4,
+            "subject": "Cl_Airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c48-kg03-f9b9087ebd"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c49",
+            "evidence_excerpt": "the leading edge",
+            "object": "Cl_Airfoil",
+            "page": 5,
+            "predicate": "partOf",
+            "rank": 5,
+            "subject": "Cl_LeadingEdge",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c49-kg00-eab0721eca"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c49",
+            "evidence_excerpt": "the trailing edge",
+            "object": "Cl_Airfoil",
+            "page": 5,
+            "predicate": "partOf",
+            "rank": 6,
+            "subject": "Cl_TrailingEdge",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c49-kg01-bdaad57a7f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c49",
+            "evidence_excerpt": "used in discussing the airfoil",
+            "object": "Cl_Airfoil",
+            "page": 5,
+            "predicate": "appliesTo",
+            "rank": 7,
+            "subject": "Cl_ChordLine",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c49-kg02-8e3723e3ee"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c04",
+            "evidence_excerpt": "Early airfoil Later airfoil",
+            "object": "Later airfoil",
+            "page": 6,
+            "predicate": "hasOutcome",
+            "rank": 8,
+            "subject": "Early airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c04-kg00-e4f772a15c"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "evidence_excerpt": "upper and lower surfaces of the airfoil",
+            "object": "Cl_AirfoilSurface",
+            "page": 5,
+            "predicate": "hasComponent",
+            "rank": 1,
+            "subject": "Cl_Airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c48-kg00-e6f8bc1000"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "evidence_excerpt": "called the leading edge",
+            "object": "Cl_LeadingEdge",
+            "page": 5,
+            "predicate": "hasComponent",
+            "rank": 2,
+            "subject": "Cl_Airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c48-kg01-c2d45fd4f6"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "evidence_excerpt": "the trailing edge",
+            "object": "Cl_TrailingEdge",
+            "page": 5,
+            "predicate": "hasComponent",
+            "rank": 3,
+            "subject": "Cl_Airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c48-kg02-a87aa93e4f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "evidence_excerpt": "airfoils designed to produce lift",
+            "object": "Cl_Lift",
+            "page": 5,
+            "predicate": "causes",
+            "rank": 4,
+            "subject": "Cl_Airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c48-kg03-f9b9087ebd"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c49",
+            "evidence_excerpt": "the leading edge",
+            "object": "Cl_Airfoil",
+            "page": 5,
+            "predicate": "partOf",
+            "rank": 5,
+            "subject": "Cl_LeadingEdge",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c49-kg00-eab0721eca"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c49",
+            "evidence_excerpt": "the trailing edge",
+            "object": "Cl_Airfoil",
+            "page": 5,
+            "predicate": "partOf",
+            "rank": 6,
+            "subject": "Cl_TrailingEdge",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c49-kg01-bdaad57a7f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c49",
+            "evidence_excerpt": "used in discussing the airfoil",
+            "object": "Cl_Airfoil",
+            "page": 5,
+            "predicate": "appliesTo",
+            "rank": 7,
+            "subject": "Cl_ChordLine",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c49-kg02-8e3723e3ee"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c04",
+            "evidence_excerpt": "Early airfoil Later airfoil",
+            "object": "Later airfoil",
+            "page": 6,
+            "predicate": "hasOutcome",
+            "rank": 8,
+            "subject": "Early airfoil",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c04-kg00-e4f772a15c"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p05-c48",
+            "06_phak_ch4_0-structure_aware-p05-c49",
+            "06_phak_ch4_0-structure_aware-p05-c48-kg00-e6f8bc1000",
+            "06_phak_ch4_0-structure_aware-p05-c48-kg01-c2d45fd4f6",
+            "06_phak_ch4_0-structure_aware-p05-c48-kg02-a87aa93e4f",
+            "06_phak_ch4_0-structure_aware-p05-c49-kg00-eab0721eca",
+            "06_phak_ch4_0-structure_aware-p05-c49-kg01-bdaad57a7f",
+            "06_phak_ch4_0-structure_aware-p05-c49-kg02-8e3723e3ee"
+          ],
+          "valid_page_citation": false,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 3,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "excerpt": "not have the sophisticated laboratories available today, they provided great insight to the contemporary viewpoint of how lift is created. Airfoil Design An airfoil is a structu...",
+            "page": 5,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c49",
+            "excerpt": "is called the leading edge; the other end, the trailing edge, is quite narrow and tapered. A reference line often used in discussing the airfoil is the chord line, a straight li...",
+            "page": 5,
+            "rank": 2,
+            "score": 0.016129032258064516,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c15",
+            "excerpt": "(Supersonic) Double wedge airfoil (Supersonic) Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface Camb er of l ower surface Trailing edge",
+            "page": 6,
+            "rank": 3,
+            "score": 0.016129032258064516,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c04",
+            "excerpt": "4-7 Early airfoil Later airfoil Laminar flow airfoil (Subsonic)",
+            "page": 6,
+            "rank": 4,
+            "score": 0.015873015873015872,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c17",
+            "excerpt": "(Supersonic) Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface Camb er of l ower surface Trailing edge Leading edge Mean camber line",
+            "page": 6,
+            "rank": 5,
+            "score": 0.015873015873015872,
+            "source": "vector"
+          }
+        ],
+        "graph_effect": "hurt",
+        "hit": true
+      },
+      "question": "What partonomy should represent airfoil structure and section geometry?",
+      "vector_retrieval": {
+        "first_relevant_rank": 2,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c48",
+            "excerpt": "not have the sophisticated laboratories available today, they provided great insight to the contemporary viewpoint of how lift is created. Airfoil Design An airfoil is a structu...",
+            "page": 5,
+            "rank": 1,
+            "score": 0.553471223099903,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c15",
+            "excerpt": "(Supersonic) Double wedge airfoil (Supersonic) Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface Camb er of l ower surface Trailing edge",
+            "page": 6,
+            "rank": 2,
+            "score": 0.5449334508956548,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c17",
+            "excerpt": "(Supersonic) Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface Camb er of l ower surface Trailing edge Leading edge Mean camber line",
+            "page": 6,
+            "rank": 3,
+            "score": 0.5347640272947032,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c13",
+            "excerpt": "(Subsonic) Circular arc airfoil (Supersonic) Double wedge airfoil (Supersonic) Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface Camb",
+            "page": 6,
+            "rank": 4,
+            "score": 0.5334878818215383,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c12",
+            "excerpt": "(Subsonic) Circular arc airfoil (Supersonic) Double wedge airfoil (Supersonic) Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface",
+            "page": 6,
+            "rank": 5,
+            "score": 0.5320701578924901,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p07-9737986760",
+      "failure_category": "hybrid fusion dilution",
+      "failure_reasons": [
+        "hybrid fusion degraded vector retrieval"
+      ],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 7,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "lift",
+          "pressure difference",
+          "downwash",
+          "flow turning",
+          "airfoil"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "airfoil",
+            "lift"
+          ]
+        },
+        "noisy_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c103",
+            "evidence_excerpt": "measured in pounds of force exerted per square inch of an object, or PSI",
+            "object": "PSI",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 1,
+            "subject": "pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c103-kg01-b04dc1c761"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c44",
+            "evidence_excerpt": "Bernoulli\u2019s Principle of Differential Pressure",
+            "object": "the force of equal and opposite reaction",
+            "page": 5,
+            "predicate": "supportedByEvidence",
+            "rank": 4,
+            "subject": "Bernoulli\u2019s Principle of Differential Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c44-kg02-43942611b2"
+          }
+        ],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c103",
+            "evidence_excerpt": "measured in pounds of force exerted per square inch of an object, or PSI",
+            "object": "PSI",
+            "page": 2,
+            "predicate": "hasQuantity",
+            "rank": 1,
+            "subject": "pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c103-kg01-b04dc1c761"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+            "evidence_excerpt": "helps to lift an aircraft",
+            "object": "Cl_Aircraft",
+            "page": 2,
+            "predicate": "affects",
+            "rank": 2,
+            "subject": "Cl_Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c105-kg01-95989858d4"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c09",
+            "evidence_excerpt": "A wing moving through air generates the force called lift",
+            "object": "Cl_Lift",
+            "page": 4,
+            "predicate": "causes",
+            "rank": 3,
+            "subject": "Cl_Wing",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c09-kg02-813c55c60f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c44",
+            "evidence_excerpt": "Bernoulli\u2019s Principle of Differential Pressure",
+            "object": "the force of equal and opposite reaction",
+            "page": 5,
+            "predicate": "supportedByEvidence",
+            "rank": 4,
+            "subject": "Bernoulli\u2019s Principle of Differential Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p05-c44-kg02-43942611b2"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c19",
+            "evidence_excerpt": "positive pressure lifting action",
+            "object": "Cl_Lift",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 5,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c19-kg06-654437250f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c20",
+            "evidence_excerpt": "causes a lift force greater than the weight of the aircraft",
+            "object": "Cl_Lift",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 6,
+            "subject": "Cl_Wing",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c20-kg00-813c55c60f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c19",
+            "evidence_excerpt": "This lowered pressure is a component of total lift",
+            "object": "Cl_Lift",
+            "page": 7,
+            "predicate": "causes",
+            "rank": 7,
+            "subject": "Cl_Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c19-kg01-9844b11d81"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c20",
+            "evidence_excerpt": "Newton\u2019s third law, the reaction of this downward backward flow results in an upward forward force on the airfoil.",
+            "object": "an upward forward force on the airfoil",
+            "page": 7,
+            "predicate": "causes",
+            "rank": 8,
+            "subject": "Newton\u2019s third law",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c20-kg00-49247f068d"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+            "evidence_excerpt": "helps to lift an aircraft",
+            "object": "Cl_Aircraft",
+            "page": 2,
+            "predicate": "affects",
+            "rank": 2,
+            "subject": "Cl_Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p02-c105-kg01-95989858d4"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c09",
+            "evidence_excerpt": "A wing moving through air generates the force called lift",
+            "object": "Cl_Lift",
+            "page": 4,
+            "predicate": "causes",
+            "rank": 3,
+            "subject": "Cl_Wing",
+            "triple_id": "06_phak_ch4_0-structure_aware-p04-c09-kg02-813c55c60f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c19",
+            "evidence_excerpt": "positive pressure lifting action",
+            "object": "Cl_Lift",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 5,
+            "subject": "Cl_Air",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c19-kg06-654437250f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c20",
+            "evidence_excerpt": "causes a lift force greater than the weight of the aircraft",
+            "object": "Cl_Lift",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 6,
+            "subject": "Cl_Wing",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c20-kg00-813c55c60f"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c19",
+            "evidence_excerpt": "This lowered pressure is a component of total lift",
+            "object": "Cl_Lift",
+            "page": 7,
+            "predicate": "causes",
+            "rank": 7,
+            "subject": "Cl_Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c19-kg01-9844b11d81"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c20",
+            "evidence_excerpt": "Newton\u2019s third law, the reaction of this downward backward flow results in an upward forward force on the airfoil.",
+            "object": "an upward forward force on the airfoil",
+            "page": 7,
+            "predicate": "causes",
+            "rank": 8,
+            "subject": "Newton\u2019s third law",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c20-kg00-49247f068d"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p04-c09",
+            "06_phak_ch4_0-structure_aware-p02-c103",
+            "06_phak_ch4_0-structure_aware-p02-c105",
+            "06_phak_ch4_0-structure_aware-p07-c23",
+            "06_phak_ch4_0-structure_aware-p08-c02",
+            "06_phak_ch4_0-structure_aware-p02-c105-kg01-95989858d4",
+            "06_phak_ch4_0-structure_aware-p04-c09-kg02-813c55c60f",
+            "06_phak_ch4_0-structure_aware-p07-c19-kg01-9844b11d81",
+            "06_phak_ch4_0-structure_aware-p07-c20-kg00-49247f068d",
+            "page 2",
+            "page 4",
+            "page 7",
+            "page 8"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 3,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c09",
+            "excerpt": "effects of humidity on density altitude include a decrease in overall performance in high humidity conditions. Theories in the Production of Lift In order to achieve flight in a...",
+            "page": 4,
+            "rank": 1,
+            "score": 0.03125763125763126,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c103",
+            "excerpt": "viscosity, the tendency of the air to stick to itself. When these two forces act together to resist airflow over a wing, it is called drag. Pressure Pressure is the force applie...",
+            "page": 2,
+            "rank": 2,
+            "score": 0.01639344262295082,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c22",
+            "excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil. Pressure Distribution",
+            "page": 7,
+            "rank": 3,
+            "score": 0.01639344262295082,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+            "excerpt": "on the other surfaces, the object will move in the direction of the lower pressure. Atmospheric Pressure Although there are various kinds of pressure, pilots are mainly concerne...",
+            "page": 2,
+            "rank": 4,
+            "score": 0.016129032258064516,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c23",
+            "excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil. Pressure Distribution From experiments conducted on wind tunnel models and on full s...",
+            "page": 7,
+            "rank": 5,
+            "score": 0.016129032258064516,
+            "source": "vector"
+          }
+        ],
+        "graph_effect": "hurt",
+        "hit": true
+      },
+      "question": "How should lift be modeled as an aerodynamic force produced by pressure differences and flow turning?",
+      "vector_retrieval": {
+        "first_relevant_rank": 1,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c22",
+            "excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil. Pressure Distribution",
+            "page": 7,
+            "rank": 1,
+            "score": 0.5494245329419437,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c23",
+            "excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil. Pressure Distribution From experiments conducted on wind tunnel models and on full s...",
+            "page": 7,
+            "rank": 2,
+            "score": 0.5351105438607661,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c02",
+            "excerpt": "4-9 v o r t e x Tip Figure 4-8. Tip vortex. are identical. In both examples, the only difference is the relationship of the airfoil with the oncoming airstream (angle). A paper...",
+            "page": 8,
+            "rank": 3,
+            "score": 0.5217049734632617,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c47",
+            "excerpt": "not have the sophisticated laboratories available today, they provided great insight to the contemporary viewpoint of how lift is created. Airfoil Design",
+            "page": 5,
+            "rank": 4,
+            "score": 0.5161529774416641,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p04-c09",
+            "excerpt": "effects of humidity on density altitude include a decrease in overall performance in high humidity conditions. Theories in the Production of Lift In order to achieve flight in a...",
+            "page": 4,
+            "rank": 5,
+            "score": 0.5128756826383133,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p07-59d55c9639",
+      "failure_category": "success",
+      "failure_reasons": [],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 7,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "angle of attack",
+          "pressure distribution",
+          "center of pressure",
+          "airfoil"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": true,
+          "covered_entities": [
+            "airfoil",
+            "pressure distribution"
+          ]
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c19",
+            "evidence_excerpt": "Pressure distribution on an airfoil and CP changes with AOA",
+            "object": "Cl_Outcome",
+            "page": 7,
+            "predicate": "hasOutcome",
+            "rank": 1,
+            "subject": "Cl_PressureDistribution",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c19-kg00-e0ca3cf11d"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c22",
+            "evidence_excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil.",
+            "object": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil.",
+            "page": 7,
+            "predicate": "supportedByEvidence",
+            "rank": 2,
+            "subject": "Pressure Distribution",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c22-kg02-a57ac14f63"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c23",
+            "evidence_excerpt": "pressure distribution along an airfoil",
+            "object": "Cl_Wing",
+            "page": 7,
+            "predicate": "affects",
+            "rank": 3,
+            "subject": "Cl_PressureDistribution",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c23-kg10-896f555df0"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c23",
+            "evidence_excerpt": "This increased velocity reduces the pressure above the airfoil.",
+            "object": "reduces the pressure above the airfoil",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 4,
+            "subject": "increased velocity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c23-kg02-00842971c3"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c24",
+            "evidence_excerpt": "This increased velocity reduces the pressure above the airfoil.",
+            "object": "reduces the pressure above the airfoil",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 5,
+            "subject": "increased velocity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c24-kg00-00842971c3"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c24",
+            "evidence_excerpt": "Applying Bernoulli\u2019s Principle of Pressure, the increase in",
+            "object": "pressure above the airfoil",
+            "page": 6,
+            "predicate": "affects",
+            "rank": 6,
+            "subject": "Bernoulli\u2019s Principle of Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c24-kg01-2b94fa2643"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c25",
+            "evidence_excerpt": "This increased velocity reduces the pressure above the airfoil.",
+            "object": "reduces the pressure above the airfoil",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 7,
+            "subject": "increased velocity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c25-kg00-00842971c3"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c25",
+            "evidence_excerpt": "Applying Bernoulli\u2019s Principle of Pressure, the increase in the speed of the air across the top of an airfoil produces a",
+            "object": "increase in the speed of the air across the top of an airfoil produces a",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 8,
+            "subject": "Bernoulli\u2019s Principle of Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c25-kg01-1ab85aadd8"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c19",
+            "evidence_excerpt": "Pressure distribution on an airfoil and CP changes with AOA",
+            "object": "Cl_Outcome",
+            "page": 7,
+            "predicate": "hasOutcome",
+            "rank": 1,
+            "subject": "Cl_PressureDistribution",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c19-kg00-e0ca3cf11d"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c22",
+            "evidence_excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil.",
+            "object": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil.",
+            "page": 7,
+            "predicate": "supportedByEvidence",
+            "rank": 2,
+            "subject": "Pressure Distribution",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c22-kg02-a57ac14f63"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c23",
+            "evidence_excerpt": "pressure distribution along an airfoil",
+            "object": "Cl_Wing",
+            "page": 7,
+            "predicate": "affects",
+            "rank": 3,
+            "subject": "Cl_PressureDistribution",
+            "triple_id": "06_phak_ch4_0-structure_aware-p07-c23-kg10-896f555df0"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c23",
+            "evidence_excerpt": "This increased velocity reduces the pressure above the airfoil.",
+            "object": "reduces the pressure above the airfoil",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 4,
+            "subject": "increased velocity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c23-kg02-00842971c3"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c24",
+            "evidence_excerpt": "This increased velocity reduces the pressure above the airfoil.",
+            "object": "reduces the pressure above the airfoil",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 5,
+            "subject": "increased velocity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c24-kg00-00842971c3"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c24",
+            "evidence_excerpt": "Applying Bernoulli\u2019s Principle of Pressure, the increase in",
+            "object": "pressure above the airfoil",
+            "page": 6,
+            "predicate": "affects",
+            "rank": 6,
+            "subject": "Bernoulli\u2019s Principle of Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c24-kg01-2b94fa2643"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c25",
+            "evidence_excerpt": "This increased velocity reduces the pressure above the airfoil.",
+            "object": "reduces the pressure above the airfoil",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 7,
+            "subject": "increased velocity",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c25-kg00-00842971c3"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c25",
+            "evidence_excerpt": "Applying Bernoulli\u2019s Principle of Pressure, the increase in the speed of the air across the top of an airfoil produces a",
+            "object": "increase in the speed of the air across the top of an airfoil produces a",
+            "page": 6,
+            "predicate": "causes",
+            "rank": 8,
+            "subject": "Bernoulli\u2019s Principle of Pressure",
+            "triple_id": "06_phak_ch4_0-structure_aware-p06-c25-kg01-1ab85aadd8"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p07-c19",
+            "06_phak_ch4_0-structure_aware-p07-c23",
+            "06_phak_ch4_0-structure_aware-p07-c19-kg00-e0ca3cf11d",
+            "page 7"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 1,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c19",
+            "excerpt": "4-8 High angle of attack Normal angle of attack Low angle of attack at ta ck of An gl e - 8 \u00b0 CP at ta c k A n gl e of + 1 0 \u00b0 CP at ta ck of A n gl e + 4 \u00b0 CP Figure 4-7. Press...",
+            "page": 7,
+            "rank": 1,
+            "score": 0.03252247488101534,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c23",
+            "excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil. Pressure Distribution From experiments conducted on wind tunnel models and on full s...",
+            "page": 7,
+            "rank": 2,
+            "score": 0.032266458495966696,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c22",
+            "excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil. Pressure Distribution",
+            "page": 7,
+            "rank": 3,
+            "score": 0.03200204813108039,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c19",
+            "excerpt": "Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface Camb er of l ower surface Trailing edge Leading edge Mean camber line Chord line Figure 4-...",
+            "page": 6,
+            "rank": 4,
+            "score": 0.015625,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c23",
+            "excerpt": "the needs of the airplane for which it is designed. Figure 4-6 shows some of the more common airfoil designs. Low Pressure Above In a wind tunnel or in flight, an airfoil is sim...",
+            "page": 6,
+            "rank": 5,
+            "score": 0.015625,
+            "source": "graph"
+          }
+        ],
+        "graph_effect": "neutral",
+        "hit": true
+      },
+      "question": "What schema links angle of attack to airfoil pressure distribution and center of pressure movement?",
+      "vector_retrieval": {
+        "first_relevant_rank": 1,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c23",
+            "excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil. Pressure Distribution From experiments conducted on wind tunnel models and on full s...",
+            "page": 7,
+            "rank": 1,
+            "score": 0.6430087069700986,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c19",
+            "excerpt": "4-8 High angle of attack Normal angle of attack Low angle of attack at ta ck of An gl e - 8 \u00b0 CP at ta c k A n gl e of + 1 0 \u00b0 CP at ta ck of A n gl e + 4 \u00b0 CP Figure 4-7. Press...",
+            "page": 7,
+            "rank": 2,
+            "score": 0.5692277480178562,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c22",
+            "excerpt": "Principle and Newton\u2019s Laws are in operation whenever lift is being generated by an airfoil. Pressure Distribution",
+            "page": 7,
+            "rank": 3,
+            "score": 0.5380327183306545,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c19",
+            "excerpt": "Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface Camb er of l ower surface Trailing edge Leading edge Mean camber line Chord line Figure 4-...",
+            "page": 6,
+            "rank": 4,
+            "score": 0.53435041954424,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c17",
+            "excerpt": "(Supersonic) Clark 'Y' airfoil (Subsonic) Figure 4-6. Airfoil designs. Ca mb er of up pe r s urface Camb er of l ower surface Trailing edge Leading edge Mean camber line",
+            "page": 6,
+            "rank": 5,
+            "score": 0.5196411898536695,
+            "source": "vector"
+          }
+        ]
+      }
+    },
+    {
+      "cq_id": "06-phak-ch4-0-p08-84dd3b3d9f",
+      "failure_category": "success",
+      "failure_reasons": [],
+      "gold_evidence": {
+        "expected_abstention": false,
+        "expected_chunk_ids": [],
+        "expected_page": 8,
+        "expected_spans": [],
+        "gold_level": "page",
+        "key_entities": [
+          "wingtip vortex",
+          "wing tip",
+          "winglet",
+          "pressure difference",
+          "induced drag"
+        ]
+      },
+      "graph_retrieval": {
+        "entity_coverage": {
+          "covered": false,
+          "covered_entities": []
+        },
+        "noisy_triples": [],
+        "retrieved_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c04",
+            "evidence_excerpt": "The vortex flows behind the airfoil creating a downwash",
+            "object": "Cl_Downwash",
+            "page": 8,
+            "predicate": "causes",
+            "rank": 1,
+            "subject": "Cl_WingtipVortex",
+            "triple_id": "06_phak_ch4_0-structure_aware-p08-c04-kg01-5aec0888c9"
+          }
+        ],
+        "useful_triples": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c04",
+            "evidence_excerpt": "The vortex flows behind the airfoil creating a downwash",
+            "object": "Cl_Downwash",
+            "page": 8,
+            "predicate": "causes",
+            "rank": 1,
+            "subject": "Cl_WingtipVortex",
+            "triple_id": "06_phak_ch4_0-structure_aware-p08-c04-kg01-5aec0888c9"
+          }
+        ]
+      },
+      "hybrid_retrieval": {
+        "citation_status": {
+          "answer_present": true,
+          "citation_completeness": true,
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-structure_aware-p08-c04",
+            "06_phak_ch4_0-structure_aware-p08-c04-kg01-5aec0888c9"
+          ],
+          "valid_page_citation": false,
+          "valid_triple_citation": true
+        },
+        "first_relevant_rank": 1,
+        "fused_top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c04",
+            "excerpt": "the object changes in both magnitude and direction, in turn resulting in a measurable velocity force and direction. A Third Dimension To this point, the discussion has centered...",
+            "page": 8,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c08",
+            "excerpt": "information on the principles discussed in this chapter, visit the National Aeronautics and Space Administration (NASA) Beginner\u2019s Guide to Aerodynamics at www.grc.nasa.gov/",
+            "page": 8,
+            "rank": 2,
+            "score": 0.016129032258064516,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+            "excerpt": "13.0 11.0 9.1 7.1 5.1 3.1 1.1 -0.9 -2.8 -4.8 -6.8 -8.8 -10.8 -12.7 -14.7 -16.7 -18.7 -20.7 -22.6 -24.6 59.0 55.4 51.9 48.3 44.7 41.2 37.6 34.0 30.5 26.9 23.3 19.8 16.2 12.6 9.1...",
+            "page": 2,
+            "rank": 3,
+            "score": 0.015873015873015872,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c25",
+            "excerpt": "AOA conditions. An airplane\u2019s aerodynamic balance and controllability are governed by changes in the CP. Airfoil Behavior",
+            "page": 7,
+            "rank": 4,
+            "score": 0.015625,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c23",
+            "excerpt": "the needs of the airplane for which it is designed. Figure 4-6 shows some of the more common airfoil designs. Low Pressure Above In a wind tunnel or in flight, an airfoil is sim...",
+            "page": 6,
+            "rank": 5,
+            "score": 0.015384615384615385,
+            "source": "vector"
+          }
+        ],
+        "graph_effect": "neutral",
+        "hit": true
+      },
+      "question": "How should wingtip vortex formation and winglet mitigation be modeled?",
+      "vector_retrieval": {
+        "first_relevant_rank": 1,
+        "hit": true,
+        "top_5_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c04",
+            "excerpt": "the object changes in both magnitude and direction, in turn resulting in a measurable velocity force and direction. A Third Dimension To this point, the discussion has centered...",
+            "page": 8,
+            "rank": 1,
+            "score": 0.5427144618877635,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c08",
+            "excerpt": "information on the principles discussed in this chapter, visit the National Aeronautics and Space Administration (NASA) Beginner\u2019s Guide to Aerodynamics at www.grc.nasa.gov/",
+            "page": 8,
+            "rank": 2,
+            "score": 0.4790928370988816,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+            "excerpt": "13.0 11.0 9.1 7.1 5.1 3.1 1.1 -0.9 -2.8 -4.8 -6.8 -8.8 -10.8 -12.7 -14.7 -16.7 -18.7 -20.7 -22.6 -24.6 59.0 55.4 51.9 48.3 44.7 41.2 37.6 34.0 30.5 26.9 23.3 19.8 16.2 12.6 9.1...",
+            "page": 2,
+            "rank": 3,
+            "score": 0.47699371537525675,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c25",
+            "excerpt": "AOA conditions. An airplane\u2019s aerodynamic balance and controllability are governed by changes in the CP. Airfoil Behavior",
+            "page": 7,
+            "rank": 4,
+            "score": 0.46929853122667803,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p06-c23",
+            "excerpt": "the needs of the airplane for which it is designed. Figure 4-6 shows some of the more common airfoil designs. Low Pressure Above In a wind tunnel or in flight, an airfoil is sim...",
+            "page": 6,
+            "rank": 5,
+            "score": 0.4664695121320549,
+            "source": "vector"
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "cards_total": 10,
+    "failure_categories": [
+      "success",
+      "retrieval miss",
+      "chunk boundary problem",
+      "KG sparsity",
+      "graph noise",
+      "hybrid fusion dilution",
+      "citation mismatch",
+      "abstention failure"
+    ],
+    "hybrid_report_path": "reports/stages/hybrid_rag_structure_aware.json",
+    "source_report": "hybrid-rag-20260519T012426Z",
+    "top_k": 5
+  }
+}

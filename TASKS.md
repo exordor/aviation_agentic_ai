@@ -1,6 +1,6 @@
 # Project Task Board
 
-Last updated: 2026-05-19
+Last updated: 2026-05-26
 
 This file tracks concrete execution tasks. Durable project outcomes and scope boundaries live in `GOALS.md`.
 
@@ -15,11 +15,11 @@ A task should be small enough to finish, verify, and check off. When a task prod
 
 ## Active Task Queue
 
-1. Review the expanded 35-question benchmark results and decide which failures need manual gold-label refinement.
+1. Review `reports/stages/evidence_cards.md` and use the per-question failure categories to decide which hybrid fusion dilution cases need tuning or manual gold-label refinement.
 2. Add embedding/index backend comparison after retrieval ablation results are reviewed.
 3. If needed, rerun Hybrid RAG answer generation on the expanded gold labels instead of only the original 10 CQ answer set.
 4. Strengthen robustness abstention behavior, because the first deterministic robustness run has abstention correctness = 0.6.
-5. Decide whether to expose the expanded evaluation suite in the web demo or keep it as report-only evidence.
+5. Decide whether to expose the expanded evaluation suite and evidence cards in the web demo or keep them as report-only evidence.
 
 Related goals: G2, G3, G4, G6, G8, G9 in `GOALS.md`.
 
@@ -118,6 +118,11 @@ Related goals: G3, G4, G6, G8.
 - [x] Confirm citation completeness on LLM answers.
   - Evidence: `reports/stages/final_evaluation_review.md`.
   - Acceptance: each accepted answer cites at least one valid chunk/page/triple source or abstains when evidence is insufficient.
+- [x] Add per-question evidence cards for experiment explainability.
+  - Command: `uv run aviation-ai report evidence-cards --hybrid-report reports/stages/hybrid_rag_structure_aware.json --output-dir reports/stages`
+  - Evidence: `reports/stages/evidence_cards.json`, `reports/stages/evidence_cards.md`.
+  - Result: 10 cards summarize gold evidence, vector top-5, graph triples, hybrid fused top-5, graph helped/hurt status, citation status, and failure category; current observed categories are `success` and `hybrid fusion dilution`.
+  - Acceptance: cards are generated deterministically from existing Hybrid RAG JSON without rerunning LLM work and remain available as both standalone reports and embedded Hybrid RAG report sections.
 
 ## P2 - Final Submission Tasks
 
