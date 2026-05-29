@@ -40,6 +40,9 @@ from aviation_agentic_ai.reporting.evidence_cards import write_evidence_cards
 from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
 from aviation_agentic_ai.reporting.final_evaluation import write_final_evaluation_review
 from aviation_agentic_ai.reporting.graphrag_review import write_graphrag_review
+from aviation_agentic_ai.reporting.graph_traversal_ablation import (
+    write_graph_traversal_ablation,
+)
 from aviation_agentic_ai.reporting.hybrid_rag import write_hybrid_rag_experiment
 from aviation_agentic_ai.reporting.generation_runs import write_generation_run_summary
 from aviation_agentic_ai.reporting.hygiene import run_report_hygiene
@@ -640,6 +643,7 @@ def index_build(
 @click.option("--kg-file", "kg_path", type=click.Path(path_type=Path), default=None)
 @click.option("--index-dir", type=click.Path(path_type=Path), default=None)
 @click.option("--collection-name", default=None)
+@click.option("--graph-method", type=click.Choice(["lexical", "traversal"]), default=None)
 @click.option("--output", "output_path", type=click.Path(path_type=Path), default=None)
 @click.option("--temperature", type=float, default=0.0, show_default=True)
 @click.option("--max-tokens", type=int, default=1200, show_default=True)
@@ -650,6 +654,7 @@ def query(
     kg_path: Path | None,
     index_dir: Path | None,
     collection_name: str | None,
+    graph_method: str | None,
     output_path: Path | None,
     temperature: float,
     max_tokens: int,
@@ -668,6 +673,7 @@ def query(
         collection_name=collection_name
         or retrieval_config.get("collection_name", DEFAULT_COLLECTION_NAME),
         graph_hops=int(retrieval_config.get("graph_hops", 2)),
+        graph_method=graph_method or retrieval_config.get("graph_method", "lexical"),
         vector_top_k=int(retrieval_config.get("vector_top_k", 5)),
         hybrid_top_k=int(retrieval_config.get("hybrid_top_k", 8)),
         temperature=temperature,
@@ -1154,6 +1160,12 @@ def report_evidence_cards(
 @click.option("--index-dir", type=click.Path(path_type=Path), default=None)
 @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
 @click.option("--collection-name", default=None)
+@click.option(
+    "--graph-method",
+    type=click.Choice(["lexical", "traversal"]),
+    default="lexical",
+    show_default=True,
+)
 @click.option("--report-name", default="retrieval_ablation", show_default=True)
 def report_retrieval_ablation(
     boundary_cqs: Path | None,
@@ -1163,6 +1175,7 @@ def report_retrieval_ablation(
     index_dir: Path | None,
     output_dir: Path | None,
     collection_name: str | None,
+    graph_method: str,
     report_name: str,
 ) -> None:
     """Compare vector, graph, hybrid, hops, and top-k retrieval settings."""
@@ -1179,6 +1192,7 @@ def report_retrieval_ablation(
         or retrieval_config.get("structure_aware_collection_name", "phak_ch4_chunks_structure_aware"),
         gold_labels_path=gold_labels
         or resolve_project_path("data/cqs/06_phak_ch4_0.expanded.gold.json"),
+        graph_method=graph_method,
         report_name=report_name,
         command=" ".join(["aviation-ai", *sys.argv[1:]]),
     )
@@ -1186,6 +1200,52 @@ def report_retrieval_ablation(
     click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(
         f"Evaluated {result['metadata']['scenarios_total']} retrieval ablation scenarios "
+        f"for {result['metadata']['questions_total']} CQs."
+    )
+
+
+@report.command("graph-traversal-ablation")
+@click.option("--boundary-cqs", type=click.Path(path_type=Path), default=None)
+@click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
+@click.option("--chunks", "chunks_path", type=click.Path(path_type=Path), default=None)
+@click.option("--kg-file", "kg_path", type=click.Path(path_type=Path), default=None)
+@click.option("--index-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--collection-name", default=None)
+@click.option("--report-name", default="graph_traversal_ablation", show_default=True)
+def report_graph_traversal_ablation(
+    boundary_cqs: Path | None,
+    gold_labels: Path | None,
+    chunks_path: Path | None,
+    kg_path: Path | None,
+    index_dir: Path | None,
+    output_dir: Path | None,
+    collection_name: str | None,
+    report_name: str,
+) -> None:
+    """Compare lexical KG retrieval with bounded graph traversal variants."""
+    config = load_default_config()
+    retrieval_config = config.get("retrieval", {})
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_graph_traversal_ablation(
+        boundary_cqs or resolve_project_path("data/cqs/06_phak_ch4_0.boundary.json"),
+        chunks_path or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
+        kg_path or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
+        index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
+        report_dir,
+        collection_name=collection_name
+        or retrieval_config.get("structure_aware_collection_name", "phak_ch4_chunks_structure_aware"),
+        gold_labels_path=gold_labels
+        or resolve_project_path("data/cqs/06_phak_ch4_0.expanded.gold.json"),
+        vector_top_k=int(retrieval_config.get("vector_top_k", 5)),
+        hybrid_top_k=int(retrieval_config.get("hybrid_top_k", 8)),
+        report_name=report_name,
+        command=" ".join(["aviation-ai", *sys.argv[1:]]),
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        f"Evaluated {result['metadata']['scenarios_total']} graph traversal scenarios "
         f"for {result['metadata']['questions_total']} CQs."
     )
 

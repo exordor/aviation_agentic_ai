@@ -16,6 +16,7 @@ paths:
 
 retrieval:
   collection_name: phak_ch4_chunks
+  graph_method: lexical
   graph_hops: 2
   vector_top_k: 5
   hybrid_top_k: 8

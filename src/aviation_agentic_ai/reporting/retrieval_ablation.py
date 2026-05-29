@@ -156,6 +156,7 @@ def build_retrieval_ablation(
     collection_name: str = DEFAULT_COLLECTION_NAME,
     gold_labels_path: str | Path | None = None,
     scenarios: tuple[Scenario, ...] = DEFAULT_SCENARIOS,
+    graph_method: str = "lexical",
     query_runner: RetrievalRunner = run_retrieval,
     command: str = "aviation-ai report retrieval-ablation",
 ) -> dict[str, Any]:
@@ -177,6 +178,7 @@ def build_retrieval_ablation(
                 index_dir,
                 collection_name=collection_name,
                 graph_hops=graph_hops,
+                graph_method=graph_method,
                 vector_top_k=vector_top_k,
                 hybrid_top_k=hybrid_top_k,
             )
@@ -199,6 +201,7 @@ def build_retrieval_ablation(
                     "mode": mode,
                     "settings": {
                         "graph_hops": graph_hops,
+                        "graph_method": graph_method,
                         "vector_top_k": vector_top_k,
                         "hybrid_top_k": hybrid_top_k,
                     },
@@ -212,6 +215,7 @@ def build_retrieval_ablation(
             "mode": mode,
             "settings": {
                 "graph_hops": graph_hops,
+                "graph_method": graph_method,
                 "vector_top_k": vector_top_k,
                 "hybrid_top_k": hybrid_top_k,
             },
@@ -235,6 +239,7 @@ def build_retrieval_ablation(
             "gold_labels_path": project_relative_path(gold_labels_path)
             if gold_labels_path is not None
             else None,
+            "graph_method": graph_method,
         },
         artifacts={
             "boundary_cq_path": boundary_cq_path,
@@ -326,6 +331,7 @@ def write_retrieval_ablation(
     collection_name: str = DEFAULT_COLLECTION_NAME,
     gold_labels_path: str | Path | None = None,
     scenarios: tuple[Scenario, ...] = DEFAULT_SCENARIOS,
+    graph_method: str = "lexical",
     query_runner: RetrievalRunner = run_retrieval,
     report_name: str = "retrieval_ablation",
     command: str = "aviation-ai report retrieval-ablation",
@@ -338,6 +344,7 @@ def write_retrieval_ablation(
         collection_name=collection_name,
         gold_labels_path=gold_labels_path,
         scenarios=scenarios,
+        graph_method=graph_method,
         query_runner=query_runner,
         command=command,
     )

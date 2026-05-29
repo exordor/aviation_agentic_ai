@@ -193,14 +193,19 @@ def run_retrieval(
     index_dir: str | Path,
     collection_name: str = DEFAULT_COLLECTION_NAME,
     graph_hops: int = 2,
+    graph_method: str = "lexical",
+    aliases_path: str | Path | None = None,
     vector_top_k: int = 5,
     hybrid_top_k: int = 8,
 ) -> dict[str, Any]:
     if mode not in {"graph", "vector", "hybrid"}:
         raise ValueError(f"Unsupported retrieval mode: {mode}")
+    if graph_method not in {"lexical", "traversal"}:
+        raise ValueError(f"Unsupported graph retrieval method: {graph_method}")
     vector_hits: list[dict[str, Any]] = []
     graph_hits: list[dict[str, Any]] = []
     graph_triples: list[dict[str, Any]] = []
+    graph_paths: list[dict[str, Any]] = []
     if mode in {"vector", "hybrid"}:
         vector_hits = query_chroma_index(
             question,
@@ -209,13 +214,27 @@ def run_retrieval(
             top_k=vector_top_k,
         )
     if mode in {"graph", "hybrid"}:
-        graph_hits, graph_triples = graph_search(
-            question,
-            kg_path=kg_path,
-            chunks_path=chunks_path,
-            top_k=hybrid_top_k,
-            graph_hops=graph_hops,
-        )
+        if graph_method == "lexical":
+            graph_hits, graph_triples = graph_search(
+                question,
+                kg_path=kg_path,
+                chunks_path=chunks_path,
+                top_k=hybrid_top_k,
+                graph_hops=graph_hops,
+            )
+        else:
+            from aviation_agentic_ai.retrieval.graph_traversal import (
+                graph_search_traversal,
+            )
+
+            graph_hits, graph_triples, graph_paths = graph_search_traversal(
+                question,
+                kg_path=kg_path,
+                chunks_path=chunks_path,
+                top_k=hybrid_top_k,
+                graph_hops=graph_hops,
+                aliases_path=aliases_path,
+            )
     if mode == "vector":
         fused = vector_hits[:hybrid_top_k]
     elif mode == "graph":
@@ -225,9 +244,11 @@ def run_retrieval(
     return {
         "question": question,
         "mode": mode,
+        "graph_method": graph_method,
         "vector_hits": vector_hits,
         "graph_hits": graph_hits,
         "graph_triples": graph_triples,
+        "graph_paths": graph_paths,
         "fused_chunks": fused,
     }
 
@@ -240,6 +261,8 @@ def run_query(
     index_dir: str | Path,
     collection_name: str = DEFAULT_COLLECTION_NAME,
     graph_hops: int = 2,
+    graph_method: str = "lexical",
+    aliases_path: str | Path | None = None,
     vector_top_k: int = 5,
     hybrid_top_k: int = 8,
     temperature: float = 0.0,
@@ -253,6 +276,8 @@ def run_query(
         index_dir,
         collection_name=collection_name,
         graph_hops=graph_hops,
+        graph_method=graph_method,
+        aliases_path=aliases_path,
         vector_top_k=vector_top_k,
         hybrid_top_k=hybrid_top_k,
     )
