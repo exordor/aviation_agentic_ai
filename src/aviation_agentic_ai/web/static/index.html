@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aviation Agentic AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css?v=live-query-implementation" />
+    <link rel="stylesheet" href="/static/styles.css?v=metric-guide" />
   </head>
   <body>
     <main class="app-shell">
@@ -116,6 +116,15 @@
 
         <section class="metrics-strip" id="metrics-strip" aria-label="Evidence metrics"></section>
 
+        <section class="panel metric-guide-panel" aria-labelledby="metric-guide-title">
+          <div class="section-heading">
+            <h3 id="metric-guide-title">Metric Guide</h3>
+            <span class="count">simple English</span>
+          </div>
+          <p id="metric-policy" class="metric-policy"></p>
+          <div id="metric-guide" class="metric-guide"></div>
+        </section>
+
         <section class="explanation-grid" aria-label="Demo explanation">
           <article class="panel pipeline-panel collapsed">
             <div class="section-heading">
@@ -210,6 +219,6 @@
       </section>
     </main>
     <script src="/static/vendor/cytoscape.min.js?v=3.33.4"></script>
-    <script src="/static/app.js?v=live-query-implementation"></script>
+    <script src="/static/app.js?v=metric-guide"></script>
   </body>
 </html>

@@ -276,6 +276,10 @@ def test_demo_explanation_payload_describes_pipeline_modes_and_strategy(tmp_path
     assert explanation["mode_explanations"]["vector"]["label"] == "Vector"
     assert "KG graph is empty" in explanation["mode_explanations"]["vector"]["tradeoff"]
     assert explanation["mode_explanations"]["hybrid"]["label"] == "Hybrid"
+    assert "mixed overall score" in explanation["metric_explanations"]["policy"]
+    assert {
+        item["label"] for item in explanation["metric_explanations"]["items"]
+    } >= {"Chunk Recall@5", "MRR@5", "Citation completeness"}
     assert explanation["strategy_decision"]["recommended"] == "structure_aware"
     assert explanation["strategy_decision"]["baseline"] == "fixed_window"
     assert explanation["demo_script"]
@@ -329,6 +333,8 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert "Pipeline Explanation" in root.text
     assert root.text.index("Grounded Answer") < root.text.index("Pipeline Explanation")
     assert "Why This Result" in root.text
+    assert "Metric Guide" in root.text
+    assert "metric-guide" in root.text
     assert "kg-graph-canvas" in root.text
     assert "vendor/cytoscape.min.js" in root.text
     assert status.status_code == 200
@@ -339,6 +345,7 @@ def test_fastapi_web_demo_serves_offline_api(tmp_path: Path) -> None:
     assert explanation.status_code == 200
     assert explanation.json()["strategy_decision"]["recommended"] == "structure_aware"
     assert explanation.json()["mode_explanations"]["hybrid"]["label"] == "Hybrid"
+    assert explanation.json()["metric_explanations"]["items"][0]["meaning"]
     assert questions.status_code == 200
     assert len(questions.json()["questions"]) == 10
     assert detail.status_code == 200

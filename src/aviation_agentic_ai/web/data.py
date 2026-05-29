@@ -268,6 +268,39 @@ def _mode_explanations() -> dict[str, dict[str, str]]:
     }
 
 
+def _metric_explanations() -> list[dict[str, str]]:
+    return [
+        {
+            "label": "Chunk Recall@5",
+            "meaning": "The correct source chunk appears in the top five retrieved chunks.",
+        },
+        {
+            "label": "MRR@5",
+            "meaning": "The correct evidence appears earlier in the top five results.",
+        },
+        {
+            "label": "Context Precision@5",
+            "meaning": "The top five retrieved chunks contain less irrelevant text.",
+        },
+        {
+            "label": "Span hit",
+            "meaning": "The retrieved text touches the exact gold evidence span.",
+        },
+        {
+            "label": "KG coverage",
+            "meaning": "The knowledge graph contains useful triples for the question.",
+        },
+        {
+            "label": "Citation completeness",
+            "meaning": "The answer cites the chunks or triples that support it.",
+        },
+        {
+            "label": "Answer support",
+            "meaning": "The cited evidence fully, partly, or insufficiently supports the answer.",
+        },
+    ]
+
+
 def build_demo_explanation(project_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
     summary = build_experiment_summary(project_root)
     evidence_level = summary.get("evidence_level", {})
@@ -345,6 +378,10 @@ def build_demo_explanation(project_root: str | Path = PROJECT_ROOT) -> dict[str,
             ),
         ],
         "mode_explanations": _mode_explanations(),
+        "metric_explanations": {
+            "policy": "Metrics are shown separately. The experiment does not use one mixed overall score.",
+            "items": _metric_explanations(),
+        },
         "strategy_decision": {
             "recommended": "structure_aware",
             "baseline": "fixed_window",

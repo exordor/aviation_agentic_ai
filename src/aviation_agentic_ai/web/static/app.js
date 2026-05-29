@@ -447,6 +447,7 @@ function renderDemoExplanation() {
   renderDemoNarrative();
   renderPipelineExplanation();
   renderModeComparison();
+  renderMetricGuide();
   renderResultExplanation();
 }
 
@@ -466,6 +467,22 @@ function renderMetrics() {
         <div class="metric">
           <span>${escapeHtml(label)}</span>
           <strong>${escapeHtml(formatValue(value))}</strong>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function renderMetricGuide() {
+  const explanations = state.explanation?.metric_explanations || {};
+  const items = explanations.items || [];
+  $("#metric-policy").textContent = explanations.policy || "";
+  $("#metric-guide").innerHTML = items
+    .map(
+      (item) => `
+        <div class="metric-guide-item">
+          <strong>${escapeHtml(item.label)}</strong>
+          <span>${escapeHtml(item.meaning)}</span>
         </div>
       `
     )
