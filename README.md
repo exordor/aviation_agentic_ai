@@ -133,6 +133,7 @@ aviation-ai ontology evaluate --generated --report-name generated_ontology_evalu
 aviation-ai ontology validate-cqs
 aviation-ai ontology cqs --dry-run --max-pages 1
 aviation-ai ontology generate --dry-run --artifact-dir reports/stages/generation_runs/dry-run-seed
+aviation-ai cqs validate-benchmark
 aviation-ai chunk build
 aviation-ai kg extract --dry-run
 aviation-ai kg validate
@@ -140,6 +141,10 @@ aviation-ai index build
 aviation-ai query "How does angle of attack affect lift?"
 aviation-ai report hybrid-rag --max-questions 1
 aviation-ai report chunking-comparison --max-questions 1
+aviation-ai report benchmark-v2
+aviation-ai report graph-traversal-ablation
+aviation-ai report sufficiency-eval
+aviation-ai report triple-semantic-review
 aviation-ai report web-demo-readiness
 aviation-ai report web-demo-smoke
 aviation-ai report final-evaluation
@@ -241,6 +246,12 @@ uv run aviation-ai report evidence-eval
 uv run aviation-ai report graphrag-review
 uv run aviation-ai report final-evaluation
 uv run aviation-ai report thesis-claims
+uv run aviation-ai report benchmark-v2
+uv run aviation-ai report benchmark-review-pack
+uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2
+uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2
+uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json
+uv run aviation-ai report triple-semantic-review --sample-size 100
 ```
 
 ## Thesis Positioning And Claim Safety

@@ -44,27 +44,41 @@ Fixed-window vector Recall@5=1.0 and fixed-window hybrid Recall@5=0.9; fixed-win
 
 Evidence-level scoring is more useful for defending GraphRAG: structure-aware hybrid supports 9 answers versus 8 for fixed-window hybrid. Source: `reports/stages/evidence_level_evaluation.json`.
 
-## 8. Discussion
+## 8. Benchmark V2, Traversal, and Sufficiency Evidence
+
+The thesis benchmark v2 layer is reported separately from the earlier course gold set. It is machine-seeded and span-validated against repository chunks, but it is not external aviation-expert certification.
+
+Benchmark v2 contains 120 labels: 100 supported labels and 20 insufficient-evidence labels. Validation passed=True; review status=`machine_seeded_requires_manual_review`. The manual-review pack covers 120 labels and uses automatic findings only as prompts for human review. Sources: `reports/stages/benchmark_v2_summary.json`, `reports/stages/benchmark_review_pack.json`.
+
+On benchmark v2, vector Recall@5=0.475 and default hybrid Recall@5=0.5083; hybrid KG evidence coverage=0.8. These retrieval metrics are kept separate from KG evidence coverage. Source: `reports/stages/retrieval_ablation_benchmark_v2.json`.
+
+Graph traversal shows the expected split between graph reachability and page-level retrieval quality: 2-hop traversal path coverage=0.75 while standalone Recall@5=0.1333. The guarded hybrid traversal policy records Recall@5=0.4583 and is reported as a comparison point, not as a guaranteed improvement. Source: `reports/stages/graph_traversal_ablation_benchmark_v2.json`.
+
+The evidence sufficiency layer reports supported decision accuracy=0.71, insufficient-evidence abstention accuracy=1.0, false answer rate on no-answer questions=0.0, false abstention rate on supported questions=0.29, risk-category accuracy=1.0, and boundary violations=0. Source: `reports/stages/sufficiency_evaluation.json`.
+
+The triple semantic review sample contains 100 triples with review fields initialized to `needs_review`; no semantic correctness claim is made until those annotations are completed. Source: `reports/stages/triple_semantic_review_sample.json`.
+
+## 9. Discussion
 
 The main interpretation is that vector-only retrieval can remain competitive on coarse page-level gold labels, while GraphRAG contributes relation-level evidence coverage and provenance. This distinction prevents the evaluation from collapsing retrieval, KG evidence, answer quality, and abstention into one misleading score. Source: `reports/stages/graphrag_review.json`.
 
-## 9. Limitations and Threats to Validity
+## 10. Limitations and Threats to Validity
 
 The gold labels are reviewed for source alignment, but they remain course-project labels rather than external aviation examiner certification. The dataset is limited to PHAK Chapter 4. KG extraction depends on LLM structured output and therefore requires deterministic validation. Visual assets are explanatory presentation artifacts and must not be treated as experiment evidence.
 
-## 10. Web Demonstrator
+## 11. Web Demonstrator
 
 The web demo readiness report marks ready=True, default strategy=structure_aware, and explanation ready=True. The final smoke report marks ready=True. The demo presents answer evidence, KG triples, relationship graph, mode comparison, pipeline explanation, and advisory boundary. Sources: `reports/stages/web_demo_readiness.json`, `reports/stages/web_demo_final_smoke.json`.
 
-## 10.1 Final Evaluation Decision
+## 11.1 Final Evaluation Decision
 
 The final evaluation selects `structure_aware` as the default demo and next-phase GraphRAG strategy while keeping `fixed_window` as the baseline. Gold label review status is `manual_reviewed` with review_required=False. Source: `reports/stages/final_evaluation_review.json`.
 
-## 11. Advisory Boundary
+## 12. Advisory Boundary
 
 This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.
 
-## 12. Conclusion
+## 13. Conclusion
 
 The project is ready to be presented as a reproducible, evidence-layered GraphRAG prototype. The strongest defensible claim is not that graph retrieval universally beats vector retrieval, but that ontology-constrained KG evidence makes retrieved answers more explainable and auditable in the aviation handbook setting.
 
@@ -79,6 +93,13 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `uv run aviation-ai report web-demo-readiness`
 - `uv run aviation-ai report web-demo-smoke`
 - `uv run aviation-ai report thesis-claims`
+- `uv run aviation-ai cqs validate-benchmark`
+- `uv run aviation-ai report benchmark-v2`
+- `uv run aviation-ai report benchmark-review-pack`
+- `uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2`
+- `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`
+- `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`
+- `uv run aviation-ai report triple-semantic-review --sample-size 100`
 - `uv run aviation-ai report academic-paper --no-ai`
 - `uv run aviation-ai report defense-notes`
 - `uv run aviation-ai report defense-deck-outline`
@@ -115,6 +136,10 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/final/project_defense_notes.md`
 - `reports/stages/answer_evaluation.json`
 - `reports/stages/answer_evaluation.md`
+- `reports/stages/benchmark_review_pack.json`
+- `reports/stages/benchmark_review_pack.md`
+- `reports/stages/benchmark_v2_summary.json`
+- `reports/stages/benchmark_v2_summary.md`
 - `reports/stages/chunking_comparison.json`
 - `reports/stages/chunking_comparison.md`
 - `reports/stages/curated_ontology_evaluation.json`
@@ -123,6 +148,8 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/evidence_level_evaluation.md`
 - `reports/stages/final_evaluation_review.json`
 - `reports/stages/final_evaluation_review.md`
+- `reports/stages/graph_traversal_ablation_benchmark_v2.json`
+- `reports/stages/graph_traversal_ablation_benchmark_v2.md`
 - `reports/stages/graphrag_review.json`
 - `reports/stages/graphrag_review.md`
 - `reports/stages/hybrid_rag_experiment.json`
@@ -136,11 +163,17 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/kg_validation.md`
 - `reports/stages/retrieval_ablation.json`
 - `reports/stages/retrieval_ablation.md`
+- `reports/stages/retrieval_ablation_benchmark_v2.json`
+- `reports/stages/retrieval_ablation_benchmark_v2.md`
 - `reports/stages/robustness_evaluation.json`
 - `reports/stages/robustness_evaluation.md`
 - `reports/stages/structure_aware_kg_validation.json`
 - `reports/stages/structure_aware_kg_validation.md`
+- `reports/stages/sufficiency_evaluation.json`
+- `reports/stages/sufficiency_evaluation.md`
 - `reports/stages/thesis_claims_review.json`
+- `reports/stages/triple_semantic_review.md`
+- `reports/stages/triple_semantic_review_sample.json`
 - `reports/stages/web_demo_final_smoke.json`
 - `reports/stages/web_demo_final_smoke.md`
 - `reports/stages/web_demo_readiness.json`

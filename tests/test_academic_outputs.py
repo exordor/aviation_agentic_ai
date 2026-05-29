@@ -30,7 +30,8 @@ def test_academic_report_contains_required_sections_and_sources(tmp_path: Path) 
     assert "## Abstract" in markdown
     assert "## 4. Explainable Ontology Design" in markdown
     assert "## 7. Hybrid RAG and GraphRAG Evaluation" in markdown
-    assert "## 11. Advisory Boundary" in markdown
+    assert "## 8. Benchmark V2, Traversal, and Sufficiency Evidence" in markdown
+    assert "## 12. Advisory Boundary" in markdown
     assert "reports/stages/chunking_comparison.json" in markdown
     assert sources["source_policy"]["env_files_read"] is False
     assert sources["source_policy"]["secrets_allowed"] is False

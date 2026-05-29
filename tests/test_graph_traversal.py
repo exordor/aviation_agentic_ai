@@ -13,7 +13,11 @@ from aviation_agentic_ai.retrieval.graph_traversal import (
     link_question_entities,
     traverse_paths,
 )
-from aviation_agentic_ai.retrieval.hybrid import graph_search, run_retrieval
+from aviation_agentic_ai.retrieval.hybrid import (
+    graph_search,
+    run_retrieval,
+    vector_first_guarded_fusion,
+)
 
 
 def _chunk(chunk_id: str, page: int, text: str) -> SourceChunk:
@@ -155,6 +159,38 @@ def test_lexical_graph_search_still_returns_matching_triples(tmp_path: Path) -> 
 
     assert chunks[0]["chunk_id"] == "c1"
     assert triples[0]["triple_id"] == "t1"
+
+
+def test_vector_first_guarded_fusion_preserves_top_vector_hits() -> None:
+    vector_hits = [
+        {"chunk_id": "v1", "rank": 1, "source": "vector", "text": "Angle of attack affects lift."},
+        {"chunk_id": "v2", "rank": 2, "source": "vector", "text": "Lift depends on airflow."},
+        {"chunk_id": "v3", "rank": 3, "source": "vector", "text": "Other vector evidence."},
+    ]
+    graph_hits = [
+        {"chunk_id": "g1", "rank": 1, "source": "graph", "text": "Angle of attack affects lift."},
+        {"chunk_id": "g2", "rank": 2, "source": "graph", "text": "Graph evidence."},
+    ]
+    triples = [
+        {
+            "subject": "angle of attack",
+            "predicate": "affects",
+            "object": "lift",
+            "evidence_text": "Angle of attack affects lift.",
+        }
+    ]
+
+    fused = vector_first_guarded_fusion(
+        "How does angle of attack affect lift?",
+        vector_hits,
+        graph_hits,
+        triples,
+        [],
+        top_k=4,
+    )
+
+    assert [item["chunk_id"] for item in fused[:2]] == ["v1", "v2"]
+    assert "g1" in [item["chunk_id"] for item in fused]
 
 
 def test_cli_report_graph_traversal_ablation_uses_mocked_writer(

@@ -93,6 +93,10 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `reports/final/project_defense_notes.md`
 - `reports/stages/answer_evaluation.json`
 - `reports/stages/answer_evaluation.md`
+- `reports/stages/benchmark_review_pack.json`
+- `reports/stages/benchmark_review_pack.md`
+- `reports/stages/benchmark_v2_summary.json`
+- `reports/stages/benchmark_v2_summary.md`
 - `reports/stages/chunking_comparison.json`
 - `reports/stages/chunking_comparison.md`
 - `reports/stages/curated_ontology_evaluation.json`
@@ -101,6 +105,8 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `reports/stages/evidence_level_evaluation.md`
 - `reports/stages/final_evaluation_review.json`
 - `reports/stages/final_evaluation_review.md`
+- `reports/stages/graph_traversal_ablation_benchmark_v2.json`
+- `reports/stages/graph_traversal_ablation_benchmark_v2.md`
 - `reports/stages/graphrag_review.json`
 - `reports/stages/graphrag_review.md`
 - `reports/stages/hybrid_rag_experiment.json`
@@ -114,11 +120,17 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `reports/stages/kg_validation.md`
 - `reports/stages/retrieval_ablation.json`
 - `reports/stages/retrieval_ablation.md`
+- `reports/stages/retrieval_ablation_benchmark_v2.json`
+- `reports/stages/retrieval_ablation_benchmark_v2.md`
 - `reports/stages/robustness_evaluation.json`
 - `reports/stages/robustness_evaluation.md`
 - `reports/stages/structure_aware_kg_validation.json`
 - `reports/stages/structure_aware_kg_validation.md`
+- `reports/stages/sufficiency_evaluation.json`
+- `reports/stages/sufficiency_evaluation.md`
 - `reports/stages/thesis_claims_review.json`
+- `reports/stages/triple_semantic_review.md`
+- `reports/stages/triple_semantic_review_sample.json`
 - `reports/stages/web_demo_final_smoke.json`
 - `reports/stages/web_demo_final_smoke.md`
 - `reports/stages/web_demo_readiness.json`

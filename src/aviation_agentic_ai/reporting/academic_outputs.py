@@ -53,6 +53,8 @@ def _now() -> str:
 
 def _artifact_data(evidence: dict[str, Any], key: str) -> dict[str, Any]:
     data = evidence.get("current_artifacts", {}).get(f"{key}_json", {}).get("data", {})
+    if not data:
+        data = evidence.get("thesis_ready_artifacts", {}).get(f"{key}_json", {}).get("data", {})
     return data if isinstance(data, dict) else {}
 
 
@@ -81,6 +83,9 @@ def _source_paths(evidence: dict[str, Any]) -> list[str]:
     for source in evidence.get("current_artifacts", {}).values():
         if isinstance(source, dict) and source.get("present") and source.get("path"):
             sources.add(str(source["path"]))
+    for source in evidence.get("thesis_ready_artifacts", {}).values():
+        if isinstance(source, dict) and source.get("present") and source.get("path"):
+            sources.add(str(source["path"]))
     return sorted(path for path in sources if path)
 
 
@@ -105,6 +110,12 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
     web_demo = _artifact_data(evidence, "web_demo_readiness")
     web_smoke = _artifact_data(evidence, "web_demo_final_smoke")
     final_evaluation = _artifact_data(evidence, "final_evaluation_review")
+    benchmark_v2 = _artifact_data(evidence, "benchmark_v2_summary")
+    benchmark_review = _artifact_data(evidence, "benchmark_review_pack")
+    retrieval_v2 = _artifact_data(evidence, "retrieval_ablation_benchmark_v2")
+    traversal_v2 = _artifact_data(evidence, "graph_traversal_ablation_benchmark_v2")
+    sufficiency = _artifact_data(evidence, "sufficiency_evaluation")
+    triple_review = _artifact_data(evidence, "triple_semantic_review")
     ranking = chunking.get("ranking", []) if isinstance(chunking.get("ranking"), list) else []
     best_chunking = ranking[0] if ranking else {}
     fixed_hybrid_agg = fixed_hybrid.get("aggregate", {})
@@ -294,6 +305,106 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
                     "review_required",
                 ),
             },
+            "benchmark_v2": {
+                "labels_total": _metric(benchmark_v2, "metadata", "labels_total"),
+                "supported_total": _metric(benchmark_v2, "metadata", "supported_total"),
+                "no_answer_total": _metric(benchmark_v2, "metadata", "no_answer_total"),
+                "validation_valid": _metric(benchmark_v2, "validation", "valid"),
+                "review_status": _metric(benchmark_v2, "metadata", "review_status"),
+                "review_pack_labels_total": _metric(
+                    benchmark_review,
+                    "metadata",
+                    "labels_total",
+                ),
+                "review_pack_finding_counts": _metric(
+                    benchmark_review,
+                    "finding_counts",
+                    default={},
+                ),
+                "vector_recall_at_5": _metric(
+                    retrieval_v2,
+                    "scenarios",
+                    "vector_hops2_v5_h8",
+                    "aggregate",
+                    "retrieval",
+                    "recall_at_5",
+                ),
+                "hybrid_recall_at_5": _metric(
+                    retrieval_v2,
+                    "scenarios",
+                    "hybrid_hops2_v5_h8",
+                    "aggregate",
+                    "retrieval",
+                    "recall_at_5",
+                ),
+                "hybrid_kg_coverage": _metric(
+                    retrieval_v2,
+                    "scenarios",
+                    "hybrid_hops2_v5_h8",
+                    "aggregate",
+                    "kg_evidence",
+                    "evidence_coverage",
+                ),
+                "traversal_path_coverage": _metric(
+                    traversal_v2,
+                    "scenarios",
+                    "traversal_graph_2_hop",
+                    "aggregate",
+                    "graph_paths",
+                    "path_coverage",
+                ),
+                "traversal_recall_at_5": _metric(
+                    traversal_v2,
+                    "scenarios",
+                    "traversal_graph_2_hop",
+                    "aggregate",
+                    "retrieval",
+                    "recall_at_5",
+                ),
+                "traversal_guarded_recall_at_5": _metric(
+                    traversal_v2,
+                    "scenarios",
+                    "hybrid_vector_traversal_guarded",
+                    "aggregate",
+                    "retrieval",
+                    "recall_at_5",
+                ),
+                "sufficiency_supported_decision_accuracy": _metric(
+                    sufficiency,
+                    "metrics",
+                    "supported_answer_decision_accuracy",
+                ),
+                "sufficiency_abstention_accuracy": _metric(
+                    sufficiency,
+                    "metrics",
+                    "insufficient_evidence_abstention_accuracy",
+                ),
+                "sufficiency_false_answer_rate": _metric(
+                    sufficiency,
+                    "metrics",
+                    "false_answer_rate_on_no_answer_questions",
+                ),
+                "sufficiency_false_abstention_rate": _metric(
+                    sufficiency,
+                    "metrics",
+                    "false_abstention_rate_on_supported_questions",
+                ),
+                "sufficiency_risk_category_accuracy": _metric(
+                    sufficiency,
+                    "metrics",
+                    "risk_category_accuracy",
+                ),
+                "sufficiency_boundary_violation_count": _metric(
+                    sufficiency,
+                    "metrics",
+                    "boundary_violation_count",
+                ),
+                "triple_review_sample_size": _metric(
+                    triple_review,
+                    "metadata",
+                    "sample_size",
+                ),
+            },
         },
         "graphrag_interpretations": graphrag_review.get("interpretations", []),
         "advisory_boundary": evidence.get("advisory_boundary", ""),
@@ -408,7 +519,58 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         f"versus {metrics['hybrid_rag']['fixed_supported_answers']} for fixed-window "
         "hybrid. Source: `reports/stages/evidence_level_evaluation.json`.",
         "",
-        "## 8. Discussion",
+        "## 8. Benchmark V2, Traversal, and Sufficiency Evidence",
+        "",
+        "The thesis benchmark v2 layer is reported separately from the earlier course "
+        "gold set. It is machine-seeded and span-validated against repository chunks, "
+        "but it is not external aviation-expert certification.",
+        "",
+        f"Benchmark v2 contains {metrics['benchmark_v2']['labels_total']} labels: "
+        f"{metrics['benchmark_v2']['supported_total']} supported labels and "
+        f"{metrics['benchmark_v2']['no_answer_total']} insufficient-evidence labels. "
+        f"Validation passed={metrics['benchmark_v2']['validation_valid']}; review "
+        f"status=`{metrics['benchmark_v2']['review_status']}`. The manual-review pack "
+        f"covers {metrics['benchmark_v2']['review_pack_labels_total']} labels and uses "
+        "automatic findings only as prompts for human review. Sources: "
+        "`reports/stages/benchmark_v2_summary.json`, "
+        "`reports/stages/benchmark_review_pack.json`.",
+        "",
+        f"On benchmark v2, vector Recall@5="
+        f"{metrics['benchmark_v2']['vector_recall_at_5']} and default hybrid Recall@5="
+        f"{metrics['benchmark_v2']['hybrid_recall_at_5']}; hybrid KG evidence "
+        f"coverage={metrics['benchmark_v2']['hybrid_kg_coverage']}. These retrieval "
+        "metrics are kept separate from KG evidence coverage. Source: "
+        "`reports/stages/retrieval_ablation_benchmark_v2.json`.",
+        "",
+        f"Graph traversal shows the expected split between graph reachability and "
+        f"page-level retrieval quality: 2-hop traversal path coverage="
+        f"{metrics['benchmark_v2']['traversal_path_coverage']} while standalone "
+        f"Recall@5={metrics['benchmark_v2']['traversal_recall_at_5']}. The guarded "
+        f"hybrid traversal policy records Recall@5="
+        f"{metrics['benchmark_v2']['traversal_guarded_recall_at_5']} and is reported "
+        "as a comparison point, not as a guaranteed improvement. Source: "
+        "`reports/stages/graph_traversal_ablation_benchmark_v2.json`.",
+        "",
+        f"The evidence sufficiency layer reports supported decision accuracy="
+        f"{metrics['benchmark_v2']['sufficiency_supported_decision_accuracy']}, "
+        f"insufficient-evidence abstention accuracy="
+        f"{metrics['benchmark_v2']['sufficiency_abstention_accuracy']}, false answer "
+        f"rate on no-answer questions="
+        f"{metrics['benchmark_v2']['sufficiency_false_answer_rate']}, false "
+        f"abstention rate on supported questions="
+        f"{metrics['benchmark_v2']['sufficiency_false_abstention_rate']}, risk-category "
+        f"accuracy={metrics['benchmark_v2']['sufficiency_risk_category_accuracy']}, "
+        f"and boundary violations="
+        f"{metrics['benchmark_v2']['sufficiency_boundary_violation_count']}. Source: "
+        "`reports/stages/sufficiency_evaluation.json`.",
+        "",
+        f"The triple semantic review sample contains "
+        f"{metrics['benchmark_v2']['triple_review_sample_size']} triples with review "
+        "fields initialized to `needs_review`; no semantic correctness claim is made "
+        "until those annotations are completed. Source: "
+        "`reports/stages/triple_semantic_review_sample.json`.",
+        "",
+        "## 9. Discussion",
         "",
         "The main interpretation is that vector-only retrieval can remain competitive on "
         "coarse page-level gold labels, while GraphRAG contributes relation-level evidence "
@@ -417,7 +579,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "Source: "
         "`reports/stages/graphrag_review.json`.",
         "",
-        "## 9. Limitations and Threats to Validity",
+        "## 10. Limitations and Threats to Validity",
         "",
         "The gold labels are reviewed for source alignment, but they remain course-project "
         "labels rather than external aviation examiner certification. The dataset is "
@@ -425,7 +587,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "therefore requires deterministic validation. Visual assets are explanatory "
         "presentation artifacts and must not be treated as experiment evidence.",
         "",
-        "## 10. Web Demonstrator",
+        "## 11. Web Demonstrator",
         "",
         f"The web demo readiness report marks ready={metrics['web_demo']['ready']}, "
         f"default strategy={metrics['web_demo']['default_strategy']}, and explanation "
@@ -435,7 +597,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "advisory boundary. Sources: `reports/stages/web_demo_readiness.json`, "
         "`reports/stages/web_demo_final_smoke.json`.",
         "",
-        "## 10.1 Final Evaluation Decision",
+        "## 11.1 Final Evaluation Decision",
         "",
         f"The final evaluation selects `{metrics['final_evaluation']['default_strategy']}` "
         "as the default demo and next-phase GraphRAG strategy while keeping "
@@ -444,11 +606,11 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         f"with review_required={metrics['final_evaluation']['gold_review_required']}. "
         "Source: `reports/stages/final_evaluation_review.json`.",
         "",
-        "## 11. Advisory Boundary",
+        "## 12. Advisory Boundary",
         "",
         summary["advisory_boundary"],
         "",
-        "## 12. Conclusion",
+        "## 13. Conclusion",
         "",
         "The project is ready to be presented as a reproducible, evidence-layered "
         "GraphRAG prototype. The strongest defensible claim is not that graph retrieval "
@@ -467,6 +629,13 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "- `uv run aviation-ai report web-demo-readiness`",
         "- `uv run aviation-ai report web-demo-smoke`",
         "- `uv run aviation-ai report thesis-claims`",
+        "- `uv run aviation-ai cqs validate-benchmark`",
+        "- `uv run aviation-ai report benchmark-v2`",
+        "- `uv run aviation-ai report benchmark-review-pack`",
+        "- `uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2`",
+        "- `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`",
+        "- `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`",
+        "- `uv run aviation-ai report triple-semantic-review --sample-size 100`",
         "- `uv run aviation-ai report academic-paper --no-ai`",
         "- `uv run aviation-ai report defense-notes`",
         "- `uv run aviation-ai report defense-deck-outline`",

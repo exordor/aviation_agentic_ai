@@ -1,0 +1,2825 @@
+{
+  "metadata": {
+    "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+    "sample_size": 100,
+    "sample_size_requested": 100,
+    "semantic_correctness_claimed": false,
+    "triples_total": 448
+  },
+  "records": [
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.79,
+        "evidence_text": "the fundamental physical laws governing the forces acting on an aircraft in flight",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Evidence",
+        "object_class": "Cl_Evidence",
+        "page": 0,
+        "predicate": "supportedByEvidence",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.84,
+        "evidence_text": "what effect these natural laws and forces have on the performance characteristics of aircraft",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_AircraftPerformance",
+        "object_class": "Cl_AircraftPerformance",
+        "page": 0,
+        "predicate": "affects",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.95,
+        "evidence_text": "an aircraft in flight",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Aircraft",
+        "object_class": "Cl_Aircraft",
+        "page": 0,
+        "predicate": "appliesTo",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg02-67295bee69"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.91,
+        "evidence_text": "airplane, helicopter, glider, or balloon",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Aircraft",
+        "object_class": "Cl_Aircraft",
+        "page": 0,
+        "predicate": "appliesTo",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg03-67295bee69"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+        "confidence": 0.55,
+        "evidence_text": "the principles involved",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "natural forces",
+        "object_class": "Cl_Force",
+        "page": 0,
+        "predicate": "affects",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "the principles involved",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c03-kg00-ec85a2e957"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+        "confidence": 0.5,
+        "evidence_text": "natural forces",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "the principles involved",
+        "object_class": "Cl_Evidence",
+        "page": 0,
+        "predicate": "supportedByEvidence",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "natural forces",
+        "subject_class": "Cl_Force",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c03-kg01-d8ad94bed4"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+        "confidence": 0.95,
+        "evidence_text": "an envelope of air",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Air",
+        "object_class": "Cl_Air",
+        "page": 0,
+        "predicate": "hasComponent",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg00-8748d82ca7"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+        "confidence": 0.85,
+        "evidence_text": "it is a mixture of gases",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Fluid",
+        "object_class": "Cl_Fluid",
+        "page": 0,
+        "predicate": "hasComponent",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg01-898cdb205b"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
+        "confidence": 0.88,
+        "evidence_text": "below 35,000 feet altitude",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Altitude",
+        "object_class": "Cl_Altitude",
+        "page": 0,
+        "predicate": "hasQuantity",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c04-kg02-bf8ee5a3ea"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c05",
+        "confidence": 0.92,
+        "evidence_text": "below 35,000 feet altitude",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "below 35,000 feet altitude",
+        "object_class": "Cl_Altitude",
+        "page": 0,
+        "predicate": "hasQuantity",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c05-kg00-9d032c2a9a"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c06",
+        "confidence": 0.72,
+        "evidence_text": "region of higher altitude",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "the atmosphere",
+        "object_class": "Cl_Atmosphere",
+        "page": 0,
+        "predicate": "partOf",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "higher altitude",
+        "subject_class": "Cl_Altitude",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c06-kg00-f932292260"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c06",
+        "confidence": 0.86,
+        "evidence_text": "below 35,000 feet altitude",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "below 35,000 feet altitude",
+        "object_class": "Cl_Altitude",
+        "page": 0,
+        "predicate": "hasQuantity",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "oxygen",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c06-kg01-313467454a"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c06",
+        "confidence": 0.9,
+        "evidence_text": "the atmosphere\u2019s oxygen",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "the atmosphere",
+        "object_class": "Cl_Atmosphere",
+        "page": 0,
+        "predicate": "partOf",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "oxygen",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c06-kg02-cb7d201076"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c07",
+        "confidence": 0.87,
+        "evidence_text": "Most of the atmosphere\u2019s oxygen",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "atmosphere",
+        "object_class": "Cl_Atmosphere",
+        "page": 0,
+        "predicate": "partOf",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "oxygen",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c07-kg00-bcf45f34cc"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c07",
+        "confidence": 0.93,
+        "evidence_text": "below 35,000 feet altitude",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "below 35,000 feet altitude",
+        "object_class": "Cl_Altitude",
+        "page": 0,
+        "predicate": "hasCondition",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "oxygen",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c07-kg01-f0020d5879"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c00",
+        "confidence": 0.78,
+        "evidence_text": "Leading edge of wing",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Microscopic surface of a wing",
+        "object_class": "Cl_Wing",
+        "page": 1,
+        "predicate": "hasComponent",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Leading edge of wing",
+        "subject_class": "Cl_LeadingEdge",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c00-kg00-ae6aa92099"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c00",
+        "confidence": 0.74,
+        "evidence_text": "Microscopic surface of a wing",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "wing",
+        "object_class": "Cl_Wing",
+        "page": 1,
+        "predicate": "partOf",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Microscopic surface of a wing",
+        "subject_class": "Cl_Wing",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c00-kg01-c8df9d6f0f"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c01",
+        "confidence": 0.98,
+        "evidence_text": "Air is a Fluid",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Fluid",
+        "object_class": "Cl_Fluid",
+        "page": 1,
+        "predicate": "partOf",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c01-kg00-9af2938ab8"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+        "confidence": 0.98,
+        "evidence_text": "Air is a Fluid",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Fluid",
+        "object_class": "Cl_Fluid",
+        "page": 1,
+        "predicate": "partOf",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg00-178e9ee3e0"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+        "confidence": 0.97,
+        "evidence_text": "gasses, like air, are also fluids",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Fluid",
+        "object_class": "Cl_Fluid",
+        "page": 1,
+        "predicate": "supportedByEvidence",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg01-a5b105db61"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+        "confidence": 0.89,
+        "evidence_text": "Fluids take on the shape of their containers",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Condition",
+        "object_class": "Cl_Condition",
+        "page": 1,
+        "predicate": "hasOutcome",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Fluid",
+        "subject_class": "Cl_Fluid",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg02-fa45a854b4"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+        "confidence": 0.9,
+        "evidence_text": "Fluids also have the ability to flow",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Flow",
+        "object_class": "Cl_Flow",
+        "page": 1,
+        "predicate": "hasOutcome",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Fluid",
+        "subject_class": "Cl_Fluid",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg03-98da62bc7d"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+        "confidence": 0.86,
+        "evidence_text": "air will expand to fill the available volume",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Condition",
+        "object_class": "Cl_Condition",
+        "page": 1,
+        "predicate": "hasOutcome",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c02-kg04-fb19ba7a4b"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+        "confidence": 0.88,
+        "evidence_text": "density. Understanding the fluid properties of air is essential to understanding the principles of flight.",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "principles of flight",
+        "object_class": "Cl_Concept",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "density",
+        "subject_class": "Cl_Density",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c03-kg00-5f188411a8"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+        "confidence": 0.9,
+        "evidence_text": "Understanding the fluid properties of air is essential to understanding the principles of flight.",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "principles of flight",
+        "object_class": "Cl_Concept",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "fluid properties of air",
+        "subject_class": "Cl_Fluid",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c03-kg01-1eb52c41a9"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c04",
+        "confidence": 0.58,
+        "evidence_text": "density.",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Density",
+        "object_class": "Cl_Density",
+        "page": 1,
+        "predicate": "hasComponent",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Fluid",
+        "subject_class": "Cl_Fluid",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c04-kg00-c674fd0358"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c04",
+        "confidence": 0.89,
+        "evidence_text": "Viscosity is the property of a fluid",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Viscosity",
+        "object_class": "Cl_Concept",
+        "page": 1,
+        "predicate": "hasComponent",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Fluid",
+        "subject_class": "Cl_Fluid",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c04-kg01-a8296725ae"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c04",
+        "confidence": 0.93,
+        "evidence_text": "causes it to resist flowing",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Flow",
+        "object_class": "Cl_Flow",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Viscosity",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c04-kg02-012eeeefb3"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c04",
+        "confidence": 0.91,
+        "evidence_text": "Air has a low viscosity",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Concept",
+        "object_class": "Cl_Concept",
+        "page": 1,
+        "predicate": "hasCondition",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c04-kg03-0fe8f69544"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c04",
+        "confidence": 0.87,
+        "evidence_text": "flows easily",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Flow",
+        "object_class": "Cl_Flow",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c04-kg04-2856a505df"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c04",
+        "confidence": 0.88,
+        "evidence_text": "All fluids are viscous",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Concept",
+        "object_class": "Cl_Concept",
+        "page": 1,
+        "predicate": "hasCondition",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Fluid",
+        "subject_class": "Cl_Fluid",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c04-kg05-2d20b7eb11"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c05",
+        "confidence": 0.96,
+        "evidence_text": "air is a fluid",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "fluid",
+        "object_class": "Cl_Fluid",
+        "page": 1,
+        "predicate": "partOf",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c05-kg00-afbbe967ae"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c05",
+        "confidence": 0.92,
+        "evidence_text": "the viscosity of air",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "air",
+        "object_class": "Cl_Air",
+        "page": 1,
+        "predicate": "appliesTo",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "viscosity",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c05-kg01-4d07454693"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c05",
+        "confidence": 0.9,
+        "evidence_text": "it resists flow around any object",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "resists flow",
+        "object_class": "Cl_Flow",
+        "page": 1,
+        "predicate": "causes",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "viscosity",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c05-kg02-fc8d8b70f5"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c06",
+        "confidence": 0.78,
+        "evidence_text": "air is a fluid and has viscosity properties",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "viscosity properties",
+        "object_class": "Cl_Concept",
+        "page": 1,
+        "predicate": "hasComponent",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c06-kg00-d540390ba0"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c06",
+        "confidence": 0.74,
+        "evidence_text": "it resists flow around any object",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "flow around any object",
+        "object_class": "Cl_Flow",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c06-kg01-45af51d455"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c07",
+        "confidence": 0.94,
+        "evidence_text": "air is a fluid",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Fluid",
+        "object_class": "Cl_Fluid",
+        "page": 1,
+        "predicate": "hasComponent",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c07-kg00-898cdb205b"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c07",
+        "confidence": 0.84,
+        "evidence_text": "resists flow around any object",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Flow",
+        "object_class": "Cl_Flow",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c07-kg01-2856a505df"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c07",
+        "confidence": 0.72,
+        "evidence_text": "The surface of a wing",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_AirfoilSurface",
+        "object_class": "Cl_AirfoilSurface",
+        "page": 1,
+        "predicate": "hasComponent",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Wing",
+        "subject_class": "Cl_Wing",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c07-kg02-e028ca7dd1"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c07",
+        "confidence": 0.93,
+        "evidence_text": "surface roughness causes resistance",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Flow",
+        "object_class": "Cl_Flow",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_AirfoilSurface",
+        "subject_class": "Cl_AirfoilSurface",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c07-kg03-ca0513428a"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c07",
+        "confidence": 0.77,
+        "evidence_text": "slows the velocity of the air flowing over the wing",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_AircraftPerformance",
+        "object_class": "Cl_AircraftPerformance",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_AirfoilSurface",
+        "subject_class": "Cl_AirfoilSurface",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c07-kg04-7a8ce3cb0b"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c08",
+        "confidence": 0.93,
+        "evidence_text": "The surface roughness causes resistance",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "resistance",
+        "object_class": "Cl_Force",
+        "page": 1,
+        "predicate": "causes",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "surface roughness",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c08-kg00-f127721da0"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c08",
+        "confidence": 0.91,
+        "evidence_text": "and slows the velocity of the air flowing over the wing",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "slows the velocity of the air",
+        "object_class": "Cl_Outcome",
+        "page": 1,
+        "predicate": "causes",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "surface roughness",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c08-kg01-89ecf88487"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c08",
+        "confidence": 0.88,
+        "evidence_text": "The roughness of the surface impedes their motion",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "motion",
+        "object_class": "Cl_Condition",
+        "page": 1,
+        "predicate": "affects",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "surface roughness",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c08-kg02-3c3ca94c9c"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p01-c08",
+        "confidence": 0.97,
+        "evidence_text": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "layer of molecules that adhere to the wing surface",
+        "object_class": "Cl_Concept",
+        "page": 1,
+        "predicate": "hasComponent",
+        "section": "page-1",
+        "source_document": "06_phak_ch4_0",
+        "subject": "boundary layer",
+        "subject_class": "Cl_BoundaryLayer",
+        "triple_id": "06_phak_ch4_0-structure_aware-p01-c08-kg03-b158087c7c"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+        "confidence": 0.94,
+        "evidence_text": "the boundary layer of the air",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "air",
+        "object_class": "Cl_Air",
+        "page": 2,
+        "predicate": "partOf",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "boundary layer",
+        "subject_class": "Cl_BoundaryLayer",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c101-kg00-88fb08cc69"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+        "confidence": 0.88,
+        "evidence_text": "it is called drag",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "drag",
+        "object_class": "Cl_Drag",
+        "page": 2,
+        "predicate": "causes",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "boundary layer",
+        "subject_class": "Cl_BoundaryLayer",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c101-kg01-826d1018f1"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+        "confidence": 0.84,
+        "evidence_text": "further resistance to the airflow is caused by the viscosity",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "drag",
+        "object_class": "Cl_Drag",
+        "page": 2,
+        "predicate": "causes",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "viscosity",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c101-kg02-4bcbea4169"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c101",
+        "confidence": 0.77,
+        "evidence_text": "Once the boundary layer of the air adheres to the wing by friction",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "boundary layer adheres to the wing by friction",
+        "object_class": "Cl_Condition",
+        "page": 2,
+        "predicate": "hasCondition",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "drag",
+        "subject_class": "Cl_Drag",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c101-kg03-856c4e4d9d"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c102",
+        "confidence": 0.85,
+        "evidence_text": "When these two forces act together to resist airflow over a wing, it is called drag.",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "drag",
+        "object_class": "Cl_Drag",
+        "page": 2,
+        "predicate": "hasOutcome",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "viscosity",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c102-kg00-35de05634c"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c102",
+        "confidence": 0.79,
+        "evidence_text": "resist airflow over a wing",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "wing",
+        "object_class": "Cl_Wing",
+        "page": 2,
+        "predicate": "appliesTo",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "drag",
+        "subject_class": "Cl_Drag",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c102-kg01-bccb71abc8"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c103",
+        "confidence": 0.83,
+        "evidence_text": "viscosity, the tendency of the air to stick to itself",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "viscosity",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasComponent",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "drag",
+        "subject_class": "Cl_Drag",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c103-kg00-942ff99447"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c103",
+        "confidence": 0.9,
+        "evidence_text": "measured in pounds of force exerted per square inch of an object, or PSI",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "PSI",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c103-kg01-b04dc1c761"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c103",
+        "confidence": 0.72,
+        "evidence_text": "uniformly around the entire surface of the object",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "surface of an object",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "appliesTo",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c103-kg02-b7ac56f8cd"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c103",
+        "confidence": 0.84,
+        "evidence_text": "the object will move in the direction of the lower pressure",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "move in the direction of the lower pressure",
+        "object_class": "Cl_Outcome",
+        "page": 2,
+        "predicate": "hasOutcome",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c103-kg03-c4db657589"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c104",
+        "confidence": 0.9,
+        "evidence_text": "surface of the object becomes less than the pressure exerted on the other surfaces",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "pressure exerted on the other surfaces",
+        "object_class": "Cl_Pressure",
+        "page": 2,
+        "predicate": "hasCondition",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "surface of the object",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c104-kg00-f5bc2fc943"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c104",
+        "confidence": 0.88,
+        "evidence_text": "the object will move in the direction of the lower pressure",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "move in the direction of the lower pressure",
+        "object_class": "Cl_Outcome",
+        "page": 2,
+        "predicate": "causes",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "the object",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c104-kg01-ecdd84ddd9"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+        "confidence": 0.82,
+        "evidence_text": "atmospheric pressure",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Pressure",
+        "object_class": "Cl_Pressure",
+        "page": 2,
+        "predicate": "hasCondition",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c105-kg00-813b3028bf"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+        "confidence": 0.77,
+        "evidence_text": "helps to lift an aircraft",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Aircraft",
+        "object_class": "Cl_Aircraft",
+        "page": 2,
+        "predicate": "affects",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c105-kg01-95989858d4"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+        "confidence": 0.71,
+        "evidence_text": "it has force",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Force",
+        "object_class": "Cl_Force",
+        "page": 2,
+        "predicate": "hasComponent",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c105-kg02-983ae6b478"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+        "confidence": 0.93,
+        "evidence_text": "Its effect on bodies within the air is called pressure",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Pressure",
+        "object_class": "Cl_Pressure",
+        "page": 2,
+        "predicate": "hasCondition",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Air",
+        "subject_class": "Cl_Air",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c105-kg03-f2de4a585c"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+        "confidence": 0.94,
+        "evidence_text": "Under standard conditions at sea level",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "standard conditions at sea level",
+        "object_class": "Cl_Condition",
+        "page": 2,
+        "predicate": "hasCondition",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure exerted by the weight of the atmosphere",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+        "confidence": 0.97,
+        "evidence_text": "approximately 14.70 pounds per square inch (psi)",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "14.70 pounds per square inch (psi)",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure exerted by the weight of the atmosphere",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg01-9710acebbf"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+        "confidence": 0.89,
+        "evidence_text": "or 1,013.2",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1,013.2",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure exerted by the weight of the atmosphere",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg02-ea3a886d0d"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.83,
+        "evidence_text": "14.70 pounds per square inch",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Pressure",
+        "object_class": "Cl_Pressure",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg00-54921c8ed3"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.83,
+        "evidence_text": "1,013.2 millibars",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Pressure",
+        "object_class": "Cl_Pressure",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg01-54921c8ed3"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.91,
+        "evidence_text": "the higher the altitude, the less air there is above",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Pressure",
+        "object_class": "Cl_Pressure",
+        "page": 2,
+        "predicate": "affects",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Altitude",
+        "subject_class": "Cl_Altitude",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg02-520365d66c"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.82,
+        "evidence_text": "The pressure of the atmosphere varies with time and location",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Condition",
+        "object_class": "Cl_Condition",
+        "page": 2,
+        "predicate": "hasCondition",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg03-cfd439979e"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.76,
+        "evidence_text": "standard atmosphere at sea level",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Condition",
+        "object_class": "Cl_Condition",
+        "page": 2,
+        "predicate": "hasCondition",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.9,
+        "evidence_text": "a surface temperature of 59 \u00b0F or 15 \u00b0C",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Temperature",
+        "object_class": "Cl_Temperature",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg05-4ed6928f68"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.9,
+        "evidence_text": "a surface pressure of 29.92 inches of mercury",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Pressure",
+        "object_class": "Cl_Pressure",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg06-54921c8ed3"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.77,
+        "evidence_text": "the temperature decreases",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Condition",
+        "object_class": "Cl_Condition",
+        "page": 2,
+        "predicate": "causes",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Temperature",
+        "subject_class": "Cl_Temperature",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg07-faef578034"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.77,
+        "evidence_text": "pressure decreases",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Condition",
+        "object_class": "Cl_Condition",
+        "page": 2,
+        "predicate": "causes",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg08-86c60e22bf"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+        "confidence": 0.88,
+        "evidence_text": "per 1,000 feet of altitude gain",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Pressure",
+        "object_class": "Cl_Pressure",
+        "page": 2,
+        "predicate": "affects",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Altitude",
+        "subject_class": "Cl_Altitude",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg09-520365d66c"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c108",
+        "confidence": 0.91,
+        "evidence_text": "pressure decreases at a rate of approximately 1 \"Hg per 1,000 feet of altitude gain",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "altitude gain",
+        "object_class": "Cl_Altitude",
+        "page": 2,
+        "predicate": "affects",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c108-kg00-99b236e502"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c108",
+        "confidence": 0.95,
+        "evidence_text": "approximately 1 \"Hg per 1,000 feet",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1 \"Hg per 1,000 feet",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c108-kg01-8cceeea770"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c108",
+        "confidence": 0.78,
+        "evidence_text": "to 10,000 feet",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "10,000 feet",
+        "object_class": "Cl_Altitude",
+        "page": 2,
+        "predicate": "affects",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c108-kg02-fa4e5868b3"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c109",
+        "confidence": 0.82,
+        "evidence_text": "International Standard Atmosphere (ISA)",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "International Standard Atmosphere",
+        "object_class": "Cl_Atmosphere",
+        "page": 2,
+        "predicate": "hasOutcome",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "International Civil Aviation Organization",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c109-kg00-9cf3623460"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c109",
+        "confidence": 0.71,
+        "evidence_text": "has established this as a worldwide standard",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "worldwide standard",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasOutcome",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "International Civil Aviation Organization",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c109-kg01-0921baf9c1"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c110",
+        "confidence": 0.79,
+        "evidence_text": "International Standard Atmosphere (ISA)",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Atmosphere",
+        "object_class": "Cl_Atmosphere",
+        "page": 2,
+        "predicate": "appliesTo",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "International Standard Atmosphere (ISA)",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c110-kg00-0adc889ed1"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c110",
+        "confidence": 0.79,
+        "evidence_text": "ICAO Standard Atmosphere",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Atmosphere",
+        "object_class": "Cl_Atmosphere",
+        "page": 2,
+        "predicate": "appliesTo",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "ICAO Standard Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c110-kg01-12ddd32801"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c111",
+        "confidence": 0.96,
+        "evidence_text": "International Standard Atmosphere (ISA)",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "ISA",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "supportedByEvidence",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "International Standard Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c111-kg00-c22ec085a1"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c111",
+        "confidence": 0.96,
+        "evidence_text": "ICAO Standard Atmosphere",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "ICAO Standard Atmosphere",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "supportedByEvidence",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "International Standard Atmosphere",
+        "subject_class": "Cl_Atmosphere",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c111-kg01-45a100c734"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c21",
+        "confidence": 0.92,
+        "evidence_text": "29.92 Standard Sea Level Pressure",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "29.92 Inches of Mercury",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c21-kg00-5ba63d729f"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c21",
+        "confidence": 0.71,
+        "evidence_text": "1016",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1016 Millibars",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c21-kg01-2d07bf5bc1"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c22",
+        "confidence": 0.96,
+        "evidence_text": "29.92 Standard Sea Level Pressure Hg",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "29.92",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c22-kg00-b6af1b06fd"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c22",
+        "confidence": 0.78,
+        "evidence_text": "1016",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1016",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c22-kg01-d69729d970"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c22",
+        "confidence": 0.62,
+        "evidence_text": "Millibars",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Millibars",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c22-kg02-0ab52eee2b"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c22",
+        "confidence": 0.62,
+        "evidence_text": "Inches of Mercury",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Inches of Mercury",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c22-kg03-cdf5246b9f"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c23",
+        "confidence": 0.93,
+        "evidence_text": "29.92 Standard Sea Level Pressure Hg",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "29.92 Hg",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c23-kg00-d0f96857d8"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c23",
+        "confidence": 0.9,
+        "evidence_text": "Standard Sea Level Pressure Hg 1013",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1013",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c23-kg01-03afcd08c3"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c26",
+        "confidence": 0.97,
+        "evidence_text": "29.92 Standard Sea Level Pressure Hg",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "29.92",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c26-kg00-b6af1b06fd"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c26",
+        "confidence": 0.97,
+        "evidence_text": "1013 Standard Sea Level Pressure",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1013",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c26-kg01-03afcd08c3"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+        "confidence": 0.95,
+        "evidence_text": "29.92 Standard Sea Level Pressure Hg",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "29.92 Standard Sea Level Pressure Hg",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Atmospheric Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c27-kg00-0f0f8d22c1"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+        "confidence": 0.95,
+        "evidence_text": "1013 Standard Sea Level Pressure mb",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1013 Standard Sea Level Pressure mb",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Atmospheric Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c27-kg01-ddf05448d0"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+        "confidence": 0.9,
+        "evidence_text": "Figure 4-2. Standard sea level pressure.",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Figure 4-2. Standard sea level pressure.",
+        "object_class": "Cl_Evidence",
+        "page": 2,
+        "predicate": "supportedByEvidence",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Atmospheric Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c28",
+        "confidence": 0.96,
+        "evidence_text": "29.92 Standard Sea Level Pressure Hg",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "29.92",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c28-kg00-b6af1b06fd"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c28",
+        "confidence": 0.96,
+        "evidence_text": "1013 Standard Sea Level Pressure mb",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1013",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Standard Sea Level Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c28-kg01-03afcd08c3"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c29",
+        "confidence": 0.79,
+        "evidence_text": "Standard Sea Level Pressure mb",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "1013",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Atmospheric Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c29-kg00-c1880bbb30"
+      }
+    },
+    {
+      "annotation": {
+        "direction_correct": "needs_review",
+        "duplicate_or_near_duplicate": "needs_review",
+        "evidence_supports_triple": "needs_review",
+        "object_correct": "needs_review",
+        "predicate_correct": "needs_review",
+        "reviewer_notes": "",
+        "subject_correct": "needs_review",
+        "too_generic": "needs_review"
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p02-c29",
+        "confidence": 0.76,
+        "evidence_text": "Standard Sea Level Pressure Hg 1013",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Hg 1013",
+        "object_class": "Cl_Concept",
+        "page": 2,
+        "predicate": "hasQuantity",
+        "section": "page-2",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Atmospheric Pressure",
+        "subject_class": "Cl_Pressure",
+        "triple_id": "06_phak_ch4_0-structure_aware-p02-c29-kg01-e55dc4cd14"
+      }
+    }
+  ],
+  "summary": {
+    "fields": [
+      "subject_correct",
+      "object_correct",
+      "predicate_correct",
+      "direction_correct",
+      "evidence_supports_triple",
+      "too_generic",
+      "duplicate_or_near_duplicate",
+      "reviewer_notes"
+    ],
+    "needs_review": 100,
+    "reviewed": 0
+  }
+}

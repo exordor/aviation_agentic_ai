@@ -79,6 +79,15 @@ DEFAULT_GRAPH_TRAVERSAL_SCENARIOS: tuple[dict[str, Any], ...] = (
         "mode": "hybrid",
         "graph_method": "traversal",
         "graph_hops": 2,
+        "graph_fusion_policy": "rrf",
+    },
+    {
+        "name": "hybrid_vector_traversal_guarded",
+        "label": "hybrid vector + traversal graph, vector-first guarded",
+        "mode": "hybrid",
+        "graph_method": "traversal",
+        "graph_hops": 2,
+        "graph_fusion_policy": "vector_first_guarded",
     },
 )
 
@@ -147,6 +156,7 @@ def _path_summary(paths: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "hops": path.get("hops"),
             "score": path.get("score"),
             "seed_nodes": path.get("seed_nodes", []),
+            "seed_node_sources": path.get("seed_node_sources", {}),
             "chunk_ids": path.get("chunk_ids", []),
             "pages": path.get("pages", []),
             "nodes": [
@@ -223,6 +233,48 @@ def _aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _failure_categories(record: dict[str, Any]) -> list[str]:
+    categories: list[str] = []
+    retrieval_hit = bool(record["metrics"]["retrieval"]["recall_at_5"])
+    path_metrics = record["metrics"]["graph_paths"]
+    kg_metrics = record["metrics"]["kg_evidence"]
+    graph_method = record["settings"]["graph_method"]
+    mode = record["mode"]
+    paths = record.get("graph_paths", [])
+    seed_sources = {
+        source
+        for path in paths
+        for source in path.get("seed_node_sources", {}).values()
+    }
+    predicates = {
+        str(edge.get("predicate", ""))
+        for path in paths
+        for edge in path.get("edges", [])
+    }
+    low_value_predicates = {"appliesTo", "partOf", "hasCondition"}
+
+    if graph_method == "traversal" and not path_metrics["path_coverage"]:
+        categories.append("seed_linking_error")
+    if "fallback" in seed_sources:
+        categories.append("generic_seed_node")
+    if path_metrics["path_coverage"] and not retrieval_hit:
+        categories.append("path_found_but_wrong_chunk")
+    if (
+        predicates
+        and predicates <= low_value_predicates
+        or (
+            path_metrics["relation_coverage_applicable"]
+            and not path_metrics["relation_coverage"]
+        )
+    ):
+        categories.append("low_value_predicate")
+    if mode == "hybrid" and path_metrics["path_coverage"] and not retrieval_hit:
+        categories.append("graph_fusion_dilution")
+    if not kg_metrics["evidence_coverage"]:
+        categories.append("kg_sparse_for_question")
+    return categories
+
+
 def _failure_cases(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     failures: list[dict[str, Any]] = []
     for record in records:
@@ -236,12 +288,14 @@ def _failure_cases(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             reasons.append("no_traversal_path_returned")
         if not record["metrics"]["kg_evidence"]["evidence_coverage"]:
             reasons.append("missing_kg_key_entity_evidence")
-        if reasons:
+        categories = _failure_categories(record)
+        if reasons or categories:
             failures.append(
                 {
                     "cq_id": record["cq_id"],
                     "question": record["question"],
                     "reasons": reasons,
+                    "failure_categories": categories,
                     "retrieved_chunks": record["metrics"]["retrieval"][
                         "retrieved_chunk_ids"
                     ],
@@ -284,6 +338,7 @@ def build_graph_traversal_ablation(
                 collection_name=collection_name,
                 graph_hops=int(scenario["graph_hops"]),
                 graph_method=scenario["graph_method"],
+                graph_fusion_policy=scenario.get("graph_fusion_policy", "rrf"),
                 vector_top_k=vector_top_k,
                 hybrid_top_k=hybrid_top_k,
             )
@@ -312,6 +367,7 @@ def build_graph_traversal_ablation(
                     "settings": {
                         "graph_method": scenario["graph_method"],
                         "graph_hops": scenario["graph_hops"],
+                        "graph_fusion_policy": scenario.get("graph_fusion_policy", "rrf"),
                         "vector_top_k": vector_top_k,
                         "hybrid_top_k": hybrid_top_k,
                     },
@@ -328,6 +384,7 @@ def build_graph_traversal_ablation(
             "settings": {
                 "graph_method": scenario["graph_method"],
                 "graph_hops": scenario["graph_hops"],
+                "graph_fusion_policy": scenario.get("graph_fusion_policy", "rrf"),
                 "vector_top_k": vector_top_k,
                 "hybrid_top_k": hybrid_top_k,
             },
@@ -345,6 +402,7 @@ def build_graph_traversal_ablation(
                     "mode": scenario["mode"],
                     "graph_method": scenario["graph_method"],
                     "graph_hops": scenario["graph_hops"],
+                    "graph_fusion_policy": scenario.get("graph_fusion_policy", "rrf"),
                 }
                 for scenario in scenarios
             ],
@@ -447,6 +505,12 @@ def write_graph_traversal_ablation_markdown(
             "bounded KG paths were returned and whether they cover named entities or relation "
             "intent; they do not imply better retrieval unless Recall@5/MRR@5 support that.",
             "",
+            "High path coverage with low standalone Recall@5 usually means traversal can find "
+            "connected KG paths, but the chunks attached to those paths are not necessarily "
+            "the gold evidence chunks. This can happen through seed linking errors, generic "
+            "seed nodes, low-value predicates, sparse KG coverage for the question, or graph "
+            "fusion dilution when graph chunks displace stronger vector hits.",
+            "",
             "## Failure Cases",
             "",
         ]
@@ -458,8 +522,12 @@ def write_graph_traversal_ablation_markdown(
             lines.extend(["No failure cases under the recorded checks.", ""])
             continue
         for failure in failures:
+            categories = ", ".join(failure.get("failure_categories", []))
             reasons = ", ".join(failure["reasons"])
+            detail = "; ".join(part for part in [reasons, categories] if part)
             lines.append(f"- `{failure['cq_id']}`: {reasons}")
+            if categories:
+                lines[-1] = f"- `{failure['cq_id']}`: {detail}"
         lines.append("")
 
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")

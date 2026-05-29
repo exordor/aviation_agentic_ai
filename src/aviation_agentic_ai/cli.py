@@ -34,6 +34,7 @@ from aviation_agentic_ai.reporting.academic_outputs import (
     write_visual_assets,
 )
 from aviation_agentic_ai.reporting.answer_eval import write_answer_evaluation
+from aviation_agentic_ai.reporting.benchmark_review_pack import write_benchmark_review_pack
 from aviation_agentic_ai.reporting.benchmark_v2 import write_benchmark_v2_summary
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
 from aviation_agentic_ai.reporting.evidence_cards import write_evidence_cards
@@ -54,7 +55,9 @@ from aviation_agentic_ai.reporting.project_report import write_project_report
 from aviation_agentic_ai.reporting.reviews import write_review_progress
 from aviation_agentic_ai.reporting.retrieval_ablation import write_retrieval_ablation
 from aviation_agentic_ai.reporting.robustness import write_robustness_evaluation
+from aviation_agentic_ai.reporting.sufficiency_eval import write_sufficiency_evaluation
 from aviation_agentic_ai.reporting.thesis_claims import write_thesis_claims_review
+from aviation_agentic_ai.reporting.triple_semantic_review import write_triple_semantic_review
 from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
 from aviation_agentic_ai.reporting.web_demo_smoke import write_web_demo_smoke
 from aviation_agentic_ai.retrieval.hybrid import run_query, write_query_result
@@ -1250,6 +1253,12 @@ def report_retrieval_ablation(
 @click.option("--index-dir", type=click.Path(path_type=Path), default=None)
 @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
 @click.option("--collection-name", default=None)
+@click.option(
+    "--graph-fusion-policy",
+    type=click.Choice(["rrf", "vector_first_guarded"]),
+    default=None,
+    help="Limit scenarios to a specific graph fusion policy.",
+)
 @click.option("--report-name", default="graph_traversal_ablation", show_default=True)
 def report_graph_traversal_ablation(
     boundary_cqs: Path | None,
@@ -1259,12 +1268,24 @@ def report_graph_traversal_ablation(
     index_dir: Path | None,
     output_dir: Path | None,
     collection_name: str | None,
+    graph_fusion_policy: str | None,
     report_name: str,
 ) -> None:
     """Compare lexical KG retrieval with bounded graph traversal variants."""
     config = load_default_config()
     retrieval_config = config.get("retrieval", {})
     report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    scenarios = None
+    if graph_fusion_policy is not None:
+        from aviation_agentic_ai.reporting.graph_traversal_ablation import (
+            DEFAULT_GRAPH_TRAVERSAL_SCENARIOS,
+        )
+
+        scenarios = tuple(
+            scenario
+            for scenario in DEFAULT_GRAPH_TRAVERSAL_SCENARIOS
+            if scenario.get("graph_fusion_policy", "rrf") == graph_fusion_policy
+        )
     json_path, md_path, result = write_graph_traversal_ablation(
         boundary_cqs or resolve_project_path("data/cqs/06_phak_ch4_0.boundary.json"),
         chunks_path or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
@@ -1277,6 +1298,7 @@ def report_graph_traversal_ablation(
         or resolve_project_path("data/cqs/06_phak_ch4_0.expanded.gold.json"),
         vector_top_k=int(retrieval_config.get("vector_top_k", 5)),
         hybrid_top_k=int(retrieval_config.get("hybrid_top_k", 8)),
+        **({"scenarios": scenarios} if scenarios is not None else {}),
         report_name=report_name,
         command=" ".join(["aviation-ai", *sys.argv[1:]]),
     )
@@ -1328,6 +1350,60 @@ def report_benchmark_v2(
     click.echo(
         f"Summarized {result['metadata']['labels_total']} benchmark labels "
         f"with validation_passed={result['validation']['valid']}."
+    )
+
+
+@report.command("benchmark-review-pack")
+@click.option(
+    "--gold-labels",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Benchmark v2 gold label JSON file.",
+)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="benchmark_review_pack", show_default=True)
+@click.option(
+    "--reviewed-output",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional reviewed working-copy output path.",
+)
+@click.option(
+    "--write-reviewed/--no-write-reviewed",
+    default=True,
+    show_default=True,
+    help="Write the reviewed working-copy file with manual-review-pending statuses.",
+)
+def report_benchmark_review_pack(
+    gold_labels: Path | None,
+    output_dir: Path | None,
+    report_name: str,
+    reviewed_output: Path | None,
+    write_reviewed: bool,
+) -> None:
+    """Prepare benchmark v2 labels for manual review without certifying them."""
+    config = load_default_config()
+    label_path = gold_labels or resolve_project_path(
+        "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"
+    )
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    reviewed_path = None
+    if write_reviewed:
+        reviewed_path = reviewed_output or resolve_project_path(
+            "data/cqs/06_phak_ch4_0.benchmark_v2.reviewed.gold.json"
+        )
+    json_path, md_path, created_reviewed, result = write_benchmark_review_pack(
+        label_path,
+        report_dir,
+        report_name=report_name,
+        reviewed_output_path=reviewed_path,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    if created_reviewed is not None:
+        click.echo(f"Wrote {project_relative_path(created_reviewed)}")
+    click.echo(
+        f"Prepared {result['metadata']['labels_total']} benchmark labels for manual review."
     )
 
 
@@ -1387,6 +1463,60 @@ def report_answer_eval(
     click.echo(f"Wrote {project_relative_path(json_path)}")
     click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"Evaluated {result['metadata']['answers_total']} answers.")
+
+
+@report.command("sufficiency-eval")
+@click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
+@click.option("--retrieval-report", type=click.Path(path_type=Path), default=None)
+@click.option("--scenario-name", default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="sufficiency_evaluation", show_default=True)
+def report_sufficiency_eval(
+    gold_labels: Path | None,
+    retrieval_report: Path | None,
+    scenario_name: str | None,
+    output_dir: Path | None,
+    report_name: str,
+) -> None:
+    """Evaluate deterministic evidence sufficiency and abstention behavior."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    default_report = report_dir / "retrieval_ablation_benchmark_v2.json"
+    json_path, md_path, result = write_sufficiency_evaluation(
+        gold_labels or resolve_project_path("data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"),
+        retrieval_report or default_report,
+        report_dir,
+        scenario_name=scenario_name,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        "Sufficiency evaluation complete; insufficient-evidence abstention accuracy="
+        f"{result['metrics']['insufficient_evidence_abstention_accuracy']}."
+    )
+
+
+@report.command("triple-semantic-review")
+@click.option("--kg-file", "kg_path", type=click.Path(path_type=Path), default=None)
+@click.option("--sample-size", type=int, default=100, show_default=True)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+def report_triple_semantic_review(
+    kg_path: Path | None,
+    sample_size: int,
+    output_dir: Path | None,
+) -> None:
+    """Prepare a KG triple semantic review sample with empty manual annotations."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_triple_semantic_review(
+        kg_path or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
+        report_dir,
+        sample_size=sample_size,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Prepared {result['metadata']['sample_size']} triples for semantic review.")
 
 
 @report.command("robustness")

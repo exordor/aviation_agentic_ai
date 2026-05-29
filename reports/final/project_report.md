@@ -58,6 +58,12 @@ Retrieval ablation: 12 scenarios over 35 questions; vector Recall@5=0.6857, grap
 KG extraction comparison: fixed-window valid triples=172 with key-entity coverage=0.8286; structure-aware valid triples=448 with key-entity coverage=0.8571.
 Answer evaluation: hybrid citation completeness=1.0, citation correctness=0.9, answer faithfulness=0.9, advisory-boundary violations=0.
 Robustness evaluation: retrieval stability=0.8, citation stability=0.7, abstention correctness=0.6.
+Benchmark v2 summary: 120 labels, supported=100, insufficient-evidence=20, validation passed=True, review status=`machine_seeded_requires_manual_review`.
+Benchmark manual-review pack: 120 labels grouped by question type; automatic findings include {'insufficient_evidence_label_needs_aviation_safety_review': 15, 'unnatural_machine_generated_wording': 90, 'weak_or_generic_question': 49}. These are review prompts, not completed expert certification.
+Benchmark v2 retrieval ablation: vector Recall@5=0.475, default hybrid Recall@5=0.5083, and hybrid KG evidence coverage=0.8.
+Benchmark v2 graph traversal: 2-hop traversal path coverage=0.75, standalone Recall@5=0.1333; guarded hybrid traversal Recall@5=0.4583.
+Sufficiency evaluation: insufficient-evidence abstention accuracy=1.0, false answer rate on no-answer questions=0.0, false abstention rate on supported questions=0.29, boundary violations=0.
+Triple semantic review sample: 100 triples are prepared with all semantic annotation fields marked `needs_review`; no semantic-correctness claim is made.
 Limitations: chunk/span gold labels are reviewed for source alignment but are not external aviation examiner certification, structure-aware KG extraction is more expensive because it uses many smaller chunks, and GraphRAG should be defended as structured evidence support rather than a single-score Recall improvement.
 
 ## Advisory assistant boundary
@@ -88,6 +94,12 @@ This system is for aviation learning and decision-support only. Do not claim to 
 - `uv run aviation-ai report web-demo-smoke`
 - `uv run aviation-ai report final-evaluation`
 - `uv run aviation-ai report thesis-claims`
+- `uv run aviation-ai report benchmark-v2`
+- `uv run aviation-ai report benchmark-review-pack`
+- `uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2`
+- `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`
+- `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`
+- `uv run aviation-ai report triple-semantic-review --sample-size 100`
 - `uv run aviation-ai report hygiene --apply`
 - `uv run aviation-ai report project --no-ai`
 - `uv run aviation-ai report project --ai`
@@ -98,4 +110,5 @@ This system is for aviation learning and decision-support only. Do not claim to 
 - README: `README.md` (present)
 - Goal: `GOALS.md` (present)
 - Thesis positioning: `docs/thesis_positioning.md` (present)
+- Thesis-ready stage evidence: `reports/stages/benchmark_v2_summary.md`, `reports/stages/retrieval_ablation_benchmark_v2.md`, `reports/stages/graph_traversal_ablation_benchmark_v2.md`, `reports/stages/sufficiency_evaluation.md`, `reports/stages/triple_semantic_review.md`
 - Configs: `configs/default.yaml`, `configs/ontology_generation.yaml`, `configs/extraction_profile.yaml`

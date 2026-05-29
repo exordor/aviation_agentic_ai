@@ -130,6 +130,74 @@ def reciprocal_rank_fusion(
     return fused
 
 
+def _strong_graph_overlap(
+    question: str,
+    triples: list[dict[str, Any]],
+    paths: list[dict[str, Any]],
+) -> bool:
+    question_terms = tokenize(question)
+    if not question_terms or not (triples or paths):
+        return False
+    graph_text_parts: list[str] = []
+    for triple in triples:
+        graph_text_parts.extend(
+            [
+                str(triple.get("subject", "")),
+                str(triple.get("predicate", "")),
+                str(triple.get("object", "")),
+                str(triple.get("evidence_text", "")),
+            ]
+        )
+    for path in paths:
+        for node in path.get("nodes", []):
+            graph_text_parts.append(str(node.get("label") or node.get("node_id") or ""))
+        for edge in path.get("edges", []):
+            graph_text_parts.extend(
+                [
+                    str(edge.get("predicate", "")),
+                    str(edge.get("evidence_text", "")),
+                    str(edge.get("subject", "")),
+                    str(edge.get("object", "")),
+                ]
+            )
+    graph_terms = tokenize(" ".join(graph_text_parts))
+    overlap = question_terms & graph_terms
+    return len(overlap) >= 2
+
+
+def vector_first_guarded_fusion(
+    question: str,
+    vector_hits: list[dict[str, Any]],
+    graph_hits: list[dict[str, Any]],
+    graph_triples: list[dict[str, Any]],
+    graph_paths: list[dict[str, Any]],
+    top_k: int,
+    preserve_top_n: int = 2,
+) -> list[dict[str, Any]]:
+    """Fuse while preserving the strongest vector evidence unless graph overlap is strong."""
+    protected = [dict(item) for item in vector_hits[:preserve_top_n]]
+    fused_tail_source = (
+        reciprocal_rank_fusion([vector_hits, graph_hits], top_k=top_k + preserve_top_n)
+        if _strong_graph_overlap(question, graph_triples, graph_paths)
+        else [*vector_hits, *graph_hits]
+    )
+    fused: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in [*protected, *fused_tail_source]:
+        chunk_id = str(item["chunk_id"])
+        if chunk_id in seen:
+            continue
+        output = dict(item)
+        output["source"] = str(output.get("source", ""))
+        fused.append(output)
+        seen.add(chunk_id)
+        if len(fused) >= top_k:
+            break
+    for rank, item in enumerate(fused, start=1):
+        item["rank"] = rank
+    return fused
+
+
 def build_answer_prompt(
     question: str,
     chunks: list[dict[str, Any]],
@@ -194,6 +262,7 @@ def run_retrieval(
     collection_name: str = DEFAULT_COLLECTION_NAME,
     graph_hops: int = 2,
     graph_method: str = "lexical",
+    graph_fusion_policy: str = "rrf",
     aliases_path: str | Path | None = None,
     vector_top_k: int = 5,
     hybrid_top_k: int = 8,
@@ -202,6 +271,8 @@ def run_retrieval(
         raise ValueError(f"Unsupported retrieval mode: {mode}")
     if graph_method not in {"lexical", "traversal"}:
         raise ValueError(f"Unsupported graph retrieval method: {graph_method}")
+    if graph_fusion_policy not in {"rrf", "vector_first_guarded"}:
+        raise ValueError(f"Unsupported graph fusion policy: {graph_fusion_policy}")
     vector_hits: list[dict[str, Any]] = []
     graph_hits: list[dict[str, Any]] = []
     graph_triples: list[dict[str, Any]] = []
@@ -239,12 +310,22 @@ def run_retrieval(
         fused = vector_hits[:hybrid_top_k]
     elif mode == "graph":
         fused = graph_hits[:hybrid_top_k]
+    elif graph_fusion_policy == "vector_first_guarded":
+        fused = vector_first_guarded_fusion(
+            question,
+            vector_hits,
+            graph_hits,
+            graph_triples,
+            graph_paths,
+            top_k=hybrid_top_k,
+        )
     else:
         fused = reciprocal_rank_fusion([vector_hits, graph_hits], top_k=hybrid_top_k)
     return {
         "question": question,
         "mode": mode,
         "graph_method": graph_method,
+        "graph_fusion_policy": graph_fusion_policy,
         "vector_hits": vector_hits,
         "graph_hits": graph_hits,
         "graph_triples": graph_triples,
@@ -262,6 +343,7 @@ def run_query(
     collection_name: str = DEFAULT_COLLECTION_NAME,
     graph_hops: int = 2,
     graph_method: str = "lexical",
+    graph_fusion_policy: str = "rrf",
     aliases_path: str | Path | None = None,
     vector_top_k: int = 5,
     hybrid_top_k: int = 8,
@@ -277,6 +359,7 @@ def run_query(
         collection_name=collection_name,
         graph_hops=graph_hops,
         graph_method=graph_method,
+        graph_fusion_policy=graph_fusion_policy,
         aliases_path=aliases_path,
         vector_top_k=vector_top_k,
         hybrid_top_k=hybrid_top_k,

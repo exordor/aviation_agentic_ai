@@ -165,6 +165,29 @@ def _compact_retrieval_ablation_report(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _compact_graph_traversal_ablation_report(data: dict[str, Any]) -> dict[str, Any]:
+    scenarios: dict[str, Any] = {}
+    for name, scenario in data.get("scenarios", {}).items():
+        if not isinstance(scenario, dict):
+            continue
+        records = scenario.get("records", [])
+        failure_cases = scenario.get("failure_cases", [])
+        scenarios[name] = {
+            "mode": scenario.get("mode"),
+            "settings": scenario.get("settings", {}),
+            "aggregate": scenario.get("aggregate", {}),
+            "failure_cases_total": (
+                len(failure_cases) if isinstance(failure_cases, list) else "unknown"
+            ),
+            "records_total": len(records) if isinstance(records, list) else "unknown",
+        }
+    return {
+        "metadata": data.get("metadata", {}),
+        "scenarios": scenarios,
+        "source_compaction": "per-question paths, hits, and failure-case details omitted",
+    }
+
+
 def _compact_answer_evaluation_report(data: dict[str, Any]) -> dict[str, Any]:
     records = data.get("records", {})
     return {
@@ -206,8 +229,10 @@ def _compact_json_data(path: Path, data: dict[str, Any]) -> tuple[dict[str, Any]
         return _compact_chunking_report(data), True
     if path.name.startswith("hybrid_rag") and path.suffix == ".json":
         return _compact_hybrid_report(data), True
-    if path.name == "retrieval_ablation.json":
+    if path.name.startswith("retrieval_ablation") and path.suffix == ".json":
         return _compact_retrieval_ablation_report(data), True
+    if path.name.startswith("graph_traversal_ablation") and path.suffix == ".json":
+        return _compact_graph_traversal_ablation_report(data), True
     if path.name == "answer_evaluation.json":
         return _compact_answer_evaluation_report(data), True
     if path.name == "robustness_evaluation.json":
@@ -267,6 +292,42 @@ def _read_current_artifacts(
     return sources
 
 
+def _read_thesis_ready_artifacts(root: Path) -> dict[str, Any]:
+    paths = {
+        "benchmark_v2_summary": root / "reports" / "stages" / "benchmark_v2_summary.md",
+        "benchmark_v2_summary_json": root / "reports" / "stages" / "benchmark_v2_summary.json",
+        "benchmark_review_pack": root / "reports" / "stages" / "benchmark_review_pack.md",
+        "benchmark_review_pack_json": root / "reports" / "stages" / "benchmark_review_pack.json",
+        "retrieval_ablation_benchmark_v2": root
+        / "reports"
+        / "stages"
+        / "retrieval_ablation_benchmark_v2.md",
+        "retrieval_ablation_benchmark_v2_json": root
+        / "reports"
+        / "stages"
+        / "retrieval_ablation_benchmark_v2.json",
+        "graph_traversal_ablation_benchmark_v2": root
+        / "reports"
+        / "stages"
+        / "graph_traversal_ablation_benchmark_v2.md",
+        "graph_traversal_ablation_benchmark_v2_json": root
+        / "reports"
+        / "stages"
+        / "graph_traversal_ablation_benchmark_v2.json",
+        "sufficiency_evaluation": root / "reports" / "stages" / "sufficiency_evaluation.md",
+        "sufficiency_evaluation_json": root
+        / "reports"
+        / "stages"
+        / "sufficiency_evaluation.json",
+        "triple_semantic_review": root / "reports" / "stages" / "triple_semantic_review.md",
+        "triple_semantic_review_json": root
+        / "reports"
+        / "stages"
+        / "triple_semantic_review_sample.json",
+    }
+    return {key: _read_artifact_source(path, base=root) for key, path in paths.items()}
+
+
 def build_project_evidence_pack(
     *,
     project_root: str | Path = PROJECT_ROOT,
@@ -300,6 +361,7 @@ def build_project_evidence_pack(
         "current_artifacts": _read_current_artifacts(root, current_artifacts)
         if isinstance(current_artifacts, dict)
         else {},
+        "thesis_ready_artifacts": _read_thesis_ready_artifacts(root),
         "readme": _read_text_source(root / "README.md", base=root),
         "goals": _read_text_source(root / "GOALS.md", base=root),
         "tasks": _read_text_source(root / "TASKS.md", base=root),
@@ -584,6 +646,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     categories = stage_index.get("categories", {})
     current_artifacts = stage_index.get("current_active_artifacts", {})
     artifact_sources = evidence.get("current_artifacts", {})
+    thesis_sources = evidence.get("thesis_ready_artifacts", {})
     curated_eval = artifact_sources.get("curated_ontology_evaluation_json", {}).get("data", {})
     kg_validation = artifact_sources.get("kg_validation_json", {}).get("data", {})
     structure_kg_validation = artifact_sources.get(
@@ -626,6 +689,106 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     chunking_lines = _chunking_summary_lines(artifact_sources, categories)
     hybrid_lines = _hybrid_summary_lines(artifact_sources, retrieval_config)
     expansion_lines = _experimental_expansion_lines(artifact_sources)
+    benchmark_v2 = thesis_sources.get("benchmark_v2_summary_json", {}).get("data", {})
+    benchmark_review = thesis_sources.get("benchmark_review_pack_json", {}).get("data", {})
+    retrieval_v2 = thesis_sources.get("retrieval_ablation_benchmark_v2_json", {}).get(
+        "data",
+        {},
+    )
+    traversal_v2 = thesis_sources.get(
+        "graph_traversal_ablation_benchmark_v2_json",
+        {},
+    ).get("data", {})
+    sufficiency = thesis_sources.get("sufficiency_evaluation_json", {}).get("data", {})
+    triple_review = thesis_sources.get("triple_semantic_review_json", {}).get("data", {})
+    benchmark_v2_lines: list[str] = []
+    if isinstance(benchmark_v2, dict) and benchmark_v2:
+        metadata = benchmark_v2.get("metadata", {})
+        validation = benchmark_v2.get("validation", {})
+        benchmark_v2_lines.append(
+            "Benchmark v2 summary: "
+            f"{metadata.get('labels_total', 'TBD')} labels, supported="
+            f"{metadata.get('supported_total', 'TBD')}, insufficient-evidence="
+            f"{metadata.get('no_answer_total', 'TBD')}, validation passed="
+            f"{validation.get('valid', 'TBD')}, review status="
+            f"`{metadata.get('review_status', 'TBD')}`."
+        )
+    if isinstance(benchmark_review, dict) and benchmark_review:
+        finding_counts = benchmark_review.get("finding_counts", {})
+        benchmark_v2_lines.append(
+            "Benchmark manual-review pack: "
+            f"{benchmark_review.get('metadata', {}).get('labels_total', 'TBD')} labels "
+            "grouped by question type; automatic findings include "
+            f"{finding_counts}. These are review prompts, not completed expert certification."
+        )
+    if isinstance(retrieval_v2, dict) and retrieval_v2:
+        scenarios = retrieval_v2.get("scenarios", {})
+        vector = _metric_value(
+            scenarios,
+            "vector_hops2_v5_h8",
+            "aggregate",
+            "retrieval",
+            default={},
+        )
+        hybrid = _metric_value(
+            scenarios,
+            "hybrid_hops2_v5_h8",
+            "aggregate",
+            "retrieval",
+            default={},
+        )
+        hybrid_kg = _metric_value(
+            scenarios,
+            "hybrid_hops2_v5_h8",
+            "aggregate",
+            "kg_evidence",
+            default={},
+        )
+        benchmark_v2_lines.append(
+            "Benchmark v2 retrieval ablation: vector Recall@5="
+            f"{vector.get('recall_at_5', 'TBD')}, default hybrid Recall@5="
+            f"{hybrid.get('recall_at_5', 'TBD')}, and hybrid KG evidence coverage="
+            f"{hybrid_kg.get('evidence_coverage', 'TBD')}."
+        )
+    if isinstance(traversal_v2, dict) and traversal_v2:
+        scenarios = traversal_v2.get("scenarios", {})
+        traversal = _metric_value(
+            scenarios,
+            "traversal_graph_2_hop",
+            "aggregate",
+            default={},
+        )
+        guarded = _metric_value(
+            scenarios,
+            "hybrid_vector_traversal_guarded",
+            "aggregate",
+            default={},
+        )
+        benchmark_v2_lines.append(
+            "Benchmark v2 graph traversal: 2-hop traversal path coverage="
+            f"{_metric_value(traversal, 'graph_paths', 'path_coverage')}, standalone "
+            f"Recall@5={_metric_value(traversal, 'retrieval', 'recall_at_5')}; guarded "
+            "hybrid traversal Recall@5="
+            f"{_metric_value(guarded, 'retrieval', 'recall_at_5')}."
+        )
+    if isinstance(sufficiency, dict) and sufficiency:
+        metrics = sufficiency.get("metrics", {})
+        benchmark_v2_lines.append(
+            "Sufficiency evaluation: insufficient-evidence abstention accuracy="
+            f"{metrics.get('insufficient_evidence_abstention_accuracy', 'TBD')}, "
+            "false answer rate on no-answer questions="
+            f"{metrics.get('false_answer_rate_on_no_answer_questions', 'TBD')}, "
+            "false abstention rate on supported questions="
+            f"{metrics.get('false_abstention_rate_on_supported_questions', 'TBD')}, "
+            f"boundary violations={metrics.get('boundary_violation_count', 'TBD')}."
+        )
+    if isinstance(triple_review, dict) and triple_review:
+        benchmark_v2_lines.append(
+            "Triple semantic review sample: "
+            f"{triple_review.get('metadata', {}).get('sample_size', 'TBD')} triples are "
+            "prepared with all semantic annotation fields marked `needs_review`; no "
+            "semantic-correctness claim is made."
+        )
     has_chunking = bool(
         artifact_sources.get("chunking_comparison_json", {}).get("data", {})
     )
@@ -712,6 +875,16 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     if has_final_evaluation:
         reproducibility_lines.append("- `uv run aviation-ai report final-evaluation`")
     reproducibility_lines.append("- `uv run aviation-ai report thesis-claims`")
+    reproducibility_lines.extend(
+        [
+            "- `uv run aviation-ai report benchmark-v2`",
+            "- `uv run aviation-ai report benchmark-review-pack`",
+            "- `uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2`",
+            "- `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`",
+            "- `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`",
+            "- `uv run aviation-ai report triple-semantic-review --sample-size 100`",
+        ]
+    )
     reproducibility_lines.extend(
         [
             "- `uv run aviation-ai report hygiene --apply`",
@@ -809,6 +982,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         f"ready={web_smoke.get('ready', 'TBD') if isinstance(web_smoke, dict) else 'TBD'} "
         "for static/API checks.",
         *expansion_lines,
+        *benchmark_v2_lines,
         "Limitations: chunk/span gold labels are reviewed for source alignment but "
         "are not external aviation examiner certification, structure-aware KG "
         "extraction is more expensive because it uses many smaller chunks, and "
@@ -836,6 +1010,11 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         f"({_present_marker(evidence['course_goal'])})",
         f"- Thesis positioning: `{evidence['thesis_positioning']['path']}` "
         f"({_present_marker(evidence['thesis_positioning'])})",
+        "- Thesis-ready stage evidence: `reports/stages/benchmark_v2_summary.md`, "
+        "`reports/stages/retrieval_ablation_benchmark_v2.md`, "
+        "`reports/stages/graph_traversal_ablation_benchmark_v2.md`, "
+        "`reports/stages/sufficiency_evaluation.md`, "
+        "`reports/stages/triple_semantic_review.md`",
         "- Configs: `configs/default.yaml`, `configs/ontology_generation.yaml`, "
         "`configs/extraction_profile.yaml`",
         "",
