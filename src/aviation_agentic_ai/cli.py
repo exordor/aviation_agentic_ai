@@ -11,6 +11,7 @@ from aviation_agentic_ai.chunking.chunks import (
     chunk_output_path_for_strategy,
 )
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
+from aviation_agentic_ai.evaluation.benchmark_validation import validate_benchmark
 from aviation_agentic_ai.evaluation.gold_draft import build_gold_draft
 from aviation_agentic_ai.kg.extraction import (
     KGValidationError,
@@ -33,6 +34,7 @@ from aviation_agentic_ai.reporting.academic_outputs import (
     write_visual_assets,
 )
 from aviation_agentic_ai.reporting.answer_eval import write_answer_evaluation
+from aviation_agentic_ai.reporting.benchmark_v2 import write_benchmark_v2_summary
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
 from aviation_agentic_ai.reporting.evidence_cards import write_evidence_cards
 from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
@@ -283,6 +285,13 @@ def cqs() -> None:
     """Competency-question gold label utilities."""
 
 
+def _default_benchmark_chunks() -> list[Path]:
+    config = load_default_config()
+    default_chunks = resolve_project_path(config["paths"]["chunks_file"])
+    structure_chunks = chunk_output_path_for_strategy(default_chunks, "structure_aware")
+    return [path for path in (structure_chunks, default_chunks) if path.exists()]
+
+
 @cqs.command("gold-draft")
 @click.option("--boundary-cqs", type=click.Path(path_type=Path), default=None)
 @click.option("--chunks", "chunks_paths", type=click.Path(path_type=Path), multiple=True)
@@ -313,6 +322,49 @@ def cqs_gold_draft(
     )
     click.echo(f"Wrote {project_relative_path(output)}")
     click.echo(f"Drafted {len(payload['labels'])} gold labels from {len(chunk_inputs)} chunk files.")
+
+
+@cqs.command("validate-benchmark")
+@click.option(
+    "--gold-labels",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Benchmark gold label JSON file to validate.",
+)
+@click.option(
+    "--chunks",
+    "chunks_paths",
+    type=click.Path(path_type=Path),
+    multiple=True,
+    help="Source chunk JSONL files used to validate evidence spans.",
+)
+@click.option("--min-labels", type=int, default=100, show_default=True)
+def cqs_validate_benchmark(
+    gold_labels: Path | None,
+    chunks_paths: tuple[Path, ...],
+    min_labels: int,
+) -> None:
+    """Validate thesis benchmark gold labels against source chunks."""
+    label_path = gold_labels or resolve_project_path(
+        "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"
+    )
+    chunk_inputs = list(chunks_paths) or _default_benchmark_chunks()
+    result = validate_benchmark(label_path, chunk_inputs, min_labels=min_labels)
+    if not result["valid"]:
+        details = "\n".join(result["errors"][:10])
+        raise click.ClickException(
+            f"Benchmark validation failed with {result['errors_total']} errors.\n{details}"
+        )
+    metadata = result["metadata"]
+    click.echo(
+        f"OK: validated {metadata['labels_total']} benchmark labels from "
+        f"{project_relative_path(label_path)}"
+    )
+    click.echo(
+        f"Supported: {metadata['supported_total']}; "
+        f"insufficient-evidence: {metadata['no_answer_total']}; "
+        f"warnings: {result['warnings_total']}"
+    )
 
 
 @ontology.command("validate-cqs")
@@ -1135,6 +1187,49 @@ def report_retrieval_ablation(
     click.echo(
         f"Evaluated {result['metadata']['scenarios_total']} retrieval ablation scenarios "
         f"for {result['metadata']['questions_total']} CQs."
+    )
+
+
+@report.command("benchmark-v2")
+@click.option(
+    "--gold-labels",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Benchmark v2 gold label JSON file.",
+)
+@click.option(
+    "--chunks",
+    "chunks_paths",
+    type=click.Path(path_type=Path),
+    multiple=True,
+    help="Source chunk JSONL files used to validate evidence spans.",
+)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="benchmark_v2_summary", show_default=True)
+def report_benchmark_v2(
+    gold_labels: Path | None,
+    chunks_paths: tuple[Path, ...],
+    output_dir: Path | None,
+    report_name: str,
+) -> None:
+    """Write a summary and validation report for the thesis benchmark v2 labels."""
+    config = load_default_config()
+    label_path = gold_labels or resolve_project_path(
+        "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"
+    )
+    chunk_inputs = list(chunks_paths) or _default_benchmark_chunks()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_benchmark_v2_summary(
+        label_path,
+        chunk_inputs,
+        report_dir,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        f"Summarized {result['metadata']['labels_total']} benchmark labels "
+        f"with validation_passed={result['validation']['valid']}."
     )
 
 

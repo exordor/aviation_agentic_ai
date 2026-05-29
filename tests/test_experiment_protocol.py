@@ -84,6 +84,8 @@ def test_gold_labels_support_page_chunk_and_span_levels(tmp_path: Path) -> None:
                         "cq_id": "q3",
                         "source_document": "doc",
                         "source_page": 3,
+                        "tags": ["span", "manual_reviewed"],
+                        "review": {"status": "manual_reviewed"},
                         "evidence_spans": [{"page": 3, "text": "stall warning"}],
                     }
                 ),
@@ -98,6 +100,7 @@ def test_gold_labels_support_page_chunk_and_span_levels(tmp_path: Path) -> None:
     assert labels["q1"].gold_level == "page"
     assert labels["q2"].gold_level == "chunk"
     assert labels["q3"].gold_level == "span"
+    assert labels["q3"].evidence_spans[0].text == "stall warning"
 
 
 def test_gold_labels_fall_back_to_source_page_from_cqs() -> None:

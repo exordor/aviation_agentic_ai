@@ -1,0 +1,180 @@
+{
+  "metadata": {
+    "category_counts": {
+      "concept_definition": 15,
+      "cross_page": 10,
+      "insufficient_evidence": 20,
+      "paraphrase": 10,
+      "relation_causal": 15,
+      "supported_factual": 40,
+      "terminology_variation": 10
+    },
+    "chunks_paths": [
+      "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
+      "data/chunks/06_phak_ch4_0.jsonl"
+    ],
+    "evidence_span_validation": {
+      "checked": 110,
+      "failed": 0,
+      "pass": true,
+      "passed": 110
+    },
+    "gold_labels_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
+    "gold_level_counts": {
+      "no_answer": 20,
+      "span": 100
+    },
+    "label_distribution": {
+      "concept_definition": 15,
+      "cross_page": 10,
+      "insufficient_evidence": 20,
+      "paraphrase": 10,
+      "relation_causal": 15,
+      "supported_factual": 40,
+      "terminology_variation": 10
+    },
+    "label_set": "phak_ch4_benchmark_v2_thesis_seed",
+    "labels_total": 120,
+    "missing_field_counts": {},
+    "no_answer_total": 20,
+    "notes": "Thesis-oriented seed benchmark for PHAK Chapter 4 layered evaluation. Supported evidence spans are copied from repository source chunks. This benchmark is not externally aviation-expert certified and must be manually reviewed before strong aviation-domain claims.",
+    "review_status": "machine_seeded_requires_manual_review",
+    "span_level_count": 100,
+    "supported_total": 100
+  },
+  "samples": {
+    "concept_definition": [
+      {
+        "answer_key": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface.",
+        "cq_id": "bv2-cd-001",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere envelope surrounds?",
+        "source_page": 0
+      },
+      {
+        "answer_key": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases.",
+        "cq_id": "bv2-cd-002",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "How does PHAK Chapter 4 define or describe gases in the evidence mentioning earth differs water?",
+        "source_page": 0
+      }
+    ],
+    "cross_page": [
+      {
+        "answer_key": "Both liquids and gasses display these unique fluid properties, even though they differ greatly in density. Often, pressure is measured in pounds of force exerted per square inch of an object, or PSI.",
+        "cq_id": "bv2-xp-001",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
+        "source_page": 1
+      },
+      {
+        "answer_key": "An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object. Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere.",
+        "cq_id": "bv2-xp-002",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
+        "source_page": 2
+      }
+    ],
+    "insufficient_evidence": [
+      {
+        "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+        "cq_id": "bv2-ie-001-live-metar",
+        "expected_abstention": true,
+        "gold_level": "no_answer",
+        "question": "What is the current METAR for KJFK right now, and is it safe for departure?",
+        "source_page": -1
+      },
+      {
+        "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+        "cq_id": "bv2-ie-002-taf-now",
+        "expected_abstention": true,
+        "gold_level": "no_answer",
+        "question": "What does the current TAF predict for thunderstorms at my destination tonight?",
+        "source_page": -1
+      }
+    ],
+    "paraphrase": [
+      {
+        "answer_key": "The water seems to flow freely while the oil flows much more slowly.",
+        "cq_id": "bv2-pp-001",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "In plain language, what point does PHAK Chapter 4 make about oil in the evidence mentioning water seems freely?",
+        "source_page": 1
+      },
+      {
+        "answer_key": "These instruments are the altimeter, airspeed indicator, vertical speed indicator, and manifold pressure gauge.",
+        "cq_id": "bv2-pp-002",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "In plain language, what point does PHAK Chapter 4 make about air in the evidence mentioning these instruments altimeter?",
+        "source_page": 2
+      }
+    ],
+    "relation_causal": [
+      {
+        "answer_key": "This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft.",
+        "cq_id": "bv2-rc-001",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning examines fundamental physical?",
+        "source_page": 0
+      },
+      {
+        "answer_key": "To control an aircraft, be it an airplane, helicopter, glider, or balloon, the pilot must understand the principles involved and learn to use or counteract these natural forces.",
+        "cq_id": "bv2-rc-002",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning control airplane helicopter?",
+        "source_page": 0
+      }
+    ],
+    "supported_factual": [
+      {
+        "answer_key": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+        "cq_id": "bv2-sf-001",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+        "source_page": 2
+      },
+      {
+        "answer_key": "As the density of the air increases (lower density altitude), aircraft performance increases;",
+        "cq_id": "bv2-sf-002",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with aircraft performance in the evidence mentioning density lower density?",
+        "source_page": 3
+      }
+    ],
+    "terminology_variation": [
+      {
+        "answer_key": "Air molecules near the surface of the wing resist motion and have a relative velocity near zero.",
+        "cq_id": "bv2-tv-001",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "Using the terminology variation \u201ca related term for air molecules,\u201d what does PHAK Chapter 4 indicate about air molecules in the evidence mentioning molecules surface resist?",
+        "source_page": 1
+      },
+      {
+        "answer_key": "Its effect on bodies within the air is called pressure.",
+        "cq_id": "bv2-tv-002",
+        "expected_abstention": false,
+        "gold_level": "span",
+        "question": "Using the terminology variation \u201cair mass,\u201d what does PHAK Chapter 4 indicate about air in the evidence mentioning effect bodies called?",
+        "source_page": 2
+      }
+    ]
+  },
+  "validation": {
+    "errors": [],
+    "errors_total": 0,
+    "valid": true,
+    "warnings": [],
+    "warnings_total": 0
+  }
+}

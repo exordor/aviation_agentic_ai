@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 from time import perf_counter
 from typing import Any, Callable
@@ -56,6 +57,18 @@ def _aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
         "kg_evidence": aggregate_kg_evidence_metrics(
             [record["metrics"]["kg_evidence"] for record in records]
         ),
+    }
+
+
+def _label_breakdown(gold_labels: dict[str, GoldLabel]) -> dict[str, Any]:
+    question_types = Counter(label.question_type or "<missing>" for label in gold_labels.values())
+    gold_levels = Counter(label.gold_level or "<missing>" for label in gold_labels.values())
+    no_answer_total = sum(int(label.expected_abstention) for label in gold_labels.values())
+    return {
+        "supported_total": len(gold_labels) - no_answer_total,
+        "no_answer_total": no_answer_total,
+        "question_type_counts": dict(sorted(question_types.items())),
+        "gold_level_counts": dict(sorted(gold_levels.items())),
     }
 
 
@@ -148,6 +161,7 @@ def build_retrieval_ablation(
 ) -> dict[str, Any]:
     started = perf_counter()
     questions, gold_labels = _questions_and_labels(boundary_cq_path, gold_labels_path)
+    label_breakdown = _label_breakdown(gold_labels)
     scenario_results: dict[str, Any] = {}
 
     for mode, graph_hops, vector_top_k, hybrid_top_k in scenarios:
@@ -249,6 +263,7 @@ def build_retrieval_ablation(
             "collection_name": collection_name,
             "questions_total": len(questions),
             "scenarios_total": len(scenarios),
+            "label_breakdown": label_breakdown,
             "scoring_policy": "layered_metrics_no_mixed_overall_score",
             "cost_latency": cost_latency_block(
                 elapsed_seconds=elapsed,
@@ -277,6 +292,9 @@ def write_retrieval_ablation_markdown(result: dict[str, Any], output_path: str |
         "",
         f"- Run ID: `{result['metadata']['run_manifest']['run_id']}`",
         f"- Questions: {result['metadata']['questions_total']}",
+        f"- Supported labels: {result['metadata'].get('label_breakdown', {}).get('supported_total', 0)}",
+        f"- Insufficient-evidence labels: "
+        f"{result['metadata'].get('label_breakdown', {}).get('no_answer_total', 0)}",
         f"- Scenarios: {result['metadata']['scenarios_total']}",
         "- Scoring: layered retrieval and KG evidence metrics; no mixed overall score.",
         "",

@@ -1,0 +1,4329 @@
+{
+  "label_distribution": {
+    "concept_definition": 15,
+    "cross_page": 10,
+    "insufficient_evidence": 20,
+    "paraphrase": 10,
+    "relation_causal": 15,
+    "supported_factual": 40,
+    "terminology_variation": 10
+  },
+  "label_set": "phak_ch4_benchmark_v2_thesis_seed",
+  "labels": [
+    {
+      "answer_key": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+      "cq_id": "bv2-sf-001",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c107",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "sea level"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02"
+      ]
+    },
+    {
+      "answer_key": "As the density of the air increases (lower density altitude), aircraft performance increases;",
+      "cq_id": "bv2-sf-002",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "As the density of the air increases (lower density altitude), aircraft performance increases;"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c04",
+        "06_phak_ch4_0-fixed_window-p03-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "density altitude",
+        "aircraft performance",
+        "air",
+        "density"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with aircraft performance in the evidence mentioning density lower density?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03"
+      ]
+    },
+    {
+      "answer_key": "Warm air holds more water vapor, while cold air holds less.",
+      "cq_id": "bv2-sf-003",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "Warm air holds more water vapor, while cold air holds less."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "water vapor",
+        "air",
+        "water"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects water vapor with air in the evidence mentioning holds water vapor?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04"
+      ]
+    },
+    {
+      "answer_key": "In a jet airplane, the engine pushes a blast of hot gases backward;",
+      "cq_id": "bv2-sf-004",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "In a jet airplane, the engine pushes a blast of hot gases backward;"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-fixed_window-p05-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "gases",
+        "air",
+        "jet airplane"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects gases with air in the evidence mentioning airplane engine pushes?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05"
+      ]
+    },
+    {
+      "answer_key": "At the same time, the air stream striking the upper curved section of the leading edge is deflected upward.",
+      "cq_id": "bv2-sf-005",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "At the same time, the air stream striking the upper curved section of the leading edge is deflected upward."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-fixed_window-p06-c00",
+        "06_phak_ch4_0-fixed_window-p06-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "leading edge",
+        "air"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects leading edge with air in the evidence mentioning stream striking upper?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06"
+      ]
+    },
+    {
+      "answer_key": "A certain amount of lift is generated by pressure conditions underneath the airfoil.",
+      "cq_id": "bv2-sf-006",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "A certain amount of lift is generated by pressure conditions underneath the airfoil."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c21",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "pressure",
+        "lift",
+        "airfoil"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07"
+      ]
+    },
+    {
+      "answer_key": "As an airfoil moves through air, the airfoil is inclined against the airflow, producing a different flow caused by the airfoil’s relationship to the oncoming air.",
+      "cq_id": "bv2-sf-007",
+      "evidence_spans": [
+        {
+          "page": 8,
+          "text": "As an airfoil moves through air, the airfoil is inclined against the airflow, producing a different flow caused by the airfoil’s relationship to the oncoming air."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "airfoil",
+        "airflow",
+        "oil"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with airfoil in the evidence mentioning airfoil moves airfoil?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_08"
+      ]
+    },
+    {
+      "answer_key": "The pressure of the atmosphere varies with time and location.",
+      "cq_id": "bv2-sf-008",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "The pressure of the atmosphere varies with time and location."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c107",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "pressure"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with pressure in the evidence mentioning atmosphere varies location?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02"
+      ]
+    },
+    {
+      "answer_key": "A decrease in air density means a high density altitude;",
+      "cq_id": "bv2-sf-009",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "A decrease in air density means a high density altitude;"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c04",
+        "06_phak_ch4_0-fixed_window-p03-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "density altitude",
+        "air",
+        "density",
+        "altitude"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with air in the evidence mentioning decrease density means?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03"
+      ]
+    },
+    {
+      "answer_key": "Perfectly dry air that contains no water vapor has a relative humidity of zero percent, while saturated air, which cannot hold any more water vapor, has a relative humidity of 100 percent.",
+      "cq_id": "bv2-sf-010",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "Perfectly dry air that contains no water vapor has a relative humidity of zero percent, while saturated air, which cannot hold any more water vapor, has a relative humidity of 100 percent."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "relative humidity",
+        "water vapor",
+        "air",
+        "humidity"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects relative humidity with water vapor in the evidence mentioning perfectly contains water?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04"
+      ]
+    },
+    {
+      "answer_key": "Bernoulli’s Principle states that as the velocity of a moving fluid (liquid or gas) increases, the pressure within the fluid decreases.",
+      "cq_id": "bv2-sf-011",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "Bernoulli’s Principle states that as the velocity of a moving fluid (liquid or gas) increases, the pressure within the fluid decreases."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c45",
+        "06_phak_ch4_0-fixed_window-p05-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "Bernoulli’s Principle",
+        "fluid",
+        "pressure",
+        "Bernoulli"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects Bernoulli’s Principle with fluid in the evidence mentioning bernoulli’s principle states?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05"
+      ]
+    },
+    {
+      "answer_key": "An airfoil is shaped to cause an action on the air, and forces air downward, which provides an equal reaction from the air, forcing the airfoil upward.",
+      "cq_id": "bv2-sf-012",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "An airfoil is shaped to cause an action on the air, and forces air downward, which provides an equal reaction from the air, forcing the airfoil upward."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-fixed_window-p06-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "forces",
+        "airfoil",
+        "oil"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with forces in the evidence mentioning airfoil shaped cause?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06"
+      ]
+    },
+    {
+      "answer_key": "Because of the manner in which air flows underneath the airfoil, a positive pressure results, particularly at higher angles of attack.",
+      "cq_id": "bv2-sf-013",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "Because of the manner in which air flows underneath the airfoil, a positive pressure results, particularly at higher angles of attack."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c21",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "pressure",
+        "airfoil",
+        "oil"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning manner which flows?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07"
+      ]
+    },
+    {
+      "answer_key": "Think of a hand being placed outside the car window at a high speed.",
+      "cq_id": "bv2-sf-014",
+      "evidence_spans": [
+        {
+          "page": 8,
+          "text": "Think of a hand being placed outside the car window at a high speed."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "placed",
+        "outside",
+        "window"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects placed with outside in the evidence mentioning think placed outside?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_08"
+      ]
+    },
+    {
+      "answer_key": "Due to the changing atmospheric pressure, a standard reference was developed.",
+      "cq_id": "bv2-sf-015",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Due to the changing atmospheric pressure, a standard reference was developed."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c107",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmospheric pressure",
+        "pressure"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects atmospheric pressure with pressure in the evidence mentioning changing atmospheric reference?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02"
+      ]
+    },
+    {
+      "answer_key": "Density altitude is used in calculating aircraft performance because under standard atmospheric conditions, air at each level in the atmosphere not only has a specific density, its pressure altitude and density altitude identify the same level.",
+      "cq_id": "bv2-sf-016",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "Density altitude is used in calculating aircraft performance because under standard atmospheric conditions, air at each level in the atmosphere not only has a specific density, its pressure altitude and density altitude identify the same level."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c05",
+        "06_phak_ch4_0-fixed_window-p03-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure altitude",
+        "density altitude",
+        "aircraft performance",
+        "atmosphere"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects pressure altitude with density altitude in the evidence mentioning density altitude calculating?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03"
+      ]
+    },
+    {
+      "answer_key": "Humidity alone is usually not considered an important factor in calculating density altitude and aircraft performance, but it is a contributing factor.",
+      "cq_id": "bv2-sf-017",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "Humidity alone is usually not considered an important factor in calculating density altitude and aircraft performance, but it is a contributing factor."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c03",
+        "06_phak_ch4_0-fixed_window-p04-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "density altitude",
+        "aircraft performance",
+        "air",
+        "density"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with aircraft performance in the evidence mentioning humidity alone usually?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04"
+      ]
+    },
+    {
+      "answer_key": "This principle explains what happens to air passing over the curved top of the airplane wing.",
+      "cq_id": "bv2-sf-018",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "This principle explains what happens to air passing over the curved top of the airplane wing."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c45",
+        "06_phak_ch4_0-fixed_window-p05-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "wing"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with wing in the evidence mentioning principle explains happens?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05"
+      ]
+    },
+    {
+      "answer_key": "If a wing is constructed in such form that it causes a lift force greater than the weight of the aircraft, the aircraft will fly.",
+      "cq_id": "bv2-sf-019",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "If a wing is constructed in such form that it causes a lift force greater than the weight of the aircraft, the aircraft will fly."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c20",
+        "06_phak_ch4_0-fixed_window-p06-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "lift",
+        "wing",
+        "aircraft"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with lift in the evidence mentioning constructed causes force?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06"
+      ]
+    },
+    {
+      "answer_key": "However, there is another aspect to this airflow that must be considered.",
+      "cq_id": "bv2-sf-020",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "However, there is another aspect to this airflow that must be considered."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c21",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "airflow"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with airflow in the evidence mentioning there another aspect?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07"
+      ]
+    },
+    {
+      "answer_key": "If the hand is inclined in one direction or another, the hand will move upward or downward.",
+      "cq_id": "bv2-sf-021",
+      "evidence_spans": [
+        {
+          "page": 8,
+          "text": "If the hand is inclined in one direction or another, the hand will move upward or downward."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "inclined",
+        "direction",
+        "another"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects inclined with direction in the evidence mentioning inclined direction another?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_08"
+      ]
+    },
+    {
+      "answer_key": "The standard atmosphere at sea level is a surface temperature of 59 °F or 15 °C and a surface pressure of 29.",
+      "cq_id": "bv2-sf-022",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "The standard atmosphere at sea level is a surface temperature of 59 °F or 15 °C and a surface pressure of 29."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c107",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "atmosphere",
+        "pressure",
+        "temperature"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects standard atmosphere with atmosphere in the evidence mentioning atmosphere level surface?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02"
+      ]
+    },
+    {
+      "answer_key": "The computation of density altitude involves consideration of pressure (pressure altitude) and temperature.",
+      "cq_id": "bv2-sf-023",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "The computation of density altitude involves consideration of pressure (pressure altitude) and temperature."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c05",
+        "06_phak_ch4_0-fixed_window-p03-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure altitude",
+        "density altitude",
+        "pressure",
+        "temperature"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects pressure altitude with density altitude in the evidence mentioning computation density altitude?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03"
+      ]
+    },
+    {
+      "answer_key": "As temperature increases, the air can hold greater amounts of water vapor.",
+      "cq_id": "bv2-sf-024",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "As temperature increases, the air can hold greater amounts of water vapor."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c03",
+        "06_phak_ch4_0-fixed_window-p04-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "water vapor",
+        "air",
+        "temperature",
+        "water"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects water vapor with air in the evidence mentioning temperature greater amounts?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04"
+      ]
+    },
+    {
+      "answer_key": "A practical application of Bernoulli’s Principle is the venturi tube.",
+      "cq_id": "bv2-sf-025",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "A practical application of Bernoulli’s Principle is the venturi tube."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c45",
+        "06_phak_ch4_0-fixed_window-p05-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "Bernoulli’s Principle",
+        "venturi tube",
+        "Bernoulli"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects Bernoulli’s Principle with venturi tube in the evidence mentioning practical application bernoulli’s?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05"
+      ]
+    },
+    {
+      "answer_key": "If all the lift required were obtained merely from the deflection of air by the lower surface of the wing, an aircraft would only need a flat wing like a kite.",
+      "cq_id": "bv2-sf-026",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "If all the lift required were obtained merely from the deflection of air by the lower surface of the wing, an aircraft would only need a flat wing like a kite."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c20",
+        "06_phak_ch4_0-fixed_window-p06-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lower surface",
+        "air",
+        "lift",
+        "wing"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects lower surface with air in the evidence mentioning required obtained merely?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06"
+      ]
+    },
+    {
+      "answer_key": "At a point close to the leading edge, the airflow is virtually stopped (stagnation point) and then gradually increases speed.",
+      "cq_id": "bv2-sf-027",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "At a point close to the leading edge, the airflow is virtually stopped (stagnation point) and then gradually increases speed."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c21",
+        "06_phak_ch4_0-fixed_window-p07-c00",
+        "06_phak_ch4_0-fixed_window-p07-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "leading edge",
+        "stagnation point",
+        "air",
+        "airflow"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects leading edge with stagnation point in the evidence mentioning point close leading?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07"
+      ]
+    },
+    {
+      "answer_key": "This is caused by deflection, which in turn causes the air to turn about the object within the air stream.",
+      "cq_id": "bv2-sf-028",
+      "evidence_spans": [
+        {
+          "page": 8,
+          "text": "This is caused by deflection, which in turn causes the air to turn about the object within the air stream."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with the cited evidence in the evidence mentioning caused deflection which?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_08"
+      ]
+    },
+    {
+      "answer_key": "5 °F or 2 °C per thousand feet up to 36,000 feet, which is approximately –65 °F or –55 °C.",
+      "cq_id": "bv2-sf-029",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "5 °F or 2 °C per thousand feet up to 36,000 feet, which is approximately –65 °F or –55 °C."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c107",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "thousand",
+        "approximately"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects thousand with approximately in the evidence mentioning thousand which approximately?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02"
+      ]
+    },
+    {
+      "answer_key": "Since aircraft performance data at any level is based upon air density under standard day conditions, such performance data apply to air density levels that may not be identical with altimeter indications.",
+      "cq_id": "bv2-sf-030",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "Since aircraft performance data at any level is based upon air density under standard day conditions, such performance data apply to air density levels that may not be identical with altimeter indications."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c05",
+        "06_phak_ch4_0-fixed_window-p03-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "aircraft performance",
+        "air",
+        "density",
+        "altimeter"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects aircraft performance with air in the evidence mentioning since performance level?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03"
+      ]
+    },
+    {
+      "answer_key": "When comparing two separate air masses, the first warm and moist (both qualities tending to lighten the air) and the second cold and dry (both qualities making it heavier), the first must be less dense than the second.",
+      "cq_id": "bv2-sf-031",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "When comparing two separate air masses, the first warm and moist (both qualities tending to lighten the air) and the second cold and dry (both qualities making it heavier), the first must be less dense than the second."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c03",
+        "06_phak_ch4_0-fixed_window-p04-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with the cited evidence in the evidence mentioning comparing separate masses?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04"
+      ]
+    },
+    {
+      "answer_key": "The venturi tube has an air inlet that narrows to a throat (constricted point) and an outlet section that increases in diameter toward the rear.",
+      "cq_id": "bv2-sf-032",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "The venturi tube has an air inlet that narrows to a throat (constricted point) and an outlet section that increases in diameter toward the rear."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c45",
+        "06_phak_ch4_0-fixed_window-p05-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "venturi tube",
+        "air"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects venturi tube with air in the evidence mentioning venturi inlet narrows?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05"
+      ]
+    },
+    {
+      "answer_key": "However, the balance of the lift needed to support the aircraft comes from the flow of air above the wing.",
+      "cq_id": "bv2-sf-033",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "However, the balance of the lift needed to support the aircraft comes from the flow of air above the wing."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c20",
+        "06_phak_ch4_0-fixed_window-p06-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "lift",
+        "wing",
+        "aircraft"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with lift in the evidence mentioning balance needed support?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06"
+      ]
+    },
+    {
+      "answer_key": "At some point near the trailing edge, it again reaches a velocity equal to that on the upper surface.",
+      "cq_id": "bv2-sf-034",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "At some point near the trailing edge, it again reaches a velocity equal to that on the upper surface."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c21",
+        "06_phak_ch4_0-fixed_window-p07-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "trailing edge",
+        "upper surface",
+        "surface"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects trailing edge with upper surface in the evidence mentioning point trailing again?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07"
+      ]
+    },
+    {
+      "answer_key": "As a result of this change, the velocity about the object changes in both magnitude and direction, in turn resulting in a measurable velocity force and direction.",
+      "cq_id": "bv2-sf-035",
+      "evidence_spans": [
+        {
+          "page": 8,
+          "text": "As a result of this change, the velocity about the object changes in both magnitude and direction, in turn resulting in a measurable velocity force and direction."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "result",
+        "change",
+        "velocity"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects result with change in the evidence mentioning result change velocity?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_08"
+      ]
+    },
+    {
+      "answer_key": "Above this point, the temperature is considered constant up to 80,000 feet.",
+      "cq_id": "bv2-sf-036",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Above this point, the temperature is considered constant up to 80,000 feet."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c107",
+        "06_phak_ch4_0-fixed_window-p02-c02",
+        "06_phak_ch4_0-fixed_window-p02-c03"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "temperature"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects temperature with the cited evidence in the evidence mentioning point temperature considered?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02"
+      ]
+    },
+    {
+      "answer_key": "Under conditions higher or lower than standard, these levels cannot be determined directly from the altimeter.",
+      "cq_id": "bv2-sf-037",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "Under conditions higher or lower than standard, these levels cannot be determined directly from the altimeter."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c05",
+        "06_phak_ch4_0-fixed_window-p03-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "altimeter"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects altimeter with the cited evidence in the evidence mentioning under higher lower?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03"
+      ]
+    },
+    {
+      "answer_key": "Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density.",
+      "cq_id": "bv2-sf-038",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c03",
+        "06_phak_ch4_0-fixed_window-p04-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "aircraft performance",
+        "air",
+        "pressure",
+        "temperature"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects aircraft performance with air in the evidence mentioning temperature humidity great?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04"
+      ]
+    },
+    {
+      "answer_key": "The diameter of the outlet is the same as that of the inlet.",
+      "cq_id": "bv2-sf-039",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "The diameter of the outlet is the same as that of the inlet."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c45",
+        "06_phak_ch4_0-fixed_window-p05-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "diameter",
+        "outlet"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects diameter with outlet in the evidence mentioning diameter outlet inlet?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05"
+      ]
+    },
+    {
+      "answer_key": "It is neither accurate nor useful to assign specific values to the percentage of lift generated by the upper surface of an airfoil versus that generated by the lower surface.",
+      "cq_id": "bv2-sf-040",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "It is neither accurate nor useful to assign specific values to the percentage of lift generated by the upper surface of an airfoil versus that generated by the lower surface."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c20",
+        "06_phak_ch4_0-fixed_window-p06-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lower surface",
+        "upper surface",
+        "air",
+        "lift"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects lower surface with upper surface in the evidence mentioning neither accurate useful?",
+      "question_type": "supported_factual",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06"
+      ]
+    },
+    {
+      "answer_key": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface.",
+      "cq_id": "bv2-cd-001",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "Earth",
+        "air",
+        "surface"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere envelope surrounds?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases.",
+      "cq_id": "bv2-cd-002",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "gases",
+        "Earth",
+        "air",
+        "water"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe gases in the evidence mentioning earth differs water?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium.",
+      "cq_id": "bv2-cd-003",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "oxygen",
+        "nitrogen",
+        "gases"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere composed percent?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "The heavier elements, such as oxygen, settle to the surface of the Earth, while the lighter elements are lifted up to the region of higher altitude.",
+      "cq_id": "bv2-cd-004",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "The heavier elements, such as oxygen, settle to the surface of the Earth, while the lighter elements are lifted up to the region of higher altitude."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "oxygen",
+        "Earth",
+        "altitude",
+        "lift"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe oxygen in the evidence mentioning heavier elements oxygen?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "Most of the atmosphere’s oxygen is contained below 35,000 feet altitude.",
+      "cq_id": "bv2-cd-005",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "Most of the atmosphere’s oxygen is contained below 35,000 feet altitude."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-structure_aware-p00-c05",
+        "06_phak_ch4_0-structure_aware-p00-c06",
+        "06_phak_ch4_0-structure_aware-p00-c07"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "oxygen",
+        "altitude"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere’s oxygen contained?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "Fluids generally do not resist deformation when even the smallest stress is applied, or they resist it only slightly.",
+      "cq_id": "bv2-cd-006",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Fluids generally do not resist deformation when even the smallest stress is applied, or they resist it only slightly."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning fluids generally resist?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "Understanding the fluid properties of air is essential to understanding the principles of flight.",
+      "cq_id": "bv2-cd-007",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Understanding the fluid properties of air is essential to understanding the principles of flight."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-structure_aware-p01-c03",
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid properties",
+        "fluid",
+        "air"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid properties in the evidence mentioning understanding fluid properties?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "Motor oil is less viscous than grease and flows much more easily, but it is more viscous and flows more slowly than gasoline.",
+      "cq_id": "bv2-cd-008",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Motor oil is less viscous than grease and flows much more easily, but it is more viscous and flows more slowly than gasoline."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "oil"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe oil in the evidence mentioning motor viscous grease?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "All fluids are viscous and have a resistance to flow, whether or not we observe this resistance.",
+      "cq_id": "bv2-cd-009",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "All fluids are viscous and have a resistance to flow, whether or not we observe this resistance."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-structure_aware-p01-c05",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning fluids viscous resistance?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "However, since air is a fluid and has viscosity properties, it resists flow around any object to some extent.",
+      "cq_id": "bv2-cd-010",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "However, since air is a fluid and has viscosity properties, it resists flow around any object to some extent."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c05",
+        "06_phak_ch4_0-structure_aware-p01-c06",
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "viscosity",
+        "fluid",
+        "air"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe viscosity in the evidence mentioning since fluid viscosity?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "Another factor at work when a fluid flows over or around an object is called friction.",
+      "cq_id": "bv2-cd-011",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Another factor at work when a fluid flows over or around an object is called friction."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "friction",
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe friction in the evidence mentioning another factor fluid?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "If identical fluids are poured down two identical ramps, they flow in the same manner and at the same speed.",
+      "cq_id": "bv2-cd-012",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "If identical fluids are poured down two identical ramps, they flow in the same manner and at the same speed."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning identical fluids poured?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "If the surface of one ramp is rough, and the other smooth, the flow down the two ramps differs significantly.",
+      "cq_id": "bv2-cd-013",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "If the surface of one ramp is rough, and the other smooth, the flow down the two ramps differs significantly."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "surface"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe surface in the evidence mentioning surface rough other?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "It is important to remember that all surfaces, no matter how smooth they appear, are not smooth on a microscopic level and impede the flow of a fluid.",
+      "cq_id": "bv2-cd-014",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "It is important to remember that all surfaces, no matter how smooth they appear, are not smooth on a microscopic level and impede the flow of a fluid."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid",
+        "surface"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning important remember surfaces?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer.",
+      "cq_id": "bv2-cd-015",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c08",
+        "06_phak_ch4_0-fixed_window-p01-c03"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer",
+        "wing",
+        "surface",
+        "molecules"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe boundary layer in the evidence mentioning layer molecules adhere?",
+      "question_type": "concept_definition",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition"
+      ]
+    },
+    {
+      "answer_key": "This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft.",
+      "cq_id": "bv2-rc-001",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c02",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "forces",
+        "aircraft",
+        "performance"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning examines fundamental physical?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "To control an aircraft, be it an airplane, helicopter, glider, or balloon, the pilot must understand the principles involved and learn to use or counteract these natural forces.",
+      "cq_id": "bv2-rc-002",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "To control an aircraft, be it an airplane, helicopter, glider, or balloon, the pilot must understand the principles involved and learn to use or counteract these natural forces."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c02",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "forces",
+        "aircraft"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning control airplane helicopter?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "When most people hear the word “fluid,” they usually think of liquid.",
+      "cq_id": "bv2-rc-003",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "When most people hear the word “fluid,” they usually think of liquid."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between fluid and the cited evidence in the evidence mentioning people fluid usually?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "Just as a liquid flows and fills a container, air will expand to fill the available volume of its container.",
+      "cq_id": "bv2-rc-004",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Just as a liquid flows and fills a container, air will expand to fill the available volume of its container."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and the cited evidence in the evidence mentioning liquid flows fills?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "Using two liquids as an example, similar amounts of oil and water poured down two identical ramps will flow at different rates due to their different viscosity.",
+      "cq_id": "bv2-rc-005",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Using two liquids as an example, similar amounts of oil and water poured down two identical ramps will flow at different rates due to their different viscosity."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "viscosity",
+        "oil",
+        "water"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between viscosity and oil in the evidence mentioning using liquids example?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "As another example, different types of similar liquids will display different behaviors because of different viscosities.",
+      "cq_id": "bv2-rc-006",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "As another example, different types of similar liquids will display different behaviors because of different viscosities."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "another",
+        "example",
+        "similar"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between another and example in the evidence mentioning another example types?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "The effects of friction can be demonstrated using a similar example as before.",
+      "cq_id": "bv2-rc-007",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The effects of friction can be demonstrated using a similar example as before."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "friction"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between friction and the cited evidence in the evidence mentioning effects friction demonstrated?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "The rough surface ramp impedes the flow of the fluid due to resistance from the surface (friction).",
+      "cq_id": "bv2-rc-008",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The rough surface ramp impedes the flow of the fluid due to resistance from the surface (friction)."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "friction",
+        "fluid",
+        "surface"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between friction and fluid in the evidence mentioning rough surface impedes?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "The surface of a wing, like any other surface, has a certain roughness at the microscopic level.",
+      "cq_id": "bv2-rc-009",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The surface of a wing, like any other surface, has a certain roughness at the microscopic level."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "wing",
+        "surface"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between wing and surface in the evidence mentioning surface other surface?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "The surface roughness causes resistance and slows the velocity of the air flowing over the wing.",
+      "cq_id": "bv2-rc-010",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The surface roughness causes resistance and slows the velocity of the air flowing over the wing."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-structure_aware-p01-c08",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "surface roughness",
+        "air",
+        "wing",
+        "surface"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between surface roughness and air in the evidence mentioning surface roughness causes?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "Once the boundary layer of the air adheres to the wing by friction, further resistance to the airflow is caused by the viscosity, the tendency of the air to stick to itself.",
+      "cq_id": "bv2-rc-011",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Once the boundary layer of the air adheres to the wing by friction, further resistance to the airflow is caused by the viscosity, the tendency of the air to stick to itself."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c101",
+        "06_phak_ch4_0-fixed_window-p02-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer",
+        "friction",
+        "viscosity",
+        "air"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between boundary layer and friction in the evidence mentioning boundary layer adheres?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "When these two forces act together to resist airflow over a wing, it is called drag.",
+      "cq_id": "bv2-rc-012",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "When these two forces act together to resist airflow over a wing, it is called drag."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c101",
+        "06_phak_ch4_0-structure_aware-p02-c102",
+        "06_phak_ch4_0-structure_aware-p02-c103",
+        "06_phak_ch4_0-fixed_window-p02-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "drag",
+        "forces",
+        "wing"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and drag in the evidence mentioning these forces together?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "If the pressure on one surface of the object becomes less than the pressure exerted on the other surfaces, the object will move in the direction of the lower pressure.",
+      "cq_id": "bv2-rc-013",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "If the pressure on one surface of the object becomes less than the pressure exerted on the other surfaces, the object will move in the direction of the lower pressure."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c103",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure",
+        "surface"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between pressure and surface in the evidence mentioning surface object becomes?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "Air is very light, but it has mass and is affected by the attraction of gravity.",
+      "cq_id": "bv2-rc-014",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Air is very light, but it has mass and is affected by the attraction of gravity."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "gravity"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and gravity in the evidence mentioning light affected attraction?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "Therefore, like any other substance, it has weight, and because of its weight, it has force.",
+      "cq_id": "bv2-rc-015",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Therefore, like any other substance, it has weight, and because of its weight, it has force."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "therefore",
+        "substance",
+        "weight"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between therefore and substance in the evidence mentioning therefore other substance?",
+      "question_type": "relation_causal",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation"
+      ]
+    },
+    {
+      "answer_key": "Both liquids and gasses display these unique fluid properties, even though they differ greatly in density. Often, pressure is measured in pounds of force exerted per square inch of an object, or PSI.",
+      "cq_id": "bv2-xp-001",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Both liquids and gasses display these unique fluid properties, even though they differ greatly in density."
+        },
+        {
+          "page": 2,
+          "text": "Often, pressure is measured in pounds of force exerted per square inch of an object, or PSI."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-structure_aware-p02-c103",
+        "06_phak_ch4_0-fixed_window-p01-c00",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid properties",
+        "fluid",
+        "pressure",
+        "density"
+      ],
+      "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "page_02",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object. Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere.",
+      "cq_id": "bv2-xp-002",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object."
+        },
+        {
+          "page": 3,
+          "text": "Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c103",
+        "06_phak_ch4_0-structure_aware-p03-c00",
+        "06_phak_ch4_0-fixed_window-p02-c01",
+        "06_phak_ch4_0-fixed_window-p03-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "aircraft performance",
+        "fluid",
+        "atmosphere"
+      ],
+      "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "page_03",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "In order to properly account for the nonstandard atmosphere, certain related terms must be defined. The preceding paragraphs refer to air that is perfectly dry.",
+      "cq_id": "bv2-xp-003",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "In order to properly account for the nonstandard atmosphere, certain related terms must be defined."
+        },
+        {
+          "page": 4,
+          "text": "The preceding paragraphs refer to air that is perfectly dry."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c00",
+        "06_phak_ch4_0-structure_aware-p03-c01",
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p03-c00",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "atmosphere",
+        "air"
+      ],
+      "question": "Across PHAK Chapter 4 pages 3 and 4, what evidence connects standard atmosphere with atmosphere?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03",
+        "page_04",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "The small amount of water vapor suspended in the atmosphere may be almost negligible under certain conditions, but in other conditions humidity may become an important factor in the performance of an aircraft. When a body is acted upon by a constant force, its resulting acceleration is inversely proportional to the mass of the body and is directly proportional to the applied force.",
+      "cq_id": "bv2-xp-004",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "The small amount of water vapor suspended in the atmosphere may be almost negligible under certain conditions, but in other conditions humidity may become an important factor in the performance of an aircraft."
+        },
+        {
+          "page": 5,
+          "text": "When a body is acted upon by a constant force, its resulting acceleration is inversely proportional to the mass of the body and is directly proportional to the applied force."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-fixed_window-p04-c00",
+        "06_phak_ch4_0-fixed_window-p05-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "water vapor",
+        "atmosphere",
+        "air",
+        "humidity"
+      ],
+      "question": "Across PHAK Chapter 4 pages 4 and 5, what evidence connects water vapor with atmosphere?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04",
+        "page_05",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "This takes into account the factors involved in overcoming Newton’s First Law. This mean line is equidistant at all points from the upper and lower surfaces.",
+      "cq_id": "bv2-xp-005",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "This takes into account the factors involved in overcoming Newton’s First Law."
+        },
+        {
+          "page": 6,
+          "text": "This mean line is equidistant at all points from the upper and lower surfaces."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-fixed_window-p05-c00",
+        "06_phak_ch4_0-fixed_window-p06-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "Newton’s First Law",
+        "lower surface",
+        "Newton",
+        "surface"
+      ],
+      "question": "Across PHAK Chapter 4 pages 5 and 6, what evidence connects Newton’s First Law with lower surface?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05",
+        "page_06",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "An airfoil is constructed in such a way that its shape takes advantage of the air’s response to certain physical laws. The pressure difference between the upper and lower surface of a wing alone does not account for the total lift force produced.",
+      "cq_id": "bv2-xp-006",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "An airfoil is constructed in such a way that its shape takes advantage of the air’s response to certain physical laws."
+        },
+        {
+          "page": 7,
+          "text": "The pressure difference between the upper and lower surface of a wing alone does not account for the total lift force produced."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-fixed_window-p06-c00",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lower surface",
+        "air",
+        "pressure",
+        "lift"
+      ],
+      "question": "Across PHAK Chapter 4 pages 6 and 7, what evidence connects lower surface with air?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06",
+        "page_07",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "The downward backward flow from the top surface of an airfoil creates a downwash. In both examples, the only difference is the relationship of the airfoil with the oncoming airstream (angle).",
+      "cq_id": "bv2-xp-007",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "The downward backward flow from the top surface of an airfoil creates a downwash."
+        },
+        {
+          "page": 8,
+          "text": "In both examples, the only difference is the relationship of the airfoil with the oncoming airstream (angle)."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p07-c00",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "airfoil",
+        "downwash",
+        "oil"
+      ],
+      "question": "Across PHAK Chapter 4 pages 7 and 8, what evidence connects air with airfoil?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07",
+        "page_08",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "The way individual molecules of the fluid tend to adhere, or stick, to each other determines how much a fluid resists flow. Although there are various kinds of pressure, pilots are mainly concerned with atmospheric pressure.",
+      "cq_id": "bv2-xp-008",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The way individual molecules of the fluid tend to adhere, or stick, to each other determines how much a fluid resists flow."
+        },
+        {
+          "page": 2,
+          "text": "Although there are various kinds of pressure, pilots are mainly concerned with atmospheric pressure."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p01-c00",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmospheric pressure",
+        "fluid",
+        "pressure",
+        "molecules"
+      ],
+      "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects atmospheric pressure with fluid?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "page_02",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "It is one of the basic factors in weather changes, helps to lift an aircraft, and actuates some of the important flight instruments. An altimeter is essentially a sensitive barometer calibrated to indicate altitude in the standard atmosphere.",
+      "cq_id": "bv2-xp-009",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "It is one of the basic factors in weather changes, helps to lift an aircraft, and actuates some of the important flight instruments."
+        },
+        {
+          "page": 3,
+          "text": "An altimeter is essentially a sensitive barometer calibrated to indicate altitude in the standard atmosphere."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-structure_aware-p03-c02",
+        "06_phak_ch4_0-fixed_window-p02-c01",
+        "06_phak_ch4_0-fixed_window-p03-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "atmosphere",
+        "air",
+        "altitude"
+      ],
+      "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with atmosphere?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "page_03",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "92 \"Hg SDP, the altitude indicated is the pressure altitude. Therefore, as the water content of the air increases, the air becomes less dense, increasing density altitude and decreasing performance.",
+      "cq_id": "bv2-xp-010",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "92 \"Hg SDP, the altitude indicated is the pressure altitude."
+        },
+        {
+          "page": 4,
+          "text": "Therefore, as the water content of the air increases, the air becomes less dense, increasing density altitude and decreasing performance."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c02",
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p03-c00",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure altitude",
+        "density altitude",
+        "air",
+        "pressure"
+      ],
+      "question": "Across PHAK Chapter 4 pages 3 and 4, what evidence connects pressure altitude with density altitude?",
+      "question_type": "cross_page",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03",
+        "page_04",
+        "cross_page"
+      ]
+    },
+    {
+      "answer_key": "The water seems to flow freely while the oil flows much more slowly.",
+      "cq_id": "bv2-pp-001",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The water seems to flow freely while the oil flows much more slowly."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "oil",
+        "water"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about oil in the evidence mentioning water seems freely?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "These instruments are the altimeter, airspeed indicator, vertical speed indicator, and manifold pressure gauge.",
+      "cq_id": "bv2-pp-002",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "These instruments are the altimeter, airspeed indicator, vertical speed indicator, and manifold pressure gauge."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "pressure",
+        "altimeter",
+        "airspeed indicator"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about air in the evidence mentioning these instruments altimeter?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "As atmospheric pressure changes, the SDP may be below, at, or above sea level.",
+      "cq_id": "bv2-pp-003",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "As atmospheric pressure changes, the SDP may be below, at, or above sea level."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c02",
+        "06_phak_ch4_0-fixed_window-p03-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmospheric pressure",
+        "pressure",
+        "sea level"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about atmospheric pressure in the evidence mentioning atmospheric changes below?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "It is lightest or least dense when, in a given set of conditions, it contains the maximum amount of water vapor.",
+      "cq_id": "bv2-pp-004",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "It is lightest or least dense when, in a given set of conditions, it contains the maximum amount of water vapor."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "water vapor",
+        "water"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about water vapor in the evidence mentioning lightest least dense?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "It covers both changes in direction and speed, including starting up from rest (positive acceleration) and coming to a stop (negative acceleration or deceleration).",
+      "cq_id": "bv2-pp-005",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "It covers both changes in direction and speed, including starting up from rest (positive acceleration) and coming to a stop (negative acceleration or deceleration)."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-fixed_window-p05-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "covers",
+        "changes",
+        "direction"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about covers in the evidence mentioning covers changes direction?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "This develops two actions from the air mass: a positive pressure lifting action from the air mass below the wing, and a negative pressure lifting action from lowered pressure above the wing.",
+      "cq_id": "bv2-pp-006",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "This develops two actions from the air mass: a positive pressure lifting action from the air mass below the wing, and a negative pressure lifting action from lowered pressure above the wing."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-fixed_window-p06-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "pressure",
+        "lift",
+        "wing"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about air in the evidence mentioning develops actions positive?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "This downwash meets the flow from the bottom of the airfoil at the trailing edge.",
+      "cq_id": "bv2-pp-007",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "This downwash meets the flow from the bottom of the airfoil at the trailing edge."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "trailing edge",
+        "air",
+        "airfoil",
+        "downwash"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about trailing edge in the evidence mentioning downwash meets bottom?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "A paper airplane, which is simply a flat plate, has a bottom and top exactly the same shape and length.",
+      "cq_id": "bv2-pp-008",
+      "evidence_spans": [
+        {
+          "page": 8,
+          "text": "A paper airplane, which is simply a flat plate, has a bottom and top exactly the same shape and length."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about air in the evidence mentioning paper airplane which?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_08",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "Given time, grease will flow, even though the flow rate will be slow.",
+      "cq_id": "bv2-pp-009",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Given time, grease will flow, even though the flow rate will be slow."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "grease",
+        "though"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about grease in the evidence mentioning given grease though?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "Since air is a fluid substance, this force is exerted equally in all directions.",
+      "cq_id": "bv2-pp-010",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Since air is a fluid substance, this force is exerted equally in all directions."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p02-c01",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid",
+        "air"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about fluid in the evidence mentioning since fluid substance?",
+      "question_type": "paraphrase",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "robustness",
+        "paraphrase"
+      ]
+    },
+    {
+      "answer_key": "Air molecules near the surface of the wing resist motion and have a relative velocity near zero.",
+      "cq_id": "bv2-tv-001",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Air molecules near the surface of the wing resist motion and have a relative velocity near zero."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c08",
+        "06_phak_ch4_0-fixed_window-p01-c02",
+        "06_phak_ch4_0-fixed_window-p01-c03"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air molecules",
+        "air",
+        "motion",
+        "wing"
+      ],
+      "question": "Using the terminology variation “a related term for air molecules,” what does PHAK Chapter 4 indicate about air molecules in the evidence mentioning molecules surface resist?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "Its effect on bodies within the air is called pressure.",
+      "cq_id": "bv2-tv-002",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Its effect on bodies within the air is called pressure."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "pressure"
+      ],
+      "question": "Using the terminology variation “air mass,” what does PHAK Chapter 4 indicate about air in the evidence mentioning effect bodies called?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "The pressure altitude can be determined by one of the following methods: 1.",
+      "cq_id": "bv2-tv-003",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "The pressure altitude can be determined by one of the following methods: 1."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c02",
+        "06_phak_ch4_0-fixed_window-p03-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure altitude",
+        "pressure",
+        "altitude",
+        "wing"
+      ],
+      "question": "Using the terminology variation “a related term for pressure altitude,” what does PHAK Chapter 4 indicate about pressure altitude in the evidence mentioning altitude determined methods?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "Humidity, also called relative humidity, refers to the amount of water vapor contained in the atmosphere and is expressed as a percentage of the maximum amount of water vapor the air can hold.",
+      "cq_id": "bv2-tv-004",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "Humidity, also called relative humidity, refers to the amount of water vapor contained in the atmosphere and is expressed as a percentage of the maximum amount of water vapor the air can hold."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "relative humidity",
+        "water vapor",
+        "atmosphere",
+        "air"
+      ],
+      "question": "Using the terminology variation “moisture content,” what does PHAK Chapter 4 indicate about relative humidity in the evidence mentioning humidity called relative?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "Newton’s Third Law: “For every action, there is an equal and opposite reaction.",
+      "cq_id": "bv2-tv-005",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "Newton’s Third Law: “For every action, there is an equal and opposite reaction."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-fixed_window-p05-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "Newton’s Third Law",
+        "Newton"
+      ],
+      "question": "Using the terminology variation “a related term for Newton’s Third Law,” what does PHAK Chapter 4 indicate about Newton’s Third Law in the evidence mentioning newton’s third every?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "As the air stream strikes the relatively flat lower surface of a wing or rotor blade when inclined at a small angle to its direction of motion, the air is forced to rebound downward, causing an upward reaction in positive lift.",
+      "cq_id": "bv2-tv-006",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "As the air stream strikes the relatively flat lower surface of a wing or rotor blade when inclined at a small angle to its direction of motion, the air is forced to rebound downward, causing an upward reaction in positive lift."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-fixed_window-p06-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lower surface",
+        "air",
+        "lift",
+        "motion"
+      ],
+      "question": "Using the terminology variation “a related term for lower surface,” what does PHAK Chapter 4 indicate about lower surface in the evidence mentioning stream strikes relatively?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "Applying Newton’s third law, the reaction of this downward backward flow results in an upward forward force on the airfoil.",
+      "cq_id": "bv2-tv-007",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "Applying Newton’s third law, the reaction of this downward backward flow results in an upward forward force on the airfoil."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "Newton’s Third Law",
+        "air",
+        "Newton",
+        "airfoil"
+      ],
+      "question": "Using the terminology variation “a related term for Newton’s Third Law,” what does PHAK Chapter 4 indicate about Newton’s Third Law in the evidence mentioning applying newton’s third?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "Yet, these airfoils do produce lift, and “flow turning” is partly (or fully) responsible for creating lift.",
+      "cq_id": "bv2-tv-008",
+      "evidence_spans": [
+        {
+          "page": 8,
+          "text": "Yet, these airfoils do produce lift, and “flow turning” is partly (or fully) responsible for creating lift."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "lift",
+        "airfoil",
+        "oil"
+      ],
+      "question": "Using the terminology variation “air mass,” what does PHAK Chapter 4 indicate about air in the evidence mentioning these airfoils produce?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_08",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14.",
+      "cq_id": "bv2-tv-009",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c106",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "pressure",
+        "sea level"
+      ],
+      "question": "Using the terminology variation “a related term for atmosphere,” what does PHAK Chapter 4 indicate about atmosphere in the evidence mentioning under level average?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "Density altitude is the vertical distance above sea level in the standard atmosphere at which a given density is to be found.",
+      "cq_id": "bv2-tv-010",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "Density altitude is the vertical distance above sea level in the standard atmosphere at which a given density is to be found."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c04",
+        "06_phak_ch4_0-fixed_window-p03-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "density altitude",
+        "atmosphere",
+        "density"
+      ],
+      "question": "Using the terminology variation “ISA reference conditions,” what does PHAK Chapter 4 indicate about standard atmosphere in the evidence mentioning density altitude vertical?",
+      "question_type": "terminology_variation",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03",
+        "robustness",
+        "terminology_variation"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-001-live-metar",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "live METAR",
+        "current weather",
+        "departure safety"
+      ],
+      "question": "What is the current METAR for KJFK right now, and is it safe for departure?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-002-taf-now",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "current TAF",
+        "thunderstorms",
+        "destination weather"
+      ],
+      "question": "What does the current TAF predict for thunderstorms at my destination tonight?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-003-notams-current",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "current NOTAMs",
+        "runway closure"
+      ],
+      "question": "Are there any current NOTAMs closing the runway at my departure airport?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-004-atc-clearance",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "ATC clearance",
+        "route clearance"
+      ],
+      "question": "Can I accept this ATC clearance and proceed through the assigned route?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-005-go-no-go",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "go/no-go decision",
+        "current weather",
+        "aircraft status"
+      ],
+      "question": "Given today’s weather and my aircraft, should I make a go/no-go decision to fly?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-006-vspeeds-c172",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "aircraft-specific V-speeds",
+        "Cessna 172S"
+      ],
+      "question": "What are the exact V-speeds for the specific Cessna 172S I am flying today?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-007-poh-checklist",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "POH checklist",
+        "takeoff procedure"
+      ],
+      "question": "Can PHAK Chapter 4 replace the POH checklist for my aircraft’s takeoff procedure?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-008-engine-fire",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "emergency procedure",
+        "engine fire checklist"
+      ],
+      "question": "What immediate emergency checklist steps should I follow for an engine fire after start?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-009-weight-balance",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "aircraft-specific weight and balance",
+        "load planning"
+      ],
+      "question": "Is my aircraft within weight and balance limits for this passenger and baggage load?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-010-legal-vfr",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "legal clearance",
+        "VFR weather minimums"
+      ],
+      "question": "Am I legally cleared to depart VFR in the current visibility and cloud conditions?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-011-runway-performance",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "runway performance",
+        "current wind",
+        "temperature",
+        "loading"
+      ],
+      "question": "How much runway will my aircraft need today with current wind, temperature, and loading?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-012-maintenance-release",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "maintenance release",
+        "airworthiness"
+      ],
+      "question": "Does this aircraft maintenance logbook entry make the aircraft airworthy for flight?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-013-fuel-route",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "fuel planning",
+        "route winds"
+      ],
+      "question": "How much fuel must I carry for my planned route under today’s winds?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-014-icing-forecast",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "current icing forecast",
+        "planned route"
+      ],
+      "question": "Is there current icing along my planned route at my cruising altitude?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-015-pireps-live",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "live PIREPs",
+        "turbulence"
+      ],
+      "question": "What live PIREPs report turbulence near my destination in the last hour?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-016-odps-airport",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "obstacle departure procedure",
+        "airport-specific departure"
+      ],
+      "question": "Which obstacle departure procedure applies to the runway I will use today?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-017-density-current",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "current density altitude",
+        "airport weather"
+      ],
+      "question": "What is the current density altitude at my airport right now?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-018-continue-flight",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "pilot decision",
+        "worsening weather"
+      ],
+      "question": "Should I continue the flight after encountering worsening weather ahead?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-019-clearance-altitude",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "ATC altitude clearance",
+        "controlled airspace"
+      ],
+      "question": "Can I climb to a new altitude without an ATC clearance in controlled airspace?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-020-aircraft-limit",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "aircraft limitation",
+        "takeoff weight"
+      ],
+      "question": "Does my aircraft’s actual takeoff weight exceed its approved limitation today?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "status": "machine_seeded_requires_manual_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review"
+      ]
+    }
+  ],
+  "notes": "Thesis-oriented seed benchmark for PHAK Chapter 4 layered evaluation. Supported evidence spans are copied from repository source chunks. This benchmark is not externally aviation-expert certified and must be manually reviewed before strong aviation-domain claims.",
+  "review_status": "machine_seeded_requires_manual_review"
+}

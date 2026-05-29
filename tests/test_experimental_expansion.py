@@ -146,6 +146,39 @@ def test_retrieval_ablation_uses_layered_metrics_and_manifest(tmp_path: Path) ->
     assert result["metadata"]["cost_latency"]["questions_total"] == 2
 
 
+def test_retrieval_ablation_loads_benchmark_v2_questions(tmp_path: Path) -> None:
+    def fake_runner(question, *_args, **_kwargs):
+        if "current" in question.lower() or "clearance" in question.lower():
+            return {"fused_chunks": [], "graph_triples": []}
+        return {
+            "fused_chunks": [
+                {
+                    "chunk_id": "unmatched",
+                    "page": -1,
+                    "text": "unmatched",
+                    "source": "vector",
+                }
+            ],
+            "graph_triples": [],
+        }
+
+    _json_path, _md_path, result = write_retrieval_ablation(
+        tmp_path / "unused_boundary.json",
+        tmp_path / "chunks.jsonl",
+        tmp_path / "kg.jsonl",
+        tmp_path / "chroma",
+        tmp_path,
+        gold_labels_path=Path("data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"),
+        scenarios=(("vector", 2, 5, 8),),
+        query_runner=fake_runner,
+    )
+
+    assert result["metadata"]["questions_total"] == 120
+    assert result["metadata"]["label_breakdown"]["supported_total"] == 100
+    assert result["metadata"]["label_breakdown"]["no_answer_total"] == 20
+    assert len(result["scenarios"]["vector_hops2_v5_h8"]["records"]) == 120
+
+
 def test_kg_extraction_comparison_counts_quality_and_duplicates(tmp_path: Path) -> None:
     fixed = tmp_path / "fixed.kg.jsonl"
     structure = tmp_path / "structure.kg.jsonl"

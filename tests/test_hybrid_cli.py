@@ -349,6 +349,44 @@ def test_cli_cqs_gold_draft_uses_mocked_builder(tmp_path: Path, monkeypatch) -> 
     assert "Drafted 2 gold labels" in result.output
 
 
+def test_cli_cqs_validate_benchmark_uses_mocked_validator(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    calls = {}
+
+    def fake_validate_benchmark(label_path, chunk_inputs, *, min_labels):
+        calls["label_path"] = label_path
+        calls["chunk_inputs"] = chunk_inputs
+        calls["min_labels"] = min_labels
+        return {
+            "valid": True,
+            "warnings_total": 0,
+            "metadata": {
+                "labels_total": 120,
+                "supported_total": 100,
+                "no_answer_total": 20,
+            },
+        }
+
+    monkeypatch.setattr(cli, "validate_benchmark", fake_validate_benchmark)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "cqs",
+            "validate-benchmark",
+            "--gold-labels",
+            str(tmp_path / "benchmark.json"),
+            "--min-labels",
+            "100",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls["min_labels"] == 100
+    assert "validated 120 benchmark labels" in result.output
+
+
 def test_cli_report_evidence_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai import cli
 
@@ -399,6 +437,39 @@ def test_cli_report_retrieval_ablation_uses_mocked_writer(tmp_path: Path, monkey
 
     assert result.exit_code == 0, result.output
     assert "Evaluated 3 retrieval ablation scenarios" in result.output
+
+
+def test_cli_report_benchmark_v2_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "benchmark_v2_summary.json"
+        md_path = tmp_path / "benchmark_v2_summary.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return (
+            json_path,
+            md_path,
+            {
+                "metadata": {"labels_total": 120},
+                "validation": {"valid": True},
+            },
+        )
+
+    monkeypatch.setattr(cli, "write_benchmark_v2_summary", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "benchmark-v2",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Summarized 120 benchmark labels" in result.output
 
 
 def test_cli_report_kg_extraction_comparison_uses_mocked_writer(
