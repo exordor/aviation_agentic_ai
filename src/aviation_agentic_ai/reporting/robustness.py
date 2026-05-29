@@ -9,6 +9,7 @@ from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
 from aviation_agentic_ai.evaluation.metrics import answer_metrics
 from aviation_agentic_ai.evaluation.protocol import build_run_manifest, embedding_metadata
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.retrieval.sufficiency import detect_risk_category
 from aviation_agentic_ai.retrieval.hybrid import run_retrieval
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
 
@@ -58,12 +59,24 @@ def _evaluate_case(case: dict[str, Any], result: dict[str, Any]) -> dict[str, An
     abstention_correct = (
         bool(answer["insufficient_evidence_abstention"]) if expected_abstention else True
     )
+    actual_abstention = bool(answer["insufficient_evidence_abstention"])
+    false_answer = expected_abstention and not actual_abstention
+    false_abstention = not expected_abstention and actual_abstention
+    risk_category = detect_risk_category(str(case.get("question", "")))[0]
+    expected_risk_category = str(case.get("expected_risk_category") or risk_category)
     return {
         "retrieval_stability": retrieval_stable,
         "citation_stability": citation_stable,
         "kg_evidence_stability": bool(result.get("graph_triples")) or expected_abstention,
         "answer_stability": bool(result.get("answer", "").strip()),
         "abstention_correctness": abstention_correct,
+        "abstention_accuracy": abstention_correct,
+        "false_answer": false_answer,
+        "false_abstention": false_abstention,
+        "advisory_boundary_violation": false_answer,
+        "risk_category": risk_category,
+        "expected_risk_category": expected_risk_category,
+        "risk_category_correct": risk_category == expected_risk_category,
         "retrieved_chunk_ids": sorted(retrieved_chunks),
         "valid_citations": answer["valid_citations"],
     }
@@ -78,10 +91,38 @@ def _aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
         "answer_stability",
         "abstention_correctness",
     )
-    return {
+    aggregate = {
         key: round(sum(int(record["metrics"][key]) for record in records) / denominator, 4)
         for key in keys
-    } | {"cases_total": len(records)}
+    }
+    no_answer = [record for record in records if record["expected_abstention"]]
+    supported = [record for record in records if not record["expected_abstention"]]
+    aggregate.update(
+        {
+            "abstention_accuracy": aggregate["abstention_correctness"],
+            "false_answer_rate": round(
+                sum(int(record["metrics"]["false_answer"]) for record in no_answer)
+                / max(len(no_answer), 1),
+                4,
+            ),
+            "false_abstention_rate": round(
+                sum(int(record["metrics"]["false_abstention"]) for record in supported)
+                / max(len(supported), 1),
+                4,
+            ),
+            "advisory_boundary_violation_count": sum(
+                int(record["metrics"]["advisory_boundary_violation"])
+                for record in records
+            ),
+            "risk_category_accuracy": round(
+                sum(int(record["metrics"]["risk_category_correct"]) for record in records)
+                / denominator,
+                4,
+            ),
+            "cases_total": len(records),
+        }
+    )
+    return aggregate
 
 
 def build_robustness_evaluation(
@@ -196,6 +237,10 @@ def write_robustness_evaluation_markdown(result: dict[str, Any], output_path: st
         f"| KG evidence stability | {aggregate['kg_evidence_stability']} |",
         f"| Answer stability | {aggregate['answer_stability']} |",
         f"| Abstention correctness | {aggregate['abstention_correctness']} |",
+        f"| False answer rate | {aggregate['false_answer_rate']} |",
+        f"| False abstention rate | {aggregate['false_abstention_rate']} |",
+        f"| Advisory boundary violation count | {aggregate['advisory_boundary_violation_count']} |",
+        f"| Risk category accuracy | {aggregate['risk_category_accuracy']} |",
         "",
         "## Cases",
         "",

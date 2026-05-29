@@ -1,0 +1,738 @@
+{
+  "evidence_gaps_before_thesis_submission": [
+    "Path Recall@k and Path Precision@k are heuristic until manually reviewed path relevance labels exist.",
+    "Triple semantic correctness has a review sample but no completed manual correctness results.",
+    "Faithfulness, answer correctness, and answer relevance are deterministic heuristics unless an explicit LLM-as-judge or manual review run is added.",
+    "Benchmark labels are thesis/course-project evidence, not external aviation-expert certification."
+  ],
+  "implemented_metrics": [
+    {
+      "field": "recall_at_5",
+      "kind": "mainstream_ir",
+      "metric": "Recall@5",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "recall_at_10",
+      "kind": "mainstream_ir",
+      "metric": "Recall@10",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "precision_at_5",
+      "kind": "mainstream_ir",
+      "metric": "Precision@5",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "mrr_at_5",
+      "kind": "mainstream_ir",
+      "metric": "MRR@5",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "mrr_at_10",
+      "kind": "mainstream_ir",
+      "metric": "MRR@10",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "ndcg_at_10",
+      "kind": "mainstream_ir",
+      "metric": "NDCG@10",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "context_precision_at_5",
+      "kind": "ragas_style",
+      "metric": "Context Precision@5",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "context_recall",
+      "kind": "ragas_style",
+      "metric": "Context Recall",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "path_recall_at_5",
+      "kind": "graphrag_path",
+      "metric": "Path Recall@5",
+      "reports": [
+        "graph_traversal_ablation"
+      ],
+      "status": "heuristic_available_requires_manual_review"
+    },
+    {
+      "field": "path_precision_at_5",
+      "kind": "graphrag_path",
+      "metric": "Path Precision@5",
+      "reports": [
+        "graph_traversal_ablation"
+      ],
+      "status": "heuristic_available_requires_manual_review"
+    },
+    {
+      "field": "supporting_path_rate",
+      "kind": "graphrag_path",
+      "metric": "Supporting Path Rate",
+      "reports": [
+        "graph_traversal_ablation"
+      ],
+      "status": "heuristic_available_requires_manual_review"
+    },
+    {
+      "field": "irrelevant_path_rate",
+      "kind": "graphrag_path",
+      "metric": "Irrelevant Path Rate",
+      "reports": [
+        "graph_traversal_ablation"
+      ],
+      "status": "heuristic_available_requires_manual_review"
+    },
+    {
+      "field": "citation_precision",
+      "kind": "deterministic_answer_heuristic",
+      "metric": "Citation Precision",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "citation_recall",
+      "kind": "deterministic_answer_heuristic",
+      "metric": "Citation Recall",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "faithfulness",
+      "kind": "ragas_ares_style",
+      "metric": "Faithfulness",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "answer_correctness",
+      "kind": "ragas_style",
+      "metric": "Answer Correctness",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "answer_relevance",
+      "kind": "ragas_ares_style",
+      "metric": "Answer Relevance",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "structural_metrics.rdf_valid",
+      "kind": "ontology_structural",
+      "metric": "RDF/OWL Parse Validity",
+      "reports": [
+        "curated_ontology_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "structural_metrics.*_coverage",
+      "kind": "ontology_usability_annotation",
+      "metric": "Label/Comment Coverage",
+      "reports": [
+        "curated_ontology_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "structural_metrics.properties_with_domain/range",
+      "kind": "ontology_functional",
+      "metric": "Domain/Range Completeness",
+      "reports": [
+        "curated_ontology_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "errors_total and unsupported_triple_count",
+      "kind": "kg_validation",
+      "metric": "Unsupported Class/Property Count",
+      "reports": [
+        "kg_validation",
+        "kg_extraction_comparison"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "provenance_complete_rate",
+      "kind": "kg_validation",
+      "metric": "Provenance Completeness",
+      "reports": [
+        "kg_extraction_comparison",
+        "retrieval_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "evidence_in_chunk_rate",
+      "kind": "kg_validation",
+      "metric": "Evidence-In-Source Rate",
+      "reports": [
+        "kg_extraction_comparison"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "abstention_accuracy",
+      "kind": "safety_sensitive",
+      "metric": "Abstention Accuracy",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "false_answer_rate",
+      "kind": "safety_sensitive",
+      "metric": "False Answer Rate",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "false_abstention_rate",
+      "kind": "safety_sensitive",
+      "metric": "False Abstention Rate",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "advisory_boundary_violation_count",
+      "kind": "safety_sensitive",
+      "metric": "Advisory Boundary Violation Count",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation",
+        "answer_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "risk_category_accuracy",
+      "kind": "safety_sensitive",
+      "metric": "Risk Category Accuracy",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "status": "implemented"
+    }
+  ],
+  "metadata": {
+    "project_root": ".",
+    "protocol_doc": "docs/evaluation_protocol.md",
+    "scoring_policy": "layered_metrics_no_mixed_overall_score"
+  },
+  "metric_catalog": [
+    {
+      "field": "recall_at_5",
+      "kind": "mainstream_ir",
+      "metric": "Recall@5",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "recall_at_10",
+      "kind": "mainstream_ir",
+      "metric": "Recall@10",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "precision_at_5",
+      "kind": "mainstream_ir",
+      "metric": "Precision@5",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "mrr_at_5",
+      "kind": "mainstream_ir",
+      "metric": "MRR@5",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "mrr_at_10",
+      "kind": "mainstream_ir",
+      "metric": "MRR@10",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "ndcg_at_10",
+      "kind": "mainstream_ir",
+      "metric": "NDCG@10",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "context_precision_at_5",
+      "kind": "ragas_style",
+      "metric": "Context Precision@5",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "context_recall",
+      "kind": "ragas_style",
+      "metric": "Context Recall",
+      "reports": [
+        "retrieval_ablation",
+        "graph_traversal_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "path_recall_at_5",
+      "kind": "graphrag_path",
+      "metric": "Path Recall@5",
+      "reports": [
+        "graph_traversal_ablation"
+      ],
+      "status": "heuristic_available_requires_manual_review"
+    },
+    {
+      "field": "path_precision_at_5",
+      "kind": "graphrag_path",
+      "metric": "Path Precision@5",
+      "reports": [
+        "graph_traversal_ablation"
+      ],
+      "status": "heuristic_available_requires_manual_review"
+    },
+    {
+      "field": "supporting_path_rate",
+      "kind": "graphrag_path",
+      "metric": "Supporting Path Rate",
+      "reports": [
+        "graph_traversal_ablation"
+      ],
+      "status": "heuristic_available_requires_manual_review"
+    },
+    {
+      "field": "irrelevant_path_rate",
+      "kind": "graphrag_path",
+      "metric": "Irrelevant Path Rate",
+      "reports": [
+        "graph_traversal_ablation"
+      ],
+      "status": "heuristic_available_requires_manual_review"
+    },
+    {
+      "field": "citation_precision",
+      "kind": "deterministic_answer_heuristic",
+      "metric": "Citation Precision",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "citation_recall",
+      "kind": "deterministic_answer_heuristic",
+      "metric": "Citation Recall",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "faithfulness",
+      "kind": "ragas_ares_style",
+      "metric": "Faithfulness",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "answer_correctness",
+      "kind": "ragas_style",
+      "metric": "Answer Correctness",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "answer_relevance",
+      "kind": "ragas_ares_style",
+      "metric": "Answer Relevance",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "annotation.status",
+      "kind": "manual_kg_review",
+      "metric": "Triple Semantic Correctness",
+      "reports": [
+        "triple_semantic_review"
+      ],
+      "status": "manual_review_template_available_results_missing"
+    },
+    {
+      "field": "structural_metrics.rdf_valid",
+      "kind": "ontology_structural",
+      "metric": "RDF/OWL Parse Validity",
+      "reports": [
+        "curated_ontology_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "structural_metrics.*_coverage",
+      "kind": "ontology_usability_annotation",
+      "metric": "Label/Comment Coverage",
+      "reports": [
+        "curated_ontology_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "structural_metrics.properties_with_domain/range",
+      "kind": "ontology_functional",
+      "metric": "Domain/Range Completeness",
+      "reports": [
+        "curated_ontology_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "errors_total and unsupported_triple_count",
+      "kind": "kg_validation",
+      "metric": "Unsupported Class/Property Count",
+      "reports": [
+        "kg_validation",
+        "kg_extraction_comparison"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "provenance_complete_rate",
+      "kind": "kg_validation",
+      "metric": "Provenance Completeness",
+      "reports": [
+        "kg_extraction_comparison",
+        "retrieval_ablation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "evidence_in_chunk_rate",
+      "kind": "kg_validation",
+      "metric": "Evidence-In-Source Rate",
+      "reports": [
+        "kg_extraction_comparison"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "abstention_accuracy",
+      "kind": "safety_sensitive",
+      "metric": "Abstention Accuracy",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "false_answer_rate",
+      "kind": "safety_sensitive",
+      "metric": "False Answer Rate",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "false_abstention_rate",
+      "kind": "safety_sensitive",
+      "metric": "False Abstention Rate",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "advisory_boundary_violation_count",
+      "kind": "safety_sensitive",
+      "metric": "Advisory Boundary Violation Count",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation",
+        "answer_evaluation"
+      ],
+      "status": "implemented"
+    },
+    {
+      "field": "risk_category_accuracy",
+      "kind": "safety_sensitive",
+      "metric": "Risk Category Accuracy",
+      "reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "status": "implemented"
+    }
+  ],
+  "missing_or_pending_metrics": [
+    {
+      "field": "faithfulness",
+      "kind": "ragas_ares_style",
+      "metric": "Faithfulness",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "answer_correctness",
+      "kind": "ragas_style",
+      "metric": "Answer Correctness",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "answer_relevance",
+      "kind": "ragas_ares_style",
+      "metric": "Answer Relevance",
+      "reports": [
+        "answer_evaluation"
+      ],
+      "status": "implemented_heuristic_llm_judge_optional_not_run"
+    },
+    {
+      "field": "annotation.status",
+      "kind": "manual_kg_review",
+      "metric": "Triple Semantic Correctness",
+      "reports": [
+        "triple_semantic_review"
+      ],
+      "status": "manual_review_template_available_results_missing"
+    }
+  ],
+  "primary_thesis_metrics": [
+    {
+      "classification": "mainstream",
+      "layer": "retrieval",
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "MRR@5",
+        "MRR@10",
+        "NDCG@10",
+        "Precision@5",
+        "Context Precision@5",
+        "Context Recall"
+      ],
+      "reports": [
+        "reports/stages/retrieval_ablation.json",
+        "reports/stages/retrieval_ablation_benchmark_v2.json",
+        "reports/stages/chunking_comparison.json"
+      ]
+    },
+    {
+      "classification": "mainstream_plus_heuristic_path_review",
+      "layer": "graph_evidence",
+      "metrics": [
+        "Key Entity Coverage",
+        "Relation Coverage",
+        "Path Recall@5",
+        "Path Precision@5",
+        "Supporting Path Rate",
+        "Average Path Length",
+        "Irrelevant Path Rate"
+      ],
+      "reports": [
+        "reports/stages/graph_traversal_ablation.json",
+        "reports/stages/graph_traversal_ablation_benchmark_v2.json"
+      ]
+    },
+    {
+      "classification": "mainstream_heuristic_until_llm_or_manual_review",
+      "layer": "answer_generation",
+      "metrics": [
+        "Faithfulness",
+        "Answer Correctness",
+        "Answer Relevance",
+        "Citation Completeness",
+        "Citation Precision",
+        "Citation Recall"
+      ],
+      "reports": [
+        "reports/stages/answer_evaluation.json"
+      ]
+    },
+    {
+      "classification": "mainstream_plus_manual_review",
+      "layer": "ontology_kg",
+      "metrics": [
+        "RDF/OWL parse validity",
+        "label/comment coverage",
+        "domain/range completeness",
+        "unsupported class/property count",
+        "provenance completeness",
+        "evidence-in-source rate",
+        "triple semantic correctness from manual sample review"
+      ],
+      "reports": [
+        "reports/stages/curated_ontology_evaluation.json",
+        "reports/stages/kg_validation.json",
+        "reports/stages/kg_extraction_comparison.json",
+        "reports/stages/triple_semantic_review_sample.json"
+      ]
+    },
+    {
+      "classification": "safety_sensitive_project_primary",
+      "layer": "safety_abstention",
+      "metrics": [
+        "Abstention Accuracy",
+        "False Answer Rate",
+        "False Abstention Rate",
+        "Advisory Boundary Violation Count",
+        "Risk Category Accuracy"
+      ],
+      "reports": [
+        "reports/stages/sufficiency_evaluation.json",
+        "reports/stages/robustness_evaluation.json",
+        "reports/stages/answer_evaluation.json"
+      ]
+    }
+  ],
+  "report_presence": {
+    "reports/stages/answer_evaluation.json": {
+      "path": "reports/stages/answer_evaluation.json",
+      "present": true
+    },
+    "reports/stages/chunking_comparison.json": {
+      "path": "reports/stages/chunking_comparison.json",
+      "present": true
+    },
+    "reports/stages/curated_ontology_evaluation.json": {
+      "path": "reports/stages/curated_ontology_evaluation.json",
+      "present": true
+    },
+    "reports/stages/graph_traversal_ablation.json": {
+      "path": "reports/stages/graph_traversal_ablation.json",
+      "present": true
+    },
+    "reports/stages/graph_traversal_ablation_benchmark_v2.json": {
+      "path": "reports/stages/graph_traversal_ablation_benchmark_v2.json",
+      "present": true
+    },
+    "reports/stages/kg_extraction_comparison.json": {
+      "path": "reports/stages/kg_extraction_comparison.json",
+      "present": true
+    },
+    "reports/stages/kg_validation.json": {
+      "path": "reports/stages/kg_validation.json",
+      "present": true
+    },
+    "reports/stages/retrieval_ablation.json": {
+      "path": "reports/stages/retrieval_ablation.json",
+      "present": true
+    },
+    "reports/stages/retrieval_ablation_benchmark_v2.json": {
+      "path": "reports/stages/retrieval_ablation_benchmark_v2.json",
+      "present": true
+    },
+    "reports/stages/robustness_evaluation.json": {
+      "path": "reports/stages/robustness_evaluation.json",
+      "present": true
+    },
+    "reports/stages/sufficiency_evaluation.json": {
+      "path": "reports/stages/sufficiency_evaluation.json",
+      "present": true
+    },
+    "reports/stages/triple_semantic_review_sample.json": {
+      "path": "reports/stages/triple_semantic_review_sample.json",
+      "present": true
+    }
+  }
+}

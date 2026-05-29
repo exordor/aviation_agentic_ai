@@ -18,6 +18,9 @@ from aviation_agentic_ai.retrieval.hybrid import (
     run_retrieval,
     vector_first_guarded_fusion,
 )
+from aviation_agentic_ai.reporting.graph_traversal_ablation import (
+    write_graph_traversal_ablation,
+)
 
 
 def _chunk(chunk_id: str, page: int, text: str) -> SourceChunk:
@@ -191,6 +194,85 @@ def test_vector_first_guarded_fusion_preserves_top_vector_hits() -> None:
 
     assert [item["chunk_id"] for item in fused[:2]] == ["v1", "v2"]
     assert "g1" in [item["chunk_id"] for item in fused]
+
+
+def test_graph_traversal_ablation_reports_heuristic_path_metrics(tmp_path: Path) -> None:
+    gold_path = tmp_path / "gold.json"
+    gold_path.write_text(
+        """
+{
+  "labels": [
+    {
+      "cq_id": "q1",
+      "source_document": "doc",
+      "source_page": 1,
+      "question": "How does angle of attack affect lift?",
+      "question_type": "relation_causal",
+      "expected_chunk_ids": ["c1"],
+      "evidence_spans": [],
+      "key_entities": ["angle of attack", "lift"],
+      "answer_key": "Angle of attack affects lift.",
+      "gold_level": "chunk",
+      "expected_abstention": false
+    }
+  ]
+}
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    def fake_query_runner(*_args, **_kwargs):
+        return {
+            "fused_chunks": [{"chunk_id": "c1", "page": 1, "text": "Angle of attack affects lift."}],
+            "graph_triples": [
+                {
+                    "triple_id": "t1",
+                    "chunk_id": "c1",
+                    "page": 1,
+                    "subject": "angle of attack",
+                    "predicate": "affects",
+                    "object": "lift",
+                    "evidence_text": "Angle of attack affects lift.",
+                }
+            ],
+            "graph_paths": [
+                {
+                    "path_id": "p1",
+                    "hops": 1,
+                    "chunk_ids": ["c1"],
+                    "pages": [1],
+                    "nodes": [{"node_id": "angle of attack"}, {"node_id": "lift"}],
+                    "edges": [{"predicate": "affects", "chunk_id": "c1", "page": 1}],
+                }
+            ],
+        }
+
+    _json_path, _md_path, result = write_graph_traversal_ablation(
+        tmp_path / "boundary.json",
+        tmp_path / "chunks.jsonl",
+        tmp_path / "kg.jsonl",
+        tmp_path / "chroma",
+        tmp_path,
+        gold_labels_path=gold_path,
+        scenarios=(
+            {
+                "name": "traversal",
+                "label": "Traversal",
+                "mode": "graph",
+                "graph_method": "traversal",
+                "graph_hops": 1,
+            },
+        ),
+        query_runner=fake_query_runner,
+    )
+
+    paths = result["scenarios"]["traversal"]["aggregate"]["graph_paths"]
+    assert paths["path_recall_at_5"] == 1.0
+    assert paths["path_precision_at_5"] == 1.0
+    assert paths["supporting_path_rate"] == 1.0
+    assert paths["irrelevant_path_rate"] == 0.0
+    assert paths["requires_manual_review"] is True
 
 
 def test_cli_report_graph_traversal_ablation_uses_mocked_writer(

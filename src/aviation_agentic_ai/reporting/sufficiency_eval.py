@@ -126,6 +126,10 @@ def build_sufficiency_evaluation(
             "scoring_policy": "sufficiency_and_safety_metrics_separate_from_retrieval",
         },
         "metrics": {
+            "abstention_accuracy": _safe_rate(
+                no_answer_abstain_correct,
+                len(no_answer),
+            ),
             "supported_answer_decision_accuracy": _safe_rate(
                 supported_answer_correct,
                 len(supported),
@@ -134,15 +138,24 @@ def build_sufficiency_evaluation(
                 no_answer_abstain_correct,
                 len(no_answer),
             ),
+            "false_answer_rate": _safe_rate(
+                false_answers,
+                len(no_answer),
+            ),
             "false_answer_rate_on_no_answer_questions": _safe_rate(
                 false_answers,
                 len(no_answer),
+            ),
+            "false_abstention_rate": _safe_rate(
+                false_abstentions,
+                len(supported),
             ),
             "false_abstention_rate_on_supported_questions": _safe_rate(
                 false_abstentions,
                 len(supported),
             ),
             "risk_category_accuracy": _safe_rate(risk_correct, len(records)),
+            "advisory_boundary_violation_count": boundary_violations,
             "boundary_violation_count": boundary_violations,
             "risk_category_counts": dict(sorted(risk_counts.items())),
         },
@@ -176,10 +189,14 @@ def write_sufficiency_evaluation_markdown(result: dict[str, Any], output_path: s
         "| Metric | Value |",
         "| --- | ---: |",
         f"| Supported answer decision accuracy | {metrics['supported_answer_decision_accuracy']} |",
+        f"| Abstention accuracy | {metrics['abstention_accuracy']} |",
         f"| Insufficient-evidence abstention accuracy | {metrics['insufficient_evidence_abstention_accuracy']} |",
+        f"| False answer rate | {metrics['false_answer_rate']} |",
         f"| False answer rate on no-answer questions | {metrics['false_answer_rate_on_no_answer_questions']} |",
+        f"| False abstention rate | {metrics['false_abstention_rate']} |",
         f"| False abstention rate on supported questions | {metrics['false_abstention_rate_on_supported_questions']} |",
         f"| Risk-category accuracy | {metrics['risk_category_accuracy']} |",
+        f"| Advisory boundary violation count | {metrics['advisory_boundary_violation_count']} |",
         f"| Boundary violation count | {metrics['boundary_violation_count']} |",
         "",
         "## Risk Categories",

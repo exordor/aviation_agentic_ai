@@ -129,6 +129,26 @@ def _record_path_metrics(
         for edge in path.get("edges", [])
     } | {str(triple.get("predicate", "")) for triple in triples}
     relation_matches = expected_relations & returned_relations
+    expected_chunk_ids = {str(chunk_id) for chunk_id in gold.expected_chunk_ids}
+
+    def path_supports_question(path: dict[str, Any]) -> bool:
+        path_text = normalize_entity_label(json.dumps(path, sort_keys=True))
+        path_chunk_ids = {str(chunk_id) for chunk_id in path.get("chunk_ids", [])}
+        path_pages = {int(page) for page in path.get("pages", []) if page is not None}
+        entity_match = any(entity and entity in path_text for entity in key_entities)
+        relation_match = any(
+            str(edge.get("predicate", "")) in expected_relations
+            for edge in path.get("edges", [])
+        )
+        chunk_match = bool(expected_chunk_ids & path_chunk_ids)
+        page_match = gold.source_page >= 0 and int(gold.source_page) in path_pages
+        return entity_match or relation_match or chunk_match or page_match
+
+    path_relevance = [path_supports_question(path) for path in paths]
+    top_k = 5
+    top_relevance = path_relevance[:top_k]
+    supporting_paths = sum(int(relevant) for relevant in path_relevance)
+    top_supporting_paths = sum(int(relevant) for relevant in top_relevance)
 
     return {
         "path_coverage": bool(paths),
@@ -146,6 +166,17 @@ def _record_path_metrics(
         "relation_coverage_applicable": bool(expected_relations),
         "expected_relations": sorted(expected_relations),
         "matched_relations": sorted(relation_matches),
+        "path_recall_at_5": 1.0 if top_supporting_paths else 0.0,
+        "path_precision_at_5": round(top_supporting_paths / max(len(top_relevance), 1), 4),
+        "supporting_path_rate": round(supporting_paths / max(len(paths), 1), 4),
+        "irrelevant_path_rate": round(
+            (len(paths) - supporting_paths) / max(len(paths), 1),
+            4,
+        ),
+        "supporting_path_count": supporting_paths,
+        "irrelevant_path_count": len(paths) - supporting_paths,
+        "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
+        "requires_manual_review": True,
     }
 
 
@@ -206,6 +237,22 @@ def _aggregate_path_metrics(records: list[dict[str, Any]]) -> dict[str, Any]:
             sum(int(metric["path_coverage"]) for metric in metrics) / denominator,
             4,
         ),
+        "path_recall_at_5": round(
+            sum(float(metric["path_recall_at_5"]) for metric in metrics) / denominator,
+            4,
+        ),
+        "path_precision_at_5": round(
+            sum(float(metric["path_precision_at_5"]) for metric in metrics) / denominator,
+            4,
+        ),
+        "supporting_path_rate": round(
+            sum(float(metric["supporting_path_rate"]) for metric in metrics) / denominator,
+            4,
+        ),
+        "irrelevant_path_rate": round(
+            sum(float(metric["irrelevant_path_rate"]) for metric in metrics) / denominator,
+            4,
+        ),
         "avg_path_length": round(sum(all_hops) / max(len(all_hops), 1), 4),
         "avg_returned_paths": round(
             sum(int(metric["path_count"]) for metric in metrics) / denominator,
@@ -218,6 +265,8 @@ def _aggregate_path_metrics(records: list[dict[str, Any]]) -> dict[str, Any]:
         ),
         "relation_coverage": relation_coverage,
         "relation_questions_total": len(applicable_relations),
+        "requires_manual_review": True,
+        "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
     }
 
 
@@ -259,13 +308,9 @@ def _failure_categories(record: dict[str, Any]) -> list[str]:
         categories.append("generic_seed_node")
     if path_metrics["path_coverage"] and not retrieval_hit:
         categories.append("path_found_but_wrong_chunk")
-    if (
-        predicates
-        and predicates <= low_value_predicates
-        or (
-            path_metrics["relation_coverage_applicable"]
-            and not path_metrics["relation_coverage"]
-        )
+    if (predicates and predicates <= low_value_predicates) or (
+        path_metrics["relation_coverage_applicable"]
+        and not path_metrics["relation_coverage"]
     ):
         categories.append("low_value_predicate")
     if mode == "hybrid" and path_metrics["path_coverage"] and not retrieval_hit:
@@ -476,10 +521,11 @@ def write_graph_traversal_ablation_markdown(
         f"- Scenarios: {result['metadata']['scenarios_total']}",
         "- Scoring: retrieval, KG evidence, and graph path metrics are kept separate.",
         "",
-        "| Scenario | Recall@5 | MRR@5 | Context Precision@5 | KG coverage | "
-        "Path coverage | Avg path length | Avg returned paths | Key entity coverage | "
+        "| Scenario | Recall@5 | Recall@10 | MRR@5 | NDCG@10 | Context Precision@5 | "
+        "KG coverage | Path coverage | Path Recall@5 | Path Precision@5 | "
+        "Supporting path rate | Irrelevant path rate | Key entity coverage | "
         "Relation coverage | Failures |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for scenario in result["scenarios"].values():
         retrieval = scenario["aggregate"]["retrieval"]
@@ -489,9 +535,11 @@ def write_graph_traversal_ablation_markdown(
         relation_text = "n/a" if relation is None else str(relation)
         lines.append(
             f"| {scenario['label']} | {retrieval['recall_at_5']} | "
-            f"{retrieval['mrr_at_5']} | {retrieval['context_precision_at_5']} | "
+            f"{retrieval['recall_at_10']} | {retrieval['mrr_at_5']} | "
+            f"{retrieval['ndcg_at_10']} | {retrieval['context_precision_at_5']} | "
             f"{kg['evidence_coverage']} | {paths['path_coverage']} | "
-            f"{paths['avg_path_length']} | {paths['avg_returned_paths']} | "
+            f"{paths['path_recall_at_5']} | {paths['path_precision_at_5']} | "
+            f"{paths['supporting_path_rate']} | {paths['irrelevant_path_rate']} | "
             f"{paths['key_entity_coverage']} | {relation_text} | "
             f"{len(scenario['failure_cases'])} |"
         )
@@ -510,6 +558,11 @@ def write_graph_traversal_ablation_markdown(
             "the gold evidence chunks. This can happen through seed linking errors, generic "
             "seed nodes, low-value predicates, sparse KG coverage for the question, or graph "
             "fusion dilution when graph chunks displace stronger vector hits.",
+            "",
+            "Path Recall@5, Path Precision@5, Supporting Path Rate, and Irrelevant Path Rate "
+            "are deterministic heuristics based on key-entity, relation-intent, source-page, "
+            "and gold-chunk overlap. They require manual path relevance review before being "
+            "treated as semantic path-correctness evidence.",
             "",
             "## Failure Cases",
             "",

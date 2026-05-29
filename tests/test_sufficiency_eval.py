@@ -115,5 +115,9 @@ def test_sufficiency_evaluation_report_counts_false_answers(tmp_path: Path) -> N
     assert json_path.exists()
     assert md_path.exists()
     assert result["metrics"]["supported_answer_decision_accuracy"] == 1.0
+    assert result["metrics"]["abstention_accuracy"] == 1.0
     assert result["metrics"]["insufficient_evidence_abstention_accuracy"] == 1.0
+    assert result["metrics"]["false_answer_rate"] == 0.0
+    assert result["metrics"]["false_abstention_rate"] == 0.0
+    assert result["metrics"]["advisory_boundary_violation_count"] == 0
     assert result["metrics"]["boundary_violation_count"] == 0

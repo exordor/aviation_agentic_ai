@@ -149,6 +149,7 @@ aviation-ai report web-demo-readiness
 aviation-ai report web-demo-smoke
 aviation-ai report final-evaluation
 aviation-ai report thesis-claims
+aviation-ai report evaluation-protocol
 aviation-ai web serve
 aviation-ai report hygiene --dry-run
 aviation-ai report project --no-ai
@@ -246,6 +247,7 @@ uv run aviation-ai report evidence-eval
 uv run aviation-ai report graphrag-review
 uv run aviation-ai report final-evaluation
 uv run aviation-ai report thesis-claims
+uv run aviation-ai report evaluation-protocol
 uv run aviation-ai report benchmark-v2
 uv run aviation-ai report benchmark-review-pack
 uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2
@@ -253,6 +255,11 @@ uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_pha
 uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json
 uv run aviation-ai report triple-semantic-review --sample-size 100
 ```
+
+The evaluation protocol is documented in `docs/evaluation_protocol.md`. It maps
+mainstream RAGAS-style, ARES-style, IR, GraphRAG, ontology/KG, and aviation
+safety metrics to this project. The project reports layered metrics and does not
+claim or compute a single mixed overall score.
 
 ## Thesis Positioning And Claim Safety
 

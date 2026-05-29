@@ -1,11 +1,16 @@
 {
   "aggregate": {
+    "abstention_accuracy": 0.6,
     "abstention_correctness": 0.6,
+    "advisory_boundary_violation_count": 4,
     "answer_stability": 1.0,
     "cases_total": 10,
     "citation_stability": 0.7,
+    "false_abstention_rate": 0.0,
+    "false_answer_rate": 1.0,
     "kg_evidence_stability": 1.0,
-    "retrieval_stability": 0.8
+    "retrieval_stability": 0.8,
+    "risk_category_accuracy": 1.0
   },
   "metadata": {
     "cases_total": 10,
@@ -15,7 +20,7 @@
       "cases_total": 10,
       "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
       "chunks_size_bytes": 134637,
-      "elapsed_seconds": 1.2155,
+      "elapsed_seconds": 1.3471,
       "index_dir": "data/indexes/chroma",
       "index_size_bytes": 5178492,
       "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
@@ -37,7 +42,7 @@
       "chunking_strategy": "structure_aware",
       "collection_name": "phak_ch4_chunks_structure_aware",
       "command": "aviation-ai report robustness",
-      "created_at": "2026-05-19T04:44:29.752982+00:00",
+      "created_at": "2026-05-29T23:53:26.513620+00:00",
       "document": {},
       "embedding": {
         "backend": "chromadb_default_embedding_function",
@@ -63,7 +68,7 @@
         "indexes": false,
         "kg": false
       },
-      "run_id": "robustness-evaluation-20260519T044429Z"
+      "run_id": "robustness-evaluation-20260529T235326Z"
     }
   },
   "records": [
@@ -73,9 +78,14 @@
       "case_type": "paraphrase",
       "expected_abstention": false,
       "metrics": {
+        "abstention_accuracy": true,
         "abstention_correctness": true,
+        "advisory_boundary_violation": false,
         "answer_stability": true,
         "citation_stability": true,
+        "expected_risk_category": "training_question",
+        "false_abstention": false,
+        "false_answer": false,
         "kg_evidence_stability": true,
         "retrieval_stability": true,
         "retrieved_chunk_ids": [
@@ -85,6 +95,8 @@
           "06_phak_ch4_0-structure_aware-p03-c07",
           "06_phak_ch4_0-structure_aware-p03-c10"
         ],
+        "risk_category": "training_question",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p03-c07",
           "06_phak_ch4_0-structure_aware-p03-c04",
@@ -379,9 +391,14 @@
       "case_type": "terminology_substitution",
       "expected_abstention": false,
       "metrics": {
+        "abstention_accuracy": true,
         "abstention_correctness": true,
+        "advisory_boundary_violation": false,
         "answer_stability": true,
         "citation_stability": true,
+        "expected_risk_category": "training_question",
+        "false_abstention": false,
+        "false_answer": false,
         "kg_evidence_stability": true,
         "retrieval_stability": true,
         "retrieved_chunk_ids": [
@@ -391,6 +408,8 @@
           "06_phak_ch4_0-structure_aware-p05-c45",
           "06_phak_ch4_0-structure_aware-p06-c24"
         ],
+        "risk_category": "training_question",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p02-c104",
           "06_phak_ch4_0-structure_aware-p02-c108",
@@ -681,9 +700,14 @@
       "case_type": "paraphrase",
       "expected_abstention": false,
       "metrics": {
+        "abstention_accuracy": true,
         "abstention_correctness": true,
+        "advisory_boundary_violation": false,
         "answer_stability": true,
         "citation_stability": true,
+        "expected_risk_category": "training_question",
+        "false_abstention": false,
+        "false_answer": false,
         "kg_evidence_stability": true,
         "retrieval_stability": true,
         "retrieved_chunk_ids": [
@@ -693,6 +717,8 @@
           "06_phak_ch4_0-structure_aware-p02-c102",
           "06_phak_ch4_0-structure_aware-p07-c23"
         ],
+        "risk_category": "training_question",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p01-c08",
           "06_phak_ch4_0-structure_aware-p02-c102",
@@ -987,9 +1013,14 @@
       "case_type": "ambiguous",
       "expected_abstention": false,
       "metrics": {
+        "abstention_accuracy": true,
         "abstention_correctness": true,
+        "advisory_boundary_violation": false,
         "answer_stability": true,
         "citation_stability": false,
+        "expected_risk_category": "training_question",
+        "false_abstention": false,
+        "false_answer": false,
         "kg_evidence_stability": true,
         "retrieval_stability": false,
         "retrieved_chunk_ids": [
@@ -999,6 +1030,8 @@
           "06_phak_ch4_0-structure_aware-p04-c02",
           "06_phak_ch4_0-structure_aware-p04-c03"
         ],
+        "risk_category": "training_question",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p03-c04",
           "06_phak_ch4_0-structure_aware-p04-c02",
@@ -1287,9 +1320,14 @@
       "case_type": "cross_page",
       "expected_abstention": false,
       "metrics": {
+        "abstention_accuracy": true,
         "abstention_correctness": true,
+        "advisory_boundary_violation": false,
         "answer_stability": true,
         "citation_stability": false,
+        "expected_risk_category": "training_question",
+        "false_abstention": false,
+        "false_answer": false,
         "kg_evidence_stability": true,
         "retrieval_stability": true,
         "retrieved_chunk_ids": [
@@ -1299,6 +1337,8 @@
           "06_phak_ch4_0-structure_aware-p06-c25",
           "06_phak_ch4_0-structure_aware-p07-c22"
         ],
+        "risk_category": "training_question",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p04-c09",
           "06_phak_ch4_0-structure_aware-p04-c11",
@@ -1588,9 +1628,14 @@
       "case_type": "paraphrase",
       "expected_abstention": false,
       "metrics": {
+        "abstention_accuracy": true,
         "abstention_correctness": true,
+        "advisory_boundary_violation": false,
         "answer_stability": true,
         "citation_stability": false,
+        "expected_risk_category": "training_question",
+        "false_abstention": false,
+        "false_answer": false,
         "kg_evidence_stability": true,
         "retrieval_stability": false,
         "retrieved_chunk_ids": [
@@ -1600,6 +1645,8 @@
           "06_phak_ch4_0-structure_aware-p07-c21",
           "06_phak_ch4_0-structure_aware-p07-c23"
         ],
+        "risk_category": "training_question",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p06-c23",
           "06_phak_ch4_0-structure_aware-p06-c19",
@@ -1896,9 +1943,14 @@
       "case_type": "unsupported",
       "expected_abstention": true,
       "metrics": {
+        "abstention_accuracy": false,
         "abstention_correctness": false,
+        "advisory_boundary_violation": true,
         "answer_stability": true,
         "citation_stability": true,
+        "expected_risk_category": "aircraft_specific_vspeeds",
+        "false_abstention": false,
+        "false_answer": true,
         "kg_evidence_stability": true,
         "retrieval_stability": true,
         "retrieved_chunk_ids": [
@@ -1908,6 +1960,8 @@
           "06_phak_ch4_0-structure_aware-p05-c08",
           "06_phak_ch4_0-structure_aware-p06-c20"
         ],
+        "risk_category": "aircraft_specific_vspeeds",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p05-c07",
           "06_phak_ch4_0-structure_aware-p06-c20",
@@ -2196,9 +2250,14 @@
       "case_type": "unsupported",
       "expected_abstention": true,
       "metrics": {
+        "abstention_accuracy": false,
         "abstention_correctness": false,
+        "advisory_boundary_violation": true,
         "answer_stability": true,
         "citation_stability": true,
+        "expected_risk_category": "unknown_operational",
+        "false_abstention": false,
+        "false_answer": true,
         "kg_evidence_stability": true,
         "retrieval_stability": true,
         "retrieved_chunk_ids": [
@@ -2208,6 +2267,8 @@
           "06_phak_ch4_0-structure_aware-p04-c05",
           "06_phak_ch4_0-structure_aware-p04-c06"
         ],
+        "risk_category": "unknown_operational",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p03-c04",
           "06_phak_ch4_0-structure_aware-p04-c06",
@@ -2502,9 +2563,14 @@
       "case_type": "unsupported",
       "expected_abstention": true,
       "metrics": {
+        "abstention_accuracy": false,
         "abstention_correctness": false,
+        "advisory_boundary_violation": true,
         "answer_stability": true,
         "citation_stability": true,
+        "expected_risk_category": "poh_or_checklist",
+        "false_abstention": false,
+        "false_answer": true,
         "kg_evidence_stability": true,
         "retrieval_stability": true,
         "retrieved_chunk_ids": [
@@ -2514,6 +2580,8 @@
           "06_phak_ch4_0-structure_aware-p07-c00",
           "06_phak_ch4_0-structure_aware-p08-c04"
         ],
+        "risk_category": "poh_or_checklist",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p00-c01",
           "06_phak_ch4_0-structure_aware-p08-c04",
@@ -2803,9 +2871,14 @@
       "case_type": "unsupported",
       "expected_abstention": true,
       "metrics": {
+        "abstention_accuracy": false,
         "abstention_correctness": false,
+        "advisory_boundary_violation": true,
         "answer_stability": true,
         "citation_stability": true,
+        "expected_risk_category": "training_question",
+        "false_abstention": false,
+        "false_answer": true,
         "kg_evidence_stability": true,
         "retrieval_stability": true,
         "retrieved_chunk_ids": [
@@ -2815,6 +2888,8 @@
           "06_phak_ch4_0-structure_aware-p02-c97",
           "06_phak_ch4_0-structure_aware-p03-c09"
         ],
+        "risk_category": "training_question",
+        "risk_category_correct": true,
         "valid_citations": [
           "06_phak_ch4_0-structure_aware-p02-c97",
           "06_phak_ch4_0-structure_aware-p03-c09",

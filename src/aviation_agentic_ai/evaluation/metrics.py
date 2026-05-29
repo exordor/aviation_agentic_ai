@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import re
 from typing import Any
 
@@ -41,6 +42,90 @@ def _hit_matches_gold(hit: dict[str, Any], gold: GoldLabel) -> bool:
     return int(hit.get("page", -1)) == gold.source_page
 
 
+def _gold_context_units(gold: GoldLabel) -> list[tuple[str, Any]]:
+    if gold.expected_abstention or gold.gold_level in {
+        "no_answer",
+        "none",
+        "unsupported",
+        "insufficient_evidence",
+    }:
+        return []
+    if gold.evidence_spans:
+        return [("span", span) for span in gold.evidence_spans]
+    if gold.expected_chunk_ids:
+        return [("chunk", str(chunk_id)) for chunk_id in gold.expected_chunk_ids]
+    if gold.source_page >= 0:
+        return [("page", int(gold.source_page))]
+    return []
+
+
+def _hit_matches_context_unit(hit: dict[str, Any], unit: tuple[str, Any]) -> bool:
+    unit_type, value = unit
+    if unit_type == "span":
+        return _span_matches_hit(value, hit)
+    if unit_type == "chunk":
+        return str(hit.get("chunk_id", "")) == str(value)
+    if unit_type == "page":
+        return int(hit.get("page", -1)) == int(value)
+    return False
+
+
+def _matched_context_units(
+    hits: list[dict[str, Any]],
+    gold: GoldLabel,
+) -> set[int]:
+    units = _gold_context_units(gold)
+    matched: set[int] = set()
+    for unit_index, unit in enumerate(units):
+        if any(_hit_matches_context_unit(hit, unit) for hit in hits):
+            matched.add(unit_index)
+    return matched
+
+
+def _relevance_by_rank(hits: list[dict[str, Any]], gold: GoldLabel, k: int) -> list[int]:
+    return [int(_hit_matches_gold(hit, gold)) for hit in hits[:k]]
+
+
+def _recall_at_k(hits: list[dict[str, Any]], gold: GoldLabel, k: int) -> bool:
+    return any(_relevance_by_rank(hits, gold, k))
+
+
+def _precision_at_k(hits: list[dict[str, Any]], gold: GoldLabel, k: int) -> float:
+    return round(sum(_relevance_by_rank(hits, gold, k)) / max(k, 1), 4)
+
+
+def _context_precision_at_k(hits: list[dict[str, Any]], gold: GoldLabel, k: int) -> float:
+    top_hits = hits[:k]
+    if not top_hits:
+        return 0.0
+    relevant = sum(_relevance_by_rank(hits, gold, k))
+    return round(relevant / len(top_hits), 4)
+
+
+def _mrr_at_k(hits: list[dict[str, Any]], gold: GoldLabel, k: int) -> float:
+    for rank, relevant in enumerate(_relevance_by_rank(hits, gold, k), start=1):
+        if relevant:
+            return round(1.0 / rank, 4)
+    return 0.0
+
+
+def _ndcg_at_k(hits: list[dict[str, Any]], gold: GoldLabel, k: int) -> float:
+    relevance = _relevance_by_rank(hits, gold, k)
+    dcg = sum(rel / math.log2(rank + 1) for rank, rel in enumerate(relevance, start=1))
+    relevant_total = len(_gold_context_units(gold)) or int(any(relevance))
+    ideal_relevant = min(relevant_total, k)
+    idcg = sum(1.0 / math.log2(rank + 1) for rank in range(1, ideal_relevant + 1))
+    return round(dcg / idcg, 4) if idcg else 0.0
+
+
+def _context_recall(hits: list[dict[str, Any]], gold: GoldLabel, k: int = 10) -> float:
+    units = _gold_context_units(gold)
+    if not units:
+        return 1.0 if gold.expected_abstention else 0.0
+    matched = _matched_context_units(hits[:k], gold)
+    return round(len(matched) / len(units), 4)
+
+
 def retrieval_metrics(
     hits: list[dict[str, Any]],
     gold: GoldLabel | dict[str, Any] | int,
@@ -57,9 +142,15 @@ def retrieval_metrics(
     return {
         "gold_level": label.gold_level,
         "expected_abstention": label.expected_abstention,
-        "recall_at_5": bool(ranks),
-        "mrr_at_5": round(1.0 / ranks[0], 4) if ranks else 0.0,
-        "context_precision_at_5": round(len(ranks) / max(len(top_hits), 1), 4),
+        "recall_at_5": _recall_at_k(hits, label, 5),
+        "recall_at_10": _recall_at_k(hits, label, 10),
+        "precision_at_5": _precision_at_k(hits, label, 5),
+        "precision_at_10": _precision_at_k(hits, label, 10),
+        "mrr_at_5": _mrr_at_k(hits, label, 5),
+        "mrr_at_10": _mrr_at_k(hits, label, 10),
+        "ndcg_at_10": _ndcg_at_k(hits, label, 10),
+        "context_precision_at_5": _context_precision_at_k(hits, label, 5),
+        "context_recall": _context_recall(hits, label, 10),
         "first_relevant_rank": ranks[0] if ranks else None,
         "retrieved_chunk_ids": [str(hit.get("chunk_id", "")) for hit in top_hits],
         "retrieved_source_pages": [int(hit.get("page", -1)) for hit in top_hits],
@@ -75,12 +166,40 @@ def aggregate_retrieval_metrics(metric_items: list[dict[str, Any]]) -> dict[str,
             sum(int(item.get("recall_at_5", False)) for item in metric_items) / denominator,
             4,
         ),
+        "recall_at_10": round(
+            sum(int(item.get("recall_at_10", False)) for item in metric_items)
+            / denominator,
+            4,
+        ),
+        "precision_at_5": round(
+            sum(float(item.get("precision_at_5", 0.0)) for item in metric_items)
+            / denominator,
+            4,
+        ),
+        "precision_at_10": round(
+            sum(float(item.get("precision_at_10", 0.0)) for item in metric_items)
+            / denominator,
+            4,
+        ),
         "mrr_at_5": round(
             sum(float(item.get("mrr_at_5", 0.0)) for item in metric_items) / denominator,
             4,
         ),
+        "mrr_at_10": round(
+            sum(float(item.get("mrr_at_10", 0.0)) for item in metric_items) / denominator,
+            4,
+        ),
+        "ndcg_at_10": round(
+            sum(float(item.get("ndcg_at_10", 0.0)) for item in metric_items) / denominator,
+            4,
+        ),
         "context_precision_at_5": round(
             sum(float(item.get("context_precision_at_5", 0.0)) for item in metric_items)
+            / denominator,
+            4,
+        ),
+        "context_recall": round(
+            sum(float(item.get("context_recall", 0.0)) for item in metric_items)
             / denominator,
             4,
         ),
@@ -140,6 +259,12 @@ def answer_metrics(result: dict[str, Any]) -> dict[str, Any]:
         for page in sorted(pages)
         if re.search(rf"\bpage\s*[=:]?\s*{re.escape(page)}\b", answer_lower)
     ]
+    cited_chunk_like = set(re.findall(r"\b[a-z0-9_.-]+-p\d{1,3}-c\d{1,3}[a-z0-9_.-]*\b", answer_lower))
+    cited_triple_like = set(re.findall(r"\bt\d+\b", answer_lower))
+    cited_page_like = {
+        f"page {match}"
+        for match in re.findall(r"\bpage\s*[=:]?\s*(\d+)\b", answer_lower)
+    }
     abstention_markers = (
         "insufficient",
         "do not support",
@@ -148,14 +273,40 @@ def answer_metrics(result: dict[str, Any]) -> dict[str, Any]:
         "unable to determine",
         "not enough evidence",
     )
+    is_abstention = any(marker in answer_lower for marker in abstention_markers)
     citation_complete = bool(cited_chunks or cited_triples or cited_pages)
+    valid_citations = cited_chunks + cited_triples + [f"page {page}" for page in cited_pages]
+    all_detected_citations = (
+        set(valid_citations)
+        | cited_chunk_like
+        | cited_triple_like
+        | cited_page_like
+    )
+    available_citation_units = set(chunk_ids) | set(triple_ids) | {
+        f"page {page}" for page in pages
+    }
+    citation_precision = (
+        round(len(set(valid_citations) & all_detected_citations) / len(all_detected_citations), 4)
+        if all_detected_citations
+        else (1.0 if is_abstention else 0.0)
+    )
+    citation_recall = (
+        round(len(set(valid_citations)) / len(available_citation_units), 4)
+        if available_citation_units
+        else (1.0 if is_abstention else 0.0)
+    )
     return {
         "citation_completeness": citation_complete,
+        "citation_precision": citation_precision,
+        "citation_recall": citation_recall,
         "valid_chunk_citation": bool(cited_chunks),
         "valid_page_citation": bool(cited_pages),
         "valid_triple_citation": bool(cited_triples),
-        "valid_citations": cited_chunks + cited_triples + [f"page {page}" for page in cited_pages],
-        "insufficient_evidence_abstention": any(marker in answer_lower for marker in abstention_markers),
+        "valid_citations": valid_citations,
+        "detected_citations": sorted(all_detected_citations),
+        "available_citation_units": sorted(available_citation_units),
+        "citation_scoring_method": "deterministic_heuristic",
+        "insufficient_evidence_abstention": is_abstention,
         "answer_present": bool(answer.strip()),
     }
 
@@ -192,6 +343,16 @@ def aggregate_answer_metrics(metric_items: list[dict[str, Any]]) -> dict[str, An
     return {
         "citation_completeness": round(
             sum(int(item.get("citation_completeness", False)) for item in metric_items)
+            / denominator,
+            4,
+        ),
+        "citation_precision": round(
+            sum(float(item.get("citation_precision", 0.0)) for item in metric_items)
+            / denominator,
+            4,
+        ),
+        "citation_recall": round(
+            sum(float(item.get("citation_recall", 0.0)) for item in metric_items)
             / denominator,
             4,
         ),

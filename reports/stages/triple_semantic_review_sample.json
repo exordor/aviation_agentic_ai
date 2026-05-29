@@ -15,6 +15,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -43,6 +44,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -71,6 +73,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -99,6 +102,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -127,6 +131,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -155,6 +160,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -183,6 +189,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -211,6 +218,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -239,6 +247,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -267,6 +276,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -295,6 +305,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -323,6 +334,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -351,6 +363,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -379,6 +392,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -407,6 +421,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -435,6 +450,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -463,6 +479,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -491,6 +508,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -519,6 +537,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -547,6 +566,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -575,6 +595,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -603,6 +624,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -631,6 +653,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -659,6 +682,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -687,6 +711,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -715,6 +740,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -743,6 +769,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -771,6 +798,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -799,6 +827,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -827,6 +856,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -855,6 +885,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -883,6 +914,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -911,6 +943,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -939,6 +972,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -967,6 +1001,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -995,6 +1030,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1023,6 +1059,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1051,6 +1088,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1079,6 +1117,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1107,6 +1146,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1135,6 +1175,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1163,6 +1204,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1191,6 +1233,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1219,6 +1262,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1247,6 +1291,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1275,6 +1320,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1303,6 +1349,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1331,6 +1378,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1359,6 +1407,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1387,6 +1436,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1415,6 +1465,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1443,6 +1494,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1471,6 +1523,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1499,6 +1552,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1527,6 +1581,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1555,6 +1610,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1583,6 +1639,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1611,6 +1668,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1639,6 +1697,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1667,6 +1726,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1695,6 +1755,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1723,6 +1784,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1751,6 +1813,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1779,6 +1842,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1807,6 +1871,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1835,6 +1900,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1863,6 +1929,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1891,6 +1958,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1919,6 +1987,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1947,6 +2016,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -1975,6 +2045,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2003,6 +2074,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2031,6 +2103,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2059,6 +2132,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2087,6 +2161,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2115,6 +2190,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2143,6 +2219,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2171,6 +2248,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2199,6 +2277,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2227,6 +2306,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2255,6 +2335,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2283,6 +2364,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2311,6 +2393,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2339,6 +2422,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2367,6 +2451,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2395,6 +2480,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2423,6 +2509,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2451,6 +2538,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2479,6 +2567,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2507,6 +2596,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2535,6 +2625,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2563,6 +2654,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2591,6 +2683,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2619,6 +2712,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2647,6 +2741,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2675,6 +2770,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2703,6 +2799,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2731,6 +2828,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2759,6 +2857,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2787,6 +2886,7 @@
         "object_correct": "needs_review",
         "predicate_correct": "needs_review",
         "reviewer_notes": "",
+        "status": "needs_manual_review",
         "subject_correct": "needs_review",
         "too_generic": "needs_review"
       },
@@ -2817,6 +2917,7 @@
       "evidence_supports_triple",
       "too_generic",
       "duplicate_or_near_duplicate",
+      "status",
       "reviewer_notes"
     ],
     "needs_review": 100,

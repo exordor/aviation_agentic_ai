@@ -39,6 +39,7 @@ from aviation_agentic_ai.reporting.benchmark_v2 import write_benchmark_v2_summar
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
 from aviation_agentic_ai.reporting.evidence_cards import write_evidence_cards
 from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
+from aviation_agentic_ai.reporting.evaluation_protocol import write_evaluation_protocol_review
 from aviation_agentic_ai.reporting.final_evaluation import write_final_evaluation_review
 from aviation_agentic_ai.reporting.graphrag_review import write_graphrag_review
 from aviation_agentic_ai.reporting.graph_traversal_ablation import (
@@ -930,6 +931,25 @@ def report_thesis_claims(
     click.echo(
         f"Reviewed thesis claims; unsafe claims found: "
         f"{result['metadata']['unsafe_claims_total']}."
+    )
+
+
+@report.command("evaluation-protocol")
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="evaluation_protocol_review", show_default=True)
+def report_evaluation_protocol(output_dir: Path | None, report_name: str) -> None:
+    """Summarize layered mainstream RAG/GraphRAG/KG evaluation coverage."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_evaluation_protocol_review(
+        report_dir,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        "Reviewed evaluation protocol metrics; pending gaps: "
+        f"{len(result['missing_or_pending_metrics'])}."
     )
 
 

@@ -72,16 +72,39 @@ def _evaluate_answer(result: dict[str, Any], gold: GoldLabel) -> dict[str, Any]:
         and sum(int(term in answer_lower) for term in set(answer_key_terms))
         >= min(2, len(set(answer_key_terms)))
     )
+    faithfulness = citation_correct and abstention_correct
+    answer_correctness = relevance and faithfulness
     return {
         "citation_completeness": bool(metrics["citation_completeness"]),
+        "citation_precision": metrics["citation_precision"],
+        "citation_recall": metrics["citation_recall"],
         "citation_correctness": citation_correct,
-        "answer_faithfulness": citation_correct and abstention_correct,
+        "answer_faithfulness": faithfulness,
+        "faithfulness": faithfulness,
+        "answer_correctness": answer_correctness,
         "answer_relevance": relevance,
         "abstention_correctness": abstention_correct,
         "expected_abstention": gold.expected_abstention,
         "actual_abstention": abstained,
         "advisory_boundary_violation": _advisory_boundary_violation(answer),
         "valid_citations": metrics["valid_citations"],
+        "detected_citations": metrics["detected_citations"],
+        "available_citation_units": metrics["available_citation_units"],
+        "score_methods": {
+            "faithfulness": "deterministic_heuristic",
+            "answer_correctness": "deterministic_heuristic",
+            "answer_relevance": "deterministic_heuristic",
+            "citation_precision": "deterministic_heuristic",
+            "citation_recall": "deterministic_heuristic",
+            "llm_as_judge": "not_run",
+            "manual_review": "not_run",
+        },
+        "llm_judge": {
+            "enabled": False,
+            "faithfulness": None,
+            "answer_correctness": None,
+            "answer_relevance": None,
+        },
     }
 
 
@@ -97,8 +120,26 @@ def _aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
             sum(int(item["metrics"]["citation_correctness"]) for item in records) / denominator,
             4,
         ),
+        "citation_precision": round(
+            sum(float(item["metrics"]["citation_precision"]) for item in records)
+            / denominator,
+            4,
+        ),
+        "citation_recall": round(
+            sum(float(item["metrics"]["citation_recall"]) for item in records)
+            / denominator,
+            4,
+        ),
         "answer_faithfulness": round(
             sum(int(item["metrics"]["answer_faithfulness"]) for item in records) / denominator,
+            4,
+        ),
+        "faithfulness": round(
+            sum(int(item["metrics"]["faithfulness"]) for item in records) / denominator,
+            4,
+        ),
+        "answer_correctness": round(
+            sum(int(item["metrics"]["answer_correctness"]) for item in records) / denominator,
             4,
         ),
         "answer_relevance": round(
@@ -192,15 +233,18 @@ def write_answer_evaluation_markdown(result: dict[str, Any], output_path: str | 
         f"- Run ID: `{result['metadata']['run_manifest']['run_id']}`",
         f"- Answers: {result['metadata']['answers_total']}",
         "- Scoring: answer layer only; no retrieval/KG mixed total score.",
+        "- Score method: deterministic heuristic unless an optional LLM/manual field is explicitly populated.",
         "",
-        "| Mode | Answers | Citation complete | Citation correct | Faithfulness | Relevance | Abstention correct | Boundary violations |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Mode | Answers | Citation complete | Citation precision | Citation recall | Citation correct | Faithfulness | Answer correctness | Relevance | Abstention correct | Boundary violations |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for mode, aggregate in result["aggregate"].items():
         lines.append(
             f"| {mode} | {aggregate['answers_total']} | {aggregate['citation_completeness']} | "
-            f"{aggregate['citation_correctness']} | {aggregate['answer_faithfulness']} | "
-            f"{aggregate['answer_relevance']} | {aggregate['abstention_correctness']} | "
+            f"{aggregate['citation_precision']} | {aggregate['citation_recall']} | "
+            f"{aggregate['citation_correctness']} | {aggregate['faithfulness']} | "
+            f"{aggregate['answer_correctness']} | {aggregate['answer_relevance']} | "
+            f"{aggregate['abstention_correctness']} | "
             f"{aggregate['advisory_boundary_violation_count']} |"
         )
     lines.extend(["", "## Advisory Boundary", "", result["metadata"]["advisory_boundary"], ""])

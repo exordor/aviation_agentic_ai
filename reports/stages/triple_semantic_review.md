@@ -4,6 +4,7 @@
 - Triples total: 448
 - Sample size: 100
 - Semantic correctness claimed: no
+- Default review status: `needs_manual_review`
 - All annotation fields are initialized as `needs_review` for manual review.
 
 ## Annotation Fields
@@ -15,6 +16,7 @@
 - `evidence_supports_triple`
 - `too_generic`
 - `duplicate_or_near_duplicate`
+- `status`
 - `reviewer_notes`
 
 ## Sample Preview

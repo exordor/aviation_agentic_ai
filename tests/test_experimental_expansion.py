@@ -288,6 +288,9 @@ def test_answer_and_robustness_reports_handle_abstention(tmp_path: Path) -> None
     assert answer_json.exists()
     assert answer_md.exists()
     assert answer_result["aggregate"]["hybrid"]["abstention_correctness"] == 1.0
+    assert answer_result["aggregate"]["hybrid"]["citation_precision"] == 1.0
+    assert answer_result["aggregate"]["hybrid"]["citation_recall"] == 1.0
+    assert answer_result["aggregate"]["hybrid"]["answer_correctness"] == 1.0
     assert answer_result["aggregate"]["hybrid"]["advisory_boundary_violation_count"] == 0
 
     def fake_runner(question, *_args, **_kwargs):
@@ -311,3 +314,6 @@ def test_answer_and_robustness_reports_handle_abstention(tmp_path: Path) -> None
     assert robust_md.exists()
     assert robust_result["aggregate"]["retrieval_stability"] == 1.0
     assert robust_result["aggregate"]["abstention_correctness"] == 1.0
+    assert robust_result["aggregate"]["false_answer_rate"] == 0.0
+    assert robust_result["aggregate"]["false_abstention_rate"] == 0.0
+    assert robust_result["aggregate"]["risk_category_accuracy"] == 1.0

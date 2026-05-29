@@ -1,6 +1,6 @@
 # Robustness Evaluation
 
-- Run ID: `robustness-evaluation-20260519T044429Z`
+- Run ID: `robustness-evaluation-20260529T235326Z`
 - Cases: 10
 
 | Metric | Value |
@@ -10,6 +10,10 @@
 | KG evidence stability | 1.0 |
 | Answer stability | 1.0 |
 | Abstention correctness | 0.6 |
+| False answer rate | 1.0 |
+| False abstention rate | 0.0 |
+| Advisory boundary violation count | 4 |
+| Risk category accuracy | 1.0 |
 
 ## Cases
 

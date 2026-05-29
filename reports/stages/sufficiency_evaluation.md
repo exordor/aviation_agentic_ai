@@ -12,10 +12,14 @@
 | Metric | Value |
 | --- | ---: |
 | Supported answer decision accuracy | 0.71 |
+| Abstention accuracy | 1.0 |
 | Insufficient-evidence abstention accuracy | 1.0 |
+| False answer rate | 0.0 |
 | False answer rate on no-answer questions | 0.0 |
+| False abstention rate | 0.29 |
 | False abstention rate on supported questions | 0.29 |
 | Risk-category accuracy | 1.0 |
+| Advisory boundary violation count | 0 |
 | Boundary violation count | 0 |
 
 ## Risk Categories

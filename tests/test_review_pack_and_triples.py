@@ -105,5 +105,6 @@ def test_triple_semantic_review_initializes_annotations_as_needs_review(
     assert md_path.exists()
     assert result["metadata"]["semantic_correctness_claimed"] is False
     annotation = result["records"][0]["annotation"]
+    assert annotation["status"] == "needs_manual_review"
     assert annotation["subject_correct"] == "needs_review"
     assert annotation["evidence_supports_triple"] == "needs_review"

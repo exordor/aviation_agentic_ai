@@ -1,26 +1,26 @@
 # Retrieval Ablation
 
-- Run ID: `retrieval-ablation-20260529T232814Z`
+- Run ID: `retrieval-ablation-20260529T235552Z`
 - Questions: 120
 - Supported labels: 100
 - Insufficient-evidence labels: 20
 - Scenarios: 12
 - Scoring: layered retrieval and KG evidence metrics; no mixed overall score.
 
-| Scenario | Mode | Recall@5 | MRR@5 | Context Precision@5 | KG coverage | Avg triples |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| vector_hops2_v5_h8 | vector | 0.475 | 0.3261 | 0.11 | 0.0 | 0.0 |
-| hybrid_graph_disabled_hops2_v5_h8 | hybrid_graph_disabled | 0.475 | 0.3261 | 0.11 | 0.0 | 0.0 |
-| graph_hops1_v5_h8 | graph | 0.4083 | 0.3043 | 0.0942 | 0.8 | 7.5833 |
-| graph_hops2_v5_h8 | graph | 0.4083 | 0.3043 | 0.0942 | 0.8 | 7.5833 |
-| graph_hops3_v5_h8 | graph | 0.4083 | 0.3043 | 0.0942 | 0.8 | 7.5833 |
-| hybrid_hops1_v5_h8 | hybrid | 0.5083 | 0.34 | 0.1167 | 0.8 | 7.5833 |
-| hybrid_hops2_v5_h8 | hybrid | 0.5083 | 0.34 | 0.1167 | 0.8 | 7.5833 |
-| hybrid_hops3_v5_h8 | hybrid | 0.5083 | 0.34 | 0.1167 | 0.8 | 7.5833 |
-| hybrid_hops2_v3_h8 | hybrid | 0.4583 | 0.3278 | 0.1694 | 0.8 | 7.5833 |
-| hybrid_hops2_v8_h8 | hybrid | 0.5833 | 0.3472 | 0.0844 | 0.8 | 7.5833 |
-| hybrid_hops2_v5_h5 | hybrid | 0.5167 | 0.3447 | 0.1183 | 0.7917 | 4.8 |
-| hybrid_hops2_v5_h10 | hybrid | 0.5083 | 0.3414 | 0.1167 | 0.8083 | 9.4167 |
+| Scenario | Mode | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall | KG coverage | Avg triples |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| vector_hops2_v5_h8 | vector | 0.475 | 0.475 | 0.11 | 0.3261 | 0.3261 | 0.3863 | 0.11 | 0.6208 | 0.0 | 0.0 |
+| hybrid_graph_disabled_hops2_v5_h8 | hybrid_graph_disabled | 0.475 | 0.475 | 0.11 | 0.3261 | 0.3261 | 0.3863 | 0.11 | 0.6208 | 0.0 | 0.0 |
+| graph_hops1_v5_h8 | graph | 0.4083 | 0.4167 | 0.09 | 0.3043 | 0.3055 | 0.3503 | 0.0942 | 0.5667 | 0.8 | 7.5833 |
+| graph_hops2_v5_h8 | graph | 0.4083 | 0.4167 | 0.09 | 0.3043 | 0.3055 | 0.3503 | 0.0942 | 0.5667 | 0.8 | 7.5833 |
+| graph_hops3_v5_h8 | graph | 0.4083 | 0.4167 | 0.09 | 0.3043 | 0.3055 | 0.3503 | 0.0942 | 0.5667 | 0.8 | 7.5833 |
+| hybrid_hops1_v5_h8 | hybrid | 0.5083 | 0.5917 | 0.1167 | 0.34 | 0.3529 | 0.4425 | 0.1167 | 0.7375 | 0.8 | 7.5833 |
+| hybrid_hops2_v5_h8 | hybrid | 0.5083 | 0.5917 | 0.1167 | 0.34 | 0.3529 | 0.4425 | 0.1167 | 0.7375 | 0.8 | 7.5833 |
+| hybrid_hops3_v5_h8 | hybrid | 0.5083 | 0.5917 | 0.1167 | 0.34 | 0.3529 | 0.4425 | 0.1167 | 0.7375 | 0.8 | 7.5833 |
+| hybrid_hops2_v3_h8 | hybrid | 0.525 | 0.575 | 0.1167 | 0.3428 | 0.3509 | 0.4326 | 0.1167 | 0.7208 | 0.8 | 7.5833 |
+| hybrid_hops2_v8_h8 | hybrid | 0.5 | 0.5833 | 0.1133 | 0.3339 | 0.3472 | 0.4361 | 0.1133 | 0.7292 | 0.8 | 7.5833 |
+| hybrid_hops2_v5_h5 | hybrid | 0.5167 | 0.5167 | 0.1183 | 0.3447 | 0.3447 | 0.4154 | 0.1183 | 0.6625 | 0.7917 | 4.8 |
+| hybrid_hops2_v5_h10 | hybrid | 0.5083 | 0.6 | 0.1167 | 0.3414 | 0.3552 | 0.4454 | 0.1167 | 0.7458 | 0.8083 | 9.4167 |
 
 ## Interpretation
 
@@ -58,11 +58,11 @@ Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can 
 
 ### hybrid_hops2_v3_h8
 
-Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8) while not always improving page-level Recall@5 (0.4583).
+Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8) while not always improving page-level Recall@5 (0.525).
 
 ### hybrid_hops2_v8_h8
 
-Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8) while not always improving page-level Recall@5 (0.5833).
+Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8) while not always improving page-level Recall@5 (0.5).
 
 ### hybrid_hops2_v5_h5
 

@@ -526,6 +526,35 @@ def test_cli_report_answer_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) 
     assert "Evaluated 4 answers" in result.output
 
 
+def test_cli_report_evaluation_protocol_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "evaluation_protocol_review.json"
+        md_path = tmp_path / "evaluation_protocol_review.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"missing_or_pending_metrics": [{}, {}]}
+
+    monkeypatch.setattr(cli, "write_evaluation_protocol_review", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "evaluation-protocol",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "pending gaps: 2" in result.output
+
+
 def test_cli_report_robustness_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai import cli
 

@@ -303,15 +303,18 @@ def write_retrieval_ablation_markdown(result: dict[str, Any], output_path: str |
         f"- Scenarios: {result['metadata']['scenarios_total']}",
         "- Scoring: layered retrieval and KG evidence metrics; no mixed overall score.",
         "",
-        "| Scenario | Mode | Recall@5 | MRR@5 | Context Precision@5 | KG coverage | Avg triples |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
+        "| Scenario | Mode | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall | KG coverage | Avg triples |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for name, scenario in result["scenarios"].items():
         retrieval = scenario["aggregate"]["retrieval"]
         kg = scenario["aggregate"]["kg_evidence"]
         lines.append(
             f"| {name} | {scenario['mode']} | {retrieval['recall_at_5']} | "
-            f"{retrieval['mrr_at_5']} | {retrieval['context_precision_at_5']} | "
+            f"{retrieval['recall_at_10']} | {retrieval['precision_at_5']} | "
+            f"{retrieval['mrr_at_5']} | {retrieval['mrr_at_10']} | "
+            f"{retrieval['ndcg_at_10']} | {retrieval['context_precision_at_5']} | "
+            f"{retrieval['context_recall']} | "
             f"{kg['evidence_coverage']} | {kg['avg_related_triple_count']} |"
         )
     lines.extend(["", "## Interpretation", ""])

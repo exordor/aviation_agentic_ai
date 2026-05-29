@@ -29,6 +29,7 @@ def build_triple_semantic_review_sample(
     records: list[dict[str, Any]] = []
     for triple in sample:
         annotation = {field: "needs_review" for field in REVIEW_FIELDS}
+        annotation["status"] = "needs_manual_review"
         annotation["reviewer_notes"] = ""
         records.append(
             {
@@ -47,7 +48,7 @@ def build_triple_semantic_review_sample(
         "summary": {
             "needs_review": len(records),
             "reviewed": 0,
-            "fields": list(REVIEW_FIELDS) + ["reviewer_notes"],
+            "fields": list(REVIEW_FIELDS) + ["status", "reviewer_notes"],
         },
         "records": records,
     }
@@ -73,6 +74,7 @@ def write_triple_semantic_review_markdown(
         f"- Triples total: {result['metadata']['triples_total']}",
         f"- Sample size: {result['metadata']['sample_size']}",
         "- Semantic correctness claimed: no",
+        "- Default review status: `needs_manual_review`",
         "- All annotation fields are initialized as `needs_review` for manual review.",
         "",
         "## Annotation Fields",

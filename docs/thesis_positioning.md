@@ -82,6 +82,11 @@ questions. The evaluation should therefore keep these layers separate:
 | Safety-aware abstention | abstention correctness, false answer rate, boundary violations | Measure whether the system refuses unsupported or unsafe aviation questions. |
 
 The thesis must not collapse these layers into a single mixed overall score.
+The full metric protocol is documented in `docs/evaluation_protocol.md` and can
+be audited with `uv run aviation-ai report evaluation-protocol`. It explicitly
+maps mainstream RAGAS-style metrics, ARES-style component evaluation, standard
+IR metrics, GraphRAG path/evidence metrics, ontology/KG construction metrics,
+and aviation safety-abstention metrics onto the current project reports.
 
 ## Claim Safety Matrix
 

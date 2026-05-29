@@ -9,8 +9,12 @@
     "supported_total": 100
   },
   "metrics": {
+    "abstention_accuracy": 1.0,
+    "advisory_boundary_violation_count": 0,
     "boundary_violation_count": 0,
+    "false_abstention_rate": 0.29,
     "false_abstention_rate_on_supported_questions": 0.29,
+    "false_answer_rate": 0.0,
     "false_answer_rate_on_no_answer_questions": 0.0,
     "insufficient_evidence_abstention_accuracy": 1.0,
     "risk_category_accuracy": 1.0,
