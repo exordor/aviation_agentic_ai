@@ -9,10 +9,12 @@ from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 from aviation_agentic_ai.reporting.hygiene import build_hygiene_plan
+from aviation_agentic_ai.reporting.thesis_claims import REVISED_THESIS_CLAIM
 
 
 PROJECT_REPORT_SECTIONS = (
     "Project motivation and course objective alignment",
+    "Thesis claim positioning",
     "Architecture overview",
     "Ontology/TBox generation and evaluation",
     "KG/ABox extraction and validation",
@@ -301,6 +303,14 @@ def build_project_evidence_pack(
         "readme": _read_text_source(root / "README.md", base=root),
         "goals": _read_text_source(root / "GOALS.md", base=root),
         "tasks": _read_text_source(root / "TASKS.md", base=root),
+        "thesis_positioning": _read_text_source(
+            root / "docs" / "thesis_positioning.md",
+            base=root,
+        ),
+        "thesis_claims_review": _read_artifact_source(
+            root / "reports" / "stages" / "thesis_claims_review.md",
+            base=root,
+        ),
         "course_goal": _read_course_goal_source(root),
         "configs": {
             "default": _read_yaml_source(root / "configs" / "default.yaml", base=root),
@@ -701,6 +711,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         reproducibility_lines.append("- `uv run aviation-ai report web-demo-smoke`")
     if has_final_evaluation:
         reproducibility_lines.append("- `uv run aviation-ai report final-evaluation`")
+    reproducibility_lines.append("- `uv run aviation-ai report thesis-claims`")
     reproducibility_lines.extend(
         [
             "- `uv run aviation-ai report hygiene --apply`",
@@ -717,6 +728,16 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "FAA training text into ontology, KG, retrieval, and grounded-answer artifacts. "
         f"Course goal evidence: `{evidence['course_goal']['path']}` "
         f"({_present_marker(evidence['course_goal'])}).",
+        "",
+        "## Thesis claim positioning",
+        "",
+        REVISED_THESIS_CLAIM,
+        "",
+        "Thesis positioning evidence: "
+        f"`{evidence['thesis_positioning']['path']}` "
+        f"({_present_marker(evidence['thesis_positioning'])}); claim review evidence: "
+        f"`{evidence['thesis_claims_review']['path']}` "
+        f"({_present_marker(evidence['thesis_claims_review'])}).",
         "",
         "## Architecture overview",
         "",
@@ -813,6 +834,8 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         f"- README: `{evidence['readme']['path']}` ({_present_marker(evidence['readme'])})",
         f"- Goal: `{evidence['course_goal']['path']}` "
         f"({_present_marker(evidence['course_goal'])})",
+        f"- Thesis positioning: `{evidence['thesis_positioning']['path']}` "
+        f"({_present_marker(evidence['thesis_positioning'])})",
         "- Configs: `configs/default.yaml`, `configs/ontology_generation.yaml`, "
         "`configs/extraction_profile.yaml`",
         "",
@@ -830,6 +853,7 @@ def build_project_report_prompt(evidence: dict[str, Any], draft: str) -> str:
         "- Do not invent completed experiments, metrics, models, or results.\n"
         "- If evidence is missing, write TBD or Not yet run.\n"
         "- Do not include API keys, tokens, secrets, or environment variable values.\n"
+        "- Preserve the revised thesis claim and layered evaluation framing.\n"
         "- Preserve the advisory boundary and do not claim the assistant replaces POH, "
         "checklists, ATC, instructor guidance, or pilot judgment.\n"
         "- Keep all required sections from the deterministic draft.\n\n"

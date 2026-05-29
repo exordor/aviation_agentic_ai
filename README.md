@@ -11,6 +11,12 @@ drag, angle of attack, airflow, pressure, density, and altitude be extracted fro
 technical prose into structured knowledge that can support traceable question
 answering?
 
+The current thesis framing does not assume that GraphRAG universally improves
+Recall@k over vector-only RAG. It evaluates a narrower claim:
+ontology-constrained GraphRAG can improve evidence traceability, KG evidence
+coverage, and safety-aware abstention for aviation training QA, with each metric
+layer reported separately.
+
 ## What This Project Demonstrates
 
 - **Ontology-first modeling** of aviation concepts from PHAK Chapter 4.
@@ -18,6 +24,8 @@ answering?
 - **A focused ABox extraction design** for future entity and relation extraction.
 - **GraphRAG-ready structure** with separate modules for ontology, KG, chunking,
   retrieval, evaluation, and reporting.
+- **Layered evaluation and claim safety review** for retrieval quality, KG
+  evidence quality, answer quality, and safety-aware abstention.
 - **Submission-friendly project hygiene** with curated assets, third-party
   attribution, and generated artifacts kept under control.
 
@@ -27,7 +35,7 @@ The current implementation includes project-owned ontology generation code plus
 an explainable curated ontology for PHAK Chapter 4. The older baseline ontology
 is kept as a historical reference because it is useful for comparison but too
 large to explain clearly as the primary project schema. The curated ontology is
-the active schema for focused KG extraction and GraphRAG experiments.
+the active task ontology for focused KG extraction and GraphRAG experiments.
 
 Baseline assets:
 
@@ -135,6 +143,7 @@ aviation-ai report chunking-comparison --max-questions 1
 aviation-ai report web-demo-readiness
 aviation-ai report web-demo-smoke
 aviation-ai report final-evaluation
+aviation-ai report thesis-claims
 aviation-ai web serve
 aviation-ai report hygiene --dry-run
 aviation-ai report project --no-ai
@@ -231,7 +240,24 @@ overall score:
 uv run aviation-ai report evidence-eval
 uv run aviation-ai report graphrag-review
 uv run aviation-ai report final-evaluation
+uv run aviation-ai report thesis-claims
 ```
+
+## Thesis Positioning And Claim Safety
+
+The thesis positioning document is `docs/thesis_positioning.md`. It records the
+revised claim, research questions, hypotheses, claim safety matrix, and evidence
+gaps before thesis submission. Generate the deterministic claim review with:
+
+```bash
+uv run aviation-ai report thesis-claims
+```
+
+The command writes `reports/stages/thesis_claims_review.json` and `.md`. It
+summarizes which claims are currently strong, moderate, weak, or not supported;
+lists evidence files for each claim; scans final report files for unsafe
+overclaims; and keeps the course-project / thesis-oriented benchmark boundary
+explicit.
 
 For local smoke tests without an LLM call, use deterministic seed triples:
 

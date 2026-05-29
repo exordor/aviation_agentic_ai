@@ -4,6 +4,12 @@
 
 This project investigates a reproducible aviation-domain RAG pipeline that turns FAA training text into ontology, KG, retrieval, and grounded-answer artifacts. Course goal evidence: `GOALS.md` (present).
 
+## Thesis claim positioning
+
+This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can improve evidence traceability, structured KG evidence coverage, and insufficient-evidence abstention. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.
+
+Thesis positioning evidence: `docs/thesis_positioning.md` (present); claim review evidence: `reports/stages/thesis_claims_review.md` (present).
+
 ## Architecture overview
 
 The implementation is CLI-first and separates ontology, KG extraction, chunking, retrieval, evaluation, and reporting modules. Primary configuration evidence is `configs/default.yaml`, `configs/ontology_generation.yaml`, and `configs/extraction_profile.yaml`.
@@ -81,6 +87,7 @@ This system is for aviation learning and decision-support only. Do not claim to 
 - `uv run aviation-ai web serve`
 - `uv run aviation-ai report web-demo-smoke`
 - `uv run aviation-ai report final-evaluation`
+- `uv run aviation-ai report thesis-claims`
 - `uv run aviation-ai report hygiene --apply`
 - `uv run aviation-ai report project --no-ai`
 - `uv run aviation-ai report project --ai`
@@ -90,4 +97,5 @@ This system is for aviation learning and decision-support only. Do not claim to 
 - Stage index: `reports/stages/index.json` (present)
 - README: `README.md` (present)
 - Goal: `GOALS.md` (present)
+- Thesis positioning: `docs/thesis_positioning.md` (present)
 - Configs: `configs/default.yaml`, `configs/ontology_generation.yaml`, `configs/extraction_profile.yaml`

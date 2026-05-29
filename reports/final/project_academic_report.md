@@ -4,6 +4,8 @@
 
 This project builds a reproducible aviation-domain GraphRAG prototype over FAA PHAK Chapter 4. The system converts a PDF into chunks, constrains KG extraction with an explainable curated ontology, builds vector and graph retrieval indexes, and reports grounded answers with citations. The current evidence shows that GraphRAG should be defended primarily as structured evidence support rather than as a single page-level Recall@5 improvement. Sources: `reports/stages/index.json`, `reports/stages/graphrag_review.json`.
 
+Revised thesis claim: This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can improve evidence traceability, structured KG evidence coverage, and insufficient-evidence abstention. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.
+
 ## 1. Introduction
 
 The course objective is to explain a full AI pipeline that can answer what the system does, why each design choice exists, and what evidence supports the claims. This implementation focuses on aviation learning and decision support, not operational flight authority. Sources: `GOALS.md`, `src/aviation_agentic_ai/advisory.py`.
@@ -36,13 +38,15 @@ The result is consistent with the document type: aviation handbooks have page, s
 
 ## 7. Hybrid RAG and GraphRAG Evaluation
 
+This section reports retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention separately. It does not use a single mixed overall score.
+
 Fixed-window vector Recall@5=1.0 and fixed-window hybrid Recall@5=0.9; fixed-window hybrid KG evidence coverage=0.9. Structure-aware vector Recall@5=1.0 and structure-aware hybrid Recall@5=1.0; structure-aware hybrid KG evidence coverage=0.9. Sources: `reports/stages/hybrid_rag_experiment.json`, `reports/stages/hybrid_rag_structure_aware.json`.
 
 Evidence-level scoring is more useful for defending GraphRAG: structure-aware hybrid supports 9 answers versus 8 for fixed-window hybrid. Source: `reports/stages/evidence_level_evaluation.json`.
 
 ## 8. Discussion
 
-The main interpretation is that vector-only retrieval can remain competitive on coarse page-level gold labels, while GraphRAG contributes relation-level evidence coverage and provenance. This distinction prevents the evaluation from collapsing retrieval, KG evidence, and answer generation into one misleading score. Source: `reports/stages/graphrag_review.json`.
+The main interpretation is that vector-only retrieval can remain competitive on coarse page-level gold labels, while GraphRAG contributes relation-level evidence coverage and provenance. This distinction prevents the evaluation from collapsing retrieval, KG evidence, answer quality, and abstention into one misleading score. Source: `reports/stages/graphrag_review.json`.
 
 ## 9. Limitations and Threats to Validity
 
@@ -74,6 +78,7 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `uv run aviation-ai report final-evaluation`
 - `uv run aviation-ai report web-demo-readiness`
 - `uv run aviation-ai report web-demo-smoke`
+- `uv run aviation-ai report thesis-claims`
 - `uv run aviation-ai report academic-paper --no-ai`
 - `uv run aviation-ai report defense-notes`
 - `uv run aviation-ai report defense-deck-outline`
@@ -86,13 +91,16 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `configs/default.yaml`
 - `configs/extraction_profile.yaml`
 - `configs/ontology_generation.yaml`
+- `data/cqs/06_phak_ch4_0.expanded.gold.json`
 - `data/cqs/06_phak_ch4_0.gold.json`
 - `data/kg/06_phak_ch4_0.kg.jsonl`
 - `data/kg/06_phak_ch4_0.kg.ttl`
 - `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl`
 - `data/kg/06_phak_ch4_0.structure_aware.kg.ttl`
 - `data/ontology/curated/06_phak_ch4_0.curated.ttl`
+- `docs/document_expansion_protocol.md`
 - `docs/ontology_design.md`
+- `docs/thesis_positioning.md`
 - `reports/final/assets/kg_evidence_ai.png`
 - `reports/final/assets/pipeline_hero_ai.png`
 - `reports/final/assets/project_cover_ai.png`
@@ -105,6 +113,8 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/final/project_academic_report_sources.json`
 - `reports/final/project_defense_notes.json`
 - `reports/final/project_defense_notes.md`
+- `reports/stages/answer_evaluation.json`
+- `reports/stages/answer_evaluation.md`
 - `reports/stages/chunking_comparison.json`
 - `reports/stages/chunking_comparison.md`
 - `reports/stages/curated_ontology_evaluation.json`
@@ -120,10 +130,17 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/hybrid_rag_structure_aware.json`
 - `reports/stages/hybrid_rag_structure_aware.md`
 - `reports/stages/index.json`
+- `reports/stages/kg_extraction_comparison.json`
+- `reports/stages/kg_extraction_comparison.md`
 - `reports/stages/kg_validation.json`
 - `reports/stages/kg_validation.md`
+- `reports/stages/retrieval_ablation.json`
+- `reports/stages/retrieval_ablation.md`
+- `reports/stages/robustness_evaluation.json`
+- `reports/stages/robustness_evaluation.md`
 - `reports/stages/structure_aware_kg_validation.json`
 - `reports/stages/structure_aware_kg_validation.md`
+- `reports/stages/thesis_claims_review.json`
 - `reports/stages/web_demo_final_smoke.json`
 - `reports/stages/web_demo_final_smoke.md`
 - `reports/stages/web_demo_readiness.json`

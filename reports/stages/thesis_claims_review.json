@@ -1,0 +1,360 @@
+{
+  "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+  "claim_safety_matrix": [
+    {
+      "claim": "Ontology constrains KG extraction.",
+      "current_evidence": "Extraction profile terms map to the curated ontology; KG validation rejects unsupported schema terms.",
+      "evidence_files": [
+        "docs/ontology_design.md",
+        "configs/extraction_profile.yaml",
+        "reports/stages/kg_validation.json",
+        "reports/stages/structure_aware_kg_validation.json"
+      ],
+      "safe_wording": "The task ontology constrains which focused classes and relations can enter the KG.",
+      "supported_strength": "strong",
+      "unsafe_wording_to_avoid": "The ontology fully models aviation knowledge."
+    },
+    {
+      "claim": "KG triples preserve provenance.",
+      "current_evidence": "KG validation reports zero missing-provenance errors in the current fixed-window and structure-aware artifacts.",
+      "evidence_files": [
+        "data/kg/06_phak_ch4_0.kg.jsonl",
+        "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+        "reports/stages/kg_validation.json",
+        "reports/stages/structure_aware_kg_validation.json"
+      ],
+      "safe_wording": "Current extracted triples carry source chunk provenance checked by deterministic validation.",
+      "supported_strength": "strong",
+      "unsafe_wording_to_avoid": "Every KG triple is semantically correct."
+    },
+    {
+      "claim": "GraphRAG improves Recall@5.",
+      "current_evidence": "Expanded retrieval ablation shows vector Recall@5 can be higher than default hybrid Recall@5.",
+      "evidence_files": [
+        "reports/stages/retrieval_ablation.json",
+        "reports/stages/graphrag_review.json",
+        "reports/stages/hybrid_rag_experiment.json",
+        "reports/stages/hybrid_rag_structure_aware.json"
+      ],
+      "safe_wording": "GraphRAG does not always improve Recall@5; report Recall separately from KG evidence coverage.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "GraphRAG always improves Recall@5."
+    },
+    {
+      "claim": "GraphRAG improves structured evidence support.",
+      "current_evidence": "Graph and hybrid modes expose KG coverage, provenance, triples, and evidence-level answer support.",
+      "evidence_files": [
+        "reports/stages/graphrag_review.json",
+        "reports/stages/evidence_level_evaluation.json",
+        "reports/stages/kg_extraction_comparison.json"
+      ],
+      "safe_wording": "GraphRAG improves inspectable structured evidence support in the current benchmark.",
+      "supported_strength": "moderate",
+      "unsafe_wording_to_avoid": "GraphRAG is always more accurate than vector retrieval."
+    },
+    {
+      "claim": "Hybrid RAG always beats vector-only RAG.",
+      "current_evidence": "Fixed-window and expanded ablations include cases where vector retrieval is equal or better on Recall@5.",
+      "evidence_files": [
+        "reports/stages/retrieval_ablation.json",
+        "reports/stages/hybrid_rag_experiment.json",
+        "reports/stages/graphrag_review.json"
+      ],
+      "safe_wording": "Hybrid RAG can add KG evidence coverage while vector retrieval can remain sufficient for simple factual questions.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "Hybrid RAG always beats vector-only RAG."
+    },
+    {
+      "claim": "The system can answer aviation operational questions.",
+      "current_evidence": "The advisory boundary limits the system to learning and decision support; live operational data and official procedures are out of scope.",
+      "evidence_files": [
+        "src/aviation_agentic_ai/advisory.py",
+        "docs/document_expansion_protocol.md",
+        "reports/stages/robustness_evaluation.json"
+      ],
+      "safe_wording": "The system can answer aviation training questions when evidence is sufficient and should abstain otherwise.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "The system can support operational flight decisions."
+    },
+    {
+      "claim": "The system can support aviation learning questions.",
+      "current_evidence": "The pipeline answers PHAK Chapter 4 training questions with citations and evidence panels.",
+      "evidence_files": [
+        "reports/stages/answer_evaluation.json",
+        "reports/stages/evidence_cards.md",
+        "reports/stages/web_demo_readiness.json"
+      ],
+      "safe_wording": "The prototype supports aviation learning questions over its scoped source material.",
+      "supported_strength": "moderate",
+      "unsafe_wording_to_avoid": "The prototype is a certified aviation assistant."
+    },
+    {
+      "claim": "The system can replace POH/checklists/ATC/instructor judgment.",
+      "current_evidence": "The advisory boundary explicitly rejects replacement of official sources or human judgment.",
+      "evidence_files": [
+        "src/aviation_agentic_ai/advisory.py",
+        "GOALS.md",
+        "README.md"
+      ],
+      "safe_wording": "The system does not replace POH, approved checklists, ATC, instructor guidance, or pilot judgment.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "The system can replace POH, checklists, ATC, or instructor judgment."
+    },
+    {
+      "claim": "The benchmark is externally aviation-expert certified.",
+      "current_evidence": "Current labels are reviewed course-project / thesis-oriented gold, not external examiner certification.",
+      "evidence_files": [
+        "data/cqs/06_phak_ch4_0.gold.json",
+        "data/cqs/06_phak_ch4_0.expanded.gold.json",
+        "reports/stages/final_evaluation_review.json"
+      ],
+      "safe_wording": "The benchmark is course-project / thesis-oriented gold with documented limitations.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "The benchmark is externally aviation-expert certified."
+    },
+    {
+      "claim": "The benchmark is course-project / thesis-oriented gold.",
+      "current_evidence": "Reports identify the 10-question and expanded 35-question labels as project/thesis evidence.",
+      "evidence_files": [
+        "data/cqs/06_phak_ch4_0.gold.json",
+        "data/cqs/06_phak_ch4_0.expanded.gold.json",
+        "docs/benchmark_design.md",
+        "reports/stages/final_evaluation_review.json"
+      ],
+      "safe_wording": "The benchmark is course-project / thesis-oriented gold, useful for internal evaluation but not external certification.",
+      "supported_strength": "strong",
+      "unsafe_wording_to_avoid": "The benchmark proves aviation-domain correctness."
+    }
+  ],
+  "contributions": [
+    "A task ontology for PHAK Chapter 4 that constrains aviation KG extraction.",
+    "Validated KG/ABox artifacts with source provenance for extracted triples.",
+    "A CLI-first GraphRAG pipeline with vector, graph, and hybrid retrieval modes.",
+    "Layered evaluation reports that keep retrieval, KG evidence, answer quality, and abstention separate.",
+    "An explicit aviation learning and decision-support boundary for demonstrations."
+  ],
+  "evaluation_layers": [
+    {
+      "layer": "Retrieval quality",
+      "metrics": [
+        "Recall@k",
+        "MRR@k",
+        "Context Precision@k"
+      ],
+      "purpose": "Measure whether the retriever returns source chunks near the top of the ranking."
+    },
+    {
+      "layer": "KG evidence quality",
+      "metrics": [
+        "key entity coverage",
+        "triple coverage",
+        "provenance completeness"
+      ],
+      "purpose": "Measure whether graph evidence covers the entities and relations needed by the question."
+    },
+    {
+      "layer": "Answer quality",
+      "metrics": [
+        "citation correctness",
+        "faithfulness",
+        "relevance"
+      ],
+      "purpose": "Measure whether generated answers are supported by cited evidence."
+    },
+    {
+      "layer": "Safety-aware abstention",
+      "metrics": [
+        "abstention correctness",
+        "false answer rate",
+        "boundary violations"
+      ],
+      "purpose": "Measure whether the system refuses unsupported or unsafe aviation questions."
+    }
+  ],
+  "evaluation_philosophy": "Negative or mixed Recall@k results are not hidden. They motivate layered evaluation and identify when vector retrieval is sufficient.",
+  "evidence_files": [
+    {
+      "path": "GOALS.md",
+      "present": true
+    },
+    {
+      "path": "README.md",
+      "present": true
+    },
+    {
+      "path": "configs/extraction_profile.yaml",
+      "present": true
+    },
+    {
+      "path": "data/cqs/06_phak_ch4_0.expanded.gold.json",
+      "present": true
+    },
+    {
+      "path": "data/cqs/06_phak_ch4_0.gold.json",
+      "present": true
+    },
+    {
+      "path": "data/kg/06_phak_ch4_0.kg.jsonl",
+      "present": true
+    },
+    {
+      "path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+      "present": true
+    },
+    {
+      "path": "docs/benchmark_design.md",
+      "present": true
+    },
+    {
+      "path": "docs/document_expansion_protocol.md",
+      "present": true
+    },
+    {
+      "path": "docs/ontology_design.md",
+      "present": true
+    },
+    {
+      "path": "docs/thesis_positioning.md",
+      "present": true
+    },
+    {
+      "path": "reports/stages/answer_evaluation.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/evidence_cards.md",
+      "present": true
+    },
+    {
+      "path": "reports/stages/evidence_level_evaluation.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/final_evaluation_review.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/graphrag_review.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/hybrid_rag_experiment.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/hybrid_rag_structure_aware.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/kg_extraction_comparison.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/kg_validation.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/retrieval_ablation.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/robustness_evaluation.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/structure_aware_kg_validation.json",
+      "present": true
+    },
+    {
+      "path": "reports/stages/web_demo_readiness.json",
+      "present": true
+    },
+    {
+      "path": "src/aviation_agentic_ai/advisory.py",
+      "present": true
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis": "Ontology constraints reduce unsupported KG triples and preserve provenance.",
+      "id": "H1"
+    },
+    {
+      "hypothesis": "GraphRAG improves evidence traceability compared with vector-only RAG.",
+      "id": "H2"
+    },
+    {
+      "hypothesis": "GraphRAG does not always improve Recall@k but can improve structured evidence coverage.",
+      "id": "H3"
+    },
+    {
+      "hypothesis": "Evidence sufficiency checking improves abstention on unsupported aviation questions.",
+      "id": "H4"
+    },
+    {
+      "hypothesis": "KG evidence is most useful for relation-oriented, causal, and cross-page questions, and less useful for simple factual definition questions.",
+      "id": "H5"
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-05-29T22:53:34.816656+00:00",
+    "project_root": ".",
+    "scanned_files": [
+      {
+        "path": "README.md",
+        "present": true,
+        "unsafe_claims": 0
+      },
+      {
+        "path": "GOALS.md",
+        "present": true,
+        "unsafe_claims": 0
+      },
+      {
+        "path": "reports/final/project_report.md",
+        "present": true,
+        "unsafe_claims": 0
+      },
+      {
+        "path": "reports/final/project_academic_report.md",
+        "present": true,
+        "unsafe_claims": 0
+      },
+      {
+        "path": "reports/final/project_defense_notes.md",
+        "present": true,
+        "unsafe_claims": 0
+      }
+    ],
+    "unsafe_claims_total": 0
+  },
+  "remaining_evidence_gaps": [
+    "Need larger benchmark beyond 35 questions",
+    "Need stronger no-answer / insufficient-evidence evaluation",
+    "Need triple-level semantic correctness review",
+    "Need graph traversal or path-based retrieval if claiming multi-hop graph reasoning",
+    "Need manual or expert review if claiming aviation-domain correctness",
+    "Need embedding/index comparison if claiming retrieval backend optimality"
+  ],
+  "research_questions": [
+    {
+      "id": "RQ1",
+      "question": "How can a lightweight aviation ontology constrain KG extraction from aviation training text?"
+    },
+    {
+      "id": "RQ2",
+      "question": "Does ontology-constrained KG extraction improve evidence traceability compared with vector-only RAG?"
+    },
+    {
+      "id": "RQ3",
+      "question": "When does graph evidence help aviation QA, and when is vector retrieval sufficient?"
+    },
+    {
+      "id": "RQ4",
+      "question": "Can evidence-aware GraphRAG better identify unsupported or unsafe aviation questions?"
+    }
+  ],
+  "revised_thesis_claim": "This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can improve evidence traceability, structured KG evidence coverage, and insufficient-evidence abstention. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.",
+  "unsafe_claims": [],
+  "unsafe_claims_status": "not_found"
+}

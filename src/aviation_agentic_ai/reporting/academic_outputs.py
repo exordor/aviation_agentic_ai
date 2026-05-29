@@ -7,6 +7,7 @@ from typing import Any
 
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 from aviation_agentic_ai.reporting.project_report import build_project_evidence_pack
+from aviation_agentic_ai.reporting.thesis_claims import REVISED_THESIS_CLAIM
 
 
 ACADEMIC_SKILLS = [
@@ -74,6 +75,8 @@ def _source_paths(evidence: dict[str, Any]) -> list[str]:
         "configs/default.yaml",
         "configs/ontology_generation.yaml",
         "configs/extraction_profile.yaml",
+        "docs/thesis_positioning.md",
+        "reports/stages/thesis_claims_review.json",
     }
     for source in evidence.get("current_artifacts", {}).values():
         if isinstance(source, dict) and source.get("present") and source.get("path"):
@@ -144,6 +147,8 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
             {
                 "claim": "GraphRAG value should be defended as structured KG evidence coverage rather than only page-level Recall lift.",
                 "evidence_sources": [
+                    "docs/thesis_positioning.md",
+                    "reports/stages/thesis_claims_review.json",
                     "reports/stages/graphrag_review.json",
                     "reports/stages/evidence_level_evaluation.json",
                 ],
@@ -313,6 +318,8 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "as a single page-level Recall@5 improvement. Sources: `reports/stages/index.json`, "
         "`reports/stages/graphrag_review.json`.",
         "",
+        "Revised thesis claim: " + REVISED_THESIS_CLAIM,
+        "",
         "## 1. Introduction",
         "",
         "The course objective is to explain a full AI pipeline that can answer what the "
@@ -380,6 +387,10 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "",
         "## 7. Hybrid RAG and GraphRAG Evaluation",
         "",
+        "This section reports retrieval quality, KG evidence quality, answer citation "
+        "quality, and safety-aware abstention separately. It does not use a single "
+        "mixed overall score.",
+        "",
         f"Fixed-window vector Recall@5={metrics['hybrid_rag']['fixed_vector_recall_at_5']} "
         f"and fixed-window hybrid Recall@5="
         f"{metrics['hybrid_rag']['fixed_hybrid_recall_at_5']}; fixed-window hybrid KG "
@@ -402,7 +413,8 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "The main interpretation is that vector-only retrieval can remain competitive on "
         "coarse page-level gold labels, while GraphRAG contributes relation-level evidence "
         "coverage and provenance. This distinction prevents the evaluation from collapsing "
-        "retrieval, KG evidence, and answer generation into one misleading score. Source: "
+        "retrieval, KG evidence, answer quality, and abstention into one misleading score. "
+        "Source: "
         "`reports/stages/graphrag_review.json`.",
         "",
         "## 9. Limitations and Threats to Validity",
@@ -454,6 +466,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "- `uv run aviation-ai report final-evaluation`",
         "- `uv run aviation-ai report web-demo-readiness`",
         "- `uv run aviation-ai report web-demo-smoke`",
+        "- `uv run aviation-ai report thesis-claims`",
         "- `uv run aviation-ai report academic-paper --no-ai`",
         "- `uv run aviation-ai report defense-notes`",
         "- `uv run aviation-ai report defense-deck-outline`",
@@ -476,7 +489,8 @@ def build_defense_notes(summary: dict[str, Any]) -> dict[str, Any]:
             "This project turns one aviation handbook chapter into a reproducible "
             "GraphRAG pipeline: curated ontology, validated KG, chunking comparison, "
             "vector/graph/hybrid retrieval, grounded answers, and a web demo that makes "
-            "the evidence inspectable."
+            "the evidence inspectable. The thesis claim is evidence traceability and "
+            "structured KG support, not universal Recall@k improvement."
         ),
         "demo_script": [
             "Open the web demo and state the advisory boundary first.",
@@ -498,9 +512,9 @@ def build_defense_notes(summary: dict[str, Any]) -> dict[str, Any]:
                 f"{metrics['hybrid_rag']['fixed_hybrid_kg_coverage']}."
             ),
             (
-                "Structure-aware Hybrid RAG is the stronger current candidate: hybrid "
+                "Structure-aware Hybrid RAG is the current default candidate: hybrid "
                 f"Recall@5={metrics['hybrid_rag']['structure_hybrid_recall_at_5']} "
-                f"and supported answers="
+                "with separate KG evidence coverage and supported answers="
                 f"{metrics['hybrid_rag']['structure_supported_answers']}."
             ),
         ],

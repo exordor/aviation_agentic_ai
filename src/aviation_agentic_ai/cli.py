@@ -54,6 +54,7 @@ from aviation_agentic_ai.reporting.project_report import write_project_report
 from aviation_agentic_ai.reporting.reviews import write_review_progress
 from aviation_agentic_ai.reporting.retrieval_ablation import write_retrieval_ablation
 from aviation_agentic_ai.reporting.robustness import write_robustness_evaluation
+from aviation_agentic_ai.reporting.thesis_claims import write_thesis_claims_review
 from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
 from aviation_agentic_ai.reporting.web_demo_smoke import write_web_demo_smoke
 from aviation_agentic_ai.retrieval.hybrid import run_query, write_query_result
@@ -890,6 +891,43 @@ def report_project(
     click.echo(f"Wrote {project_relative_path(sources_path)}")
     mode = "AI-polished" if result["used_ai"] else "deterministic"
     click.echo(f"Generated {mode} project report.")
+
+
+@report.command("thesis-claims")
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Directory for thesis claim review outputs.",
+)
+@click.option(
+    "--scan-path",
+    "scan_paths",
+    type=click.Path(path_type=Path),
+    multiple=True,
+    help="Markdown file to scan for unsafe thesis claims. Can be passed more than once.",
+)
+@click.option("--report-name", default="thesis_claims_review", show_default=True)
+def report_thesis_claims(
+    output_dir: Path | None,
+    scan_paths: tuple[Path, ...],
+    report_name: str,
+) -> None:
+    """Review thesis claims, evidence support, and unsafe wording."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    configured_scan_paths = list(scan_paths) if scan_paths else None
+    json_path, md_path, result = write_thesis_claims_review(
+        report_dir,
+        scan_paths=configured_scan_paths,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        f"Reviewed thesis claims; unsafe claims found: "
+        f"{result['metadata']['unsafe_claims_total']}."
+    )
 
 
 @report.command("academic-paper")

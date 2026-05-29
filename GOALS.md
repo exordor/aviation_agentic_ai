@@ -19,7 +19,7 @@ Success criteria:
 
 - The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.
 - The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.
-- The project can answer why GraphRAG is needed instead of only using plain LLM prompting or vector-only RAG.
+- The project can explain where GraphRAG adds evidence traceability beyond plain LLM prompting or vector-only RAG, and where vector retrieval is sufficient.
 - The project uses FAA aviation handbook material as the starting source corpus.
 - The report clearly connects implementation choices to the course objective.
 
@@ -67,7 +67,7 @@ Success criteria:
 - Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.
 - Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.
 
-Current status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 while preserving KG evidence coverage.
+Current status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 in the 10-question run while preserving KG evidence coverage. The expanded 35-question ablation shows vector Recall@5 can be higher than default hybrid Recall@5, so GraphRAG is defended as structured evidence support rather than a universal Recall winner.
 
 ## G4 - Evaluation And Experiment Protocol
 
@@ -80,6 +80,7 @@ Success criteria:
 - LLM answer metrics include citation completeness, citation validity, and insufficient-evidence abstention behavior.
 - Gold labels support page-level ground truth now and can later be refined to chunk/span-level evidence.
 - Per-question evidence cards explain gold evidence, vector retrieval, graph retrieval, hybrid fusion behavior, citation status, and failure category for each evaluated CQ.
+- Thesis claims are reviewed with a claim safety matrix so unsupported Recall, certification, and operational-safety claims are kept out of final reports.
 
 Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, reviewed chunk/span gold labels, expanded 35-question course-project gold, evidence-level evaluation, retrieval ablation, KG extraction comparison, answer evaluation, robustness evaluation, final evaluation review, and per-question evidence cards. The gold labels are course-project gold and not external aviation examiner certification.
 
@@ -98,7 +99,9 @@ Current status: report hygiene, deterministic final report, academic-style
 report, project-defense notes, AI-enhanced visual assets with local SVG
 fallbacks, and an editable academic defense PPTX are available under
 `reports/final/`. Final evaluation and web smoke evidence are recorded under
-`reports/stages/`.
+`reports/stages/`. Thesis positioning is documented in
+`docs/thesis_positioning.md`, with deterministic claim review output under
+`reports/stages/thesis_claims_review.md` when regenerated.
 
 ## G6 - Future Advisory Assistant Boundary
 
@@ -150,9 +153,9 @@ final evaluation review, web demo readiness/smoke evidence, academic report,
 defense notes, AI-enhanced defense PPT, and per-question evidence cards are
 available. The current defense framing is:
 structure-aware improves evidence support while costing more KG extraction work;
-GraphRAG should be defended as structured evidence coverage rather than a simple
-page-level Recall winner; and the web demo is offline-first by default for
-reproducible review.
+GraphRAG should be defended as evidence traceability, KG evidence coverage, and
+safety-aware abstention rather than a simple page-level Recall winner; and the
+web demo is offline-first by default for reproducible review.
 
 ## G9 - Experimental Expansion And Robustness
 
@@ -196,5 +199,5 @@ Current status: in progress. The 10-CQ experiment remains the baseline, and a fi
 | G5 | `reports/stages/index.md`, `reports/final/project_report.md`, `reports/final/project_academic_report.md`, defense PPT | `TASKS.md` P2 |
 | G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
 | G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TASKS.md` P2 |
-| G8 | final report, academic report, comparison reports, evidence cards, defense notes, defense PPT | `TASKS.md` P1/P2 |
+| G8 | `docs/thesis_positioning.md`, final report, academic report, comparison reports, evidence cards, defense notes, defense PPT | `TASKS.md` P1/P2 |
 | G9 | expanded gold labels, ablation reports, robustness reports, cost/latency reports | `TASKS.md` P3 |

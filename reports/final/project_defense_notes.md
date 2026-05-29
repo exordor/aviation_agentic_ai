@@ -2,7 +2,7 @@
 
 ## 30-Second Summary
 
-This project turns one aviation handbook chapter into a reproducible GraphRAG pipeline: curated ontology, validated KG, chunking comparison, vector/graph/hybrid retrieval, grounded answers, and a web demo that makes the evidence inspectable.
+This project turns one aviation handbook chapter into a reproducible GraphRAG pipeline: curated ontology, validated KG, chunking comparison, vector/graph/hybrid retrieval, grounded answers, and a web demo that makes the evidence inspectable. The thesis claim is evidence traceability and structured KG support, not universal Recall@k improvement.
 
 ## Demo Script
 
@@ -16,7 +16,7 @@ This project turns one aviation handbook chapter into a reproducible GraphRAG pi
 
 - Chunking: structure-aware is currently best by retrieval ranking (Recall@5=1.0, MRR@5=0.82).
 - Fixed-window Hybrid RAG should be described as KG-aligned baseline, with hybrid KG evidence coverage=0.9.
-- Structure-aware Hybrid RAG is the stronger current candidate: hybrid Recall@5=1.0 and supported answers=9.
+- Structure-aware Hybrid RAG is the current default candidate: hybrid Recall@5=1.0 with separate KG evidence coverage and supported answers=9.
 
 ## Likely Questions
 
@@ -69,13 +69,16 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `configs/default.yaml`
 - `configs/extraction_profile.yaml`
 - `configs/ontology_generation.yaml`
+- `data/cqs/06_phak_ch4_0.expanded.gold.json`
 - `data/cqs/06_phak_ch4_0.gold.json`
 - `data/kg/06_phak_ch4_0.kg.jsonl`
 - `data/kg/06_phak_ch4_0.kg.ttl`
 - `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl`
 - `data/kg/06_phak_ch4_0.structure_aware.kg.ttl`
 - `data/ontology/curated/06_phak_ch4_0.curated.ttl`
+- `docs/document_expansion_protocol.md`
 - `docs/ontology_design.md`
+- `docs/thesis_positioning.md`
 - `reports/final/assets/kg_evidence_ai.png`
 - `reports/final/assets/pipeline_hero_ai.png`
 - `reports/final/assets/project_cover_ai.png`
@@ -88,6 +91,8 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `reports/final/project_academic_report_sources.json`
 - `reports/final/project_defense_notes.json`
 - `reports/final/project_defense_notes.md`
+- `reports/stages/answer_evaluation.json`
+- `reports/stages/answer_evaluation.md`
 - `reports/stages/chunking_comparison.json`
 - `reports/stages/chunking_comparison.md`
 - `reports/stages/curated_ontology_evaluation.json`
@@ -103,10 +108,17 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `reports/stages/hybrid_rag_structure_aware.json`
 - `reports/stages/hybrid_rag_structure_aware.md`
 - `reports/stages/index.json`
+- `reports/stages/kg_extraction_comparison.json`
+- `reports/stages/kg_extraction_comparison.md`
 - `reports/stages/kg_validation.json`
 - `reports/stages/kg_validation.md`
+- `reports/stages/retrieval_ablation.json`
+- `reports/stages/retrieval_ablation.md`
+- `reports/stages/robustness_evaluation.json`
+- `reports/stages/robustness_evaluation.md`
 - `reports/stages/structure_aware_kg_validation.json`
 - `reports/stages/structure_aware_kg_validation.md`
+- `reports/stages/thesis_claims_review.json`
 - `reports/stages/web_demo_final_smoke.json`
 - `reports/stages/web_demo_final_smoke.md`
 - `reports/stages/web_demo_readiness.json`
