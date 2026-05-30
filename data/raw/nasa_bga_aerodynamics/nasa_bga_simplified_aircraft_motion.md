@@ -1,0 +1,49 @@
+# Simplified Aircraft Motion
+
+- Document ID: `nasa_bga_simplified_aircraft_motion`
+- Source URL: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/simplified-aircraft-motion/
+- Source type: `nasa_web_educational_page`
+- Authority: NASA Glenn Research Center
+- Advisory risk level: `learning`
+- Page last updated: June 21, 2024
+- Content hash: `a196447d81d6deb46976470e7f290b6631a173d656459235d8c177bd0ddecfbe`
+
+## Cleaned Content
+
+On this page:
+
+Image of a airplane
+
+Simplified Motion
+
+This page shows some rules for the simplified motion of an aircraft. By simplified motion we mean that some of the four forces acting on the aircraft are balanced by other forces and that we are looking at only one force and one direction at a time. In reality, this simplified motion doesn’t occur because all of the forces are interrelated to the aircraft’s speed, altitude, orientation, etc. But looking at the forces ideally and individually does give us some insight and is much easier to understand.
+
+Weight
+
+In an ideal situation, an airplane could sustain a constant speed and level flight in which the weight would be balanced by the lift and the drag would be balanced by the thrust. The closest example of this condition is a cruising airliner. While the weight decreases due to fuel burned, the change is very small relative to the total aircraft weight. In this situation, the aircraft will maintain at a constant cruise velocity as described by Newton’s first law of motion.
+
+Newton’s Second Law of Motion
+
+If the forces become unbalanced, the aircraft will move in the direction of the greater force. We can compute the acceleration which the aircraft will experience from Newton’s second law of motion:
+
+\(\LARGE F=ma\)
+
+Where a is the acceleration, m is the mass of the aircraft, and F is the net force acting on the aircraft. The net force is the difference between the opposing forces; lift minus weight, or thrust minus drag. With this information, we can solve for the resulting motion of the aircraft.
+
+Motion of an Aircraft
+
+If the weight is decreased while the lift is held constant, the airplane will rise:
+
+\(\large Lift > Weight = Aircraft~Rises\)
+
+If the lift is decreased while the weight is constant, the plane will fall:
+
+\(\large Weight > Lift = Aircraft~Falls\)
+
+Similarly, increasing the thrust while the drag is constant will cause the plane to accelerate:
+
+\(\large Thrust > Drag = Aircraft~Accelerates\)
+
+And increasing the drag at a constant thrust will cause the plane to slow down:
+
+\(\large Drag > Thrust = Aircraft~Slows\)

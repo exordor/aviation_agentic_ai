@@ -1,0 +1,93 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nIllustration of Drag Equation\n\nDownload as a Slide\n\nDrag\n\nDrag depends on the density of the air, the square of the velocity, the air\u2019s viscosity and compressibility, the size and shape of the body, and the body\u2019s inclination to the flow. In general, the dependence on body shape, inclination, air viscosity, and compressibility is very complex.\n\nDrag Coefficient\n\nOne way to deal with complex dependencies is to characterize the dependence by a single variable. For drag, this variable is called the drag coefficient, designated \u201c Cd .\u201d This allows us to collect all the effects, simple and complex, into a single equation. The drag equation states that drag D is equal to the drag coefficient Cd times the density rho (\u03c1) times half of the velocity V squared times the reference area A .\n\nLift Coefficient\n\nFor given air conditions, shape, and inclination of the object, we must determine a value for Cd to determine drag. Determining the value of the drag coefficient is more difficult than determining the lift coefficient because of the multiple sources of drag. The drag coefficient given above includes form drag, skin friction drag, wave drag, and induced drag components. Ram drag is usually included in the net thrust because it depends on the airflow through the engine. Drag coefficients are almost always determined experimentally using a wind tunnel.\n\nReference Area\n\nNotice that the area (A) given in the drag equation is given as a reference area . The drag depends directly on the size of the body. Since we are dealing with aerodynamic forces, the dependence can be characterized by some area. But which area do we choose? If we think of drag as being caused by friction between the air and the body, a logical choice would be the total surface area of the body. If we think of drag as being a resistance to the flow, a more logical choice would be the frontal area of the body that is perpendicular to the flow direction. And finally, if we want to compare with the lift coefficient, we should use the same wing area used to derive the lift coefficient. Since the drag coefficient is usually determined experimentally by measuring drag and the area and then performing the division to produce the coefficient, we are free to use any area that can be easily measured. If we choose the wing area, rather than the cross-sectional area, the computed coefficient will have a different value. But the drag is the same, and the coefficients are related by the ratio of the areas. In practice, drag coefficients are reported based on a wide variety of object areas. In the report, the aerodynamicist must specify the area used; when using the data, the reader may have to convert the drag coefficient using the ratio of the areas.\n\nDensity\n\nIn the equation given above, the density is designated by the letter rho (\u03c1). We do not use \u201cd\u201d for density since \u201cd\u201d is often used to specify distance. In many textbooks on aerodynamics, density is also given by the Greek symbol rho (\u03c1) (Greek for \u201cr\u201d). The combination of terms \u201cdensity times the square of the velocity divided by two\u201d is called the dynamic pressure and appears in Bernoulli\u2019s pressure equation.",
+  "content_hash": "4fea99ec8df68df68e6d3db1f930263275de54f2b3f41dbacdb7f7e5158520bd",
+  "crawl_timestamp": "2026-05-30T23:49:58.460008+00:00",
+  "document_id": "nasa_bga_drag_equation",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Drag",
+    "Equation"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "drag",
+    "equation"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Download as a Slide",
+    "Drag",
+    "Drag Coefficient",
+    "Lift Coefficient",
+    "Reference Area",
+    "Density"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 1, 2025",
+  "sections": [
+    {
+      "level": 6,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_download_as_a_slide",
+      "text_end": 67,
+      "text_start": 46,
+      "title": "Download as a Slide"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_drag",
+      "text_end": 362,
+      "text_start": 31,
+      "title": "Drag"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_drag_coefficient",
+      "text_end": 806,
+      "text_start": 362,
+      "title": "Drag Coefficient"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_lift_coefficient",
+      "text_end": 1381,
+      "text_start": 806,
+      "title": "Lift Coefficient"
+    },
+    {
+      "level": 2,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_reference_area",
+      "text_end": 2758,
+      "text_start": 1381,
+      "title": "Reference Area"
+    },
+    {
+      "level": 2,
+      "order": 5,
+      "parent_id": null,
+      "section_id": "section_05_density",
+      "text_end": 3181,
+      "text_start": 2758,
+      "title": "Density"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Drag",
+  "source_type": "nasa_web_educational_page",
+  "title": "Drag Equation",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/",
+  "validation_status": "valid",
+  "warnings": []
+}

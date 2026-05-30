@@ -16,6 +16,8 @@ Scope boundary: This system is for aviation learning and decision-support only. 
 - **benchmark v2 chunking experiment**: chunking strategy comparison under top-k, fixed-budget, and category views; evidence role=`retrieval_design_diagnostic`; thesis main claim support=partial_benchmark_specific; limitations: implementation-maturity labels required; top-k context volume differs by chunk size.
 - **benchmark reviewed subset 60**: model-based review scaffold for high-value labels; evidence role=`llm_review_scaffold`; thesis main claim support=pending_llm_review; limitations: review scaffold only; no human review or external aviation expert certification.
 - **LLM review artifacts**: model-based benchmark, triple, graph-path, answer, and consistency review; evidence role=`llm_judge`; thesis main claim support=internal_llm_review_only; limitations: model-based internal review; no human or external expert certification.
+- **NASA BGA full landing-page corpus**: second authoritative educational source collection from NASA Glenn BGA; evidence role=`source_collection`; thesis main claim support=source_collection_only; limitations: collected as educational web evidence; interactive pages may expose limited text.
+- **NASA Lessons in Aerodynamics subset**: source-expansion experiment for ontology boundary, chunking, KG, and seed QA; evidence role=`source_expansion_experiment`; thesis main claim support=partial_source_generalization_evidence; limitations: internal educational-source experiment; no external aviation certification or operational readiness.
 - **answer-eval subset**: answer citation and faithfulness heuristics; evidence role=`pilot`; thesis main claim support=partial; limitations: stratified subset; deterministic heuristic scores unless annotated.
 - **triple semantic review sample**: KG semantic correctness review template; evidence role=`llm_review_pending`; thesis main claim support=partial; limitations: review fields pending until model-based review is run; no expert correctness claimed.
 
@@ -44,6 +46,16 @@ Chunking-v2 evidence is interpreted as retrieval-design evidence, not as a unive
 ## RQ4: safety-aware abstention
 
 Benchmark v2 safety metrics: Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29, Risk Category Accuracy=1.0. Sufficiency diagnostics show strong abstention on benchmark v2 no-answer labels, while robustness must also remain visible: false answer rate=0.0, boundary violations=0.
+
+## RQ5: NASA source generalization and ontology boundary validation
+
+NASA Glenn Beginners Guide to Aeronautics is used as a second authoritative educational source corpus. The landing-page collection and the experiment subset are intentionally separated: all discovered content pages are collected as the NASA BGA corpus, while the current ontology/chunking/KG/RAG experiment uses only the Lessons in Aerodynamics subset.
+
+Source discovery: discovered unique URLs=90, covered unique URLs=90, missing unique URLs=0, coverage rate=1.0. Collected corpus pages=90, valid pages=89, invalid pages=1, experiment pages=8, experiment valid pages=8, experiment subset=Lessons in Aerodynamics.
+
+NASA boundary evidence: existing ontology coverage=13, alias candidates=4, class candidates=15, property candidates=5, high-risk operational detections=0. NASA KG dry run: triples=134, valid triples=134, provenance completeness=1.0, evidence-in-source rate=1.0.
+
+NASA benchmark and smoke evidence: seed labels=50, review status=llm_or_project_seed_not_expert_certified, external aviation expert certified=False. FAA+NASA smoke Recall@5=0.64, source-routing accuracy=0.6. Claim policy: NASA source integration supports internal source-diversity evaluation, not external aviation certification or operational readiness.
 
 ## Review-dependent evidence status
 
@@ -80,6 +92,15 @@ Benchmark v2 is thesis/course-project evidence, not external aviation expert cer
 - `make reports-core`
 - `make reports-main-experiments`
 - `make reports-review`
+- `uv run aviation-ai report nasa-source-discovery`
+- `uv run aviation-ai source ingest-nasa`
+- `uv run aviation-ai report nasa-source-validation`
+- `uv run aviation-ai report nasa-chunking-summary --no-semantic-download`
+- `uv run aviation-ai report ontology-boundary-nasa`
+- `uv run aviation-ai report nasa-kg-validation`
+- `uv run aviation-ai report nasa-benchmark-summary`
+- `uv run aviation-ai report cross-source-ontology-validation`
+- `uv run aviation-ai report multisource-retrieval-smoke`
 - `make thesis-dashboard`
 - `uv run aviation-ai report project --no-ai`
 - `uv run aviation-ai report academic-paper --no-ai`
@@ -112,3 +133,4 @@ Benchmark v2 is thesis/course-project evidence, not external aviation expert cer
 - **RQ2 evidence traceability**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2', 'answer_evaluation']; metrics=['KG evidence coverage', 'citation completeness', 'citation precision', 'citation recall']; claim strength=moderate; gaps=Answer-level LLM-judge evaluation must remain separate from deterministic metrics..
 - **RQ3 graph evidence vs vector sufficiency**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2', 'chunking_comparison_benchmark_v2', 'chunking_comparison_benchmark_v2_budget', 'chunking_topk_sensitivity_benchmark_v2', 'chunking_category_analysis_benchmark_v2']; metrics=['Recall@5', 'Recall@10', 'MRR@5', 'NDCG@10', 'Path Recall@5', 'Path Precision@5', 'Fixed-budget chunking Recall@5']; claim strength=moderate; gaps=Path relevance is heuristic or model-reviewed, not human-validated..
 - **RQ4 safety-aware abstention**: reports=['sufficiency_evaluation', 'robustness_evaluation']; metrics=['Abstention Accuracy', 'False Answer Rate', 'False Abstention Rate', 'Risk Category Accuracy']; claim strength=moderate; gaps=Sufficiency can create false abstentions on supported questions..
+- **RQ5 source generalization**: reports=['nasa_source_discovery', 'nasa_source_ingestion', 'nasa_source_validation', 'nasa_chunking_summary', 'ontology_boundary_nasa', 'nasa_kg_validation', 'nasa_benchmark_summary', 'cross_source_ontology_validation', 'multisource_retrieval_smoke']; metrics=['NASA landing-page URL coverage', 'full-corpus valid page count', 'Lessons in Aerodynamics experiment page count', 'candidate ontology additions', 'NASA KG provenance/evidence validation', 'multi-source lexical smoke Recall@5']; claim strength=provisional; gaps=NASA labels and KG triples are deterministic scaffolds; no human or external aviation expert certification is present..

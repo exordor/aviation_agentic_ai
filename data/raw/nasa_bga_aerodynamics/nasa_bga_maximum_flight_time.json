@@ -1,0 +1,138 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nMaximum Flight Time Diagram\n\nAircraft Range\n\nAn airplane can cruise at a constant speed and level flight in which the lift is equal to the weight, and the thrust is equal to the drag. Since there is no net external force on the aircraft, the aircraft maintains a constant airspeed, as described by Newton\u2019s first law of motion. The distance that the aircraft flies is then given by a simple rate equation:\n\nd = V * t\n\nwhere d is the distance, V is the velocity and t is the time aloft. The maximum distance that the airplane can fly is called the range R:\n\nR = V * t max\n\nMaximum Time Aloft\n\nAirplanes, unfortunately, cannot stay in the air forever. There is a time limit, or maximum time t max, that an airplane can stay aloft. The time limit is usually determined by the amount of fuel that the aircraft can carry. When the airplane runs out of fuel, the engine stops. Drag then slows the airplane, decreasing the lift. Eventually the airplane comes back to earth. We can determine maximum time available using the rate equation. The general rate equation is \u201crate times time equals amount\u201d. If we do a little algebra, we can rearrange the equation to solve for the time:\n\ntime = amount / rate\n\nThe max time for an aircraft equals the amount of fuel that we have divided by the rate that the fuel is being burned. The amount of fuel is called the fuel load and is denoted by M (given in units of kilograms or pounds mass). The rate at which the fuel is being burned is the fuel mass flow rate (given in kilograms per hour or pounds mass per hour and denoted by mf). The maximum flight time (t max) is then equal to the fuel load divided by the fuel mass flow rate\n\nt max = M / mf\n\nThe fuel mass flow rate depends on the type of engine used and the throttle setting chosen by the pilot. The fuel mass flow rate is related to the thrust F by a factor called the specific fuel consumption (TSFC). The specific fuel consumption equals the fuel mass flow rate divided by the thrust.\n\nTSFC = mf / F\n\nUsing algebra, we can determine the fuel mass flow rate:\n\nmf = TSFC * F\n\nCollecting all this information, we arrive at a final equation for the maximum flight time: The maximum time aloft is equal to the fuel load divided by the specific fuel consumption times the thrust\n\nt max = M / (TSFC * F)\n\nAircraft Design\n\nWhat does this tell us? Obviously, if we carry more fuel we can fly longer in time and farther in distance than if we carried less fuel. If our engine has a low specific fuel consumption we can also fly longer. Turboprop and turbofan engines have low specific fuel consumption and are used on long range airliners. If we can run the engine at a low throttle setting, producing a minimum amount of thrust we can also fly longer. But we must produce enough thrust to equal drag in a cruise condition. Aircraft with a low drag, or a high L/D ratio, require less thrust and can fly longer and farther than aircraft with a low L/D ratio. Aerodynamicists try to design aircraft with high L/D ratios and engines with low specific fuel consumption.\n\nOn this page, we have taken a very simple view of aircraft range \u2013 for academic purposes. In reality, calculating the range is a complex problem because of the number of variables. An aircraft\u2019s flight is not conducted at a single ground speed but varies from zero at takeoff, to cruise conditions, and back to zero at landing. Extra fuel is expended in climbing to altitude and in maneuvering the aircraft. The weight constantly changes as fuel is burned; so, the lift, drag, and thrust (fuel consumption rate) also continually change. On real aircraft, just like with your automobile, there is usually a fuel reserve. The pilot makes sure to land the plane with fuel still on board.",
+  "content_hash": "49f899839450e6230ad86357d0bd86a8e8c5945a3326a2bab2ad09e1c220a83c",
+  "crawl_timestamp": "2026-05-30T23:49:50.129740+00:00",
+  "document_id": "nasa_bga_maximum_flight_time",
+  "equations": [
+    "d = V * t",
+    "R = V * t max"
+  ],
+  "expected_ontology_concepts": [
+    "Maximum",
+    "Flight",
+    "Time"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "maximum",
+    "flight",
+    "time"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Aircraft Range",
+    "d = V * t",
+    "R = V * t max",
+    "Maximum Time Aloft",
+    "time = amount / rate",
+    "t max = M / mf",
+    "TSFC = mf / F",
+    "mf = TSFC * F",
+    "t max = M / (TSFC * F)",
+    "Aircraft Design"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "September 9, 2025",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_aircraft_range",
+      "text_end": 422,
+      "text_start": 44,
+      "title": "Aircraft Range"
+    },
+    {
+      "level": 3,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_d_v_t",
+      "text_end": 572,
+      "text_start": 422,
+      "title": "d = V * t"
+    },
+    {
+      "level": 3,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_r_v_t_max",
+      "text_end": 587,
+      "text_start": 572,
+      "title": "R = V * t max"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_maximum_time_aloft",
+      "text_end": 1190,
+      "text_start": 587,
+      "title": "Maximum Time Aloft"
+    },
+    {
+      "level": 3,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_time_amount_rate",
+      "text_end": 1682,
+      "text_start": 1190,
+      "title": "time = amount / rate"
+    },
+    {
+      "level": 3,
+      "order": 5,
+      "parent_id": null,
+      "section_id": "section_05_t_max_m_mf",
+      "text_end": 1996,
+      "text_start": 1682,
+      "title": "t max = M / mf"
+    },
+    {
+      "level": 3,
+      "order": 6,
+      "parent_id": null,
+      "section_id": "section_06_tsfc_mf_f",
+      "text_end": 2069,
+      "text_start": 1996,
+      "title": "TSFC = mf / F"
+    },
+    {
+      "level": 3,
+      "order": 7,
+      "parent_id": null,
+      "section_id": "section_07_mf_tsfc_f",
+      "text_end": 2284,
+      "text_start": 2069,
+      "title": "mf = TSFC * F"
+    },
+    {
+      "level": 3,
+      "order": 8,
+      "parent_id": null,
+      "section_id": "section_08_t_max_m_tsfc_f",
+      "text_end": 2308,
+      "text_start": 2284,
+      "title": "t max = M / (TSFC * F)"
+    },
+    {
+      "level": 2,
+      "order": 9,
+      "parent_id": null,
+      "section_id": "section_09_aircraft_design",
+      "text_end": 3751,
+      "text_start": 2308,
+      "title": "Aircraft Design"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Maximum Flight Time",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/maximum-flight-time/",
+  "validation_status": "valid",
+  "warnings": []
+}

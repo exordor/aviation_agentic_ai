@@ -1,0 +1,65 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nLet\u2019s investigate the dependence of lift on density using a Java simulator.\n\nPlease note : the simulation below is best viewed on a desktop computer. It may take a few minutes for the simulation to load.\n\nLift and Drag\n\nLift is created by deflecting a moving fluid (liquid or gas), and drag is generated on a body in a wide variety of ways. From Newton\u2019s second law of motion, the aerodynamic forces on the body (lift and drag) are directly related to the change in momentum of the fluid with time. The fluid momentum is equal to the mass times the velocity of the fluid. Since the fluid is moving, defining the mass gets a little tricky. If the mass of fluid were brought to a halt, it would occupy some volume in space; and we could define its density to be the mass divided by the volume. With a little math which is described on the fluid momentum page, we can show that the aerodynamic forces are directly proportional to the density of the fluid that flows by the airfoil.\n\nDensity\n\nLift and drag depend linearly on the density of the fluid. Halving the density halves the lift, halving the density halves the drag. The fluid density depends on the type of fluid and the depth of the fluid. In the atmosphere, air density decreases as altitude increases. This explains why airplanes have a flight ceiling , an altitude above which it cannot fly. As an airplane ascends, a point is eventually reached where there just isn\u2019t enough air mass to generate enough lift to overcome the airplane\u2019s weight. The relation between altitude and density is a fairly complex exponential that has been determined by measurements in the atmosphere.\n\nGeneral Instructions\n\nAs an experiment, set the altitude to 5300 feet and note the value of the density and the amount of lift. Now change the altitude to 26,500 feet. What is the new value of the density? What is the value of the lift? How do these compare to the previous measurement? Notice that the altitude did not double. Now take this airplane to Mars. How does the density and lift compare to Earth at the same altitude? Move the altitude up to 37000 feet. How does the density and lift compare to the original measurements on Earth?\n\nThe original source code for the simulations is available for users to download at the BGA Simulations on GitHub .",
+  "content_hash": "80caf8ca4d7a335004a4cbf5deea608feb7517e614453792f59964b703d8fc81",
+  "crawl_timestamp": "2026-05-30T23:49:54.413438+00:00",
+  "document_id": "nasa_bga_foilden",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Density",
+    "Effects",
+    "Interactive"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "density",
+    "effects",
+    "interactive"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Lift and Drag",
+    "Density",
+    "General Instructions"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": true,
+  "page_last_updated": "July 17, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_lift_and_drag",
+      "text_end": 995,
+      "text_start": 220,
+      "title": "Lift and Drag"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_density",
+      "text_end": 1654,
+      "text_start": 995,
+      "title": "Density"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_general_instructions",
+      "text_end": 2311,
+      "text_start": 1654,
+      "title": "General Instructions"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Forces",
+  "source_type": "nasa_web_educational_page",
+  "title": "Density Effects Interactive",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilden/",
+  "validation_status": "valid",
+  "warnings": []
+}

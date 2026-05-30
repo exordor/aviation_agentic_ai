@@ -1,0 +1,67 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of an airfoil\n\nLift Coefficient\n\nThe lift coefficient is a number that aerodynamicists use to model all of the complex dependencies of shape, inclination, and some flow conditions on lift. This equation is simply a rearrangement of the lift equation where we solve for the lift coefficient in terms of the other variables. The lift coefficient C l is equal to the lift L divided by the quantity: density rho ( \\(\\bf\\rho\\) ) times half the velocity V squared times the wing area A .\n\n\\(\\LARGE \\mathit{C_l}=\\frac{2L}{\\rho V^{2}A}\\)\n\nThe quantity one half the density times the velocity squared is called the dynamic pressure q . So\n\n\\(\\LARGE \\mathit{C_l}=\\frac{L}{qA}\\)\n\nThe lift coefficient then expresses the ratio of the lift force to the force produced by the dynamic pressure times the area.\n\nHere is a way to determine a value for the lift coefficient. In a controlled environment (wind tunnel) we can set the velocity, density, and area and measure the lift produced. Through division, we arrive at a value for the lift coefficient. We can then predict the lift that will be produced under a different set of velocity, density (altitude), and area conditions using the lift equation.\n\nThe lift coefficient contains the complex dependencies of object shape on lift. For three dimensional wings, the downwash generated near the wing tips reduces the overall lift coefficient of the wing. The lift coefficient also contains the effects of air viscosity and compressibility. To correctly use the lift coefficient, we must be sure that the viscosity and compressibility effects are the same between our measured case and the predicted case. Otherwise, the prediction will be inaccurate.\n\nMach Number\n\nFor very low speeds (< 200 mph) the compressibility effects are negligible. At higher speeds, it becomes important to match Mach numbers between the two cases. Mach number is the ratio of the velocity to the speed of sound. So it is completely incorrect to measure a lift coefficient at some low speed (say 200 mph) and apply that lift coefficient at twice the speed of sound (approximately 1,400 mph, Mach = 2.0). The compressibility of the air will alter the important physics between these two cases.\n\nReynolds Number\n\nSimilarly, we must match air viscosity effects, which becomes very difficult. The important matching parameter for viscosity is the Reynolds number. The Reynolds number expresses the ratio of inertial forces to viscous forces. If the Reynolds number of the experiment and flight are close, then we properly model the effects of the viscous forces relative to the inertial forces. If they are very different, we do not correctly model the physics of the real problem and will predict an incorrect lift.",
+  "content_hash": "318c8e84cec397462a9e093c5c5c5e8d4005520c9b727359876755735d41123b",
+  "crawl_timestamp": "2026-05-30T23:49:57.129946+00:00",
+  "document_id": "nasa_bga_lift_coefficient",
+  "equations": [
+    "The lift coefficient is a number that aerodynamicists use to model all of the complex dependencies of shape, inclination, and some flow conditions on lift. This equation is simply a rearrangement of the lift equation where we solve for the lift coefficient in terms of the other variables. The lift coefficient C l is equal to the lift L divided by the quantity: density rho ( \\(\\bf\\rho\\) ) times half the velocity V squared times the wing area A .",
+    "\\(\\LARGE \\mathit{C_l}=\\frac{2L}{\\rho V^{2}A}\\)",
+    "\\(\\LARGE \\mathit{C_l}=\\frac{L}{qA}\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Lift",
+    "Coefficient"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "lift",
+    "coefficient"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Lift Coefficient",
+    "Mach Number",
+    "Reynolds Number"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 23, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_lift_coefficient",
+      "text_end": 1709,
+      "text_start": 36,
+      "title": "Lift Coefficient"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_mach_number",
+      "text_end": 2227,
+      "text_start": 1709,
+      "title": "Mach Number"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_reynolds_number",
+      "text_end": 2745,
+      "text_start": 2227,
+      "title": "Reynolds Number"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Lift",
+  "source_type": "nasa_web_educational_page",
+  "title": "Lift Coefficient",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-coefficient/",
+  "validation_status": "valid",
+  "warnings": []
+}

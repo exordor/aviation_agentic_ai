@@ -1,0 +1,110 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of an airfoil\n\nLift\n\nLift is created by deflecting a flow of air, and drag is generated on a body in a wide variety of ways. From Newton\u2019s second law of motion, the aerodynamic force F on the body is directly related to the change in momentum of the fluid with time t . The fluid momentum is equal to the mass m times the velocity V of the fluid.\n\n\\(\\LARGE F =\\frac{d (m * V)}{dt}\\)\n\nMass\n\nSince the air moves, defining the mass is tricky. If the mass of fluid were brought to a halt, it would occupy some volume in space. We can define the density (r) of the fluid to be the mass divided by the volume v .\n\nMass Flow Rate\n\nSince the fluid is moving, we must determine the mass in terms of the mass flow rate. The mass flow rate is the amount of mass passing a given point during some time interval t and its units are mass/time. We can relate the mass flow rate to the density mathematically. The mass flow rate \\(\\dot m\\) is equal to the density times the velocity times the area A through which the mass passes.\n\n\\(\\LARGE\\dot m = \\frac{m}{t}= r*V*A\\)\n\nWith knowledge of the mass flow rate, we can express the aerodynamic force as equal to the mass flow rate times the velocity.\n\n\\(\\LARGE F = constant * V^2 * r * A\\)\n\nA quick units check:\n\n\\(\\LARGE \\frac{mass * length}{time^2} = constant * \\frac{length}{time} * \\frac{mass}{length^3} * \\frac{length}{time} * length^2\\)\n\n\\(\\LARGE mass * \\frac{length}{time^2} = mass * \\frac{length}{time^2}\\)\n\nCombining the velocity dependence and absorbing the area into the constant, we find:\n\nDynamic Pressure\n\nThe aerodynamic force equals a constant times the density times the velocity squared. The dynamic pressure of a moving flow is equal to one half of the density times the velocity squared. The aerodynamic force is directly proportional to the dynamic pressure of the flow.\n\nEffect of Velocity on Aerodynamic Forces\n\nThe velocity used in the aerodynamic equation is the relative velocity between an object and the flow. The aerodynamic force depends on the square of the velocity. Doubling the velocity quadruples the force . The dependence of lift and drag on the square of the velocity has been known for more than a hundred years. The Wright brothers used this information in the design of their first aircraft.\n\nEffect of Air Density on Aerodynamic Forces\n\nThe aerodynamic force depends linearly on the density of the air. Halving the density halves the force . As altitude increases, the air density decreases. This explains why airplanes have a flight ceiling , an altitude above which it cannot fly. As an airplane ascends, a point is reached where there is not enough air mass to generate enough lift to overcome the airplane\u2019s weight. The relation between altitude and density is a fairly complex exponential.\n\nStudent Airfoil Interactive Simulation\n\nYou can investigate the effect of momentum on lift by using the Student Airfoil Interactive Simulation. Set a small angle of attack using the slider, then vary the \u201cSpeed\u201d and \u201cAltitude.\u201d Try doubling the speed and notice the effect on lift. Change the altitude until the air density is half of its previous value. What happened to the lift? You can use the browser \u201cBack\u201d button to return to this page.",
+  "content_hash": "b414bd4356d3fe73a542d00c8d3249f55772118179b74c35c4e31500dab84478",
+  "crawl_timestamp": "2026-05-30T23:49:53.986144+00:00",
+  "document_id": "nasa_bga_momentum_effects",
+  "equations": [
+    "\\(\\LARGE F =\\frac{d (m * V)}{dt}\\)",
+    "Since the fluid is moving, we must determine the mass in terms of the mass flow rate. The mass flow rate is the amount of mass passing a given point during some time interval t and its units are mass/time. We can relate the mass flow rate to the density mathematically. The mass flow rate \\(\\dot m\\) is equal to the density times the velocity times the area A through which the mass passes.",
+    "\\(\\LARGE\\dot m = \\frac{m}{t}= r*V*A\\)",
+    "\\(\\LARGE F = constant * V^2 * r * A\\)",
+    "\\(\\LARGE \\frac{mass * length}{time^2} = constant * \\frac{length}{time} * \\frac{mass}{length^3} * \\frac{length}{time} * length^2\\)",
+    "\\(\\LARGE mass * \\frac{length}{time^2} = mass * \\frac{length}{time^2}\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Momentum",
+    "Effects"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "momentum",
+    "effects"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Lift",
+    "Mass",
+    "Mass Flow Rate",
+    "Dynamic Pressure",
+    "Effect of Velocity on Aerodynamic Forces",
+    "Effect of Air Density on Aerodynamic Forces",
+    "Student Airfoil Interactive Simulation"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 7, 2025",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_lift",
+      "text_end": 405,
+      "text_start": 36,
+      "title": "Lift"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_mass",
+      "text_end": 629,
+      "text_start": 405,
+      "title": "Mass"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_mass_flow_rate",
+      "text_end": 1553,
+      "text_start": 629,
+      "title": "Mass Flow Rate"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_dynamic_pressure",
+      "text_end": 1844,
+      "text_start": 1553,
+      "title": "Dynamic Pressure"
+    },
+    {
+      "level": 2,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_effect_of_velocity_on_aerodynamic_forces",
+      "text_end": 2285,
+      "text_start": 1844,
+      "title": "Effect of Velocity on Aerodynamic Forces"
+    },
+    {
+      "level": 2,
+      "order": 5,
+      "parent_id": null,
+      "section_id": "section_05_effect_of_air_density_on_aerodynamic_forces",
+      "text_end": 2789,
+      "text_start": 2285,
+      "title": "Effect of Air Density on Aerodynamic Forces"
+    },
+    {
+      "level": 2,
+      "order": 6,
+      "parent_id": null,
+      "section_id": "section_06_student_airfoil_interactive_simulation",
+      "text_end": 3232,
+      "text_start": 2789,
+      "title": "Student Airfoil Interactive Simulation"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Forces",
+  "source_type": "nasa_web_educational_page",
+  "title": "Momentum Effects",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/momentum-effects/",
+  "validation_status": "valid",
+  "warnings": []
+}

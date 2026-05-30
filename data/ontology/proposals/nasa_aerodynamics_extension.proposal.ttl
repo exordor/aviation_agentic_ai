@@ -1,0 +1,85 @@
+@prefix : <http://www.example.org/aviation/phak#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Proposal only. Do not import automatically into the curated ontology.
+
+:Cl_DynamicPressure a owl:Class ;
+    rdfs:label "Dynamic Pressure" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_Velocity a owl:Class ;
+    rdfs:label "Velocity" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_Thrust a owl:Class ;
+    rdfs:label "Thrust" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_Weight a owl:Class ;
+    rdfs:label "Weight" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_CenterOfPressure a owl:Class ;
+    rdfs:label "Center Of Pressure" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_LiftCoefficient a owl:Class ;
+    rdfs:label "Lift Coefficient" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_DragCoefficient a owl:Class ;
+    rdfs:label "Drag Coefficient" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_ReynoldsNumber a owl:Class ;
+    rdfs:label "Reynolds Number" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_AerodynamicCenter a owl:Class ;
+    rdfs:label "Aerodynamic Center" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_Streamline a owl:Class ;
+    rdfs:label "Streamline" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_MassFlowRate a owl:Class ;
+    rdfs:label "Mass Flow Rate" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_Compressibility a owl:Class ;
+    rdfs:label "Compressibility" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_Viscosity a owl:Class ;
+    rdfs:label "Viscosity" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_SurfaceArea a owl:Class ;
+    rdfs:label "Surface Area" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:Cl_EquationVariable a owl:Class ;
+    rdfs:label "Equation Variable" ;
+    rdfs:comment "NASA BGA aerodynamics extension candidate; status=proposed." .
+
+:dependsOn a owl:ObjectProperty ;
+    rdfs:label "dependsOn" ;
+    rdfs:comment "NASA BGA relation candidate; status=proposed." .
+
+:hasEquation a owl:ObjectProperty ;
+    rdfs:label "hasEquation" ;
+    rdfs:comment "NASA BGA relation candidate; status=proposed." .
+
+:hasCoefficient a owl:ObjectProperty ;
+    rdfs:label "hasCoefficient" ;
+    rdfs:comment "NASA BGA relation candidate; status=proposed." .
+
+:explains a owl:ObjectProperty ;
+    rdfs:label "explains" ;
+    rdfs:comment "NASA BGA relation candidate; status=proposed." .
+
+:describesEffect a owl:ObjectProperty ;
+    rdfs:label "describesEffect" ;
+    rdfs:comment "NASA BGA relation candidate; status=proposed." .

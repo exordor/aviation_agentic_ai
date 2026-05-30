@@ -1,0 +1,46 @@
+{
+  "claim_policy": "Cross-source validation is seed/scaffold evidence, not final thesis evidence.",
+  "cross_source_alias_coverage": {
+    "angle of attack/inclination": "candidate_alias_mapping",
+    "density/air density": "candidate_alias_mapping"
+  },
+  "document_routing_targets": [
+    "06_phak_ch4_0",
+    "nasa_bga_aerodynamics"
+  ],
+  "metadata": {
+    "cross_seed_path": "data/cqs/faa_phak_nasa_cross_source.seed.gold.json",
+    "external_aviation_expert_certified": false,
+    "human_review": false,
+    "labels_total": 30,
+    "review_status": "llm_or_project_seed_not_expert_certified"
+  },
+  "ontology_coverage_by_source": {
+    "faa_phak": "existing_curated_ontology_baseline",
+    "nasa": "candidate_boundary_report_required"
+  },
+  "source_agreement_candidates": [
+    "airfoil",
+    "drag",
+    "lift",
+    "pressure",
+    "wing"
+  ],
+  "source_conflict_gap_candidates": [],
+  "source_overlap_concepts": [
+    "airfoil",
+    "drag",
+    "lift",
+    "pressure",
+    "wing"
+  ],
+  "source_specific_concepts": {
+    "faa_phak": [
+      "pilot training framing"
+    ],
+    "nasa": [
+      "coefficient",
+      "equation"
+    ]
+  }
+}

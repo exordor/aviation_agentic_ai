@@ -1,0 +1,98 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of airplanes with formulas\n\nObject\n\nWe live in world that is defined by three spatial dimensions and one time dimension. Objects can move within this domain in two ways. An object can translate , or change location , from one point to another. And an object can rotate, or change its attitude . In general, the motion of an object involves both translation and rotation. The motion of an aircraft is particularly complex because the rotations and translations are coupled together; a rotation affects the magnitude and direction of the forces which affect translations.\n\nTranslation of an Aircraft\n\nOn this page we will consider only the translation of an aircraft within our domain. We can specify the location of our aircraft at any time t by specifying three coordinates x, y, and z on an orthogonal coordinate system. An orthogonal coordinate system has each of its coordinate directions perpendicular to all other coordinate directions. Initially, our aircraft is at point \u201c0\u201d, with coordinates x 0 , y 0 , and z 0 at time t 0 . In general, the aircraft moves through the domain until at some later time t1 the aircraft is at point \u201c1\u201d with coordinates x 1 , y 1 , and z 1 . We can specify the displacement \u2013 d in each coordinate direction by the difference in coordinate from point \u201c0\u201d to point \u201c1\u201d. The x-displacement equals \\((x_1 \u2013 x_0)\\), the y-displacement equals \\((y_1 \u2013 y_0)\\), and the z-displacement equals \\((z_1 \u2013 z_0)\\). For simplicity on the slide we are only going to consider the x coordinate.\n\nDisplacement\n\nThe total displacement is a vector quantity, which means that the displacement has a size and a direction associated with it. The direction is from point \u201c0\u201d to point \u201c1\u201d. The individual x-, y-, and z- displacements are the components of the displacement vector in the coordinate directions. All of the quantities derived from the displacement are also vector quantities.\n\nAverage Velocity\n\nThe velocity -V of the aircraft through the domain is the change of the location with respect to time. In the X \u2013 direction, the average velocity is the displacement divided by the time interval:\n\n\\(\\LARGE V = \\frac{x_1 \u2013 x_0}{t_1 \u2013 t_0}\\)\n\nThis is an average velocity and the aircraft could speed up and slow down between points \u201c0\u201d and \u201c1\u201d. At any instant, the aircraft could have a velocity that is different than the average. If we shrink the time difference down to a very small (differential) size, we can define the instantaneous velocity to be the differential change in position divided by the differential change in time;\n\n\\(\\LARGE V = \\frac{dx}{dt}\\)\n\nwhere the symbol d / dt is the differential from calculus. So when we initially specified the location of our aircraft with x 0 , y 0 , z 0 , and t 0 coordinates, we could also specify an initial instantaneous velocity V 0 . Likewise at the final position x 1 , y 1 , z 1 , and t 1 , the velocity changes to a velocity V 1 . Again, for simplicity, we are considering only the x-component of the velocity. In reality, the aircraft velocity changes in all three directions. Velocity is a vector quantity and has both a magnitude and a direction.\n\nAcceleration\n\nThe acceleration (a) of the aircraft through the domain is the change of the velocity with respect to time. In the X \u2013 direction, the average acceleration is the change in velocity divided by the time interval:\n\n\\(\\LARGE a =\\frac{V_1 \u2013 V_0}{t_1 \u2013 t_0}\\)\n\nAs with the velocity, this is an average acceleration. At any instant, the aircraft could have an acceleration that is different than the average. If we shrink the time difference down to a very small (differential) size, we can define the instantaneous acceleration to be the differential change in velocity divided by the differential change in time:\n\nNewton\u2019s Second Law of Motion\n\nFrom Newton\u2019s second law of motion, we know that forces on an object produce accelerations. If we can determine the forces on an aircraft, and how the forces change with time, we can use the equations presented on this slide to determine the acceleration, velocity, and location of the aircraft as a function of time.",
+  "content_hash": "f1c47270c101dbf67df37b043137b0c179817f61fdc9d15b0d175c531aa7c108",
+  "crawl_timestamp": "2026-05-30T23:49:50.113589+00:00",
+  "document_id": "nasa_bga_aircraft_translations",
+  "equations": [
+    "On this page we will consider only the translation of an aircraft within our domain. We can specify the location of our aircraft at any time t by specifying three coordinates x, y, and z on an orthogonal coordinate system. An orthogonal coordinate system has each of its coordinate directions perpendicular to all other coordinate directions. Initially, our aircraft is at point \u201c0\u201d, with coordinates x 0 , y 0 , and z 0 at time t 0 . In general, the aircraft moves through the domain until at some later time t1 the aircraft is at point \u201c1\u201d with coordinates x 1 , y 1 , and z 1 . We can specify the displacement \u2013 d in each coordinate direction by the difference in coordinate from point \u201c0\u201d to point \u201c1\u201d. The x-displacement equals \\((x_1 \u2013 x_0)\\), the y-displacement equals \\((y_1 \u2013 y_0)\\), and the z-displacement equals \\((z_1 \u2013 z_0)\\). For simplicity on the slide we are only going to consider the x coordinate.",
+    "\\(\\LARGE V = \\frac{x_1 \u2013 x_0}{t_1 \u2013 t_0}\\)",
+    "\\(\\LARGE V = \\frac{dx}{dt}\\)",
+    "\\(\\LARGE a =\\frac{V_1 \u2013 V_0}{t_1 \u2013 t_0}\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Aircraft",
+    "Translations"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "aircraft",
+    "translations"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Object",
+    "Translation of an Aircraft",
+    "Displacement",
+    "Average Velocity",
+    "Acceleration",
+    "Newton\u2019s Second Law of Motion"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "August 25, 2025",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_object",
+      "text_end": 592,
+      "text_start": 49,
+      "title": "Object"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_translation_of_an_aircraft",
+      "text_end": 1537,
+      "text_start": 592,
+      "title": "Translation of an Aircraft"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_displacement",
+      "text_end": 1924,
+      "text_start": 1537,
+      "title": "Displacement"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_average_velocity",
+      "text_end": 3150,
+      "text_start": 1924,
+      "title": "Average Velocity"
+    },
+    {
+      "level": 2,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_acceleration",
+      "text_end": 3773,
+      "text_start": 3150,
+      "title": "Acceleration"
+    },
+    {
+      "level": 2,
+      "order": 5,
+      "parent_id": null,
+      "section_id": "section_05_newton_s_second_law_of_motion",
+      "text_end": 4121,
+      "text_start": 3773,
+      "title": "Newton\u2019s Second Law of Motion"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Aircraft Translations",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-translations/",
+  "validation_status": "valid",
+  "warnings": []
+}

@@ -1,0 +1,29 @@
+{
+  "chunks_path": "data/chunks/nasa_bga_aerodynamics.structure_aware_large.jsonl",
+  "claim_policy": "NASA KG validation is deterministic schema/provenance validation. It does not prove semantic correctness or operational readiness.",
+  "errors": [],
+  "errors_total": 0,
+  "evidence_in_source_rate": 1.0,
+  "frequent_new_entity_candidates": [],
+  "frequent_unsupported_relation_candidates": [],
+  "kg_path": "data/kg/nasa_bga_aerodynamics.structure_aware_large.kg.jsonl",
+  "metadata": {
+    "chunks_path": "data/chunks/nasa_bga_aerodynamics.structure_aware_large.jsonl",
+    "corpus_id": "nasa_bga_aerodynamics",
+    "dry_run_or_existing_kg": true,
+    "external_aviation_expert_certified": false,
+    "human_review": false,
+    "kg_path": "data/kg/nasa_bga_aerodynamics.structure_aware_large.kg.jsonl",
+    "operational_readiness_claimed": false,
+    "source_type": "nasa_web_educational_page"
+  },
+  "ontology_path": "data/ontology/curated/06_phak_ch4_0.curated.ttl",
+  "profile_path": "configs/extraction_profile.yaml",
+  "provenance_completeness": 1.0,
+  "rejected_triple_count": 0,
+  "triples_total": 134,
+  "unsupported_class_count": 0,
+  "unsupported_property_count": 0,
+  "valid": true,
+  "valid_triples": 134
+}

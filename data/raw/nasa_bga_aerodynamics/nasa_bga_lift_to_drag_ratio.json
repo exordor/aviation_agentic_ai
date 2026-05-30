@@ -1,0 +1,91 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of Lift to Drag Ratio\n\nFour Forces\n\nThere are four forces that act on an aircraft in flight: lift, weight, thrust, and drag. Forces are vector quantities having both a magnitude and a direction. The motion of the aircraft through the air depends on the relative magnitude and direction of the various forces. The weight of an airplane is determined by the size and materials used in the airplane\u2019s construction and on the payload and fuel that the airplane carries. The weight is always directed towards the center of the earth. The thrust is determined by the size and type of propulsion system used on the airplane and on the throttle setting selected by the pilot. Thrust is normally directed forward along the center-line of the aircraft. Lift and drag are aerodynamic forces that depend on the shape and size of the aircraft, air conditions, and the flight velocity. Lift is directed perpendicular to the flight path and drag is directed along the flight path.\n\nL/D Ratio\n\nBecause lift and drag are both aerodynamic forces, the ratio of lift to drag is an indication of the aerodynamic efficiency of the airplane. Aerodynamicists call the lift to drag ratio the L/D ratio , pronounced \u201cL over D ratio.\u201d An airplane has a high L/D ratio if it produces a large amount of lift or a small amount of drag. Under cruise conditions lift is equal to weight. A high lift aircraft can carry a large payload. Under cruise conditions thrust is equal to drag. A low drag aircraft requires low thrust. Thrust is produced by burning a fuel and a low thrust aircraft requires small amounts of fuel be burned. As discussed on the maximum flight time page, low fuel usage allows an aircraft to stay aloft for a long time, and that means the aircraft can fly long range missions. So an aircraft with a high L/D ratio can carry a large payload, for a long time, over a long distance. For glider aircraft with no engines, a high L/D ratio again produces a long range aircraft by reducing the steady state glide angle at which the glider descends.\n\nLift Equation\n\nAs shown in the middle of the slide, the L/D ratio is also equal to the ratio of the lift and drag coefficients. The lift equation indicates that the lift L is equal to one half the air density rho (\u03c1) times the square of the velocity V times the wing area A times the lift coefficient C l :\n\nDrag Equation\n\nSimilarly, the drag equation relates the aircraft drag D to a drag coefficient C d :\n\n\\(\\LARGE D=C_d\\cdot\\frac{\\rho\\cdot V^2\\cdot A}2\\)\n\nDividing these two equations give:\n\n\\(\\LARGE \\frac LD=\\frac{C_l}{C_d}\\)\n\nLift and drag coefficients are normally determined experimentally using a wind tunnel. But for some simple geometries, they can be determined mathematically.\n\nApplication\n\nThis figure at the top of this page shows the balance of forces on a descending Wright 1902 glider. The flight path of the glider is along the thin black line, which falls to the left. The flight path intersects the horizontal, thin, red line at an angle \u201c a \u201d called the glide angle.\n\nThe tangent of the glide angle, tan(a), is equal to the vertical height (h) which the aircraft descends divided by the horizontal distance (d) which the aircraft flies across the ground.\n\n\\(\\LARGE \\tan(a)=\\frac{h}{d}\\)\n\nThe tangent of the glide angle is also related to the ratio of the drag, D , of the the aircraft to the lift, L .\n\n\\(\\LARGE \\frac{D}{L}=\\frac{c_d}{c_l}=\\tan(a)\\)\n\nWhere c d and c l are the drag and lift coefficients derived from the drag and lift equations and measured during wind tunnel testing.\n\nWhat good is all this for aircraft design? If we combine the two equations into a single equation through the tan(a), and invert the equation, we get:\n\n\\(\\LARGE \\frac{L}{D}=\\frac{c_l}{c_d}=\\frac{d}{h}=\\frac{1}{\\tan(a)}\\)\n\nThe lift divided by drag is called the L/D ratio , pronounced \u201cL over D ratio.\u201d From the last equation we see that the higher the L/D, the lower the glide angle, and the greater the distance that a glider can travel across the ground for a given change in height. Because lift and drag are both aerodynamic forces, we can think of the L/D ratio as an aerodynamic efficiency factor for the aircraft. Designers of gliders and designers of cruising aircraft want a high L/D ratio to maximize the distance which an aircraft can fly. It is not enough to just design an aircraft to produce enough lift to overcome weight. The designer must also keep the L/D ratio high to maximize the range of the aircraft.\n\nWe could have used D/L as the efficiency factor, but then the lower the factor the better the aircraft. Engineers usually define efficiency factors so that \u201cbigger\u201d is \u201cbetter\u201d.",
+  "content_hash": "d386d80341a5b3a539185acfe5aab28bec41b4c8ac7636a0314dd9e2cb28d042",
+  "crawl_timestamp": "2026-05-30T23:49:52.715573+00:00",
+  "document_id": "nasa_bga_lift_to_drag_ratio",
+  "equations": [
+    "\\(\\LARGE D=C_d\\cdot\\frac{\\rho\\cdot V^2\\cdot A}2\\)",
+    "\\(\\LARGE \\frac LD=\\frac{C_l}{C_d}\\)",
+    "\\(\\LARGE \\tan(a)=\\frac{h}{d}\\)",
+    "\\(\\LARGE \\frac{D}{L}=\\frac{c_d}{c_l}=\\tan(a)\\)",
+    "\\(\\LARGE \\frac{L}{D}=\\frac{c_l}{c_d}=\\frac{d}{h}=\\frac{1}{\\tan(a)}\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Lift",
+    "Drag",
+    "Ratio"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "lift",
+    "drag",
+    "ratio"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Four Forces",
+    "L/D Ratio",
+    "Lift Equation",
+    "Drag Equation",
+    "Application"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 19, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_four_forces",
+      "text_end": 988,
+      "text_start": 44,
+      "title": "Four Forces"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_l_d_ratio",
+      "text_end": 2053,
+      "text_start": 988,
+      "title": "L/D Ratio"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_lift_equation",
+      "text_end": 2361,
+      "text_start": 2053,
+      "title": "Lift Equation"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_drag_equation",
+      "text_end": 2745,
+      "text_start": 2361,
+      "title": "Drag Equation"
+    },
+    {
+      "level": 2,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_application",
+      "text_end": 4665,
+      "text_start": 2745,
+      "title": "Application"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Forces",
+  "source_type": "nasa_web_educational_page",
+  "title": "Lift to Drag Ratio",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-to-drag-ratio/",
+  "validation_status": "valid",
+  "warnings": []
+}

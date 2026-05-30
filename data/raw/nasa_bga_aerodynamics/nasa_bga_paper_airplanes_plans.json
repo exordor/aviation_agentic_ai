@@ -1,0 +1,65 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nComputer animation of two paper airplanes.\n\nGlider\n\nA glider is a special kind of aircraft that has no engine. In flight, a glider has three forces acting on it as compared to the four forces that act on a powered aircraft. Both types of aircraft are subjected to the forces of lift, drag, and weight. The powered aircraft has an engine that generates thrust, while the glider has no thrust.\n\nTypes of Glider Aircraft\n\nThere are many different types of glider aircraft. Paper airplanes are the simplest aircraft to build and fly, and students can learn the basics of aircraft motion by flying paper airplanes. Building and flying balsa wood or Styrofoam gliders is an inexpensive way for students to have fun while learning the basics of aerodynamics. Hang-gliders are piloted aircraft that are launched by leaping off the side of a hill or by being towed aloft. Piloted gliders are launched by ground based catapults, or are towed aloft by a powered aircraft then cut free to glide for hours over many miles. The Wright Brothers perfected the design of the first airplane and gained piloting experience through a series of glider flights from 1900 to 1903. The Space Shuttle flies as a glider during reentry and landing; the rocket engines are used only during liftoff.\n\nOn the graphic at the top of this page, there are two paper airplane designs shown: Paper Airplane #1 (PA-1), in blue at the lower right, and Paper Airplane #2 (PA-2), in red at the upper left. Both of these aircraft are constructed by folding an 8 1/2 by 11 sheet of paper. The plans for these aircraft are provided below.\n\nTo obtain your own copy of PA-1 click here and save the Power Point file. Open Power Point and follow the directions written on the aircraft to obtain a two-sided copy of the plans from your printer. The plans will look like this:\n\nPlans for PA-1 aircraft from the bottom\n\nPlans for PA-1 aircraft from the top\n\nConstructing an Aircraft\n\nTo construct the aircraft, fold on the solid lines in the prescribed numerical order (1,2,3..) always folding to the inside. Cover the number with the fold. The dashed lines on the plans indicate places to cut with a scissors. The PA-1 is designed to be highly maneuverable and employs both ailerons and a rudder. If both ailerons are turned upward, the aircraft will loop. If one is turned up and the other down, and the rudder is fixed straight, the aircraft will roll. If the rudder is turned, the aircraft will perform a banked turn.\n\nTo obtain your own copy of PA-2 click here and save the Power Point file. Open Power Point and follow the directions written on the aircraft to obtain a two-sided copy of the plans from your printer. The plans will look like this:\n\nPlans for PA-2 aircraft from the bottom\n\nPlans for PA-2 aircraft from the top\n\nTo construct the aircraft, fold on the solid lines in the prescribed numerical order (1,2,3..) always folding to the inside. Cover the number with the fold. The PA-2 is designed to fly fast and far.\n\nStudents should build and fly both aircraft to learn how differences in design affect the flight performance of an aircraft. After experimenting with paper airplanes, the student is ready to move up to more challenging aircraft such as wooden or Styrofoam gliders.",
+  "content_hash": "16f71a28d9c00fa824b47611fa831ea7289fa6f60cd318eabc3262b2c918d025",
+  "crawl_timestamp": "2026-05-30T23:49:58.627017+00:00",
+  "document_id": "nasa_bga_paper_airplanes_plans",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Paper",
+    "Airplanes",
+    "Plans"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "paper",
+    "airplanes",
+    "plans"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Glider",
+    "Types of Glider Aircraft",
+    "Constructing an Aircraft"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "May 2, 2023",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_glider",
+      "text_end": 408,
+      "text_start": 59,
+      "title": "Glider"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_types_of_glider_aircraft",
+      "text_end": 1923,
+      "text_start": 408,
+      "title": "Types of Glider Aircraft"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_constructing_an_aircraft",
+      "text_end": 3263,
+      "text_start": 1923,
+      "title": "Constructing an Aircraft"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Gliders",
+  "source_type": "nasa_web_educational_page",
+  "title": "Paper Airplanes Plans",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/paper-airplanes-plans/",
+  "validation_status": "valid",
+  "warnings": []
+}

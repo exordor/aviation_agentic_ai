@@ -1,0 +1,65 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nLet\u2019s investigate the dependence of lift on velocity using a Java simulator.\n\nPlease note : the simulation below is best viewed on a desktop computer. It may take a few minutes for the simulation to load.\n\nImage of aerodynamic forces\n\nAerodynamic Forces\n\nLift is created by deflecting a flow of air and drag is generated on a body in a wide variety of ways. From Newton\u2019s second law of motion, the aerodynamic forces on the body (lift and drag) are directly related to the change in momentum of the fluid with time. The fluid momentum is equal to the mass times the velocity of the fluid. Since the air moves, defining the mass gets a little tricky and aerodynamicists usually relate the effect of mass on lift and drag to the air density. The mathematical derivation for this conversion is given on another slide dealing with momentum effects on lift. As a result of this derivation, we find that lift and drag depend on the square of the velocity .\n\nVelocity\n\nThe velocity used in the lift and drag equations is the relative velocity between an object and the flow. Since the aerodynamic force depends on the square of the velocity, doubling the velocity will quadruple the lift and drag.\n\nExperiment\n\nAs an experiment, set the velocity to 50 mph and note the amount of lift. Now double the velocity to 100 mph. What is the value of the lift? How does it compare to the previous measurement?\n\nThe original source code for the simulations is available for users to download at the BGA Simulations on GitHub .",
+  "content_hash": "d1e4fb411cff164f9c3f8cafc8a79c6d00b27e49772a2ab1571bdce9e31fc7b2",
+  "crawl_timestamp": "2026-05-30T23:49:54.424213+00:00",
+  "document_id": "nasa_bga_foilvel",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Velocity",
+    "Effects",
+    "Interactive"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "velocity",
+    "effects",
+    "interactive"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Aerodynamic Forces",
+    "Velocity",
+    "Experiment"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": true,
+  "page_last_updated": "July 17, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_aerodynamic_forces",
+      "text_end": 967,
+      "text_start": 250,
+      "title": "Aerodynamic Forces"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_velocity",
+      "text_end": 1207,
+      "text_start": 967,
+      "title": "Velocity"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_experiment",
+      "text_end": 1524,
+      "text_start": 1207,
+      "title": "Experiment"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Forces",
+  "source_type": "nasa_web_educational_page",
+  "title": "Velocity Effects Interactive",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilvel/",
+  "validation_status": "valid",
+  "warnings": []
+}

@@ -1,0 +1,109 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of an airplane with formulas\n\nCruise Conditions of an Aircraft\u2019s Range\n\nLet\u2019s summarize the information necessary to do a preliminary calculation of an aircraft\u2019s range under cruise conditions. We are taking a very simple view of aircraft range \u2013 for academic purposes. In reality, calculating the range is a complex problem because of the large number of variables. An aircraft\u2019s flight is not conducted at a single ground speed but varies from zero at take-off, to cruise conditions, and back to zero at landing. Extra fuel is expended in climbing to altitude and in maneuvering the aircraft. The weight is constantly changing as fuel is burned, so the lift, drag, and thrust and fuel consumption rate are also continually changing. On real aircraft, just like with your automobile, there is usually a fuel reserve, and the pilot makes sure to land the plane with fuel still on board. We are going to neglect all of these effects.\n\nWind Tunnel Testing of an Aircraft\n\nThere are certain things that we need to know about our aircraft. From previous wind tunnel testing, we need to determine the L/D ratio \\(\\frac{C_l}{C_d}\\) and the lift coefficient C l . We also need some information about the propulsion system, specifically, the specific fuel consumption rate TSFC of the engine. For the aircraft itself, we need to know the weight W of the aircraft, the wing area, A and the fuel load M . We are free to select a flight altitude, but this determines the air density \u03c1 from our model of the standard atmosphere.\n\nLift Equation\n\nIn cruise, the lift L is equal to the weight W and the thrust F is equal to the drag D . Using the lift equation, we can solve for the velocity necessary to create enough lift to equal the weight.\n\nVelocity\n\nIn this equation, all of the variables are known except the velocity V , so we solve this equation for V.\n\nL/D Ratio\n\nUsing the L/D ratio, we can solve for the drag of the aircraft which is equal to the thrust.\n\nMaximum Flight Time\n\nThe thrust, specific fuel consumption, and fuel load determine the maximum flight time available to the aircraft.\n\n\\(\\LARGE t _{max} =\\frac{M}{TSFC * F}\\)\n\n\\(\\LARGE t_{max}=\\frac{M \\frac{C_l}{C_d}}{TSFC * W}\\)\n\nThis flight time multiplied by the aircraft velocity determines the range (R).\n\nRange\n\n\\(\\LARGE R=V*t _{max}\\)\n\n\\(\\LARGE R = \\sqrt{ \\frac{W}{ \\left( \\frac{1}{2} C_l \\rho A \\cdot M\\frac{C_l}{C_d} \\cdot \\text{TSFC} \\cdot W \\right) } }\\)\n\nTry our Range Games interactive JavaScript simulation which demonstrates these concepts. This simulation presents problems which you must solve by using the range equation.",
+  "content_hash": "7cb4af8af2f0181b9c434b228a63edbd283e1a4eb2f341d0ba1c1624cf478b8f",
+  "crawl_timestamp": "2026-05-30T23:49:50.158701+00:00",
+  "document_id": "nasa_bga_range_summary",
+  "equations": [
+    "There are certain things that we need to know about our aircraft. From previous wind tunnel testing, we need to determine the L/D ratio \\(\\frac{C_l}{C_d}\\) and the lift coefficient C l . We also need some information about the propulsion system, specifically, the specific fuel consumption rate TSFC of the engine. For the aircraft itself, we need to know the weight W of the aircraft, the wing area, A and the fuel load M . We are free to select a flight altitude, but this determines the air density \u03c1 from our model of the standard atmosphere.",
+    "\\(\\LARGE t _{max} =\\frac{M}{TSFC * F}\\)",
+    "\\(\\LARGE t_{max}=\\frac{M \\frac{C_l}{C_d}}{TSFC * W}\\)",
+    "\\(\\LARGE R=V*t _{max}\\)",
+    "\\(\\LARGE R = \\sqrt{ \\frac{W}{ \\left( \\frac{1}{2} C_l \\rho A \\cdot M\\frac{C_l}{C_d} \\cdot \\text{TSFC} \\cdot W \\right) } }\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Range",
+    "Summary"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "range",
+    "summary"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Cruise Conditions of an Aircraft\u2019s Range",
+    "Wind Tunnel Testing of an Aircraft",
+    "Lift Equation",
+    "Velocity",
+    "L/D Ratio",
+    "Maximum Flight Time",
+    "Range"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 7, 2025",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_cruise_conditions_of_an_aircraft_s_range",
+      "text_end": 955,
+      "text_start": 51,
+      "title": "Cruise Conditions of an Aircraft\u2019s Range"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_wind_tunnel_testing_of_an_aircraft",
+      "text_end": 1539,
+      "text_start": 955,
+      "title": "Wind Tunnel Testing of an Aircraft"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_lift_equation",
+      "text_end": 1752,
+      "text_start": 1539,
+      "title": "Lift Equation"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_velocity",
+      "text_end": 1869,
+      "text_start": 1752,
+      "title": "Velocity"
+    },
+    {
+      "level": 2,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_l_d_ratio",
+      "text_end": 1974,
+      "text_start": 1869,
+      "title": "L/D Ratio"
+    },
+    {
+      "level": 2,
+      "order": 5,
+      "parent_id": null,
+      "section_id": "section_05_maximum_flight_time",
+      "text_end": 2286,
+      "text_start": 1974,
+      "title": "Maximum Flight Time"
+    },
+    {
+      "level": 2,
+      "order": 6,
+      "parent_id": null,
+      "section_id": "section_06_range",
+      "text_end": 2614,
+      "text_start": 86,
+      "title": "Range"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Range Summary",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/range-summary/",
+  "validation_status": "valid",
+  "warnings": []
+}

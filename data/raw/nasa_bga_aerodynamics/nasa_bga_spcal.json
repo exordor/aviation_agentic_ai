@@ -1,0 +1,86 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of Reynolds number formulas\n\nAerodynamic Forces\n\nAs an object moves through the atmosphere, the gas molecules of the atmosphere near the object are disturbed and move around the object. Aerodynamic forces are generated between the gas and the object. The magnitude of these forces depends on the shape of the object, the speed of the object, the mass of the gas going by the object, and on two other important properties of the gas, the viscosity , or stickiness, of the gas and the compressibility , or springiness, of the gas.\n\nTo properly model these effects, aerodynamicists use similarity parameters which are ratios of these effects to other forces present in the problem. If two experiments have the same values for the similarity parameters, then the relative importance of the forces are being correctly modeled. Representative values for the properties of air are given on another page, but the actual value of the parameter depends on the state of the gas and the altitude .\n\nBoundary Layer\n\nAerodynamic forces depend in a complex way on the viscosity of the gas. As an object moves through a gas, the gas molecules stick to the surface. This creates a layer of gas near the surface, called a boundary layer, which, in effect, changes the shape of the object. The flow of gas reacts to the edge of the boundary layer as if it was the physical surface of the object. To make things more confusing, the boundary layer may separate from the body and create an effective shape much different from the physical shape. And to make it even more confusing, the flow conditions in and near the boundary layer are often unsteady (changing in time). The boundary layer is very important in determining the drag of an object. To determine and predict these conditions, aerodynamicists rely on wind tunnel testing and very sophisticated computer analysis.\n\nReynolds Number\n\nThe important similarity parameter for viscosity is the Reynolds number . The Reynolds number expresses the ratio of inertial (resistant to change or motion) forces to viscous (heavy and gluey) forces. From a detailed analysis of the momentum conservation equation , the inertial forces are characterized by the product of the density r times the velocity V times the gradient of the velocity dV/dx . The viscous forces are characterized by the dynamic viscosity coefficient mu times the second gradient of the velocity d^2V/dx^2 . The Reynolds number Re then becomes:\n\n\\(\\LARGE \\text{Re} = \\frac{\\rho \\, V \\, \\frac{dV}{dx}}{\\mu \\, \\frac{d^2V}{dx^2}} \\)\n\nThe gradient of the velocity is proportional to the velocity divided by a length scale L . Similarly, the second derivative of the velocity is proportional to the velocity divided by the square of the length scale. Then:\n\n\\(\\LARGE \\text{Re} = \\frac{\\rho \\, V \\, \\frac{V}{L}}{\\mu \\, \\frac{V}{L^2}} \\)\n\n\\(\\LARGE \\text{Re} = \\frac{\\rho \\, V \\, L}{\\mu} \\)\n\nThe Reynolds number is dimensionless. High values of the parameter (on the order of 10 million) indicate that viscous forces are small, and the flow is essentially inviscid. If the flow is inviscid, then the Euler equations can be used to model the flow. Low values of the parameter (on the order of 1 hundred) indicate that viscous forces must be considered.\n\nThe Reynolds number can be further simplified if we use the kinematic viscosity nu that is equal to the dynamic viscosity divided by the density:\n\n\\(\\LARGE \\nu = \\frac{\\mu}{\\rho} \\)\n\n\\(\\LARGE \\text{Re} = \\frac{V \\, L}{\\nu} \\)\n\nFor some problems, we can divide the Reynolds by the length scale to obtain the Reynolds number per foot Ref . This is given by:\n\n\\(\\LARGE \\text{Re}_f = \\frac{V}{\\nu} \\)\n\nThe Reynolds number per foot (or per meter) is not a non-dimensional number like the Reynolds number. You can determine the Reynolds number per foot using the calculator by specifying the length scale to be 1 foot.\n\nBelow is a JavaScript application to calculate the coefficient of viscosity and the Reynolds number for different altitudes, lengths, and speeds.\n\nPlease note : the simulation below is best viewed on a desktop computer. It may take a few minutes for the simulation to load.\n\nThe Similarity Parameter Calculator was modified in May 2009, by Anthony Vila, a student at Vanderbilt University, during a summer intern session at NASA Glenn.\n\nGeneral Instructions\n\nTo change input values, click on the input box (black on white), backspace over the input value, type in your new value, and hit the Enter key on the keyboard (this sends your new value to the program). You will see the output boxes (yellow on black) change value. You can use either Imperial or Metric units and you can input either the Mach number or the speed by using the menu buttons. Just click on the menu button and click on your selection. The non-dimensional Mach number and Reynolds number are displayed in white on blue boxes.\n\nThe original source code for the simulations is available for users to download at the BGA Simulations on GitHub .",
+  "content_hash": "0ce824be95a3b47b8a0052165f1a72f00192943582999ab8475044c54d504d29",
+  "crawl_timestamp": "2026-05-30T23:49:47.476967+00:00",
+  "document_id": "nasa_bga_spcal",
+  "equations": [
+    "\\(\\LARGE \\text{Re} = \\frac{\\rho \\, V \\, \\frac{dV}{dx}}{\\mu \\, \\frac{d^2V}{dx^2}} \\)",
+    "\\(\\LARGE \\text{Re} = \\frac{\\rho \\, V \\, \\frac{V}{L}}{\\mu \\, \\frac{V}{L^2}} \\)",
+    "\\(\\LARGE \\text{Re} = \\frac{\\rho \\, V \\, L}{\\mu} \\)",
+    "\\(\\LARGE \\nu = \\frac{\\mu}{\\rho} \\)",
+    "\\(\\LARGE \\text{Re} = \\frac{V \\, L}{\\nu} \\)",
+    "\\(\\LARGE \\text{Re}_f = \\frac{V}{\\nu} \\)"
+  ],
+  "expected_ontology_concepts": [
+    "ReynoldsNumber",
+    "Viscosity",
+    "Density",
+    "Velocity"
+  ],
+  "expected_relations": [
+    "dependsOn",
+    "explains"
+  ],
+  "expected_topics": [
+    "reynolds",
+    "number",
+    "interactive"
+  ],
+  "experiment_scope": "nasa_bga_lessons_in_aerodynamics",
+  "headings": [
+    "Aerodynamic Forces",
+    "Boundary Layer",
+    "Reynolds Number",
+    "General Instructions"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": true,
+  "is_interactive": true,
+  "page_last_updated": "July 17, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_aerodynamic_forces",
+      "text_end": 1008,
+      "text_start": 50,
+      "title": "Aerodynamic Forces"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_boundary_layer",
+      "text_end": 1876,
+      "text_start": 1008,
+      "title": "Boundary Layer"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_reynolds_number",
+      "text_end": 4313,
+      "text_start": 1876,
+      "title": "Reynolds Number"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_general_instructions",
+      "text_end": 4989,
+      "text_start": 4313,
+      "title": "General Instructions"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Lessons in Aerodynamics",
+  "source_type": "nasa_web_educational_page",
+  "title": "Reynolds Number Interactive Simulator",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+  "validation_status": "valid",
+  "warnings": []
+}

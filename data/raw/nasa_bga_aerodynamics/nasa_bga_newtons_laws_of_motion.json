@@ -1,0 +1,153 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "Sir Isaac Newton\u2019s laws of motion explain the relationship between a physical object and the forces acting upon it. Understanding this information provides us with the basis of modern physics.\n\nOn this page:\n\nWhat are Newton\u2019s Laws of Motion?\n\nAn object at rest remains at rest, and an object in motion remains in motion at constant speed and in a straight line unless acted on by an unbalanced force.\n\nThe acceleration of an object depends on the mass of the object and the amount of force applied.\n\nWhenever one object exerts a force on another object, the second object exerts an equal and opposite on the first.\n\nSir Isaac Newton worked in many areas of mathematics and physics. He developed the theories of gravitation in 1666 when he was only 23 years old. In 1686, he presented his three laws of motion in the \u201cPrincipia Mathematica Philosophiae Naturalis.\u201d\n\nBy developing his three laws of motion, Newton revolutionized science. Newton\u2019s laws together with Kepler\u2019s Laws explained why planets move in elliptical orbits rather than in circles.\n\nBelow is a short movie featuring Orville and Wilbur Wright and a discussion about how Newton\u2019s Laws of Motion applied to the flight of their aircraft.\n\nNewton\u2019s First Law: Inertia\n\nAn object at rest remains at rest, and an object in motion remains in motion at constant speed and in a straight line unless acted on by an unbalanced force.\n\nNewton\u2019s first law states that every object will remain at rest or in uniform motion in a straight line unless compelled to change its state by the action of an external force. This tendency to resist changes in a state of motion is inertia . If all the external forces cancel each other out, then there is no net force acting on the object. If there is no net force acting on the object, then the object will maintain a constant velocity.\n\nExamples of inertia involving aerodynamics:\n\nThe motion of an airplane when a pilot changes the throttle setting of an engine.\n\nThe motion of a ball falling down through the atmosphere.\n\nA model rocket being launched up into the atmosphere.\n\nThe motion of a kite when the wind changes.\n\nNewton\u2019s Second Law: Force\n\nThe acceleration of an object depends on the mass of the object and the amount of force applied.\n\nHis second law defines a force to be equal to change in momentum (mass times velocity) per change in time. Momentum is defined to be the mass m of an object times its velocity V .\n\nNewtons second law diagram\n\nLet us assume that we have an airplane at a point \u201c0\u201d defined by its location X 0 and time t 0 . The airplane has a mass m 0 and travels at velocity V 0 . An external force F to the airplane shown above moves it to point \u201c1\u201d. The airplane\u2019s new location is X 1 and time t 1 .\n\nThe mass and velocity of the airplane change during the flight to values m 1 and V1 . Newton\u2019s second law can help us determine the new values of V 1 and m 1 , if we know how big the force F is. Let us just take the difference between the conditions at point \u201c1\u201d and the conditions at point \u201c0\u201d.\n\n\\(\\LARGE F = \\frac{m_1 \\cdot V_1 \u2013 m_0 \\cdot V_0}{t_1 \u2013 t_0} \\)\n\nNewton\u2019s second law talks about changes in momentum (m V). So, at this point, we can\u2019t separate out how much the mass changed and how much the velocity changed. We only know how much product (m V) changed.\n\nLet us assume that the mass stays at a constant value equal to m . This assumption is rather good for an airplane because the only change in mass would be for the fuel burned between point \u201c1\u201d and point \u201c0\u201d. The weight of the fuel is probably small relative to the weight of the rest of the airplane, especially if we only look at small changes in time. If we were discussing the flight of a baseball, then certainly the mass remains a constant. But if we were discussing the flight of a bottle rocket, then the mass does not remain a constant and we can only look at changes in momentum. For a constant mass m , Newton\u2019s second law looks like:\n\n\\(\\LARGE F = \\frac{m \\cdot (V_1 \u2013 V_0)}{t_1 \u2013 t_0} \\)\n\nThe change in velocity divided by the change in time is the definition of the acceleration a . The second law then reduces to the more familiar product of a mass and an acceleration:\n\n\\(\\LARGE F = m \\cdot a \\)\n\nRemember that this relation is only good for objects that have a constant mass. This equation tells us that an object subjected to an external force will accelerate and that the amount of the acceleration is proportional to the size of the force. The amount of acceleration is also inversely proportional to the mass of the object; for equal forces, a heavier object will experience less acceleration than a lighter object. Considering the momentum equation, a force causes a change in velocity; and likewise, a change in velocity generates a force. The equation works both ways.\n\nThe velocity, force, acceleration, and momentum have both a magnitude and a direction associated with them. Scientists and mathematicians call this a vector quantity. The equations shown here are actually vector equations and can be applied in each of the component directions. We have only looked at one direction, and, in general, an object moves in all three directions (up-down, left-right, forward-back).\n\nExample of force involving aerodynamics:\n\nAn aircraft\u2019s motion resulting from aerodynamic forces, aircraft weight, and thrust.\n\nNewton\u2019s Third Law: Action & Reaction\n\nWhenever one object exerts a force on a second object, the second object exerts an equal and opposite force on the first.\n\nHis third law states that for every action (force) in nature there is an equal and opposite reaction . If object A exerts a force on object B, object B also exerts an equal and opposite force on object A. In other words, forces result from interactions.\n\nExamples of action and reaction involving aerodynamics:\n\nThe motion of lift from an airfoil, the air is deflected downward by the airfoil\u2019s action, and in reaction, the wing is pushed upward.\n\nThe motion of a spinning ball, the air is deflected to one side, and the ball reacts by moving in the opposite direction.\n\nThe motion of a jet engine produces thrust and hot exhaust gases flow out the back of the engine, and a thrusting force is produced in the opposite direction.\n\nReview Newton\u2019s Laws of Motion",
+  "content_hash": "b33c2bbcd2bd74c974db2b8001d250b533eb0398836f890ab37689879560885a",
+  "crawl_timestamp": "2026-05-30T23:49:48.838049+00:00",
+  "document_id": "nasa_bga_newtons_laws_of_motion",
+  "equations": [
+    "\\(\\LARGE F = \\frac{m_1 \\cdot V_1 \u2013 m_0 \\cdot V_0}{t_1 \u2013 t_0} \\)",
+    "\\(\\LARGE F = \\frac{m \\cdot (V_1 \u2013 V_0)}{t_1 \u2013 t_0} \\)",
+    "\\(\\LARGE F = m \\cdot a \\)"
+  ],
+  "expected_ontology_concepts": [
+    "Falling",
+    "Objects",
+    "Newton",
+    "S"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "falling",
+    "objects",
+    "newton",
+    "s",
+    "first",
+    "law"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "What are Newton\u2019s Laws of Motion?",
+    "Newton\u2019s First Law: Inertia",
+    "An object at rest remains at rest, and an object in motion remains in motion at constant speed and in a straight line unless acted on by an unbalanced force.",
+    "Examples of inertia involving aerodynamics:",
+    "Newton\u2019s Second Law: Force",
+    "The acceleration of an object depends on the mass of the object and the amount of force applied.",
+    "Example of force involving aerodynamics:",
+    "Newton\u2019s Third Law: Action & Reaction",
+    "Whenever one object exerts a force on a second object, the second object exerts an equal and opposite force on the first.",
+    "Examples of action and reaction involving aerodynamics:",
+    "Review Newton\u2019s Laws of Motion"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "June 27, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_what_are_newton_s_laws_of_motion",
+      "text_end": 1204,
+      "text_start": 209,
+      "title": "What are Newton\u2019s Laws of Motion?"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_newton_s_first_law_inertia",
+      "text_end": 1233,
+      "text_start": 1204,
+      "title": "Newton\u2019s First Law: Inertia"
+    },
+    {
+      "level": 4,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_an_object_at_rest_remains_at_rest_and_an_object_in_motion_remains_in_motion_at_constant_speed_and_in_a_straight_line_unless_acted_on_by_an_unbalanced_force",
+      "text_end": 1833,
+      "text_start": 244,
+      "title": "An object at rest remains at rest, and an object in motion remains in motion at constant speed and in a straight line unless acted on by an unbalanced force."
+    },
+    {
+      "level": 3,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_examples_of_inertia_involving_aerodynamics",
+      "text_end": 2120,
+      "text_start": 1833,
+      "title": "Examples of inertia involving aerodynamics:"
+    },
+    {
+      "level": 2,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_newton_s_second_law_force",
+      "text_end": 2148,
+      "text_start": 2120,
+      "title": "Newton\u2019s Second Law: Force"
+    },
+    {
+      "level": 4,
+      "order": 5,
+      "parent_id": null,
+      "section_id": "section_05_the_acceleration_of_an_object_depends_on_the_mass_of_the_object_and_the_amount_of_force_applied",
+      "text_end": 5205,
+      "text_start": 403,
+      "title": "The acceleration of an object depends on the mass of the object and the amount of force applied."
+    },
+    {
+      "level": 3,
+      "order": 6,
+      "parent_id": null,
+      "section_id": "section_06_example_of_force_involving_aerodynamics",
+      "text_end": 5333,
+      "text_start": 5205,
+      "title": "Example of force involving aerodynamics:"
+    },
+    {
+      "level": 2,
+      "order": 7,
+      "parent_id": null,
+      "section_id": "section_07_newton_s_third_law_action_reaction",
+      "text_end": 5372,
+      "text_start": 5333,
+      "title": "Newton\u2019s Third Law: Action & Reaction"
+    },
+    {
+      "level": 4,
+      "order": 8,
+      "parent_id": null,
+      "section_id": "section_08_whenever_one_object_exerts_a_force_on_a_second_object_the_second_object_exerts_an_equal_and_opposite_force_on_the_first",
+      "text_end": 5750,
+      "text_start": 5372,
+      "title": "Whenever one object exerts a force on a second object, the second object exerts an equal and opposite force on the first."
+    },
+    {
+      "level": 3,
+      "order": 9,
+      "parent_id": null,
+      "section_id": "section_09_examples_of_action_and_reaction_involving_aerodynamics",
+      "text_end": 6226,
+      "text_start": 5750,
+      "title": "Examples of action and reaction involving aerodynamics:"
+    },
+    {
+      "level": 2,
+      "order": 10,
+      "parent_id": null,
+      "section_id": "section_10_review_newton_s_laws_of_motion",
+      "text_end": 6256,
+      "text_start": 6226,
+      "title": "Review Newton\u2019s Laws of Motion"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Object Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Newton\u2019s Laws of Motion",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/newtons-laws-of-motion/",
+  "validation_status": "valid",
+  "warnings": []
+}

@@ -1,0 +1,658 @@
+{
+  "claim_policy": "Proposal artifact only; curated ontology is not replaced automatically.",
+  "classes": [
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "DynamicPressure",
+      "concept": "DynamicPressure",
+      "include_now": true,
+      "layer": "A_current_core_should_cover",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_dynamic_pressure",
+          "matched_terms": "dynamic pressure",
+          "title": "Dynamic Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "Velocity",
+      "concept": "Velocity",
+      "include_now": true,
+      "layer": "A_current_core_should_cover",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_aerodynamic_center",
+          "matched_terms": "velocity, speed",
+          "title": "Aerodynamic Center",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+        },
+        {
+          "document_id": "nasa_bga_aerodynamic_forces",
+          "matched_terms": "velocity",
+          "title": "Aerodynamic Forces",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+        },
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "velocity, speed",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "Thrust",
+      "concept": "Thrust",
+      "include_now": true,
+      "layer": "A_current_core_should_cover",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_mass_flow_rate",
+          "matched_terms": "thrust",
+          "title": "Mass Flow Rate",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "Weight",
+      "concept": "Weight",
+      "include_now": true,
+      "layer": "A_current_core_should_cover",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_aerodynamic_center",
+          "matched_terms": "weight",
+          "title": "Aerodynamic Center",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "weight",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "CenterOfPressure",
+      "concept": "CenterOfPressure",
+      "include_now": true,
+      "layer": "A_current_core_should_cover",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_aerodynamic_center",
+          "matched_terms": "center of pressure",
+          "title": "Aerodynamic Center",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+        },
+        {
+          "document_id": "nasa_bga_aerodynamic_forces",
+          "matched_terms": "center of pressure",
+          "title": "Aerodynamic Forces",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "center of pressure",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "LiftCoefficient",
+      "concept": "LiftCoefficient",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "lift coefficient",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_dynamic_pressure",
+          "matched_terms": "lift coefficient",
+          "title": "Dynamic Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "DragCoefficient",
+      "concept": "DragCoefficient",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "drag coefficient",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_dynamic_pressure",
+          "matched_terms": "drag coefficient",
+          "title": "Dynamic Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "ReynoldsNumber",
+      "concept": "ReynoldsNumber",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "reynolds number",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_spcal",
+          "matched_terms": "reynolds number",
+          "title": "Reynolds Number Interactive Simulator",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "AerodynamicCenter",
+      "concept": "AerodynamicCenter",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_aerodynamic_center",
+          "matched_terms": "aerodynamic center",
+          "title": "Aerodynamic Center",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "aerodynamic center",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "Streamline",
+      "concept": "Streamline",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_aerodynamic_forces",
+          "matched_terms": "streamline",
+          "title": "Aerodynamic Forces",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+        },
+        {
+          "document_id": "nasa_bga_definition_of_streamlines",
+          "matched_terms": "streamline",
+          "title": "Definition of Streamlines",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "MassFlowRate",
+      "concept": "MassFlowRate",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_mass_flow_rate",
+          "matched_terms": "mass flow, mass flow rate",
+          "title": "Mass Flow Rate",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "Compressibility",
+      "concept": "Compressibility",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "compressibility",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "compressibility",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        },
+        {
+          "document_id": "nasa_bga_mass_flow_rate",
+          "matched_terms": "compressibility",
+          "title": "Mass Flow Rate",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "Viscosity",
+      "concept": "Viscosity",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "viscosity, viscous",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "viscosity",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        },
+        {
+          "document_id": "nasa_bga_dynamic_pressure",
+          "matched_terms": "viscous",
+          "title": "Dynamic Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "SurfaceArea",
+      "concept": "SurfaceArea",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_aerodynamic_center",
+          "matched_terms": "surface area",
+          "title": "Aerodynamic Center",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "surface area",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        },
+        {
+          "document_id": "nasa_bga_dynamic_pressure",
+          "matched_terms": "surface area",
+          "title": "Dynamic Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    },
+    {
+      "alias_target": "",
+      "class_or_entity_candidate": "EquationVariable",
+      "concept": "EquationVariable",
+      "include_now": false,
+      "layer": "B_nasa_extension_candidates",
+      "ontology_change_required": true,
+      "rationale": "Covered or candidate because it appears in NASA aerodynamics learning pages.",
+      "relation_candidates": [
+        "dependsOn",
+        "hasEquation",
+        "hasCoefficient",
+        "explains",
+        "describesEffect"
+      ],
+      "risk_level": "learning",
+      "source_examples": [
+        {
+          "document_id": "nasa_bga_aerodynamic_forces",
+          "matched_terms": "equation",
+          "title": "Aerodynamic Forces",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+        },
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "equation",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "equation",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        }
+      ],
+      "status": "candidate_new_class"
+    }
+  ],
+  "metadata": {
+    "active_ontology_modified": false,
+    "classes_total": 15,
+    "external_aviation_expert_certified": false,
+    "human_review": false,
+    "properties_total": 5,
+    "proposal_path": "data/ontology/proposals/nasa_aerodynamics_extension.proposal.ttl",
+    "status": "proposed_only"
+  },
+  "properties": [
+    {
+      "matched_pages": [
+        {
+          "document_id": "nasa_bga_aerodynamic_center",
+          "matched_terms": "depends on",
+          "title": "Aerodynamic Center",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+        },
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "depends on",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "depends on",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        },
+        {
+          "document_id": "nasa_bga_dynamic_pressure",
+          "matched_terms": "depends on",
+          "title": "Dynamic Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+        },
+        {
+          "document_id": "nasa_bga_mass_flow_rate",
+          "matched_terms": "depends on",
+          "title": "Mass Flow Rate",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+        }
+      ],
+      "property_candidate": "dependsOn",
+      "status": "candidate_property_not_auto_added"
+    },
+    {
+      "matched_pages": [
+        {
+          "document_id": "nasa_bga_aerodynamic_forces",
+          "matched_terms": "equation, equals",
+          "title": "Aerodynamic Forces",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+        },
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "equation, equals",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "equation",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        },
+        {
+          "document_id": "nasa_bga_definition_of_streamlines",
+          "matched_terms": "equation",
+          "title": "Definition of Streamlines",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+        },
+        {
+          "document_id": "nasa_bga_dynamic_pressure",
+          "matched_terms": "equation",
+          "title": "Dynamic Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+        }
+      ],
+      "property_candidate": "hasEquation",
+      "status": "candidate_property_not_auto_added"
+    },
+    {
+      "matched_pages": [
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "coefficient",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_dynamic_pressure",
+          "matched_terms": "coefficient",
+          "title": "Dynamic Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+        },
+        {
+          "document_id": "nasa_bga_spcal",
+          "matched_terms": "coefficient",
+          "title": "Reynolds Number Interactive Simulator",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+        }
+      ],
+      "property_candidate": "hasCoefficient",
+      "status": "candidate_property_not_auto_added"
+    },
+    {
+      "matched_pages": [
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "describes",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        }
+      ],
+      "property_candidate": "explains",
+      "status": "candidate_property_not_auto_added"
+    },
+    {
+      "matched_pages": [
+        {
+          "document_id": "nasa_bga_aerodynamic_center",
+          "matched_terms": "results in",
+          "title": "Aerodynamic Center",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+        },
+        {
+          "document_id": "nasa_bga_boundary_layer",
+          "matched_terms": "effect, affect, causes",
+          "title": "Boundary Layer",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+        },
+        {
+          "document_id": "nasa_bga_center_of_pressure",
+          "matched_terms": "effect",
+          "title": "Center of Pressure",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+        },
+        {
+          "document_id": "nasa_bga_mass_flow_rate",
+          "matched_terms": "effect",
+          "title": "Mass Flow Rate",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+        },
+        {
+          "document_id": "nasa_bga_spcal",
+          "matched_terms": "effect",
+          "title": "Reynolds Number Interactive Simulator",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+        }
+      ],
+      "property_candidate": "describesEffect",
+      "status": "candidate_property_not_auto_added"
+    }
+  ]
+}

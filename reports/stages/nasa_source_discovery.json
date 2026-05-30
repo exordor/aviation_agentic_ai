@@ -1,0 +1,714 @@
+{
+  "by_section": {
+    "Aircraft Forces": {
+      "covered_by_manifest": 15,
+      "discovered_unique_urls": 15,
+      "missing_from_manifest": 0
+    },
+    "Aircraft Motion": {
+      "covered_by_manifest": 9,
+      "discovered_unique_urls": 9,
+      "missing_from_manifest": 0
+    },
+    "Airplane Parts": {
+      "covered_by_manifest": 12,
+      "discovered_unique_urls": 12,
+      "missing_from_manifest": 0
+    },
+    "Drag": {
+      "covered_by_manifest": 9,
+      "discovered_unique_urls": 9,
+      "missing_from_manifest": 0
+    },
+    "Gliders": {
+      "covered_by_manifest": 8,
+      "discovered_unique_urls": 8,
+      "missing_from_manifest": 0
+    },
+    "Lessons in Aerodynamics": {
+      "covered_by_manifest": 8,
+      "discovered_unique_urls": 8,
+      "missing_from_manifest": 0
+    },
+    "Lift": {
+      "covered_by_manifest": 14,
+      "discovered_unique_urls": 14,
+      "missing_from_manifest": 0
+    },
+    "Object Motion": {
+      "covered_by_manifest": 9,
+      "discovered_unique_urls": 9,
+      "missing_from_manifest": 0
+    },
+    "Thrust": {
+      "covered_by_manifest": 2,
+      "discovered_unique_urls": 2,
+      "missing_from_manifest": 0
+    },
+    "Weight": {
+      "covered_by_manifest": 4,
+      "discovered_unique_urls": 4,
+      "missing_from_manifest": 0
+    }
+  },
+  "claim_policy": "The current NASA experiment subset is smaller than the collected corpus. This report prevents overclaiming the subset as the full NASA BGA landing page.",
+  "covered_links": [
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lessons in Aerodynamics",
+      "title": "Aerodynamic Forces",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lessons in Aerodynamics",
+      "title": "Dynamic Pressure",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lessons in Aerodynamics",
+      "title": "Center of Pressure",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lessons in Aerodynamics",
+      "title": "Aerodynamic Center",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Lessons in Aerodynamics",
+      "title": "Reynolds Number Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lessons in Aerodynamics",
+      "title": "Boundary Layer",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lessons in Aerodynamics",
+      "title": "Mass Flow Rate",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lessons in Aerodynamics",
+      "title": "Definition of Streamlines",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "DropSim Interactive Simulator",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drop-simulator/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "Basic Object Motion",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/basic-object-motion/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "Object Motion Due to a Side Force",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/object-motion-due-to-a-side-force/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "Ballistic Flight Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/fltcalc/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "Falling Objects \u2013 Newton\u2019s First Law",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/newtons-laws-of-motion/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "Motion of Free Falling Object",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/motion-of-free-falling-object/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "Free Fall without Air Resistance",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/free-fall-without-air-resistance/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "Falling Object with Air Resistance",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/falling-object-with-air-resistance/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Object Motion",
+      "title": "Terminal Velocity Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/termvel/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "RangeGames Interactive Simulator",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/enginesimr/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "Simplified Aircraft Motion",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/simplified-aircraft-motion/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "Aircraft Motion \u2013 Newton\u2019s Laws of Motion",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-motion-newtons-first-law/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "Aircraft Translations",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-translations/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "Aircraft Rotations",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-rotations/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "Banking Turns",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/banking-turns/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "Range \u2013 Constant Velocity",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/range-constant-velocity/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "Maximum Flight Time",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/maximum-flight-time/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Motion",
+      "title": "Range Summary",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/range-summary/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Airplane Parts and Function",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/airplane-parts-function/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Fuselage",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/fuselage/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Turbine Engines",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/turbine-engines/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Wing Geometry Definitions Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/wing-geometry-interactive/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Winglets",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/winglets/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Elevator Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-elevator-interactive/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Ailerons",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/ailerons/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Rudder Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/rudder-interactive/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Spoilers Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spoilers-interactive/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Flaps and Slats Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/flaps-and-slats/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Stabilator Animation",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/stablator-interacxtive-simulator/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Airplane Parts",
+      "title": "Pitot-Static Tube \u2013 Speedometer",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/pitot-static-tube-speedometer/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Four Forces on an Airplane",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/four-forces-on-an-airplane/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "What is Weight?",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-weight/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "What is Lift?",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-lift/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "What is Drag?",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-drag/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "What is Thrust?",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-thrust/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Lift to Drag Ratio",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-to-drag-ratio/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Thrust to Weight Ratio",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/thrust-to-weight-ratio/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Excess Thrust (Thrust \u2013 Drag)",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/excess-thrust-thrust-drag/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Forces in a Climb",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/forces-in-a-climb/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Vectored Thrust",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/vectored-thrust/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Airplane Cruise \u2013 Balanced Forces",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/airplane-cruise-balanced-forces/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Trimmed Aircraft",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/trimmed-aircraft/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Momentum Effects",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/momentum-effects/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Density Effects Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilden/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Aircraft Forces",
+      "title": "Velocity Effects Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilvel/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Thrust",
+      "title": "EngineSim Interactive Simulator",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/enginesimu/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Thrust",
+      "title": "Thrust Equation",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/thrust-force/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Weight",
+      "title": "Determining Aircraft Weight",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/determining-aircraft-weight/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Weight",
+      "title": "Center of Gravity",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-gravity/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Weight",
+      "title": "Aircraft Center of Gravity",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-center-of-gravity/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Weight",
+      "title": "Weight Equation",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/weight-equation/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Student Airfoil Interactive Simulator",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilsimstudent/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Bernoulli and Newton",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/bernoulli-and-newton/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Objects with Lift",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilobj/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Shed Vorticity",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/shed-vorticity/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Equal Transit Theory",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilw1/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Skipping Stone Theory",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilw2/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Venturi Theory",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/venturi-theory/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Factors That Affect Lift",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/factors-that-affect-lift/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Shape Effects on Lift",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilshape/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Size Effects on Lift",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/effect-of-size-on-lift/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Inclination Effects on Lift",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilinc/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Downwash Effects on Lift",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/downwash-effects-on-lift/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Lift Equation",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-equation/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Lift",
+      "title": "Lift Coefficient",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-coefficient/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Factors That Affect Drag",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/factors-that-affect-drag/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Shape Effects on Drag",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/shape-effects-on-drag/"
+    },
+    {
+      "is_interactive": true,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Drag on a Sphere\u2026Animated",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-on-a-sphere/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Size Effects on Drag",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/size-effects-on-drag/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Inclination Effects on Drag",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/inclination-effects-on-drag/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Drag Measurement",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-measurement/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Induced Drag Coefficient",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/induced-drag-coefficient/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Drag Equation",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Drag",
+      "title": "Drag Coefficient",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-coefficient/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Gliders",
+      "title": "Gliders",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/gliders/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Gliders",
+      "title": "Paper Airplanes Plans",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/paper-airplanes-plans/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Gliders",
+      "title": "Fun with Gliders",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/fun-with-gliders/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Gliders",
+      "title": "Space Shuttle as a Glider",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/space-shuttle-as-a-glider/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Gliders",
+      "title": "Three Forces on a Glider",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/three-forces-on-a-glider/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Gliders",
+      "title": "Glide Angle",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/glide-angle/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Gliders",
+      "title": "Vector Balance of Forces \u2013 Glider",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/vector-balance-of-forces-glider/"
+    },
+    {
+      "is_interactive": false,
+      "manifest_status": "covered",
+      "section": "Gliders",
+      "title": "Glider Trajectory Problem",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/glider-trajectory-problem/"
+    }
+  ],
+  "duplicate_url_entries": [
+    {
+      "is_interactive": true,
+      "section": "Object Motion",
+      "title": "Flight with Drag Interactive",
+      "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/fltcalc/"
+    }
+  ],
+  "manifest_only_urls": [],
+  "metadata": {
+    "coverage_rate": 1.0,
+    "covered_unique_urls_total": 90,
+    "discovered_links_total": 91,
+    "discovered_unique_urls_total": 90,
+    "experiment_subset_section": "Lessons in Aerodynamics",
+    "external_aviation_expert_certified": false,
+    "human_review": false,
+    "interactive_unique_urls_total": 16,
+    "landing_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/learn-about-aerodynamics/",
+    "manifest_only_urls_total": 0,
+    "manifest_path": "data/sources/nasa_bga_aerodynamics_sources.yaml",
+    "manifest_sources_total": 90,
+    "missing_unique_urls_total": 0,
+    "operational_readiness_claimed": false,
+    "selection_status": "full_landing_page_collection_with_aerodynamics_experiment_subset"
+  },
+  "missing_links": []
+}

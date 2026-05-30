@@ -8,10 +8,12 @@ from aviation_agentic_ai.cli_index import index
 from aviation_agentic_ai.cli_kg import kg
 from aviation_agentic_ai.cli_ontology import ontology
 from aviation_agentic_ai.cli_query import query
+from aviation_agentic_ai.cli_source import source_group
 from aviation_agentic_ai.cli_report_benchmark import register_benchmark_report_commands
 from aviation_agentic_ai.cli_report_chunking import register_chunking_report_commands
 from aviation_agentic_ai.cli_report_evaluation import register_evaluation_report_commands
 from aviation_agentic_ai.cli_report_llm import register_llm_report_commands
+from aviation_agentic_ai.cli_report_nasa import register_nasa_report_commands
 from aviation_agentic_ai.cli_report_stage import register_stage_report_commands
 from aviation_agentic_ai.cli_report_thesis import register_thesis_report_commands
 from aviation_agentic_ai.cli_report_web import register_web_report_commands
@@ -30,6 +32,7 @@ main.add_command(query)
 main.add_command(kg)
 main.add_command(cqs)
 main.add_command(ontology)
+main.add_command(source_group)
 
 
 @main.group()
@@ -42,6 +45,7 @@ register_thesis_report_commands(report)
 register_evaluation_report_commands(report)
 register_benchmark_report_commands(report)
 register_llm_report_commands(report)
+register_nasa_report_commands(report)
 
 
 register_web_report_commands(report)

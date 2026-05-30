@@ -29,6 +29,15 @@
 | `chunking_topk_sensitivity_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |
 | `chunking_category_analysis_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |
 | `chunking_failure_cards_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval, failure_analysis | False | False |
+| `nasa_source_discovery` | True | nasa_bga_aerodynamics_full_landing_page_manifest | n/a | source_expansion, claim_safety | False | False |
+| `nasa_source_ingestion` | True | nasa_bga_aerodynamics_full_corpus | n/a | source_expansion | False | False |
+| `nasa_source_validation` | True | nasa_bga_aerodynamics_full_corpus | n/a | source_expansion, claim_safety | False | False |
+| `nasa_chunking_summary` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, retrieval | False | False |
+| `ontology_boundary_nasa` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, ontology_kg | False | False |
+| `nasa_kg_validation` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, ontology_kg | False | False |
+| `nasa_benchmark_summary` | True | nasa_bga_lessons_seed_50 | 50 | source_expansion, benchmark_validation | False | False |
+| `cross_source_ontology_validation` | True | faa_phak_nasa_cross_source_seed_30 | 30 | source_expansion, ontology_kg | False | False |
+| `multisource_retrieval_smoke` | True | faa_phak_nasa_smoke_35 | 25 | source_expansion, retrieval | False | False |
 | `deepseek_v4pro_implementation_remediation` | True | not_dataset_specific | n/a | implementation_review, claim_safety | False | False |
 | `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False | False |
 | `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False | False |
@@ -45,6 +54,7 @@
 | RQ2 evidence traceability | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation | KG evidence coverage, citation completeness, citation precision, citation recall | moderate | Answer-level LLM-judge evaluation must remain separate from deterministic metrics. |
 | RQ3 graph evidence vs vector sufficiency | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, chunking_comparison_benchmark_v2, chunking_comparison_benchmark_v2_budget, chunking_topk_sensitivity_benchmark_v2, chunking_category_analysis_benchmark_v2 | Recall@5, Recall@10, MRR@5, NDCG@10, Path Recall@5, Path Precision@5, Fixed-budget chunking Recall@5 | moderate | Path relevance is heuristic or model-reviewed, not human-validated. |
 | RQ4 safety-aware abstention | sufficiency_evaluation, robustness_evaluation | Abstention Accuracy, False Answer Rate, False Abstention Rate, Risk Category Accuracy | moderate | Sufficiency can create false abstentions on supported questions. |
+| RQ5 source generalization | nasa_source_discovery, nasa_source_ingestion, nasa_source_validation, nasa_chunking_summary, ontology_boundary_nasa, nasa_kg_validation, nasa_benchmark_summary, cross_source_ontology_validation, multisource_retrieval_smoke | NASA landing-page URL coverage, full-corpus valid page count, Lessons in Aerodynamics experiment page count, candidate ontology additions, NASA KG provenance/evidence validation, multi-source lexical smoke Recall@5 | provisional | NASA labels and KG triples are deterministic scaffolds; no human or external aviation expert certification is present. |
 
 ## Dataset Usage Matrix
 
@@ -56,6 +66,8 @@
 | benchmark v2 chunking experiment | chunking strategy comparison under top-k, fixed-budget, and category views | retrieval_design_diagnostic | partial_benchmark_specific | implementation-maturity labels required; top-k context volume differs by chunk size |
 | benchmark reviewed subset 60 | model-based review scaffold for high-value labels | llm_review_scaffold | pending_llm_review | review scaffold only; no human review or external aviation expert certification |
 | LLM review artifacts | model-based benchmark, triple, graph-path, answer, and consistency review | llm_judge | internal_llm_review_only | model-based internal review; no human or external expert certification |
+| NASA BGA full landing-page corpus | second authoritative educational source collection from NASA Glenn BGA | source_collection | source_collection_only | collected as educational web evidence; interactive pages may expose limited text |
+| NASA Lessons in Aerodynamics subset | source-expansion experiment for ontology boundary, chunking, KG, and seed QA | source_expansion_experiment | partial_source_generalization_evidence | internal educational-source experiment; no external aviation certification or operational readiness |
 | answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | stratified subset; deterministic heuristic scores unless annotated |
 | triple semantic review sample | KG semantic correctness review template | llm_review_pending | partial | review fields pending until model-based review is run; no expert correctness claimed |
 
@@ -72,6 +84,7 @@
 | answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=45, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |
 | chunking benchmark v2 | Top-k best=structure_aware_large (Recall@5=0.85), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |
 | KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |
+| NASA source expansion | Status=full_corpus_collected_aerodynamics_subset_experiment_ready, discovered URLs=90, covered URLs=90, corpus pages=90, valid pages=89, experiment valid pages=8/8, KG triples=134, FAA+NASA smoke Recall@5=0.64 |
 | triple semantic review | Sample=100, reviewed=0, needs_review=100 |
 | LLM review status | Benchmark reviewed=6, triple evidence support=0.1667, graph path relevance=0.3333, answer judge correctness=None, human review=false |
 | implementation review remediation | Status=full_quality_gates_passed, implemented=6, verified already fixed=2, deferred=['I6', 'NF3'], metrics changed=False |

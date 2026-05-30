@@ -100,6 +100,33 @@
       ]
     },
     {
+      "can_support_thesis_main_claim": "source_collection_only",
+      "dataset": "NASA BGA full landing-page corpus",
+      "evidence_role": "source_collection",
+      "limitations": "collected as educational web evidence; interactive pages may expose limited text",
+      "purpose": "second authoritative educational source collection from NASA Glenn BGA",
+      "used_in_reports": [
+        "nasa_source_discovery",
+        "nasa_source_ingestion",
+        "nasa_source_validation"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "partial_source_generalization_evidence",
+      "dataset": "NASA Lessons in Aerodynamics subset",
+      "evidence_role": "source_expansion_experiment",
+      "limitations": "internal educational-source experiment; no external aviation certification or operational readiness",
+      "purpose": "source-expansion experiment for ontology boundary, chunking, KG, and seed QA",
+      "used_in_reports": [
+        "nasa_chunking_summary",
+        "ontology_boundary_nasa",
+        "nasa_kg_validation",
+        "nasa_benchmark_summary",
+        "cross_source_ontology_validation",
+        "multisource_retrieval_smoke"
+      ]
+    },
+    {
       "can_support_thesis_main_claim": "partial",
       "dataset": "answer-eval subset",
       "evidence_role": "pilot",
@@ -383,6 +410,122 @@
       "present": true,
       "questions_count": "n/a",
       "report_name": "chunking_failure_cards_benchmark_v2"
+    },
+    {
+      "dataset_used": "nasa_bga_aerodynamics_full_landing_page_manifest",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "claim_safety"
+      ],
+      "path": "reports/stages/nasa_source_discovery.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_source_discovery"
+    },
+    {
+      "dataset_used": "nasa_bga_aerodynamics_full_corpus",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion"
+      ],
+      "path": "reports/stages/nasa_source_ingestion.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_source_ingestion"
+    },
+    {
+      "dataset_used": "nasa_bga_aerodynamics_full_corpus",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "claim_safety"
+      ],
+      "path": "reports/stages/nasa_source_validation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_source_validation"
+    },
+    {
+      "dataset_used": "nasa_bga_lessons_in_aerodynamics_subset",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "retrieval"
+      ],
+      "path": "reports/stages/nasa_chunking_summary.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_chunking_summary"
+    },
+    {
+      "dataset_used": "nasa_bga_lessons_in_aerodynamics_subset",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "ontology_kg"
+      ],
+      "path": "reports/stages/ontology_boundary_nasa.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "ontology_boundary_nasa"
+    },
+    {
+      "dataset_used": "nasa_bga_lessons_in_aerodynamics_subset",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "ontology_kg"
+      ],
+      "path": "reports/stages/nasa_kg_validation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_kg_validation"
+    },
+    {
+      "dataset_used": "nasa_bga_lessons_seed_50",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "benchmark_validation"
+      ],
+      "path": "reports/stages/nasa_benchmark_summary.json",
+      "present": true,
+      "questions_count": 50,
+      "report_name": "nasa_benchmark_summary"
+    },
+    {
+      "dataset_used": "faa_phak_nasa_cross_source_seed_30",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "ontology_kg"
+      ],
+      "path": "reports/stages/cross_source_ontology_validation.json",
+      "present": true,
+      "questions_count": 30,
+      "report_name": "cross_source_ontology_validation"
+    },
+    {
+      "dataset_used": "faa_phak_nasa_smoke_35",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "retrieval"
+      ],
+      "path": "reports/stages/multisource_retrieval_smoke.json",
+      "present": true,
+      "questions_count": 25,
+      "report_name": "multisource_retrieval_smoke"
     },
     {
       "dataset_used": "not_dataset_specific",
@@ -685,6 +828,71 @@
         "records": 6
       }
     },
+    "nasa_source_expansion": {
+      "benchmark_seed": {
+        "external_aviation_expert_certified": false,
+        "labels_total": 50,
+        "review_status": "llm_or_project_seed_not_expert_certified"
+      },
+      "chunked_corpus_pages": 90,
+      "chunked_experiment_pages": 8,
+      "chunking_distribution": {
+        "embedding_semantic": 49,
+        "fixed_large": 32,
+        "recursive_medium": 47,
+        "structure_aware_large": 32
+      },
+      "chunking_strategies": [
+        "structure_aware_large",
+        "recursive_medium",
+        "fixed_large",
+        "embedding_semantic"
+      ],
+      "claim_policy": "NASA source integration supports internal source-diversity evaluation, not external aviation certification or operational readiness.",
+      "cross_source": {
+        "document_routing_targets": [
+          "06_phak_ch4_0",
+          "nasa_bga_aerodynamics"
+        ],
+        "labels_total": 30
+      },
+      "experiment_invalid_pages": 0,
+      "experiment_pages": 8,
+      "experiment_subset": "Lessons in Aerodynamics",
+      "experiment_valid_pages": 8,
+      "ingested_pages": 90,
+      "invalid_pages": 1,
+      "kg_dry_run": {
+        "evidence_in_source_rate": 1.0,
+        "provenance_completeness": 1.0,
+        "triples_total": 134,
+        "valid_triples": 134
+      },
+      "landing_page_discovery": {
+        "coverage_rate": 1.0,
+        "covered_unique_urls": 90,
+        "discovered_unique_urls": 90,
+        "experiment_subset_section": "Lessons in Aerodynamics",
+        "missing_unique_urls": 0,
+        "selection_status": "full_landing_page_collection_with_aerodynamics_experiment_subset"
+      },
+      "multisource_smoke": {
+        "faa_plus_nasa_recall_at_5": 0.64,
+        "faa_plus_nasa_source_routing_accuracy": 0.6,
+        "labels_total": 25,
+        "status": "smoke_experiment"
+      },
+      "ontology_boundary": {
+        "alias_candidates": 4,
+        "class_candidates": 15,
+        "existing_coverage": 13,
+        "high_risk_operational_detections": 0,
+        "property_candidates": 5
+      },
+      "source_type": "nasa_web_educational_page",
+      "status": "full_corpus_collected_aerodynamics_subset_experiment_ready",
+      "valid_pages": 89
+    },
     "robustness": {
       "abstention_correctness": 1.0,
       "advisory_boundary_violation_count": 0,
@@ -904,6 +1112,31 @@
       ],
       "remaining_gaps": "Sufficiency can create false abstentions on supported questions.",
       "rq": "RQ4 safety-aware abstention"
+    },
+    {
+      "claim_strength": "provisional",
+      "current_result_summary": "NASA Glenn BGA is collected as a full landing-page corpus while the current experiment uses the Lessons in Aerodynamics subset. Status=full_corpus_collected_aerodynamics_subset_experiment_ready.",
+      "evidence_reports": [
+        "nasa_source_discovery",
+        "nasa_source_ingestion",
+        "nasa_source_validation",
+        "nasa_chunking_summary",
+        "ontology_boundary_nasa",
+        "nasa_kg_validation",
+        "nasa_benchmark_summary",
+        "cross_source_ontology_validation",
+        "multisource_retrieval_smoke"
+      ],
+      "primary_metrics": [
+        "NASA landing-page URL coverage",
+        "full-corpus valid page count",
+        "Lessons in Aerodynamics experiment page count",
+        "candidate ontology additions",
+        "NASA KG provenance/evidence validation",
+        "multi-source lexical smoke Recall@5"
+      ],
+      "remaining_gaps": "NASA labels and KG triples are deterministic scaffolds; no human or external aviation expert certification is present.",
+      "rq": "RQ5 source generalization"
     }
   ],
   "thesis_ready_claim_summary": [

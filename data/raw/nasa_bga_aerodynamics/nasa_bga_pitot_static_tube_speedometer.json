@@ -1,0 +1,80 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nPitot-Static Tube diagram and equations\n\nPitot-Static Tubes\n\nThis page shows a schematic drawing of a pitot-static tube. Pitot-Static tubes , which are also called Prandtl tubes, are used on aircraft as speedometers. The actual tube on the aircraft is around 10 inches (25 centimeters) long with a 1/2-inch (1 centimeter) diameter. Several small holes are drilled around the outside of the tube and a center hole is drilled down the axis of the tube. The outside holes are connected to one side of a device called a pressure transducer . The center hole in the tube is kept separate from the outside holes and is connected to the other side of the transducer. The transducer measures the difference in pressure in the two groups of tubes by measuring the strain in a thin element using an electronic strain gauge.\n\nThe pitot-static tube is mounted on the aircraft, or in a wind tunnel, so that the center tube is always pointed in the direction of the flow and the outside holes are perpendicular to the center tube. On some airplanes the pitot-static tube is put on a longer boom sticking out of the nose of the plane or the wing.\n\nDifference in Static and Total Pressure\n\nSince the outside holes are perpendicular to the direction of flow, these tubes are pressurized by the local random component of the air velocity. The pressure in these tubes is the static pressure (p s ) discussed in Bernoulli\u2019s equation. The center tube, however, is pointed in the direction of travel and is pressurized by both the random and the ordered air velocity. The pressure in this tube is the total pressure (p t ) discussed in Bernoulli\u2019s equation. The pressure transducer measures the difference in total and static pressure which is the dynamic pressure q .\n\nSolve for Velocity\n\nWith the difference in pressures measured and knowing the local value of air density from pressure and temperature measurements, we can use Bernoulli\u2019s equation to give us the velocity. On the graphic, the Greek symbol rho (\u03c1) is used for the air density. Bernoulli\u2019s equation states that the static pressure plus one half the density times the velocity V squared is equal to the total pressure.\n\n\\(\\LARGE p_s+\\frac{1}{2}\u03c1V^2 = p_t\\)\n\nSolving for V:\n\n\\(\\LARGE V^2=\\frac{2(p_t \u2013 p_s)}{\u03c1}\\)\n\nLimitations\n\nThere are some practical limitations to the use of a pitot-static tube:\n\nIf the velocity is low, the difference in pressures is very small and hard to accurately measure with the transducer. Errors in the instrument could be greater than the measurement! So pitot-static tubes don\u2019t work very well for very low velocities.\n\nIf the velocity is very high (supersonic), we\u2019ve violated the assumptions of Bernoulli\u2019s equation and the measurement is wrong again. At the front of the tube, a shock wave appears that will change the total pressure. There are corrections for the shock wave that can be applied to allow us to use pitot-static tubes for high-speed aircraft.\n\nIf the tubes become clogged or pinched, the resulting pressures at the transducer are not the total and static pressures of the external flow. The transducer output is then used to calculate a velocity that is not the actual velocity of the flow. Several years ago, there were reports of icing problems occurring on airliner pitot-static probes. Output from the probes was used as part of the autopilot and flight control system. The solution to the icing problem was to install heaters on the probes to ensure that the probes were not clogged by ice build-up.\n\nNotice \u2013 In using this equation to determine the velocity, we must be very careful and use the proper units of measure. The air density must be specified as mass / volume (kg/m^3 or slug/ft^3) while the pressure is specified as force / area (Pa or lbs/ft^2).",
+  "content_hash": "4467a4f5da2b4a661f07de55eed471e58b4de0ac5baa1fa0beecc61eeefb8762",
+  "crawl_timestamp": "2026-05-30T23:49:52.121400+00:00",
+  "document_id": "nasa_bga_pitot_static_tube_speedometer",
+  "equations": [
+    "\\(\\LARGE p_s+\\frac{1}{2}\u03c1V^2 = p_t\\)",
+    "\\(\\LARGE V^2=\\frac{2(p_t \u2013 p_s)}{\u03c1}\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Pitot",
+    "Static",
+    "Tube",
+    "Speedometer"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "pitot",
+    "static",
+    "tube",
+    "speedometer"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Pitot-Static Tubes",
+    "Difference in Static and Total Pressure",
+    "Solve for Velocity",
+    "Limitations"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "August 13, 2025",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_pitot_static_tubes",
+      "text_end": 1148,
+      "text_start": 56,
+      "title": "Pitot-Static Tubes"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_difference_in_static_and_total_pressure",
+      "text_end": 1763,
+      "text_start": 1148,
+      "title": "Difference in Static and Total Pressure"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_solve_for_velocity",
+      "text_end": 2273,
+      "text_start": 1763,
+      "title": "Solve for Velocity"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_limitations",
+      "text_end": 3773,
+      "text_start": 2273,
+      "title": "Limitations"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Airplane Parts",
+  "source_type": "nasa_web_educational_page",
+  "title": "Pitot - Static Tube - Speedometer",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/pitot-static-tube-speedometer/",
+  "validation_status": "valid",
+  "warnings": []
+}

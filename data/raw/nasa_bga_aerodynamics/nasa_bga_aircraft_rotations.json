@@ -1,0 +1,63 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of an airplane\n\nSince we live in a three dimensional world, it is necessary to control the attitude or orientation of a flying aircraft in all three dimensions. In flight, any aircraft will rotate about its center of gravity, a point which is the average location of the mass of the aircraft. We can define a three dimensional coordinate system through the center of gravity with each axis of this coordinate system perpendicular to the other two axes. We can then define the orientation of the aircraft by the amount of rotation of the parts of the aircraft along these principal axes .\n\nYaw axis\n\nThe yaw axis is defined to be perpendicular to the plane of the wings with its origin at the center of gravity and directed towards the bottom of the aircraft. A yaw motion is a movement of the nose of the aircraft from side to side.\n\nPitch axis\n\nThe pitch axis is perpendicular to the yaw axis and is parallel to the plane of the wings with its origin at the center of gravity and directed towards the right wing tip. A pitch motion is an up or down movement of the nose of the aircraft.\n\nRoll axis\n\nThe roll axis is perpendicular to the other two axes with its origin at the center of gravity, and is directed towards the nose of the aircraft. A rolling motion is an up and down movement of the wing tips of the aircraft.\n\nIn flight, the control surfaces of an aircraft produce aerodynamic forces. These forces are applied at the center of pressure of the control surfaces which are some distance from the aircraft cg and produce torques (or moments) about the principal axes. The torques cause the aircraft to rotate. The elevators produce a pitching moment, the rudder produces a yawing moment, and the ailerons produce a rolling moment. The ability to vary the amount of the force and the moment allows the pilot to maneuver or to trim the aircraft.\n\nThe first aircraft to demonstrate active control about all three axes was the Wright brothers\u2019 1902 glider.",
+  "content_hash": "f0fd48d3d7875e6448ce1a39d1be937e1930591f481001021b43030bbcd448a4",
+  "crawl_timestamp": "2026-05-30T23:49:50.126882+00:00",
+  "document_id": "nasa_bga_aircraft_rotations",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Aircraft",
+    "Rotations"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "aircraft",
+    "rotations"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Yaw axis",
+    "Pitch axis",
+    "Roll axis"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 21, 2022",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_yaw_axis",
+      "text_end": 855,
+      "text_start": 610,
+      "title": "Yaw axis"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_pitch_axis",
+      "text_end": 1110,
+      "text_start": 855,
+      "title": "Pitch axis"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_roll_axis",
+      "text_end": 1983,
+      "text_start": 1110,
+      "title": "Roll axis"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Aircraft Rotations",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-rotations/",
+  "validation_status": "valid",
+  "warnings": []
+}

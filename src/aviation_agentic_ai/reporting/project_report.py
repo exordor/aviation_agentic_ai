@@ -21,6 +21,7 @@ PROJECT_REPORT_SECTIONS = (
     "KG/ABox extraction and validation",
     "Chunking comparison design",
     "Hybrid RAG protocol and layered metrics",
+    "NASA source expansion and ontology boundary validation",
     "Current results and limitations",
     "Advisory assistant boundary",
     "Next work plan",
@@ -412,6 +413,36 @@ def _read_thesis_ready_artifacts(root: Path) -> dict[str, Any]:
         / "reports"
         / "stages"
         / "chunking_category_analysis_benchmark_v2.json",
+        "nasa_source_discovery": root / "reports" / "stages" / "nasa_source_discovery.md",
+        "nasa_source_discovery_json": root / "reports" / "stages" / "nasa_source_discovery.json",
+        "nasa_source_ingestion": root / "reports" / "stages" / "nasa_source_ingestion.md",
+        "nasa_source_ingestion_json": root / "reports" / "stages" / "nasa_source_ingestion.json",
+        "nasa_source_validation": root / "reports" / "stages" / "nasa_source_validation.md",
+        "nasa_source_validation_json": root / "reports" / "stages" / "nasa_source_validation.json",
+        "nasa_chunking_summary": root / "reports" / "stages" / "nasa_chunking_summary.md",
+        "nasa_chunking_summary_json": root / "reports" / "stages" / "nasa_chunking_summary.json",
+        "ontology_boundary_nasa": root / "reports" / "stages" / "ontology_boundary_nasa.md",
+        "ontology_boundary_nasa_json": root / "reports" / "stages" / "ontology_boundary_nasa.json",
+        "nasa_kg_validation": root / "reports" / "stages" / "nasa_kg_validation.md",
+        "nasa_kg_validation_json": root / "reports" / "stages" / "nasa_kg_validation.json",
+        "nasa_benchmark_summary": root / "reports" / "stages" / "nasa_benchmark_summary.md",
+        "nasa_benchmark_summary_json": root / "reports" / "stages" / "nasa_benchmark_summary.json",
+        "cross_source_ontology_validation": root
+        / "reports"
+        / "stages"
+        / "cross_source_ontology_validation.md",
+        "cross_source_ontology_validation_json": root
+        / "reports"
+        / "stages"
+        / "cross_source_ontology_validation.json",
+        "multisource_retrieval_smoke": root
+        / "reports"
+        / "stages"
+        / "multisource_retrieval_smoke.md",
+        "multisource_retrieval_smoke_json": root
+        / "reports"
+        / "stages"
+        / "multisource_retrieval_smoke.json",
         "triple_semantic_review": root / "reports" / "stages" / "triple_semantic_review.md",
         "triple_semantic_review_json": root
         / "reports"
@@ -773,6 +804,7 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
     answer_subset = primary.get("answer_evaluation_benchmark_subset", {})
     chunking = primary.get("chunking_benchmark_v2", {})
     kg = primary.get("kg", {})
+    nasa = primary.get("nasa_source_expansion", {})
     triple = primary.get("triple_semantic_review", {})
     llm_review = primary.get("llm_review_status", {})
     remediation = primary.get("implementation_review_remediation", {})
@@ -871,6 +903,54 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"{robustness.get('false_answer_rate')}, boundary violations="
             f"{robustness.get('advisory_boundary_violation_count')}.",
             "",
+            "## RQ5: NASA source generalization and ontology boundary validation",
+            "",
+            "NASA Glenn Beginners Guide to Aeronautics is used as a second "
+            "authoritative educational source corpus. The landing-page collection "
+            "and the experiment subset are intentionally separated: all discovered "
+            "content pages are collected as the NASA BGA corpus, while the current "
+            "ontology/chunking/KG/RAG experiment uses only the Lessons in Aerodynamics "
+            "subset.",
+            "",
+            "Source discovery: discovered unique URLs="
+            f"{nasa.get('landing_page_discovery', {}).get('discovered_unique_urls')}, "
+            "covered unique URLs="
+            f"{nasa.get('landing_page_discovery', {}).get('covered_unique_urls')}, "
+            "missing unique URLs="
+            f"{nasa.get('landing_page_discovery', {}).get('missing_unique_urls')}, "
+            "coverage rate="
+            f"{nasa.get('landing_page_discovery', {}).get('coverage_rate')}. "
+            f"Collected corpus pages={nasa.get('ingested_pages')}, valid pages="
+            f"{nasa.get('valid_pages')}, invalid pages={nasa.get('invalid_pages')}, "
+            f"experiment pages={nasa.get('experiment_pages')}, experiment valid pages="
+            f"{nasa.get('experiment_valid_pages')}, "
+            f"experiment subset={nasa.get('experiment_subset')}.",
+            "",
+            "NASA boundary evidence: existing ontology coverage="
+            f"{nasa.get('ontology_boundary', {}).get('existing_coverage')}, alias "
+            f"candidates={nasa.get('ontology_boundary', {}).get('alias_candidates')}, "
+            f"class candidates={nasa.get('ontology_boundary', {}).get('class_candidates')}, "
+            f"property candidates={nasa.get('ontology_boundary', {}).get('property_candidates')}, "
+            "high-risk operational detections="
+            f"{nasa.get('ontology_boundary', {}).get('high_risk_operational_detections')}. "
+            "NASA KG dry run: triples="
+            f"{nasa.get('kg_dry_run', {}).get('triples_total')}, valid triples="
+            f"{nasa.get('kg_dry_run', {}).get('valid_triples')}, provenance completeness="
+            f"{nasa.get('kg_dry_run', {}).get('provenance_completeness')}, "
+            "evidence-in-source rate="
+            f"{nasa.get('kg_dry_run', {}).get('evidence_in_source_rate')}.",
+            "",
+            "NASA benchmark and smoke evidence: seed labels="
+            f"{nasa.get('benchmark_seed', {}).get('labels_total')}, review status="
+            f"{nasa.get('benchmark_seed', {}).get('review_status')}, external aviation "
+            "expert certified="
+            f"{nasa.get('benchmark_seed', {}).get('external_aviation_expert_certified')}. "
+            "FAA+NASA smoke Recall@5="
+            f"{nasa.get('multisource_smoke', {}).get('faa_plus_nasa_recall_at_5')}, "
+            "source-routing accuracy="
+            f"{nasa.get('multisource_smoke', {}).get('faa_plus_nasa_source_routing_accuracy')}. "
+            f"Claim policy: {nasa.get('claim_policy')}",
+            "",
             "## Review-dependent evidence status",
             "",
             "Benchmark reviewed subset: labels="
@@ -935,6 +1015,15 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             "- `make reports-core`",
             "- `make reports-main-experiments`",
             "- `make reports-review`",
+            "- `uv run aviation-ai report nasa-source-discovery`",
+            "- `uv run aviation-ai source ingest-nasa`",
+            "- `uv run aviation-ai report nasa-source-validation`",
+            "- `uv run aviation-ai report nasa-chunking-summary --no-semantic-download`",
+            "- `uv run aviation-ai report ontology-boundary-nasa`",
+            "- `uv run aviation-ai report nasa-kg-validation`",
+            "- `uv run aviation-ai report nasa-benchmark-summary`",
+            "- `uv run aviation-ai report cross-source-ontology-validation`",
+            "- `uv run aviation-ai report multisource-retrieval-smoke`",
             "- `make thesis-dashboard`",
             "- `uv run aviation-ai report project --no-ai`",
             "- `uv run aviation-ai report academic-paper --no-ai`",

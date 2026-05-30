@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.utils.io import read_json_document
 from aviation_agentic_ai.utils.text import tokenize_terms
 from aviation_agentic_ai.utils.pdf import extract_pages
 
@@ -948,6 +949,209 @@ def build_chunks(
                 )
             )
     return chunks
+
+
+def _source_section_text(source: dict[str, Any], section: dict[str, Any]) -> str:
+    text = str(source.get("cleaned_text", ""))
+    start = max(0, int(section.get("text_start", 0)))
+    end = int(section.get("text_end", len(text)))
+    if end <= start or start >= len(text):
+        return text
+    return text[start : min(end, len(text))]
+
+
+def _text_source_context_prefix(
+    source: dict[str, Any],
+    section: dict[str, Any],
+) -> str:
+    parts = [
+        f"Source: {source.get('title', source.get('document_id', ''))}",
+        f"document={source.get('document_id', '')}",
+        f"source_type={source.get('source_type', '')}",
+    ]
+    section_title = str(section.get("title", "")).strip()
+    if section_title:
+        parts.append(f"section={section_title}")
+    return "; ".join(part for part in parts if part and not part.endswith("="))
+
+
+def build_chunks_from_text_source(
+    source: dict[str, Any],
+    *,
+    source_path: str | Path,
+    strategy: str = "structure_aware_large",
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+    similarity_fn: SimilarityFn | None = None,
+    embedding_model: str = DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    semantic_download: bool = True,
+) -> list[SourceChunk]:
+    """Build stable section-aware chunks from a normalized text/web source."""
+    if strategy not in CHUNKING_STRATEGIES:
+        raise ValueError(f"Unsupported chunking strategy: {strategy}")
+    document_id = str(source["document_id"])
+    sections = source.get("sections") if isinstance(source.get("sections"), list) else []
+    if not sections:
+        sections = [
+            {
+                "section_id": "section_00_body",
+                "title": source.get("title", "Body"),
+                "order": 0,
+                "text_start": 0,
+                "text_end": len(str(source.get("cleaned_text", ""))),
+            }
+        ]
+    resolved_similarity_fn, semantic_metadata = _resolve_semantic_similarity(
+        strategy,
+        similarity_fn,
+        embedding_model=embedding_model,
+        semantic_download=semantic_download,
+    )
+    chunks: list[SourceChunk] = []
+    for section_index, section in enumerate(sorted(sections, key=lambda item: int(item.get("order", 0)))):
+        section_text = _source_section_text(source, section)
+        if not section_text.strip():
+            continue
+        section_start = max(0, int(section.get("text_start", 0)))
+        section_order = int(section.get("order", section_index))
+        windows, strategy_metadata = _chunk_windows_with_metadata_for_strategy(
+            section_text,
+            strategy=strategy,
+            max_chars=max_chars,
+            overlap_chars=overlap_chars,
+            similarity_fn=resolved_similarity_fn,
+            source_document=document_id,
+            page_number=section_order,
+            embedding_model=embedding_model,
+            semantic_download=semantic_download,
+            semantic_metadata_override=semantic_metadata,
+        )
+        for chunk_index, window in enumerate(windows):
+            chunk_id = f"{document_id}-{strategy}-s{section_order:02d}-c{chunk_index:02d}"
+            token_count = approximate_token_count(str(window["text"]))
+            section_title = str(section.get("title", ""))
+            context_prefix = str(window.get("context_prefix", ""))
+            if strategy == "contextual_prefix" and not context_prefix:
+                context_prefix = _text_source_context_prefix(source, section)
+            metadata = {
+                **strategy_metadata,
+                **dict(window.get("metadata", {})),
+                "document_id": document_id,
+                "source_type": source.get("source_type", ""),
+                "source_url": source.get("url", ""),
+                "title": source.get("title", ""),
+                "section_id": section.get("section_id", ""),
+                "section_title": section_title,
+                "section_index": section_order,
+                "page_last_updated": source.get("page_last_updated", ""),
+                "token_count": token_count,
+            }
+            chunks.append(
+                SourceChunk(
+                    chunk_id=chunk_id,
+                    source_document=document_id,
+                    source_path=project_relative_path(source_path),
+                    page=section_order,
+                    chunk_index=chunk_index,
+                    char_start=section_start + int(window["start"]),
+                    char_end=section_start + int(window["end"]),
+                    text=str(window["text"]),
+                    token_count=token_count,
+                    strategy=strategy,
+                    section=section_title,
+                    parent_chunk_id="",
+                    parent_section="",
+                    parent_page=None,
+                    parent_text="",
+                    context_prefix=context_prefix,
+                    metadata=metadata,
+                )
+            )
+    return chunks
+
+
+def build_chunks_from_source_manifest(
+    sources: list[dict[str, Any]],
+    *,
+    strategy: str = "structure_aware_large",
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+    similarity_fn: SimilarityFn | None = None,
+    embedding_model: str = DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    semantic_download: bool = True,
+) -> list[SourceChunk]:
+    chunks: list[SourceChunk] = []
+    for source in sources:
+        source_path = source.get("_source_path", source.get("url", source.get("document_id", "")))
+        chunks.extend(
+            build_chunks_from_text_source(
+                source,
+                source_path=source_path,
+                strategy=strategy,
+                max_chars=max_chars,
+                overlap_chars=overlap_chars,
+                similarity_fn=similarity_fn,
+                embedding_model=embedding_model,
+                semantic_download=semantic_download,
+            )
+        )
+    return chunks
+
+
+def build_chunks_from_nasa_sources(
+    raw_dir: str | Path,
+    *,
+    strategy: str = "structure_aware_large",
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+    experiment_only: bool = False,
+    similarity_fn: SimilarityFn | None = None,
+    embedding_model: str = DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    semantic_download: bool = True,
+) -> list[SourceChunk]:
+    sources: list[dict[str, Any]] = []
+    for path in sorted(Path(raw_dir).glob("*.json")):
+        payload = read_json_document(path)
+        if isinstance(payload, dict) and payload.get("document_id"):
+            if experiment_only and not bool(payload.get("include_in_experiment", False)):
+                continue
+            payload["_source_path"] = path
+            sources.append(payload)
+    return build_chunks_from_source_manifest(
+        sources,
+        strategy=strategy,
+        max_chars=max_chars,
+        overlap_chars=overlap_chars,
+        similarity_fn=similarity_fn,
+        embedding_model=embedding_model,
+        semantic_download=semantic_download,
+    )
+
+
+def build_nasa_chunk_file(
+    raw_dir: str | Path,
+    output_path: str | Path,
+    *,
+    strategy: str = "structure_aware_large",
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+    experiment_only: bool = False,
+    similarity_fn: SimilarityFn | None = None,
+    embedding_model: str = DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    semantic_download: bool = True,
+) -> tuple[Path, list[SourceChunk]]:
+    chunks = build_chunks_from_nasa_sources(
+        raw_dir,
+        strategy=strategy,
+        max_chars=max_chars,
+        overlap_chars=overlap_chars,
+        experiment_only=experiment_only,
+        similarity_fn=similarity_fn,
+        embedding_model=embedding_model,
+        semantic_download=semantic_download,
+    )
+    path = write_chunks_jsonl(chunks, output_path)
+    return path, chunks
 
 
 def write_chunks_jsonl(chunks: list[SourceChunk], output_path: str | Path) -> Path:

@@ -1,0 +1,76 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of an airfoil\n\nLift\n\nLift depends on the density of the air, the square of the velocity, the air\u2019s viscosity and compressibility, the surface area over which the air flows, the shape of the body, and the body\u2019s inclination to the flow. In general, the dependence on body shape, inclination, air viscosity, and compressibility is very complex.\n\nLift Coefficient\n\nOne way to deal with complex dependencies is to characterize the dependence by a single variable. For lift, this variable is called the lift coefficient, designated \u201cC l .\u201d This allows us to collect all the effects, simple and complex, into a single equation. The lift equation states that lift L is equal to the lift coefficient C l times the density rho ( \\(\\bf\\rho\\) ) times half of the velocity V squared times the wing area A .\n\nFlow Conditions\n\nFor given air conditions, shape, and inclination of the object, we have to determine a value for C l to determine the lift. For some simple flow conditions and geometries and low inclinations, aerodynamicists can determine the value of C l mathematically. But, in general, this parameter is determined experimentally.\n\nDensity\n\nIn the equation given above, the density is designated by the letter \\(\\rho\\). We do not use \u201cd\u201d for density, since \u201cd\u201d is often used to specify distance. In many textbooks on aerodynamics, the density is given by the Greek symbol \u201crho\u201d (Greek for \u201cr\u201d). The combination of terms \u201cdensity times the square of the velocity divided by two\u201d is called the dynamic pressure and appears in Bernoulli\u2019s pressure equation.",
+  "content_hash": "209a34a530fc60106c8b9691df0a78d09918fe0ef7436377cc4180b490997cda",
+  "crawl_timestamp": "2026-05-30T23:49:57.097906+00:00",
+  "document_id": "nasa_bga_lift_equation",
+  "equations": [
+    "One way to deal with complex dependencies is to characterize the dependence by a single variable. For lift, this variable is called the lift coefficient, designated \u201cC l .\u201d This allows us to collect all the effects, simple and complex, into a single equation. The lift equation states that lift L is equal to the lift coefficient C l times the density rho ( \\(\\bf\\rho\\) ) times half of the velocity V squared times the wing area A .",
+    "In the equation given above, the density is designated by the letter \\(\\rho\\). We do not use \u201cd\u201d for density, since \u201cd\u201d is often used to specify distance. In many textbooks on aerodynamics, the density is given by the Greek symbol \u201crho\u201d (Greek for \u201cr\u201d). The combination of terms \u201cdensity times the square of the velocity divided by two\u201d is called the dynamic pressure and appears in Bernoulli\u2019s pressure equation."
+  ],
+  "expected_ontology_concepts": [
+    "Lift",
+    "Equation"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "lift",
+    "equation"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Lift",
+    "Lift Coefficient",
+    "Flow Conditions",
+    "Density"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 10, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_lift",
+      "text_end": 365,
+      "text_start": 36,
+      "title": "Lift"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_lift_coefficient",
+      "text_end": 817,
+      "text_start": 365,
+      "title": "Lift Coefficient"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_flow_conditions",
+      "text_end": 1153,
+      "text_start": 817,
+      "title": "Flow Conditions"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_density",
+      "text_end": 1575,
+      "text_start": 1153,
+      "title": "Density"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Lift",
+  "source_type": "nasa_web_educational_page",
+  "title": "Lift Equation",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-equation/",
+  "validation_status": "valid",
+  "warnings": []
+}

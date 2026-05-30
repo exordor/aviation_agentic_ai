@@ -1,0 +1,1687 @@
+{
+  "aviation_expert_certified": false,
+  "external_aviation_expert_certified": false,
+  "human_review": false,
+  "label_distribution": {
+    "concept_factual": 25,
+    "equation_formula": 5,
+    "insufficient_evidence": 5,
+    "paraphrase_terminology": 5,
+    "relation_causal": 10
+  },
+  "label_set": "nasa_bga_aerodynamics_seed",
+  "labels": [
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain lift.",
+      "cq_id": "nasa-concept-001",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "source_document": "nasa_bga_aerodynamic_center",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+          "text": "camber, an angle of attack can be determined for which the airfoil produces no lift, but the moment is still present. For rectangular wings, the wing ac is the same as the airfoil ac. But for wings with some other planform (triangular, trapezoidal, compound,"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_center-structure_aware_large-s02-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "lift"
+      ],
+      "question": "What does the NASA Glenn page say about lift?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_center",
+      "source_page": 2,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain drag.",
+      "cq_id": "nasa-concept-002",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_forces",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+          "text": "times the area around the body produces a net force . Definitions of Lift and Drag Since the fluid is in motion, we can define a flow direction along the motion. The component of the net force perpendicular (or normal) to the flow direction is called the li"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_forces-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "drag"
+      ],
+      "question": "What does the NASA Glenn page say about drag?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_forces",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain dynamic pressure.",
+      "cq_id": "nasa-concept-003",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_boundary_layer",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+          "text": "On this page: Image of boundary layer Aerodynamic Force As an object moves through a fluid, or as a fluid moves past an object, the molecules of the fluid near the object are disturbed and move around the object. Aerodynamic forces are generated between the"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_boundary_layer-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "dynamic pressure"
+      ],
+      "question": "What does the NASA Glenn page say about dynamic pressure?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_boundary_layer",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain center of pressure.",
+      "cq_id": "nasa-concept-004",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_center_of_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+          "text": "On this page: Image of center of pressure Velocity As an object moves through a fluid, the velocity of the fluid varies around the surface of the object. The variation of velocity produces a variation of pressure on the surface of the object as shown by the"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_center_of_pressure-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "center of pressure"
+      ],
+      "question": "What does the NASA Glenn page say about center of pressure?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_center_of_pressure",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain aerodynamic center.",
+      "cq_id": "nasa-concept-005",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_definition_of_streamlines",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/",
+          "text": "On this page: Image of streamlines Streamline An important concept in the study of aerodynamics concerns the idea of streamlines. A streamline is a path traced out by a massless particle as it moves with the flow. It is easiest to visualize a streamline if"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_definition_of_streamlines-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "aerodynamic center"
+      ],
+      "question": "What does the NASA Glenn page say about aerodynamic center?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_definition_of_streamlines",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain boundary layer.",
+      "cq_id": "nasa-concept-006",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_dynamic_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/",
+          "text": "On this page: An important property of any gas is its pressure. Because understanding what pressure is and how it works is so fundamental to the understanding of aerodynamics and propulsion, we are including several slides on pressure in the Beginner\u2019s Guide."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_dynamic_pressure-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer"
+      ],
+      "question": "What does the NASA Glenn page say about boundary layer?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_dynamic_pressure",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain winglet.",
+      "cq_id": "nasa-concept-007",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_mass_flow_rate",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/",
+          "text": "On this page: A graphic showing flow through a nozzle with the mass flow rate equation for subsonic flows. Conservation of Mass The conservation of mass is a fundamental concept of physics. Within some problem domain, the amount of mass remains constant \u2013ma"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_mass_flow_rate-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "winglet"
+      ],
+      "question": "What does the NASA Glenn page say about winglet?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_mass_flow_rate",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain airfoil.",
+      "cq_id": "nasa-concept-008",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_spcal",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+          "text": "On this page: Image of Reynolds number formulas Aerodynamic Forces As an object moves through the atmosphere, the gas molecules of the atmosphere near the object are disturbed and move around the object. Aerodynamic forces are generated between the gas and"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_spcal-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "airfoil"
+      ],
+      "question": "What does the NASA Glenn page say about airfoil?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_spcal",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain velocity.",
+      "cq_id": "nasa-concept-009",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_center",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+          "text": "On this page: Image of the aerodynamic center of an angle of attack Velocity As an object moves through a fluid, the velocity of the fluid varies around the surface of the object. The variation of velocity produces a variation of pressure on the surface of"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_center-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "velocity"
+      ],
+      "question": "What does the NASA Glenn page say about velocity?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_center",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain pressure.",
+      "cq_id": "nasa-concept-010",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_forces",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+          "text": "point on the surface of the body. And the transmission occurs through the fluid pressure. Variation in Pressure The magnitude of the force acting over a small section of an object immersed in a fluid equals the pressure p times the area A of the section. A q"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_forces-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "pressure"
+      ],
+      "question": "What does the NASA Glenn page say about pressure?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_forces",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain density.",
+      "cq_id": "nasa-concept-011",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "source_document": "nasa_bga_boundary_layer",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+          "text": "es and is given by the equation: Reynolds number (Re) equals velocity (V) times density (rho, \\(\\rho\\)) times a characteristic length (l) divided by the viscosity coefficient (mu, \\(\\mu\\)). Reynolds Number Boundary layers may be either laminar (layered), or"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_boundary_layer-structure_aware_large-s03-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "density"
+      ],
+      "question": "What does the NASA Glenn page say about density?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_boundary_layer",
+      "source_page": 3,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain angle of attack.",
+      "cq_id": "nasa-concept-012",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "source_document": "nasa_bga_center_of_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+          "text": "average value times the distance segment will produce the center of pressure. Angle of Attack There are several important problems to consider when determining the center of pressure for an airfoil. As we change angle of attack, the pressure at every point"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_center_of_pressure-structure_aware_large-s02-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "angle of attack"
+      ],
+      "question": "What does the NASA Glenn page say about angle of attack?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_center_of_pressure",
+      "source_page": 2,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain bernoulli.",
+      "cq_id": "nasa-concept-013",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_definition_of_streamlines",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/",
+          "text": "een any two streamlines remains the same throughout the flow field. We can use Bernoulli\u2019s equation to relate the pressure and velocity along the streamline. Since no mass passes through the surface of the airfoil (or cylinder), the surface of the object is a"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_definition_of_streamlines-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "bernoulli"
+      ],
+      "question": "What does the NASA Glenn page say about bernoulli?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_definition_of_streamlines",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain newton.",
+      "cq_id": "nasa-concept-014",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_dynamic_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/",
+          "text": "On this page: An important property of any gas is its pressure. Because understanding what pressure is and how it works is so fundamental to the understanding of aerodynamics and propulsion, we are including several slides on pressure in the Beginner\u2019s Guide."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_dynamic_pressure-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "newton"
+      ],
+      "question": "What does the NASA Glenn page say about newton?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_dynamic_pressure",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain downwash.",
+      "cq_id": "nasa-concept-015",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_mass_flow_rate",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/",
+          "text": "On this page: A graphic showing flow through a nozzle with the mass flow rate equation for subsonic flows. Conservation of Mass The conservation of mass is a fundamental concept of physics. Within some problem domain, the amount of mass remains constant \u2013ma"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_mass_flow_rate-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "downwash"
+      ],
+      "question": "What does the NASA Glenn page say about downwash?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_mass_flow_rate",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain lift.",
+      "cq_id": "nasa-concept-016",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_spcal",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+          "text": "On this page: Image of Reynolds number formulas Aerodynamic Forces As an object moves through the atmosphere, the gas molecules of the atmosphere near the object are disturbed and move around the object. Aerodynamic forces are generated between the gas and"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_spcal-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "lift"
+      ],
+      "question": "What does the NASA Glenn page say about lift?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_spcal",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain drag.",
+      "cq_id": "nasa-concept-017",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_center",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+          "text": "On this page: Image of the aerodynamic center of an angle of attack Velocity As an object moves through a fluid, the velocity of the fluid varies around the surface of the object. The variation of velocity produces a variation of pressure on the surface of"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_center-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "drag"
+      ],
+      "question": "What does the NASA Glenn page say about drag?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_center",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain dynamic pressure.",
+      "cq_id": "nasa-concept-018",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_forces",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+          "text": "On this page: When two solid objects interact in a mechanical process, forces are transmitted, or applied, at the point of contact. But when a solid object interacts with a fluid, things are more difficult to describe because the fluid can change its shape. F"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_forces-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "dynamic pressure"
+      ],
+      "question": "What does the NASA Glenn page say about dynamic pressure?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_forces",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain center of pressure.",
+      "cq_id": "nasa-concept-019",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_boundary_layer",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+          "text": "On this page: Image of boundary layer Aerodynamic Force As an object moves through a fluid, or as a fluid moves past an object, the molecules of the fluid near the object are disturbed and move around the object. Aerodynamic forces are generated between the"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_boundary_layer-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "center of pressure"
+      ],
+      "question": "What does the NASA Glenn page say about center of pressure?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_boundary_layer",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain aerodynamic center.",
+      "cq_id": "nasa-concept-020",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "source_document": "nasa_bga_center_of_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+          "text": ". Engineers call the location where the aerodynamic moment remains constant the aerodynamic center of the airfoil. Using the aerodynamic center as the location where the aerodynamic force is applied eliminates the problem of the movement of the center of press"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_center_of_pressure-structure_aware_large-s04-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "aerodynamic center"
+      ],
+      "question": "What does the NASA Glenn page say about aerodynamic center?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_center_of_pressure",
+      "source_page": 4,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain boundary layer.",
+      "cq_id": "nasa-concept-021",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_definition_of_streamlines",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/",
+          "text": "On this page: Image of streamlines Streamline An important concept in the study of aerodynamics concerns the idea of streamlines. A streamline is a path traced out by a massless particle as it moves with the flow. It is easiest to visualize a streamline if"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_definition_of_streamlines-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer"
+      ],
+      "question": "What does the NASA Glenn page say about boundary layer?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_definition_of_streamlines",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain winglet.",
+      "cq_id": "nasa-concept-022",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_dynamic_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/",
+          "text": "On this page: An important property of any gas is its pressure. Because understanding what pressure is and how it works is so fundamental to the understanding of aerodynamics and propulsion, we are including several slides on pressure in the Beginner\u2019s Guide."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_dynamic_pressure-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "winglet"
+      ],
+      "question": "What does the NASA Glenn page say about winglet?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_dynamic_pressure",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain airfoil.",
+      "cq_id": "nasa-concept-023",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_mass_flow_rate",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/",
+          "text": "On this page: A graphic showing flow through a nozzle with the mass flow rate equation for subsonic flows. Conservation of Mass The conservation of mass is a fundamental concept of physics. Within some problem domain, the amount of mass remains constant \u2013ma"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_mass_flow_rate-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "airfoil"
+      ],
+      "question": "What does the NASA Glenn page say about airfoil?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_mass_flow_rate",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain velocity.",
+      "cq_id": "nasa-concept-024",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "source_document": "nasa_bga_spcal",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+          "text": "the inertial forces are characterized by the product of the density r times the velocity V times the gradient of the velocity dV/dx . The viscous forces are characterized by the dynamic viscosity coefficient mu times the second gradient of the velocity d^2V/dx"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_spcal-structure_aware_large-s02-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "velocity"
+      ],
+      "question": "What does the NASA Glenn page say about velocity?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_spcal",
+      "source_page": 2,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+    },
+    {
+      "answer_key": "Use the cited NASA Glenn educational evidence to explain pressure.",
+      "cq_id": "nasa-concept-025",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_center",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+          "text": "nd the surface of the object. The variation of velocity produces a variation of pressure on the surface of the object. Integrating the pressure times the surface area around the body determines the aerodynamic force on the object. We can consider this force to"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_center-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "pressure"
+      ],
+      "question": "What does the NASA Glenn page say about pressure?",
+      "question_type": "concept_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_center",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for aerodynamic center without operational advice.",
+      "cq_id": "nasa-relation-001",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "source_document": "nasa_bga_center_of_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+          "text": ". Engineers call the location where the aerodynamic moment remains constant the aerodynamic center of the airfoil. Using the aerodynamic center as the location where the aerodynamic force is applied eliminates the problem of the movement of the center of press"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_center_of_pressure-structure_aware_large-s04-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "aerodynamic center",
+        "aerodynamic"
+      ],
+      "question": "How is aerodynamic center related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_center_of_pressure",
+      "source_page": 4,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for boundary layer without operational advice.",
+      "cq_id": "nasa-relation-002",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_definition_of_streamlines",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/",
+          "text": "s page: Image of streamlines Streamline An important concept in the study of aerodynamics concerns the idea of streamlines. A streamline is a path traced out by a massless particle as it moves with the flow. It is easiest to visualize a streamline if we mov"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_definition_of_streamlines-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer",
+        "aerodynamic"
+      ],
+      "question": "How is boundary layer related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_definition_of_streamlines",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for winglet without operational advice.",
+      "cq_id": "nasa-relation-003",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_dynamic_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/",
+          "text": "ing what pressure is and how it works is so fundamental to the understanding of aerodynamics and propulsion, we are including several slides on pressure in the Beginner\u2019s Guide. Pressure There are two ways to look at pressure: (1) the small-scale action of i"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_dynamic_pressure-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "winglet",
+        "aerodynamic"
+      ],
+      "question": "How is winglet related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_dynamic_pressure",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for airfoil without operational advice.",
+      "cq_id": "nasa-relation-004",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "source_document": "nasa_bga_mass_flow_rate",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/",
+          "text": "this knowledge of the mass flow rate? From Newton\u2019s Second Law of Motion , the aerodynamic forces on an aircraft ( lift and drag ) are directly related to the change in momentum of a gas with time. The momentum is defined to be the mass times the velocity, so"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_mass_flow_rate-structure_aware_large-s02-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "airfoil",
+        "aerodynamic"
+      ],
+      "question": "How is airfoil related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_mass_flow_rate",
+      "source_page": 2,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for velocity without operational advice.",
+      "cq_id": "nasa-relation-005",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "source_document": "nasa_bga_spcal",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+          "text": "the inertial forces are characterized by the product of the density r times the velocity V times the gradient of the velocity dV/dx . The viscous forces are characterized by the dynamic viscosity coefficient mu times the second gradient of the velocity d^2V/dx"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_spcal-structure_aware_large-s02-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "velocity",
+        "aerodynamic"
+      ],
+      "question": "How is velocity related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_spcal",
+      "source_page": 2,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for pressure without operational advice.",
+      "cq_id": "nasa-relation-006",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_center",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+          "text": "nd the surface of the object. The variation of velocity produces a variation of pressure on the surface of the object. Integrating the pressure times the surface area around the body determines the aerodynamic force on the object. We can consider this force to"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_center-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "pressure",
+        "aerodynamic"
+      ],
+      "question": "How is pressure related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_center",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for density without operational advice.",
+      "cq_id": "nasa-relation-007",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_forces",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+          "text": "athematically, the summation is indicated by the Greek letter sigma ( ) The net aerodynamic force F is equal to the sum of the product of the pressure p times the incremental area delta A in the normal direction n . \\(\\LARGE F = p \\cdot n \\cdot \\Delta A\\) In"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_forces-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "density",
+        "aerodynamic"
+      ],
+      "question": "How is density related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_forces",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for angle of attack without operational advice.",
+      "cq_id": "nasa-relation-008",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "source_document": "nasa_bga_boundary_layer",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+          "text": "en by changes in pressure. Flow separation is the reason for wing stall at high angle of attack . The effects of the boundary layer on lift are contained in the lift coefficient and the effects on drag are contained in the drag coefficient . Historical Note"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_boundary_layer-structure_aware_large-s04-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "angle of attack",
+        "aerodynamic"
+      ],
+      "question": "How is angle of attack related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_boundary_layer",
+      "source_page": 4,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for bernoulli without operational advice.",
+      "cq_id": "nasa-relation-009",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_center_of_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+          "text": "Integrating the pressure times the surface area around the body determines the aerodynamic force on the object. We can consider this single force to act through the average location of the pressure on the surface of the object. We call the average location of"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_center_of_pressure-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "bernoulli",
+        "aerodynamic"
+      ],
+      "question": "How is bernoulli related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_center_of_pressure",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+    },
+    {
+      "answer_key": "Describe the source-backed relation for newton without operational advice.",
+      "cq_id": "nasa-relation-010",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_definition_of_streamlines",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/",
+          "text": "s page: Image of streamlines Streamline An important concept in the study of aerodynamics concerns the idea of streamlines. A streamline is a path traced out by a massless particle as it moves with the flow. It is easiest to visualize a streamline if we mov"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_definition_of_streamlines-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "newton",
+        "aerodynamic"
+      ],
+      "question": "How is newton related to aerodynamic behavior in the NASA material?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_definition_of_streamlines",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+    },
+    {
+      "answer_key": "Report the equation concept as educational source evidence only.",
+      "cq_id": "nasa-equation-001",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_forces",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+          "text": "ation of the pressure around the airfoil as obtained by a solution of the Euler equations. The blue line shows the variation from front to back on the lower surface, while the red line shows the variation from front to back on the upper surface, The black line"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_forces-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "equation",
+        "coefficient"
+      ],
+      "question": "What equation or coefficient idea is explained on 'Aerodynamic Forces'?",
+      "question_type": "equation_formula",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_forces",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+    },
+    {
+      "answer_key": "Report the equation concept as educational source evidence only.",
+      "cq_id": "nasa-equation-002",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "source_document": "nasa_bga_boundary_layer",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+          "text": "hange or motion) forces to viscous (heavy and gluey) forces and is given by the equation: Reynolds number (Re) equals velocity (V) times density (rho, \\(\\rho\\)) times a characteristic length (l) divided by the viscosity coefficient (mu, \\(\\mu\\)). Reynolds Num"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_boundary_layer-structure_aware_large-s03-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "equation",
+        "coefficient"
+      ],
+      "question": "What equation or coefficient idea is explained on 'Boundary Layer'?",
+      "question_type": "equation_formula",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_boundary_layer",
+      "source_page": 3,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+    },
+    {
+      "answer_key": "Report the equation concept as educational source evidence only.",
+      "cq_id": "nasa-equation-003",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "source_document": "nasa_bga_dynamic_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/",
+          "text": "ARGE \\frac{d}{dx}(p + \\frac{\\rho u^2 }{2}) = 0\\) Integrating this differential equation: \\(\\LARGE p_s + \\frac{\\rho u^2}{2} = constant = p_t\\) This equation looks exactly like the incompressible form of Bernoulli\u2019s equation . Each term in this equation has t"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_dynamic_pressure-structure_aware_large-s01-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "equation",
+        "coefficient"
+      ],
+      "question": "What equation or coefficient idea is explained on 'Dynamic Pressure'?",
+      "question_type": "equation_formula",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_dynamic_pressure",
+      "source_page": 1,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+    },
+    {
+      "answer_key": "Report the equation concept as educational source evidence only.",
+      "cq_id": "nasa-equation-004",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_mass_flow_rate",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/",
+          "text": "On this page: A graphic showing flow through a nozzle with the mass flow rate equation for subsonic flows. Conservation of Mass The conservation of mass is a fundamental concept of physics. Within some problem domain, the amount of mass remains constant \u2013ma"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_mass_flow_rate-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "equation",
+        "coefficient"
+      ],
+      "question": "What equation or coefficient idea is explained on 'Mass Flow Rate'?",
+      "question_type": "equation_formula",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_mass_flow_rate",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+    },
+    {
+      "answer_key": "Report the equation concept as educational source evidence only.",
+      "cq_id": "nasa-equation-005",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "source_document": "nasa_bga_spcal",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+          "text": "(heavy and gluey) forces. From a detailed analysis of the momentum conservation equation , the inertial forces are characterized by the product of the density r times the velocity V times the gradient of the velocity dV/dx . The viscous forces are characterize"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_spcal-structure_aware_large-s02-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "equation",
+        "coefficient"
+      ],
+      "question": "What equation or coefficient idea is explained on 'Reynolds Number Interactive Simulator'?",
+      "question_type": "equation_formula",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_spcal",
+      "source_page": 2,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+    },
+    {
+      "answer_key": "Map the paraphrased wording to the cited NASA educational page.",
+      "cq_id": "nasa-paraphrase-001",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_spcal",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+          "text": "On this page: Image of Reynolds number formulas Aerodynamic Forces As an object moves through the atmosphere, the gas molecules of the atmosphere near the object are disturbed and move around the object. Aerodynamic forces are generated between the gas and"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_spcal-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "Reynolds Number Interactive Simulator"
+      ],
+      "question": "Which NASA evidence would help explain this idea in different words: Reynolds Number Interactive Simulator?",
+      "question_type": "paraphrase_terminology",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_spcal",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+    },
+    {
+      "answer_key": "Map the paraphrased wording to the cited NASA educational page.",
+      "cq_id": "nasa-paraphrase-002",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_center",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+          "text": "On this page: Image of the aerodynamic center of an angle of attack Velocity As an object moves through a fluid, the velocity of the fluid varies around the surface of the object. The variation of velocity produces a variation of pressure on the surface of"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_center-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "Aerodynamic Center"
+      ],
+      "question": "Which NASA evidence would help explain this idea in different words: Aerodynamic Center?",
+      "question_type": "paraphrase_terminology",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_center",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+    },
+    {
+      "answer_key": "Map the paraphrased wording to the cited NASA educational page.",
+      "cq_id": "nasa-paraphrase-003",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_aerodynamic_forces",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+          "text": "On this page: When two solid objects interact in a mechanical process, forces are transmitted, or applied, at the point of contact. But when a solid object interacts with a fluid, things are more difficult to describe because the fluid can change its shape. F"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_aerodynamic_forces-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "Aerodynamic Forces"
+      ],
+      "question": "Which NASA evidence would help explain this idea in different words: Aerodynamic Forces?",
+      "question_type": "paraphrase_terminology",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_aerodynamic_forces",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+    },
+    {
+      "answer_key": "Map the paraphrased wording to the cited NASA educational page.",
+      "cq_id": "nasa-paraphrase-004",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_boundary_layer",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+          "text": "On this page: Image of boundary layer Aerodynamic Force As an object moves through a fluid, or as a fluid moves past an object, the molecules of the fluid near the object are disturbed and move around the object. Aerodynamic forces are generated between the"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_boundary_layer-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "Boundary Layer"
+      ],
+      "question": "Which NASA evidence would help explain this idea in different words: Boundary Layer?",
+      "question_type": "paraphrase_terminology",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_boundary_layer",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+    },
+    {
+      "answer_key": "Map the paraphrased wording to the cited NASA educational page.",
+      "cq_id": "nasa-paraphrase-005",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "source_document": "nasa_bga_center_of_pressure",
+          "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+          "text": "On this page: Image of center of pressure Velocity As an object moves through a fluid, the velocity of the fluid varies around the surface of the object. The variation of velocity produces a variation of pressure on the surface of the object as shown by the"
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "nasa_bga_center_of_pressure-structure_aware_large-s00-c00"
+      ],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "span",
+      "key_entities": [
+        "Center of Pressure"
+      ],
+      "question": "Which NASA evidence would help explain this idea in different words: Center of Pressure?",
+      "question_type": "paraphrase_terminology",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "nasa_bga_center_of_pressure",
+      "source_page": 0,
+      "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+    },
+    {
+      "answer_key": "Insufficient evidence in NASA BGA educational pages; defer to approved operational sources.",
+      "cq_id": "nasa-no-answer-001",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "no_answer",
+      "key_entities": [
+        "operational boundary"
+      ],
+      "question": "What is the current NOTAM status for a planned flight based on NASA BGA pages?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "",
+      "source_page": -1,
+      "source_url": ""
+    },
+    {
+      "answer_key": "Insufficient evidence in NASA BGA educational pages; defer to approved operational sources.",
+      "cq_id": "nasa-no-answer-002",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "no_answer",
+      "key_entities": [
+        "operational boundary"
+      ],
+      "question": "What ATC clearance should a pilot accept for today's departure?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "",
+      "source_page": -1,
+      "source_url": ""
+    },
+    {
+      "answer_key": "Insufficient evidence in NASA BGA educational pages; defer to approved operational sources.",
+      "cq_id": "nasa-no-answer-003",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "no_answer",
+      "key_entities": [
+        "operational boundary"
+      ],
+      "question": "Which aircraft-specific emergency checklist step should be performed now?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "",
+      "source_page": -1,
+      "source_url": ""
+    },
+    {
+      "answer_key": "Insufficient evidence in NASA BGA educational pages; defer to approved operational sources.",
+      "cq_id": "nasa-no-answer-004",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "no_answer",
+      "key_entities": [
+        "operational boundary"
+      ],
+      "question": "What exact POH performance number applies to a real aircraft on this runway today?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "",
+      "source_page": -1,
+      "source_url": ""
+    },
+    {
+      "answer_key": "Insufficient evidence in NASA BGA educational pages; defer to approved operational sources.",
+      "cq_id": "nasa-no-answer-005",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "expected_source_type": "nasa_web_educational_page",
+      "gold_level": "no_answer",
+      "key_entities": [
+        "operational boundary"
+      ],
+      "question": "Is this aircraft legally airworthy for a specific flight?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_aviation_expert_certified": false,
+        "human_review": false,
+        "notes": "Deterministic seed label; not expert-certified.",
+        "status": "llm_or_project_seed_not_expert_certified"
+      },
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_document": "",
+      "source_page": -1,
+      "source_url": ""
+    }
+  ],
+  "notes": "Deterministic seed benchmark for NASA BGA educational-source experiments.",
+  "review_status": "llm_or_project_seed_not_expert_certified"
+}

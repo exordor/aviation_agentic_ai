@@ -1,0 +1,81 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of a airplane\n\nSimplified Motion\n\nThis page shows some rules for the simplified motion of an aircraft. By simplified motion we mean that some of the four forces acting on the aircraft are balanced by other forces and that we are looking at only one force and one direction at a time. In reality, this simplified motion doesn\u2019t occur because all of the forces are interrelated to the aircraft\u2019s speed, altitude, orientation, etc. But looking at the forces ideally and individually does give us some insight and is much easier to understand.\n\nWeight\n\nIn an ideal situation, an airplane could sustain a constant speed and level flight in which the weight would be balanced by the lift and the drag would be balanced by the thrust. The closest example of this condition is a cruising airliner. While the weight decreases due to fuel burned, the change is very small relative to the total aircraft weight. In this situation, the aircraft will maintain at a constant cruise velocity as described by Newton\u2019s first law of motion.\n\nNewton\u2019s Second Law of Motion\n\nIf the forces become unbalanced, the aircraft will move in the direction of the greater force. We can compute the acceleration which the aircraft will experience from Newton\u2019s second law of motion:\n\n\\(\\LARGE F=ma\\)\n\nWhere a is the acceleration, m is the mass of the aircraft, and F is the net force acting on the aircraft. The net force is the difference between the opposing forces; lift minus weight, or thrust minus drag. With this information, we can solve for the resulting motion of the aircraft.\n\nMotion of an Aircraft\n\nIf the weight is decreased while the lift is held constant, the airplane will rise:\n\n\\(\\large Lift > Weight = Aircraft~Rises\\)\n\nIf the lift is decreased while the weight is constant, the plane will fall:\n\n\\(\\large Weight > Lift = Aircraft~Falls\\)\n\nSimilarly, increasing the thrust while the drag is constant will cause the plane to accelerate:\n\n\\(\\large Thrust > Drag = Aircraft~Accelerates\\)\n\nAnd increasing the drag at a constant thrust will cause the plane to slow down:\n\n\\(\\large Drag > Thrust = Aircraft~Slows\\)",
+  "content_hash": "a196447d81d6deb46976470e7f290b6631a173d656459235d8c177bd0ddecfbe",
+  "crawl_timestamp": "2026-05-30T23:49:48.874019+00:00",
+  "document_id": "nasa_bga_simplified_aircraft_motion",
+  "equations": [
+    "\\(\\LARGE F=ma\\)",
+    "\\(\\large Lift > Weight = Aircraft~Rises\\)",
+    "\\(\\large Weight > Lift = Aircraft~Falls\\)",
+    "\\(\\large Thrust > Drag = Aircraft~Accelerates\\)",
+    "\\(\\large Drag > Thrust = Aircraft~Slows\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Simplified",
+    "Aircraft",
+    "Motion"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "simplified",
+    "aircraft",
+    "motion"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Simplified Motion",
+    "Weight",
+    "Newton\u2019s Second Law of Motion",
+    "Motion of an Aircraft"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "June 21, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_simplified_motion",
+      "text_end": 562,
+      "text_start": 36,
+      "title": "Simplified Motion"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_weight",
+      "text_end": 1045,
+      "text_start": 562,
+      "title": "Weight"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_newton_s_second_law_of_motion",
+      "text_end": 1580,
+      "text_start": 1045,
+      "title": "Newton\u2019s Second Law of Motion"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_motion_of_an_aircraft",
+      "text_end": 2119,
+      "text_start": 1580,
+      "title": "Motion of an Aircraft"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Simplified Aircraft Motion",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/simplified-aircraft-motion/",
+  "validation_status": "valid",
+  "warnings": []
+}

@@ -1,0 +1,83 @@
+# Student Airfoil Interactive
+
+- Document ID: `nasa_bga_foilsimstudent`
+- Source URL: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilsimstudent/
+- Source type: `nasa_web_educational_page`
+- Authority: NASA Glenn Research Center
+- Advisory risk level: `learning`
+- Page last updated: July 15, 2025
+- Content hash: `247778e97186733f514c8666b68db77adf8ec1c3973e4fd7cd833f1b7a02c7bf`
+
+## Cleaned Content
+
+Please note : the simulation below is best viewed on a desktop computer. It may take a few minutes for the simulation to load.
+
+With this simulator you can investigate how an aircraft wing produces lift and drag by changing the values of different factors that affect lift and the factors that affect drag.
+
+General Instructions
+
+This program is designed to be interactive, so you have to work with the program. There are a variety of choices which you must make regarding the analysis and the display of results by using a push button or a drop menu . To operate a button, move the cursor over the button and left click with the mouse. The push buttons occur in groups, and the chosen option is shown as a yellow “lighted” button. A drop menu has a descriptive word displayed in a box with an arrow at the right of the box. To make a choice, click on the arrow, hold down and drag to make your selection. The current values of the design variables are presented to you in boxes. By convention, a white box with black numbers is an input box and you can change the value of the number. A black box with yellow numbers is an output box and the value is computed by the program. To change the value in an input box, select the box by moving the cursor into the box and clicking the mouse, then backspace over the old number, enter a new number, then hit the Enter key on your keyboard. You must hit Enter to send the new value to the program. For most input variables you can also use a slider located next to the input box. Click on the slider bar, hold down and drag the slider bar to change values, or you can click on the arrows at either end of the slider. At any time, to return to the original default conditions, click the red Reset button at the upper right of the program.
+
+Screen Layout
+
+The program screen is divided into four main parts:
+
+On the top left side of the screen is the View Window . The view window includes a graphic of the airfoil that you are designing and several buttons which control the graphic. Details of the window are given in the Graphics section of this page.
+
+On the upper right side of the screen is the Control Panel . The control panel holds several push buttons which control the input and output to be displayed. You can choose either Imperial Units or Metric Units by using the pull down menu at the top. Input choices have blue letters and the selected input panel appears at the lower left. Output choices have red letters and the output panel appears at the lower right. You will always see the computed lift, drag, Reynold’s number and lift to drag ratio. You can display lift and drag as numerical values or as dimensionless coefficients. Details of the input and output variables are given below.
+
+On the lower right side of the screen is the Output Window . The output can be presented as graphs of airfoil performance, a probe which you can move through the flow field, lift and drag gages, or printed numerical values of certain parameters. You select the type of output displayed by using the push buttons labeled “Output:” on the upper right panel.
+
+On the lower left side of the screen is the Input Window . Various input panels are displayed in this window. You select the input panel by using the push buttons labeled “Input:” on the upper right panel.
+
+Graphics
+
+The View Window contains a schematic drawing of the wing that you are designing and some buttons to control the schematic drawing. Possible choices are colored blue while the selected option is colored yellow.
+
+Edge shows the wing as viewed looking along the leading edge. The cross section appears as an airfoil or circle with the flow going from left to right. You can move the picture within the window by moving the cursor into the window, holding down the left mouse button, and dragging the airfoil to a new location. You can also “Zoom” in close to the airfoil by using the green slider at the left of the window. If you get lost, pushing the red Find button will return the airfoil to the initial position.
+
+Top shows the wing as viewed from above looking down onto the planform. The flow is from bottom to top. Since FoilSim only solves for the two-dimensional flow past objects, you won’t see any flow in this view. It is provided only to display the geometry of the wing area.
+
+Side – 3D shows an orthographic projection of the three dimensional wing.
+
+Moving shows particles flowing past the airfoil. The particles are drawn as line “traces”. The inclination of the trace is at the local flow angle, and the left most part of the trace is the particle location. Particles are being periodically released from a constant stream wise location upstream of the airfoil. The stream wise distance between any two particles is proportional to the local velocity.
+
+Frozen is a snapshot of the moving particles. In this view, you can change the stream wise release point of the particles by moving the cursor into the view window, holding down the left mouse, and dragging the particles to the left or right. In this view, the particles are color coded by the time at which they are released. (All of the yellow particles were released at the same stream wise location at the same time.)
+
+Streamlines are collections of the particle traces to form a solid flow line.
+
+Geometry shows only the geometry of the wing or airfoil with some descriptive labels but with no flow field.
+
+Output Variables
+
+There are several different output options available for the Output Window at the lower right. You select the type of output by using the push buttons on the control panel. The default setting is Plot and a graph will appear in the window. The type of graph is described below and you can vary the plot by using the Plot Selection input panel. If you display a plot and begin to change the input variables, it may become necessary to rescale the plot axes by pushing the white Rescale button at the lower left of the window. The types of available plots are listed below.
+
+The default plot is the Surface Pressure . The yellow line will be a plot of the lower surface pressure, and the purple line a plot of the upper surface pressure. For reference, the green line shows the value of free stream pressure.
+
+You may also display the Surface Velocity . As with the pressure, the yellow line will be a plot of the lower surface, and the purple line a plot of the upper surface.
+
+You may also display the Drag Polar . A drag polar is a plot of lift coefficient versus drag coefficient for a selected geometry at various angles of attack.
+
+The remaining plot choices show Lift , Drag , Lift Coefficient -Cl , or Drag Coefficient – Cd versus each of the input variables. For these plots, the current value of the flow conditions is shown as a red dot on the plot.
+
+The Gages shows the current value of lift (or lift coefficient) and drag (or drag coefficient) displayed in scientific notation. The gages are displayed in the output window and move as the lift and drag are varied. This display shows the relative sensitivity of lift and drag to the input variables.
+
+The Probe lets you explore the flow around the wing. A probe control panel appears in the output window when you select “Probe” from the control panel. By default, the probe is turned off. You turn the probe on by pushing one of the white buttons on the probe panel. The probe itself will then appear in the view window. You change the location of the probe using the sliders to the left and below the gage on the probe panel. The value of the pressure or the velocity at the location of the probe tip (magenta ball on the view window) is displayed on the gage. Or a green trail of “smoke” is swept downstream from the probe location. You turn the probe off by using the red button located above the gage.
+
+The performance options provides a written list of important input and computed variables in the Output Window . You have two options for performance output; the Data option gives the computed lift, drag and flow conditions, the Geometry option shows the coordinates of the airfoil geometry and the local value of velocity and pressure. These numbers correspond to the plots of velocity and pressure described above.
+
+Some additional output from the program is displayed on the Control Panel and some input panels. On the Control Panel, you can choose to display the lift or the lift coefficient by using the drop menu. Similarly, you can either display the drag or the drag coefficient. The value is displayed in the output box to the right of the drop menu. Lift and drag may be expressed in either Imperial (English) or metric units (pounds or Newtons). The Reynolds number is the ratio of inertial forces to viscous forces and affects the calculated value of the lift and drag. Reynold’s number and lift to drag ratio are always displayed on the Control Panel. On the Flight Test input panel is a group of output boxes that give the atmospheric conditions of the air. The pressure, temperature, density, and viscosity will change depending on the altitude and planetary inputs. On the Size input panel the geometric aspect ratio of the wing is displayed. The aspect ratio is defined to be the square of the span divided by the wing area and is included in the calculation of induced drag.
+
+Input Variables
+
+The input variables are located on input panels that are displayed at the lower left. You can select the input to display by using the push buttons on the control panel. You can choose to vary the Shape, the Size, or perform a Flight Test of a wing design. You can also display the Plot Selection Panel and a panel to control the Analysis used in FoilSim III.
+
+If you choose to Flight Test , you can change the value of lift and drag by varying the speed, or the altitude. You can flight test your wing on the earth (default), on Mars, or in the water by using the drop menu at the upper right. You can also choose to specify your own values of temperature and pressure for air, or to specify your own fluid by providing a value of the fluid density.
+
+If you choose Shape , you can select a classic airfoil shape, an ellipse, or a thin plate cross section by using the drop menu. You can change the camber, thickness, or the angle of attack of the cross section. The definitions of these geometric variables are given on the wing geometry web page. There are some push buttons on the airfoil Shape input panel to let you chose some “basic” airfoil shapes: symmetric airfoil, flat bottom foil, negative camber, flat plate, high camber, curved plate, or ellipse. Clicking on these buttons will set a representative value of camber, thickness, and angle of attack. You can also choose to investigate the lift and drag created by a rotating cylinder, or a spinning ball. For these problems you must specify the spin rate and radius and the span of the cylinder.
+
+If you choose Size , you can vary the layout of the wing. You can change the chord, span, or the wing area. The ratio of the span to the chord is called the Aspect Ratio and this parameter also has an effect on the lift and drag of the wing. If you have selected a cylinder or ball shape, this input panel is not used.
+
+There are a variety of Analysis options. The option being used is shown by a highlighted button on the Analysis panel. You can change the analysis by clicking on a white button. The default lift calculation includes a Stall Model that decreases the lift for angles of attack greater than 10 degrees. The optional analysis uses Ideal Flow that neglects viscous and compressibility effects. The actual calculations are done with ideal flow and the stall model corrects for flow separation at high angles of attack. The actual calculation is done for a two-dimensional (2D) foil. The Aspect Ratio correction includes the 3D wing tip effects on lift. The Induced Drag correction includes the 3D wing tips effects on drag. The drag of an airfoil is determined by a table look-up for experimentally determined values of drag coefficient. The values were obtained at a specific Reynold’s number. The Reynolds number correction includes the effects of changing Reynolds number to the test conditions. The drag of a cylinder or ball is based on experimental data as a function of Reynolds number.
+
+The original source code for the simulations is available for users to download at the BGA Simulations on GitHub .

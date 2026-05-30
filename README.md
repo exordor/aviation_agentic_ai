@@ -135,6 +135,7 @@ aviation-ai ontology cqs --dry-run --max-pages 1
 aviation-ai ontology generate --dry-run --artifact-dir reports/stages/generation_runs/dry-run-seed
 aviation-ai cqs validate-benchmark
 aviation-ai chunk build
+aviation-ai source ingest-nasa
 aviation-ai kg extract --dry-run
 aviation-ai kg validate
 aviation-ai index build
@@ -152,6 +153,14 @@ aviation-ai report web-demo-smoke
 aviation-ai report final-evaluation
 aviation-ai report thesis-claims
 aviation-ai report evaluation-protocol
+aviation-ai report nasa-source-discovery
+aviation-ai report nasa-source-validation
+aviation-ai report nasa-chunking-summary
+aviation-ai report ontology-boundary-nasa
+aviation-ai report nasa-kg-validation
+aviation-ai report nasa-benchmark-summary
+aviation-ai report cross-source-ontology-validation
+aviation-ai report multisource-retrieval-smoke
 aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2
 aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2
 aviation-ai report thesis-experiment-dashboard
@@ -305,6 +314,33 @@ uses the configured `MODEL_NAME` as `reviewer_model`; it is not human review,
 not expert gold, and not external aviation certification. If LLM dependencies or
 credentials are unavailable, the review commands write explicit `not_run`
 statuses instead of fabricating review results.
+
+## NASA Source Expansion
+
+NASA Glenn Beginners Guide to Aeronautics is supported as a second authoritative
+educational source corpus. The landing-page catalog is collected broadly, while
+the current experiment uses only the `Lessons in Aerodynamics` subset for
+ontology boundary, chunking, KG, seed benchmark, and FAA/NASA source-routing
+diagnostics. This is source-diversity evidence only; it does not add operational
+flight readiness or external aviation certification.
+
+```bash
+uv run aviation-ai report nasa-source-discovery
+uv run aviation-ai source ingest-nasa
+uv run aviation-ai report nasa-source-validation
+uv run aviation-ai report nasa-chunking-summary --no-semantic-download
+uv run aviation-ai report ontology-boundary-nasa
+uv run aviation-ai kg extract --chunks data/chunks/nasa_bga_aerodynamics.structure_aware_large.jsonl --output data/kg/nasa_bga_aerodynamics.structure_aware_large.kg.jsonl --ttl-output data/kg/nasa_bga_aerodynamics.structure_aware_large.kg.ttl --dry-run
+uv run aviation-ai report nasa-kg-validation
+uv run aviation-ai report nasa-benchmark-summary
+uv run aviation-ai report cross-source-ontology-validation
+uv run aviation-ai report multisource-retrieval-smoke
+```
+
+The tracked manifest is
+`data/sources/nasa_bga_aerodynamics_sources.yaml`. Discovery and validation
+reports keep full-corpus collection separate from the experiment subset so the
+reports do not overclaim a small subset as the full NASA landing-page corpus.
 
 ## Thesis Experiment Workflow
 

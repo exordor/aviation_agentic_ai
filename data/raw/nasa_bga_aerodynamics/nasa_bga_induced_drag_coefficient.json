@@ -1,0 +1,125 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of an airplane\n\nAerodynamic Drag\n\nThere are many factors which influence the amount of aerodynamic drag which a body generates. Drag depends on the shape, size, and inclination, of the object, and on flow conditions of the air passing the object. For a three-dimensional wing, there is an additional component of drag, called induced drag , which will be discussed on this page.\n\nAir Pressure of a Wing\n\nFor a lifting wing, the air pressure on the top of the wing is lower than the pressure below the wing. Near the tips of the wing, the air is free to move from the region of high pressure into the region of low pressure. The resulting flow is shown on the figure by the two circular blue-grey arrows with the arrowheads showing the flow direction. As the aircraft moves to the lower left, a pair of counter-rotating vortices are formed at the wing tips. The line of the center of the vortices are shown as blue vortex lines leading from the wing tips.\n\nIf the atmosphere has very high humidity, you can sometimes see the vortex lines on an airliner during landing as long thin \u201ccontrails\u201d leaving the wing tips. The wing tip vortices produce a swirling flow of air behind the wing which is very strong near the wing tips and decreases toward the wing root. The effective angle of attack of the wing is decreased by the induced flow of the vortices and varies from wing tip to wing root. The induced flow produces an additional, downstream-facing, component of aerodynamic force of the wing. This additional force is called induced drag because it faces downstream and has been \u201cinduced\u201d by the action of the tip vortices. It is also called \u201cdrag due to lift\u201d because it only occurs on finite, lifting wings and the magnitude of the drag depends on the lift of the wing.\n\nDrag Coefficient\n\nThe derivation of the equation for the induced drag is fairly tedious and relies on some theoretical ideas which are beyond the scope of the Beginner\u2019s Guide. The induced drag coefficient Cdi is equal to the square of the lift coefficient Cl divided by the quantity: pi (3.14159) times the aspect ratio AR times an efficiency factor e .\n\nCdi = (Cl^2) / (pi * AR * e)\n\nThe aspect ratio is the square of the span s divided by the wing area A .\n\nAR = s^2 / A\n\nFor a rectangular wing this reduces to the ratio of the span to the chord c .\n\nAR (rectangle) = s / c\n\nConsidering the induced drag equation, there are several ways to reduce the induced drag. Wings with high aspect ratio have lower induced drag than wings with low aspect ratio for the same wing area. So, wings with a long span and a short chord have lower induced drag than wings with a short span and a long chord.\n\nLifting Line Theory\n\nLifting line theory shows that the optimum (lowest) induced drag occurs for an elliptic distribution of lift from tip to tip. The efficiency factor e is equal to 1.0 for an elliptic distribution and is some value less than 1.0 for any other lift distribution. So, an elliptical wing planform has the lowest amount of induced drag and all other wing shapes have higher induced drag than an elliptical wing. For a rectangular wing, the efficiency factor is equal to .7.\n\nWinglets\n\nFor many years, wing designers have attempted to reduce the induced drag component by special shaping of the wing tips. The Wright Brothers used curved trailing edges on their rectangular wings based on wind tunnel results. The outstanding aerodynamic performance of the British Spitfire of World War II is partially attributable to its elliptic shaped wing which gave the aircraft a very low amount of induced drag. On modern airliners, the wing tips are often bent up to form winglets. Winglets were extensively studied by Richard Whitcomb of the NASA Langley Research Center in an effort to reduce the induced drag on airliners.\n\nFor a wing, the total drag coefficient, Cd is equal to the base drag coefficient at zero lift Cdo plus the induced drag coefficient Cdi .\n\nCd = Cdo + Cdi\n\nThe drag coefficient in this equation uses the wing area for the reference area. Otherwise, we could not add it to the square of the lift coefficient, which is also based on the wing area.",
+  "content_hash": "2f501178d61a2584e4cfcee4f6e96d8f450cd9467335c7c6132ad431b9b57097",
+  "crawl_timestamp": "2026-05-30T23:49:58.673037+00:00",
+  "document_id": "nasa_bga_induced_drag_coefficient",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Induced",
+    "Drag",
+    "Coefficient"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "induced",
+    "drag",
+    "coefficient"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Aerodynamic Drag",
+    "Air Pressure of a Wing",
+    "Drag Coefficient",
+    "Cdi = (Cl^2) / (pi * AR * e)",
+    "AR = s^2 / A",
+    "AR (rectangle) = s / c",
+    "Lifting Line Theory",
+    "Winglets",
+    "Cd = Cdo + Cdi"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 27, 2023",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_aerodynamic_drag",
+      "text_end": 401,
+      "text_start": 37,
+      "title": "Aerodynamic Drag"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_air_pressure_of_a_wing",
+      "text_end": 1795,
+      "text_start": 401,
+      "title": "Air Pressure of a Wing"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_drag_coefficient",
+      "text_end": 2151,
+      "text_start": 1795,
+      "title": "Drag Coefficient"
+    },
+    {
+      "level": 3,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_cdi_cl_2_pi_ar_e",
+      "text_end": 2256,
+      "text_start": 2151,
+      "title": "Cdi = (Cl^2) / (pi * AR * e)"
+    },
+    {
+      "level": 3,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_ar_s_2_a",
+      "text_end": 2349,
+      "text_start": 2256,
+      "title": "AR = s^2 / A"
+    },
+    {
+      "level": 3,
+      "order": 5,
+      "parent_id": null,
+      "section_id": "section_05_ar_rectangle_s_c",
+      "text_end": 2690,
+      "text_start": 2349,
+      "title": "AR (rectangle) = s / c"
+    },
+    {
+      "level": 2,
+      "order": 6,
+      "parent_id": null,
+      "section_id": "section_06_lifting_line_theory",
+      "text_end": 3180,
+      "text_start": 2690,
+      "title": "Lifting Line Theory"
+    },
+    {
+      "level": 2,
+      "order": 7,
+      "parent_id": null,
+      "section_id": "section_07_winglets",
+      "text_end": 3962,
+      "text_start": 3180,
+      "title": "Winglets"
+    },
+    {
+      "level": 3,
+      "order": 8,
+      "parent_id": null,
+      "section_id": "section_08_cd_cdo_cdi",
+      "text_end": 4166,
+      "text_start": 3962,
+      "title": "Cd = Cdo + Cdi"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Drag",
+  "source_type": "nasa_web_educational_page",
+  "title": "Induced Drag Coefficient",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/induced-drag-coefficient/",
+  "validation_status": "valid",
+  "warnings": []
+}

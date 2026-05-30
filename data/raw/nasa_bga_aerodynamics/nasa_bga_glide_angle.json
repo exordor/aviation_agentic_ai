@@ -1,0 +1,73 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of glide angle formulas\n\nA glider is a special kind of aircraft that has no engine. Paper airplanes are the most obvious example, but gliders come in a wide range of shapes and sizes. Toy gliders, made of balsa wood or styrofoam, are an excellent way for students to study the basics of aerodynamics. The Wright brothers perfected the design of the first airplane and gained piloting experience through a series of glider flights between 1900 and 1902. These aircraft were similar to modern hang-gliders and were launched by running down the side of a sand dune at Kitty Hawk.\n\nFlight Path\n\nIf a glider is in a steady (constant velocity and no acceleration) descent, it loses altitude as it travels. The glider\u2019s flight path is a simple straight line, shown as the inclined red line in the figure. The flight path is inclined to the horizontal at an angle \u201ca\u201d called the glide angle . On another page we will show that the glide angle is related to the ratio of the drag and the lift of the aircraft. The brothers used this knowledge to determine the aerodynamic performance of their gliders. Determining the glide angle in flight is very difficult, so the brothers would fly their glider at a fixed height above the surface of the sand dune. In this flight condition, the flight path is parallel to the surface of the hill and the glide angle is equal to the slope of the hill.\n\nSine Angle\n\nThe slope of a hill can be easily measured by using a protractor to site the top of the hill from the bottom. If you then measure the distance (s) to the top of the hill by counting paces from the bottom, you can determine the height (h) of the hill by using trigonometry. The height divided by the distance along the surface is equal to the sine (sin) of the measured slope angle (a) :\n\nTangent Angle\n\nThis equation can be solved for the height of the hill. The tangent (tan) of the glide angle (a) is equal to the change in vertical height (h) divided by the horizontal distance (d) flown.\n\nAngle\n\nIf the glider is flown at a specified glide angle, the trigonometric equation can be solved to determine how far the glider can fly for a given change in altitude, or how far it will drop for a given distance flown. Notice that if the glide angle is small, the aircraft can fly a long distance for a small change in altitude. Conversely, if the glide angle is large it can travel only a short distance for a given change in altitude. We can think of the glide angle as a measure of the flying efficiency of the glider. The smaller the glide angle, the farther that an aircraft can fly for a given change in altitude.",
+  "content_hash": "d22065a15954353baad14051f3592222b355e82194509708b29f6d0b54aca68e",
+  "crawl_timestamp": "2026-05-30T23:49:59.250286+00:00",
+  "document_id": "nasa_bga_glide_angle",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Glide",
+    "Angle"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "glide",
+    "angle"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Flight Path",
+    "Sine Angle",
+    "Tangent Angle",
+    "Angle"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 18, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_flight_path",
+      "text_end": 1401,
+      "text_start": 599,
+      "title": "Flight Path"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_sine_angle",
+      "text_end": 1801,
+      "text_start": 1401,
+      "title": "Sine Angle"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_tangent_angle",
+      "text_end": 2006,
+      "text_start": 1801,
+      "title": "Tangent Angle"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_angle",
+      "text_end": 2629,
+      "text_start": 1406,
+      "title": "Angle"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Gliders",
+  "source_type": "nasa_web_educational_page",
+  "title": "Glide Angle",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/glide-angle/",
+  "validation_status": "valid",
+  "warnings": []
+}

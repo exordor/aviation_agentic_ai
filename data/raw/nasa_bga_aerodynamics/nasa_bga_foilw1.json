@@ -1,0 +1,77 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of the incorrect theory of an airfoil\n\nThere are many theories of how lift is generated. Unfortunately, many of the theories found in encyclopedias, on web sites, and even in some textbooks are incorrect , causing unnecessary confusion for students.\n\nIncorrect Airfoil Theory\n\nThe theory described on this slide is one of the most widely circulated, incorrect explanations. The theory can be labeled the \u201cLonger Path\u201d theory, or the \u201cEqual Transit Time\u201d theory. The theory states that airfoils are shaped with the upper surface longer than the bottom.\n\nThe air molecules (the little colored balls on the figure) have farther to travel over the top of the airfoil than along the bottom. In order to meet up at the trailing edge, the molecules going over the top of the wing must travel faster than the molecules moving under the wing. Because the upper flow is faster, then, from Bernoulli\u2019s equation, the pressure is lower. The difference in pressure across the airfoil produces the lift.\n\n\\(\\LARGE \\dot m=\\rho\\cdot V\\cdot A=cons\\mathit{tan}t\\)\n\nFor a constant density, decreasing the area increases the velocity.\n\nTurning to the incorrect airfoil theory, the top of the airfoil is curved, which constricts the flow. Since the area is decreased, the velocity over the top of the foil is increased. Then from Bernoulli\u2019s equation, higher velocity produces a lower pressure on the upper surface. The low pressure over the upper surface of the airfoil produces the lift.\n\nBefore considering what is wrong with this theory, let\u2019s investigate the actual flow around an airfoil by doing a couple of experiments using a Java simulator which is solving the correct flow equations. Below the simulator is a text box with instructions. Be sure that the slider on the right of the text box is pulled to the top to begin the experiments\n\nLet\u2019s use the information we\u2019ve just learned to evaluate the various parts of the \u201cEqual Transit\u201d Theory.\n\nLifting airfoils are designed to have the upper surface longer than the bottom.\n\nThis is not always correct. The symmetric airfoil in our experiment generates plenty of lift and its upper surface is the same length as the lower surface. Think of a paper airplane. Its airfoil is a flat plate \u2013> top and bottom exactly the same length and shape and yet they fly just fine. This part of the theory probably got started because early airfoils were curved and shaped with a longer distance along the top. Such airfoils do produce a lot of lift and flow turning, but it is the turning that\u2019s important, not the distance. There are modern, low-drag airfoils which produce lift on which the bottom surface is actually longer than the top. This theory also does not explain how airplanes can fly upside-down which happens often at air shows and in air-to-air combat. The longer surface is then on the bottom!\n\nAir molecules travel faster over the top to meet molecules moving underneath at the trailing edge.\n\nExperiment #1 shows us that the flow over the top of a lifting airfoil does travel faster than the flow beneath the airfoil. But the flow is much faster than the speed required to have the molecules meet up at the trailing edge. Two molecules near each other at the leading edge will not end up next to each other at the trailing edge as shown in Experiment #2. This part of the theory attempts to provide us with a value for the velocity over the top of the airfoil based on the non-physical assumption that the molecules meet at the aft end. We can calculate a velocity based on this assumption, and use Bernoulli\u2019s equation to compute the pressure, and perform the pressure-area calculation and the answer we get does not agree with the lift that we measure for a given airfoil. The lift predicted by the \u201cEqual Transit\u201d theory is much less than the observed lift, because the velocity is too low. The actual velocity over the top of an airfoil is much faster than that predicted by the \u201cLonger Path\u201d theory and particles moving over the top arrive at the trailing edge before particles moving under the airfoil.\n\nThe upper flow is faster and from Bernoulli\u2019s equation the pressure is lower.\n\nThe difference in pressure across the airfoil produces the lift. As we have seen in Experiment #1, this part of the theory is correct . In fact, this theory is very appealing because many parts of the theory are correct. In our discussions on pressure-area integration to determine the force on a body immersed in a fluid, we mentioned that if we know the velocity, we can obtain the pressure and determine the force. The problem with the \u201cEqual Transit\u201d theory is that it attempts to provide us with the velocity based on a non-physical assumption as discussed above.\n\nThe original source code for the simulations is available for users to download at the BGA Simulations on GitHub .",
+  "content_hash": "594da487c8e0695864003a2ddcfca756a94ecc40012cf518a2df44929ed969de",
+  "crawl_timestamp": "2026-05-30T23:49:55.780717+00:00",
+  "document_id": "nasa_bga_foilw1",
+  "equations": [
+    "\\(\\LARGE \\dot m=\\rho\\cdot V\\cdot A=cons\\mathit{tan}t\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Equal",
+    "Transit",
+    "Theory"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "equal",
+    "transit",
+    "theory"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Incorrect Airfoil Theory",
+    "Lifting airfoils are designed to have the upper surface longer than the bottom.",
+    "Air molecules travel faster over the top to meet molecules moving underneath at the trailing edge.",
+    "The upper flow is faster and from Bernoulli\u2019s equation the pressure is lower."
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 18, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_incorrect_airfoil_theory",
+      "text_end": 1954,
+      "text_start": 272,
+      "title": "Incorrect Airfoil Theory"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_lifting_airfoils_are_designed_to_have_the_upper_surface_longer_than_the_bottom",
+      "text_end": 2856,
+      "text_start": 1954,
+      "title": "Lifting airfoils are designed to have the upper surface longer than the bottom."
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_air_molecules_travel_faster_over_the_top_to_meet_molecules_moving_underneath_at_the_trailing_edge",
+      "text_end": 4073,
+      "text_start": 2856,
+      "title": "Air molecules travel faster over the top to meet molecules moving underneath at the trailing edge."
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_the_upper_flow_is_faster_and_from_bernoulli_s_equation_the_pressure_is_lower",
+      "text_end": 4836,
+      "text_start": 4073,
+      "title": "The upper flow is faster and from Bernoulli\u2019s equation the pressure is lower."
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Lift",
+  "source_type": "nasa_web_educational_page",
+  "title": "Equal Transit Theory Interactive",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilw1/",
+  "validation_status": "valid",
+  "warnings": []
+}

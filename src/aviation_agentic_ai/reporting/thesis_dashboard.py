@@ -32,6 +32,15 @@ REPORT_SOURCES: dict[str, str] = {
     "chunking_topk_sensitivity_benchmark_v2": "reports/stages/chunking_topk_sensitivity_benchmark_v2.json",
     "chunking_category_analysis_benchmark_v2": "reports/stages/chunking_category_analysis_benchmark_v2.json",
     "chunking_failure_cards_benchmark_v2": "reports/stages/chunking_failure_cards_benchmark_v2.json",
+    "nasa_source_discovery": "reports/stages/nasa_source_discovery.json",
+    "nasa_source_ingestion": "reports/stages/nasa_source_ingestion.json",
+    "nasa_source_validation": "reports/stages/nasa_source_validation.json",
+    "nasa_chunking_summary": "reports/stages/nasa_chunking_summary.json",
+    "ontology_boundary_nasa": "reports/stages/ontology_boundary_nasa.json",
+    "nasa_kg_validation": "reports/stages/nasa_kg_validation.json",
+    "nasa_benchmark_summary": "reports/stages/nasa_benchmark_summary.json",
+    "cross_source_ontology_validation": "reports/stages/cross_source_ontology_validation.json",
+    "multisource_retrieval_smoke": "reports/stages/multisource_retrieval_smoke.json",
     "deepseek_v4pro_implementation_remediation": (
         "reports/reviews/deepseek_v4pro_implementation_remediation.json"
     ),
@@ -119,6 +128,15 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "chunking_topk_sensitivity_benchmark_v2": ("retrieval",),
         "chunking_category_analysis_benchmark_v2": ("retrieval",),
         "chunking_failure_cards_benchmark_v2": ("retrieval", "failure_analysis"),
+        "nasa_source_discovery": ("source_expansion", "claim_safety"),
+        "nasa_source_ingestion": ("source_expansion",),
+        "nasa_source_validation": ("source_expansion", "claim_safety"),
+        "nasa_chunking_summary": ("source_expansion", "retrieval"),
+        "ontology_boundary_nasa": ("source_expansion", "ontology_kg"),
+        "nasa_kg_validation": ("source_expansion", "ontology_kg"),
+        "nasa_benchmark_summary": ("source_expansion", "benchmark_validation"),
+        "cross_source_ontology_validation": ("source_expansion", "ontology_kg"),
+        "multisource_retrieval_smoke": ("source_expansion", "retrieval"),
         "deepseek_v4pro_implementation_remediation": (
             "implementation_review",
             "claim_safety",
@@ -150,6 +168,15 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "chunking_topk_sensitivity_benchmark_v2": "benchmark_v2_120",
         "chunking_category_analysis_benchmark_v2": "benchmark_v2_120",
         "chunking_failure_cards_benchmark_v2": "benchmark_v2_120",
+        "nasa_source_discovery": "nasa_bga_aerodynamics_full_landing_page_manifest",
+        "nasa_source_ingestion": "nasa_bga_aerodynamics_full_corpus",
+        "nasa_source_validation": "nasa_bga_aerodynamics_full_corpus",
+        "nasa_chunking_summary": "nasa_bga_lessons_in_aerodynamics_subset",
+        "ontology_boundary_nasa": "nasa_bga_lessons_in_aerodynamics_subset",
+        "nasa_kg_validation": "nasa_bga_lessons_in_aerodynamics_subset",
+        "nasa_benchmark_summary": "nasa_bga_lessons_seed_50",
+        "cross_source_ontology_validation": "faa_phak_nasa_cross_source_seed_30",
+        "multisource_retrieval_smoke": "faa_phak_nasa_smoke_35",
         "deepseek_v4pro_implementation_remediation": "not_dataset_specific",
         "answer_evaluation": "10_cq_answer_subset",
         "robustness_evaluation": "robustness_10_cases",
@@ -204,6 +231,15 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     answer_generation = reports.get("answer_generation_benchmark_subset", {})
     answer_llm = reports.get("answer_llm_judge", {})
     llm_consistency = reports.get("llm_review_consistency", {})
+    nasa_ingestion = reports.get("nasa_source_ingestion", {})
+    nasa_discovery = reports.get("nasa_source_discovery", {})
+    nasa_validation = reports.get("nasa_source_validation", {})
+    nasa_chunking = reports.get("nasa_chunking_summary", {})
+    nasa_boundary = reports.get("ontology_boundary_nasa", {})
+    nasa_kg = reports.get("nasa_kg_validation", {})
+    nasa_benchmark = reports.get("nasa_benchmark_summary", {})
+    cross_source = reports.get("cross_source_ontology_validation", {})
+    multisource = reports.get("multisource_retrieval_smoke", {})
     implementation_remediation = reports.get("deepseek_v4pro_implementation_remediation", {})
 
     vector = _scenario_metrics(retrieval, "vector_hops2_v5_h8")
@@ -373,6 +409,125 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "evidence_in_source_rate": structure_kg.get("evidence_in_chunk_rate"),
             "valid_triples": structure_kg.get("valid_triples"),
             "unsupported_triple_count": structure_kg.get("unsupported_triple_count"),
+        },
+        "nasa_source_expansion": {
+            "status": (
+                "full_corpus_collected_aerodynamics_subset_experiment_ready"
+                if _metric(nasa_validation, "experiment_valid", default=False)
+                and _metric(nasa_discovery, "metadata", "missing_unique_urls_total", default=1) == 0
+                and _metric(nasa_chunking, "metadata", "experiment_pages_total", default=0) > 0
+                else "source_expansion_in_progress"
+            ),
+            "landing_page_discovery": {
+                "discovered_unique_urls": _metric(
+                    nasa_discovery,
+                    "metadata",
+                    "discovered_unique_urls_total",
+                ),
+                "covered_unique_urls": _metric(
+                    nasa_discovery,
+                    "metadata",
+                    "covered_unique_urls_total",
+                ),
+                "missing_unique_urls": _metric(
+                    nasa_discovery,
+                    "metadata",
+                    "missing_unique_urls_total",
+                ),
+                "coverage_rate": _metric(nasa_discovery, "metadata", "coverage_rate"),
+                "selection_status": _metric(
+                    nasa_discovery,
+                    "metadata",
+                    "selection_status",
+                ),
+                "experiment_subset_section": _metric(
+                    nasa_discovery,
+                    "metadata",
+                    "experiment_subset_section",
+                ),
+            },
+            "ingested_pages": _metric(nasa_ingestion, "metadata", "pages_total"),
+            "valid_pages": _metric(nasa_validation, "metadata", "valid_pages"),
+            "invalid_pages": _metric(nasa_validation, "metadata", "invalid_pages"),
+            "experiment_pages": _metric(nasa_validation, "metadata", "experiment_pages_total"),
+            "experiment_valid_pages": _metric(
+                nasa_validation,
+                "metadata",
+                "experiment_valid_pages",
+            ),
+            "experiment_invalid_pages": _metric(
+                nasa_validation,
+                "metadata",
+                "experiment_invalid_pages",
+            ),
+            "source_type": _metric(nasa_validation, "metadata", "source_type"),
+            "chunked_corpus_pages": _metric(nasa_chunking, "metadata", "corpus_pages_total"),
+            "chunked_experiment_pages": _metric(
+                nasa_chunking,
+                "metadata",
+                "experiment_pages_total",
+            ),
+            "experiment_subset": _metric(nasa_chunking, "metadata", "experiment_subset"),
+            "chunking_strategies": _metric(nasa_chunking, "metadata", "strategies", default=[]),
+            "chunking_distribution": nasa_chunking.get("chunk_strategy_distribution", {}),
+            "ontology_boundary": {
+                "existing_coverage": len(nasa_boundary.get("existing_ontology_coverage", [])),
+                "alias_candidates": len(nasa_boundary.get("alias_candidates", [])),
+                "class_candidates": len(nasa_boundary.get("recommended_class_additions", [])),
+                "property_candidates": len(nasa_boundary.get("recommended_property_additions", [])),
+                "high_risk_operational_detections": len(
+                    nasa_boundary.get("high_risk_operational_concepts_detected", [])
+                ),
+            },
+            "kg_dry_run": {
+                "triples_total": _metric(nasa_kg, "triples_total"),
+                "valid_triples": _metric(nasa_kg, "valid_triples"),
+                "provenance_completeness": _metric(
+                    nasa_kg,
+                    "metrics",
+                    "provenance_complete_rate",
+                    default=_metric(nasa_kg, "provenance_completeness"),
+                ),
+                "evidence_in_source_rate": _metric(
+                    nasa_kg,
+                    "metrics",
+                    "evidence_in_chunk_rate",
+                    default=_metric(nasa_kg, "evidence_in_source_rate"),
+                ),
+            },
+            "benchmark_seed": {
+                "labels_total": _metric(nasa_benchmark, "metadata", "labels_total"),
+                "review_status": _metric(nasa_benchmark, "metadata", "review_status"),
+                "external_aviation_expert_certified": _metric(
+                    nasa_benchmark,
+                    "metadata",
+                    "external_aviation_expert_certified",
+                ),
+            },
+            "cross_source": {
+                "labels_total": _metric(cross_source, "metadata", "labels_total"),
+                "document_routing_targets": cross_source.get("document_routing_targets", []),
+            },
+            "multisource_smoke": {
+                "status": _metric(multisource, "metadata", "status"),
+                "labels_total": _metric(multisource, "metadata", "labels_total"),
+                "faa_plus_nasa_recall_at_5": _metric(
+                    multisource,
+                    "scenarios",
+                    "faa_plus_nasa",
+                    "recall_at_5",
+                ),
+                "faa_plus_nasa_source_routing_accuracy": _metric(
+                    multisource,
+                    "scenarios",
+                    "faa_plus_nasa",
+                    "source_routing_accuracy",
+                ),
+            },
+            "claim_policy": (
+                "NASA source integration supports internal source-diversity evaluation, "
+                "not external aviation certification or operational readiness."
+            ),
         },
         "triple_semantic_review": {
             "sample_size": _metric(triple, "metadata", "sample_size"),
@@ -589,6 +744,38 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
             "evidence_role": "llm_judge",
         },
         {
+            "dataset": "NASA BGA full landing-page corpus",
+            "purpose": "second authoritative educational source collection from NASA Glenn BGA",
+            "used_in_reports": [
+                "nasa_source_discovery",
+                "nasa_source_ingestion",
+                "nasa_source_validation",
+            ],
+            "limitations": (
+                "collected as educational web evidence; interactive pages may expose limited text"
+            ),
+            "can_support_thesis_main_claim": "source_collection_only",
+            "evidence_role": "source_collection",
+        },
+        {
+            "dataset": "NASA Lessons in Aerodynamics subset",
+            "purpose": "source-expansion experiment for ontology boundary, chunking, KG, and seed QA",
+            "used_in_reports": [
+                "nasa_chunking_summary",
+                "ontology_boundary_nasa",
+                "nasa_kg_validation",
+                "nasa_benchmark_summary",
+                "cross_source_ontology_validation",
+                "multisource_retrieval_smoke",
+            ],
+            "limitations": (
+                "internal educational-source experiment; no external aviation certification "
+                "or operational readiness"
+            ),
+            "can_support_thesis_main_claim": "partial_source_generalization_evidence",
+            "evidence_role": "source_expansion_experiment",
+        },
+        {
             "dataset": "answer-eval subset",
             "purpose": "answer citation and faithfulness heuristics",
             "used_in_reports": ["answer_evaluation", "answer_evaluation_benchmark_subset"],
@@ -692,6 +879,38 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
             ),
             "claim_strength": "moderate",
             "remaining_gaps": "Sufficiency can create false abstentions on supported questions.",
+        },
+        {
+            "rq": "RQ5 source generalization",
+            "evidence_reports": [
+                "nasa_source_discovery",
+                "nasa_source_ingestion",
+                "nasa_source_validation",
+                "nasa_chunking_summary",
+                "ontology_boundary_nasa",
+                "nasa_kg_validation",
+                "nasa_benchmark_summary",
+                "cross_source_ontology_validation",
+                "multisource_retrieval_smoke",
+            ],
+            "primary_metrics": [
+                "NASA landing-page URL coverage",
+                "full-corpus valid page count",
+                "Lessons in Aerodynamics experiment page count",
+                "candidate ontology additions",
+                "NASA KG provenance/evidence validation",
+                "multi-source lexical smoke Recall@5",
+            ],
+            "current_result_summary": (
+                "NASA Glenn BGA is collected as a full landing-page corpus while "
+                "the current experiment uses the Lessons in Aerodynamics subset. "
+                f"Status={primary['nasa_source_expansion']['status']}."
+            ),
+            "claim_strength": "provisional",
+            "remaining_gaps": (
+                "NASA labels and KG triples are deterministic scaffolds; no human or "
+                "external aviation expert certification is present."
+            ),
         },
     ]
 
@@ -1059,6 +1278,21 @@ def write_thesis_experiment_dashboard_markdown(
                 f"Provenance Completeness={primary['kg']['provenance_completeness']}, "
                 f"Evidence-in-source Rate={primary['kg']['evidence_in_source_rate']}, "
                 f"Valid Triples={primary['kg']['valid_triples']} |"
+            ),
+            (
+                "| NASA source expansion | "
+                f"Status={primary['nasa_source_expansion']['status']}, "
+                "discovered URLs="
+                f"{primary['nasa_source_expansion']['landing_page_discovery']['discovered_unique_urls']}, "
+                "covered URLs="
+                f"{primary['nasa_source_expansion']['landing_page_discovery']['covered_unique_urls']}, "
+                f"corpus pages={primary['nasa_source_expansion']['ingested_pages']}, "
+                f"valid pages={primary['nasa_source_expansion']['valid_pages']}, "
+                f"experiment valid pages={primary['nasa_source_expansion']['experiment_valid_pages']}/"
+                f"{primary['nasa_source_expansion']['experiment_pages']}, "
+                f"KG triples={primary['nasa_source_expansion']['kg_dry_run']['triples_total']}, "
+                "FAA+NASA smoke Recall@5="
+                f"{primary['nasa_source_expansion']['multisource_smoke']['faa_plus_nasa_recall_at_5']} |"
             ),
             (
                 "| triple semantic review | "

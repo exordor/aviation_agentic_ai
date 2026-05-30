@@ -1,0 +1,73 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of a vector force balance for a glider\n\nBalance of Forces\n\nThis slide shows the balance of forces on a descending glider. There are three forces acting on the glider; weight, lift, and drag. Forces are vector quantities having both a magnitude and a direction. The magnitude of the weight is given by the weight equation and depends on the mass of the aircraft and its payload. The direction of the weight is always towards the center of the earth. On the figure, the direction is along the vertical axis, pointed towards the bottom of the figure. The magnitude of the lift is given by the lift equation and depends on several factors. The lift is directed perpendicular to the flight path which is shown as a thin red line which fall to the left on the figure. The magnitude of the drag is given by the drag equation and depends on factors associated with the design. The drag is directed along the flight path opposed to the motion. A horizontal , thin red line has been drawn parallel to the ground and through the center of gravity of the glider. The flight path of the glider crosses the horizontal at an angle a called the glide angle. Using some geometry theorems on angles, perpendicular lines, and parallel lines, we see the glide angle \u201c a \u201d also defines the angle between the lift and the vertical, and between the drag and the horizontal.\n\nVector Component Equations\n\nAssuming that the forces are balanced (no acceleration of the glider), we can write the two vector component equations for the forces. In the vertical direction, the lift L times the cosine cos of the glide angle a plus the drag D times the sine sin of the glide angle minus the weight W equals zero:\n\n\\(\\LARGE Vertical: L * cos(a) + D * sin(a) \u2013 W = 0\\)\n\nIn the horizontal direction, the lift times the sine of the glide angle minus the drag times the cosine of the glide angle equals zero:\n\n\\(\\LARGE Horizontal: L * sin(a) \u2013 D * cos(a) = 0\\)\n\nRearranging the horizontal component equation:\n\n\\(\\LARGE L * sin(a) = D * cos(a)\\)\n\n\\(\\LARGE \\frac{L}{D} = \\frac {cos(a) }{sin(a)}=\\frac{1}{tan(a)}\\)\n\ngives the relation that the lift divided by the drag is equal to the cosine of the glide angle divided by the sine of the glide angle. This ratio of trigonometric functions is equal to the cotangent of the angle, or the inverse of the tangent of the glide angle. For small angles, the tangent of the angle is almost the value of the angle in radians. This gives us the following relationship:\n\n\\(\\LARGE \\frac{L}{D}= \\frac{1}{a}\\)\n\nthe lift divided by the drag is equal to the inverse of the glide angle for small angles.\n\nL/D Ratio\n\nWhat good is all this for aircraft design? The lift divided by drag is called the L/D ratio and is an efficiency factor for aircraft. From the last equation we see that the higher the L/D, the lower the glide angle. The glide angle determines how far a glider will fly horizontally for each vertical foot (or meter) that it falls. The lower the glide angle, the farther the glider can fly. Therefore, designers of long distance gliders want a high L/D. We can also use measurements of the glide angle and weight of the glider to determine the L/D ratio as shown on another page.",
+  "content_hash": "b0e3723ee1020cf13e8d51213f2ff02b37baa9b3ae3630b3fb480b9ebf5f55c2",
+  "crawl_timestamp": "2026-05-30T23:49:59.627759+00:00",
+  "document_id": "nasa_bga_vector_balance_of_forces_glider",
+  "equations": [
+    "\\(\\LARGE Vertical: L * cos(a) + D * sin(a) \u2013 W = 0\\)",
+    "\\(\\LARGE Horizontal: L * sin(a) \u2013 D * cos(a) = 0\\)",
+    "\\(\\LARGE L * sin(a) = D * cos(a)\\)",
+    "\\(\\LARGE \\frac{L}{D} = \\frac {cos(a) }{sin(a)}=\\frac{1}{tan(a)}\\)",
+    "\\(\\LARGE \\frac{L}{D}= \\frac{1}{a}\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Vector",
+    "Balance",
+    "Forces",
+    "Glider"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "vector",
+    "balance",
+    "forces",
+    "glider"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Balance of Forces",
+    "Vector Component Equations",
+    "L/D Ratio"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 7, 2025",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_balance_of_forces",
+      "text_end": 1373,
+      "text_start": 61,
+      "title": "Balance of Forces"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_vector_component_equations",
+      "text_end": 2619,
+      "text_start": 1373,
+      "title": "Vector Component Equations"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_l_d_ratio",
+      "text_end": 3208,
+      "text_start": 2619,
+      "title": "L/D Ratio"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Gliders",
+  "source_type": "nasa_web_educational_page",
+  "title": "Vector Balance of Forces - Glider",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/vector-balance-of-forces-glider/",
+  "validation_status": "valid",
+  "warnings": []
+}

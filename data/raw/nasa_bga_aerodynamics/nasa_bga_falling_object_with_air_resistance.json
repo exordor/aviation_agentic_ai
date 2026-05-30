@@ -1,0 +1,81 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of a ball\n\nForce\n\nAn object that is falling through the atmosphere is subjected to two external forces. The first force is the gravitational force, expressed as the weight of the object, and the second force is the aerodynamic drag of the object. The weight equation defines the weight W to be equal to the mass m of the object times the gravitational acceleration g :\n\nGravitational Acceleration\n\nThe value of g is 9.8 meters per square second on the surface of the earth. The gravitational acceleration decreases with the square of the distance from the center of the earth. But for most practical problems in the atmosphere, we can assume this factor is constant. If the object were falling in a vacuum, this would be the only force acting on the object. But in the atmosphere, the motion of a falling object is opposed by the aerodynamic drag. The drag equation tells us that drag D is equal to a drag coefficient Cd times one half the air density rho (\u03c1) times the velocity V squared times a reference area A on which the drag coefficient is based:\n\nOn the figure at the top, and in the equation below, the density is expressed by the Greek symbol \u201crho\u201d. The symbol looks like a script \u201cp\u201d. This is the standard symbol used by aeronautical engineers.\n\nNewton\u2019s Second Law of Motion\n\nThe motion of any moving object can be described by Newton\u2019s second law of motion, force F equals mass m times acceleration a :\n\n\\(\\LARGE F=m\\cdot a\\)\n\nWe can do a little algebra and solve for the acceleration of the object in terms of the net external force and the mass of the object:\n\n\\(\\LARGE a=\\frac Fm\\)\n\nWeight and drag are forces which are vector quantities. The net external force is then equal to the difference of the weight and the drag forces:\n\n\\(\\LARGE F=W-D\\)\n\nThe acceleration of the object then becomes:\n\nDrag Force\n\nThe drag force depends on the square of the velocity. So as the body accelerates its velocity and the drag increase. It quickly reaches a point where the drag is exactly equal to the weight. When drag is equal to weight, there is no net external force on the object, and the acceleration becomes zero. The object then falls at a constant velocity as described by Newton\u2019s first law of motion. The constant velocity is called the terminal velocity.",
+  "content_hash": "eb3075e00d61e05f86f03ef1a82e7b5fb206ac1af485ae694330c065c7beb93c",
+  "crawl_timestamp": "2026-05-30T23:49:48.883541+00:00",
+  "document_id": "nasa_bga_falling_object_with_air_resistance",
+  "equations": [
+    "\\(\\LARGE F=m\\cdot a\\)",
+    "\\(\\LARGE a=\\frac Fm\\)",
+    "\\(\\LARGE F=W-D\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Falling",
+    "Object",
+    "Air",
+    "Resistance"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "falling",
+    "object",
+    "air",
+    "resistance"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Force",
+    "Gravitational Acceleration",
+    "Newton\u2019s Second Law of Motion",
+    "Drag Force"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 18, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_force",
+      "text_end": 391,
+      "text_start": 32,
+      "title": "Force"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_gravitational_acceleration",
+      "text_end": 1278,
+      "text_start": 391,
+      "title": "Gravitational Acceleration"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_newton_s_second_law_of_motion",
+      "text_end": 1831,
+      "text_start": 1278,
+      "title": "Newton\u2019s Second Law of Motion"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_drag_force",
+      "text_end": 2290,
+      "text_start": 1831,
+      "title": "Drag Force"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Object Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Falling Object with Air Resistance",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/falling-object-with-air-resistance/",
+  "validation_status": "valid",
+  "warnings": []
+}

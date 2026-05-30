@@ -1,0 +1,77 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of a glider\n\nGlider\n\nA glider is a special kind of aircraft that has no engine. Paper airplanes are the most obvious example, but gliders come in a wide range of sizes. Toy gliders, made of balsa wood or Styrofoam, are an excellent way for students to study the basics of aerodynamics. Hang-gliders are piloted aircraft that are launched by leaping off the side of a hill. The Wright brothers perfected the design of the first airplane and gained piloting experience through a series of glider flights from 1900 to 1903.More sophisticated gliders are launched by ground based catapults, or are towed aloft by a powered aircraft then cut free to glide for hours over many miles.\n\nGlide Angle\n\nIf a glider is in a steady (constant velocity and no acceleration) descent, it loses altitude as it travels. The glider\u2019s flight path is a simple straight line, shown as the inclined red line in the figure. The flight path intersects the ground at an angle a called the glide angle. If we know the distance flown and the altitude change, we can calculate the glide angle using trigonometry. The tangent tan of the glide angle a is equal to the change in height h divided by the distance flown d :\n\nVector Components\n\nConsidering the balance of forces for a glider, we get two vector component equations. The lift L times the cosine cos of the glide angle plus the drag D times the sine sin of the glide angle is equal to the weight W :\n\n\\(\\LARGE L\\cdot\\cos(a)+D\\cdot\\sin(a)=W\\)\n\nThe lift times the sine of the glide angle is equal to the drag times the cosine of the glide angle.\n\nLift and Drag of a Glider\n\nWith these three equations we can experimentally determine the lift and drag of a glider. If we test fly the glider and measure the distance along the ground, the height at which the glider is released, we can use the first equation to give us an average value of the glide angle. With the glide angle known and a measurement of the weight, we have two remaining equations in two unknowns which can be solved for the lift and the drag.",
+  "content_hash": "95bb39b72746c0f67118e96bbc6636b160e70adda647007a47dbe6def1b13833",
+  "crawl_timestamp": "2026-05-30T23:49:59.649217+00:00",
+  "document_id": "nasa_bga_glider_trajectory_problem",
+  "equations": [
+    "\\(\\LARGE L\\cdot\\cos(a)+D\\cdot\\sin(a)=W\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Glider",
+    "Trajectory",
+    "Problem"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "glider",
+    "trajectory",
+    "problem"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Glider",
+    "Glide Angle",
+    "Vector Components",
+    "Lift and Drag of a Glider"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 18, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_glider",
+      "text_end": 700,
+      "text_start": 34,
+      "title": "Glider"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_glide_angle",
+      "text_end": 1211,
+      "text_start": 700,
+      "title": "Glide Angle"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_vector_components",
+      "text_end": 1594,
+      "text_start": 1211,
+      "title": "Vector Components"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_lift_and_drag_of_a_glider",
+      "text_end": 2056,
+      "text_start": 1594,
+      "title": "Lift and Drag of a Glider"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Gliders",
+  "source_type": "nasa_web_educational_page",
+  "title": "Glider Trajectory Problem",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/glider-trajectory-problem/",
+  "validation_status": "valid",
+  "warnings": []
+}

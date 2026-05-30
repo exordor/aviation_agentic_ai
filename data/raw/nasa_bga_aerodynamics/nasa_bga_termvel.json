@@ -1,0 +1,85 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nHere is a JavaScript calculator which will solve the equations presented on this page:\n\nPlease note : the simulation below is best viewed on a desktop computer. It may take a few minutes for the simulation to load.\n\nImage of terminal velocity equations\n\nExternal Forces\n\nAn object which is falling through the atmosphere is subjected to two external forces. One force is the gravitational force, expressed as the weight of the object. The other force is the air resistance, or drag of the object. If the mass of an object remains constant, the motion of the object can be described by Newton\u2019s second law of motion, force F equals mass m times acceleration a :\n\n\\(\\LARGE F=ma\\)\n\nwhich can be solved for the acceleration of the object in terms of the net external force and the mass of the object:\n\n\\(\\LARGE a=\\frac{F}{m}\\)\n\nWeight and drag are forces which are vector quantities. The net external force F is then equal to the difference of the weight W and the drag D\n\n\\(\\LARGE F=W-D\\)\n\nThe acceleration of a falling object then becomes:\n\n\\(\\LARGE a=\\frac{W-D}{m}\\)\n\nThe magnitude of the drag is given by the drag equation. Drag D depends on a drag coefficient Cd , the atmospheric density rho ( \\(\\bf\\rho\\) ) , the square of the air velocity V , and some reference area A of the object.\n\nDrag\n\nDrag increases with the square of the speed. So as an object falls, we quickly reach conditions where the drag becomes equal to the weight, if the weight is small. When drag is equal to weight, there is no net external force on the object and the vertical acceleration goes to zero. With no acceleration, the object falls at a constant velocity as described by Newton\u2019s first law of motion. The constant vertical velocity is called the terminal velocity .\n\nUsing algebra, we can determine the value of the terminal velocity. At terminal velocity:\n\n\\(\\LARGE D=W\\)\n\n\\(\\LARGE D=\\mathit{Cd}\\cdot\\rho V^{2}\\frac{A}{2}\\)\n\nSolving for the vertical velocity V , we obtain the equation:\n\n\\(\\LARGE V=\\sqrt{\\frac{2W}{\\mathit{Cd}\\cdot\\rho A}}\\)\n\nwhere \\(\\bf\\sqrt{}\\) denotes the square root function.\n\nTerminal Velocity\n\nThe terminal velocity equation tells us that an object with a large cross-sectional area or a high drag coefficient falls slower than an object with a small area or low drag coefficient. A large flat plate falls slower than a small ball with the same weight. If we have two objects with the same area and drag coefficient, like two identically sized spheres, the lighter object falls slower. This seems to contradict the findings of Galileo that all free-falling objects fall at the same rate with equal air resistance. But Galileo\u2019s principle only applies in a vacuum, where there is NO air resistance and drag is equal to zero.\n\nGeneral Instructions\n\nThe chemistry of the atmosphere and the gravitational constant of a planet affects the terminal velocity. You select the planet using the choice button at the top left. The calculations can be performed in English (Imperial) or metric units. Specify the weight or mass of your object. You can choose to input either the weight on Earth, the local weight on the planet, or the mass of the object. Then you must specify the cross-sectional area and the drag coefficient. Finally, you must specify the atmospheric density. We have included models of the atmospheric density variation with altitude for Earth and Mars in the calculator. When you have the proper test conditions, press the red \u201cCompute\u201d button to calculate the terminal velocity.\n\nNotice: In this calculator, you have to specify the drag coefficient. The value of the drag coefficient depends on the shape of the object and on compressibility effects in the flow. For airflow near and faster than the speed of sound, there is a large increase in the drag coefficient because of the formation of shock waves on the object. So be very careful when interpreting results with large terminal velocities. If your drag coefficient includes compressibility effects, then your answer is correct. If your drag coefficient was determined at low speeds, and the terminal velocity is very high, you are getting the wrong answer because your drag coefficient does not include compressibility effects.\n\nThe original source code for the simulations is available for users to download at the BGA Simulations on GitHub .",
+  "content_hash": "7c86172fd754b364ae74c0e0c9587d3662d4f39a081d1678dd33aa72fd939356",
+  "crawl_timestamp": "2026-05-30T23:49:48.852520+00:00",
+  "document_id": "nasa_bga_termvel",
+  "equations": [
+    "\\(\\LARGE F=ma\\)",
+    "\\(\\LARGE a=\\frac{F}{m}\\)",
+    "\\(\\LARGE F=W-D\\)",
+    "\\(\\LARGE a=\\frac{W-D}{m}\\)",
+    "The magnitude of the drag is given by the drag equation. Drag D depends on a drag coefficient Cd , the atmospheric density rho ( \\(\\bf\\rho\\) ) , the square of the air velocity V , and some reference area A of the object.",
+    "\\(\\LARGE D=W\\)",
+    "\\(\\LARGE D=\\mathit{Cd}\\cdot\\rho V^{2}\\frac{A}{2}\\)",
+    "\\(\\LARGE V=\\sqrt{\\frac{2W}{\\mathit{Cd}\\cdot\\rho A}}\\)",
+    "where \\(\\bf\\sqrt{}\\) denotes the square root function."
+  ],
+  "expected_ontology_concepts": [
+    "Terminal",
+    "Velocity",
+    "Interactive"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "terminal",
+    "velocity",
+    "interactive"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "External Forces",
+    "Drag",
+    "Terminal Velocity",
+    "General Instructions"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": true,
+  "page_last_updated": "July 17, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_external_forces",
+      "text_end": 1139,
+      "text_start": 269,
+      "title": "External Forces"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_drag",
+      "text_end": 2100,
+      "text_start": 1139,
+      "title": "Drag"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_terminal_velocity",
+      "text_end": 2750,
+      "text_start": 2100,
+      "title": "Terminal Velocity"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_general_instructions",
+      "text_end": 4336,
+      "text_start": 2750,
+      "title": "General Instructions"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Object Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Terminal Velocity Interactive",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/termvel/",
+  "validation_status": "valid",
+  "warnings": []
+}

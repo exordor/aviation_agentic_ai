@@ -1,0 +1,88 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nDrag Coefficient\n\nThe drag coefficient is a number that engineers use to model all of the complex dependencies of shape, inclination, and flow conditions on aircraft and rocket drag. This equation is simply a rearrangement of the drag equation where we solve for the drag coefficient in terms of the other variables. The drag coefficient C d is equal to the drag D divided by the quantity: density \u03c1 times half the velocity V squared times the reference area A .\n\n\\(\\LARGE C_d=\\frac{D}{\\frac{\\rho\\cdot A\\cdot V^{2}}{2}}\\)\n\nThe quantity one half the density times the velocity squared is called the dynamic pressure q . So\n\n\\(\\LARGE C_d=\\frac D{q\\cdot A}\\)\n\nThe drag coefficient then expresses the ratio of the drag force to the force produced by the dynamic pressure times the area.\n\nDetermining Value for Drag Coefficient\n\nThis equation gives us a way to determine a value for the drag coefficient. In a controlled environment like a wind tunnel we can set the velocity, density, and area and measure the drag produced. Through division we arrive at a value for the drag coefficient. As pointed out on the drag equation slide, the choice of reference area (frontal area or surface area) will affect the numerical value of the drag coefficient that is calculated. When reporting drag coefficient values, it is important to specify the reference area that is used to determine the coefficient. We can predict the drag that will be produced under a different set of velocity, density (altitude), and area conditions using the drag equation.\n\nAir Viscosity and Compressibility Effects\n\nThe drag coefficient contains not only the complex dependencies of object shape and inclination, but also the effects of air viscosity and compressibility. To correctly use the drag coefficient, we must be sure that the viscosity and compressibility effects are the same between our measured case and the predicted case. Otherwise, the prediction will be inaccurate. For very low speeds (< 200 mph) the compressibility effects are negligible. At higher speeds, it becomes important to match Mach numbers between the two cases. Mach number is the ratio of the velocity to the speed of sound. At supersonic speeds, shock waves will be present in the flow field and we must be sure to account for the wave drag in the drag coefficient. So it is completely incorrect to measure a drag coefficient at some low speed (say 200 mph) and apply that drag coefficient at twice the speed of sound (approximately 1,400 mph, Mach = 2.0). It is even more important to match air viscosity effects. The important matching parameter for viscosity is the Reynolds number that expresses the ratio of inertial forces to viscous forces. In our discussions on the sources of drag, recall that skin friction drag depends directly on the viscous interaction of the object and the flow. If the Reynolds number of the experiment and flight are close, then we properly model the effects of the viscous forces relative to the inertial forces. If they are very different, we do not correctly model the physics of the real problem and will predict an incorrect drag.\n\nFlow Conditions\n\nThe drag coefficient equation will apply to any object if we properly match flow conditions. If we are considering an aircraft, we can think of the drag coefficient as being composed of two main components; a basic drag coefficient which includes the effects of skin friction and shape (form), and an additional drag coefficient related to the lift of the aircraft. This additional source of drag is called the induced drag or drag due to lift. Induced drag occurs because of the distribution of lift across the span of the wing. Because of pressure differences above and below the wing, the air on the bottom of the wing is drawn onto the top near the wing tips. This creates a swirling flow which changes the effective angle of attack along the wing and \u201cinduces\u201d a drag on the wing. The induced drag coefficient C di is equal to the square of the lift coefficient C l divided by the quantity: pi (\u03c0) (3.14159) times the aspect ratio AR times an efficiency factor e .\n\n\\(\\LARGE C_{di}=\\frac{Cl^2}{\\mathrm\\pi\\cdot AR\\cdot e}\\)\n\nThe aspect ratio is the square of the span s divided by the wing area A .\n\nAspect Ratio Wings\n\nFor a rectangular wing this reduces to the ratio of the span to the chord. Long, slender, high aspect ratio wings have lower induced drag than short, thick, low aspect ratio wings. Lifting line theory shows that the optimum (lowest) induced drag occurs for an elliptical distribution of lift from tip to tip. The efficiency factor e is equal to 1.0 for an elliptical distribution and is some value less than 1.0 for any other lift distribution. A typical value for e for a rectangular wing is .70 . The outstanding aerodynamic performance of the British Spitfire of World War II is partially attributable to its elliptic shaped wing which gave the aircraft a very low amount of induced drag. The total drag coefficient C d is equal to the drag coefficient at zero lift C do plus the induced drag coefficient C di .\n\n\\(\\LARGE C_d=C_{d0}+C_{di}\\)\n\nThe drag coefficient in this equation uses the wing area for the reference area. Otherwise, we could not add it to the square of the lift coefficient, which is also based on the wing area.",
+  "content_hash": "6e71c40a47ca12cf53c54432662e0a82442e95e2e6c15e7a4157a3ac3e461827",
+  "crawl_timestamp": "2026-05-30T23:49:58.412883+00:00",
+  "document_id": "nasa_bga_drag_coefficient",
+  "equations": [
+    "\\(\\LARGE C_d=\\frac{D}{\\frac{\\rho\\cdot A\\cdot V^{2}}{2}}\\)",
+    "\\(\\LARGE C_d=\\frac D{q\\cdot A}\\)",
+    "\\(\\LARGE C_{di}=\\frac{Cl^2}{\\mathrm\\pi\\cdot AR\\cdot e}\\)",
+    "\\(\\LARGE C_d=C_{d0}+C_{di}\\)"
+  ],
+  "expected_ontology_concepts": [
+    "Drag",
+    "Coefficient"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "drag",
+    "coefficient"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Drag Coefficient",
+    "Determining Value for Drag Coefficient",
+    "Air Viscosity and Compressibility Effects",
+    "Flow Conditions",
+    "Aspect Ratio Wings"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 19, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_drag_coefficient",
+      "text_end": 799,
+      "text_start": 15,
+      "title": "Drag Coefficient"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_determining_value_for_drag_coefficient",
+      "text_end": 1555,
+      "text_start": 799,
+      "title": "Determining Value for Drag Coefficient"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_air_viscosity_and_compressibility_effects",
+      "text_end": 3135,
+      "text_start": 1555,
+      "title": "Air Viscosity and Compressibility Effects"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_flow_conditions",
+      "text_end": 4256,
+      "text_start": 3135,
+      "title": "Flow Conditions"
+    },
+    {
+      "level": 2,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_aspect_ratio_wings",
+      "text_end": 5310,
+      "text_start": 4256,
+      "title": "Aspect Ratio Wings"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Drag",
+  "source_type": "nasa_web_educational_page",
+  "title": "Drag Coefficient",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-coefficient/",
+  "validation_status": "valid",
+  "warnings": []
+}

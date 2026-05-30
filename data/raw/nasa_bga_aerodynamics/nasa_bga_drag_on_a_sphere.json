@@ -1,0 +1,36 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "",
+  "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "crawl_timestamp": "2026-05-30T23:49:57.649698+00:00",
+  "document_id": "nasa_bga_drag_on_a_sphere",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Drag",
+    "Sphere",
+    "Animated"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "drag",
+    "sphere",
+    "animated"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "ingestion_error": "CalledProcessError: Command '['curl', '-L', '--fail', '--silent', '--show-error', '--max-time', '45', '-A', 'aviation-agentic-ai-source-ingestion/1.0', 'https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-on-a-sphere/']' returned non-zero exit status 22.",
+  "is_interactive": true,
+  "page_last_updated": "",
+  "sections": [],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Drag",
+  "source_type": "nasa_web_educational_page",
+  "title": "Drag on a Sphere\u2026Animated",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-on-a-sphere/",
+  "validation_status": "invalid",
+  "warnings": [
+    "source fetch failed"
+  ]
+}

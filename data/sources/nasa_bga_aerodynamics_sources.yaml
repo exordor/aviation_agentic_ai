@@ -1,0 +1,1860 @@
+corpus_id: nasa_bga_aerodynamics
+corpus_scope: full_landing_page_collection_with_lessons_in_aerodynamics_experiment_subset
+primary_source_url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/learn-about-aerodynamics/
+source_type: nasa_web_educational_page
+source_authority: NASA Glenn Research Center
+advisory_risk_level: learning
+experiment_subset: Lessons in Aerodynamics
+sources_total: 90
+experiment_sources_total: 8
+notes:
+- All unique content links discovered under the NASA BGA learn-about-aerodynamics
+  landing page are collected.
+- Only the Lessons in Aerodynamics section is used in the current ontology/chunking/KG/RAG
+  experiment.
+- Interactive pages are collected as source pages but are not treated as operational
+  procedure sources.
+sources:
+- document_id: nasa_bga_aerodynamic_forces
+  title: Aerodynamic Forces
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lessons in Aerodynamics
+  is_interactive: false
+  expected_topics:
+  - aerodynamic
+  - forces
+  expected_ontology_concepts:
+  - AerodynamicForce
+  - Lift
+  - Drag
+  expected_relations:
+  - hasComponent
+  - dependsOn
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: true
+  experiment_scope: nasa_bga_lessons_in_aerodynamics
+- document_id: nasa_bga_dynamic_pressure
+  title: Dynamic Pressure
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lessons in Aerodynamics
+  is_interactive: false
+  expected_topics:
+  - dynamic
+  - pressure
+  expected_ontology_concepts:
+  - DynamicPressure
+  - Pressure
+  - Velocity
+  - Density
+  expected_relations:
+  - dependsOn
+  - hasEquation
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: true
+  experiment_scope: nasa_bga_lessons_in_aerodynamics
+- document_id: nasa_bga_center_of_pressure
+  title: Center of Pressure
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lessons in Aerodynamics
+  is_interactive: false
+  expected_topics:
+  - center
+  - pressure
+  expected_ontology_concepts:
+  - CenterOfPressure
+  - PressureDistribution
+  expected_relations:
+  - locatedAt
+  - dependsOn
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: true
+  experiment_scope: nasa_bga_lessons_in_aerodynamics
+- document_id: nasa_bga_aerodynamic_center
+  title: Aerodynamic Center
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lessons in Aerodynamics
+  is_interactive: false
+  expected_topics:
+  - aerodynamic
+  - center
+  expected_ontology_concepts:
+  - AerodynamicCenter
+  - Airfoil
+  expected_relations:
+  - locatedAt
+  - contrastsWith
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: true
+  experiment_scope: nasa_bga_lessons_in_aerodynamics
+- document_id: nasa_bga_spcal
+  title: Reynolds Number Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lessons in Aerodynamics
+  is_interactive: true
+  expected_topics:
+  - reynolds
+  - number
+  - interactive
+  expected_ontology_concepts:
+  - ReynoldsNumber
+  - Viscosity
+  - Density
+  - Velocity
+  expected_relations:
+  - dependsOn
+  - explains
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: true
+  experiment_scope: nasa_bga_lessons_in_aerodynamics
+- document_id: nasa_bga_boundary_layer
+  title: Boundary Layer
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lessons in Aerodynamics
+  is_interactive: false
+  expected_topics:
+  - boundary
+  - layer
+  expected_ontology_concepts:
+  - BoundaryLayer
+  - Viscosity
+  - Flow
+  expected_relations:
+  - affectedBy
+  - explains
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: true
+  experiment_scope: nasa_bga_lessons_in_aerodynamics
+- document_id: nasa_bga_mass_flow_rate
+  title: Mass Flow Rate
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lessons in Aerodynamics
+  is_interactive: false
+  expected_topics:
+  - mass
+  - flow
+  - rate
+  expected_ontology_concepts:
+  - MassFlowRate
+  - Velocity
+  - Density
+  - Area
+  expected_relations:
+  - hasEquation
+  - dependsOn
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: true
+  experiment_scope: nasa_bga_lessons_in_aerodynamics
+- document_id: nasa_bga_definition_of_streamlines
+  title: Definition of Streamlines
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lessons in Aerodynamics
+  is_interactive: false
+  expected_topics:
+  - definition
+  - streamlines
+  expected_ontology_concepts:
+  - Streamline
+  - Flow
+  expected_relations:
+  - describes
+  - explains
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: true
+  experiment_scope: nasa_bga_lessons_in_aerodynamics
+- document_id: nasa_bga_drop_simulator
+  title: DropSim Interactive Simulator
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drop-simulator/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: true
+  expected_topics:
+  - dropsim
+  - interactive
+  - simulator
+  expected_ontology_concepts:
+  - DropSim
+  - Interactive
+  - Simulator
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_basic_object_motion
+  title: Basic Object Motion
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/basic-object-motion/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: false
+  expected_topics:
+  - object
+  - motion
+  expected_ontology_concepts:
+  - Object
+  - Motion
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_object_motion_due_to_a_side_force
+  title: Object Motion Due to a Side Force
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/object-motion-due-to-a-side-force/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: false
+  expected_topics:
+  - object
+  - motion
+  - side
+  - force
+  expected_ontology_concepts:
+  - Object
+  - Motion
+  - Side
+  - Force
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_fltcalc
+  title: Ballistic Flight Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/fltcalc/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: true
+  expected_topics:
+  - ballistic
+  - flight
+  - interactive
+  expected_ontology_concepts:
+  - Ballistic
+  - Flight
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_newtons_laws_of_motion
+  title: Falling Objects – Newton’s First Law
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/newtons-laws-of-motion/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: false
+  expected_topics:
+  - falling
+  - objects
+  - newton
+  - s
+  - first
+  - law
+  expected_ontology_concepts:
+  - Falling
+  - Objects
+  - Newton
+  - S
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_motion_of_free_falling_object
+  title: Motion of Free Falling Object
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/motion-of-free-falling-object/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: false
+  expected_topics:
+  - motion
+  - free
+  - falling
+  - object
+  expected_ontology_concepts:
+  - Motion
+  - Free
+  - Falling
+  - Object
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_free_fall_without_air_resistance
+  title: Free Fall without Air Resistance
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/free-fall-without-air-resistance/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: false
+  expected_topics:
+  - free
+  - fall
+  - without
+  - air
+  - resistance
+  expected_ontology_concepts:
+  - Free
+  - Fall
+  - Without
+  - Air
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_falling_object_with_air_resistance
+  title: Falling Object with Air Resistance
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/falling-object-with-air-resistance/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: false
+  expected_topics:
+  - falling
+  - object
+  - air
+  - resistance
+  expected_ontology_concepts:
+  - Falling
+  - Object
+  - Air
+  - Resistance
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_termvel
+  title: Terminal Velocity Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/termvel/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Object Motion
+  is_interactive: true
+  expected_topics:
+  - terminal
+  - velocity
+  - interactive
+  expected_ontology_concepts:
+  - Terminal
+  - Velocity
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_enginesimr
+  title: RangeGames Interactive Simulator
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/enginesimr/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: true
+  expected_topics:
+  - rangegames
+  - interactive
+  - simulator
+  expected_ontology_concepts:
+  - RangeGames
+  - Interactive
+  - Simulator
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_simplified_aircraft_motion
+  title: Simplified Aircraft Motion
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/simplified-aircraft-motion/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: false
+  expected_topics:
+  - simplified
+  - aircraft
+  - motion
+  expected_ontology_concepts:
+  - Simplified
+  - Aircraft
+  - Motion
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_aircraft_motion_newtons_first_law
+  title: Aircraft Motion – Newton’s Laws of Motion
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-motion-newtons-first-law/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: false
+  expected_topics:
+  - aircraft
+  - motion
+  - newton
+  - s
+  - laws
+  - motion
+  expected_ontology_concepts:
+  - Aircraft
+  - Motion
+  - Newton
+  - S
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_aircraft_translations
+  title: Aircraft Translations
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-translations/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: false
+  expected_topics:
+  - aircraft
+  - translations
+  expected_ontology_concepts:
+  - Aircraft
+  - Translations
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_aircraft_rotations
+  title: Aircraft Rotations
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-rotations/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: false
+  expected_topics:
+  - aircraft
+  - rotations
+  expected_ontology_concepts:
+  - Aircraft
+  - Rotations
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_banking_turns
+  title: Banking Turns
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/banking-turns/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: false
+  expected_topics:
+  - banking
+  - turns
+  expected_ontology_concepts:
+  - Banking
+  - Turns
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_range_constant_velocity
+  title: Range – Constant Velocity
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/range-constant-velocity/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: false
+  expected_topics:
+  - range
+  - constant
+  - velocity
+  expected_ontology_concepts:
+  - Range
+  - Constant
+  - Velocity
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_maximum_flight_time
+  title: Maximum Flight Time
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/maximum-flight-time/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: false
+  expected_topics:
+  - maximum
+  - flight
+  - time
+  expected_ontology_concepts:
+  - Maximum
+  - Flight
+  - Time
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_range_summary
+  title: Range Summary
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/range-summary/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Motion
+  is_interactive: false
+  expected_topics:
+  - range
+  - summary
+  expected_ontology_concepts:
+  - Range
+  - Summary
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_airplane_parts_function
+  title: Airplane Parts and Function
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/airplane-parts-function/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: false
+  expected_topics:
+  - airplane
+  - parts
+  - function
+  expected_ontology_concepts:
+  - Airplane
+  - Parts
+  - Function
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_fuselage
+  title: Fuselage
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/fuselage/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: false
+  expected_topics:
+  - fuselage
+  expected_ontology_concepts:
+  - Fuselage
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_turbine_engines
+  title: Turbine Engines
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/turbine-engines/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: false
+  expected_topics:
+  - turbine
+  - engines
+  expected_ontology_concepts:
+  - Turbine
+  - Engines
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_wing_geometry_interactive
+  title: Wing Geometry Definitions Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/wing-geometry-interactive/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: true
+  expected_topics:
+  - wing
+  - geometry
+  - definitions
+  - interactive
+  expected_ontology_concepts:
+  - Wing
+  - Geometry
+  - Definitions
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_winglets
+  title: Winglets
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/winglets/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: false
+  expected_topics:
+  - winglets
+  expected_ontology_concepts:
+  - Winglets
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_aircraft_elevator_interactive
+  title: Elevator Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-elevator-interactive/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: true
+  expected_topics:
+  - elevator
+  - interactive
+  expected_ontology_concepts:
+  - Elevator
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_ailerons
+  title: Ailerons
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/ailerons/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: false
+  expected_topics:
+  - ailerons
+  expected_ontology_concepts:
+  - Ailerons
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_rudder_interactive
+  title: Rudder Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/rudder-interactive/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: true
+  expected_topics:
+  - rudder
+  - interactive
+  expected_ontology_concepts:
+  - Rudder
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_spoilers_interactive
+  title: Spoilers Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spoilers-interactive/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: true
+  expected_topics:
+  - spoilers
+  - interactive
+  expected_ontology_concepts:
+  - Spoilers
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_flaps_and_slats
+  title: Flaps and Slats Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/flaps-and-slats/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: true
+  expected_topics:
+  - flaps
+  - slats
+  - interactive
+  expected_ontology_concepts:
+  - Flaps
+  - Slats
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_stablator_interacxtive_simulator
+  title: Stabilator Animation
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/stablator-interacxtive-simulator/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: true
+  expected_topics:
+  - stabilator
+  - animation
+  expected_ontology_concepts:
+  - Stabilator
+  - Animation
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_pitot_static_tube_speedometer
+  title: Pitot-Static Tube – Speedometer
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/pitot-static-tube-speedometer/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Airplane Parts
+  is_interactive: false
+  expected_topics:
+  - pitot
+  - static
+  - tube
+  - speedometer
+  expected_ontology_concepts:
+  - Pitot
+  - Static
+  - Tube
+  - Speedometer
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_four_forces_on_an_airplane
+  title: Four Forces on an Airplane
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/four-forces-on-an-airplane/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - four
+  - forces
+  - an
+  - airplane
+  expected_ontology_concepts:
+  - Four
+  - Forces
+  - An
+  - Airplane
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_what_is_weight
+  title: What is Weight?
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-weight/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - weight
+  expected_ontology_concepts:
+  - Weight
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_what_is_lift
+  title: What is Lift?
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-lift/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - lift
+  expected_ontology_concepts:
+  - Lift
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_what_is_drag
+  title: What is Drag?
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-drag/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - drag
+  expected_ontology_concepts:
+  - Drag
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_what_is_thrust
+  title: What is Thrust?
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-thrust/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - thrust
+  expected_ontology_concepts:
+  - Thrust
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_lift_to_drag_ratio
+  title: Lift to Drag Ratio
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-to-drag-ratio/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - lift
+  - drag
+  - ratio
+  expected_ontology_concepts:
+  - Lift
+  - Drag
+  - Ratio
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_thrust_to_weight_ratio
+  title: Thrust to Weight Ratio
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/thrust-to-weight-ratio/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - thrust
+  - weight
+  - ratio
+  expected_ontology_concepts:
+  - Thrust
+  - Weight
+  - Ratio
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_excess_thrust_thrust_drag
+  title: Excess Thrust (Thrust – Drag)
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/excess-thrust-thrust-drag/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - excess
+  - thrust
+  - thrust
+  - drag
+  expected_ontology_concepts:
+  - Excess
+  - Thrust
+  - Thrust
+  - Drag
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_forces_in_a_climb
+  title: Forces in a Climb
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/forces-in-a-climb/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - forces
+  - climb
+  expected_ontology_concepts:
+  - Forces
+  - Climb
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_vectored_thrust
+  title: Vectored Thrust
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/vectored-thrust/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - vectored
+  - thrust
+  expected_ontology_concepts:
+  - Vectored
+  - Thrust
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_airplane_cruise_balanced_forces
+  title: Airplane Cruise – Balanced Forces
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/airplane-cruise-balanced-forces/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - airplane
+  - cruise
+  - balanced
+  - forces
+  expected_ontology_concepts:
+  - Airplane
+  - Cruise
+  - Balanced
+  - Forces
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_trimmed_aircraft
+  title: Trimmed Aircraft
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/trimmed-aircraft/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - trimmed
+  - aircraft
+  expected_ontology_concepts:
+  - Trimmed
+  - Aircraft
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_momentum_effects
+  title: Momentum Effects
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/momentum-effects/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: false
+  expected_topics:
+  - momentum
+  - effects
+  expected_ontology_concepts:
+  - Momentum
+  - Effects
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_foilden
+  title: Density Effects Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilden/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: true
+  expected_topics:
+  - density
+  - effects
+  - interactive
+  expected_ontology_concepts:
+  - Density
+  - Effects
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_foilvel
+  title: Velocity Effects Interactive
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilvel/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Aircraft Forces
+  is_interactive: true
+  expected_topics:
+  - velocity
+  - effects
+  - interactive
+  expected_ontology_concepts:
+  - Velocity
+  - Effects
+  - Interactive
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_enginesimu
+  title: EngineSim Interactive Simulator
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/enginesimu/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Thrust
+  is_interactive: true
+  expected_topics:
+  - enginesim
+  - interactive
+  - simulator
+  expected_ontology_concepts:
+  - EngineSim
+  - Interactive
+  - Simulator
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_thrust_force
+  title: Thrust Equation
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/thrust-force/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Thrust
+  is_interactive: false
+  expected_topics:
+  - thrust
+  - equation
+  expected_ontology_concepts:
+  - Thrust
+  - Equation
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_determining_aircraft_weight
+  title: Determining Aircraft Weight
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/determining-aircraft-weight/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Weight
+  is_interactive: false
+  expected_topics:
+  - determining
+  - aircraft
+  - weight
+  expected_ontology_concepts:
+  - Determining
+  - Aircraft
+  - Weight
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_center_of_gravity
+  title: Center of Gravity
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-gravity/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Weight
+  is_interactive: false
+  expected_topics:
+  - center
+  - gravity
+  expected_ontology_concepts:
+  - Center
+  - Gravity
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_aircraft_center_of_gravity
+  title: Aircraft Center of Gravity
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aircraft-center-of-gravity/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Weight
+  is_interactive: false
+  expected_topics:
+  - aircraft
+  - center
+  - gravity
+  expected_ontology_concepts:
+  - Aircraft
+  - Center
+  - Gravity
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_weight_equation
+  title: Weight Equation
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/weight-equation/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Weight
+  is_interactive: false
+  expected_topics:
+  - weight
+  - equation
+  expected_ontology_concepts:
+  - Weight
+  - Equation
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_foilsimstudent
+  title: Student Airfoil Interactive Simulator
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilsimstudent/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: true
+  expected_topics:
+  - student
+  - airfoil
+  - interactive
+  - simulator
+  expected_ontology_concepts:
+  - Student
+  - Airfoil
+  - Interactive
+  - Simulator
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_bernoulli_and_newton
+  title: Bernoulli and Newton
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/bernoulli-and-newton/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - bernoulli
+  - newton
+  expected_ontology_concepts:
+  - Bernoulli
+  - Newton
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_foilobj
+  title: Objects with Lift
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilobj/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - objects
+  - lift
+  expected_ontology_concepts:
+  - Objects
+  - Lift
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_shed_vorticity
+  title: Shed Vorticity
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/shed-vorticity/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - shed
+  - vorticity
+  expected_ontology_concepts:
+  - Shed
+  - Vorticity
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_foilw1
+  title: Equal Transit Theory
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilw1/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - equal
+  - transit
+  - theory
+  expected_ontology_concepts:
+  - Equal
+  - Transit
+  - Theory
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_foilw2
+  title: Skipping Stone Theory
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilw2/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - skipping
+  - stone
+  - theory
+  expected_ontology_concepts:
+  - Skipping
+  - Stone
+  - Theory
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_venturi_theory
+  title: Venturi Theory
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/venturi-theory/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - venturi
+  - theory
+  expected_ontology_concepts:
+  - Venturi
+  - Theory
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_factors_that_affect_lift
+  title: Factors That Affect Lift
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/factors-that-affect-lift/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - factors
+  - affect
+  - lift
+  expected_ontology_concepts:
+  - Factors
+  - Affect
+  - Lift
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_foilshape
+  title: Shape Effects on Lift
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilshape/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - shape
+  - effects
+  - lift
+  expected_ontology_concepts:
+  - Shape
+  - Effects
+  - Lift
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_effect_of_size_on_lift
+  title: Size Effects on Lift
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/effect-of-size-on-lift/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - size
+  - effects
+  - lift
+  expected_ontology_concepts:
+  - Size
+  - Effects
+  - Lift
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_foilinc
+  title: Inclination Effects on Lift
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilinc/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - inclination
+  - effects
+  - lift
+  expected_ontology_concepts:
+  - Inclination
+  - Effects
+  - Lift
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_downwash_effects_on_lift
+  title: Downwash Effects on Lift
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/downwash-effects-on-lift/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - downwash
+  - effects
+  - lift
+  expected_ontology_concepts:
+  - Downwash
+  - Effects
+  - Lift
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_lift_equation
+  title: Lift Equation
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-equation/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - lift
+  - equation
+  expected_ontology_concepts:
+  - Lift
+  - Equation
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_lift_coefficient
+  title: Lift Coefficient
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-coefficient/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Lift
+  is_interactive: false
+  expected_topics:
+  - lift
+  - coefficient
+  expected_ontology_concepts:
+  - Lift
+  - Coefficient
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_factors_that_affect_drag
+  title: Factors That Affect Drag
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/factors-that-affect-drag/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: false
+  expected_topics:
+  - factors
+  - affect
+  - drag
+  expected_ontology_concepts:
+  - Factors
+  - Affect
+  - Drag
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_shape_effects_on_drag
+  title: Shape Effects on Drag
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/shape-effects-on-drag/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: false
+  expected_topics:
+  - shape
+  - effects
+  - drag
+  expected_ontology_concepts:
+  - Shape
+  - Effects
+  - Drag
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_drag_on_a_sphere
+  title: Drag on a Sphere…Animated
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-on-a-sphere/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: true
+  expected_topics:
+  - drag
+  - sphere
+  - animated
+  expected_ontology_concepts:
+  - Drag
+  - Sphere
+  - Animated
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_size_effects_on_drag
+  title: Size Effects on Drag
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/size-effects-on-drag/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: false
+  expected_topics:
+  - size
+  - effects
+  - drag
+  expected_ontology_concepts:
+  - Size
+  - Effects
+  - Drag
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_inclination_effects_on_drag
+  title: Inclination Effects on Drag
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/inclination-effects-on-drag/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: false
+  expected_topics:
+  - inclination
+  - effects
+  - drag
+  expected_ontology_concepts:
+  - Inclination
+  - Effects
+  - Drag
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_drag_measurement
+  title: Drag Measurement
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-measurement/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: false
+  expected_topics:
+  - drag
+  - measurement
+  expected_ontology_concepts:
+  - Drag
+  - Measurement
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_induced_drag_coefficient
+  title: Induced Drag Coefficient
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/induced-drag-coefficient/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: false
+  expected_topics:
+  - induced
+  - drag
+  - coefficient
+  expected_ontology_concepts:
+  - Induced
+  - Drag
+  - Coefficient
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_drag_equation
+  title: Drag Equation
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: false
+  expected_topics:
+  - drag
+  - equation
+  expected_ontology_concepts:
+  - Drag
+  - Equation
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_drag_coefficient
+  title: Drag Coefficient
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-coefficient/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Drag
+  is_interactive: false
+  expected_topics:
+  - drag
+  - coefficient
+  expected_ontology_concepts:
+  - Drag
+  - Coefficient
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_gliders
+  title: Gliders
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/gliders/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Gliders
+  is_interactive: false
+  expected_topics:
+  - gliders
+  expected_ontology_concepts:
+  - Gliders
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_paper_airplanes_plans
+  title: Paper Airplanes Plans
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/paper-airplanes-plans/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Gliders
+  is_interactive: false
+  expected_topics:
+  - paper
+  - airplanes
+  - plans
+  expected_ontology_concepts:
+  - Paper
+  - Airplanes
+  - Plans
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_fun_with_gliders
+  title: Fun with Gliders
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/fun-with-gliders/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Gliders
+  is_interactive: false
+  expected_topics:
+  - fun
+  - gliders
+  expected_ontology_concepts:
+  - Fun
+  - Gliders
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_space_shuttle_as_a_glider
+  title: Space Shuttle as a Glider
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/space-shuttle-as-a-glider/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Gliders
+  is_interactive: false
+  expected_topics:
+  - space
+  - shuttle
+  - glider
+  expected_ontology_concepts:
+  - Space
+  - Shuttle
+  - Glider
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_three_forces_on_a_glider
+  title: Three Forces on a Glider
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/three-forces-on-a-glider/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Gliders
+  is_interactive: false
+  expected_topics:
+  - three
+  - forces
+  - glider
+  expected_ontology_concepts:
+  - Three
+  - Forces
+  - Glider
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_glide_angle
+  title: Glide Angle
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/glide-angle/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Gliders
+  is_interactive: false
+  expected_topics:
+  - glide
+  - angle
+  expected_ontology_concepts:
+  - Glide
+  - Angle
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_vector_balance_of_forces_glider
+  title: Vector Balance of Forces – Glider
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/vector-balance-of-forces-glider/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Gliders
+  is_interactive: false
+  expected_topics:
+  - vector
+  - balance
+  - forces
+  - glider
+  expected_ontology_concepts:
+  - Vector
+  - Balance
+  - Forces
+  - Glider
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment
+- document_id: nasa_bga_glider_trajectory_problem
+  title: Glider Trajectory Problem
+  url: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/glider-trajectory-problem/
+  source_type: nasa_web_educational_page
+  source_authority: NASA Glenn Research Center
+  advisory_risk_level: learning
+  source_section: Gliders
+  is_interactive: false
+  expected_topics:
+  - glider
+  - trajectory
+  - problem
+  expected_ontology_concepts:
+  - Glider
+  - Trajectory
+  - Problem
+  expected_relations: []
+  status: ingested
+  include_in_corpus: true
+  include_in_experiment: false
+  experiment_scope: collected_not_used_in_current_experiment

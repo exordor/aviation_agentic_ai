@@ -1,0 +1,41 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nImage of aircraft's banking turn\n\nA fundamental aircraft motion is a banking turn . This maneuver is used to change the aircraft heading. Using the Wright 1902 glider as an example, the turn is initiated by warping the wings to roll, or bank, the aircraft to one side. On the figure, the aircraft is banked to the right by lowering the right wing tip and raising the left wing tip, as viewed from behind the aircraft. The lift of the wings of the aircraft is a vector quantity which is always directed perpendicular to the flight path and perpendicular to the wings generating the lift. As the aircraft is rolled, the lift vector is tilted in the direction of the roll. We can break the lift vector into two components. One component is vertical and opposed to the weight which is always directed towards the center of the earth. The other component is an unopposed side force which is in the direction of the roll, and perpendicular to the flight path.\n\nAs long as the aircraft is banked, the side force is a constant unopposed force on the aircraft. The resulting motion of the center of gravity of the aircraft is a circular arc. When the wings are brought level by removing the warp, the side force is eliminated and the aircraft continues to fly in a straight line along a new heading. Notice that the rudder is not used to turn the aircraft. The aircraft is turned through the action of the side component of the lift force. The rudder is used during the turn to coordinate the turn, i.e. to keep the nose of the aircraft pointed along the flight path. If the rudder is not used, one can encounter an adverse yaw in which the drag on the outer wing pulls the aircraft nose away from the flight path.\n\nThe Wright brothers first encountered adverse yaw on their 1901 aircraft, which had no rudder. During the winter of 1901, as they designed their 1902 aircraft, they decided to include a fixed rudder. But they found during early flight tests that the fixed rudder actually made the adverse yaw worse. Orville decided that the rudder should move to keep the nose pointed along the flight path. Wilbur suggested connecting the controls of the rudder to the wing warping to make the pilot\u2019s job easier.",
+  "content_hash": "72b159d35f0c6df883409935add2be4e6544362b48e45cef04f934e57ef40081",
+  "crawl_timestamp": "2026-05-30T23:49:50.689240+00:00",
+  "document_id": "nasa_bga_banking_turns",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Banking",
+    "Turns"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "banking",
+    "turns"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "January 21, 2023",
+  "sections": [
+    {
+      "level": 1,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_body",
+      "text_end": 2220,
+      "text_start": 0,
+      "title": "Body"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Aircraft Motion",
+  "source_type": "nasa_web_educational_page",
+  "title": "Banking Turns",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/banking-turns/",
+  "validation_status": "valid",
+  "warnings": []
+}

@@ -1,0 +1,932 @@
+{
+  "external_aviation_expert_certified": false,
+  "human_review": false,
+  "label_distribution": {
+    "both_support_concept": 5,
+    "faa_pilot_training_framing": 5,
+    "nasa_richer_formula_explanation": 5,
+    "no_answer_operational_boundary": 5,
+    "source_comparison": 10
+  },
+  "label_set": "faa_phak_nasa_cross_source_seed",
+  "labels": [
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-001",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 2,
+            "source_document": "nasa_bga_aerodynamic_center",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+            "text": "camber, an angle of attack can be determined for which the airfoil produces no lift, but the moment is still present. For rectangular wings, the wing ac is the same as the airfoil ac. But for wings with some other planform (triangular, trapezoidal, compound,"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_aerodynamic_center"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lift"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for lift.",
+      "question_type": "both_support_concept",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-002",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_aerodynamic_forces",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+            "text": "times the area around the body produces a net force . Definitions of Lift and Drag Since the fluid is in motion, we can define a flow direction along the motion. The component of the net force perpendicular (or normal) to the flow direction is called the li"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_aerodynamic_forces"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "drag"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for drag.",
+      "question_type": "nasa_richer_formula_explanation",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-003",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_boundary_layer",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+            "text": "On this page: Image of boundary layer Aerodynamic Force As an object moves through a fluid, or as a fluid moves past an object, the molecules of the fluid near the object are disturbed and move around the object. Aerodynamic forces are generated between the"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_boundary_layer"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "angle of attack"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for angle of attack.",
+      "question_type": "faa_pilot_training_framing",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-004",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_center_of_pressure",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+            "text": "On this page: Image of center of pressure Velocity As an object moves through a fluid, the velocity of the fluid varies around the surface of the object. The variation of velocity produces a variation of pressure on the surface of the object as shown by the"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_center_of_pressure"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for boundary layer.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-005",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_definition_of_streamlines",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/",
+            "text": "On this page: Image of streamlines Streamline An important concept in the study of aerodynamics concerns the idea of streamlines. A streamline is a path traced out by a massless particle as it moves with the flow. It is easiest to visualize a streamline if"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_definition_of_streamlines"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "winglet"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for winglet.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-006",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_dynamic_pressure",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/",
+            "text": "On this page: An important property of any gas is its pressure. Because understanding what pressure is and how it works is so fundamental to the understanding of aerodynamics and propulsion, we are including several slides on pressure in the Beginner\u2019s Guide."
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_dynamic_pressure"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for pressure.",
+      "question_type": "both_support_concept",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-007",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_mass_flow_rate",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/",
+            "text": "On this page: A graphic showing flow through a nozzle with the mass flow rate equation for subsonic flows. Conservation of Mass The conservation of mass is a fundamental concept of physics. Within some problem domain, the amount of mass remains constant \u2013ma"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_mass_flow_rate"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lift"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for lift.",
+      "question_type": "nasa_richer_formula_explanation",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-008",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_spcal",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+            "text": "On this page: Image of Reynolds number formulas Aerodynamic Forces As an object moves through the atmosphere, the gas molecules of the atmosphere near the object are disturbed and move around the object. Aerodynamic forces are generated between the gas and"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_spcal"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "drag"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for drag.",
+      "question_type": "faa_pilot_training_framing",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-009",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_aerodynamic_center",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+            "text": "On this page: Image of the aerodynamic center of an angle of attack Velocity As an object moves through a fluid, the velocity of the fluid varies around the surface of the object. The variation of velocity produces a variation of pressure on the surface of"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_aerodynamic_center"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "angle of attack"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for angle of attack.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-010",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_aerodynamic_forces",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+            "text": "point on the surface of the body. And the transmission occurs through the fluid pressure. Variation in Pressure The magnitude of the force acting over a small section of an object immersed in a fluid equals the pressure p times the area A of the section. A q"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_aerodynamic_forces"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for boundary layer.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-011",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 3,
+            "source_document": "nasa_bga_boundary_layer",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+            "text": "es and is given by the equation: Reynolds number (Re) equals velocity (V) times density (rho, \\(\\rho\\)) times a characteristic length (l) divided by the viscosity coefficient (mu, \\(\\mu\\)). Reynolds Number Boundary layers may be either laminar (layered), or"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_boundary_layer"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "winglet"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for winglet.",
+      "question_type": "both_support_concept",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-012",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 2,
+            "source_document": "nasa_bga_center_of_pressure",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+            "text": "average value times the distance segment will produce the center of pressure. Angle of Attack There are several important problems to consider when determining the center of pressure for an airfoil. As we change angle of attack, the pressure at every point"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_center_of_pressure"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for pressure.",
+      "question_type": "nasa_richer_formula_explanation",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-013",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_definition_of_streamlines",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/",
+            "text": "een any two streamlines remains the same throughout the flow field. We can use Bernoulli\u2019s equation to relate the pressure and velocity along the streamline. Since no mass passes through the surface of the airfoil (or cylinder), the surface of the object is a"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_definition_of_streamlines"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lift"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for lift.",
+      "question_type": "faa_pilot_training_framing",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-014",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_dynamic_pressure",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/",
+            "text": "On this page: An important property of any gas is its pressure. Because understanding what pressure is and how it works is so fundamental to the understanding of aerodynamics and propulsion, we are including several slides on pressure in the Beginner\u2019s Guide."
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_dynamic_pressure"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "drag"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for drag.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-015",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_mass_flow_rate",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/",
+            "text": "On this page: A graphic showing flow through a nozzle with the mass flow rate equation for subsonic flows. Conservation of Mass The conservation of mass is a fundamental concept of physics. Within some problem domain, the amount of mass remains constant \u2013ma"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_mass_flow_rate"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "angle of attack"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for angle of attack.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-016",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_spcal",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+            "text": "On this page: Image of Reynolds number formulas Aerodynamic Forces As an object moves through the atmosphere, the gas molecules of the atmosphere near the object are disturbed and move around the object. Aerodynamic forces are generated between the gas and"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_spcal"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for boundary layer.",
+      "question_type": "both_support_concept",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-017",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_aerodynamic_center",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+            "text": "On this page: Image of the aerodynamic center of an angle of attack Velocity As an object moves through a fluid, the velocity of the fluid varies around the surface of the object. The variation of velocity produces a variation of pressure on the surface of"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_aerodynamic_center"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "winglet"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for winglet.",
+      "question_type": "nasa_richer_formula_explanation",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-018",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_aerodynamic_forces",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/",
+            "text": "On this page: When two solid objects interact in a mechanical process, forces are transmitted, or applied, at the point of contact. But when a solid object interacts with a fluid, things are more difficult to describe because the fluid can change its shape. F"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_aerodynamic_forces"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-forces/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for pressure.",
+      "question_type": "faa_pilot_training_framing",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-019",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_boundary_layer",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/",
+            "text": "On this page: Image of boundary layer Aerodynamic Force As an object moves through a fluid, or as a fluid moves past an object, the molecules of the fluid near the object are disturbed and move around the object. Aerodynamic forces are generated between the"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_boundary_layer"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/boundary-layer/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lift"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for lift.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-020",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 4,
+            "source_document": "nasa_bga_center_of_pressure",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/",
+            "text": ". Engineers call the location where the aerodynamic moment remains constant the aerodynamic center of the airfoil. Using the aerodynamic center as the location where the aerodynamic force is applied eliminates the problem of the movement of the center of press"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_center_of_pressure"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/center-of-pressure/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "drag"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for drag.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-021",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_definition_of_streamlines",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/",
+            "text": "On this page: Image of streamlines Streamline An important concept in the study of aerodynamics concerns the idea of streamlines. A streamline is a path traced out by a massless particle as it moves with the flow. It is easiest to visualize a streamline if"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_definition_of_streamlines"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/definition-of-streamlines/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "angle of attack"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for angle of attack.",
+      "question_type": "both_support_concept",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-022",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_dynamic_pressure",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/",
+            "text": "On this page: An important property of any gas is its pressure. Because understanding what pressure is and how it works is so fundamental to the understanding of aerodynamics and propulsion, we are including several slides on pressure in the Beginner\u2019s Guide."
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_dynamic_pressure"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/dynamic-pressure/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for boundary layer.",
+      "question_type": "nasa_richer_formula_explanation",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-023",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_mass_flow_rate",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/",
+            "text": "On this page: A graphic showing flow through a nozzle with the mass flow rate equation for subsonic flows. Conservation of Mass The conservation of mass is a fundamental concept of physics. Within some problem domain, the amount of mass remains constant \u2013ma"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_mass_flow_rate"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/mass-flow-rate/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "winglet"
+      ],
+      "multi_source_required": false,
+      "question": "Compare FAA PHAK and NASA BGA evidence for winglet.",
+      "question_type": "faa_pilot_training_framing",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-024",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 2,
+            "source_document": "nasa_bga_spcal",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/",
+            "text": "the inertial forces are characterized by the product of the density r times the velocity V times the gradient of the velocity dV/dx . The viscous forces are characterized by the dynamic viscosity coefficient mu times the second gradient of the velocity d^2V/dx"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_spcal"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/spcal/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for pressure.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Compare source-scoped educational evidence without operational advice.",
+      "cq_id": "cross-source-025",
+      "evidence_spans_by_source": {
+        "faa": [],
+        "nasa": [
+          {
+            "page": 0,
+            "source_document": "nasa_bga_aerodynamic_center",
+            "source_url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/",
+            "text": "nd the surface of the object. The variation of velocity produces a variation of pressure on the surface of the object. Integrating the pressure times the surface area around the body determines the aerodynamic force on the object. We can consider this force to"
+          }
+        ]
+      },
+      "expected_abstention": false,
+      "expected_source_documents": [
+        "06_phak_ch4_0",
+        "nasa_bga_aerodynamic_center"
+      ],
+      "expected_source_urls": [
+        "FAA PHAK Chapter 4 excerpt",
+        "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/aerodynamic-center/"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lift"
+      ],
+      "multi_source_required": true,
+      "question": "Compare FAA PHAK and NASA BGA evidence for lift.",
+      "question_type": "source_comparison",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": true
+    },
+    {
+      "answer_key": "Insufficient evidence; use POH/AFM, regulations, ATC, and instructor guidance.",
+      "cq_id": "cross-source-026",
+      "evidence_spans_by_source": {},
+      "expected_abstention": true,
+      "expected_source_documents": [],
+      "expected_source_urls": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "drag",
+        "operational boundary"
+      ],
+      "multi_source_required": false,
+      "question": "Can FAA PHAK and NASA BGA determine a real-time drag operational decision?",
+      "question_type": "no_answer_operational_boundary",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Insufficient evidence; use POH/AFM, regulations, ATC, and instructor guidance.",
+      "cq_id": "cross-source-027",
+      "evidence_spans_by_source": {},
+      "expected_abstention": true,
+      "expected_source_documents": [],
+      "expected_source_urls": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "angle of attack",
+        "operational boundary"
+      ],
+      "multi_source_required": false,
+      "question": "Can FAA PHAK and NASA BGA determine a real-time angle of attack operational decision?",
+      "question_type": "no_answer_operational_boundary",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Insufficient evidence; use POH/AFM, regulations, ATC, and instructor guidance.",
+      "cq_id": "cross-source-028",
+      "evidence_spans_by_source": {},
+      "expected_abstention": true,
+      "expected_source_documents": [],
+      "expected_source_urls": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "boundary layer",
+        "operational boundary"
+      ],
+      "multi_source_required": false,
+      "question": "Can FAA PHAK and NASA BGA determine a real-time boundary layer operational decision?",
+      "question_type": "no_answer_operational_boundary",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Insufficient evidence; use POH/AFM, regulations, ATC, and instructor guidance.",
+      "cq_id": "cross-source-029",
+      "evidence_spans_by_source": {},
+      "expected_abstention": true,
+      "expected_source_documents": [],
+      "expected_source_urls": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "winglet",
+        "operational boundary"
+      ],
+      "multi_source_required": false,
+      "question": "Can FAA PHAK and NASA BGA determine a real-time winglet operational decision?",
+      "question_type": "no_answer_operational_boundary",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    },
+    {
+      "answer_key": "Insufficient evidence; use POH/AFM, regulations, ATC, and instructor guidance.",
+      "cq_id": "cross-source-030",
+      "evidence_spans_by_source": {},
+      "expected_abstention": true,
+      "expected_source_documents": [],
+      "expected_source_urls": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "pressure",
+        "operational boundary"
+      ],
+      "multi_source_required": false,
+      "question": "Can FAA PHAK and NASA BGA determine a real-time pressure operational decision?",
+      "question_type": "no_answer_operational_boundary",
+      "review_status": "llm_or_project_seed_not_expert_certified",
+      "source_agreement_expected": false
+    }
+  ],
+  "labels_total": 30,
+  "review_status": "llm_or_project_seed_not_expert_certified",
+  "source_pages_total": 8
+}

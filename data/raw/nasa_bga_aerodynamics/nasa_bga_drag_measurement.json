@@ -1,0 +1,83 @@
+{
+  "advisory_risk_level": "learning",
+  "cleaned_text": "On this page:\n\nSmall NASA wind tunnel inside a room with other objects surrounding it.\n\nWind Tunnels\n\nAerodynamicists use wind tunnels to test models of proposed aircraft and engine components. During a test, the model is placed in the test section of the tunnel and air is made to flow past the model. Various types of instrumentation are used to determine the forces on the model. The most basic type of instrument is the force balance .\n\nForce Balance\n\nForce balances are used to directly measure the aerodynamic forces and moments on the model. On this page, we will discuss the measurement of the drag force to demonstrate the basic principles involved with force balances. This configuration is called a one component balance since it only measures one force. There are more sophisticated, three-component balances that can simultaneously measure lift , drag and pitching moment . A six-component balance is required to measure all three forces (lift, drag, and side) and three moments (pitch, roll, and yaw ) that determine an aircraft\u2019s motion through the air.\n\nWright Memorial Tunnel (WMT)\n\nIn the figure, we see a picture of the Wright Memorial Tunnel (WMT) at the NASA Glenn Research Center. The WMT is used for student projects and as a travelling exhibit to let the public see how wind tunnels operate. The top speed in the test section is about 50 mph. Here is a more detailed picture showing a Joukowsky wing model mounted in the test section of the tunnel.\n\nA close of the small NASA wind tunnel, showing where you can see inside the wind tunnel.\n\nThe model is mounted on a sting attached to the wing\u2019s trailing edge. The left part of the sting passes through the bottom wall of the tunnel and attaches to a strain gage on the outside of the tunnel. The strain gage is contained in the silver box located under the test section of the wind tunnel. Output from the strain gage is fed to a transducer that converts the measurements into drag data that is displayed on a laptop computer. During testing, the angle of attack of the wing is varied to produce a performance curve for the model. A variety of models with different values of camber and thickness were tested in the tunnel. These models can be seen in the shoe box at the bottom of the upper figure. After wind tunnel testing, the data was curve fit and is now made available in the Student Airfoil Interactive Simulation .\n\nAerodynamic Force\n\nThis method of determining drag requires an electronic strain gage and a laptop computer to convert the electronic output into units of force. To accurately determine the aerodynamic forces and moments on an aircraft model in a \u201creal\u201d wind tunnel requires even more sophisticated instrumentation and larger computer systems for data reduction and display. Multiple electronic strain gages are often placed inside the model, or on a measuring platform outside the tunnel. Multiple gages permit the determination of multiple forces and moments during the same test.\n\nMechanical Methods\n\nSome student-built wind tunnels are equipped with much simpler mechanical methods to measure lift and drag. In place of the electronic strain gage, a simple spring scale can be used if the forces are small. In either case, the instruments must be calibrated against a known amount of force before and during a wind tunnel test.\n\nThe wind tunnel data used in the Student Airfoil Interactive Simulation was obtained by Anthony Vila, a student at Vanderbilt University, during a summer intern session at NASA Glenn in 2010.",
+  "content_hash": "f7cd542ee455566a846271934ef863cbbf70a23f48cf81d6fe1ff79ed8798024",
+  "crawl_timestamp": "2026-05-30T23:49:58.450744+00:00",
+  "document_id": "nasa_bga_drag_measurement",
+  "equations": [],
+  "expected_ontology_concepts": [
+    "Drag",
+    "Measurement"
+  ],
+  "expected_relations": [],
+  "expected_topics": [
+    "drag",
+    "measurement"
+  ],
+  "experiment_scope": "collected_not_used_in_current_experiment",
+  "headings": [
+    "Wind Tunnels",
+    "Force Balance",
+    "Wright Memorial Tunnel (WMT)",
+    "Aerodynamic Force",
+    "Mechanical Methods"
+  ],
+  "include_in_corpus": true,
+  "include_in_experiment": false,
+  "is_interactive": false,
+  "page_last_updated": "July 18, 2024",
+  "sections": [
+    {
+      "level": 2,
+      "order": 0,
+      "parent_id": null,
+      "section_id": "section_00_wind_tunnels",
+      "text_end": 441,
+      "text_start": 88,
+      "title": "Wind Tunnels"
+    },
+    {
+      "level": 2,
+      "order": 1,
+      "parent_id": null,
+      "section_id": "section_01_force_balance",
+      "text_end": 1070,
+      "text_start": 441,
+      "title": "Force Balance"
+    },
+    {
+      "level": 2,
+      "order": 2,
+      "parent_id": null,
+      "section_id": "section_02_wright_memorial_tunnel_wmt",
+      "text_end": 2399,
+      "text_start": 1070,
+      "title": "Wright Memorial Tunnel (WMT)"
+    },
+    {
+      "level": 2,
+      "order": 3,
+      "parent_id": null,
+      "section_id": "section_03_aerodynamic_force",
+      "text_end": 2983,
+      "text_start": 2399,
+      "title": "Aerodynamic Force"
+    },
+    {
+      "level": 2,
+      "order": 4,
+      "parent_id": null,
+      "section_id": "section_04_mechanical_methods",
+      "text_end": 3523,
+      "text_start": 2983,
+      "title": "Mechanical Methods"
+    }
+  ],
+  "source_authority": "NASA Glenn Research Center",
+  "source_section": "Drag",
+  "source_type": "nasa_web_educational_page",
+  "title": "Drag Measurement",
+  "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-measurement/",
+  "validation_status": "valid",
+  "warnings": []
+}
