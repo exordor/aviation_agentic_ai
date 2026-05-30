@@ -14,6 +14,7 @@ from aviation_agentic_ai.chunking.chunks import SourceChunk, read_chunks_jsonl
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.ontology.evaluation import local_name
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.utils.io import write_json_document
 from aviation_agentic_ai.utils.json import extract_json_payload as _extract_json_payload_text
 from aviation_agentic_ai.utils.text import tokenize_terms
 
@@ -593,7 +594,7 @@ def write_kg_validation_reports(
     stem = _report_name(report_name)
     json_path = output / f"{stem}.json"
     md_path = output / f"{stem}.md"
-    json_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_json_document(report, json_path)
 
     status = "valid" if report["valid"] else "invalid"
     lines = [

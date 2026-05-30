@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -8,6 +7,7 @@ from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.chunking.chunks import read_chunks_jsonl
 from aviation_agentic_ai.kg.extraction import KGTriple, read_kg_jsonl
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME, query_chroma_index
+from aviation_agentic_ai.utils.io import write_json_document
 from aviation_agentic_ai.utils.text import tokenize_terms
 
 
@@ -396,7 +396,4 @@ def run_query(
 
 
 def write_query_result(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_document(result, output_path)

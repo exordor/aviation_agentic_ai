@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from aviation_agentic_ai.ontology.stats import OntologyStats
+from aviation_agentic_ai.utils.io import write_json_document
 
 
 def write_stats_json(stats: OntologyStats, output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(stats.to_dict(), indent=2) + "\n", encoding="utf-8")
-    return path
+    return write_json_document(stats.to_dict(), output_path, sort_keys=False)
 
 
 def write_stats_markdown(stats: OntologyStats, output_path: str | Path) -> Path:

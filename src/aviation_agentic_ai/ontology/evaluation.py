@@ -10,8 +10,9 @@ from typing import Any
 
 from rdflib import Graph, OWL, RDF, RDFS, URIRef
 
-from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.ontology.cq import load_cq_artifact
+from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.utils.io import write_json_document
 from aviation_agentic_ai.utils.json import extract_json_object as _extract_json_object_text
 
 
@@ -1312,10 +1313,7 @@ def evaluate_ontology(
 
 
 def write_evaluation_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    return path
+    return write_json_document(result, output_path, sort_keys=False)
 
 
 def _yes_no(value: bool) -> str:

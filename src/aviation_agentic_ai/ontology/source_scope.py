@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,6 +11,7 @@ from aviation_agentic_ai.ontology.cq import (
     normalize_cq_artifact,
     validate_cq_artifact,
 )
+from aviation_agentic_ai.utils.io import write_json_document
 from aviation_agentic_ai.utils.pdf import extract_pages
 from aviation_agentic_ai.utils.text import SOURCE_SCOPE_STOPWORDS, normalize_text, tokenize_terms
 
@@ -331,8 +331,7 @@ SOURCE_TOPICS: tuple[SourceTopic, ...] = (
 )
 
 def _write_json(data: dict[str, Any], path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_json_document(data, path)
 
 
 def _write_markdown(lines: list[str], path: Path) -> None:

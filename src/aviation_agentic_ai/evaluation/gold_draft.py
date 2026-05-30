@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from datetime import UTC, datetime
 from pathlib import Path
@@ -9,6 +8,7 @@ from typing import Any
 from aviation_agentic_ai.chunking.chunks import SourceChunk, read_chunks_jsonl
 from aviation_agentic_ai.evaluation.gold import load_boundary_questions
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.utils.io import write_json_document
 
 
 def _normalize(text: str) -> str:
@@ -165,7 +165,4 @@ def build_gold_draft(
 
 
 def write_gold_draft(payload: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_document(payload, output_path)
