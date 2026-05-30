@@ -50,7 +50,7 @@ The thesis benchmark v2 layer is reported separately from the earlier course gol
 
 Benchmark v2 contains 120 labels: 100 supported labels and 20 insufficient-evidence labels. Validation passed=True; review status=`llm_review_pending_not_human_certified`. The model-review pack covers 120 labels and uses automatic findings only as prompts for LLM-assisted internal review. Sources: `reports/stages/benchmark_v2_summary.json`, `reports/stages/benchmark_review_pack.json`.
 
-On benchmark v2, vector Recall@5=0.475 and default hybrid Recall@5=0.5083; hybrid KG evidence coverage=0.8. These retrieval metrics are kept separate from KG evidence coverage. Source: `reports/stages/retrieval_ablation_benchmark_v2.json`.
+On benchmark v2, vector Recall@5=0.475 and default hybrid Recall@5=0.5167; hybrid KG evidence coverage=0.8. These retrieval metrics are kept separate from KG evidence coverage. Source: `reports/stages/retrieval_ablation_benchmark_v2.json`.
 
 Graph traversal shows the expected split between graph reachability and page-level retrieval quality: 2-hop traversal path coverage=0.75 while standalone Recall@5=0.1333. The guarded hybrid traversal policy records Recall@5=0.4583 and is reported as a comparison point, not as a guaranteed improvement. Source: `reports/stages/graph_traversal_ablation_benchmark_v2.json`.
 

@@ -310,7 +310,11 @@ def build_retrieval_ablation(
         collection_name=collection_name,
         chunking_strategy="structure_aware",
         command=command,
-        llm={"provider": "none", "model": "not_used"},
+        llm={
+            "provider": "not_used_retrieval_only",
+            "model": "not_used",
+            "usage": "retrieval metrics only; no generation or LLM judge",
+        },
         embedding=embedding_metadata(index_dir, collection_name),
     )
     elapsed = perf_counter() - started

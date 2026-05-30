@@ -8,6 +8,8 @@ from aviation_agentic_ai.retrieval.hybrid import (
     build_answer_prompt,
     graph_search,
     reciprocal_rank_fusion,
+    run_retrieval,
+    vector_first_guarded_fusion,
 )
 from aviation_agentic_ai.retrieval.indexing import build_chroma_index
 
@@ -90,6 +92,136 @@ def test_graph_search_returns_triple_and_chunk_evidence(tmp_path: Path) -> None:
     assert triples[0]["triple_id"] == "t1"
 
 
+def test_graph_search_returns_empty_results_without_overlap(tmp_path: Path) -> None:
+    chunk = SourceChunk(
+        chunk_id="doc-p00-c00",
+        source_document="doc",
+        source_path="data/raw/doc.pdf",
+        page=0,
+        chunk_index=0,
+        char_start=0,
+        char_end=40,
+        text="Angle of attack affects lift.",
+    )
+    triple = KGTriple(
+        triple_id="t1",
+        subject="angle of attack",
+        predicate="affects",
+        object="lift",
+        subject_class="Cl_AngleOfAttack",
+        object_class="Cl_Lift",
+        source_document="doc",
+        page=0,
+        section="page-0",
+        chunk_id=chunk.chunk_id,
+        evidence_text=chunk.text,
+        model="test",
+        confidence=1.0,
+        extracted_at="2026-05-18T00:00:00+00:00",
+    )
+    chunks_path = write_chunks_jsonl([chunk], tmp_path / "chunks.jsonl")
+    kg_path = write_kg_jsonl([triple], tmp_path / "kg.jsonl")
+
+    chunks, triples = graph_search("Current runway closure status?", kg_path, chunks_path)
+
+    assert chunks == []
+    assert triples == []
+
+
+def test_run_retrieval_hybrid_records_lexical_hops_as_not_applicable(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai.retrieval import hybrid
+
+    chunk = SourceChunk(
+        chunk_id="doc-p00-c00",
+        source_document="doc",
+        source_path="data/raw/doc.pdf",
+        page=0,
+        chunk_index=0,
+        char_start=0,
+        char_end=40,
+        text="Air affects wing lift.",
+    )
+    triple = KGTriple(
+        triple_id="t1",
+        subject="air",
+        predicate="affects",
+        object="wing",
+        subject_class="Cl_Air",
+        object_class="Cl_Wing",
+        source_document="doc",
+        page=0,
+        section="page-0",
+        chunk_id=chunk.chunk_id,
+        evidence_text=chunk.text,
+        model="test",
+        confidence=1.0,
+        extracted_at="2026-05-18T00:00:00+00:00",
+    )
+    chunks_path = write_chunks_jsonl([chunk], tmp_path / "chunks.jsonl")
+    kg_path = write_kg_jsonl([triple], tmp_path / "kg.jsonl")
+    monkeypatch.setattr(
+        hybrid,
+        "query_chroma_index",
+        lambda *_args, **_kwargs: [
+            {
+                "chunk_id": "vector-c1",
+                "rank": 1,
+                "score": 1.0,
+                "source": "vector",
+                "page": 1,
+                "text": "Vector evidence.",
+                "metadata": {},
+            }
+        ],
+    )
+
+    result = run_retrieval(
+        "What affects thrust?",
+        mode="hybrid",
+        chunks_path=chunks_path,
+        kg_path=kg_path,
+        index_dir=tmp_path / "index",
+        graph_method="lexical",
+        graph_hops=99,
+        graph_fusion_policy="rrf",
+    )
+
+    assert result["graph_hops_requested"] == 99
+    assert result["graph_hops_effective"] is None
+    assert "lexical" in result["graph_hops_note"]
+    assert result["vector_hits"]
+    assert result["graph_hits"]
+    assert result["fused_chunks"]
+
+
+def test_vector_first_guarded_fusion_preserves_vector_when_graph_overlap_is_weak() -> None:
+    fused = vector_first_guarded_fusion(
+        "What affects thrust?",
+        vector_hits=[
+            {"chunk_id": "v1", "rank": 1, "score": 1.0, "source": "vector"},
+            {"chunk_id": "v2", "rank": 2, "score": 0.9, "source": "vector"},
+        ],
+        graph_hits=[{"chunk_id": "g1", "rank": 1, "score": 1.0, "source": "graph"}],
+        graph_triples=[
+            {
+                "triple_id": "t1",
+                "subject": "air",
+                "predicate": "affects",
+                "object": "wing",
+                "evidence_text": "Air affects wing lift.",
+            }
+        ],
+        graph_paths=[],
+        top_k=3,
+    )
+
+    assert [item["chunk_id"] for item in fused] == ["v1", "v2", "g1"]
+    assert [item["rank"] for item in fused] == [1, 2, 3]
+
+
 def test_chroma_index_builder_can_use_mock_client(tmp_path: Path, monkeypatch) -> None:
     calls = {}
 
@@ -128,3 +260,53 @@ def test_chroma_index_builder_can_use_mock_client(tmp_path: Path, monkeypatch) -
     assert report["chunks_indexed"] == 1
     assert calls["collection"] == "test"
     assert calls["ids"] == ["doc-p00-c00"]
+
+
+def test_chroma_index_builder_ignores_missing_collection_on_reset(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    class FakeCollection:
+        def add(self, ids, documents, metadatas):
+            pass
+
+    class FakeClient:
+        def __init__(self, path):
+            self.path = path
+
+        def delete_collection(self, _name):
+            raise ValueError("Collection does not exist")
+
+        def get_or_create_collection(self, _name):
+            return FakeCollection()
+
+    monkeypatch.setitem(sys.modules, "chromadb", SimpleNamespace(PersistentClient=FakeClient))
+    chunks_path = write_chunks_jsonl([], tmp_path / "chunks.jsonl")
+
+    report = build_chroma_index(chunks_path, tmp_path / "chroma", collection_name="test")
+
+    assert report["chunks_indexed"] == 0
+
+
+def test_chroma_index_builder_raises_unexpected_delete_errors(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    class FakeClient:
+        def __init__(self, path):
+            self.path = path
+
+        def delete_collection(self, _name):
+            raise RuntimeError("permission denied")
+
+    monkeypatch.setitem(sys.modules, "chromadb", SimpleNamespace(PersistentClient=FakeClient))
+    chunks_path = write_chunks_jsonl([], tmp_path / "chunks.jsonl")
+
+    try:
+        build_chroma_index(chunks_path, tmp_path / "chroma", collection_name="test")
+    except RuntimeError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected RuntimeError")
+
+    assert "permission denied" in message

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.utils.text import tokenize_terms
 from aviation_agentic_ai.utils.pdf import extract_pages
 
 
@@ -314,7 +315,7 @@ def _window_text(text: str, max_chars: int, overlap_chars: int) -> list[tuple[in
 
 
 def _tokenize(text: str) -> set[str]:
-    return {token for token in re.findall(r"[a-z0-9']+", text.lower()) if len(token) > 2}
+    return tokenize_terms(text, stopwords=None)
 
 
 def _lexical_similarity(left: str, right: str) -> float:

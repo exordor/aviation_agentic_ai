@@ -16,7 +16,7 @@ from aviation_agentic_ai.evaluation.metrics import (
     kg_evidence_metrics,
     retrieval_metrics,
 )
-from aviation_agentic_ai.evaluation.protocol import build_run_manifest
+from aviation_agentic_ai.evaluation.protocol import build_run_manifest, safe_llm_metadata
 
 
 def test_run_manifest_records_protocol_without_secret_fields(tmp_path: Path, monkeypatch) -> None:
@@ -42,6 +42,19 @@ def test_run_manifest_records_protocol_without_secret_fields(tmp_path: Path, mon
     assert manifest["llm"] == {"provider": "openai", "model": "gpt-test"}
     assert "OPENAI_API_KEY" not in json.dumps(manifest)
     assert "sk-secret" not in json.dumps(manifest)
+
+
+def test_safe_llm_metadata_uses_central_environment_loader(monkeypatch) -> None:
+    calls = []
+    monkeypatch.setattr(
+        "aviation_agentic_ai.evaluation.protocol.load_environment",
+        lambda: calls.append("loaded"),
+    )
+    monkeypatch.setenv("LLM_PROVIDER", "deepseek")
+    monkeypatch.setenv("MODEL_NAME", "deepseek-test")
+
+    assert safe_llm_metadata() == {"provider": "deepseek", "model": "deepseek-test"}
+    assert calls == ["loaded"]
 
 
 def test_document_and_section_metadata_schema() -> None:

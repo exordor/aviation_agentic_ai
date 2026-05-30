@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
-from dotenv import load_dotenv
+from aviation_agentic_ai.config import load_environment
+
+if TYPE_CHECKING:
+    from langchain_core.language_models.chat_models import BaseChatModel
 
 
-def get_llm(temperature: float = 0.3, max_tokens: int = 4096):
+def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel":
     """Return a LangChain-compatible chat model from environment configuration."""
     try:
         from langchain_openai import ChatOpenAI
@@ -15,7 +19,7 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096):
             "Install with: uv sync --extra ontology-generation"
         ) from exc
 
-    load_dotenv()
+    load_environment()
     provider = os.getenv("LLM_PROVIDER", "openai").lower()
 
     if provider == "openai":

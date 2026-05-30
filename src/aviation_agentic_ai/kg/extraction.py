@@ -60,6 +60,10 @@ class KGValidationError(ValueError):
     """Raised when a KG artifact fails deterministic validation."""
 
 
+class KGReadError(ValueError):
+    """Raised when a KG JSONL artifact cannot be parsed with line-level context."""
+
+
 def load_extraction_profile(path: str | Path) -> ExtractionProfile:
     return ExtractionProfile.from_dict(load_yaml(path))
 
@@ -333,10 +337,19 @@ def read_kg_jsonl(path: str | Path) -> list[KGTriple]:
     kg_path = Path(path)
     if not kg_path.exists():
         return []
-    for line in kg_path.read_text(encoding="utf-8").splitlines():
+    for line_number, line in enumerate(kg_path.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
-        triples.append(KGTriple(**json.loads(line)))
+        try:
+            payload = json.loads(line)
+            if not isinstance(payload, dict):
+                raise TypeError("expected JSON object")
+            triples.append(KGTriple(**payload))
+        except (json.JSONDecodeError, TypeError) as exc:
+            raise KGReadError(
+                f"Invalid KG JSONL record in {project_relative_path(kg_path)} "
+                f"at line {line_number}: {exc}"
+            ) from exc
     return triples
 
 
@@ -502,12 +515,20 @@ def write_kg_validation_reports(
         f"- Ontology: `{report.get('ontology_path')}`",
         f"- Triples: {report['triples_total']}",
         f"- Validation errors: {report['errors_total']}",
+        f"- Extraction complete: {report.get('extraction_complete', 'not_recorded')}",
+        f"- Extraction errors: {report.get('extraction_errors_total', 0)}",
     ]
     if report["errors"]:
         lines.extend(["", "## First Errors", ""])
         for error in report["errors"][:10]:
             lines.append(
                 f"- `{error['triple_id']}` {error['field']}: {error['error']}"
+            )
+    if report.get("extraction_errors"):
+        lines.extend(["", "## First Extraction Errors", ""])
+        for error in report["extraction_errors"][:10]:
+            lines.append(
+                f"- `{error['chunk_id']}` {error['error_type']}: {error['error']}"
             )
     md_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     return json_path, md_path
@@ -529,22 +550,42 @@ def extract_kg_file(
     selected_chunks = chunks[:max_chunks] if max_chunks is not None else chunks
     extracted_at = datetime.now(UTC).isoformat()
     triples: list[KGTriple] = []
+    extraction_errors: list[dict[str, Any]] = []
     total = len(selected_chunks)
     for index, chunk in enumerate(selected_chunks, start=1):
         if dry_run:
             chunk_triples = _deterministic_triples_for_chunk(chunk, profile, extracted_at)
         else:
-            chunk_triples = _llm_triples_for_chunk(
-                chunk,
-                profile,
-                extracted_at,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
+            try:
+                chunk_triples = _llm_triples_for_chunk(
+                    chunk,
+                    profile,
+                    extracted_at,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
+            except Exception as exc:
+                extraction_errors.append(
+                    {
+                        "chunk_id": chunk.chunk_id,
+                        "page": chunk.page,
+                        "chunk_index": chunk.chunk_index,
+                        "error_type": type(exc).__name__,
+                        "error": str(exc)[:500],
+                    }
+                )
+                chunk_triples = []
         triples.extend(chunk_triples)
         if progress_callback is not None:
             progress_callback(index, total, chunk, len(chunk_triples))
     report = validate_kg_triples(triples, chunks, profile, ontology_path=ontology_path)
+    report.update(
+        {
+            "extraction_complete": not extraction_errors,
+            "extraction_errors_total": len(extraction_errors),
+            "extraction_errors": extraction_errors,
+        }
+    )
     if not report["valid"]:
         raise KGValidationError(json.dumps(report["errors"][:10], indent=2))
     path = write_kg_jsonl(triples, output_path)

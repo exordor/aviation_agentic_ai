@@ -55,8 +55,10 @@ def build_chroma_index(
     if reset:
         try:
             client.delete_collection(collection_name)
-        except Exception:
-            pass
+        except Exception as exc:
+            message = str(exc).lower()
+            if "not found" not in message and "does not exist" not in message:
+                raise
     collection = client.get_or_create_collection(collection_name)
     if chunks:
         collection.add(

@@ -538,7 +538,8 @@ def kg_extract(
         raise click.ClickException(str(exc)) from exc
     click.echo(
         f"Wrote {project_relative_path(path)} with {len(triples)} triples "
-        f"({report['errors_total']} validation errors)."
+        f"({report['errors_total']} validation errors, "
+        f"{report.get('extraction_errors_total', 0)} extraction errors)."
     )
     if ttl_output is not None:
         ttl_path = write_kg_ttl(triples, ttl_output)

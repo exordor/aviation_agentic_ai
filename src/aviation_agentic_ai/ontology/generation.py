@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 from rdflib import Graph, OWL, RDF, RDFS, URIRef
 
+from aviation_agentic_ai.config import load_environment
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.ontology.evaluation import (
     ONTOLOGY_NAMESPACE,
@@ -189,12 +190,7 @@ def _host_only(url: str) -> str:
 
 
 def _llm_manifest_metadata() -> dict[str, str]:
-    try:
-        from dotenv import load_dotenv
-    except ImportError:
-        load_dotenv = None
-    if load_dotenv is not None:
-        load_dotenv()
+    load_environment()
 
     provider = os.getenv("LLM_PROVIDER", "openai").lower()
     if provider == "deepseek":

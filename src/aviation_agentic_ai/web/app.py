@@ -5,9 +5,9 @@ import os
 from pathlib import Path
 from typing import Any, Literal
 
-from dotenv import load_dotenv
 from pydantic import BaseModel
 
+from aviation_agentic_ai.config import load_environment
 from aviation_agentic_ai.paths import PROJECT_ROOT
 from aviation_agentic_ai.retrieval.hybrid import run_query
 from aviation_agentic_ai.retrieval.sufficiency import evaluate_evidence_sufficiency
@@ -32,7 +32,7 @@ class QueryRequest(BaseModel):
 
 
 def _llm_metadata() -> dict[str, str]:
-    load_dotenv()
+    load_environment()
     provider = os.getenv("LLM_PROVIDER", "openai").lower()
     default_model = {
         "openai": "gpt-4o-mini",

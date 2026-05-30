@@ -6,6 +6,8 @@
 - Supported labels: 100
 - Insufficient-evidence labels: 20
 - Metrics are safety/evidence sufficiency metrics and are not mixed with retrieval scores.
+- Primary mode: gold-aided benchmark validation using expected chunks/spans.
+- Secondary mode: evidence-only diagnostic without gold-label evidence matching.
 - Confidence intervals: deterministic bootstrap 95% CIs over benchmark labels.
 
 ## Metrics
@@ -22,6 +24,10 @@
 | Risk-category accuracy | 1.0 |
 | Advisory boundary violation count | 0 |
 | Boundary violation count | 0 |
+| Evidence-only supported answer decision accuracy | 0.0 |
+| Evidence-only abstention accuracy | 1.0 |
+| Evidence-only false answer rate | 0.0 |
+| Evidence-only false abstention rate | 1.0 |
 
 ## Risk Categories
 

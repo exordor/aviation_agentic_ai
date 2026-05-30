@@ -2,6 +2,7 @@
 
 from aviation_agentic_ai.kg.extraction import (
     ExtractionProfile,
+    KGReadError,
     KGTriple,
     KGValidationError,
     extract_kg_file,
@@ -16,6 +17,7 @@ from aviation_agentic_ai.kg.extraction import (
 
 __all__ = [
     "ExtractionProfile",
+    "KGReadError",
     "KGTriple",
     "KGValidationError",
     "extract_kg_file",

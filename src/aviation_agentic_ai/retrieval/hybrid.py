@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 from typing import Any
 
@@ -9,39 +8,11 @@ from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.chunking.chunks import read_chunks_jsonl
 from aviation_agentic_ai.kg.extraction import KGTriple, read_kg_jsonl
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME, query_chroma_index
-
-
-STOPWORDS = {
-    "a",
-    "an",
-    "and",
-    "are",
-    "as",
-    "be",
-    "by",
-    "for",
-    "from",
-    "how",
-    "in",
-    "is",
-    "of",
-    "on",
-    "or",
-    "should",
-    "that",
-    "the",
-    "to",
-    "what",
-    "with",
-}
+from aviation_agentic_ai.utils.text import tokenize_terms
 
 
 def tokenize(text: str) -> set[str]:
-    return {
-        token
-        for token in re.findall(r"[a-z0-9']+", text.lower())
-        if len(token) > 2 and token not in STOPWORDS
-    }
+    return tokenize_terms(text)
 
 
 def graph_search(
@@ -49,10 +20,12 @@ def graph_search(
     kg_path: str | Path,
     chunks_path: str | Path,
     top_k: int = 8,
-    graph_hops: int = 2,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Search KG triples lexically and return associated chunk evidence."""
-    _ = graph_hops
+    """Search KG triples lexically and return associated chunk evidence.
+
+    This lexical search scores individual triples and does not traverse graph hops.
+    Hop-bounded traversal is implemented by ``graph_search_traversal``.
+    """
     query_terms = tokenize(question)
     chunks = {chunk.chunk_id: chunk for chunk in read_chunks_jsonl(chunks_path)}
     scored_triples: list[tuple[int, KGTriple]] = []
@@ -247,9 +220,17 @@ def generate_grounded_answer(
     from aviation_agentic_ai.llm.providers import get_llm
 
     prompt = build_answer_prompt(question, chunks, triples)
-    response = get_llm(temperature=temperature, max_tokens=max_tokens).invoke(
-        [HumanMessage(content=prompt)]
-    )
+    try:
+        response = get_llm(temperature=temperature, max_tokens=max_tokens).invoke(
+            [HumanMessage(content=prompt)]
+        )
+    except Exception as exc:
+        return (
+            "Insufficient evidence to generate an LLM answer because answer generation "
+            f"failed with {type(exc).__name__}. Use the retrieved evidence directly "
+            "instead of treating this as a generated answer.\n\nCitations: none",
+            prompt,
+        )
     return str(getattr(response, "content", response)).strip(), prompt
 
 
@@ -291,7 +272,6 @@ def run_retrieval(
                 kg_path=kg_path,
                 chunks_path=chunks_path,
                 top_k=hybrid_top_k,
-                graph_hops=graph_hops,
             )
         else:
             from aviation_agentic_ai.retrieval.graph_traversal import (
@@ -326,6 +306,14 @@ def run_retrieval(
         "mode": mode,
         "graph_method": graph_method,
         "graph_fusion_policy": graph_fusion_policy,
+        "graph_hops_requested": graph_hops,
+        "graph_hops_effective": graph_hops if graph_method == "traversal" else None,
+        "graph_hops_note": (
+            "graph_hops applies only to traversal graph search; lexical graph search "
+            "scores triples without hop expansion."
+        )
+        if graph_method == "lexical"
+        else "",
         "vector_hits": vector_hits,
         "graph_hits": graph_hits,
         "graph_triples": graph_triples,

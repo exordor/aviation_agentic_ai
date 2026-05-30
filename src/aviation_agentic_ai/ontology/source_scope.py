@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -14,6 +13,7 @@ from aviation_agentic_ai.ontology.cq import (
     validate_cq_artifact,
 )
 from aviation_agentic_ai.utils.pdf import extract_pages
+from aviation_agentic_ai.utils.text import SOURCE_SCOPE_STOPWORDS, normalize_text, tokenize_terms
 
 
 @dataclass(frozen=True)
@@ -330,33 +330,6 @@ SOURCE_TOPICS: tuple[SourceTopic, ...] = (
     ),
 )
 
-STOPWORDS = {
-    "a",
-    "an",
-    "and",
-    "are",
-    "as",
-    "at",
-    "be",
-    "by",
-    "for",
-    "from",
-    "how",
-    "in",
-    "is",
-    "it",
-    "of",
-    "on",
-    "or",
-    "should",
-    "that",
-    "the",
-    "to",
-    "what",
-    "with",
-}
-
-
 def _write_json(data: dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -368,15 +341,15 @@ def _write_markdown(lines: list[str], path: Path) -> None:
 
 
 def _norm_text(value: str) -> str:
-    return " ".join(value.replace("’", "'").lower().split())
+    return normalize_text(value)
 
 
 def _tokens(value: str) -> set[str]:
-    return {
-        token
-        for token in re.findall(r"[a-z0-9']+", _norm_text(value))
-        if len(token) > 2 and token not in STOPWORDS
-    }
+    return tokenize_terms(
+        value,
+        stopwords=SOURCE_SCOPE_STOPWORDS,
+        normalize_apostrophes=True,
+    )
 
 
 def _score_keywords(text: str, keywords: tuple[str, ...]) -> int:

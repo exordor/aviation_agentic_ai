@@ -11,34 +11,7 @@ import networkx as nx
 from aviation_agentic_ai.chunking.chunks import read_chunks_jsonl
 from aviation_agentic_ai.config import load_yaml, resolve_project_path
 from aviation_agentic_ai.kg.extraction import KGTriple, read_kg_jsonl
-
-
-STOPWORDS = {
-    "a",
-    "an",
-    "and",
-    "are",
-    "as",
-    "be",
-    "by",
-    "for",
-    "from",
-    "how",
-    "in",
-    "is",
-    "of",
-    "on",
-    "or",
-    "should",
-    "that",
-    "the",
-    "to",
-    "what",
-    "when",
-    "where",
-    "which",
-    "with",
-}
+from aviation_agentic_ai.utils.text import GRAPH_TRAVERSAL_STOPWORDS, tokenize_terms
 
 RELATION_KEYWORDS: dict[str, tuple[str, ...]] = {
     "affects": ("affect", "influence", "change", "impact"),
@@ -121,11 +94,7 @@ def normalize_entity_label(text: str) -> str:
 
 
 def _tokenize(text: str) -> set[str]:
-    return {
-        token
-        for token in re.findall(r"[a-z0-9']+", text.lower())
-        if len(token) > 2 and token not in STOPWORDS
-    }
+    return tokenize_terms(text, stopwords=GRAPH_TRAVERSAL_STOPWORDS)
 
 
 def _phrase_position(needle: str, haystack: str) -> int | None:

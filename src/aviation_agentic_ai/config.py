@@ -7,6 +7,8 @@ import yaml
 
 from aviation_agentic_ai.paths import PROJECT_ROOT
 
+_ENVIRONMENT_LOADED = False
+
 
 def resolve_project_path(path: str | Path) -> Path:
     candidate = Path(path)
@@ -26,3 +28,25 @@ def load_yaml(path: str | Path) -> dict[str, Any]:
 
 def load_default_config() -> dict[str, Any]:
     return load_yaml("configs/default.yaml")
+
+
+def load_environment(*, force: bool = False) -> bool:
+    """Load `.env` once from the configuration layer.
+
+    Returns true when python-dotenv was available and asked to load environment
+    variables. Callers should still read `os.environ` directly so tests can use
+    monkeypatching without resetting this loader.
+    """
+    global _ENVIRONMENT_LOADED
+    if _ENVIRONMENT_LOADED and not force:
+        return False
+
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        _ENVIRONMENT_LOADED = True
+        return False
+
+    load_dotenv()
+    _ENVIRONMENT_LOADED = True
+    return True

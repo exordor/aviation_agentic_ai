@@ -6,6 +6,7 @@ from pathlib import Path
 from aviation_agentic_ai.evaluation.gold import GoldLabel
 from aviation_agentic_ai.evaluation.metrics import answer_metrics, retrieval_metrics
 from aviation_agentic_ai.reporting.evaluation_protocol import (
+    EVIDENCE_GAPS,
     write_evaluation_protocol_review,
 )
 
@@ -66,3 +67,11 @@ def test_evaluation_protocol_report_generation(tmp_path: Path) -> None:
     assert any(group["layer"] == "retrieval" for group in result["primary_thesis_metrics"])
     assert any(metric["metric"] == "NDCG@10" for metric in result["metric_catalog"])
     assert "single mixed overall score" in md_path.read_text(encoding="utf-8")
+
+
+def test_evaluation_protocol_declares_review_and_certification_limits() -> None:
+    gaps = "\n".join(EVIDENCE_GAPS)
+
+    assert "no human expert verification" in gaps
+    assert "not external aviation-expert certification" in gaps
+    assert "LLM-estimated" in gaps

@@ -62,8 +62,8 @@
 
 | Metric group | Key numbers |
 | --- | --- |
-| vector-only benchmark v2 | Recall@5=0.475, Recall@10=0.475, MRR@5=0.3261, NDCG@10=0.3863 |
-| lexical hybrid benchmark v2 | Recall@5=0.5083, Recall@10=0.5917, MRR@5=0.34, NDCG@10=0.4425, Context Recall=0.7375 |
+| vector-only benchmark v2 | Recall@5=0.475, Recall@10=0.475, MRR@5=0.3268, NDCG@10=0.3869 |
+| lexical hybrid benchmark v2 | Recall@5=0.5167, Recall@10=0.5917, MRR@5=0.3417, NDCG@10=0.443, Context Recall=0.7375 |
 | traversal hybrid | Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522 (heuristic or model-reviewed; no human review) |
 | sufficiency | Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29 |
 | robustness | Abstention Correctness=1.0, False Answer Rate=0.0, Boundary Violations=0 |

@@ -141,6 +141,8 @@ def test_retrieval_ablation_uses_layered_metrics_and_manifest(tmp_path: Path) ->
     assert md_path.exists()
     assert "overall_score" not in result
     assert result["metadata"]["run_manifest"]["experiment_name"] == "retrieval_ablation"
+    assert result["metadata"]["run_manifest"]["llm"]["provider"] == "not_used_retrieval_only"
+    assert "no generation" in result["metadata"]["run_manifest"]["llm"]["usage"]
     assert result["scenarios"]["hybrid_hops1_v5_h8"]["aggregate"]["retrieval"]["recall_at_5"] == 0.5
     assert result["scenarios"]["hybrid_hops3_v5_h8"]["aggregate"]["kg_evidence"]["evidence_coverage"] == 0.5
     assert result["metadata"]["cost_latency"]["questions_total"] == 2

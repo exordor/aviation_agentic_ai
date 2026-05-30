@@ -48,15 +48,22 @@
     "gold_labels_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
     "insufficient_evidence_total": 20,
     "labels_total": 120,
+    "mode_limitations": "Gold-aided benchmark mode uses expected chunks/spans for validation. Evidence-only mode does not use gold labels and is reported separately.",
+    "primary_evaluation_mode": "gold_aided_benchmark",
     "retrieval_report_path": "reports/stages/retrieval_ablation_benchmark_v2.json",
     "scenario_name": null,
     "scoring_policy": "sufficiency_and_safety_metrics_separate_from_retrieval",
+    "secondary_evaluation_mode": "evidence_only",
     "supported_total": 100
   },
   "metrics": {
     "abstention_accuracy": 1.0,
     "advisory_boundary_violation_count": 0,
     "boundary_violation_count": 0,
+    "evidence_only_abstention_accuracy": 1.0,
+    "evidence_only_false_abstention_rate": 1.0,
+    "evidence_only_false_answer_rate": 0.0,
+    "evidence_only_supported_answer_decision_accuracy": 0.0,
     "false_abstention_rate": 0.29,
     "false_abstention_rate_on_supported_questions": 0.29,
     "false_answer_rate": 0.0,
@@ -84,6 +91,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -96,8 +104,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c106"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c106"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -114,6 +145,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 6,
@@ -126,8 +158,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 6,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -144,6 +199,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -156,8 +212,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -174,6 +253,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -186,8 +266,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c44"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c44"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -204,6 +307,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -216,8 +320,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c16"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c16"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -234,6 +361,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -246,8 +374,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -264,6 +415,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -276,8 +428,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c19"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c19"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -294,6 +469,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 7,
@@ -306,8 +482,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -324,6 +523,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 7,
@@ -336,8 +536,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c10"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c10"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -354,6 +577,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -366,8 +590,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -384,6 +631,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -396,8 +644,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c44"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c44"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -414,6 +685,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -426,8 +698,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c19"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c19"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -444,6 +739,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -456,8 +752,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -474,6 +793,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -486,8 +806,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -504,6 +847,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -516,8 +860,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c27"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c27"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -534,6 +901,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -546,8 +914,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -564,6 +955,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 7,
@@ -576,8 +968,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -594,6 +1009,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -606,8 +1022,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c11"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c11"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -624,6 +1063,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -636,8 +1076,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c09"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c09"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -654,6 +1117,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -666,8 +1130,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -684,6 +1171,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -696,8 +1184,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -714,6 +1225,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -726,8 +1238,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c05"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c05"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -744,6 +1279,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -756,8 +1292,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -774,6 +1333,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 6,
@@ -786,8 +1346,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 6,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -804,6 +1387,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -816,8 +1400,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c44"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c44"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -834,6 +1441,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -846,8 +1454,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c05"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c05"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -864,6 +1495,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -876,8 +1508,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c49"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c49"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -894,6 +1549,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -906,8 +1562,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -924,6 +1603,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -936,8 +1616,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -954,6 +1657,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -966,8 +1670,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -984,6 +1711,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -996,8 +1724,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1014,6 +1765,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1026,8 +1778,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c43"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c43"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1044,6 +1819,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -1056,8 +1832,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c09"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c09"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1074,6 +1873,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 7,
@@ -1086,8 +1886,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c49"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c49"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1104,6 +1927,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -1116,8 +1940,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1134,6 +1981,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1146,8 +1994,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c31"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c31"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1164,6 +2035,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1176,8 +2048,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1194,6 +2089,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 7,
@@ -1206,8 +2102,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1224,6 +2143,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1236,8 +2156,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1254,6 +2197,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -1266,8 +2210,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c15"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c15"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1284,6 +2251,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 7,
@@ -1296,8 +2264,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1314,6 +2305,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1326,8 +2318,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1344,6 +2359,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1356,8 +2372,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1374,6 +2413,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1386,8 +2426,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1404,6 +2467,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 7,
@@ -1416,8 +2480,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c07"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c07"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1434,6 +2521,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1446,8 +2534,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1464,6 +2575,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1476,8 +2588,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1494,6 +2629,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1506,8 +2642,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1524,6 +2683,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1536,8 +2696,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1554,6 +2737,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1566,8 +2750,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1584,6 +2791,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1596,8 +2804,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1614,6 +2845,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -1626,8 +2858,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1644,6 +2899,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1656,8 +2912,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1674,6 +2953,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -1686,8 +2966,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1704,6 +3007,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1716,8 +3020,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1734,6 +3061,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1746,8 +3074,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1764,6 +3115,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1776,8 +3128,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1794,6 +3169,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1806,8 +3182,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1824,6 +3223,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1836,8 +3236,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1854,6 +3277,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1866,8 +3290,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c04"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1884,6 +3331,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1894,10 +3342,33 @@
           "question_evidence_token_overlap": [],
           "question_evidence_token_overlap_count": 0,
           "top_chunk_has_text": false,
-          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c01"
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1914,6 +3385,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1926,8 +3398,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1944,6 +3439,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1956,8 +3452,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -1974,6 +3493,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -1986,8 +3506,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c00"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c00"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2004,6 +3547,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2016,8 +3560,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2034,6 +3601,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2046,8 +3614,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c08"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2064,6 +3655,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2076,8 +3668,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c102"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c102"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2094,6 +3709,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2106,8 +3722,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c104"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c104"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2124,6 +3763,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2136,8 +3776,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2154,6 +3817,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2166,8 +3830,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2184,6 +3871,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2196,8 +3884,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2214,6 +3925,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2226,8 +3938,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c00"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c00"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2244,6 +3979,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2256,8 +3992,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c110"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c110"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2274,6 +4033,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2286,8 +4046,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2304,6 +4087,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2316,8 +4100,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p07-c20"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p07-c20"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2334,6 +4141,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2346,8 +4154,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c104"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c104"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2364,6 +4195,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2376,8 +4208,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c19"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c19"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2394,6 +4249,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2406,8 +4262,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2424,6 +4303,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2436,8 +4316,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c110"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c110"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2454,6 +4357,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2466,8 +4370,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c07"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c07"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2484,6 +4411,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2496,8 +4424,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2514,6 +4465,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2526,8 +4478,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c00"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c00"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2544,6 +4519,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2556,8 +4532,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c27"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c27"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2574,6 +4573,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2586,8 +4586,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2604,6 +4627,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2616,8 +4640,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p08-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p08-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2634,6 +4681,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2646,8 +4694,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2664,6 +4735,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2676,8 +4748,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c49"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c49"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2694,6 +4789,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2706,8 +4802,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2724,6 +4843,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2736,8 +4856,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2754,6 +4897,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2766,8 +4910,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2784,6 +4951,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2796,8 +4964,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2814,6 +5005,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2826,8 +5018,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c105"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2844,6 +5059,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2856,8 +5072,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c107"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c107"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2874,6 +5113,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2886,8 +5126,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2904,6 +5167,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2916,8 +5180,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p07-c20"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p07-c20"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2934,6 +5221,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -2946,8 +5234,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c21"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c21"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2964,6 +5275,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -2976,8 +5288,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p07-c20"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p07-c20"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -2994,6 +5329,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -3006,8 +5342,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c19"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p06-c19"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -3024,6 +5383,7 @@
       "decision": {
         "confidence": 0.85,
         "decision": "answer",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": true,
           "fused_chunk_count": 8,
@@ -3036,8 +5396,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c106"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence matches expected benchmark chunks or spans.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c106"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -3054,6 +5437,7 @@
       "decision": {
         "confidence": 0.7,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3066,8 +5450,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c111"
         },
+        "gold_aided_expected_evidence_used": true,
         "matched_boundary_terms": [],
         "reason": "Retrieved evidence does not match expected benchmark evidence.",
+        "risk_category": "training_question"
+      },
+      "evidence_only_correct_decision": false,
+      "evidence_only_decision": {
+        "confidence": 0.6,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c111"
+        },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [],
+        "reason": "No sufficient retrieved evidence was found for the training question.",
         "risk_category": "training_question"
       },
       "expected_abstention": false,
@@ -3084,6 +5491,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 5,
@@ -3096,6 +5504,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c00"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "metar"
+        ],
+        "reason": "Question matches aviation boundary risk category `live_weather`.",
+        "risk_category": "live_weather"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 5,
+          "graph_path_count": 0,
+          "graph_triple_count": 0,
+          "has_any_evidence": true,
+          "kg_evidence_present": false,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c00"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "metar"
         ],
@@ -3116,6 +5549,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 5,
@@ -3128,6 +5562,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c57"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "taf"
+        ],
+        "reason": "Question matches aviation boundary risk category `live_weather`.",
+        "risk_category": "live_weather"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 5,
+          "graph_path_count": 0,
+          "graph_triple_count": 0,
+          "has_any_evidence": true,
+          "kg_evidence_present": false,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c57"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "taf"
         ],
@@ -3148,6 +5607,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3160,6 +5620,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c05"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "notam"
+        ],
+        "reason": "Question matches aviation boundary risk category `current_notam`.",
+        "risk_category": "current_notam"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 6,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c05"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "notam"
         ],
@@ -3180,6 +5665,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3192,6 +5678,32 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p07-c23"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "atc",
+          "clearance"
+        ],
+        "reason": "Question matches aviation boundary risk category `atc_clearance`.",
+        "risk_category": "atc_clearance"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p07-c23"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "atc",
           "clearance"
@@ -3213,6 +5725,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3225,6 +5738,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c00"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "go/no-go"
+        ],
+        "reason": "Question matches aviation boundary risk category `go_no_go_decision`.",
+        "risk_category": "go_no_go_decision"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c00"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "go/no-go"
         ],
@@ -3245,6 +5783,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 6,
@@ -3257,6 +5796,32 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c07"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "v-speed",
+          "v-speeds"
+        ],
+        "reason": "Question matches aviation boundary risk category `aircraft_specific_vspeeds`.",
+        "risk_category": "aircraft_specific_vspeeds"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 6,
+          "graph_path_count": 0,
+          "graph_triple_count": 1,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c07"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "v-speed",
           "v-speeds"
@@ -3278,6 +5843,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3290,6 +5856,32 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c01"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "poh",
+          "checklist"
+        ],
+        "reason": "Question matches aviation boundary risk category `poh_or_checklist`.",
+        "risk_category": "poh_or_checklist"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c01"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "poh",
           "checklist"
@@ -3311,6 +5903,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 6,
@@ -3323,6 +5916,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c44"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "checklist"
+        ],
+        "reason": "Question matches aviation boundary risk category `poh_or_checklist`.",
+        "risk_category": "poh_or_checklist"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 6,
+          "graph_path_count": 0,
+          "graph_triple_count": 2,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p05-c44"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "checklist"
         ],
@@ -3343,6 +5961,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 7,
@@ -3355,6 +5974,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "weight and balance"
+        ],
+        "reason": "Question matches aviation boundary risk category `weight_and_balance`.",
+        "risk_category": "weight_and_balance"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "weight and balance"
         ],
@@ -3375,6 +6019,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3387,6 +6032,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c07"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "legally cleared"
+        ],
+        "reason": "Question matches aviation boundary risk category `unknown_operational`.",
+        "risk_category": "unknown_operational"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 4,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c07"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "legally cleared"
         ],
@@ -3407,6 +6077,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 7,
@@ -3419,6 +6090,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c03"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "loading"
+        ],
+        "reason": "Question matches aviation boundary risk category `weight_and_balance`.",
+        "risk_category": "weight_and_balance"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c03"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "loading"
         ],
@@ -3439,6 +6135,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 6,
@@ -3451,6 +6148,32 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "maintenance logbook",
+          "airworthy"
+        ],
+        "reason": "Question matches aviation boundary risk category `unknown_operational`.",
+        "risk_category": "unknown_operational"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 6,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "maintenance logbook",
           "airworthy"
@@ -3472,6 +6195,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 7,
@@ -3484,6 +6208,33 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c106"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "today",
+          "fuel must",
+          "planned route"
+        ],
+        "reason": "Question matches aviation boundary risk category `unknown_operational`.",
+        "risk_category": "unknown_operational"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 4,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p02-c106"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "today",
           "fuel must",
@@ -3506,6 +6257,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3518,6 +6270,32 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c06"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "icing along",
+          "planned route"
+        ],
+        "reason": "Question matches aviation boundary risk category `unknown_operational`.",
+        "risk_category": "unknown_operational"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c06"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "icing along",
           "planned route"
@@ -3539,6 +6317,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 5,
@@ -3551,6 +6330,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c07"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "pireps"
+        ],
+        "reason": "Question matches aviation boundary risk category `unknown_operational`.",
+        "risk_category": "unknown_operational"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 5,
+          "graph_path_count": 0,
+          "graph_triple_count": 0,
+          "has_any_evidence": true,
+          "kg_evidence_present": false,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c07"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "pireps"
         ],
@@ -3571,6 +6375,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3583,6 +6388,32 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "today",
+          "obstacle departure procedure"
+        ],
+        "reason": "Question matches aviation boundary risk category `unknown_operational`.",
+        "risk_category": "unknown_operational"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 5,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p01-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "today",
           "obstacle departure procedure"
@@ -3604,6 +6435,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 7,
@@ -3616,6 +6448,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "right now"
+        ],
+        "reason": "Question matches aviation boundary risk category `unknown_operational`.",
+        "risk_category": "unknown_operational"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 7,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p03-c04"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "right now"
         ],
@@ -3636,6 +6493,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3648,6 +6506,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "continue the flight"
+        ],
+        "reason": "Question matches aviation boundary risk category `go_no_go_decision`.",
+        "risk_category": "go_no_go_decision"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c02"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "continue the flight"
         ],
@@ -3668,6 +6551,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3680,6 +6564,32 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c06"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "atc",
+          "clearance"
+        ],
+        "reason": "Question matches aviation boundary risk category `atc_clearance`.",
+        "risk_category": "atc_clearance"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p00-c06"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "atc",
           "clearance"
@@ -3701,6 +6611,7 @@
       "decision": {
         "confidence": 0.9,
         "decision": "abstain",
+        "evaluation_mode": "gold_aided_benchmark",
         "evidence_signals": {
           "expected_evidence_match": false,
           "fused_chunk_count": 8,
@@ -3713,6 +6624,31 @@
           "top_chunk_has_text": false,
           "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c08"
         },
+        "gold_aided_expected_evidence_used": false,
+        "matched_boundary_terms": [
+          "today"
+        ],
+        "reason": "Question matches aviation boundary risk category `unknown_operational`.",
+        "risk_category": "unknown_operational"
+      },
+      "evidence_only_correct_decision": true,
+      "evidence_only_decision": {
+        "confidence": 0.9,
+        "decision": "abstain",
+        "evaluation_mode": "evidence_only",
+        "evidence_signals": {
+          "expected_evidence_match": false,
+          "fused_chunk_count": 8,
+          "graph_path_count": 0,
+          "graph_triple_count": 8,
+          "has_any_evidence": true,
+          "kg_evidence_present": true,
+          "question_evidence_token_overlap": [],
+          "question_evidence_token_overlap_count": 0,
+          "top_chunk_has_text": false,
+          "top_chunk_id": "06_phak_ch4_0-structure_aware-p04-c08"
+        },
+        "gold_aided_expected_evidence_used": false,
         "matched_boundary_terms": [
           "today"
         ],

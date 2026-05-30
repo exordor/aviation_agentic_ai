@@ -72,10 +72,16 @@ def build_sufficiency_evaluation(
     records: list[dict[str, Any]] = []
     for label in labels.values():
         retrieval_record = retrieval_records.get(label.cq_id)
+        retrieval_result = _retrieval_result_from_record(retrieval_record)
         decision = evaluate_evidence_sufficiency(
             label.question,
-            _retrieval_result_from_record(retrieval_record),
+            retrieval_result,
             gold_label=label,
+        )
+        evidence_only_decision = evaluate_evidence_sufficiency(
+            label.question,
+            retrieval_result,
+            gold_label=None,
         )
         expected_decision = "abstain" if label.expected_abstention else "answer"
         expected_risk = _expected_risk(label)
@@ -95,7 +101,11 @@ def build_sufficiency_evaluation(
                 "expected_risk_category": expected_risk,
                 "expected_abstention": label.expected_abstention,
                 "decision": decision,
+                "evidence_only_decision": evidence_only_decision,
                 "correct_decision": decision["decision"] == expected_decision,
+                "evidence_only_correct_decision": (
+                    evidence_only_decision["decision"] == expected_decision
+                ),
                 "risk_category_correct": decision["risk_category"] == expected_risk,
                 "boundary_violation": boundary_violation,
             }
@@ -115,6 +125,20 @@ def build_sufficiency_evaluation(
     )
     risk_correct = sum(int(record["risk_category_correct"]) for record in records)
     boundary_violations = sum(int(record["boundary_violation"]) for record in records)
+    evidence_only_supported_answer_correct = sum(
+        int(record["evidence_only_decision"]["decision"] == "answer")
+        for record in supported
+    )
+    evidence_only_no_answer_abstain_correct = sum(
+        int(record["evidence_only_decision"]["decision"] == "abstain")
+        for record in no_answer
+    )
+    evidence_only_false_answers = sum(
+        int(record["evidence_only_decision"]["decision"] == "answer") for record in no_answer
+    )
+    evidence_only_false_abstentions = sum(
+        int(record["evidence_only_decision"]["decision"] == "abstain") for record in supported
+    )
     risk_counts = Counter(record["decision"]["risk_category"] for record in records)
     no_answer_ids = {record["cq_id"] for record in no_answer}
     supported_ids = {record["cq_id"] for record in supported}
@@ -127,6 +151,12 @@ def build_sufficiency_evaluation(
             "supported_total": len(supported),
             "insufficient_evidence_total": len(no_answer),
             "scoring_policy": "sufficiency_and_safety_metrics_separate_from_retrieval",
+            "primary_evaluation_mode": "gold_aided_benchmark",
+            "secondary_evaluation_mode": "evidence_only",
+            "mode_limitations": (
+                "Gold-aided benchmark mode uses expected chunks/spans for validation. "
+                "Evidence-only mode does not use gold labels and is reported separately."
+            ),
         },
         "metrics": {
             "abstention_accuracy": _safe_rate(
@@ -161,6 +191,22 @@ def build_sufficiency_evaluation(
             "advisory_boundary_violation_count": boundary_violations,
             "boundary_violation_count": boundary_violations,
             "risk_category_counts": dict(sorted(risk_counts.items())),
+            "evidence_only_supported_answer_decision_accuracy": _safe_rate(
+                evidence_only_supported_answer_correct,
+                len(supported),
+            ),
+            "evidence_only_abstention_accuracy": _safe_rate(
+                evidence_only_no_answer_abstain_correct,
+                len(no_answer),
+            ),
+            "evidence_only_false_answer_rate": _safe_rate(
+                evidence_only_false_answers,
+                len(no_answer),
+            ),
+            "evidence_only_false_abstention_rate": _safe_rate(
+                evidence_only_false_abstentions,
+                len(supported),
+            ),
         },
         "confidence_intervals": {
             "abstention_accuracy": bootstrap_metric_ci(
@@ -211,6 +257,8 @@ def write_sufficiency_evaluation_markdown(result: dict[str, Any], output_path: s
         f"- Supported labels: {result['metadata']['supported_total']}",
         f"- Insufficient-evidence labels: {result['metadata']['insufficient_evidence_total']}",
         "- Metrics are safety/evidence sufficiency metrics and are not mixed with retrieval scores.",
+        "- Primary mode: gold-aided benchmark validation using expected chunks/spans.",
+        "- Secondary mode: evidence-only diagnostic without gold-label evidence matching.",
         "- Confidence intervals: deterministic bootstrap 95% CIs over benchmark labels.",
         "",
         "## Metrics",
@@ -227,6 +275,10 @@ def write_sufficiency_evaluation_markdown(result: dict[str, Any], output_path: s
         f"| Risk-category accuracy | {metrics['risk_category_accuracy']} |",
         f"| Advisory boundary violation count | {metrics['advisory_boundary_violation_count']} |",
         f"| Boundary violation count | {metrics['boundary_violation_count']} |",
+        f"| Evidence-only supported answer decision accuracy | {metrics['evidence_only_supported_answer_decision_accuracy']} |",
+        f"| Evidence-only abstention accuracy | {metrics['evidence_only_abstention_accuracy']} |",
+        f"| Evidence-only false answer rate | {metrics['evidence_only_false_answer_rate']} |",
+        f"| Evidence-only false abstention rate | {metrics['evidence_only_false_abstention_rate']} |",
         "",
         "## Risk Categories",
         "",

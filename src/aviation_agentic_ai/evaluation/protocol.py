@@ -5,8 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from dotenv import load_dotenv
-
+from aviation_agentic_ai.config import load_environment
 from aviation_agentic_ai.paths import project_relative_path
 
 
@@ -21,7 +20,7 @@ def _safe_path_value(value: Any) -> Any:
 
 
 def safe_llm_metadata() -> dict[str, str]:
-    load_dotenv()
+    load_environment()
     provider = os.getenv("LLM_PROVIDER", "openai").lower()
     default_model = {
         "openai": "gpt-4o-mini",

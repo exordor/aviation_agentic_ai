@@ -47,7 +47,21 @@ def test_supported_question_answers_when_expected_chunk_retrieved() -> None:
     )
 
     assert decision["decision"] == "answer"
+    assert decision["evaluation_mode"] == "gold_aided_benchmark"
+    assert decision["gold_aided_expected_evidence_used"] is True
     assert decision["evidence_signals"]["expected_evidence_match"] is True
+
+
+def test_supported_question_evidence_only_mode_does_not_use_expected_chunks() -> None:
+    decision = evaluate_evidence_sufficiency(
+        "How does angle of attack affect lift?",
+        {"fused_chunks": [{"chunk_id": "wrong", "text": "Angle of attack affects lift."}]},
+    )
+
+    assert decision["decision"] == "answer"
+    assert decision["evaluation_mode"] == "evidence_only"
+    assert decision["gold_aided_expected_evidence_used"] is False
+    assert decision["evidence_signals"]["expected_evidence_match"] is False
 
 
 def test_sufficiency_evaluation_report_counts_false_answers(tmp_path: Path) -> None:
@@ -119,10 +133,15 @@ def test_sufficiency_evaluation_report_counts_false_answers(tmp_path: Path) -> N
     assert result["metrics"]["insufficient_evidence_abstention_accuracy"] == 1.0
     assert result["metrics"]["false_answer_rate"] == 0.0
     assert result["metrics"]["false_abstention_rate"] == 0.0
+    assert result["metrics"]["evidence_only_supported_answer_decision_accuracy"] == 1.0
+    assert result["metrics"]["evidence_only_false_answer_rate"] == 0.0
     assert result["metrics"]["advisory_boundary_violation_count"] == 0
     assert result["metrics"]["boundary_violation_count"] == 0
     ci = result["confidence_intervals"]["false_answer_rate"]
     assert ci["n"] == 1
     assert ci["confidence"] == 0.95
     assert ci["seed"] == 17
-    assert "Confidence Intervals" in md_path.read_text(encoding="utf-8")
+    markdown = md_path.read_text(encoding="utf-8")
+    assert "Confidence Intervals" in markdown
+    assert "gold-aided benchmark validation" in markdown
+    assert "evidence-only diagnostic" in markdown

@@ -2,8 +2,11 @@ from pathlib import Path
 
 from aviation_agentic_ai.chunking.chunks import SourceChunk, write_chunks_jsonl
 from aviation_agentic_ai.kg.extraction import (
+    KGReadError,
     KGTriple,
+    _extract_json_payload,
     extract_kg_file,
+    read_kg_jsonl,
     validate_kg_file,
     validate_kg_triples,
     write_kg_jsonl,
@@ -164,6 +167,33 @@ def test_extract_kg_llm_filters_unsupported_or_bad_evidence(
     assert triples[0].object_class == "Cl_Wing"
 
 
+def test_extract_kg_llm_records_chunk_errors_without_aborting(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai.kg import extraction
+
+    profile_path = tmp_path / "profile.yaml"
+    chunks_path = tmp_path / "chunks.jsonl"
+    output_path = tmp_path / "kg.jsonl"
+    write_profile(profile_path)
+    write_chunks_jsonl([make_chunk()], chunks_path)
+    monkeypatch.setattr(
+        extraction,
+        "_invoke_llm_text",
+        lambda *_args, **_kwargs: "not json",
+    )
+
+    path, triples, report = extract_kg_file(chunks_path, output_path, profile_path)
+
+    assert path.exists()
+    assert triples == []
+    assert report["valid"] is True
+    assert report["extraction_complete"] is False
+    assert report["extraction_errors_total"] == 1
+    assert report["extraction_errors"][0]["chunk_id"] == "doc-p00-c00"
+
+
 def test_validate_kg_file_reports_valid_artifact(tmp_path: Path) -> None:
     profile_path = tmp_path / "profile.yaml"
     chunks_path = tmp_path / "chunks.jsonl"
@@ -176,6 +206,57 @@ def test_validate_kg_file_reports_valid_artifact(tmp_path: Path) -> None:
 
     assert report["valid"]
     assert report["triples_total"] == 1
+
+
+def test_read_kg_jsonl_reports_line_number_for_malformed_json(tmp_path: Path) -> None:
+    kg_path = tmp_path / "kg.jsonl"
+    kg_path.write_text(
+        write_kg_jsonl([make_triple()], tmp_path / "valid.jsonl").read_text(
+            encoding="utf-8"
+        )
+        + "{not json}\n",
+        encoding="utf-8",
+    )
+
+    try:
+        read_kg_jsonl(kg_path)
+    except KGReadError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected KGReadError")
+
+    assert "line 2" in message
+    assert "kg.jsonl" in message
+
+
+def test_read_kg_jsonl_reports_line_number_for_missing_fields(tmp_path: Path) -> None:
+    kg_path = tmp_path / "kg.jsonl"
+    kg_path.write_text('{"triple_id": "missing-fields"}\n', encoding="utf-8")
+
+    try:
+        read_kg_jsonl(kg_path)
+    except KGReadError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected KGReadError")
+
+    assert "line 1" in message
+    assert "KGTriple" in message
+
+
+def test_write_kg_jsonl_empty_round_trip(tmp_path: Path) -> None:
+    kg_path = write_kg_jsonl([], tmp_path / "empty.jsonl")
+
+    assert kg_path.read_text(encoding="utf-8") == ""
+    assert read_kg_jsonl(kg_path) == []
+
+
+def test_extract_json_payload_variants() -> None:
+    assert _extract_json_payload('```json\n{"triples": []}\n```') == '{"triples": []}'
+    assert _extract_json_payload('```\n{"triples": []}\n```') == '{"triples": []}'
+    assert _extract_json_payload('{"triples": []}') == '{"triples": []}'
+    assert _extract_json_payload('prefix {"triples": []} suffix') == '{"triples": []}'
+    assert _extract_json_payload("") == ""
 
 
 def test_write_kg_ttl_exports_reified_evidence(tmp_path: Path) -> None:

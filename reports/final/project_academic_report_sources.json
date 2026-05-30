@@ -37,7 +37,7 @@
     "web_demo_final_smoke": "reports/stages/web_demo_final_smoke.md",
     "web_demo_readiness": "reports/stages/web_demo_readiness.md"
   },
-  "generated_at": "2026-05-30T09:18:09.874580+00:00",
+  "generated_at": "2026-05-30T09:49:53.476175+00:00",
   "graphrag_interpretations": [
     {
       "claim": "GraphRAG value is evidence structure, not current page-level Recall lift.",
@@ -120,7 +120,7 @@
   "metrics": {
     "benchmark_v2": {
       "hybrid_kg_coverage": 0.8,
-      "hybrid_recall_at_5": 0.5083,
+      "hybrid_recall_at_5": 0.5167,
       "labels_total": 120,
       "no_answer_total": 20,
       "review_pack_finding_counts": {

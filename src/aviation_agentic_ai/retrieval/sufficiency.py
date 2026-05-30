@@ -149,8 +149,15 @@ def evaluate_evidence_sufficiency(
     retrieval_result: dict[str, Any],
     gold_label: GoldLabel | None = None,
 ) -> dict[str, Any]:
-    """Make a deterministic answer/abstain decision from retrieval evidence and risk terms."""
+    """Make a deterministic answer/abstain decision from retrieval evidence and risk terms.
+
+    When ``gold_label`` is supplied, the benchmark mode may use expected chunks or
+    spans to measure whether retrieved evidence matches the answer key. Without a
+    gold label, the same function runs in evidence-only mode and relies only on
+    boundary terms and lexical overlap in retrieved context.
+    """
     risk_category, matched_terms = detect_risk_category(question)
+    evaluation_mode = "gold_aided_benchmark" if gold_label is not None else "evidence_only"
     signals = _evidence_signals(retrieval_result, gold_label)
     question_terms = tokenize(question)
     evidence_terms = tokenize(_chunk_texts(retrieval_result.get("fused_chunks", []) or []))
@@ -166,6 +173,8 @@ def evaluate_evidence_sufficiency(
             "confidence": 0.9,
             "matched_boundary_terms": matched_terms,
             "evidence_signals": signals,
+            "evaluation_mode": evaluation_mode,
+            "gold_aided_expected_evidence_used": False,
         }
 
     if gold_label is not None and not gold_label.expected_abstention:
@@ -193,4 +202,8 @@ def evaluate_evidence_sufficiency(
         "confidence": confidence,
         "matched_boundary_terms": matched_terms,
         "evidence_signals": signals,
+        "evaluation_mode": evaluation_mode,
+        "gold_aided_expected_evidence_used": bool(
+            gold_label is not None and not gold_label.expected_abstention
+        ),
     }

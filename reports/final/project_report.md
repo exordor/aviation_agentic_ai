@@ -35,7 +35,7 @@ Evidence traceability is supported by KG provenance, citation metrics, and the d
 
 ## RQ3: vector vs graph vs hybrid retrieval (Hybrid RAG protocol and layered metrics)
 
-Benchmark v2 vector-only: Recall@5=0.475, Recall@10=0.475, MRR@5=0.3261, NDCG@10=0.3863. Lexical hybrid: Recall@5=0.5083, Recall@10=0.5917, MRR@5=0.34, NDCG@10=0.4425, Context Recall=0.7375, KG evidence coverage=0.8.
+Benchmark v2 vector-only: Recall@5=0.475, Recall@10=0.475, MRR@5=0.3268, NDCG@10=0.3869. Lexical hybrid: Recall@5=0.5167, Recall@10=0.5917, MRR@5=0.3417, NDCG@10=0.443, Context Recall=0.7375, KG evidence coverage=0.8.
 
 Traversal hybrid: Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522. Path metrics are heuristic and may be model-reviewed, but they are not human-validated. High path coverage is not treated as evidence of high retrieval quality unless Recall/MRR/NDCG also support that claim.
 

@@ -145,6 +145,12 @@ are not the primary thesis claims.
 | Ontology/KG | `curated_ontology_evaluation.json`, `kg_validation.json`, `kg_extraction_comparison.json`, `triple_semantic_review_sample.json`, `triple_semantic_llm_review.json` | RDF/OWL validity, annotation coverage, domain/range completeness, unsupported schema counts, provenance completeness, evidence-in-source rate, LLM-estimated triple semantic review |
 | Safety/abstention | `sufficiency_evaluation.json`, `robustness_evaluation.json`, `answer_evaluation.json` | Abstention Accuracy, False Answer Rate, False Abstention Rate, Boundary Violation Count, Risk Category Accuracy |
 
+Sufficiency evaluation is reported in two modes. The primary benchmark mode is
+gold-aided: it uses expected chunks and evidence spans to measure whether
+retrieval found the answer-key evidence. The secondary evidence-only diagnostic
+does not use gold labels and relies on retrieved context overlap plus boundary
+risk terms. These modes must not be described as the same deployment behavior.
+
 ## LLM-As-Judge Limitations
 
 LLM-as-judge evaluation can be useful for faithfulness, answer relevance, and

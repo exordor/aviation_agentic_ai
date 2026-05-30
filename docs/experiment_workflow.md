@@ -270,6 +270,8 @@ Rules:
 - explicitly state when hybrid improves context recall but not MRR or precision;
 - explicitly state when sufficiency improves safety but creates false
   abstentions;
+- distinguish gold-aided sufficiency benchmark validation from evidence-only
+  sufficiency diagnostics;
 - do not claim external aviation expert certification;
 - preserve the advisory boundary: the system is for aviation learning and
   decision support only and does not replace POH/AFM, approved checklists, ATC

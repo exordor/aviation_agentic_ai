@@ -7,7 +7,7 @@
       "cases_total": null,
       "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.jsonl",
       "chunks_size_bytes": 134637,
-      "elapsed_seconds": 29.0997,
+      "elapsed_seconds": 29.0858,
       "index_dir": "data/indexes/chroma",
       "index_size_bytes": 5178492,
       "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
@@ -41,7 +41,7 @@
       "chunking_strategy": "structure_aware",
       "collection_name": "phak_ch4_chunks_structure_aware",
       "command": "aviation-ai report retrieval-ablation",
-      "created_at": "2026-05-29T23:54:09.596328+00:00",
+      "created_at": "2026-05-30T09:49:52.090900+00:00",
       "document": {},
       "embedding": {
         "backend": "chromadb_default_embedding_function",
@@ -54,7 +54,8 @@
       "experiment_name": "retrieval_ablation",
       "llm": {
         "model": "not_used",
-        "provider": "none"
+        "provider": "not_used_retrieval_only",
+        "usage": "retrieval metrics only; no generation or LLM judge"
       },
       "parameters": {
         "gold_labels_path": "data/cqs/06_phak_ch4_0.expanded.gold.json",
@@ -139,7 +140,7 @@
         "indexes": false,
         "kg": false
       },
-      "run_id": "retrieval-ablation-20260529T235409Z"
+      "run_id": "retrieval-ablation-20260530T094952Z"
     },
     "scenarios_total": 12,
     "scoring_policy": "layered_metrics_no_mixed_overall_score"
@@ -164,6 +165,101 @@
           "precision_at_5": 0.1371,
           "recall_at_10": 0.5143,
           "recall_at_5": 0.5143
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.18,
+              "context_recall": 0.6,
+              "mrr_at_10": 0.4583,
+              "mrr_at_5": 0.4583,
+              "ndcg_at_10": 0.5863,
+              "precision_at_10": 0.08,
+              "precision_at_5": 0.16,
+              "recall_at_10": 0.6,
+              "recall_at_5": 0.6
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1033,
+            "mean": 0.1543,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2138
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.5143,
+            "mean": 0.6571,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.25,
+            "mean": 0.3929,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5429
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.25,
+            "mean": 0.3929,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5429
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3313,
+            "mean": 0.5026,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6811
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3714,
+            "mean": 0.5143,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6857
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3714,
+            "mean": 0.5143,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6857
+          }
         }
       },
       "explanation": "Graph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.",
@@ -6558,6 +6654,101 @@
           "precision_at_5": 0.1371,
           "recall_at_10": 0.5143,
           "recall_at_5": 0.5143
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.18,
+              "context_recall": 0.6,
+              "mrr_at_10": 0.4583,
+              "mrr_at_5": 0.4583,
+              "ndcg_at_10": 0.5863,
+              "precision_at_10": 0.08,
+              "precision_at_5": 0.16,
+              "recall_at_10": 0.6,
+              "recall_at_5": 0.6
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1033,
+            "mean": 0.1543,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2138
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.5143,
+            "mean": 0.6571,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.25,
+            "mean": 0.3929,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5429
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.25,
+            "mean": 0.3929,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5429
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3313,
+            "mean": 0.5026,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6811
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3714,
+            "mean": 0.5143,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6857
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3714,
+            "mean": 0.5143,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6857
+          }
         }
       },
       "explanation": "Graph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.",
@@ -12952,6 +13143,101 @@
           "precision_at_5": 0.1371,
           "recall_at_10": 0.5143,
           "recall_at_5": 0.5143
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.18,
+              "context_recall": 0.6,
+              "mrr_at_10": 0.4583,
+              "mrr_at_5": 0.4583,
+              "ndcg_at_10": 0.5863,
+              "precision_at_10": 0.08,
+              "precision_at_5": 0.16,
+              "recall_at_10": 0.6,
+              "recall_at_5": 0.6
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1033,
+            "mean": 0.1543,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2138
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.5143,
+            "mean": 0.6571,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.25,
+            "mean": 0.3929,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5429
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.25,
+            "mean": 0.3929,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5429
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3313,
+            "mean": 0.5026,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6811
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3714,
+            "mean": 0.5143,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6857
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3714,
+            "mean": 0.5143,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6857
+          }
         }
       },
       "explanation": "Graph retrieval is valuable when KG triples cover key entities, even if coarse Recall@5 is 0.5143 and evidence coverage is 0.8286.",
@@ -19346,6 +19632,101 @@
           "precision_at_5": 0.1771,
           "recall_at_10": 0.6857,
           "recall_at_5": 0.6857
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.2067,
+              "context_recall": 0.8,
+              "mrr_at_10": 0.55,
+              "mrr_at_5": 0.55,
+              "ndcg_at_10": 0.7304,
+              "precision_at_10": 0.1033,
+              "precision_at_5": 0.2067,
+              "recall_at_10": 0.8,
+              "recall_at_5": 0.8
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1314,
+            "mean": 0.1771,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2286
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.7143,
+            "mean": 0.8286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9429
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3333,
+            "mean": 0.4714,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6071
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3333,
+            "mean": 0.4714,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6071
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.4482,
+            "mean": 0.6261,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8109
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          }
         }
       },
       "explanation": "This is the hybrid ablation with graph evidence disabled; it should match vector retrieval behavior while preserving the hybrid experiment label.",
@@ -23392,6 +23773,101 @@
           "precision_at_5": 0.1543,
           "recall_at_10": 0.6857,
           "recall_at_5": 0.6286
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.18,
+              "context_recall": 0.8,
+              "mrr_at_10": 0.5328,
+              "mrr_at_5": 0.5217,
+              "ndcg_at_10": 0.7182,
+              "precision_at_10": 0.1033,
+              "precision_at_5": 0.18,
+              "recall_at_10": 0.8,
+              "recall_at_5": 0.7333
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1086,
+            "mean": 0.1543,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.7143,
+            "mean": 0.8286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9429
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.319,
+            "mean": 0.4567,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3114,
+            "mean": 0.4471,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5914
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.4288,
+            "mean": 0.6156,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8042
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.4857,
+            "mean": 0.6286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.7714
+          }
         }
       },
       "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).",
@@ -30382,6 +30858,101 @@
           "precision_at_5": 0.16,
           "recall_at_10": 0.6857,
           "recall_at_5": 0.6857
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.19,
+              "context_recall": 0.8,
+              "mrr_at_10": 0.5467,
+              "mrr_at_5": 0.5467,
+              "ndcg_at_10": 0.7132,
+              "precision_at_10": 0.1,
+              "precision_at_5": 0.1867,
+              "recall_at_10": 0.8,
+              "recall_at_5": 0.8
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.12,
+            "mean": 0.1629,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2057
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.7143,
+            "mean": 0.8286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9429
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3343,
+            "mean": 0.4686,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6057
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3343,
+            "mean": 0.4686,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6057
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.431,
+            "mean": 0.6113,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8057
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          }
         }
       },
       "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6857).",
@@ -37042,6 +37613,101 @@
           "precision_at_5": 0.16,
           "recall_at_10": 0.6857,
           "recall_at_5": 0.6571
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.1867,
+              "context_recall": 0.8,
+              "mrr_at_10": 0.5483,
+              "mrr_at_5": 0.5428,
+              "ndcg_at_10": 0.7517,
+              "precision_at_10": 0.11,
+              "precision_at_5": 0.1867,
+              "recall_at_10": 0.8,
+              "recall_at_5": 0.7667
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1143,
+            "mean": 0.16,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2057
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.7143,
+            "mean": 0.8286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9429
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3367,
+            "mean": 0.47,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6114
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3352,
+            "mean": 0.4652,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6071
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.4542,
+            "mean": 0.6443,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8374
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.5143,
+            "mean": 0.6571,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8
+          }
         }
       },
       "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6571).",
@@ -44783,6 +45449,101 @@
           "precision_at_5": 0.1543,
           "recall_at_10": 0.6571,
           "recall_at_5": 0.6571
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.18,
+              "context_recall": 0.7667,
+              "mrr_at_10": 0.5133,
+              "mrr_at_5": 0.5133,
+              "ndcg_at_10": 0.6458,
+              "precision_at_10": 0.09,
+              "precision_at_5": 0.18,
+              "recall_at_10": 0.7667,
+              "recall_at_5": 0.7667
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1086,
+            "mean": 0.1543,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.6571,
+            "mean": 0.8,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9143
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.31,
+            "mean": 0.44,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5771
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.31,
+            "mean": 0.44,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5771
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3876,
+            "mean": 0.5536,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.7225
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5143,
+            "mean": 0.6571,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.5143,
+            "mean": 0.6571,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8
+          }
         }
       },
       "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8) while not always improving page-level Recall@5 (0.6571).",
@@ -50424,6 +51185,101 @@
           "precision_at_5": 0.1543,
           "recall_at_10": 0.6857,
           "recall_at_5": 0.6286
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.18,
+              "context_recall": 0.8,
+              "mrr_at_10": 0.5328,
+              "mrr_at_5": 0.5217,
+              "ndcg_at_10": 0.7182,
+              "precision_at_10": 0.1033,
+              "precision_at_5": 0.18,
+              "recall_at_10": 0.8,
+              "recall_at_5": 0.7333
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1086,
+            "mean": 0.1543,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.7143,
+            "mean": 0.8286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9429
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.319,
+            "mean": 0.4567,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3114,
+            "mean": 0.4471,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5914
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.4288,
+            "mean": 0.6156,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8042
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.4857,
+            "mean": 0.6286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.7714
+          }
         }
       },
       "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).",
@@ -57414,6 +58270,101 @@
           "precision_at_5": 0.1486,
           "recall_at_10": 0.6857,
           "recall_at_5": 0.5714
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.1733,
+              "context_recall": 0.8,
+              "mrr_at_10": 0.5225,
+              "mrr_at_5": 0.5011,
+              "ndcg_at_10": 0.7187,
+              "precision_at_10": 0.1033,
+              "precision_at_5": 0.1733,
+              "recall_at_10": 0.8,
+              "recall_at_5": 0.6667
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.0971,
+            "mean": 0.1486,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.7143,
+            "mean": 0.8286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9429
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3132,
+            "mean": 0.4479,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5905
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.2914,
+            "mean": 0.4295,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.581
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.431,
+            "mean": 0.6161,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8145
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.4286,
+            "mean": 0.5714,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.7143
+          }
         }
       },
       "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.5714).",
@@ -64800,6 +65751,101 @@
           "precision_at_5": 0.1543,
           "recall_at_10": 0.6857,
           "recall_at_5": 0.6286
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.18,
+              "context_recall": 0.8,
+              "mrr_at_10": 0.5328,
+              "mrr_at_5": 0.5217,
+              "ndcg_at_10": 0.7182,
+              "precision_at_10": 0.1033,
+              "precision_at_5": 0.18,
+              "recall_at_10": 0.8,
+              "recall_at_5": 0.7333
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1086,
+            "mean": 0.1543,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.7143,
+            "mean": 0.8286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9429
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.319,
+            "mean": 0.4567,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3114,
+            "mean": 0.4471,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.5914
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.4288,
+            "mean": 0.6156,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8042
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.4857,
+            "mean": 0.6286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.7714
+          }
         }
       },
       "explanation": "Hybrid RRF should be judged by retrieval and KG evidence separately; fusion can help evidence coverage (0.8286) while not always improving page-level Recall@5 (0.6286).",
@@ -71790,6 +72836,101 @@
           "precision_at_5": 0.1771,
           "recall_at_10": 0.6857,
           "recall_at_5": 0.6857
+        },
+        "retrieval_by_answerability": {
+          "insufficient_evidence": {
+            "records_total": 5,
+            "retrieval": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": 0.0,
+              "recall_at_5": 0.0
+            }
+          },
+          "supported": {
+            "records_total": 30,
+            "retrieval": {
+              "context_precision_at_5": 0.2067,
+              "context_recall": 0.8,
+              "mrr_at_10": 0.55,
+              "mrr_at_5": 0.55,
+              "ndcg_at_10": 0.7304,
+              "precision_at_10": 0.1033,
+              "precision_at_5": 0.2067,
+              "recall_at_10": 0.8,
+              "recall_at_5": 0.8
+            }
+          }
+        },
+        "retrieval_confidence_intervals": {
+          "context_precision_at_5": {
+            "confidence": 0.95,
+            "lower": 0.1314,
+            "mean": 0.1771,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.2286
+          },
+          "context_recall": {
+            "confidence": 0.95,
+            "lower": 0.7143,
+            "mean": 0.8286,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.9429
+          },
+          "mrr_at_10": {
+            "confidence": 0.95,
+            "lower": 0.3333,
+            "mean": 0.4714,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6071
+          },
+          "mrr_at_5": {
+            "confidence": 0.95,
+            "lower": 0.3333,
+            "mean": 0.4714,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.6071
+          },
+          "ndcg_at_10": {
+            "confidence": 0.95,
+            "lower": 0.4482,
+            "mean": 0.6261,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8109
+          },
+          "recall_at_10": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          },
+          "recall_at_5": {
+            "confidence": 0.95,
+            "lower": 0.5429,
+            "mean": 0.6857,
+            "n": 35,
+            "samples": 1000,
+            "seed": 17,
+            "upper": 0.8286
+          }
         }
       },
       "explanation": "Vector retrieval measures whether semantic text search alone recovers the gold chunk/span/page evidence.",
