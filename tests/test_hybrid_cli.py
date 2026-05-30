@@ -6,7 +6,7 @@ from aviation_agentic_ai.cli import main
 
 
 def test_cli_chunk_build_uses_default_command_shape(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_chunk
 
     def fake_build_chunk_file(*_args, **_kwargs):
         output = tmp_path / "chunks.jsonl"
@@ -14,7 +14,7 @@ def test_cli_chunk_build_uses_default_command_shape(tmp_path: Path, monkeypatch)
         chunk = type("Chunk", (), {"page": 0})()
         return output, [chunk]
 
-    monkeypatch.setattr(cli, "build_chunk_file", fake_build_chunk_file)
+    monkeypatch.setattr(cli_chunk, "build_chunk_file", fake_build_chunk_file)
 
     result = CliRunner().invoke(
         main,
