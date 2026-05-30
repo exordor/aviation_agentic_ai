@@ -15,6 +15,12 @@ from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.ontology.evaluation import local_name
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.utils.json import extract_json_payload as _extract_json_payload_text
+from aviation_agentic_ai.utils.text import tokenize_terms
+
+
+EVIDENCE_NEAR_MISS_THRESHOLD = 0.8
+EVIDENCE_NEAR_MISS_MIN_TERMS = 3
+EVIDENCE_NEAR_MISS_SAMPLE_LIMIT = 20
 
 
 @dataclass(frozen=True)
@@ -77,6 +83,23 @@ def _class_label(class_name: str) -> str:
 
 def _normalize_for_contains(text: str) -> str:
     return " ".join(text.lower().split())
+
+
+def _evidence_term_overlap(evidence_text: str, chunk_text: str) -> dict[str, Any]:
+    evidence_terms = tokenize_terms(evidence_text)
+    if not evidence_terms:
+        return {
+            "evidence_term_overlap": 0.0,
+            "evidence_terms_total": 0,
+            "matched_terms": [],
+        }
+    chunk_terms = tokenize_terms(chunk_text)
+    matched_terms = sorted(evidence_terms & chunk_terms)
+    return {
+        "evidence_term_overlap": round(len(matched_terms) / len(evidence_terms), 4),
+        "evidence_terms_total": len(evidence_terms),
+        "matched_terms": matched_terms,
+    }
 
 
 def _extract_json_payload(text: str) -> str:
@@ -234,6 +257,7 @@ def _llm_triples_for_chunk(
         }
         evidence_text = str(raw.get("evidence_text", "")).strip()
         filter_reason = ""
+        evidence_overlap: dict[str, Any] | None = None
         if normalized["subject_class"] not in allowed_classes:
             filter_reason = "unsupported_subject_class"
         elif normalized["object_class"] not in allowed_classes:
@@ -244,9 +268,19 @@ def _llm_triples_for_chunk(
             filter_reason = "missing_evidence_text"
         elif _normalize_for_contains(evidence_text) not in chunk_text:
             filter_reason = "evidence_text_not_in_chunk"
+            evidence_overlap = _evidence_term_overlap(evidence_text, chunk.text)
         if filter_reason:
             if extraction_stats is not None:
                 _record_filtered_triple(extraction_stats, filter_reason)
+                if filter_reason == "evidence_text_not_in_chunk" and evidence_overlap is not None:
+                    _record_evidence_near_miss(
+                        extraction_stats,
+                        chunk=chunk,
+                        raw_index=index,
+                        raw_triple=normalized,
+                        evidence_text=evidence_text,
+                        evidence_overlap=evidence_overlap,
+                    )
             continue
         triples.append(
             KGTriple(
@@ -275,6 +309,50 @@ def _record_filtered_triple(extraction_stats: dict[str, Any], reason: str) -> No
     )
     by_reason = extraction_stats.setdefault("llm_filtered_triples_by_reason", {})
     by_reason[reason] = int(by_reason.get(reason, 0)) + 1
+
+
+def _record_evidence_near_miss(
+    extraction_stats: dict[str, Any],
+    *,
+    chunk: SourceChunk,
+    raw_index: int,
+    raw_triple: dict[str, str],
+    evidence_text: str,
+    evidence_overlap: dict[str, Any],
+) -> None:
+    terms_total = int(evidence_overlap["evidence_terms_total"])
+    overlap = float(evidence_overlap["evidence_term_overlap"])
+    if terms_total < EVIDENCE_NEAR_MISS_MIN_TERMS or overlap < EVIDENCE_NEAR_MISS_THRESHOLD:
+        return
+    extraction_stats["llm_filtered_evidence_near_miss_total"] = (
+        int(extraction_stats.get("llm_filtered_evidence_near_miss_total", 0)) + 1
+    )
+    extraction_stats.setdefault(
+        "llm_filtered_evidence_near_miss_policy",
+        "diagnostic_only_not_accepted_as_kg_evidence",
+    )
+    extraction_stats.setdefault(
+        "llm_filtered_evidence_near_miss_threshold",
+        EVIDENCE_NEAR_MISS_THRESHOLD,
+    )
+    samples = extraction_stats.setdefault("llm_filtered_evidence_near_misses", [])
+    if len(samples) >= EVIDENCE_NEAR_MISS_SAMPLE_LIMIT:
+        return
+    samples.append(
+        {
+            "chunk_id": chunk.chunk_id,
+            "page": chunk.page,
+            "raw_triple_index": raw_index,
+            "subject": raw_triple["subject"],
+            "predicate": raw_triple["predicate"],
+            "object": raw_triple["object"],
+            "evidence_text": evidence_text[:300],
+            "evidence_term_overlap": overlap,
+            "evidence_terms_total": terms_total,
+            "matched_terms": evidence_overlap["matched_terms"][:20],
+            "status": "filtered_not_accepted",
+        }
+    )
 
 
 def write_kg_jsonl(triples: list[KGTriple], output_path: str | Path) -> Path:
@@ -533,6 +611,12 @@ def write_kg_validation_reports(
         f"- LLM candidate triples: {report.get('llm_candidate_triples_total', 0)}",
         f"- LLM filtered triples: {report.get('llm_filtered_triples_total', 0)}",
     ]
+    if "llm_filtered_evidence_near_miss_total" in report:
+        lines.append(
+            "- LLM filtered evidence near-misses: "
+            f"{report.get('llm_filtered_evidence_near_miss_total', 0)} "
+            "(diagnostic only; not accepted as KG evidence)"
+        )
     if report["errors"]:
         lines.extend(["", "## First Errors", ""])
         for error in report["errors"][:10]:
@@ -544,6 +628,19 @@ def write_kg_validation_reports(
         for error in report["extraction_errors"][:10]:
             lines.append(
                 f"- `{error['chunk_id']}` {error['error_type']}: {error['error']}"
+            )
+    if report.get("llm_filtered_evidence_near_misses"):
+        lines.extend(["", "## Filtered Evidence Near Misses", ""])
+        lines.append(
+            "These candidates were rejected because evidence was not an exact source quote. "
+            "They are diagnostics only and are not accepted KG evidence."
+        )
+        lines.append("")
+        for item in report["llm_filtered_evidence_near_misses"][:10]:
+            lines.append(
+                f"- `{item['chunk_id']}` raw#{item['raw_triple_index']}: "
+                f"{item['subject']} {item['predicate']} {item['object']} "
+                f"(term overlap={item['evidence_term_overlap']})"
             )
     md_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     return json_path, md_path
@@ -570,6 +667,10 @@ def extract_kg_file(
         "llm_candidate_triples_total": 0,
         "llm_filtered_triples_total": 0,
         "llm_filtered_triples_by_reason": {},
+        "llm_filtered_evidence_near_miss_total": 0,
+        "llm_filtered_evidence_near_miss_policy": "diagnostic_only_not_accepted_as_kg_evidence",
+        "llm_filtered_evidence_near_miss_threshold": EVIDENCE_NEAR_MISS_THRESHOLD,
+        "llm_filtered_evidence_near_misses": [],
     }
     total = len(selected_chunks)
     for index, chunk in enumerate(selected_chunks, start=1):

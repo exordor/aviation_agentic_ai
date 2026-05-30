@@ -19,6 +19,7 @@ verified backlog.
 | I3 | Valid. Page-level matching could treat `source_page=-1` as a real page and match malformed hits with `page=-1`. | Page fallback matching now requires `source_page >= 0`; regression tests cover NDCG/recall for unset pages. |
 | I4 | Valid. Ontology generation failure paths could leave only page-level checkpoints and no main output when a later page failed. | Failure paths now write a clearly labelled partial ontology to the configured output path and record `output_complete=false`, `partial_output_written=true`, and a failure stage in the manifest. |
 | I5 | Valid as observability gap. LLM-returned KG triples rejected by deterministic filters were silently absent from reports. | KG extraction now reports candidate triples, filtered triples, and filter reasons. |
+| I6 | Valid as a recall/observability concern. Strict quote containment can drop near-valid LLM evidence. | KG extraction now records diagnostic-only filtered evidence near-misses using token-overlap metadata. These candidates remain rejected and are not accepted as KG evidence, so KG semantics and scientific results do not change. |
 | M1 | Partly valid. Empty bootstrap intervals returned `n=0` with zero-valued compatibility fields, which could be overread as a measured zero. | Evaluation protocol review now states that `n=0` CI statistics are undefined and that numeric fields are placeholders, not measured zero performance. The bootstrap API is left compatible. |
 | M2 | Valid. `_cosine_similarity` silently truncated mismatched vectors with `zip`. | Mismatched vector lengths now raise `ValueError`. |
 | M3 | Valid low-severity edge case. Leading short proposition segments could remain below `min_chars` when a page began with a short fragment before normal content. | `proposition_like` now forward-merges leading short fragments when a following segment exists. The benchmark-v2 chunking artifacts were regenerated after the behavior change. |
@@ -28,7 +29,7 @@ verified backlog.
 
 | ID | Current assessment | Reason deferred |
 | --- | --- | --- |
-| I6 | Valid as a recall/observability concern. Strict quote containment can drop near-valid LLM evidence. | Fuzzy acceptance changes KG semantics and should be evaluated separately; this iteration only adds filter counters. |
+| I6 acceptance | Still intentionally deferred. Near-miss evidence is now visible in extraction diagnostics, but fuzzy acceptance could admit paraphrases as provenance. | Accepting fuzzy evidence changes KG semantics and should require a separate evaluation protocol and claim update. |
 | Duplication | Still partly valid. JSON extraction and tokenizer duplication are reduced; broader normalization/report I/O duplication remains. | Broader utility extraction would be cross-cutting and should be split into a separate refactor. |
 | Original I7/I8 | Still valid. `cli.py` and report helpers remain large/duplicated. | Architectural refactors are high churn and not necessary for this correctness batch. |
 
@@ -36,6 +37,7 @@ verified backlog.
 
 - `uv run ruff check .`
 - `uv run pytest tests/test_json_utils.py tests/test_chunking.py tests/test_metric_edge_cases.py tests/test_hybrid_retrieval.py tests/test_kg_extraction.py tests/test_llm_review_reports.py tests/test_ontology_evaluation.py tests/test_ontology_generation.py`
+- `uv run pytest tests/test_kg_extraction.py`
 - `uv run pytest tests/test_ontology_generation.py`
 - `uv run pytest tests/test_evaluation_protocol_metrics.py tests/test_bootstrap_ci.py`
 - `uv run aviation-ai report chunking-comparison-v2 --no-semantic-download`

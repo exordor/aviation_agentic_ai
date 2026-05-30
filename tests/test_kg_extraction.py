@@ -171,6 +171,52 @@ def test_extract_kg_llm_filters_unsupported_or_bad_evidence(
         "evidence_text_not_in_chunk": 1,
         "unsupported_object_class": 1,
     }
+    assert report["llm_filtered_evidence_near_miss_total"] == 0
+
+
+def test_extract_kg_llm_records_evidence_near_miss_without_accepting(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from aviation_agentic_ai.kg import extraction
+
+    profile_path = tmp_path / "profile.yaml"
+    chunks_path = tmp_path / "chunks.jsonl"
+    output_path = tmp_path / "kg.jsonl"
+    write_profile(profile_path)
+    write_chunks_jsonl([make_chunk()], chunks_path)
+
+    monkeypatch.setattr(
+        extraction,
+        "_invoke_llm_text",
+        lambda *_args, **_kwargs: """
+{
+  "triples": [
+    {
+      "subject": "air",
+      "predicate": "affects",
+      "object": "wing",
+      "subject_class": "Cl_Air",
+      "object_class": "Cl_Wing",
+      "evidence_text": "Air flows over wing and affects lift.",
+      "confidence": 0.9
+    }
+  ]
+}
+""",
+    )
+
+    _path, triples, report = extract_kg_file(chunks_path, output_path, profile_path)
+
+    assert triples == []
+    assert report["valid"]
+    assert report["llm_candidate_triples_total"] == 1
+    assert report["llm_filtered_triples_by_reason"] == {"evidence_text_not_in_chunk": 1}
+    assert report["llm_filtered_evidence_near_miss_total"] == 1
+    assert report["llm_filtered_evidence_near_miss_policy"].startswith("diagnostic_only")
+    near_miss = report["llm_filtered_evidence_near_misses"][0]
+    assert near_miss["status"] == "filtered_not_accepted"
+    assert near_miss["evidence_term_overlap"] == 1.0
+    assert "wing" in near_miss["matched_terms"]
 
 
 def test_extract_kg_llm_records_chunk_errors_without_aborting(
@@ -287,13 +333,27 @@ def test_write_kg_validation_reports(tmp_path: Path) -> None:
         "triples_total": 1,
         "errors_total": 0,
         "errors": [],
+        "llm_filtered_evidence_near_miss_total": 1,
+        "llm_filtered_evidence_near_misses": [
+            {
+                "chunk_id": "doc-p00-c00",
+                "raw_triple_index": 0,
+                "subject": "air",
+                "predicate": "affects",
+                "object": "wing",
+                "evidence_term_overlap": 1.0,
+            }
+        ],
     }
 
     json_path, md_path = write_kg_validation_reports(report, tmp_path)
 
     assert json_path.exists()
     assert md_path.exists()
-    assert "KG Validation Report" in md_path.read_text(encoding="utf-8")
+    md_text = md_path.read_text(encoding="utf-8")
+    assert "KG Validation Report" in md_text
+    assert "Filtered Evidence Near Misses" in md_text
+    assert "diagnostics only" in md_text
 
 
 def test_write_kg_validation_reports_supports_report_name(tmp_path: Path) -> None:
