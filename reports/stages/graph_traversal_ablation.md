@@ -1,6 +1,6 @@
 # Graph Traversal Ablation
 
-- Run ID: `graph-traversal-ablation-20260529T235612Z`
+- Run ID: `graph-traversal-ablation-20260530T091716Z`
 - Questions: 35
 - Scenarios: 8
 - Scoring: retrieval, KG evidence, and graph path metrics are kept separate.
@@ -16,9 +16,80 @@
 | hybrid vector + traversal graph | 0.6571 | 0.7143 | 0.3557 | 0.5353 | 0.16 | 0.7429 | 0.9429 | 0.8571 | 0.7543 | 0.722 | 0.2209 | 0.4929 | 0.75 | 18 |
 | hybrid vector + traversal graph, vector-first guarded | 0.6571 | 0.7143 | 0.4557 | 0.6204 | 0.16 | 0.7429 | 0.9429 | 0.8571 | 0.7543 | 0.722 | 0.2209 | 0.4929 | 0.75 | 18 |
 
+## Confidence Intervals
+
+| Scenario | Metric | Mean | 95% CI | n |
+| --- | --- | ---: | --- | ---: |
+| vector_only | retrieval.recall_at_5 | 0.6857 | 0.5429 - 0.8286 | 35 |
+| vector_only | retrieval.recall_at_10 | 0.6857 | 0.5429 - 0.8286 | 35 |
+| vector_only | retrieval.mrr_at_5 | 0.4714 | 0.3333 - 0.6071 | 35 |
+| vector_only | retrieval.ndcg_at_10 | 0.6261 | 0.4482 - 0.8109 | 35 |
+| vector_only | heuristic_path.path_coverage | 0.0 | 0.0 - 0.0 | 35 |
+| vector_only | heuristic_path.path_recall_at_5 | 0.0 | 0.0 - 0.0 | 35 |
+| vector_only | heuristic_path.path_precision_at_5 | 0.0 | 0.0 - 0.0 | 35 |
+| vector_only | heuristic_path.supporting_path_rate | 0.0 | 0.0 - 0.0 | 35 |
+| lexical_graph_search | retrieval.recall_at_5 | 0.5143 | 0.3714 - 0.6857 | 35 |
+| lexical_graph_search | retrieval.recall_at_10 | 0.5143 | 0.3714 - 0.6857 | 35 |
+| lexical_graph_search | retrieval.mrr_at_5 | 0.3929 | 0.25 - 0.5429 | 35 |
+| lexical_graph_search | retrieval.ndcg_at_10 | 0.5026 | 0.3313 - 0.6811 | 35 |
+| lexical_graph_search | heuristic_path.path_coverage | 0.0 | 0.0 - 0.0 | 35 |
+| lexical_graph_search | heuristic_path.path_recall_at_5 | 0.0 | 0.0 - 0.0 | 35 |
+| lexical_graph_search | heuristic_path.path_precision_at_5 | 0.0 | 0.0 - 0.0 | 35 |
+| lexical_graph_search | heuristic_path.supporting_path_rate | 0.0 | 0.0 - 0.0 | 35 |
+| traversal_graph_1_hop | retrieval.recall_at_5 | 0.1714 | 0.0571 - 0.2857 | 35 |
+| traversal_graph_1_hop | retrieval.recall_at_10 | 0.2 | 0.0857 - 0.3429 | 35 |
+| traversal_graph_1_hop | retrieval.mrr_at_5 | 0.1714 | 0.0571 - 0.2857 | 35 |
+| traversal_graph_1_hop | retrieval.ndcg_at_10 | 0.181 | 0.0667 - 0.3143 | 35 |
+| traversal_graph_1_hop | heuristic_path.path_coverage | 0.9429 | 0.8571 - 1.0 | 35 |
+| traversal_graph_1_hop | heuristic_path.path_recall_at_5 | 0.8571 | 0.7429 - 0.9714 | 35 |
+| traversal_graph_1_hop | heuristic_path.path_precision_at_5 | 0.7 | 0.5714 - 0.8229 | 35 |
+| traversal_graph_1_hop | heuristic_path.supporting_path_rate | 0.7096 | 0.5758 - 0.83 | 35 |
+| traversal_graph_2_hop | retrieval.recall_at_5 | 0.1714 | 0.0571 - 0.2857 | 35 |
+| traversal_graph_2_hop | retrieval.recall_at_10 | 0.2 | 0.0857 - 0.3429 | 35 |
+| traversal_graph_2_hop | retrieval.mrr_at_5 | 0.1714 | 0.0571 - 0.2857 | 35 |
+| traversal_graph_2_hop | retrieval.ndcg_at_10 | 0.1804 | 0.0662 - 0.3128 | 35 |
+| traversal_graph_2_hop | heuristic_path.path_coverage | 0.9429 | 0.8571 - 1.0 | 35 |
+| traversal_graph_2_hop | heuristic_path.path_recall_at_5 | 0.8571 | 0.7429 - 0.9714 | 35 |
+| traversal_graph_2_hop | heuristic_path.path_precision_at_5 | 0.7543 | 0.6343 - 0.8686 | 35 |
+| traversal_graph_2_hop | heuristic_path.supporting_path_rate | 0.722 | 0.596 - 0.8414 | 35 |
+| traversal_graph_3_hop | retrieval.recall_at_5 | 0.1714 | 0.0571 - 0.2857 | 35 |
+| traversal_graph_3_hop | retrieval.recall_at_10 | 0.2 | 0.0857 - 0.3429 | 35 |
+| traversal_graph_3_hop | retrieval.mrr_at_5 | 0.15 | 0.0429 - 0.2643 | 35 |
+| traversal_graph_3_hop | retrieval.ndcg_at_10 | 0.1642 | 0.0556 - 0.2785 | 35 |
+| traversal_graph_3_hop | heuristic_path.path_coverage | 0.9429 | 0.8571 - 1.0 | 35 |
+| traversal_graph_3_hop | heuristic_path.path_recall_at_5 | 0.8571 | 0.7429 - 0.9714 | 35 |
+| traversal_graph_3_hop | heuristic_path.path_precision_at_5 | 0.7657 | 0.6457 - 0.88 | 35 |
+| traversal_graph_3_hop | heuristic_path.supporting_path_rate | 0.7302 | 0.604 - 0.8477 | 35 |
+| hybrid_vector_lexical_graph | retrieval.recall_at_5 | 0.6286 | 0.4857 - 0.7714 | 35 |
+| hybrid_vector_lexical_graph | retrieval.recall_at_10 | 0.6857 | 0.5429 - 0.8286 | 35 |
+| hybrid_vector_lexical_graph | retrieval.mrr_at_5 | 0.4471 | 0.3114 - 0.5914 | 35 |
+| hybrid_vector_lexical_graph | retrieval.ndcg_at_10 | 0.6156 | 0.4288 - 0.8042 | 35 |
+| hybrid_vector_lexical_graph | heuristic_path.path_coverage | 0.0 | 0.0 - 0.0 | 35 |
+| hybrid_vector_lexical_graph | heuristic_path.path_recall_at_5 | 0.0 | 0.0 - 0.0 | 35 |
+| hybrid_vector_lexical_graph | heuristic_path.path_precision_at_5 | 0.0 | 0.0 - 0.0 | 35 |
+| hybrid_vector_lexical_graph | heuristic_path.supporting_path_rate | 0.0 | 0.0 - 0.0 | 35 |
+| hybrid_vector_traversal_graph | retrieval.recall_at_5 | 0.6571 | 0.4857 - 0.8 | 35 |
+| hybrid_vector_traversal_graph | retrieval.recall_at_10 | 0.7143 | 0.5714 - 0.8571 | 35 |
+| hybrid_vector_traversal_graph | retrieval.mrr_at_5 | 0.3557 | 0.2438 - 0.4762 | 35 |
+| hybrid_vector_traversal_graph | retrieval.ndcg_at_10 | 0.5353 | 0.3861 - 0.6889 | 35 |
+| hybrid_vector_traversal_graph | heuristic_path.path_coverage | 0.9429 | 0.8571 - 1.0 | 35 |
+| hybrid_vector_traversal_graph | heuristic_path.path_recall_at_5 | 0.8571 | 0.7429 - 0.9714 | 35 |
+| hybrid_vector_traversal_graph | heuristic_path.path_precision_at_5 | 0.7543 | 0.6343 - 0.8686 | 35 |
+| hybrid_vector_traversal_graph | heuristic_path.supporting_path_rate | 0.722 | 0.596 - 0.8414 | 35 |
+| hybrid_vector_traversal_guarded | retrieval.recall_at_5 | 0.6571 | 0.4857 - 0.8 | 35 |
+| hybrid_vector_traversal_guarded | retrieval.recall_at_10 | 0.7143 | 0.5714 - 0.8571 | 35 |
+| hybrid_vector_traversal_guarded | retrieval.mrr_at_5 | 0.4557 | 0.319 - 0.5962 | 35 |
+| hybrid_vector_traversal_guarded | retrieval.ndcg_at_10 | 0.6204 | 0.4444 - 0.7964 | 35 |
+| hybrid_vector_traversal_guarded | heuristic_path.path_coverage | 0.9429 | 0.8571 - 1.0 | 35 |
+| hybrid_vector_traversal_guarded | heuristic_path.path_recall_at_5 | 0.8571 | 0.7429 - 0.9714 | 35 |
+| hybrid_vector_traversal_guarded | heuristic_path.path_precision_at_5 | 0.7543 | 0.6343 - 0.8686 | 35 |
+| hybrid_vector_traversal_guarded | heuristic_path.supporting_path_rate | 0.722 | 0.596 - 0.8414 | 35 |
+
 ## Notes
 
 Lexical graph search remains the baseline. Traversal metrics describe whether bounded KG paths were returned and whether they cover named entities or relation intent; they do not imply better retrieval unless Recall@5/MRR@5 support that.
+
+Traversal is interpreted as diagnostic path evidence and explainability support, not as current proof of retrieval superiority over lexical or vector retrieval.
 
 High path coverage with low standalone Recall@5 usually means traversal can find connected KG paths, but the chunks attached to those paths are not necessarily the gold evidence chunks. This can happen through seed linking errors, generic seed nodes, low-value predicates, sparse KG coverage for the question, or graph fusion dilution when graph chunks displace stronger vector hits.
 

@@ -4,7 +4,9 @@
 - Triples total: 448
 - Sample size: 100
 - Semantic correctness claimed: no
-- Default review status: `needs_manual_review`
+- Default review status: `needs_llm_review`
+- Human review: false
+- External aviation expert certified: false
 - Reviewed triples: 0
 - Needs review: 100
 - Unreviewed annotation fields stay `needs_review`; rates are shown only after review.
@@ -21,12 +23,11 @@
 - `status`
 - `reviewer_notes`
 
-## Human Review Instructions
+## Model-Based Review Instructions
 
-- Mark each correctness field as `true` or `false`; leave uncertain fields as `needs_review`.
-- Set `status` to `reviewed`, `accepted`, or `rejected` after required fields are decided.
-- Use `reviewer_notes` for uncertainty, generic triples, duplicates, or source mismatch.
-- Do not treat this report as semantic correctness evidence until `reviewed_total > 0`.
+- Use `triple-semantic-llm-review` for model-based judging.
+- Leave uncertain fields as `needs_review` unless a schema-valid LLM review is supplied.
+- Do not treat this report as manual or expert semantic correctness evidence.
 
 ## Summary
 

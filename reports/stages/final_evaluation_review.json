@@ -158,9 +158,12 @@
     "recommended_default": "structure_aware"
   },
   "gold_label_review": {
+    "aviation_expert_certified": false,
+    "external_expert_certified": false,
     "gold_levels": {
       "span": 10
     },
+    "human_review": false,
     "label_checks": [
       {
         "cq_id": "06-phak-ch4-0-p00-fa9830b888",
@@ -244,10 +247,10 @@
       }
     ],
     "labels_total": 10,
-    "metadata_notes": "Reviewed against fixed-window and structure-aware chunks; span texts were normalized to complete evidence snippets. Labels are course-project gold, not external aviation examiner certification.",
+    "metadata_notes": "Aligned against fixed-window and structure-aware chunks; span texts were normalized to complete evidence snippets. Labels are internal course-project gold, not human reviewed, not expert gold, and not external aviation examiner certification.",
     "present": true,
     "review_required": false,
-    "review_status": "manual_reviewed",
+    "review_status": "internal_project_gold_not_human_certified",
     "source_pages": [
       0,
       1,
@@ -338,7 +341,7 @@
     "structure_aware_hybrid_retrieval_failures": []
   },
   "metadata": {
-    "created_at": "2026-05-19T04:12:30.124229+00:00",
+    "created_at": "2026-05-30T09:12:41.774917+00:00",
     "scoring_policy": "layered_metrics_no_mixed_overall_score",
     "source_paths": {
       "chunking_comparison": "reports/stages/chunking_comparison.json",

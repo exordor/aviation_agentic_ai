@@ -30,13 +30,13 @@ REVIEWED_SUBSET_EXPECTED_COUNTS = {
     "insufficient_evidence": 20,
 }
 ANSWER_EVAL_SUBSET_RULES = (
-    ("supported_factual", 5),
-    ("concept_definition", 5),
-    ("relation_causal", 5),
-    ("cross_page", 5),
-    ("paraphrase", 3),
-    ("terminology_variation", 2),
-    ("insufficient_evidence", 10),
+    ("supported_factual", 8),
+    ("concept_definition", 7),
+    ("relation_causal", 7),
+    ("cross_page", 7),
+    ("paraphrase", 4),
+    ("terminology_variation", 4),
+    ("insufficient_evidence", 8),
 )
 
 
@@ -77,16 +77,19 @@ def _label_findings(label: dict[str, Any], duplicate_spans: set[str]) -> list[st
 
 def build_reviewed_benchmark_payload(payload: dict[str, Any]) -> dict[str, Any]:
     reviewed = deepcopy(payload)
-    reviewed["review_status"] = "manual_review_pending"
+    reviewed["review_status"] = "llm_review_pending_not_human_certified"
     reviewed["notes"] = (
-        "Working copy created for manual review. Labels are not externally aviation-expert "
-        "certified and semantic correctness remains pending."
+        "Working copy created for model-based review. Labels are not human reviewed, "
+        "not externally aviation-expert certified, and not expert gold."
     )
     for label in reviewed.get("labels", []):
         if not isinstance(label, dict):
             continue
         review = dict(label.get("review", {}))
-        review["status"] = "needs_manual_review"
+        review["status"] = "needs_llm_review"
+        review["human_review"] = False
+        review["external_expert_certified"] = False
+        review["aviation_expert_certified"] = False
         review.setdefault("reviewer_notes", "")
         review.setdefault("reviewed_at", None)
         label["review"] = review
@@ -133,13 +136,16 @@ def _add_review_metadata(label: dict[str, Any]) -> None:
     review = dict(label.get("review", {}))
     review.update(
         {
-            "status": "project_review_pending_external_review",
-            "project_author_review_status": "needs_project_author_review",
+            "status": "llm_review_pending_not_human_certified",
+            "project_author_review_status": "not_used_no_human_review",
             "review_decision": "pending",
             "reviewer_notes": review.get("reviewer_notes", ""),
             "reviewed_at": review.get("reviewed_at"),
+            "human_review": False,
+            "external_expert_certified": False,
             "external_aviation_expert_certified": False,
-            "manual_review_fields": {
+            "aviation_expert_certified": False,
+            "llm_review_fields": {
                 "natural_question_ok": "needs_review",
                 "answer_span_complete": "needs_review",
                 "evidence_supports_answer": "needs_review",
@@ -150,7 +156,7 @@ def _add_review_metadata(label: dict[str, Any]) -> None:
     )
     label["review"] = review
     tags = list(label.get("tags", []))
-    for tag in ("reviewed_subset", "project_review_pending_external_review"):
+    for tag in ("llm_review_subset", "llm_review_pending_not_human_certified"):
         if tag not in tags:
             tags.append(tag)
     label["tags"] = tags
@@ -173,17 +179,19 @@ def build_reviewed_subset_payload(payload: dict[str, Any]) -> dict[str, Any]:
         payload,
         selected,
         label_set="06_phak_ch4_0.benchmark_v2.reviewed_subset",
-        review_status="project_review_pending_external_review",
+        review_status="llm_review_pending_not_human_certified",
         notes=(
-            "Deterministic 60-label reviewed-subset scaffold. Original questions, "
-            "answer keys, and evidence spans are preserved; no project-author or "
-            "external aviation expert review is claimed."
+            "Deterministic 60-label LLM-review subset scaffold. Original questions, "
+            "answer keys, and evidence spans are preserved; no human review or "
+            "external aviation expert certification is claimed."
         ),
         subset_policy={
             "selection": "all concept_definition, relation_causal, cross_page, and insufficient_evidence labels",
             "labels_total": len(selected),
             "external_aviation_expert_certified": False,
-            "manual_review_completed": False,
+            "human_review": False,
+            "human_review_completed": False,
+            "llm_review_completed": False,
             "counts_by_question_type": dict(REVIEWED_SUBSET_EXPECTED_COUNTS),
         },
     )
@@ -210,18 +218,20 @@ def build_answer_eval_subset_payload(payload: dict[str, Any]) -> dict[str, Any]:
         payload,
         selected,
         label_set="06_phak_ch4_0.answer_eval_subset",
-        review_status="deterministic_answer_eval_subset_requires_manual_review",
+        review_status="deterministic_answer_eval_subset_for_llm_judge",
         notes=(
             "Stratified answer-evaluation subset for deterministic heuristic scoring. "
-            "Scores from this subset are not manual review or LLM-as-judge results unless "
-            "separate annotation artifacts are supplied."
+            "Scores from this subset are not human review. LLM judge scores must be "
+            "reported in a separate model-based review artifact."
         ),
         subset_policy={
             "selection": "deterministic first-N stratified sample by question_type",
             "labels_total": len(selected),
             "counts_by_question_type": selection_counts,
             "score_method": "deterministic_heuristic",
-            "manual_review_completed": False,
+            "human_review": False,
+            "human_review_completed": False,
+            "llm_review_completed": False,
             "llm_as_judge_enabled": False,
         },
     )
@@ -245,7 +255,11 @@ def build_benchmark_reviewed_subset_summary(subset_payload: dict[str, Any]) -> d
             "label_set": subset_payload.get("label_set"),
             "labels_total": len(labels),
             "review_status": subset_payload.get("review_status"),
-            "manual_review_completed": False,
+            "human_review": False,
+            "human_review_completed": False,
+            "llm_review_completed": False,
+            "external_expert_certified": False,
+            "aviation_expert_certified": False,
             "external_aviation_expert_certified": False,
             "expected_abstention_total": expected_abstention_total,
         },
@@ -281,14 +295,14 @@ def write_benchmark_reviewed_subset_summary_markdown(
     path.parent.mkdir(parents=True, exist_ok=True)
     metadata = result["metadata"]
     lines = [
-        "# Benchmark Reviewed Subset Summary",
+        "# Benchmark LLM-Review Subset Summary",
         "",
         f"- Label set: `{metadata['label_set']}`",
         f"- Labels: {metadata['labels_total']}",
         f"- Review status: `{metadata['review_status']}`",
-        "- Manual review completed: no",
+        "- Human review completed: no",
         "- External aviation expert certification: no",
-        "- Scope: scaffold for project-author review; no labels are certified by this report.",
+        "- Scope: scaffold for model-based review; no labels are certified by this report.",
         "",
         "## Question Types",
         "",
@@ -376,7 +390,8 @@ def build_benchmark_review_pack(gold_labels_path: str | Path) -> dict[str, Any]:
         "finding_counts": dict(sorted(finding_counts.items())),
         "groups": dict(sorted(grouped.items())),
         "review_policy": {
-            "manual_review_required": True,
+            "human_review": False,
+            "llm_review_required": True,
             "external_aviation_expert_certified": False,
             "do_not_claim_certification": True,
         },
@@ -403,7 +418,7 @@ def write_benchmark_review_pack_markdown(
         f"- Labels: {result['metadata']['labels_total']}",
         f"- Question types: {result['metadata']['question_types_total']}",
         "- External aviation expert certification: no",
-        "- Purpose: prepare manual review; do not treat these findings as completed review.",
+        "- Purpose: prepare model-based review; do not treat these findings as completed review.",
         "",
         "## Finding Counts",
         "",

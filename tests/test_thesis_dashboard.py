@@ -71,7 +71,8 @@ def _write_dashboard_fixture(root: Path) -> None:
                         "graph_paths": {
                             "path_recall_at_5": 0.65,
                             "path_precision_at_5": 0.6,
-                            "requires_manual_review": True,
+                            "requires_model_review": True,
+                            "human_review": False,
                         },
                     },
                     "failure_cases": [
@@ -134,6 +135,54 @@ def _write_dashboard_fixture(root: Path) -> None:
         stages / "benchmark_review_pack.json",
         {"finding_counts": {"unnatural_machine_generated_wording": 3}},
     )
+    _write_json(
+        stages / "benchmark_llm_review.json",
+        {
+            "summary": {
+                "items_total": 2,
+                "llm_reviewed_total": 2,
+                "review_status": "llm_reviewed_not_human_certified",
+            }
+        },
+    )
+    _write_json(
+        stages / "triple_semantic_llm_review.json",
+        {
+            "summary": {
+                "items_total": 2,
+                "llm_reviewed_total": 2,
+                "llm_evidence_support_rate": 1.0,
+            }
+        },
+    )
+    _write_json(
+        stages / "graph_path_llm_review.json",
+        {
+            "summary": {
+                "items_total": 2,
+                "llm_reviewed_total": 2,
+                "llm_path_relevance_rate": 1.0,
+            }
+        },
+    )
+    _write_json(
+        stages / "answer_generation_benchmark_subset.json",
+        {"metadata": {"answers_total": 3, "evaluation_status": "complete"}},
+    )
+    _write_json(
+        stages / "answer_llm_judge.json",
+        {
+            "summary": {
+                "items_total": 2,
+                "llm_reviewed_total": 2,
+                "llm_answer_correctness_rate": 1.0,
+            }
+        },
+    )
+    _write_json(
+        stages / "llm_review_consistency.json",
+        {"summary": {"agreement_rate": 1.0, "consistency_not_measured": False}},
+    )
 
 
 def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None:
@@ -165,7 +214,9 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     assert all(row["evidence_role"] == "pilot" for row in pilots)
     assert result["consistency_checks"]["primary_thesis_metrics_have_report_evidence"]
     assert result["consistency_checks"]["primary_thesis_metric_gaps"] == []
-    assert result["consistency_checks"]["manual_review_dependent_metrics_not_completed"]
+    assert result["consistency_checks"]["human_review_absent"]
+    assert result["consistency_checks"]["benchmark_llm_review_available"]
+    assert result["primary_results"]["llm_review_status"]["human_review"] is False
     assert result["consistency_checks"]["no_unsafe_claim_patterns"]
 
 
@@ -180,6 +231,9 @@ def test_workflow_runner_references_existing_cli_commands() -> None:
         "uv run aviation-ai report graph-traversal-ablation --gold-labels",
         "uv run aviation-ai report sufficiency-eval",
         "uv run aviation-ai report triple-semantic-review --sample-size 100",
+        "uv run aviation-ai report benchmark-llm-review",
+        "uv run aviation-ai report triple-semantic-llm-review",
+        "uv run aviation-ai report answer-llm-judge",
         "uv run aviation-ai report thesis-experiment-dashboard",
     ]:
         assert command in makefile

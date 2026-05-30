@@ -18,5 +18,11 @@ def test_readme_lists_thesis_ready_report_commands() -> None:
         "aviation-ai report chunking-implementation-audit",
         "aviation-ai report chunking-topk-sensitivity-v2",
         "aviation-ai report chunking-category-analysis-v2",
+        "aviation-ai report benchmark-llm-review",
+        "aviation-ai report triple-semantic-llm-review",
+        "aviation-ai report graph-path-llm-review",
+        "aviation-ai report answer-generation-benchmark-subset",
+        "aviation-ai report answer-llm-judge",
+        "aviation-ai report llm-review-consistency",
     ]:
         assert command in readme

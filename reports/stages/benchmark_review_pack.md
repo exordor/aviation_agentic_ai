@@ -4,7 +4,7 @@
 - Labels: 120
 - Question types: 7
 - External aviation expert certification: no
-- Purpose: prepare manual review; do not treat these findings as completed review.
+- Purpose: prepare model-based review; do not treat these findings as completed review.
 
 ## Finding Counts
 

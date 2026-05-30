@@ -1458,7 +1458,7 @@ def write_chunking_failure_cards_v2_markdown(
     lines = [
         "# Chunking Failure Cards Benchmark V2",
         "",
-        "- These cards are deterministic qualitative diagnostics, not manual review results.",
+        "- These cards are deterministic qualitative diagnostics, not human-review results.",
         "- Each card stores the first matching sample per strategy and failure type when one exists.",
         "",
         "| Strategy | Failure type | Samples | Example CQ | Notes |",

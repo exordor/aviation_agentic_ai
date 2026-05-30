@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "aviation_expert_certified": false,
+    "external_expert_certified": false,
+    "human_review": false,
+    "reviewer_model": "gpt-5.4-mini",
+    "reviewer_type": "llm_judge",
+    "score_method": "llm_judge",
+    "source_reports": {
+      "answer_llm_judge": "reports/stages/answer_llm_judge.json",
+      "benchmark_llm_review": "reports/stages/benchmark_llm_review.json",
+      "graph_path_llm_review": "reports/stages/graph_path_llm_review.json",
+      "triple_semantic_llm_review": "reports/stages/triple_semantic_llm_review.json"
+    }
+  },
+  "summary": {
+    "agreement_rate": 0.3636,
+    "aviation_expert_certified": false,
+    "comparable_item_groups": 11,
+    "consistency_not_measured": false,
+    "contradiction_count": 7,
+    "external_expert_certified": false,
+    "high_confidence_disagreement_count": 7,
+    "human_review": false,
+    "items_not_safe_for_strong_claims": 8,
+    "items_requiring_human_review_even_if_no_human_available": 3,
+    "records_total": 24,
+    "reviewed_item_groups": 12,
+    "uncertain_rate": 1.0
+  }
+}

@@ -247,6 +247,14 @@ _SAFE_CONTEXT_MARKERS = (
     "not supported",
     "not external",
     "not an external",
+    "not certified",
+    "not human",
+    "human review is absent",
+    "not expert",
+    "no human",
+    "no external",
+    "false",
+    "kept out",
     "not operational",
     "not a replacement",
     "not that",
@@ -322,6 +330,29 @@ _UNSAFE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
             r"\b(benchmark|gold|labels?)\b",
             re.IGNORECASE,
         ),
+    ),
+    (
+        "human_review_claim",
+        re.compile(r"\b(human|manual)\s+review(?:ed)?\b|\bmanual[- ]reviewed\b", re.IGNORECASE),
+    ),
+    (
+        "expert_review_claim",
+        re.compile(
+            r"\bexpert\s+review(?:ed)?\b|\bexpert\s+gold\b|\baviation\s+expert\s+validated\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "certification_claim",
+        re.compile(r"\bcertified\b|\bcertification\b", re.IGNORECASE),
+    ),
+    (
+        "semantic_triple_overclaim",
+        re.compile(r"\bsemantically\s+correct\s+triples\b", re.IGNORECASE),
+    ),
+    (
+        "proven_safe",
+        re.compile(r"\bproven\s+safe\b|\bflight[- ]ready\b|\boperationally\s+safe\b", re.IGNORECASE),
     ),
 )
 

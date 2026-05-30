@@ -36,7 +36,7 @@ def _supported_label(**overrides):
         "key_entities": ["angle of attack", "lift"],
         "question": "What affects lift?",
         "question_type": "supported_factual",
-        "review": {"status": "machine_seeded_requires_manual_review"},
+        "review": {"status": "llm_review_pending_not_human_certified"},
         "source_document": "doc",
         "source_page": 0,
         "tags": ["supported_factual", "supported"],
@@ -56,7 +56,7 @@ def _no_answer_label(**overrides):
         "key_entities": ["current weather"],
         "question": "What is the current weather?",
         "question_type": "insufficient_evidence",
-        "review": {"status": "machine_seeded_requires_manual_review"},
+        "review": {"status": "llm_review_pending_not_human_certified"},
         "source_document": "doc",
         "source_page": -1,
         "tags": ["insufficient_evidence", "no_answer"],
@@ -70,7 +70,7 @@ def _write_benchmark(path: Path, labels: list[dict]) -> None:
         json.dumps(
             {
                 "label_set": "test_benchmark",
-                "review_status": "machine_seeded_requires_manual_review",
+                "review_status": "llm_review_pending_not_human_certified",
                 "notes": "test",
                 "label_distribution": {"supported_factual": 1},
                 "labels": labels,

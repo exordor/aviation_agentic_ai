@@ -37,8 +37,8 @@
     "labels_total": 120,
     "missing_field_counts": {},
     "no_answer_total": 20,
-    "notes": "Thesis-oriented seed benchmark for PHAK Chapter 4 layered evaluation. Supported evidence spans are copied from repository source chunks. This benchmark is not externally aviation-expert certified and must be manually reviewed before strong aviation-domain claims.",
-    "review_status": "machine_seeded_requires_manual_review",
+    "notes": "Thesis-oriented seed benchmark for PHAK Chapter 4 layered evaluation. Supported evidence spans are copied from repository source chunks. This benchmark is not human reviewed, not externally aviation-expert certified, and not expert gold; LLM-assisted review is an internal cleanup and caution layer.",
+    "review_status": "llm_review_pending_not_human_certified",
     "span_level_count": 100,
     "supported_total": 100
   },

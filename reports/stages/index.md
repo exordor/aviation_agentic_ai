@@ -64,7 +64,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Structure-aware Hybrid RAG strategy: `structure_aware`, with independently extracted KG and collection `phak_ch4_chunks_structure_aware`.
 - Fixed-window result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.8, hybrid Recall@5 = 0.9; graph and hybrid KG evidence coverage = 0.9.
 - Structure-aware result summary: vector Recall@5 = 1.0, graph Recall@5 = 0.9, hybrid Recall@5 = 1.0; graph and hybrid KG evidence coverage = 0.9.
-- Gold labels: reviewed chunk/span labels are marked `manual_reviewed`; they remain course-project gold, not external aviation examiner certification.
+- Gold labels: chunk/span labels are internal project gold; they are not human-reviewed, not expert gold, and not external aviation examiner certification.
 - Evidence-level result summary: structure-aware hybrid supported 9/10 answers versus fixed-window hybrid 8/10; both hybrid runs have KG triple relevance = 0.9 and citation validity = 1.0.
 - Expanded evaluation labels: 35 total questions, including 5 insufficient-evidence/no-answer questions for abstention testing.
 - Retrieval ablation: 12 deterministic scenarios over 35 expanded questions; vector-only and explicit graph-disabled hybrid Recall@5 = 0.6857, while structure-aware hybrid RRF Recall@5 = 0.6286 in the default top-k/hops setting, showing the expanded set is harder than the original 10 CQ benchmark.

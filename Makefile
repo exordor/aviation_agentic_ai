@@ -16,6 +16,12 @@ reports-main-experiments:
 
 reports-review:
 	uv run aviation-ai report triple-semantic-review --sample-size 100
+	uv run aviation-ai report benchmark-llm-review --max-items 60
+	uv run aviation-ai report triple-semantic-llm-review --max-items 50
+	uv run aviation-ai report graph-path-llm-review --max-items 50
+	uv run aviation-ai report answer-generation-benchmark-subset --max-questions 45
+	uv run aviation-ai report answer-llm-judge --max-items 60
+	uv run aviation-ai report llm-review-consistency
 	uv run aviation-ai report benchmark-review-pack --no-write-reviewed
 	uv run aviation-ai report benchmark-reviewed-subset
 	uv run aviation-ai report answer-eval-subset

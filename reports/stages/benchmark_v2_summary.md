@@ -1,7 +1,7 @@
 # Benchmark V2 Summary
 
 - Label set: `phak_ch4_benchmark_v2_thesis_seed`
-- Review status: `machine_seeded_requires_manual_review`
+- Review status: `llm_review_pending_not_human_certified`
 - Labels: 120
 - Supported labels: 100
 - Insufficient-evidence labels: 20

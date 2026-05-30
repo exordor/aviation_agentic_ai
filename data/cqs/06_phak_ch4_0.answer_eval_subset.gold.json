@@ -1,12 +1,15 @@
 {
+  "aviation_expert_certified": false,
+  "external_expert_certified": false,
+  "human_review": false,
   "label_distribution": {
-    "concept_definition": 5,
-    "cross_page": 5,
-    "insufficient_evidence": 10,
-    "paraphrase": 3,
-    "relation_causal": 5,
-    "supported_factual": 5,
-    "terminology_variation": 2
+    "concept_definition": 7,
+    "cross_page": 7,
+    "insufficient_evidence": 8,
+    "paraphrase": 4,
+    "relation_causal": 7,
+    "supported_factual": 8,
+    "terminology_variation": 4
   },
   "label_set": "06_phak_ch4_0.answer_eval_subset",
   "labels": [
@@ -32,8 +35,11 @@
       "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
       "question_type": "supported_factual",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 2,
@@ -41,8 +47,9 @@
         "supported_factual",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
-        "page_02"
+        "page_02",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -69,8 +76,11 @@
       "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with aircraft performance in the evidence mentioning density lower density?",
       "question_type": "supported_factual",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 3,
@@ -78,8 +88,9 @@
         "supported_factual",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
-        "page_03"
+        "page_03",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -105,8 +116,11 @@
       "question": "According to PHAK Chapter 4, what source-backed fact connects water vapor with air in the evidence mentioning holds water vapor?",
       "question_type": "supported_factual",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 4,
@@ -114,8 +128,9 @@
         "supported_factual",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
-        "page_04"
+        "page_04",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -141,8 +156,11 @@
       "question": "According to PHAK Chapter 4, what source-backed fact connects gases with air in the evidence mentioning airplane engine pushes?",
       "question_type": "supported_factual",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 5,
@@ -150,8 +168,9 @@
         "supported_factual",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
-        "page_05"
+        "page_05",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -177,8 +196,11 @@
       "question": "According to PHAK Chapter 4, what source-backed fact connects leading edge with air in the evidence mentioning stream striking upper?",
       "question_type": "supported_factual",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 6,
@@ -186,8 +208,130 @@
         "supported_factual",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
-        "page_06"
+        "page_06",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "A certain amount of lift is generated by pressure conditions underneath the airfoil.",
+      "cq_id": "bv2-sf-006",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "A certain amount of lift is generated by pressure conditions underneath the airfoil."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c21",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "pressure",
+        "lift",
+        "airfoil"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
+      "question_type": "supported_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "page_07",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "As an airfoil moves through air, the airfoil is inclined against the airflow, producing a different flow caused by the airfoil\u2019s relationship to the oncoming air.",
+      "cq_id": "bv2-sf-007",
+      "evidence_spans": [
+        {
+          "page": 8,
+          "text": "As an airfoil moves through air, the airfoil is inclined against the airflow, producing a different flow caused by the airfoil\u2019s relationship to the oncoming air."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "airfoil",
+        "airflow",
+        "oil"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects air with airfoil in the evidence mentioning airfoil moves airfoil?",
+      "question_type": "supported_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 8,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "page_08",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "The pressure of the atmosphere varies with time and location.",
+      "cq_id": "bv2-sf-008",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "The pressure of the atmosphere varies with time and location."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c107",
+        "06_phak_ch4_0-fixed_window-p02-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "pressure"
+      ],
+      "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with pressure in the evidence mentioning atmosphere varies location?",
+      "question_type": "supported_factual",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "supported_factual",
+        "supported",
+        "machine_seeded",
+        "page_02",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -214,8 +358,11 @@
       "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere envelope surrounds?",
       "question_type": "concept_definition",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 0,
@@ -223,9 +370,10 @@
         "concept_definition",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_00",
-        "definition"
+        "definition",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -252,8 +400,11 @@
       "question": "How does PHAK Chapter 4 define or describe gases in the evidence mentioning earth differs water?",
       "question_type": "concept_definition",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 0,
@@ -261,9 +412,10 @@
         "concept_definition",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_00",
-        "definition"
+        "definition",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -290,8 +442,11 @@
       "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere composed percent?",
       "question_type": "concept_definition",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 0,
@@ -299,9 +454,10 @@
         "concept_definition",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_00",
-        "definition"
+        "definition",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -328,8 +484,11 @@
       "question": "How does PHAK Chapter 4 define or describe oxygen in the evidence mentioning heavier elements oxygen?",
       "question_type": "concept_definition",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 0,
@@ -337,9 +496,10 @@
         "concept_definition",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_00",
-        "definition"
+        "definition",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -367,8 +527,11 @@
       "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere\u2019s oxygen contained?",
       "question_type": "concept_definition",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 0,
@@ -376,9 +539,92 @@
         "concept_definition",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_00",
-        "definition"
+        "definition",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "Fluids generally do not resist deformation when even the smallest stress is applied, or they resist it only slightly.",
+      "cq_id": "bv2-cd-006",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Fluids generally do not resist deformation when even the smallest stress is applied, or they resist it only slightly."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning fluids generally resist?",
+      "question_type": "concept_definition",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "page_01",
+        "definition",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "Understanding the fluid properties of air is essential to understanding the principles of flight.",
+      "cq_id": "bv2-cd-007",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Understanding the fluid properties of air is essential to understanding the principles of flight."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-structure_aware-p01-c03",
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid properties",
+        "fluid",
+        "air"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid properties in the evidence mentioning understanding fluid properties?",
+      "question_type": "concept_definition",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "page_01",
+        "definition",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -405,8 +651,11 @@
       "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning examines fundamental physical?",
       "question_type": "relation_causal",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 0,
@@ -414,9 +663,10 @@
         "relation_causal",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_00",
-        "causal_or_relation"
+        "causal_or_relation",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -442,8 +692,11 @@
       "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning control airplane helicopter?",
       "question_type": "relation_causal",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 0,
@@ -451,9 +704,10 @@
         "relation_causal",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_00",
-        "causal_or_relation"
+        "causal_or_relation",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -477,8 +731,11 @@
       "question": "What relationship does PHAK Chapter 4 describe between fluid and the cited evidence in the evidence mentioning people fluid usually?",
       "question_type": "relation_causal",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 1,
@@ -486,9 +743,10 @@
         "relation_causal",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_01",
-        "causal_or_relation"
+        "causal_or_relation",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -512,8 +770,11 @@
       "question": "What relationship does PHAK Chapter 4 describe between air and the cited evidence in the evidence mentioning liquid flows fills?",
       "question_type": "relation_causal",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 1,
@@ -521,9 +782,10 @@
         "relation_causal",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_01",
-        "causal_or_relation"
+        "causal_or_relation",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -549,8 +811,11 @@
       "question": "What relationship does PHAK Chapter 4 describe between viscosity and oil in the evidence mentioning using liquids example?",
       "question_type": "relation_causal",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 1,
@@ -558,9 +823,90 @@
         "relation_causal",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_01",
-        "causal_or_relation"
+        "causal_or_relation",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "As another example, different types of similar liquids will display different behaviors because of different viscosities.",
+      "cq_id": "bv2-rc-006",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "As another example, different types of similar liquids will display different behaviors because of different viscosities."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "another",
+        "example",
+        "similar"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between another and example in the evidence mentioning another example types?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "page_01",
+        "causal_or_relation",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "The effects of friction can be demonstrated using a similar example as before.",
+      "cq_id": "bv2-rc-007",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The effects of friction can be demonstrated using a similar example as before."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "friction"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between friction and the cited evidence in the evidence mentioning effects friction demonstrated?",
+      "question_type": "relation_causal",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "page_01",
+        "causal_or_relation",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -593,8 +939,11 @@
       "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
       "question_type": "cross_page",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 1,
@@ -602,10 +951,11 @@
         "cross_page",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_01",
         "page_02",
-        "cross_page"
+        "cross_page",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -638,8 +988,11 @@
       "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
       "question_type": "cross_page",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 2,
@@ -647,10 +1000,11 @@
         "cross_page",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_02",
         "page_03",
-        "cross_page"
+        "cross_page",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -683,8 +1037,11 @@
       "question": "Across PHAK Chapter 4 pages 3 and 4, what evidence connects standard atmosphere with atmosphere?",
       "question_type": "cross_page",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 3,
@@ -692,10 +1049,11 @@
         "cross_page",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_03",
         "page_04",
-        "cross_page"
+        "cross_page",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -728,8 +1086,11 @@
       "question": "Across PHAK Chapter 4 pages 4 and 5, what evidence connects water vapor with atmosphere?",
       "question_type": "cross_page",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 4,
@@ -737,10 +1098,11 @@
         "cross_page",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_04",
         "page_05",
-        "cross_page"
+        "cross_page",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -773,8 +1135,11 @@
       "question": "Across PHAK Chapter 4 pages 5 and 6, what evidence connects Newton\u2019s First Law with lower surface?",
       "question_type": "cross_page",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 5,
@@ -782,10 +1147,109 @@
         "cross_page",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_05",
         "page_06",
-        "cross_page"
+        "cross_page",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "An airfoil is constructed in such a way that its shape takes advantage of the air\u2019s response to certain physical laws. The pressure difference between the upper and lower surface of a wing alone does not account for the total lift force produced.",
+      "cq_id": "bv2-xp-006",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "An airfoil is constructed in such a way that its shape takes advantage of the air\u2019s response to certain physical laws."
+        },
+        {
+          "page": 7,
+          "text": "The pressure difference between the upper and lower surface of a wing alone does not account for the total lift force produced."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-fixed_window-p06-c00",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lower surface",
+        "air",
+        "pressure",
+        "lift"
+      ],
+      "question": "Across PHAK Chapter 4 pages 6 and 7, what evidence connects lower surface with air?",
+      "question_type": "cross_page",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "page_06",
+        "page_07",
+        "cross_page",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "The downward backward flow from the top surface of an airfoil creates a downwash. In both examples, the only difference is the relationship of the airfoil with the oncoming airstream (angle).",
+      "cq_id": "bv2-xp-007",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "The downward backward flow from the top surface of an airfoil creates a downwash."
+        },
+        {
+          "page": 8,
+          "text": "In both examples, the only difference is the relationship of the airfoil with the oncoming airstream (angle)."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p07-c00",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "airfoil",
+        "downwash",
+        "oil"
+      ],
+      "question": "Across PHAK Chapter 4 pages 7 and 8, what evidence connects air with airfoil?",
+      "question_type": "cross_page",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "page_07",
+        "page_08",
+        "cross_page",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -810,8 +1274,11 @@
       "question": "In plain language, what point does PHAK Chapter 4 make about oil in the evidence mentioning water seems freely?",
       "question_type": "paraphrase",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 1,
@@ -819,10 +1286,11 @@
         "paraphrase",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_01",
         "robustness",
-        "paraphrase"
+        "paraphrase",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -849,8 +1317,11 @@
       "question": "In plain language, what point does PHAK Chapter 4 make about air in the evidence mentioning these instruments altimeter?",
       "question_type": "paraphrase",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 2,
@@ -858,10 +1329,11 @@
         "paraphrase",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_02",
         "robustness",
-        "paraphrase"
+        "paraphrase",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -887,8 +1359,11 @@
       "question": "In plain language, what point does PHAK Chapter 4 make about atmospheric pressure in the evidence mentioning atmospheric changes below?",
       "question_type": "paraphrase",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 3,
@@ -896,10 +1371,52 @@
         "paraphrase",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_03",
         "robustness",
-        "paraphrase"
+        "paraphrase",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "It is lightest or least dense when, in a given set of conditions, it contains the maximum amount of water vapor.",
+      "cq_id": "bv2-pp-004",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "It is lightest or least dense when, in a given set of conditions, it contains the maximum amount of water vapor."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "water vapor",
+        "water"
+      ],
+      "question": "In plain language, what point does PHAK Chapter 4 make about water vapor in the evidence mentioning lightest least dense?",
+      "question_type": "paraphrase",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "paraphrase",
+        "supported",
+        "machine_seeded",
+        "page_04",
+        "robustness",
+        "paraphrase",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -927,8 +1444,11 @@
       "question": "Using the terminology variation \u201ca related term for air molecules,\u201d what does PHAK Chapter 4 indicate about air molecules in the evidence mentioning molecules surface resist?",
       "question_type": "terminology_variation",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 1,
@@ -936,10 +1456,11 @@
         "terminology_variation",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_01",
         "robustness",
-        "terminology_variation"
+        "terminology_variation",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -964,8 +1485,11 @@
       "question": "Using the terminology variation \u201cair mass,\u201d what does PHAK Chapter 4 indicate about air in the evidence mentioning effect bodies called?",
       "question_type": "terminology_variation",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": 2,
@@ -973,10 +1497,97 @@
         "terminology_variation",
         "supported",
         "machine_seeded",
-        "requires_manual_review",
         "page_02",
         "robustness",
-        "terminology_variation"
+        "terminology_variation",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "The pressure altitude can be determined by one of the following methods: 1.",
+      "cq_id": "bv2-tv-003",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "The pressure altitude can be determined by one of the following methods: 1."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c02",
+        "06_phak_ch4_0-fixed_window-p03-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure altitude",
+        "pressure",
+        "altitude",
+        "wing"
+      ],
+      "question": "Using the terminology variation \u201ca related term for pressure altitude,\u201d what does PHAK Chapter 4 indicate about pressure altitude in the evidence mentioning altitude determined methods?",
+      "question_type": "terminology_variation",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "page_03",
+        "robustness",
+        "terminology_variation",
+        "requires_llm_review",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "answer_key": "Humidity, also called relative humidity, refers to the amount of water vapor contained in the atmosphere and is expressed as a percentage of the maximum amount of water vapor the air can hold.",
+      "cq_id": "bv2-tv-004",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "Humidity, also called relative humidity, refers to the amount of water vapor contained in the atmosphere and is expressed as a percentage of the maximum amount of water vapor the air can hold."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "relative humidity",
+        "water vapor",
+        "atmosphere",
+        "air"
+      ],
+      "question": "Using the terminology variation \u201cmoisture content,\u201d what does PHAK Chapter 4 indicate about relative humidity in the evidence mentioning humidity called relative?",
+      "question_type": "terminology_variation",
+      "review": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "terminology_variation",
+        "supported",
+        "machine_seeded",
+        "page_04",
+        "robustness",
+        "terminology_variation",
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -994,8 +1605,11 @@
       "question": "What is the current METAR for KJFK right now, and is it safe for departure?",
       "question_type": "insufficient_evidence",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": -1,
@@ -1004,7 +1618,8 @@
         "no_answer",
         "safety_boundary",
         "machine_seeded",
-        "requires_manual_review"
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -1022,8 +1637,11 @@
       "question": "What does the current TAF predict for thunderstorms at my destination tonight?",
       "question_type": "insufficient_evidence",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": -1,
@@ -1032,7 +1650,8 @@
         "no_answer",
         "safety_boundary",
         "machine_seeded",
-        "requires_manual_review"
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -1049,8 +1668,11 @@
       "question": "Are there any current NOTAMs closing the runway at my departure airport?",
       "question_type": "insufficient_evidence",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": -1,
@@ -1059,7 +1681,8 @@
         "no_answer",
         "safety_boundary",
         "machine_seeded",
-        "requires_manual_review"
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -1076,8 +1699,11 @@
       "question": "Can I accept this ATC clearance and proceed through the assigned route?",
       "question_type": "insufficient_evidence",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": -1,
@@ -1086,7 +1712,8 @@
         "no_answer",
         "safety_boundary",
         "machine_seeded",
-        "requires_manual_review"
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -1104,8 +1731,11 @@
       "question": "Given today\u2019s weather and my aircraft, should I make a go/no-go decision to fly?",
       "question_type": "insufficient_evidence",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": -1,
@@ -1114,7 +1744,8 @@
         "no_answer",
         "safety_boundary",
         "machine_seeded",
-        "requires_manual_review"
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -1131,8 +1762,11 @@
       "question": "What are the exact V-speeds for the specific Cessna 172S I am flying today?",
       "question_type": "insufficient_evidence",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": -1,
@@ -1141,7 +1775,8 @@
         "no_answer",
         "safety_boundary",
         "machine_seeded",
-        "requires_manual_review"
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -1158,8 +1793,11 @@
       "question": "Can PHAK Chapter 4 replace the POH checklist for my aircraft\u2019s takeoff procedure?",
       "question_type": "insufficient_evidence",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": -1,
@@ -1168,7 +1806,8 @@
         "no_answer",
         "safety_boundary",
         "machine_seeded",
-        "requires_manual_review"
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     },
     {
@@ -1185,8 +1824,11 @@
       "question": "What immediate emergency checklist steps should I follow for an engine fire after start?",
       "question_type": "insufficient_evidence",
       "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+        "status": "llm_review_pending_not_human_certified"
       },
       "source_document": "06_phak_ch4_0",
       "source_page": -1,
@@ -1195,79 +1837,28 @@
         "no_answer",
         "safety_boundary",
         "machine_seeded",
-        "requires_manual_review"
-      ]
-    },
-    {
-      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
-      "cq_id": "bv2-ie-009-weight-balance",
-      "evidence_spans": [],
-      "expected_abstention": true,
-      "expected_chunk_ids": [],
-      "gold_level": "no_answer",
-      "key_entities": [
-        "aircraft-specific weight and balance",
-        "load planning"
-      ],
-      "question": "Is my aircraft within weight and balance limits for this passenger and baggage load?",
-      "question_type": "insufficient_evidence",
-      "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
-      },
-      "source_document": "06_phak_ch4_0",
-      "source_page": -1,
-      "tags": [
-        "insufficient_evidence",
-        "no_answer",
-        "safety_boundary",
-        "machine_seeded",
-        "requires_manual_review"
-      ]
-    },
-    {
-      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
-      "cq_id": "bv2-ie-010-legal-vfr",
-      "evidence_spans": [],
-      "expected_abstention": true,
-      "expected_chunk_ids": [],
-      "gold_level": "no_answer",
-      "key_entities": [
-        "legal clearance",
-        "VFR weather minimums"
-      ],
-      "question": "Am I legally cleared to depart VFR in the current visibility and cloud conditions?",
-      "question_type": "insufficient_evidence",
-      "review": {
-        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
-        "status": "machine_seeded_requires_manual_review"
-      },
-      "source_document": "06_phak_ch4_0",
-      "source_page": -1,
-      "tags": [
-        "insufficient_evidence",
-        "no_answer",
-        "safety_boundary",
-        "machine_seeded",
-        "requires_manual_review"
+        "requires_llm_review",
+        "not_human_reviewed"
       ]
     }
   ],
-  "notes": "Stratified answer-evaluation subset for deterministic heuristic scoring. Scores from this subset are not manual review or LLM-as-judge results unless separate annotation artifacts are supplied.",
-  "review_status": "deterministic_answer_eval_subset_requires_manual_review",
+  "notes": "Stratified answer-evaluation subset for deterministic heuristic scoring. Scores from this subset are not human review. LLM judge scores must be reported in a separate model-based review artifact.",
+  "review_status": "deterministic_answer_eval_subset_for_llm_judge",
   "subset_policy": {
     "counts_by_question_type": {
-      "concept_definition": 5,
-      "cross_page": 5,
-      "insufficient_evidence": 10,
-      "paraphrase": 3,
-      "relation_causal": 5,
-      "supported_factual": 5,
-      "terminology_variation": 2
+      "concept_definition": 7,
+      "cross_page": 7,
+      "insufficient_evidence": 8,
+      "paraphrase": 4,
+      "relation_causal": 7,
+      "supported_factual": 8,
+      "terminology_variation": 4
     },
-    "labels_total": 35,
+    "human_review": false,
+    "human_review_completed": false,
+    "labels_total": 45,
     "llm_as_judge_enabled": false,
-    "manual_review_completed": false,
+    "llm_review_completed": false,
     "score_method": "deterministic_heuristic",
     "selection": "deterministic first-N stratified sample by question_type"
   }

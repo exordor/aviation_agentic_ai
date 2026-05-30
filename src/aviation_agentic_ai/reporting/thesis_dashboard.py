@@ -17,7 +17,14 @@ REPORT_SOURCES: dict[str, str] = {
     "graph_traversal_ablation_benchmark_v2": "reports/stages/graph_traversal_ablation_benchmark_v2.json",
     "sufficiency_evaluation": "reports/stages/sufficiency_evaluation.json",
     "benchmark_reviewed_subset_summary": "reports/stages/benchmark_reviewed_subset_summary.json",
+    "benchmark_llm_review": "reports/stages/benchmark_llm_review.json",
+    "benchmark_llm_rewrite_proposals": "reports/stages/benchmark_llm_rewrite_proposals.json",
     "answer_evaluation_benchmark_subset": "reports/stages/answer_evaluation_benchmark_subset.json",
+    "answer_generation_benchmark_subset": "reports/stages/answer_generation_benchmark_subset.json",
+    "answer_llm_judge": "reports/stages/answer_llm_judge.json",
+    "triple_semantic_llm_review": "reports/stages/triple_semantic_llm_review.json",
+    "graph_path_llm_review": "reports/stages/graph_path_llm_review.json",
+    "llm_review_consistency": "reports/stages/llm_review_consistency.json",
     "chunking_implementation_audit": "reports/stages/chunking_implementation_audit.json",
     "chunking_comparison_benchmark_v2": "reports/stages/chunking_comparison_benchmark_v2.json",
     "chunking_comparison_benchmark_v2_budget": "reports/stages/chunking_comparison_benchmark_v2_budget.json",
@@ -45,6 +52,16 @@ UNSAFE_PATTERNS = (
     "replace the aircraft poh",
     "replace approved checklists",
     "replace atc",
+    "human reviewed",
+    "manual reviewed",
+    "manual-review dependent",
+    "expert reviewed",
+    "expert gold",
+    "aviation expert validated",
+    "semantically correct triples",
+    "proven safe",
+    "operationally safe",
+    "flight-ready",
 )
 
 SAFE_UNSUPPORTED_CONTEXT_MARKERS = (
@@ -56,6 +73,10 @@ SAFE_UNSUPPORTED_CONTEXT_MARKERS = (
     "not assume",
     "not supported",
     "not external",
+    "no human",
+    "human review is absent",
+    "not human",
+    "not certified",
     "not operational",
     "should not",
 )
@@ -91,8 +112,15 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "retrieval_ablation_benchmark_v2": ("retrieval", "kg_evidence"),
         "graph_traversal_ablation_benchmark_v2": ("retrieval", "graph_paths"),
         "sufficiency_evaluation": ("safety_abstention",),
-        "benchmark_reviewed_subset_summary": ("benchmark_manual_review",),
+        "benchmark_reviewed_subset_summary": ("benchmark_llm_review_scaffold",),
+        "benchmark_llm_review": ("benchmark_llm_review", "llm_judge"),
+        "benchmark_llm_rewrite_proposals": ("benchmark_llm_review",),
         "answer_evaluation_benchmark_subset": ("answer_generation", "safety_abstention"),
+        "answer_generation_benchmark_subset": ("answer_generation",),
+        "answer_llm_judge": ("answer_generation", "llm_judge"),
+        "triple_semantic_llm_review": ("ontology_kg", "llm_judge"),
+        "graph_path_llm_review": ("graph_paths", "llm_judge"),
+        "llm_review_consistency": ("llm_judge", "claim_safety"),
         "chunking_implementation_audit": ("retrieval", "evaluation_protocol"),
         "chunking_comparison_benchmark_v2": ("retrieval",),
         "chunking_comparison_benchmark_v2_budget": ("retrieval",),
@@ -101,10 +129,10 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "chunking_failure_cards_benchmark_v2": ("retrieval", "failure_analysis"),
         "kg_extraction_comparison": ("ontology_kg",),
         "curated_ontology_evaluation": ("ontology_kg",),
-        "triple_semantic_review_sample": ("ontology_kg", "manual_review"),
+        "triple_semantic_review_sample": ("ontology_kg", "llm_review_scaffold"),
         "answer_evaluation": ("answer_generation", "safety_abstention"),
         "robustness_evaluation": ("safety_abstention", "robustness"),
-        "benchmark_review_pack": ("benchmark_manual_review",),
+        "benchmark_review_pack": ("benchmark_llm_review_scaffold",),
     }
     dataset_map = {
         "benchmark_v2_summary": "benchmark_v2_120",
@@ -112,7 +140,14 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "graph_traversal_ablation_benchmark_v2": "benchmark_v2_120",
         "sufficiency_evaluation": "benchmark_v2_120",
         "benchmark_reviewed_subset_summary": "benchmark_v2_reviewed_subset_60",
+        "benchmark_llm_review": "benchmark_v2_reviewed_subset_or_v2",
+        "benchmark_llm_rewrite_proposals": "benchmark_v2_reviewed_subset_or_v2",
         "answer_evaluation_benchmark_subset": "answer_eval_subset",
+        "answer_generation_benchmark_subset": "answer_eval_subset",
+        "answer_llm_judge": "answer_eval_subset",
+        "triple_semantic_llm_review": "triple_semantic_review_sample",
+        "graph_path_llm_review": "benchmark_v2_120",
+        "llm_review_consistency": "llm_review_artifacts",
         "chunking_implementation_audit": "benchmark_v2_120",
         "chunking_comparison_benchmark_v2": "benchmark_v2_120",
         "chunking_comparison_benchmark_v2_budget": "benchmark_v2_120",
@@ -123,13 +158,6 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "robustness_evaluation": "robustness_10_cases",
         "kg_extraction_comparison": "35_question_expanded",
         "triple_semantic_review_sample": "triple_semantic_review_sample",
-    }
-    manual_review = {
-        "benchmark_v2_summary",
-        "benchmark_review_pack",
-        "benchmark_reviewed_subset_summary",
-        "graph_traversal_ablation_benchmark_v2",
-        "triple_semantic_review_sample",
     }
     inventory = []
     for name, rel_path in REPORT_SOURCES.items():
@@ -148,7 +176,8 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
                     default=_metric(data, "metadata", "labels_total", default="n/a"),
                 ),
                 "metric_layers_covered": list(layer_map.get(name, ())),
-                "manual_review_required": name in manual_review,
+                "human_review_present": False,
+                "llm_review_available": "llm" in name,
             }
         )
     return inventory
@@ -172,6 +201,12 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     chunking_category = reports.get("chunking_category_analysis_benchmark_v2", {})
     kg = reports["kg_extraction_comparison"]
     triple = reports["triple_semantic_review_sample"]
+    benchmark_llm = reports.get("benchmark_llm_review", {})
+    triple_llm = reports.get("triple_semantic_llm_review", {})
+    graph_path_llm = reports.get("graph_path_llm_review", {})
+    answer_generation = reports.get("answer_generation_benchmark_subset", {})
+    answer_llm = reports.get("answer_llm_judge", {})
+    llm_consistency = reports.get("llm_review_consistency", {})
 
     vector = _scenario_metrics(retrieval, "vector_hops2_v5_h8")
     hybrid = _scenario_metrics(retrieval, "hybrid_hops2_v5_h8")
@@ -202,11 +237,12 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "recall_at_5": _metric(guarded, "retrieval", "recall_at_5"),
             "path_recall_at_5": _metric(guarded, "graph_paths", "path_recall_at_5"),
             "path_precision_at_5": _metric(guarded, "graph_paths", "path_precision_at_5"),
-            "path_metrics_require_manual_review": _metric(
+            "path_metrics_require_model_review": _metric(
                 guarded,
                 "graph_paths",
-                "requires_manual_review",
+                "requires_model_review",
             ),
+            "human_review": False,
         },
         "standalone_traversal": {
             "path_coverage": _metric(traversal_graph, "graph_paths", "path_coverage"),
@@ -240,10 +276,15 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 "metadata",
                 "external_aviation_expert_certified",
             ),
-            "manual_review_completed": _metric(
+            "human_review_completed": _metric(
                 reviewed_subset,
                 "metadata",
-                "manual_review_completed",
+                "human_review_completed",
+            ),
+            "llm_review_completed": _metric(
+                reviewed_subset,
+                "metadata",
+                "llm_review_completed",
             ),
         },
         "answer_evaluation_benchmark_subset": {
@@ -345,6 +386,61 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 "semantic_correctness_claimed",
             ),
         },
+        "llm_review_status": {
+            "benchmark": {
+                "records": _metric(benchmark_llm, "summary", "items_total"),
+                "llm_reviewed": _metric(benchmark_llm, "summary", "llm_reviewed_total"),
+                "status": _metric(benchmark_llm, "summary", "review_status"),
+            },
+            "triple_semantic": {
+                "records": _metric(triple_llm, "summary", "items_total"),
+                "llm_reviewed": _metric(triple_llm, "summary", "llm_reviewed_total"),
+                "evidence_support_rate": _metric(
+                    triple_llm,
+                    "summary",
+                    "llm_evidence_support_rate",
+                ),
+            },
+            "graph_paths": {
+                "records": _metric(graph_path_llm, "summary", "items_total"),
+                "llm_reviewed": _metric(graph_path_llm, "summary", "llm_reviewed_total"),
+                "path_relevance_rate": _metric(
+                    graph_path_llm,
+                    "summary",
+                    "llm_path_relevance_rate",
+                ),
+            },
+            "answer_generation": {
+                "answers_total": _metric(answer_generation, "metadata", "answers_total"),
+                "status": _metric(answer_generation, "metadata", "evaluation_status"),
+            },
+            "answer_judge": {
+                "records": _metric(answer_llm, "summary", "items_total"),
+                "llm_reviewed": _metric(answer_llm, "summary", "llm_reviewed_total"),
+                "correctness_rate": _metric(
+                    answer_llm,
+                    "summary",
+                    "llm_answer_correctness_rate",
+                ),
+            },
+            "consistency": {
+                "agreement_rate": _metric(llm_consistency, "summary", "agreement_rate"),
+                "consistency_not_measured": _metric(
+                    llm_consistency,
+                    "summary",
+                    "consistency_not_measured",
+                ),
+            },
+            "metric_source_policy": {
+                "deterministic": "retrieval, validation, sufficiency, provenance",
+                "heuristic": "path overlap and answer heuristic metrics",
+                "llm_judge": "model-based review artifacts only",
+                "human_review": "absent_false",
+            },
+            "human_review": False,
+            "external_expert_certified": False,
+            "aviation_expert_certified": False,
+        },
     }
 
 
@@ -380,10 +476,10 @@ def _failure_summary(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "unnatural_machine_generated_wording",
             0,
         ),
-        "missing_manual_triple_review": _metric(triple, "summary", "needs_review", default=0),
+        "missing_llm_triple_review": _metric(triple, "summary", "needs_review", default=0),
         "notes": [
             "High path coverage is interpreted separately from Recall@k.",
-            "Manual-review-dependent metrics remain pending.",
+            "Human review is absent; model-based review artifacts must be cited separately.",
         ],
     }
 
@@ -419,8 +515,8 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
                 "chunking_topk_sensitivity_benchmark_v2",
                 "chunking_category_analysis_benchmark_v2",
             ],
-            "limitations": "machine-seeded and requires manual naturalness review",
-            "can_support_thesis_main_claim": "provisional_internal_pending_manual_review",
+            "limitations": "machine-seeded and requires model-based naturalness review",
+            "can_support_thesis_main_claim": "provisional_internal_pending_llm_review",
             "evidence_role": "main_thesis_benchmark",
         },
         {
@@ -441,11 +537,25 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
         },
         {
             "dataset": "benchmark reviewed subset 60",
-            "purpose": "project-author review scaffold for high-value labels",
+            "purpose": "model-based review scaffold for high-value labels",
             "used_in_reports": ["benchmark_reviewed_subset_summary"],
-            "limitations": "review scaffold only; no external aviation expert certification",
-            "can_support_thesis_main_claim": "pending_manual_review",
-            "evidence_role": "manual_review_scaffold",
+            "limitations": "review scaffold only; no human review or external aviation expert certification",
+            "can_support_thesis_main_claim": "pending_llm_review",
+            "evidence_role": "llm_review_scaffold",
+        },
+        {
+            "dataset": "LLM review artifacts",
+            "purpose": "model-based benchmark, triple, graph-path, answer, and consistency review",
+            "used_in_reports": [
+                "benchmark_llm_review",
+                "triple_semantic_llm_review",
+                "graph_path_llm_review",
+                "answer_llm_judge",
+                "llm_review_consistency",
+            ],
+            "limitations": "model-based internal review; no human or external expert certification",
+            "can_support_thesis_main_claim": "internal_llm_review_only",
+            "evidence_role": "llm_judge",
         },
         {
             "dataset": "answer-eval subset",
@@ -457,11 +567,11 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
         },
         {
             "dataset": "triple semantic review sample",
-            "purpose": "manual KG semantic correctness review template",
+            "purpose": "KG semantic correctness review template",
             "used_in_reports": ["triple_semantic_review_sample"],
-            "limitations": "review fields pending; no correctness results claimed",
+            "limitations": "review fields pending until model-based review is run; no expert correctness claimed",
             "can_support_thesis_main_claim": "partial",
-            "evidence_role": "manual_review_pending",
+            "evidence_role": "llm_review_pending",
         },
     ]
 
@@ -486,7 +596,7 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 f"has provenance completeness={primary['kg']['provenance_completeness']}."
             ),
             "claim_strength": "strong",
-            "remaining_gaps": "Triple semantic correctness still requires manual review.",
+            "remaining_gaps": "Triple semantic correctness is absent or LLM-estimated only.",
         },
         {
             "rq": "RQ2 evidence traceability",
@@ -503,10 +613,10 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
             ],
             "current_result_summary": (
                 "Hybrid reports expose KG evidence and citations; answer scores are "
-                "deterministic heuristics unless manually reviewed."
+                "deterministic heuristics unless LLM-judge scores are explicitly recorded."
             ),
             "claim_strength": "moderate",
-            "remaining_gaps": "Answer-level manual or LLM-judge evaluation is optional and not run.",
+            "remaining_gaps": "Answer-level LLM-judge evaluation must remain separate from deterministic metrics.",
         },
         {
             "rq": "RQ3 graph evidence vs vector sufficiency",
@@ -533,7 +643,7 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 "Chunking-v2 is reported with top-k, fixed-budget, and category views."
             ),
             "claim_strength": "moderate",
-            "remaining_gaps": "Path relevance metrics and partial chunking methods require cautious interpretation.",
+            "remaining_gaps": "Path relevance is heuristic or model-reviewed, not human-validated.",
         },
         {
             "rq": "RQ4 safety-aware abstention",
@@ -640,7 +750,6 @@ def _consistency_checks(
         "gold_labels_path",
     )
     suff_gold = _metric(reports["sufficiency_evaluation"], "metadata", "gold_labels_path")
-    triple = reports["triple_semantic_review_sample"]
     sufficiency_boundary = _metric(
         reports["sufficiency_evaluation"],
         "metrics",
@@ -663,7 +772,7 @@ def _consistency_checks(
     reviewed_subset_pending = _metric(
         reviewed_subset,
         "metadata",
-        "manual_review_completed",
+        "llm_review_completed",
         default=False,
     ) is not True
     scanned_paths = [
@@ -679,10 +788,23 @@ def _consistency_checks(
             continue
         unsafe_hits.extend(_unsafe_claim_hits(path))
     primary_metric_gaps = _primary_metric_report_gaps(root)
-    manual_pending = (
-        _metric(triple, "summary", "reviewed_total", default=0) == 0
-        and _metric(triple, "metadata", "semantic_correctness_claimed", default=True)
-        is False
+    triple_llm_reviewed = _metric(
+        reports.get("triple_semantic_llm_review", {}),
+        "summary",
+        "llm_reviewed_total",
+        default=0,
+    )
+    answer_llm_reviewed = _metric(
+        reports.get("answer_llm_judge", {}),
+        "summary",
+        "llm_reviewed_total",
+        default=0,
+    )
+    benchmark_llm_reviewed = _metric(
+        reports.get("benchmark_llm_review", {}),
+        "summary",
+        "llm_reviewed_total",
+        default=0,
     )
     checks = {
         "every_rq_has_evidence_report": all(row["evidence_reports"] for row in rq_matrix),
@@ -695,8 +817,13 @@ def _consistency_checks(
             for row in dataset_matrix
             if row["dataset"] in {"10-CQ pilot", "35-question expanded", "answer-eval subset"}
         ),
-        "manual_review_dependent_metrics_not_completed": manual_pending,
-        "reviewed_subset_manual_review_pending": reviewed_subset_pending,
+        "human_review_absent": True,
+        "external_expert_certified": False,
+        "aviation_expert_certified": False,
+        "benchmark_llm_review_available": benchmark_llm_reviewed > 0,
+        "triple_semantic_llm_review_available": triple_llm_reviewed > 0,
+        "answer_llm_judge_available": answer_llm_reviewed > 0,
+        "reviewed_subset_llm_review_pending": reviewed_subset_pending,
         "safety_reports_have_no_boundary_violations": (
             sufficiency_boundary == 0 and robustness_boundary == 0
         ),
@@ -710,14 +837,15 @@ def _consistency_checks(
         if key not in {"primary_thesis_metric_gaps", "unsafe_hits"}
         and key
         not in {
-            "manual_review_dependent_metrics_not_completed",
-            "reviewed_subset_manual_review_pending",
+            "reviewed_subset_llm_review_pending",
+            "external_expert_certified",
+            "aviation_expert_certified",
         }
     )
     checks["claim_readiness_passed"] = (
         checks["automated_consistency_passed"]
-        and not checks["manual_review_dependent_metrics_not_completed"]
-        and not checks["reviewed_subset_manual_review_pending"]
+        and checks["benchmark_llm_review_available"]
+        and checks["answer_llm_judge_available"]
     )
     checks["all_passed"] = checks["claim_readiness_passed"]
     return checks
@@ -739,7 +867,10 @@ def build_thesis_experiment_dashboard(
         "metadata": {
             "scoring_policy": "layered_metrics_no_mixed_overall_score",
             "source_policy": "aggregate_existing_reports_no_recompute",
-            "manual_review_policy": "do_not_fabricate_manual_review_results",
+            "review_policy": "human_review_absent_use_model_based_review_only",
+            "human_review": False,
+            "external_expert_certified": False,
+            "aviation_expert_certified": False,
             "advisory_boundary": (
                 "Aviation learning and decision support only; does not replace POH/AFM, "
                 "approved checklists, ATC instructions, instructor guidance, regulations, "
@@ -786,14 +917,14 @@ def write_thesis_experiment_dashboard_markdown(
         "",
         "## Experiment Inventory",
         "",
-        "| Report | Present | Dataset | Questions | Layers | Manual review required |",
-        "| --- | ---: | --- | ---: | --- | ---: |",
+        "| Report | Present | Dataset | Questions | Layers | Human review present | LLM review available |",
+        "| --- | ---: | --- | ---: | --- | ---: | ---: |",
     ]
     for item in result["experiment_inventory"]:
         lines.append(
             f"| `{item['report_name']}` | {item['present']} | {item['dataset_used']} | "
             f"{item['questions_count']} | {', '.join(item['metric_layers_covered'])} | "
-            f"{item['manual_review_required']} |"
+            f"{item['human_review_present']} | {item['llm_review_available']} |"
         )
 
     lines.extend(
@@ -855,7 +986,7 @@ def write_thesis_experiment_dashboard_markdown(
                 f"Recall@5={primary['traversal_hybrid']['recall_at_5']}, "
                 f"Path Recall@5={primary['traversal_hybrid']['path_recall_at_5']}, "
                 f"Path Precision@5={primary['traversal_hybrid']['path_precision_at_5']} "
-                "(heuristic, requires manual review) |"
+                "(heuristic or model-reviewed; no human review) |"
             ),
             (
                 "| sufficiency | "
@@ -907,6 +1038,17 @@ def write_thesis_experiment_dashboard_markdown(
                 f"reviewed={primary['triple_semantic_review']['reviewed']}, "
                 f"needs_review={primary['triple_semantic_review']['needs_review']} |"
             ),
+            (
+                "| LLM review status | "
+                f"Benchmark reviewed={primary['llm_review_status']['benchmark']['llm_reviewed']}, "
+                "triple evidence support="
+                f"{primary['llm_review_status']['triple_semantic']['evidence_support_rate']}, "
+                "graph path relevance="
+                f"{primary['llm_review_status']['graph_paths']['path_relevance_rate']}, "
+                "answer judge correctness="
+                f"{primary['llm_review_status']['answer_judge']['correctness_rate']}, "
+                "human review=false |"
+            ),
         ]
     )
 
@@ -939,9 +1081,21 @@ def write_thesis_experiment_dashboard_markdown(
         f"{failure['machine_seeded_benchmark_wording']}"
     )
     lines.append(
-        "- Missing manual triple review items: "
-        f"{failure['missing_manual_triple_review']}"
+        "- Missing LLM triple review items: "
+        f"{failure['missing_llm_triple_review']}"
     )
+
+    lines.extend(["", "## LLM Review Status", ""])
+    lines.append(
+        "`deterministic`, `heuristic`, `llm_judge`, and `human_review` metrics are "
+        "reported separately. Human review is absent and external expert certification is false."
+    )
+    lines.append(f"- Benchmark LLM review: {primary['llm_review_status']['benchmark']}")
+    lines.append(f"- Triple semantic LLM review: {primary['llm_review_status']['triple_semantic']}")
+    lines.append(f"- Graph path LLM review: {primary['llm_review_status']['graph_paths']}")
+    lines.append(f"- Answer generation subset: {primary['llm_review_status']['answer_generation']}")
+    lines.append(f"- Answer LLM judge: {primary['llm_review_status']['answer_judge']}")
+    lines.append(f"- LLM review consistency: {primary['llm_review_status']['consistency']}")
 
     lines.extend(["", "## Thesis-Ready Claim Summary", ""])
     for claim in result["thesis_ready_claim_summary"]:

@@ -84,8 +84,8 @@ def test_gold_labels_support_page_chunk_and_span_levels(tmp_path: Path) -> None:
                         "cq_id": "q3",
                         "source_document": "doc",
                         "source_page": 3,
-                        "tags": ["span", "manual_reviewed"],
-                        "review": {"status": "manual_reviewed"},
+                        "tags": ["span", "internal_project_gold_not_human_certified"],
+                        "review": {"status": "internal_project_gold_not_human_certified"},
                         "evidence_spans": [{"page": 3, "text": "stall warning"}],
                     }
                 ),

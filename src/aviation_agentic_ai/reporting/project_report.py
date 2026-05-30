@@ -339,6 +339,39 @@ def _read_thesis_ready_artifacts(root: Path) -> dict[str, Any]:
         / "reports"
         / "stages"
         / "answer_evaluation_benchmark_subset.json",
+        "benchmark_llm_review": root / "reports" / "stages" / "benchmark_llm_review.md",
+        "benchmark_llm_review_json": root / "reports" / "stages" / "benchmark_llm_review.json",
+        "triple_semantic_llm_review": root
+        / "reports"
+        / "stages"
+        / "triple_semantic_llm_review.md",
+        "triple_semantic_llm_review_json": root
+        / "reports"
+        / "stages"
+        / "triple_semantic_llm_review.json",
+        "graph_path_llm_review": root / "reports" / "stages" / "graph_path_llm_review.md",
+        "graph_path_llm_review_json": root
+        / "reports"
+        / "stages"
+        / "graph_path_llm_review.json",
+        "answer_generation_benchmark_subset": root
+        / "reports"
+        / "stages"
+        / "answer_generation_benchmark_subset.md",
+        "answer_generation_benchmark_subset_json": root
+        / "reports"
+        / "stages"
+        / "answer_generation_benchmark_subset.json",
+        "answer_llm_judge": root / "reports" / "stages" / "answer_llm_judge.md",
+        "answer_llm_judge_json": root / "reports" / "stages" / "answer_llm_judge.json",
+        "llm_review_consistency": root
+        / "reports"
+        / "stages"
+        / "llm_review_consistency.md",
+        "llm_review_consistency_json": root
+        / "reports"
+        / "stages"
+        / "llm_review_consistency.json",
         "chunking_implementation_audit": root
         / "reports"
         / "stages"
@@ -733,6 +766,7 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
     chunking = primary.get("chunking_benchmark_v2", {})
     kg = primary.get("kg", {})
     triple = primary.get("triple_semantic_review", {})
+    llm_review = primary.get("llm_review_status", {})
     lines = [
         "# Aviation Agentic AI Project Report",
         "",
@@ -782,13 +816,13 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"triple count={kg.get('unsupported_triple_count')}. Triple semantic review "
             f"sample size={triple.get('sample_size')}, reviewed={triple.get('reviewed')}, "
             f"needs_review={triple.get('needs_review')}; no semantic correctness claim is "
-            "made until manual annotations are completed.",
+            "made unless a separate LLM-estimated review artifact is cited.",
             "",
             "## RQ2: evidence traceability",
             "",
             "Evidence traceability is supported by KG provenance, citation metrics, and "
             "the dashboard inventory. Answer-level scores are deterministic heuristics "
-            "unless an LLM-judge or manual review score is explicitly recorded.",
+            "unless an LLM-judge score is explicitly recorded; human review is absent.",
             "",
             "## RQ3: vector vs graph vs hybrid retrieval (Hybrid RAG protocol and layered metrics)",
             "",
@@ -803,8 +837,9 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"Traversal hybrid: Recall@5={traversal.get('recall_at_5')}, Path Recall@5="
             f"{traversal.get('path_recall_at_5')}, Path Precision@5="
             f"{traversal.get('path_precision_at_5')}. Path metrics are heuristic and "
-            "require manual review. High path coverage is not treated as evidence of "
-            "high retrieval quality unless Recall/MRR/NDCG also support that claim.",
+            "may be model-reviewed, but they are not human-validated. High path "
+            "coverage is not treated as evidence of high retrieval quality unless "
+            "Recall/MRR/NDCG also support that claim.",
             "",
             "Chunking-v2 evidence is interpreted as retrieval-design evidence, not as a "
             "universal best-chunker claim. Top-k best strategy="
@@ -831,14 +866,29 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             "",
             "Benchmark reviewed subset: labels="
             f"{reviewed_subset.get('labels_total')}, status="
-            f"{reviewed_subset.get('review_status')}, external aviation expert review "
+            f"{reviewed_subset.get('review_status')}, external aviation expert certification "
             f"completed={reviewed_subset.get('external_aviation_expert_certified')}. "
             "Answer-evaluation benchmark subset: answers="
             f"{answer_subset.get('answers_total')}, status="
             f"{answer_subset.get('evaluation_status')}, unmatched gold labels="
             f"{answer_subset.get('unmatched_gold_labels')}, hybrid faithfulness="
             f"{answer_subset.get('hybrid_faithfulness')}, score method="
-            f"{answer_subset.get('score_method')}. These are not manual review results.",
+            f"{answer_subset.get('score_method')}. These are not human review results.",
+            "",
+            "## Model-Based Review Instead of Human Review",
+            "",
+            "No human aviation expert review was conducted. Model-based review uses the "
+            "configured LLM reviewer as an internal consistency and error-discovery "
+            "layer. It does not provide external certification, expert gold labels, "
+            "or operational aviation authority.",
+            f"Benchmark LLM review: {llm_review.get('benchmark', {})}.",
+            f"Triple semantic LLM review: {llm_review.get('triple_semantic', {})}.",
+            f"Graph path LLM review: {llm_review.get('graph_paths', {})}.",
+            f"Answer generation and LLM judge: generation={llm_review.get('answer_generation', {})}, "
+            f"judge={llm_review.get('answer_judge', {})}.",
+            f"LLM review consistency: {llm_review.get('consistency', {})}.",
+            "All review-dependent claims are phrased as LLM-assisted or LLM-estimated, "
+            "not human-verified.",
             "",
             "## Failure analysis",
             "",
@@ -847,15 +897,16 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"{failure.get('false_abstention_on_supported_question', 'TBD')}.",
             f"Machine-seeded benchmark wording findings: "
             f"{failure.get('machine_seeded_benchmark_wording', 'TBD')}.",
-            f"Missing manual triple review items: "
-            f"{failure.get('missing_manual_triple_review', 'TBD')}.",
+            f"Missing LLM triple review items: "
+            f"{failure.get('missing_llm_triple_review', 'TBD')}.",
             "",
             "## Limitations",
             "",
             "Benchmark v2 is thesis/course-project evidence, not external aviation expert "
-            "certification. Path relevance and triple semantic correctness remain "
-            "manual-review dependent. The system is not operational flight software and "
-            "does not replace official sources or pilot judgment.",
+            "certification. Path relevance and triple semantic correctness are heuristic "
+            "or LLM-estimated unless a specific model-review artifact is cited. The "
+            "system is not operational flight software and does not replace official "
+            "sources or pilot judgment.",
             "",
             "## Reproducibility appendix",
             "",
@@ -983,10 +1034,11 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
     if isinstance(benchmark_review, dict) and benchmark_review:
         finding_counts = benchmark_review.get("finding_counts", {})
         benchmark_v2_lines.append(
-            "Benchmark manual-review pack: "
+            "Benchmark model-review pack: "
             f"{benchmark_review.get('metadata', {}).get('labels_total', 'TBD')} labels "
             "grouped by question type; automatic findings include "
-            f"{finding_counts}. These are review prompts, not completed expert certification."
+            f"{finding_counts}. These are LLM-review prompts, not human review or "
+            "completed expert certification."
         )
     if isinstance(retrieval_v2, dict) and retrieval_v2:
         scenarios = retrieval_v2.get("scenarios", {})
@@ -1204,6 +1256,12 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
             "- `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`",
             "- `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`",
             "- `uv run aviation-ai report triple-semantic-review --sample-size 100`",
+            "- `uv run aviation-ai report benchmark-llm-review --max-items 60`",
+            "- `uv run aviation-ai report triple-semantic-llm-review --max-items 50`",
+            "- `uv run aviation-ai report graph-path-llm-review --max-items 50`",
+            "- `uv run aviation-ai report answer-generation-benchmark-subset --max-questions 45`",
+            "- `uv run aviation-ai report answer-llm-judge --max-items 60`",
+            "- `uv run aviation-ai report llm-review-consistency`",
         ]
     )
     reproducibility_lines.extend(
@@ -1360,6 +1418,8 @@ def build_project_report_prompt(evidence: dict[str, Any], draft: str) -> str:
         "- Preserve the revised thesis claim and layered evaluation framing.\n"
         "- Do not claim a universal best chunker, a mixed overall score, external "
         "aviation expert certification, or operational readiness.\n"
+        "- Do not claim human review, manual review, expert gold labels, or "
+        "expert-verified triples. Use model-based/LLM-assisted wording only.\n"
         "- Preserve the advisory boundary and do not claim the assistant replaces POH, "
         "checklists, ATC, instructor guidance, or pilot judgment.\n"
         "- Keep all required sections from the deterministic draft.\n\n"

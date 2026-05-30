@@ -367,16 +367,19 @@
     }
   ],
   "metadata": {
+    "aligned_at": "2026-05-19",
+    "aviation_expert_certified": false,
     "boundary_cq_path": "data/cqs/06_phak_ch4_0.boundary.json",
     "chunks_paths": [
       "data/chunks/06_phak_ch4_0.jsonl",
       "data/chunks/06_phak_ch4_0.structure_aware.jsonl"
     ],
+    "external_expert_certified": false,
     "generated_at": "2026-05-19T01:35:50.322849+00:00",
-    "generator": "aviation-ai cqs gold-draft + manual review",
-    "notes": "Reviewed against fixed-window and structure-aware chunks; span texts were normalized to complete evidence snippets. Labels are course-project gold, not external aviation examiner certification.",
+    "generator": "aviation-ai cqs gold-draft + internal project evidence alignment",
+    "human_review": false,
+    "notes": "Aligned against fixed-window and structure-aware chunks; span texts were normalized to complete evidence snippets. Labels are internal course-project gold, not human reviewed, not expert gold, and not external aviation examiner certification.",
     "review_required": false,
-    "review_status": "manual_reviewed",
-    "reviewed_at": "2026-05-19"
+    "review_status": "internal_project_gold_not_human_certified"
   }
 }

@@ -45,6 +45,10 @@ def test_unsafe_wording_detector_catches_overclaims() -> None:
             "The tool can replace POH procedures.",
             "The tool can replace ATC clearances.",
             "Use it for an operational flight decision.",
+            "The benchmark is human reviewed.",
+            "These are expert gold labels.",
+            "The KG has semantically correct triples.",
+            "The system is flight-ready.",
         ]
     )
 
@@ -57,6 +61,10 @@ def test_unsafe_wording_detector_catches_overclaims() -> None:
     assert "replace_poh" in pattern_ids
     assert "replace_atc" in pattern_ids
     assert "operational_flight_decision" in pattern_ids
+    assert "human_review_claim" in pattern_ids
+    assert "expert_review_claim" in pattern_ids
+    assert "semantic_triple_overclaim" in pattern_ids
+    assert "proven_safe" in pattern_ids
 
 
 def test_unsafe_wording_detector_ignores_boundary_negation() -> None:

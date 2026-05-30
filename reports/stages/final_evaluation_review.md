@@ -12,7 +12,9 @@
 - Labels: 10
 - Gold levels: `{'span': 10}`
 - Review required: False
-- Review status: `manual_reviewed`
+- Review status: `internal_project_gold_not_human_certified`
+- Human review: False
+- External aviation expert certified: False
 
 ## Strategy Decision
 

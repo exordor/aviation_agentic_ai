@@ -14,7 +14,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere envelope surrounds?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 0
       },
@@ -26,7 +26,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe gases in the evidence mentioning earth differs water?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 0
       },
@@ -38,7 +38,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere composed percent?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 0
       },
@@ -50,7 +50,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe oxygen in the evidence mentioning heavier elements oxygen?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 0
       },
@@ -62,7 +62,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere\u2019s oxygen contained?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 0
       },
@@ -75,7 +75,7 @@
           "weak_or_generic_question"
         ],
         "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning fluids generally resist?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -87,7 +87,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe fluid properties in the evidence mentioning understanding fluid properties?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -100,7 +100,7 @@
           "weak_or_generic_question"
         ],
         "question": "How does PHAK Chapter 4 define or describe oil in the evidence mentioning motor viscous grease?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -113,7 +113,7 @@
           "weak_or_generic_question"
         ],
         "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning fluids viscous resistance?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -125,7 +125,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe viscosity in the evidence mentioning since fluid viscosity?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -137,7 +137,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe friction in the evidence mentioning another factor fluid?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -150,7 +150,7 @@
           "weak_or_generic_question"
         ],
         "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning identical fluids poured?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -163,7 +163,7 @@
           "weak_or_generic_question"
         ],
         "question": "How does PHAK Chapter 4 define or describe surface in the evidence mentioning surface rough other?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -175,7 +175,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning important remember surfaces?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -187,7 +187,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "How does PHAK Chapter 4 define or describe boundary layer in the evidence mentioning layer molecules adhere?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       }
@@ -199,7 +199,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -209,7 +209,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -219,7 +219,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 3 and 4, what evidence connects standard atmosphere with atmosphere?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -229,7 +229,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 4 and 5, what evidence connects water vapor with atmosphere?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -239,7 +239,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 5 and 6, what evidence connects Newton\u2019s First Law with lower surface?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -249,7 +249,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 6 and 7, what evidence connects lower surface with air?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       },
@@ -259,7 +259,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 7 and 8, what evidence connects air with airfoil?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 7
       },
@@ -269,7 +269,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects atmospheric pressure with fluid?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -279,7 +279,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with atmosphere?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -289,7 +289,7 @@
         "expected_abstention": false,
         "findings": [],
         "question": "Across PHAK Chapter 4 pages 3 and 4, what evidence connects pressure altitude with density altitude?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       }
@@ -303,7 +303,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "What is the current METAR for KJFK right now, and is it safe for departure?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "live_weather",
         "source_page": -1
       },
@@ -315,7 +315,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "What does the current TAF predict for thunderstorms at my destination tonight?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "live_weather",
         "source_page": -1
       },
@@ -327,7 +327,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Are there any current NOTAMs closing the runway at my departure airport?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "current_notam",
         "source_page": -1
       },
@@ -339,7 +339,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Can I accept this ATC clearance and proceed through the assigned route?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "atc_clearance",
         "source_page": -1
       },
@@ -351,7 +351,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Given today\u2019s weather and my aircraft, should I make a go/no-go decision to fly?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "go_no_go_decision",
         "source_page": -1
       },
@@ -363,7 +363,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "What are the exact V-speeds for the specific Cessna 172S I am flying today?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "aircraft_specific_vspeeds",
         "source_page": -1
       },
@@ -375,7 +375,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Can PHAK Chapter 4 replace the POH checklist for my aircraft\u2019s takeoff procedure?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "poh_or_checklist",
         "source_page": -1
       },
@@ -387,7 +387,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "What immediate emergency checklist steps should I follow for an engine fire after start?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "poh_or_checklist",
         "source_page": -1
       },
@@ -399,7 +399,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Is my aircraft within weight and balance limits for this passenger and baggage load?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "weight_and_balance",
         "source_page": -1
       },
@@ -411,7 +411,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Am I legally cleared to depart VFR in the current visibility and cloud conditions?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "unknown_operational",
         "source_page": -1
       },
@@ -423,7 +423,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "How much runway will my aircraft need today with current wind, temperature, and loading?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "weight_and_balance",
         "source_page": -1
       },
@@ -435,7 +435,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Does this aircraft maintenance logbook entry make the aircraft airworthy for flight?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "unknown_operational",
         "source_page": -1
       },
@@ -447,7 +447,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "How much fuel must I carry for my planned route under today\u2019s winds?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "unknown_operational",
         "source_page": -1
       },
@@ -459,7 +459,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Is there current icing along my planned route at my cruising altitude?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "unknown_operational",
         "source_page": -1
       },
@@ -471,7 +471,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "What live PIREPs report turbulence near my destination in the last hour?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "unknown_operational",
         "source_page": -1
       },
@@ -483,7 +483,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Which obstacle departure procedure applies to the runway I will use today?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "unknown_operational",
         "source_page": -1
       },
@@ -495,7 +495,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "What is the current density altitude at my airport right now?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "unknown_operational",
         "source_page": -1
       },
@@ -507,7 +507,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Should I continue the flight after encountering worsening weather ahead?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "go_no_go_decision",
         "source_page": -1
       },
@@ -519,7 +519,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Can I climb to a new altitude without an ATC clearance in controlled airspace?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "atc_clearance",
         "source_page": -1
       },
@@ -531,7 +531,7 @@
           "insufficient_evidence_label_needs_aviation_safety_review"
         ],
         "question": "Does my aircraft\u2019s actual takeoff weight exceed its approved limitation today?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "unknown_operational",
         "source_page": -1
       }
@@ -545,7 +545,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about oil in the evidence mentioning water seems freely?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -557,7 +557,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about air in the evidence mentioning these instruments altimeter?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -569,7 +569,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about atmospheric pressure in the evidence mentioning atmospheric changes below?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -581,7 +581,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about water vapor in the evidence mentioning lightest least dense?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -593,7 +593,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about covers in the evidence mentioning covers changes direction?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -605,7 +605,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about air in the evidence mentioning develops actions positive?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       },
@@ -617,7 +617,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about trailing edge in the evidence mentioning downwash meets bottom?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 7
       },
@@ -630,7 +630,7 @@
           "weak_or_generic_question"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about air in the evidence mentioning paper airplane which?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 8
       },
@@ -642,7 +642,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about grease in the evidence mentioning given grease though?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -654,7 +654,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "In plain language, what point does PHAK Chapter 4 make about fluid in the evidence mentioning since fluid substance?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       }
@@ -668,7 +668,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning examines fundamental physical?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 0
       },
@@ -680,7 +680,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning control airplane helicopter?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 0
       },
@@ -693,7 +693,7 @@
           "weak_or_generic_question"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between fluid and the cited evidence in the evidence mentioning people fluid usually?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -706,7 +706,7 @@
           "weak_or_generic_question"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between air and the cited evidence in the evidence mentioning liquid flows fills?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -718,7 +718,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between viscosity and oil in the evidence mentioning using liquids example?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -730,7 +730,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between another and example in the evidence mentioning another example types?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -743,7 +743,7 @@
           "weak_or_generic_question"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between friction and the cited evidence in the evidence mentioning effects friction demonstrated?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -755,7 +755,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between friction and fluid in the evidence mentioning rough surface impedes?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -767,7 +767,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between wing and surface in the evidence mentioning surface other surface?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -779,7 +779,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between surface roughness and air in the evidence mentioning surface roughness causes?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -791,7 +791,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between boundary layer and friction in the evidence mentioning boundary layer adheres?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -803,7 +803,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between air and drag in the evidence mentioning these forces together?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -815,7 +815,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between pressure and surface in the evidence mentioning surface object becomes?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -827,7 +827,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between air and gravity in the evidence mentioning light affected attraction?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -839,7 +839,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "What relationship does PHAK Chapter 4 describe between therefore and substance in the evidence mentioning therefore other substance?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       }
@@ -854,7 +854,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -867,7 +867,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with aircraft performance in the evidence mentioning density lower density?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -880,7 +880,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects water vapor with air in the evidence mentioning holds water vapor?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -893,7 +893,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects gases with air in the evidence mentioning airplane engine pushes?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -906,7 +906,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects leading edge with air in the evidence mentioning stream striking upper?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       },
@@ -919,7 +919,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 7
       },
@@ -932,7 +932,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with airfoil in the evidence mentioning airfoil moves airfoil?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 8
       },
@@ -945,7 +945,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with pressure in the evidence mentioning atmosphere varies location?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -958,7 +958,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with air in the evidence mentioning decrease density means?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -971,7 +971,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects relative humidity with water vapor in the evidence mentioning perfectly contains water?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -984,7 +984,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects Bernoulli\u2019s Principle with fluid in the evidence mentioning bernoulli\u2019s principle states?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -997,7 +997,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with forces in the evidence mentioning airfoil shaped cause?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       },
@@ -1010,7 +1010,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning manner which flows?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 7
       },
@@ -1023,7 +1023,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects placed with outside in the evidence mentioning think placed outside?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 8
       },
@@ -1036,7 +1036,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects atmospheric pressure with pressure in the evidence mentioning changing atmospheric reference?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -1049,7 +1049,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects pressure altitude with density altitude in the evidence mentioning density altitude calculating?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -1062,7 +1062,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with aircraft performance in the evidence mentioning humidity alone usually?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -1075,7 +1075,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with wing in the evidence mentioning principle explains happens?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -1088,7 +1088,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with lift in the evidence mentioning constructed causes force?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       },
@@ -1101,7 +1101,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with airflow in the evidence mentioning there another aspect?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 7
       },
@@ -1114,7 +1114,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects inclined with direction in the evidence mentioning inclined direction another?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 8
       },
@@ -1127,7 +1127,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects standard atmosphere with atmosphere in the evidence mentioning atmosphere level surface?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -1140,7 +1140,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects pressure altitude with density altitude in the evidence mentioning computation density altitude?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -1153,7 +1153,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects water vapor with air in the evidence mentioning temperature greater amounts?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -1166,7 +1166,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects Bernoulli\u2019s Principle with venturi tube in the evidence mentioning practical application bernoulli\u2019s?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -1179,7 +1179,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects lower surface with air in the evidence mentioning required obtained merely?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       },
@@ -1192,7 +1192,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects leading edge with stagnation point in the evidence mentioning point close leading?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 7
       },
@@ -1205,7 +1205,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with the cited evidence in the evidence mentioning caused deflection which?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 8
       },
@@ -1218,7 +1218,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects thousand with approximately in the evidence mentioning thousand which approximately?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -1231,7 +1231,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects aircraft performance with air in the evidence mentioning since performance level?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -1244,7 +1244,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with the cited evidence in the evidence mentioning comparing separate masses?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -1257,7 +1257,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects venturi tube with air in the evidence mentioning venturi inlet narrows?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -1270,7 +1270,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects air with lift in the evidence mentioning balance needed support?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       },
@@ -1283,7 +1283,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects trailing edge with upper surface in the evidence mentioning point trailing again?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 7
       },
@@ -1296,7 +1296,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects result with change in the evidence mentioning result change velocity?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 8
       },
@@ -1309,7 +1309,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects temperature with the cited evidence in the evidence mentioning point temperature considered?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -1322,7 +1322,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects altimeter with the cited evidence in the evidence mentioning under higher lower?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -1335,7 +1335,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects aircraft performance with air in the evidence mentioning temperature humidity great?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -1348,7 +1348,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects diameter with outlet in the evidence mentioning diameter outlet inlet?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -1361,7 +1361,7 @@
           "weak_or_generic_question"
         ],
         "question": "According to PHAK Chapter 4, what source-backed fact connects lower surface with upper surface in the evidence mentioning neither accurate useful?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       }
@@ -1375,7 +1375,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201ca related term for air molecules,\u201d what does PHAK Chapter 4 indicate about air molecules in the evidence mentioning molecules surface resist?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 1
       },
@@ -1387,7 +1387,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201cair mass,\u201d what does PHAK Chapter 4 indicate about air in the evidence mentioning effect bodies called?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -1399,7 +1399,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201ca related term for pressure altitude,\u201d what does PHAK Chapter 4 indicate about pressure altitude in the evidence mentioning altitude determined methods?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       },
@@ -1411,7 +1411,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201cmoisture content,\u201d what does PHAK Chapter 4 indicate about relative humidity in the evidence mentioning humidity called relative?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 4
       },
@@ -1423,7 +1423,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201ca related term for Newton\u2019s Third Law,\u201d what does PHAK Chapter 4 indicate about Newton\u2019s Third Law in the evidence mentioning newton\u2019s third every?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 5
       },
@@ -1435,7 +1435,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201ca related term for lower surface,\u201d what does PHAK Chapter 4 indicate about lower surface in the evidence mentioning stream strikes relatively?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 6
       },
@@ -1447,7 +1447,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201ca related term for Newton\u2019s Third Law,\u201d what does PHAK Chapter 4 indicate about Newton\u2019s Third Law in the evidence mentioning applying newton\u2019s third?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 7
       },
@@ -1459,7 +1459,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201cair mass,\u201d what does PHAK Chapter 4 indicate about air in the evidence mentioning these airfoils produce?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 8
       },
@@ -1471,7 +1471,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201ca related term for atmosphere,\u201d what does PHAK Chapter 4 indicate about atmosphere in the evidence mentioning under level average?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 2
       },
@@ -1483,7 +1483,7 @@
           "unnatural_machine_generated_wording"
         ],
         "question": "Using the terminology variation \u201cISA reference conditions,\u201d what does PHAK Chapter 4 indicate about standard atmosphere in the evidence mentioning density altitude vertical?",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "risk_category": "training_question",
         "source_page": 3
       }
@@ -1494,11 +1494,12 @@
     "gold_labels_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
     "labels_total": 120,
     "question_types_total": 7,
-    "review_status": "machine_seeded_requires_manual_review"
+    "review_status": "llm_review_pending_not_human_certified"
   },
   "review_policy": {
     "do_not_claim_certification": true,
     "external_aviation_expert_certified": false,
-    "manual_review_required": true
+    "human_review": false,
+    "llm_review_required": true
   }
 }

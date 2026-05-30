@@ -74,9 +74,9 @@ Primary graph evidence metrics are:
 Key Entity Coverage and Relation Coverage measure whether graph evidence covers
 the entities and relation intent implied by a competency question. Path Recall@k,
 Path Precision@k, Supporting Path Rate, and Irrelevant Path Rate are currently
-heuristic where no manually reviewed path relevance labels exist. They use
-entity, relation, source-page, and gold-chunk overlap and are marked
-`requires_manual_review`.
+heuristic where no model-based graph path review is cited. They use entity,
+relation, source-page, and gold-chunk overlap and must be reported as heuristic
+diagnostics.
 
 ### Answer Generation
 
@@ -92,7 +92,7 @@ Primary answer metrics are:
 Faithfulness, answer relevance, and answer correctness reflect RAGAS/ARES-style
 answer evaluation. Current deterministic reports use source-citation and answer
 key overlap heuristics. Optional LLM-as-judge fields may be added, but any such
-scores must be marked as LLM-judge scores and not confused with manual review.
+scores must be marked as LLM-judge scores and not confused with human review.
 
 ### Ontology And KG Construction
 
@@ -104,13 +104,14 @@ Primary ontology/KG metrics are:
 - unsupported class/property count
 - provenance completeness
 - evidence-in-source rate
-- triple semantic correctness from manual sample review
+- LLM-estimated triple semantic correctness from model-based review
 
 Ontology evaluation covers structural, functional, and usability/annotation
 quality. KG validation checks that extracted triples stay inside the curated
 ontology and preserve source provenance. Triple semantic correctness is not
 fabricated: the triple semantic review report initializes annotation fields as
-manual-review pending.
+model-review pending, and `triple_semantic_llm_review` must be cited for
+LLM-estimated semantic correctness.
 
 ### Safety And Abstention
 
@@ -141,7 +142,7 @@ are not the primary thesis claims.
 | Retrieval | `retrieval_ablation*.json`, `chunking_comparison.json`, `hybrid_rag*.json` | Recall@5, Recall@10, Precision@5, MRR@5, MRR@10, NDCG@10, Context Precision@5, Context Recall |
 | Graph evidence/path retrieval | `graph_traversal_ablation*.json`, `retrieval_ablation*.json` | Key Entity Coverage, Relation Coverage, Path Recall@5, Path Precision@5, Supporting Path Rate, Average Path Length, Irrelevant Path Rate |
 | Answer generation | `answer_evaluation.json`, `hybrid_rag*.json` | Faithfulness, Answer Correctness, Answer Relevance, Citation Completeness, Citation Precision, Citation Recall |
-| Ontology/KG | `curated_ontology_evaluation.json`, `kg_validation.json`, `kg_extraction_comparison.json`, `triple_semantic_review_sample.json` | RDF/OWL validity, annotation coverage, domain/range completeness, unsupported schema counts, provenance completeness, evidence-in-source rate, manual triple semantic review |
+| Ontology/KG | `curated_ontology_evaluation.json`, `kg_validation.json`, `kg_extraction_comparison.json`, `triple_semantic_review_sample.json`, `triple_semantic_llm_review.json` | RDF/OWL validity, annotation coverage, domain/range completeness, unsupported schema counts, provenance completeness, evidence-in-source rate, LLM-estimated triple semantic review |
 | Safety/abstention | `sufficiency_evaluation.json`, `robustness_evaluation.json`, `answer_evaluation.json` | Abstention Accuracy, False Answer Rate, False Abstention Rate, Boundary Violation Count, Risk Category Accuracy |
 
 ## LLM-As-Judge Limitations
@@ -157,6 +158,6 @@ answer correctness, but it has limitations:
 - LLM judgment is not external aviation expert certification.
 
 For this project, deterministic metrics and provenance checks are the default.
-LLM-as-judge fields must be explicitly marked when used. Manual review remains
-required for triple semantic correctness, path relevance correctness, and any
-strong aviation-domain correctness claim.
+LLM-as-judge fields must be explicitly marked when used. Human review is absent
+in this project. LLM-as-judge supports internal error discovery, but any strong
+aviation-domain correctness or certification claim remains unsupported.

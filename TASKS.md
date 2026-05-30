@@ -83,7 +83,7 @@ Related goals: G2, G3, G4, G5.
     - `uv run aviation-ai report evidence-eval`
     - `uv run aviation-ai report graphrag-review`
   - Evidence: `data/cqs/06_phak_ch4_0.gold.json`, `reports/stages/evidence_level_evaluation.md`, `reports/stages/graphrag_review.md`.
-  - Result: gold labels are now marked `manual_reviewed`; structure-aware hybrid has Chunk Recall@5 = 1.0, Span hit rate = 0.7, KG triple relevance = 0.9, citation validity = 1.0, and 9 supported answers; fixed-window hybrid has 8 supported answers.
+  - Result: gold labels are span-level internal evaluation labels; structure-aware hybrid has Chunk Recall@5 = 1.0, Span hit rate = 0.7, KG triple relevance = 0.9, citation validity = 1.0, and 9 supported answers; fixed-window hybrid has 8 supported answers. These are not human-reviewed or expert-certified labels.
   - Acceptance: evidence-level metrics remain layered and do not create a mixed overall score.
 - [x] Write final evaluation and submission-readiness review.
   - Commands:
@@ -99,7 +99,7 @@ Related goals: G3, G4, G6, G8.
 
 - [x] Refine gold labels from `source_page` to chunk or span level.
   - Candidate output: `data/cqs/06_phak_ch4_0.gold.json`.
-  - Current evidence: `data/cqs/06_phak_ch4_0.gold.json` is marked `manual_reviewed` with span-level labels for all 10 boundary CQs.
+  - Current evidence: `data/cqs/06_phak_ch4_0.gold.json` has span-level labels for all 10 boundary CQs. It is internal thesis evidence, not human-reviewed or expert-certified gold.
   - Acceptance: each CQ records `gold_level`, `expected_chunk_ids` or `evidence_spans`, and `key_entities` where available.
 - [x] Analyze chunking failures.
   - Evidence: `reports/stages/chunking_comparison.md`, `reports/stages/final_evaluation_review.md`.

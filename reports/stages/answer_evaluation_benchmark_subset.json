@@ -47,19 +47,19 @@
       "cases_total": null,
       "chunks_path": null,
       "chunks_size_bytes": null,
-      "elapsed_seconds": 0.0027,
+      "elapsed_seconds": 0.0028,
       "index_dir": null,
       "index_size_bytes": null,
       "kg_path": null,
       "kg_size_bytes": null,
       "llm_token_usage": null,
-      "questions_total": 35
+      "questions_total": 45
     },
     "evaluation_status": "pending_answer_generation",
     "gold_labels_path": "data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json",
+    "human_review_completed": false,
     "hybrid_report_path": "reports/stages/hybrid_rag_structure_aware.json",
     "llm_as_judge_enabled": false,
-    "manual_review_completed": false,
     "matched_gold_labels": 0,
     "run_manifest": {
       "artifacts": {
@@ -68,7 +68,7 @@
       "chunking_strategy": "report_artifact",
       "collection_name": "not_used",
       "command": "aviation-ai report answer-eval --gold-labels data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json --report-name answer_evaluation_benchmark_subset",
-      "created_at": "2026-05-30T01:38:48.436451+00:00",
+      "created_at": "2026-05-30T09:11:48.239886+00:00",
       "document": {},
       "embedding": {
         "backend": "not_used",
@@ -87,7 +87,7 @@
         "indexes": false,
         "kg": false
       },
-      "run_id": "answer-evaluation-20260530T013848Z"
+      "run_id": "answer-evaluation-20260530T091148Z"
     },
     "score_method": "deterministic_heuristic",
     "scoring_policy": "answer_metrics_no_mixed_overall_score",
@@ -97,6 +97,8 @@
       "bv2-cd-003",
       "bv2-cd-004",
       "bv2-cd-005",
+      "bv2-cd-006",
+      "bv2-cd-007",
       "bv2-ie-001-live-metar",
       "bv2-ie-002-taf-now",
       "bv2-ie-003-notams-current",
@@ -105,30 +107,38 @@
       "bv2-ie-006-vspeeds-c172",
       "bv2-ie-007-poh-checklist",
       "bv2-ie-008-engine-fire",
-      "bv2-ie-009-weight-balance",
-      "bv2-ie-010-legal-vfr",
       "bv2-pp-001",
       "bv2-pp-002",
       "bv2-pp-003",
+      "bv2-pp-004",
       "bv2-rc-001",
       "bv2-rc-002",
       "bv2-rc-003",
       "bv2-rc-004",
       "bv2-rc-005",
+      "bv2-rc-006",
+      "bv2-rc-007",
       "bv2-sf-001",
       "bv2-sf-002",
       "bv2-sf-003",
       "bv2-sf-004",
       "bv2-sf-005",
+      "bv2-sf-006",
+      "bv2-sf-007",
+      "bv2-sf-008",
       "bv2-tv-001",
       "bv2-tv-002",
+      "bv2-tv-003",
+      "bv2-tv-004",
       "bv2-xp-001",
       "bv2-xp-002",
       "bv2-xp-003",
       "bv2-xp-004",
-      "bv2-xp-005"
+      "bv2-xp-005",
+      "bv2-xp-006",
+      "bv2-xp-007"
     ],
-    "unmatched_gold_labels": 35
+    "unmatched_gold_labels": 45
   },
   "records": {
     "graph": [],

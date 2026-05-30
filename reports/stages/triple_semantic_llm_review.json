@@ -1,0 +1,677 @@
+{
+  "consistency": {
+    "agreement_rate": 0.3333,
+    "aviation_expert_certified": false,
+    "comparable_item_groups": 3,
+    "consistency_not_measured": false,
+    "contradiction_count": 2,
+    "external_expert_certified": false,
+    "high_confidence_disagreement_count": 2,
+    "human_review": false,
+    "items_not_safe_for_strong_claims": 2,
+    "items_requiring_human_review_even_if_no_human_available": 2,
+    "reviewed_item_groups": 3
+  },
+  "metadata": {
+    "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+    "aviation_expert_certified": false,
+    "command": "aviation-ai report triple-semantic-llm-review --max-items 3",
+    "cost_latency": {
+      "cases_total": null,
+      "chunks_path": null,
+      "chunks_size_bytes": null,
+      "elapsed_seconds": 30.4341,
+      "index_dir": null,
+      "index_size_bytes": null,
+      "kg_path": null,
+      "kg_size_bytes": null,
+      "llm_token_usage": null,
+      "questions_total": 3
+    },
+    "external_expert_certified": false,
+    "human_review": false,
+    "items_total": 3,
+    "llm_runtime_available": true,
+    "max_items": 3,
+    "reviewer_model": "gpt-5.4-mini",
+    "reviewer_type": "llm_judge",
+    "roles": [
+      "strict_evidence_reviewer",
+      "skeptical_aviation_boundary_reviewer"
+    ],
+    "run_llm_requested": true,
+    "score_method": "llm_judge",
+    "semantic_correctness_wording": "LLM-estimated semantic correctness",
+    "source_review_sample_path": "reports/stages/triple_semantic_review_sample.json"
+  },
+  "records": [
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "evidence_text",
+        "source chunk excerpt"
+      ],
+      "confidence": 0.96,
+      "decision": {
+        "confidence": 0.96,
+        "decision": "remove",
+        "rationale": "The triple claims a generic Concept is supported by a generic Evidence entity, but the only available evidence text is a descriptive phrase: 'the fundamental physical laws governing the forces acting on an aircraft in flight'. This does not establish an explicit support relationship between two entities, nor does the source chunk provide any additional grounding. The subject and object are both overly generic placeholders, and the predicate 'supportedByEvidence' is too strong for the provided text. Based strictly on the supplied fields, the triple is not supported.",
+        "recommended_action": "remove",
+        "requires_human_review": true,
+        "uncertainty_flags": [
+          "source chunk excerpt is empty",
+          "triple is extremely generic and not grounded to any specific entities",
+          "evidence_text is a descriptive phrase, not evidence of a supportedByEvidence relation"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "evidence_text",
+          "source chunk excerpt"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e",
+      "item_type": "kg_triple",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "356e7a6dd6b95328195bc713766172a14c7112d9c824ce1f6ce40d15c387a3c8",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "triple_semantic_llm_review_v1",
+        "review_run_id": "triple_semantic_llm_review-20260530T091346Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "direction_correct": "0",
+        "duplicate_or_near_duplicate": "0",
+        "entity_too_generic": "1",
+        "evidence_supports_triple": "0",
+        "object_correct": "0",
+        "predicate_correct": "0",
+        "relation_too_strong": "1",
+        "subject_correct": "0"
+      },
+      "prompt_version": "triple_semantic_llm_review_v1",
+      "rationale": "The triple claims a generic Concept is supported by a generic Evidence entity, but the only available evidence text is a descriptive phrase: 'the fundamental physical laws governing the forces acting on an aircraft in flight'. This does not establish an explicit support relationship between two entities, nor does the source chunk provide any additional grounding. The subject and object are both overly generic placeholders, and the predicate 'supportedByEvidence' is too strong for the provided text. Based strictly on the supplied fields, the triple is not supported.",
+      "raw_response": "{\n  \"decision\": \"remove\",\n  \"confidence\": 0.96,\n  \"scores\": {\n    \"overall\": 0.02,\n    \"evidence_alignment\": 0.0,\n    \"entity_match\": 0.0,\n    \"relation_fit\": 0.1,\n    \"specificity\": 0.2\n  },\n  \"subject_correct\": \"0\",\n  \"predicate_correct\": \"0\",\n  \"object_correct\": \"0\",\n  \"direction_correct\": \"0\",\n  \"evidence_supports_triple\": \"0\",\n  \"relation_too_strong\": \"1\",\n  \"entity_too_generic\": \"1\",\n  \"duplicate_or_near_duplicate\": \"0\",\n  \"recommended_action\": \"remove\",\n  \"cited_source_fields\": [\n    \"evidence_text\",\n    \"source chunk excerpt\"\n  ],\n  \"uncertainty_flags\": [\n    \"source chunk excerpt is empty\",\n    \"triple is extremely generic and not grounded to any specific entities\",\n    \"evidence_text is a descriptive phrase, not evidence of a supportedByEvidence relation\"\n  ],\n  \"requires_human_review\": \"0\",\n  \"rationale\": \"The triple claims a generic Concept is supported by a generic Evidence entity, but the only available evidence text is a descriptive phrase: 'the fundamental physical laws governing the forces acting on an aircraft in flight'. This does not establish an explicit support relationship between two entities, nor does the source chunk provide any additional grounding. The subject and object are both overly generic placeholders, and the predicate 'supportedByEvidence' is too strong for the provided text. Based strictly on the supplied fields, the triple is not supported.\"\n}",
+      "requires_human_review": true,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "entity_match": 0.0,
+        "evidence_alignment": 0.0,
+        "overall": 0.02,
+        "relation_fit": 0.1,
+        "specificity": 0.2
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.79,
+        "evidence_text": "the fundamental physical laws governing the forces acting on an aircraft in flight",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Evidence",
+        "object_class": "Cl_Evidence",
+        "page": 0,
+        "predicate": "supportedByEvidence",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e"
+      },
+      "uncertainty_flags": [
+        "source chunk excerpt is empty",
+        "triple is extremely generic and not grounded to any specific entities",
+        "evidence_text is a descriptive phrase, not evidence of a supportedByEvidence relation"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "evidence_text",
+        "triple.subject",
+        "triple.predicate",
+        "triple.object",
+        "source chunk excerpt"
+      ],
+      "confidence": 0.95,
+      "decision": {
+        "confidence": 0.95,
+        "decision": "remove",
+        "rationale": "The triple is not supported by the provided evidence. The evidence_text is a descriptive phrase about aircraft forces in flight, but the triple uses generic placeholder entities (Cl_Concept -> supportedByEvidence -> Cl_Evidence) rather than a specific fact anchored in the text. With an empty source chunk excerpt, there is no basis to verify that a concrete concept is supported by a concrete evidence entity. The predicate is also too strong/meta-like for the available text and reads like an annotation relation rather than a recoverable domain assertion.",
+        "recommended_action": "remove",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "source_chunk_excerpt_empty",
+          "generic_ontology_terms_only",
+          "no_verifiable_link_between_subject_and_object",
+          "predicate_appears_meta/annotation_like_rather_than_domain_fact"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "evidence_text",
+          "triple.subject",
+          "triple.predicate",
+          "triple.object",
+          "source chunk excerpt"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e",
+      "item_type": "kg_triple",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "356e7a6dd6b95328195bc713766172a14c7112d9c824ce1f6ce40d15c387a3c8",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "triple_semantic_llm_review_v1",
+        "review_run_id": "triple_semantic_llm_review-20260530T091351Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "direction_correct": 1,
+        "duplicate_or_near_duplicate": 0,
+        "entity_too_generic": 1,
+        "evidence_supports_triple": 0,
+        "object_correct": 0,
+        "predicate_correct": 0,
+        "relation_too_strong": 1,
+        "subject_correct": 0
+      },
+      "prompt_version": "triple_semantic_llm_review_v1",
+      "rationale": "The triple is not supported by the provided evidence. The evidence_text is a descriptive phrase about aircraft forces in flight, but the triple uses generic placeholder entities (Cl_Concept -> supportedByEvidence -> Cl_Evidence) rather than a specific fact anchored in the text. With an empty source chunk excerpt, there is no basis to verify that a concrete concept is supported by a concrete evidence entity. The predicate is also too strong/meta-like for the available text and reads like an annotation relation rather than a recoverable domain assertion.",
+      "raw_response": "{\n  \"decision\": \"remove\",\n  \"confidence\": 0.95,\n  \"scores\": {\n    \"overall\": 0.05,\n    \"evidence_alignment\": 0.1,\n    \"entity_specificity\": 0.05,\n    \"relation_validity\": 0.1,\n    \"directionality\": 0.9\n  },\n  \"subject_correct\": 0,\n  \"predicate_correct\": 0,\n  \"object_correct\": 0,\n  \"direction_correct\": 1,\n  \"evidence_supports_triple\": 0,\n  \"relation_too_strong\": 1,\n  \"entity_too_generic\": 1,\n  \"duplicate_or_near_duplicate\": 0,\n  \"recommended_action\": \"remove\",\n  \"cited_source_fields\": [\n    \"evidence_text\",\n    \"triple.subject\",\n    \"triple.predicate\",\n    \"triple.object\",\n    \"source chunk excerpt\"\n  ],\n  \"uncertainty_flags\": [\n    \"source_chunk_excerpt_empty\",\n    \"generic_ontology_terms_only\",\n    \"no_verifiable_link_between_subject_and_object\",\n    \"predicate_appears_meta/annotation_like_rather_than_domain_fact\"\n  ],\n  \"requires_human_review\": 0,\n  \"rationale\": \"The triple is not supported by the provided evidence. The evidence_text is a descriptive phrase about aircraft forces in flight, but the triple uses generic placeholder entities (Cl_Concept -> supportedByEvidence -> Cl_Evidence) rather than a specific fact anchored in the text. With an empty source chunk excerpt, there is no basis to verify that a concrete concept is supported by a concrete evidence entity. The predicate is also too strong/meta-like for the available text and reads like an annotation relation rather than a recoverable domain assertion.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "directionality": 0.9,
+        "entity_specificity": 0.05,
+        "evidence_alignment": 0.1,
+        "overall": 0.05,
+        "relation_validity": 0.1
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.79,
+        "evidence_text": "the fundamental physical laws governing the forces acting on an aircraft in flight",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Evidence",
+        "object_class": "Cl_Evidence",
+        "page": 0,
+        "predicate": "supportedByEvidence",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg00-302d28265e"
+      },
+      "uncertainty_flags": [
+        "source_chunk_excerpt_empty",
+        "generic_ontology_terms_only",
+        "no_verifiable_link_between_subject_and_object",
+        "predicate_appears_meta/annotation_like_rather_than_domain_fact"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "evidence_text",
+        "source_chunk"
+      ],
+      "confidence": 0.96,
+      "decision": {
+        "confidence": 0.96,
+        "decision": "remove",
+        "rationale": "The evidence text only says that natural laws and forces have an effect on aircraft performance characteristics. It does not explicitly support a KG triple linking the placeholder subject Cl_Concept to object Cl_AircraftPerformance via 'affects'. The extracted subject and object are generic placeholders rather than concrete entities, and the relation is too weakly grounded to justify the specific triple as stated.",
+        "recommended_action": "remove",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "source_chunk_excerpt_empty",
+          "evidence_text_too_generic",
+          "subject_is_placeholder_class",
+          "object_is_placeholder_class",
+          "predicate_not_grounded_in_explicit_relation"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "evidence_text",
+          "source_chunk"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d",
+      "item_type": "kg_triple",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "93c487fe8e5f10e4beb0be01d263f3b37554bc45b2a09532d13dc72427ebe0d0",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "triple_semantic_llm_review_v1",
+        "review_run_id": "triple_semantic_llm_review-20260530T091359Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "direction_correct": 0,
+        "duplicate_or_near_duplicate": 0,
+        "entity_too_generic": 1,
+        "evidence_supports_triple": 0,
+        "object_correct": "uncertain",
+        "predicate_correct": 0,
+        "relation_too_strong": 1,
+        "subject_correct": "uncertain"
+      },
+      "prompt_version": "triple_semantic_llm_review_v1",
+      "rationale": "The evidence text only says that natural laws and forces have an effect on aircraft performance characteristics. It does not explicitly support a KG triple linking the placeholder subject Cl_Concept to object Cl_AircraftPerformance via 'affects'. The extracted subject and object are generic placeholders rather than concrete entities, and the relation is too weakly grounded to justify the specific triple as stated.",
+      "raw_response": "{\n  \"decision\": \"remove\",\n  \"confidence\": 0.96,\n  \"scores\": {\n    \"overall\": 0.08,\n    \"evidence_match\": 0.05,\n    \"entity_match\": 0.10,\n    \"relation_match\": 0.15\n  },\n  \"subject_correct\": \"uncertain\",\n  \"predicate_correct\": 0,\n  \"object_correct\": \"uncertain\",\n  \"direction_correct\": 0,\n  \"evidence_supports_triple\": 0,\n  \"relation_too_strong\": 1,\n  \"entity_too_generic\": 1,\n  \"duplicate_or_near_duplicate\": 0,\n  \"recommended_action\": \"remove\",\n  \"cited_source_fields\": [\n    \"evidence_text\",\n    \"source_chunk\"\n  ],\n  \"uncertainty_flags\": [\n    \"source_chunk_excerpt_empty\",\n    \"evidence_text_too_generic\",\n    \"subject_is_placeholder_class\",\n    \"object_is_placeholder_class\",\n    \"predicate_not_grounded_in_explicit_relation\"\n  ],\n  \"requires_human_review\": 0,\n  \"rationale\": \"The evidence text only says that natural laws and forces have an effect on aircraft performance characteristics. It does not explicitly support a KG triple linking the placeholder subject Cl_Concept to object Cl_AircraftPerformance via 'affects'. The extracted subject and object are generic placeholders rather than concrete entities, and the relation is too weakly grounded to justify the specific triple as stated.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "entity_match": 0.1,
+        "evidence_match": 0.05,
+        "overall": 0.08,
+        "relation_match": 0.15
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.84,
+        "evidence_text": "what effect these natural laws and forces have on the performance characteristics of aircraft",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_AircraftPerformance",
+        "object_class": "Cl_AircraftPerformance",
+        "page": 0,
+        "predicate": "affects",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d"
+      },
+      "uncertainty_flags": [
+        "source_chunk_excerpt_empty",
+        "evidence_text_too_generic",
+        "subject_is_placeholder_class",
+        "object_is_placeholder_class",
+        "predicate_not_grounded_in_explicit_relation"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "evidence_text",
+        "subject",
+        "predicate",
+        "object",
+        "source_document",
+        "chunk_id"
+      ],
+      "confidence": 0.86,
+      "decision": {
+        "confidence": 0.86,
+        "decision": "revise_subject",
+        "rationale": "The evidence text says 'what effect these natural laws and forces have on the performance characteristics of aircraft,' which supports a general relation between natural laws/forces and aircraft performance. The predicate 'affects' is appropriate and the object 'Cl_AircraftPerformance' is directionally consistent with the evidence. However, the subject 'Cl_Concept' is far too generic and appears to be a placeholder rather than a meaningful source entity. Because the source chunk excerpt is empty, I cannot confirm whether a more specific subject exists in context. The triple should therefore be revised on the subject side rather than kept as-is.",
+        "recommended_action": "revise_subject",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "source_chunk_excerpt_empty",
+          "subject_is_overly_generic_placeholder",
+          "object_is_class-like rather than specific entity",
+          "evidence is fragmentary and lacks explicit full relation"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "evidence_text",
+          "subject",
+          "predicate",
+          "object",
+          "source_document",
+          "chunk_id"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d",
+      "item_type": "kg_triple",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "93c487fe8e5f10e4beb0be01d263f3b37554bc45b2a09532d13dc72427ebe0d0",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "triple_semantic_llm_review_v1",
+        "review_run_id": "triple_semantic_llm_review-20260530T091403Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "direction_correct": 1,
+        "duplicate_or_near_duplicate": "uncertain",
+        "entity_too_generic": 1,
+        "evidence_supports_triple": 1,
+        "object_correct": 1,
+        "predicate_correct": 1,
+        "relation_too_strong": 0,
+        "subject_correct": 0
+      },
+      "prompt_version": "triple_semantic_llm_review_v1",
+      "rationale": "The evidence text says 'what effect these natural laws and forces have on the performance characteristics of aircraft,' which supports a general relation between natural laws/forces and aircraft performance. The predicate 'affects' is appropriate and the object 'Cl_AircraftPerformance' is directionally consistent with the evidence. However, the subject 'Cl_Concept' is far too generic and appears to be a placeholder rather than a meaningful source entity. Because the source chunk excerpt is empty, I cannot confirm whether a more specific subject exists in context. The triple should therefore be revised on the subject side rather than kept as-is.",
+      "raw_response": "{\n  \"decision\": \"revise_subject\",\n  \"confidence\": 0.86,\n  \"scores\": {\n    \"subject\": 0,\n    \"predicate\": 1,\n    \"object\": 1,\n    \"direction\": 1,\n    \"evidence\": 0.82,\n    \"overall\": 0.48\n  },\n  \"subject_correct\": 0,\n  \"predicate_correct\": 1,\n  \"object_correct\": 1,\n  \"direction_correct\": 1,\n  \"evidence_supports_triple\": 1,\n  \"relation_too_strong\": 0,\n  \"entity_too_generic\": 1,\n  \"duplicate_or_near_duplicate\": \"uncertain\",\n  \"recommended_action\": \"revise_subject\",\n  \"cited_source_fields\": [\n    \"evidence_text\",\n    \"subject\",\n    \"predicate\",\n    \"object\",\n    \"source_document\",\n    \"chunk_id\"\n  ],\n  \"uncertainty_flags\": [\n    \"source_chunk_excerpt_empty\",\n    \"subject_is_overly_generic_placeholder\",\n    \"object_is_class-like rather than specific entity\",\n    \"evidence is fragmentary and lacks explicit full relation\"\n  ],\n  \"requires_human_review\": 0,\n  \"rationale\": \"The evidence text says 'what effect these natural laws and forces have on the performance characteristics of aircraft,' which supports a general relation between natural laws/forces and aircraft performance. The predicate 'affects' is appropriate and the object 'Cl_AircraftPerformance' is directionally consistent with the evidence. However, the subject 'Cl_Concept' is far too generic and appears to be a placeholder rather than a meaningful source entity. Because the source chunk excerpt is empty, I cannot confirm whether a more specific subject exists in context. The triple should therefore be revised on the subject side rather than kept as-is.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "direction": 1,
+        "evidence": 0.82,
+        "object": 1,
+        "overall": 0.48,
+        "predicate": 1,
+        "subject": 0
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.84,
+        "evidence_text": "what effect these natural laws and forces have on the performance characteristics of aircraft",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_AircraftPerformance",
+        "object_class": "Cl_AircraftPerformance",
+        "page": 0,
+        "predicate": "affects",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg01-13e9f7b56d"
+      },
+      "uncertainty_flags": [
+        "source_chunk_excerpt_empty",
+        "subject_is_overly_generic_placeholder",
+        "object_is_class-like rather than specific entity",
+        "evidence is fragmentary and lacks explicit full relation"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "evidence_text",
+        "source_chunk_excerpt"
+      ],
+      "confidence": 0.98,
+      "decision": {
+        "confidence": 0.98,
+        "decision": "remove",
+        "rationale": "The only provided evidence is the phrase 'an aircraft in flight,' which does not support a specific KG triple asserting that Cl_Concept appliesTo Cl_Aircraft. The subject is a generic placeholder concept, the predicate is not evidenced, and the relation is too strong for the available text. There is no source chunk content to corroborate the extraction, so the triple should be removed rather than revised.",
+        "recommended_action": "remove",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "source_chunk_excerpt_empty",
+          "evidence_text_too_generic",
+          "triple_uses_placeholder_concept_entity"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "evidence_text",
+          "source_chunk_excerpt"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "06_phak_ch4_0-structure_aware-p00-c02-kg02-67295bee69",
+      "item_type": "kg_triple",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "340d04952a9c603eeceb890fe2c00247eb7c4887f045add37887cb557329a157",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "triple_semantic_llm_review_v1",
+        "review_run_id": "triple_semantic_llm_review-20260530T091407Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "direction_correct": 0,
+        "duplicate_or_near_duplicate": 0,
+        "entity_too_generic": 1,
+        "evidence_supports_triple": 0,
+        "object_correct": 1,
+        "predicate_correct": 0,
+        "relation_too_strong": 1,
+        "subject_correct": 0
+      },
+      "prompt_version": "triple_semantic_llm_review_v1",
+      "rationale": "The only provided evidence is the phrase 'an aircraft in flight,' which does not support a specific KG triple asserting that Cl_Concept appliesTo Cl_Aircraft. The subject is a generic placeholder concept, the predicate is not evidenced, and the relation is too strong for the available text. There is no source chunk content to corroborate the extraction, so the triple should be removed rather than revised.",
+      "raw_response": "{\n  \"decision\": \"remove\",\n  \"confidence\": 0.98,\n  \"scores\": {\n    \"overall\": 0.05,\n    \"evidence_alignment\": 0.0,\n    \"entity_accuracy\": 0.1,\n    \"relation_accuracy\": 0.1,\n    \"specificity\": 0.2\n  },\n  \"subject_correct\": 0,\n  \"predicate_correct\": 0,\n  \"object_correct\": 1,\n  \"direction_correct\": 0,\n  \"evidence_supports_triple\": 0,\n  \"relation_too_strong\": 1,\n  \"entity_too_generic\": 1,\n  \"duplicate_or_near_duplicate\": 0,\n  \"recommended_action\": \"remove\",\n  \"cited_source_fields\": [\n    \"evidence_text\",\n    \"source_chunk_excerpt\"\n  ],\n  \"uncertainty_flags\": [\n    \"source_chunk_excerpt_empty\",\n    \"evidence_text_too_generic\",\n    \"triple_uses_placeholder_concept_entity\"\n  ],\n  \"requires_human_review\": 0,\n  \"rationale\": \"The only provided evidence is the phrase 'an aircraft in flight,' which does not support a specific KG triple asserting that Cl_Concept appliesTo Cl_Aircraft. The subject is a generic placeholder concept, the predicate is not evidenced, and the relation is too strong for the available text. There is no source chunk content to corroborate the extraction, so the triple should be removed rather than revised.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "entity_accuracy": 0.1,
+        "evidence_alignment": 0.0,
+        "overall": 0.05,
+        "relation_accuracy": 0.1,
+        "specificity": 0.2
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.95,
+        "evidence_text": "an aircraft in flight",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Aircraft",
+        "object_class": "Cl_Aircraft",
+        "page": 0,
+        "predicate": "appliesTo",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg02-67295bee69"
+      },
+      "uncertainty_flags": [
+        "source_chunk_excerpt_empty",
+        "evidence_text_too_generic",
+        "triple_uses_placeholder_concept_entity"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "evidence_text",
+        "triple.subject",
+        "triple.predicate",
+        "triple.object",
+        "triple.subject_class",
+        "triple.object_class"
+      ],
+      "confidence": 0.93,
+      "decision": {
+        "confidence": 0.93,
+        "decision": "revise_subject",
+        "rationale": "The evidence text only says 'an aircraft in flight', which is clearly consistent with the object Cl_Aircraft, but does not support the subject Cl_Concept or the predicate appliesTo as a stated relation. The triple appears to be a generic schema/ontology statement rather than an extractable factual relation from the provided evidence. Because the subject is too generic and unsupported, the best action is to revise the subject or otherwise reframe the triple; however, with the current evidence, the relation is too strong to keep as-is.",
+        "recommended_action": "revise_subject",
+        "requires_human_review": true,
+        "uncertainty_flags": [
+          "source_chunk_excerpt_empty",
+          "evidence_text_is_phrase_only",
+          "relation_semantics_unclear_without_context"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "evidence_text",
+          "triple.subject",
+          "triple.predicate",
+          "triple.object",
+          "triple.subject_class",
+          "triple.object_class"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "06_phak_ch4_0-structure_aware-p00-c02-kg02-67295bee69",
+      "item_type": "kg_triple",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "340d04952a9c603eeceb890fe2c00247eb7c4887f045add37887cb557329a157",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "triple_semantic_llm_review_v1",
+        "review_run_id": "triple_semantic_llm_review-20260530T091411Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "direction_correct": 1,
+        "duplicate_or_near_duplicate": 0,
+        "entity_too_generic": 1,
+        "evidence_supports_triple": 0,
+        "object_correct": 1,
+        "predicate_correct": 0,
+        "relation_too_strong": 1,
+        "subject_correct": 0
+      },
+      "prompt_version": "triple_semantic_llm_review_v1",
+      "rationale": "The evidence text only says 'an aircraft in flight', which is clearly consistent with the object Cl_Aircraft, but does not support the subject Cl_Concept or the predicate appliesTo as a stated relation. The triple appears to be a generic schema/ontology statement rather than an extractable factual relation from the provided evidence. Because the subject is too generic and unsupported, the best action is to revise the subject or otherwise reframe the triple; however, with the current evidence, the relation is too strong to keep as-is.",
+      "raw_response": "{\n  \"decision\": \"revise_subject\",\n  \"confidence\": 0.93,\n  \"scores\": {\n    \"subject\": 0,\n    \"predicate\": 0,\n    \"object\": 1,\n    \"direction\": 1,\n    \"evidence_support\": 0.2,\n    \"overall\": 0.18\n  },\n  \"subject_correct\": 0,\n  \"predicate_correct\": 0,\n  \"object_correct\": 1,\n  \"direction_correct\": 1,\n  \"evidence_supports_triple\": 0,\n  \"relation_too_strong\": 1,\n  \"entity_too_generic\": 1,\n  \"duplicate_or_near_duplicate\": 0,\n  \"recommended_action\": \"revise_subject\",\n  \"cited_source_fields\": [\n    \"evidence_text\",\n    \"triple.subject\",\n    \"triple.predicate\",\n    \"triple.object\",\n    \"triple.subject_class\",\n    \"triple.object_class\"\n  ],\n  \"uncertainty_flags\": [\n    \"source_chunk_excerpt_empty\",\n    \"evidence_text_is_phrase_only\",\n    \"relation_semantics_unclear_without_context\"\n  ],\n  \"requires_human_review\": true,\n  \"rationale\": \"The evidence text only says 'an aircraft in flight', which is clearly consistent with the object Cl_Aircraft, but does not support the subject Cl_Concept or the predicate appliesTo as a stated relation. The triple appears to be a generic schema/ontology statement rather than an extractable factual relation from the provided evidence. Because the subject is too generic and unsupported, the best action is to revise the subject or otherwise reframe the triple; however, with the current evidence, the relation is too strong to keep as-is.\"\n}",
+      "requires_human_review": true,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "direction": 1,
+        "evidence_support": 0.2,
+        "object": 1,
+        "overall": 0.18,
+        "predicate": 0,
+        "subject": 0
+      },
+      "triple": {
+        "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+        "confidence": 0.95,
+        "evidence_text": "an aircraft in flight",
+        "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+        "model": "llm-structured-kg-extraction",
+        "object": "Cl_Aircraft",
+        "object_class": "Cl_Aircraft",
+        "page": 0,
+        "predicate": "appliesTo",
+        "section": "page-0",
+        "source_document": "06_phak_ch4_0",
+        "subject": "Cl_Concept",
+        "subject_class": "Cl_Concept",
+        "triple_id": "06_phak_ch4_0-structure_aware-p00-c02-kg02-67295bee69"
+      },
+      "uncertainty_flags": [
+        "source_chunk_excerpt_empty",
+        "evidence_text_is_phrase_only",
+        "relation_semantics_unclear_without_context"
+      ]
+    }
+  ],
+  "summary": {
+    "aviation_expert_certified": false,
+    "external_expert_certified": false,
+    "human_review": false,
+    "items_total": 6,
+    "llm_direction_correct_rate": 0.5,
+    "llm_evidence_support_rate": 0.1667,
+    "llm_object_correct_rate": 0.6,
+    "llm_predicate_correct_rate": 0.1667,
+    "llm_review_not_run_total": 0,
+    "llm_reviewed_total": 6,
+    "llm_subject_correct_rate": 0.0,
+    "recommended_action_counts": {
+      "remove": 4,
+      "revise_subject": 2
+    },
+    "review_status": "llm_reviewed_not_human_certified",
+    "score_method": "llm_judge",
+    "uncertain_rate": 1.0,
+    "uncertain_total": 6
+  }
+}

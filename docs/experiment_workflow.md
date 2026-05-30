@@ -97,11 +97,11 @@ Metrics:
 - evidence-in-source rate;
 - duplicate or near-duplicate count;
 - key entity coverage;
-- manual triple semantic review status.
+- model-based triple semantic review status.
 
 Output: the KG is schema-valid and provenance-valid. Semantic correctness
-remains manual-review dependent unless the triple semantic review sample is
-completed. Do not fabricate semantic correctness results.
+is absent or LLM-estimated unless `triple_semantic_llm_review` is cited. Do not
+fabricate semantic correctness results.
 
 ## Step 5: Benchmark Construction And Validation
 
@@ -122,7 +122,7 @@ Metrics:
 - evidence span validation;
 - category distribution;
 - supported vs no-answer labels;
-- benchmark naturalness and manual-review status.
+- benchmark naturalness and model-review status.
 
 Warning: benchmark v2 is thesis/course-project evidence, not external aviation
 expert certification.
@@ -183,7 +183,8 @@ Metrics:
 - Average Path Length.
 
 Interpretation: high path coverage does not imply high retrieval quality. Path
-metrics are heuristic unless manually reviewed. Failure modes include
+metrics are heuristic unless separately reviewed by the model-based review
+workflow. Failure modes include
 `seed_linking_error`, `generic_seed_node`, `path_found_but_wrong_chunk`,
 `low_value_predicate`, `graph_fusion_dilution`, and `kg_sparse_for_question`.
 
@@ -220,7 +221,7 @@ Score labels:
 
 - deterministic heuristic scores must be labelled as heuristic;
 - LLM-as-judge scores must be labelled as LLM judge;
-- manual scores must be labelled as manual review.
+- human scores are absent unless an explicit human annotation artifact is added.
 
 ## Step 9: Safety And Abstention Evaluation
 

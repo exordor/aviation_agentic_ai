@@ -1,0 +1,949 @@
+{
+  "consistency": {
+    "agreement_rate": 0.3333,
+    "aviation_expert_certified": false,
+    "comparable_item_groups": 3,
+    "consistency_not_measured": false,
+    "contradiction_count": 2,
+    "external_expert_certified": false,
+    "high_confidence_disagreement_count": 2,
+    "human_review": false,
+    "items_not_safe_for_strong_claims": 2,
+    "items_requiring_human_review_even_if_no_human_available": 0,
+    "reviewed_item_groups": 3
+  },
+  "metadata": {
+    "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+    "aviation_expert_certified": false,
+    "command": "aviation-ai report benchmark-llm-review --max-items 3",
+    "cost_latency": {
+      "cases_total": null,
+      "chunks_path": null,
+      "chunks_size_bytes": null,
+      "elapsed_seconds": 49.4682,
+      "index_dir": null,
+      "index_size_bytes": null,
+      "kg_path": null,
+      "kg_size_bytes": null,
+      "llm_token_usage": null,
+      "questions_total": 3
+    },
+    "external_expert_certified": false,
+    "gold_labels_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
+    "human_review": false,
+    "items_total": 3,
+    "llm_runtime_available": true,
+    "max_items": 3,
+    "review_input_path": "data/cqs/06_phak_ch4_0.benchmark_v2.reviewed_subset.gold.json",
+    "review_status": "llm_reviewed_not_human_certified",
+    "reviewer_model": "gpt-5.4-mini",
+    "reviewer_type": "llm_judge",
+    "roles": [
+      "strict_evidence_reviewer",
+      "skeptical_aviation_boundary_reviewer"
+    ],
+    "run_llm_requested": true,
+    "score_method": "llm_judge"
+  },
+  "records": [
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "answer_key",
+        "evidence_spans",
+        "question",
+        "question_type",
+        "source_document",
+        "source_page",
+        "tags"
+      ],
+      "confidence": 0.98,
+      "decision": {
+        "confidence": 0.98,
+        "decision": "keep",
+        "rationale": "The answer key is exactly supported by the single evidence span, and the question is answerable from PHAK Chapter 4 as supplied. The only issue is wording quality: the original question is slightly awkward, but that does not require revision of the label given the strong direct support.",
+        "recommended_action": "keep",
+        "requires_human_review": false,
+        "uncertainty_flags": []
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "answer_key",
+          "evidence_spans",
+          "question",
+          "question_type",
+          "source_document",
+          "source_page",
+          "tags"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "bv2-cd-001",
+      "item_type": "benchmark_label",
+      "label": {
+        "answer_key": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface.",
+        "cq_id": "bv2-cd-001",
+        "evidence_spans": [
+          {
+            "page": 0,
+            "text": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface."
+          }
+        ],
+        "expected_abstention": false,
+        "expected_chunk_ids": [
+          "06_phak_ch4_0-structure_aware-p00-c04",
+          "06_phak_ch4_0-fixed_window-p00-c00"
+        ],
+        "gold_level": "span",
+        "key_entities": [
+          "atmosphere",
+          "Earth",
+          "air",
+          "surface"
+        ],
+        "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere envelope surrounds?",
+        "question_type": "concept_definition",
+        "review": {
+          "aviation_expert_certified": false,
+          "external_aviation_expert_certified": false,
+          "external_expert_certified": false,
+          "human_review": false,
+          "llm_review_fields": {
+            "answer_span_complete": "needs_review",
+            "cross_page_synthesis_ok": "needs_review",
+            "evidence_supports_answer": "needs_review",
+            "natural_question_ok": "needs_review",
+            "safety_boundary_ok": "needs_review"
+          },
+          "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+          "project_author_review_status": "not_used_no_human_review",
+          "review_decision": "pending",
+          "reviewed_at": null,
+          "reviewer_notes": "",
+          "status": "llm_review_pending_not_human_certified"
+        },
+        "source_document": "06_phak_ch4_0",
+        "source_page": 0,
+        "tags": [
+          "concept_definition",
+          "supported",
+          "machine_seeded",
+          "page_00",
+          "definition",
+          "requires_llm_review",
+          "not_human_reviewed",
+          "llm_review_subset",
+          "llm_review_pending_not_human_certified"
+        ]
+      },
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "1a469ba866c44ad3cabdd648aaf9ce16c574ffa6cee08941a5be3c98b6785001",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "benchmark_llm_review_v1",
+        "review_run_id": "benchmark_llm_review-20260530T091257Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "ambiguity": "Low ambiguity; the question clearly targets the definition of atmosphere in the cited passage.",
+        "answerability_from_phak_ch4": "The answer is directly stated in the supplied evidence span and is answerable from the provided Chapter 4 source.",
+        "aviation_training_relevance": "The content is relevant to aviation training insofar as it comes from PHAK Chapter 4 and concerns a fundamental atmospheric concept.",
+        "category_correctness": "The label is correctly categorized as concept_definition.",
+        "evidence_span_supports_answer_key": "The evidence span exactly matches the answer key wording, so support is complete.",
+        "natural_question_wording": "The question is understandable but awkwardly phrased; it would read more naturally as a direct definition question.",
+        "rewritten_question": "How does PHAK Chapter 4 define atmosphere?",
+        "safety_boundary_correctness": "No safety boundary issue is apparent from the supplied fields."
+      },
+      "prompt_version": "benchmark_llm_review_v1",
+      "rationale": "The answer key is exactly supported by the single evidence span, and the question is answerable from PHAK Chapter 4 as supplied. The only issue is wording quality: the original question is slightly awkward, but that does not require revision of the label given the strong direct support.",
+      "raw_response": "{\n  \"decision\": \"keep\",\n  \"confidence\": 0.98,\n  \"scores\": {\n    \"natural_question_wording\": 1,\n    \"aviation_training_relevance\": 1,\n    \"answerability_from_phak_ch4\": 2,\n    \"evidence_span_supports_answer_key\": 2,\n    \"ambiguity\": 0,\n    \"category_correctness\": 2,\n    \"safety_boundary_correctness\": 2\n  },\n  \"natural_question_wording\": \"The question is understandable but awkwardly phrased; it would read more naturally as a direct definition question.\",\n  \"aviation_training_relevance\": \"The content is relevant to aviation training insofar as it comes from PHAK Chapter 4 and concerns a fundamental atmospheric concept.\",\n  \"answerability_from_phak_ch4\": \"The answer is directly stated in the supplied evidence span and is answerable from the provided Chapter 4 source.\",\n  \"evidence_span_supports_answer_key\": \"The evidence span exactly matches the answer key wording, so support is complete.\",\n  \"ambiguity\": \"Low ambiguity; the question clearly targets the definition of atmosphere in the cited passage.\",\n  \"category_correctness\": \"The label is correctly categorized as concept_definition.\",\n  \"safety_boundary_correctness\": \"No safety boundary issue is apparent from the supplied fields.\",\n  \"recommended_action\": \"keep\",\n  \"rewritten_question\": \"How does PHAK Chapter 4 define atmosphere?\",\n  \"cited_source_fields\": [\n    \"answer_key\",\n    \"evidence_spans\",\n    \"question\",\n    \"question_type\",\n    \"source_document\",\n    \"source_page\",\n    \"tags\"\n  ],\n  \"uncertainty_flags\": [],\n  \"requires_human_review\": false,\n  \"rationale\": \"The answer key is exactly supported by the single evidence span, and the question is answerable from PHAK Chapter 4 as supplied. The only issue is wording quality: the original question is slightly awkward, but that does not require revision of the label given the strong direct support.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "ambiguity": 0,
+        "answerability_from_phak_ch4": 2,
+        "aviation_training_relevance": 1,
+        "category_correctness": 2,
+        "evidence_span_supports_answer_key": 2,
+        "natural_question_wording": 1,
+        "safety_boundary_correctness": 2
+      },
+      "uncertainty_flags": []
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "answer_key",
+        "evidence_spans[0].text",
+        "question",
+        "question_type",
+        "source_document",
+        "source_page",
+        "tags"
+      ],
+      "confidence": 0.91,
+      "decision": {
+        "confidence": 0.91,
+        "decision": "keep",
+        "rationale": "The evidence span exactly supports the answer key, and the question is answerable from the provided PHAK Chapter 4 text. The item is somewhat generic and the question wording is awkward, but these issues do not require removal or revision given the strong span-level support.",
+        "recommended_action": "keep",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "low_aviation_specificity",
+          "awkward_question_wording",
+          "not_human_reviewed"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "answer_key",
+          "evidence_spans[0].text",
+          "question",
+          "question_type",
+          "source_document",
+          "source_page",
+          "tags"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "bv2-cd-001",
+      "item_type": "benchmark_label",
+      "label": {
+        "answer_key": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface.",
+        "cq_id": "bv2-cd-001",
+        "evidence_spans": [
+          {
+            "page": 0,
+            "text": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface."
+          }
+        ],
+        "expected_abstention": false,
+        "expected_chunk_ids": [
+          "06_phak_ch4_0-structure_aware-p00-c04",
+          "06_phak_ch4_0-fixed_window-p00-c00"
+        ],
+        "gold_level": "span",
+        "key_entities": [
+          "atmosphere",
+          "Earth",
+          "air",
+          "surface"
+        ],
+        "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere envelope surrounds?",
+        "question_type": "concept_definition",
+        "review": {
+          "aviation_expert_certified": false,
+          "external_aviation_expert_certified": false,
+          "external_expert_certified": false,
+          "human_review": false,
+          "llm_review_fields": {
+            "answer_span_complete": "needs_review",
+            "cross_page_synthesis_ok": "needs_review",
+            "evidence_supports_answer": "needs_review",
+            "natural_question_ok": "needs_review",
+            "safety_boundary_ok": "needs_review"
+          },
+          "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+          "project_author_review_status": "not_used_no_human_review",
+          "review_decision": "pending",
+          "reviewed_at": null,
+          "reviewer_notes": "",
+          "status": "llm_review_pending_not_human_certified"
+        },
+        "source_document": "06_phak_ch4_0",
+        "source_page": 0,
+        "tags": [
+          "concept_definition",
+          "supported",
+          "machine_seeded",
+          "page_00",
+          "definition",
+          "requires_llm_review",
+          "not_human_reviewed",
+          "llm_review_subset",
+          "llm_review_pending_not_human_certified"
+        ]
+      },
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "1a469ba866c44ad3cabdd648aaf9ce16c574ffa6cee08941a5be3c98b6785001",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "benchmark_llm_review_v1",
+        "review_run_id": "benchmark_llm_review-20260530T091312Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "ambiguity": "Low to moderate. The wording 'define or describe' is broad, but the answer is unambiguous from the span.",
+        "answerability_from_phak_ch4": "Yes. The supplied evidence span directly states the definition of atmosphere.",
+        "aviation_training_relevance": "Low direct aviation-training relevance; this is a general definition fact from PHAK Chapter 4 rather than an operational aviation concept, but it is still acceptable as a chapter-based training benchmark item.",
+        "category_correctness": "Correct. This is a concept_definition item.",
+        "evidence_span_supports_answer_key": "Yes. The evidence span exactly matches the answer key.",
+        "natural_question_wording": "The question is understandable but awkwardly phrased and somewhat redundant.",
+        "rewritten_question": "How does PHAK Chapter 4 define the atmosphere?",
+        "safety_boundary_correctness": "Correct. No safety boundary issue is apparent from the supplied fields."
+      },
+      "prompt_version": "benchmark_llm_review_v1",
+      "rationale": "The evidence span exactly supports the answer key, and the question is answerable from the provided PHAK Chapter 4 text. The item is somewhat generic and the question wording is awkward, but these issues do not require removal or revision given the strong span-level support.",
+      "raw_response": "{\n  \"decision\": \"keep\",\n  \"confidence\": 0.91,\n  \"scores\": {\n    \"natural_question_wording\": 1,\n    \"aviation_training_relevance\": 0,\n    \"answerability_from_phak_ch4\": 2,\n    \"evidence_span_supports_answer_key\": 2,\n    \"ambiguity\": 1,\n    \"category_correctness\": 2,\n    \"safety_boundary_correctness\": 2\n  },\n  \"natural_question_wording\": \"The question is understandable but awkwardly phrased and somewhat redundant.\",\n  \"aviation_training_relevance\": \"Low direct aviation-training relevance; this is a general definition fact from PHAK Chapter 4 rather than an operational aviation concept, but it is still acceptable as a chapter-based training benchmark item.\",\n  \"answerability_from_phak_ch4\": \"Yes. The supplied evidence span directly states the definition of atmosphere.\",\n  \"evidence_span_supports_answer_key\": \"Yes. The evidence span exactly matches the answer key.\",\n  \"ambiguity\": \"Low to moderate. The wording 'define or describe' is broad, but the answer is unambiguous from the span.\",\n  \"category_correctness\": \"Correct. This is a concept_definition item.\",\n  \"safety_boundary_correctness\": \"Correct. No safety boundary issue is apparent from the supplied fields.\",\n  \"recommended_action\": \"keep\",\n  \"rewritten_question\": \"How does PHAK Chapter 4 define the atmosphere?\",\n  \"cited_source_fields\": [\n    \"answer_key\",\n    \"evidence_spans[0].text\",\n    \"question\",\n    \"question_type\",\n    \"source_document\",\n    \"source_page\",\n    \"tags\"\n  ],\n  \"uncertainty_flags\": [\n    \"low_aviation_specificity\",\n    \"awkward_question_wording\",\n    \"not_human_reviewed\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The evidence span exactly supports the answer key, and the question is answerable from the provided PHAK Chapter 4 text. The item is somewhat generic and the question wording is awkward, but these issues do not require removal or revision given the strong span-level support.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "ambiguity": 1,
+        "answerability_from_phak_ch4": 2,
+        "aviation_training_relevance": 0,
+        "category_correctness": 2,
+        "evidence_span_supports_answer_key": 2,
+        "natural_question_wording": 1,
+        "safety_boundary_correctness": 2
+      },
+      "uncertainty_flags": [
+        "low_aviation_specificity",
+        "awkward_question_wording",
+        "not_human_reviewed"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "answer_key",
+        "evidence_spans",
+        "question",
+        "question_type",
+        "source_document",
+        "source_page",
+        "tags",
+        "review.llm_review_fields",
+        "review.notes"
+      ],
+      "confidence": 0.91,
+      "decision": {
+        "confidence": 0.91,
+        "decision": "keep",
+        "rationale": "The evidence span exactly supports the answer key, and the question is answerable from the provided PHAK Chapter 4 text. While the wording is awkward, it remains interpretable and the concept_definition category fits. No safety or boundary issue is present.",
+        "recommended_action": "keep",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "awkward_question_wording",
+          "general_science_rather_than_aviation_procedure"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "answer_key",
+          "evidence_spans",
+          "question",
+          "question_type",
+          "source_document",
+          "source_page",
+          "tags",
+          "review.llm_review_fields",
+          "review.notes"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "bv2-cd-002",
+      "item_type": "benchmark_label",
+      "label": {
+        "answer_key": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases.",
+        "cq_id": "bv2-cd-002",
+        "evidence_spans": [
+          {
+            "page": 0,
+            "text": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases."
+          }
+        ],
+        "expected_abstention": false,
+        "expected_chunk_ids": [
+          "06_phak_ch4_0-structure_aware-p00-c04",
+          "06_phak_ch4_0-fixed_window-p00-c00"
+        ],
+        "gold_level": "span",
+        "key_entities": [
+          "gases",
+          "Earth",
+          "air",
+          "water"
+        ],
+        "question": "How does PHAK Chapter 4 define or describe gases in the evidence mentioning earth differs water?",
+        "question_type": "concept_definition",
+        "review": {
+          "aviation_expert_certified": false,
+          "external_aviation_expert_certified": false,
+          "external_expert_certified": false,
+          "human_review": false,
+          "llm_review_fields": {
+            "answer_span_complete": "needs_review",
+            "cross_page_synthesis_ok": "needs_review",
+            "evidence_supports_answer": "needs_review",
+            "natural_question_ok": "needs_review",
+            "safety_boundary_ok": "needs_review"
+          },
+          "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+          "project_author_review_status": "not_used_no_human_review",
+          "review_decision": "pending",
+          "reviewed_at": null,
+          "reviewer_notes": "",
+          "status": "llm_review_pending_not_human_certified"
+        },
+        "source_document": "06_phak_ch4_0",
+        "source_page": 0,
+        "tags": [
+          "concept_definition",
+          "supported",
+          "machine_seeded",
+          "page_00",
+          "definition",
+          "requires_llm_review",
+          "not_human_reviewed",
+          "llm_review_subset",
+          "llm_review_pending_not_human_certified"
+        ]
+      },
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "46abff3814fe617d4f21b515d83f0f94103f0ebaeefb8a6fe81a982048978b43",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "benchmark_llm_review_v1",
+        "review_run_id": "benchmark_llm_review-20260530T091317Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "ambiguity": "Low to moderate. The question says 'gases' and 'evidence mentioning earth differs water,' which is awkward, but the intended referent is clear from the span.",
+        "answerability_from_phak_ch4": "Yes. The supplied evidence span directly contains the answer.",
+        "aviation_training_relevance": "Moderate. It is tied to PHAK Chapter 4 content, but the content itself is general physical-science background rather than a direct operational aviation procedure.",
+        "category_correctness": "Correct. The label is a concept_definition item and the answer is a direct definitional description.",
+        "evidence_span_supports_answer_key": "Yes. The span exactly matches the answer key wording.",
+        "natural_question_wording": "The question is somewhat awkwardly phrased, but still understandable as asking how PHAK Chapter 4 describes air/gases.",
+        "rewritten_question": "How does PHAK Chapter 4 describe air in relation to the Earth and its composition?",
+        "safety_boundary_correctness": "Correct. No safety-sensitive operational guidance is involved."
+      },
+      "prompt_version": "benchmark_llm_review_v1",
+      "rationale": "The evidence span exactly supports the answer key, and the question is answerable from the provided PHAK Chapter 4 text. While the wording is awkward, it remains interpretable and the concept_definition category fits. No safety or boundary issue is present.",
+      "raw_response": "{\n  \"decision\": \"keep\",\n  \"confidence\": 0.91,\n  \"scores\": {\n    \"natural_question_wording\": 1,\n    \"aviation_training_relevance\": 1,\n    \"answerability_from_phak_ch4\": 2,\n    \"evidence_span_supports_answer_key\": 2,\n    \"ambiguity\": 1,\n    \"category_correctness\": 2,\n    \"safety_boundary_correctness\": 2\n  },\n  \"natural_question_wording\": \"The question is somewhat awkwardly phrased, but still understandable as asking how PHAK Chapter 4 describes air/gases.\",\n  \"aviation_training_relevance\": \"Moderate. It is tied to PHAK Chapter 4 content, but the content itself is general physical-science background rather than a direct operational aviation procedure.\",\n  \"answerability_from_phak_ch4\": \"Yes. The supplied evidence span directly contains the answer.\",\n  \"evidence_span_supports_answer_key\": \"Yes. The span exactly matches the answer key wording.\",\n  \"ambiguity\": \"Low to moderate. The question says 'gases' and 'evidence mentioning earth differs water,' which is awkward, but the intended referent is clear from the span.\",\n  \"category_correctness\": \"Correct. The label is a concept_definition item and the answer is a direct definitional description.\",\n  \"safety_boundary_correctness\": \"Correct. No safety-sensitive operational guidance is involved.\",\n  \"recommended_action\": \"keep\",\n  \"rewritten_question\": \"How does PHAK Chapter 4 describe air in relation to the Earth and its composition?\",\n  \"cited_source_fields\": [\n    \"answer_key\",\n    \"evidence_spans\",\n    \"question\",\n    \"question_type\",\n    \"source_document\",\n    \"source_page\",\n    \"tags\",\n    \"review.llm_review_fields\",\n    \"review.notes\"\n  ],\n  \"uncertainty_flags\": [\n    \"awkward_question_wording\",\n    \"general_science_rather_than_aviation_procedure\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The evidence span exactly supports the answer key, and the question is answerable from the provided PHAK Chapter 4 text. While the wording is awkward, it remains interpretable and the concept_definition category fits. No safety or boundary issue is present.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "ambiguity": 1,
+        "answerability_from_phak_ch4": 2,
+        "aviation_training_relevance": 1,
+        "category_correctness": 2,
+        "evidence_span_supports_answer_key": 2,
+        "natural_question_wording": 1,
+        "safety_boundary_correctness": 2
+      },
+      "uncertainty_flags": [
+        "awkward_question_wording",
+        "general_science_rather_than_aviation_procedure"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "question",
+        "answer_key",
+        "evidence_spans",
+        "question_type",
+        "review.notes",
+        "tags"
+      ],
+      "confidence": 0.87,
+      "decision": {
+        "confidence": 0.87,
+        "decision": "revise_category",
+        "rationale": "The evidence span fully supports the answer key, but the question text is poorly formed and semantically mismatched. The label is not unsafe, yet the category/question should be revised so the prompt clearly asks about air rather than gases and reads naturally.",
+        "recommended_action": "revise_category",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "question wording is ungrammatical",
+          "entity mismatch between 'gases' and 'air'",
+          "aviation-training relevance is weak"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "question",
+          "answer_key",
+          "evidence_spans",
+          "question_type",
+          "review.notes",
+          "tags"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "bv2-cd-002",
+      "item_type": "benchmark_label",
+      "label": {
+        "answer_key": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases.",
+        "cq_id": "bv2-cd-002",
+        "evidence_spans": [
+          {
+            "page": 0,
+            "text": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases."
+          }
+        ],
+        "expected_abstention": false,
+        "expected_chunk_ids": [
+          "06_phak_ch4_0-structure_aware-p00-c04",
+          "06_phak_ch4_0-fixed_window-p00-c00"
+        ],
+        "gold_level": "span",
+        "key_entities": [
+          "gases",
+          "Earth",
+          "air",
+          "water"
+        ],
+        "question": "How does PHAK Chapter 4 define or describe gases in the evidence mentioning earth differs water?",
+        "question_type": "concept_definition",
+        "review": {
+          "aviation_expert_certified": false,
+          "external_aviation_expert_certified": false,
+          "external_expert_certified": false,
+          "human_review": false,
+          "llm_review_fields": {
+            "answer_span_complete": "needs_review",
+            "cross_page_synthesis_ok": "needs_review",
+            "evidence_supports_answer": "needs_review",
+            "natural_question_ok": "needs_review",
+            "safety_boundary_ok": "needs_review"
+          },
+          "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+          "project_author_review_status": "not_used_no_human_review",
+          "review_decision": "pending",
+          "reviewed_at": null,
+          "reviewer_notes": "",
+          "status": "llm_review_pending_not_human_certified"
+        },
+        "source_document": "06_phak_ch4_0",
+        "source_page": 0,
+        "tags": [
+          "concept_definition",
+          "supported",
+          "machine_seeded",
+          "page_00",
+          "definition",
+          "requires_llm_review",
+          "not_human_reviewed",
+          "llm_review_subset",
+          "llm_review_pending_not_human_certified"
+        ]
+      },
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "46abff3814fe617d4f21b515d83f0f94103f0ebaeefb8a6fe81a982048978b43",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "benchmark_llm_review_v1",
+        "review_run_id": "benchmark_llm_review-20260530T091327Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "ambiguity": "The question wording is ambiguous because it mentions gases but the evidence defines air; this creates a mismatch between what is asked and what is answered.",
+        "answerability_from_phak_ch4": "Yes. The evidence span directly states the answer.",
+        "aviation_training_relevance": "Low. The cited content is a general statement about air as part of Earth and a mixture of gases, but the question framing does not clearly target aviation training content.",
+        "category_correctness": "The labeled question_type concept_definition is plausible, but the current question text is not a clean concept-definition question and should be revised.",
+        "evidence_span_supports_answer_key": "Yes. The provided span exactly matches the answer key.",
+        "natural_question_wording": "The question is awkward and grammatically unclear; it appears to ask for a definition of air, not gases, and the phrase \"earth differs water\" is unnatural.",
+        "rewritten_question": "How does PHAK Chapter 4 describe air in relation to the Earth and the seas or land?",
+        "safety_boundary_correctness": "No safety issue detected."
+      },
+      "prompt_version": "benchmark_llm_review_v1",
+      "rationale": "The evidence span fully supports the answer key, but the question text is poorly formed and semantically mismatched. The label is not unsafe, yet the category/question should be revised so the prompt clearly asks about air rather than gases and reads naturally.",
+      "raw_response": "{\n  \"decision\": \"revise_category\",\n  \"confidence\": 0.87,\n  \"scores\": {\n    \"natural_question_wording\": 0,\n    \"aviation_training_relevance\": 0,\n    \"answerability_from_phak_ch4\": 2,\n    \"evidence_span_supports_answer_key\": 2,\n    \"ambiguity\": 1,\n    \"category_correctness\": 0,\n    \"safety_boundary_correctness\": 2\n  },\n  \"natural_question_wording\": \"The question is awkward and grammatically unclear; it appears to ask for a definition of air, not gases, and the phrase \\\"earth differs water\\\" is unnatural.\",\n  \"aviation_training_relevance\": \"Low. The cited content is a general statement about air as part of Earth and a mixture of gases, but the question framing does not clearly target aviation training content.\",\n  \"answerability_from_phak_ch4\": \"Yes. The evidence span directly states the answer.\",\n  \"evidence_span_supports_answer_key\": \"Yes. The provided span exactly matches the answer key.\",\n  \"ambiguity\": \"The question wording is ambiguous because it mentions gases but the evidence defines air; this creates a mismatch between what is asked and what is answered.\",\n  \"category_correctness\": \"The labeled question_type concept_definition is plausible, but the current question text is not a clean concept-definition question and should be revised.\",\n  \"safety_boundary_correctness\": \"No safety issue detected.\",\n  \"recommended_action\": \"revise_category\",\n  \"rewritten_question\": \"How does PHAK Chapter 4 describe air in relation to the Earth and the seas or land?\",\n  \"cited_source_fields\": [\n    \"question\",\n    \"answer_key\",\n    \"evidence_spans\",\n    \"question_type\",\n    \"review.notes\",\n    \"tags\"\n  ],\n  \"uncertainty_flags\": [\n    \"question wording is ungrammatical\",\n    \"entity mismatch between 'gases' and 'air'\",\n    \"aviation-training relevance is weak\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The evidence span fully supports the answer key, but the question text is poorly formed and semantically mismatched. The label is not unsafe, yet the category/question should be revised so the prompt clearly asks about air rather than gases and reads naturally.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "ambiguity": 1,
+        "answerability_from_phak_ch4": 2,
+        "aviation_training_relevance": 0,
+        "category_correctness": 0,
+        "evidence_span_supports_answer_key": 2,
+        "natural_question_wording": 0,
+        "safety_boundary_correctness": 2
+      },
+      "uncertainty_flags": [
+        "question wording is ungrammatical",
+        "entity mismatch between 'gases' and 'air'",
+        "aviation-training relevance is weak"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "question",
+        "answer_key",
+        "evidence_spans",
+        "question_type",
+        "gold_level",
+        "tags",
+        "review.notes"
+      ],
+      "confidence": 0.95,
+      "decision": {
+        "confidence": 0.95,
+        "decision": "keep",
+        "rationale": "The evidence span exactly supports the answer key, and the item is answerable directly from the supplied PHAK Chapter 4 span. The main issue is wording quality: the question is awkward and slightly malformed, but it is still understandable and does not affect factual support.",
+        "recommended_action": "keep",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "question_wording_is_non_natural",
+          "review_status_not_human_certified"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "question",
+          "answer_key",
+          "evidence_spans",
+          "question_type",
+          "gold_level",
+          "tags",
+          "review.notes"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "bv2-cd-003",
+      "item_type": "benchmark_label",
+      "label": {
+        "answer_key": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium.",
+        "cq_id": "bv2-cd-003",
+        "evidence_spans": [
+          {
+            "page": 0,
+            "text": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium."
+          }
+        ],
+        "expected_abstention": false,
+        "expected_chunk_ids": [
+          "06_phak_ch4_0-structure_aware-p00-c04",
+          "06_phak_ch4_0-fixed_window-p00-c00"
+        ],
+        "gold_level": "span",
+        "key_entities": [
+          "atmosphere",
+          "oxygen",
+          "nitrogen",
+          "gases"
+        ],
+        "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere composed percent?",
+        "question_type": "concept_definition",
+        "review": {
+          "aviation_expert_certified": false,
+          "external_aviation_expert_certified": false,
+          "external_expert_certified": false,
+          "human_review": false,
+          "llm_review_fields": {
+            "answer_span_complete": "needs_review",
+            "cross_page_synthesis_ok": "needs_review",
+            "evidence_supports_answer": "needs_review",
+            "natural_question_ok": "needs_review",
+            "safety_boundary_ok": "needs_review"
+          },
+          "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+          "project_author_review_status": "not_used_no_human_review",
+          "review_decision": "pending",
+          "reviewed_at": null,
+          "reviewer_notes": "",
+          "status": "llm_review_pending_not_human_certified"
+        },
+        "source_document": "06_phak_ch4_0",
+        "source_page": 0,
+        "tags": [
+          "concept_definition",
+          "supported",
+          "machine_seeded",
+          "page_00",
+          "definition",
+          "requires_llm_review",
+          "not_human_reviewed",
+          "llm_review_subset",
+          "llm_review_pending_not_human_certified"
+        ]
+      },
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "609bf1f785f5389bf2106aafbc98a85c8c62fd684280ee25cdb08fe78d9de2ad",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "benchmark_llm_review_v1",
+        "review_run_id": "benchmark_llm_review-20260530T091332Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "ambiguity": "Low to moderate. The original question wording is a bit awkward, but the intended concept is clear from the evidence.",
+        "answerability_from_phak_ch4": "Yes. The supplied evidence span directly states the atmospheric composition percentages.",
+        "aviation_training_relevance": "Relevant to foundational aviation knowledge because atmosphere composition is a basic environmental concept used in flight training.",
+        "category_correctness": "Correct. This is a concept_definition item supported by a direct span.",
+        "evidence_span_supports_answer_key": "Yes. The evidence span exactly matches the answer key content.",
+        "natural_question_wording": "How does PHAK Chapter 4 describe the atmosphere in terms of its composition?",
+        "rewritten_question": "How does PHAK Chapter 4 describe the atmosphere's composition?",
+        "safety_boundary_correctness": "Correct. The content is informational and does not raise a safety issue."
+      },
+      "prompt_version": "benchmark_llm_review_v1",
+      "rationale": "The evidence span exactly supports the answer key, and the item is answerable directly from the supplied PHAK Chapter 4 span. The main issue is wording quality: the question is awkward and slightly malformed, but it is still understandable and does not affect factual support.",
+      "raw_response": "{\n  \"decision\": \"keep\",\n  \"confidence\": 0.95,\n  \"scores\": {\n    \"natural_question_wording\": 1,\n    \"aviation_training_relevance\": 2,\n    \"answerability_from_phak_ch4\": 2,\n    \"evidence_span_supports_answer_key\": 2,\n    \"ambiguity\": 1,\n    \"category_correctness\": 2,\n    \"safety_boundary_correctness\": 2\n  },\n  \"natural_question_wording\": \"How does PHAK Chapter 4 describe the atmosphere in terms of its composition?\",\n  \"aviation_training_relevance\": \"Relevant to foundational aviation knowledge because atmosphere composition is a basic environmental concept used in flight training.\",\n  \"answerability_from_phak_ch4\": \"Yes. The supplied evidence span directly states the atmospheric composition percentages.\",\n  \"evidence_span_supports_answer_key\": \"Yes. The evidence span exactly matches the answer key content.\",\n  \"ambiguity\": \"Low to moderate. The original question wording is a bit awkward, but the intended concept is clear from the evidence.\",\n  \"category_correctness\": \"Correct. This is a concept_definition item supported by a direct span.\",\n  \"safety_boundary_correctness\": \"Correct. The content is informational and does not raise a safety issue.\",\n  \"recommended_action\": \"keep\",\n  \"rewritten_question\": \"How does PHAK Chapter 4 describe the atmosphere's composition?\",\n  \"cited_source_fields\": [\n    \"question\",\n    \"answer_key\",\n    \"evidence_spans\",\n    \"question_type\",\n    \"gold_level\",\n    \"tags\",\n    \"review.notes\"\n  ],\n  \"uncertainty_flags\": [\n    \"question_wording_is_non_natural\",\n    \"review_status_not_human_certified\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The evidence span exactly supports the answer key, and the item is answerable directly from the supplied PHAK Chapter 4 span. The main issue is wording quality: the question is awkward and slightly malformed, but it is still understandable and does not affect factual support.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "ambiguity": 1,
+        "answerability_from_phak_ch4": 2,
+        "aviation_training_relevance": 2,
+        "category_correctness": 2,
+        "evidence_span_supports_answer_key": 2,
+        "natural_question_wording": 1,
+        "safety_boundary_correctness": 2
+      },
+      "uncertainty_flags": [
+        "question_wording_is_non_natural",
+        "review_status_not_human_certified"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "question",
+        "answer_key",
+        "evidence_spans",
+        "question_type",
+        "source_document",
+        "source_page",
+        "review.notes",
+        "tags"
+      ],
+      "confidence": 0.91,
+      "decision": {
+        "confidence": 0.91,
+        "decision": "revise_question",
+        "rationale": "The answer key is fully supported by the evidence span, and the item is answerable from the supplied PHAK Chapter 4 text. The main issue is that the question wording is unnatural and imprecise ('define or describe atmosphere in the evidence mentioning atmosphere composed percent'). A clearer composition-focused rewrite would preserve the label while improving quality.",
+        "recommended_action": "rewrite_question",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "wording_awkward",
+          "not_human_reviewed",
+          "llm_review_pending_not_human_certified",
+          "aviation_specificity_low"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "question",
+          "answer_key",
+          "evidence_spans",
+          "question_type",
+          "source_document",
+          "source_page",
+          "review.notes",
+          "tags"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "bv2-cd-003",
+      "item_type": "benchmark_label",
+      "label": {
+        "answer_key": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium.",
+        "cq_id": "bv2-cd-003",
+        "evidence_spans": [
+          {
+            "page": 0,
+            "text": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium."
+          }
+        ],
+        "expected_abstention": false,
+        "expected_chunk_ids": [
+          "06_phak_ch4_0-structure_aware-p00-c04",
+          "06_phak_ch4_0-fixed_window-p00-c00"
+        ],
+        "gold_level": "span",
+        "key_entities": [
+          "atmosphere",
+          "oxygen",
+          "nitrogen",
+          "gases"
+        ],
+        "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere composed percent?",
+        "question_type": "concept_definition",
+        "review": {
+          "aviation_expert_certified": false,
+          "external_aviation_expert_certified": false,
+          "external_expert_certified": false,
+          "human_review": false,
+          "llm_review_fields": {
+            "answer_span_complete": "needs_review",
+            "cross_page_synthesis_ok": "needs_review",
+            "evidence_supports_answer": "needs_review",
+            "natural_question_ok": "needs_review",
+            "safety_boundary_ok": "needs_review"
+          },
+          "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require LLM-assisted internal review before strong claims. Human review and external aviation expert certification are absent.",
+          "project_author_review_status": "not_used_no_human_review",
+          "review_decision": "pending",
+          "reviewed_at": null,
+          "reviewer_notes": "",
+          "status": "llm_review_pending_not_human_certified"
+        },
+        "source_document": "06_phak_ch4_0",
+        "source_page": 0,
+        "tags": [
+          "concept_definition",
+          "supported",
+          "machine_seeded",
+          "page_00",
+          "definition",
+          "requires_llm_review",
+          "not_human_reviewed",
+          "llm_review_subset",
+          "llm_review_pending_not_human_certified"
+        ]
+      },
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "609bf1f785f5389bf2106aafbc98a85c8c62fd684280ee25cdb08fe78d9de2ad",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "benchmark_llm_review_v1",
+        "review_run_id": "benchmark_llm_review-20260530T091337Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "ambiguity": "Low-to-moderate. The question refers to 'define or describe atmosphere' but the evidence is specifically about atmospheric composition, so the wording is imprecise.",
+        "answerability_from_phak_ch4": "The supplied evidence span directly states the answer, so it is answerable from the provided PHAK Chapter 4 excerpt.",
+        "aviation_training_relevance": "The content is aviation training-relevant only in the sense that it comes from PHAK Chapter 4, but the substance is a basic atmospheric composition fact rather than a clearly aviation-specific training point.",
+        "category_correctness": "The question_type concept_definition is acceptable, though the prompt wording is poorly formed.",
+        "evidence_span_supports_answer_key": "Yes. The evidence span exactly matches the answer key text.",
+        "natural_question_wording": "No; the current question is awkward and ungrammatical.",
+        "rewritten_question": "According to PHAK Chapter 4, what is the composition of the atmosphere?",
+        "safety_boundary_correctness": "No safety issue is apparent from the supplied fields."
+      },
+      "prompt_version": "benchmark_llm_review_v1",
+      "rationale": "The answer key is fully supported by the evidence span, and the item is answerable from the supplied PHAK Chapter 4 text. The main issue is that the question wording is unnatural and imprecise ('define or describe atmosphere in the evidence mentioning atmosphere composed percent'). A clearer composition-focused rewrite would preserve the label while improving quality.",
+      "raw_response": "{\n  \"decision\": \"revise_question\",\n  \"confidence\": 0.91,\n  \"scores\": {\n    \"natural_question_wording\": 0,\n    \"aviation_training_relevance\": 1,\n    \"answerability_from_phak_ch4\": 2,\n    \"evidence_span_supports_answer_key\": 2,\n    \"ambiguity\": 1,\n    \"category_correctness\": 2,\n    \"safety_boundary_correctness\": 2\n  },\n  \"natural_question_wording\": \"No; the current question is awkward and ungrammatical.\",\n  \"aviation_training_relevance\": \"The content is aviation training-relevant only in the sense that it comes from PHAK Chapter 4, but the substance is a basic atmospheric composition fact rather than a clearly aviation-specific training point.\",\n  \"answerability_from_phak_ch4\": \"The supplied evidence span directly states the answer, so it is answerable from the provided PHAK Chapter 4 excerpt.\",\n  \"evidence_span_supports_answer_key\": \"Yes. The evidence span exactly matches the answer key text.\",\n  \"ambiguity\": \"Low-to-moderate. The question refers to 'define or describe atmosphere' but the evidence is specifically about atmospheric composition, so the wording is imprecise.\",\n  \"category_correctness\": \"The question_type concept_definition is acceptable, though the prompt wording is poorly formed.\",\n  \"safety_boundary_correctness\": \"No safety issue is apparent from the supplied fields.\",\n  \"recommended_action\": \"rewrite_question\",\n  \"rewritten_question\": \"According to PHAK Chapter 4, what is the composition of the atmosphere?\",\n  \"cited_source_fields\": [\n    \"question\",\n    \"answer_key\",\n    \"evidence_spans\",\n    \"question_type\",\n    \"source_document\",\n    \"source_page\",\n    \"review.notes\",\n    \"tags\"\n  ],\n  \"uncertainty_flags\": [\n    \"wording_awkward\",\n    \"not_human_reviewed\",\n    \"llm_review_pending_not_human_certified\",\n    \"aviation_specificity_low\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The answer key is fully supported by the evidence span, and the item is answerable from the supplied PHAK Chapter 4 text. The main issue is that the question wording is unnatural and imprecise ('define or describe atmosphere in the evidence mentioning atmosphere composed percent'). A clearer composition-focused rewrite would preserve the label while improving quality.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "ambiguity": 1,
+        "answerability_from_phak_ch4": 2,
+        "aviation_training_relevance": 1,
+        "category_correctness": 2,
+        "evidence_span_supports_answer_key": 2,
+        "natural_question_wording": 0,
+        "safety_boundary_correctness": 2
+      },
+      "uncertainty_flags": [
+        "wording_awkward",
+        "not_human_reviewed",
+        "llm_review_pending_not_human_certified",
+        "aviation_specificity_low"
+      ]
+    }
+  ],
+  "summary": {
+    "aviation_expert_certified": false,
+    "external_expert_certified": false,
+    "human_review": false,
+    "items_total": 6,
+    "llm_review_not_run_total": 0,
+    "llm_reviewed_total": 6,
+    "recommended_action_counts": {
+      "keep": 4,
+      "revise_category": 1,
+      "rewrite_question": 1
+    },
+    "review_status": "llm_reviewed_not_human_certified",
+    "score_method": "llm_judge",
+    "uncertain_rate": 1.0,
+    "uncertain_total": 6
+  }
+}

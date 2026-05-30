@@ -1,0 +1,2298 @@
+{
+  "consistency": {
+    "agreement_rate": 0.0,
+    "aviation_expert_certified": false,
+    "comparable_item_groups": 2,
+    "consistency_not_measured": false,
+    "contradiction_count": 2,
+    "external_expert_certified": false,
+    "high_confidence_disagreement_count": 2,
+    "human_review": false,
+    "items_not_safe_for_strong_claims": 3,
+    "items_requiring_human_review_even_if_no_human_available": 0,
+    "reviewed_item_groups": 3
+  },
+  "metadata": {
+    "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+    "answer_generation_path": "reports/stages/answer_generation_benchmark_subset.json",
+    "aviation_expert_certified": false,
+    "command": "aviation-ai report answer-llm-judge --max-items 3",
+    "cost_latency": {
+      "cases_total": null,
+      "chunks_path": null,
+      "chunks_size_bytes": null,
+      "elapsed_seconds": 45.3901,
+      "index_dir": null,
+      "index_size_bytes": null,
+      "kg_path": null,
+      "kg_size_bytes": null,
+      "llm_token_usage": null,
+      "questions_total": 3
+    },
+    "external_expert_certified": false,
+    "human_review": false,
+    "items_total": 3,
+    "llm_runtime_available": true,
+    "max_items": 3,
+    "reviewer_model": "gpt-5.4-mini",
+    "reviewer_type": "llm_judge",
+    "roles": [
+      "strict_evidence_reviewer",
+      "skeptical_aviation_boundary_reviewer"
+    ],
+    "run_llm_requested": true,
+    "score_method": "llm_judge"
+  },
+  "records": [
+    {
+      "answer_record": {
+        "answer": "The source-backed fact is that **the standard atmosphere at sea level is defined as having a surface pressure of 29.92 inches of mercury (1,013.2 mb), and this pressure is the weight of the atmosphere at sea level**. PHAK Chapter 4 says the atmosphere \u201chas weight,\u201d its pressure at sea level is about 14.70 psi, and \u201cthe standard atmosphere at sea level\u201d is 29.92 inHg / 1,013.2 mb ([06_phak_ch4_0-fixed_window-p02-c02], page 2; [06_phak_ch4_0-fixed_window-p00-c00], page 0; [06_phak_ch4_0-fixed_window-p03-c00], page 3).\n\nCitations: [06_phak_ch4_0-fixed_window-p02-c02, p.2], [06_phak_ch4_0-fixed_window-p00-c00, p.0], [06_phak_ch4_0-fixed_window-p03-c00, p.3]",
+        "answer_status": "generated",
+        "cq_id": "bv2-sf-001",
+        "gold": {
+          "answer_key": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+          "cq_id": "bv2-sf-001",
+          "evidence_spans": [
+            {
+              "char_end": null,
+              "char_start": null,
+              "page": 2,
+              "text": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level."
+            }
+          ],
+          "expected_abstention": false,
+          "expected_chunk_ids": [
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-fixed_window-p02-c02"
+          ],
+          "gold_level": "span",
+          "key_entities": [
+            "atmosphere",
+            "sea level"
+          ],
+          "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+          "question_type": "supported_factual",
+          "source_document": "06_phak_ch4_0",
+          "source_page": 2
+        },
+        "method": "vector_only",
+        "metrics": {
+          "answer_present": true,
+          "available_citation_units": [
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p02-c00",
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "06_phak_ch4_0-fixed_window-p03-c01",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "citation_completeness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "citation_scoring_method": "deterministic_heuristic",
+          "detected_citations": [
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": false
+        },
+        "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+        "question_type": "supported_factual",
+        "retrieval": {
+          "fused_chunks": [
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+              "distance": 0.98307865858078,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+                "chunk_index": 2,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 1,
+              "score": 0.5042664322330336,
+              "source": "vector",
+              "text": "er substance,\nit has weight, and because of its weight, it has force. Since\nair is a fluid substance, this force is exerted equally in all\ndirections. Its effect on bodies within the air is called pressure.\nUnder standard conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is approximately\n14.70 pounds per square inch (psi) of surface, or 1,013.2\nmillibars (mb). The thickness of the atmosphere is limited;\ntherefore, the higher the altitude, the less air there is above.\nFor this reason, the weight of the atmosphere at 18,000 feet\nis one-half what it is at sea level.\nThe pressure of the atmosphere varies with time and location.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere at sea\nlevel is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface\npressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb.\n[Figure 4-2]\nA standard temperature lapse rate is when the temperature\ndecreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per\nthousand feet up to 36,000 feet, which is approximately \u201365\n\u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered\nconstant up to 80,000 feet."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+              "distance": 1.1591647863388062,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+                "chunk_index": 0,
+                "page": 0,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 0,
+              "rank": 2,
+              "score": 0.46314204748385734,
+              "source": "vector",
+              "text": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an aircraft,\nbe it an airplane, helicopter, glider, or balloon, the pilot\nmust understand the principles involved and learn to use or\ncounteract these natural forces.\nStructure of the Atmosphere\nThe atmosphere is an envelope of air that surrounds the Earth\nand rests upon its surface. It is as much a part of the Earth as\nthe seas or the land, but air differs from land and water as it is\na mixture of gases. It has mass, weight, and indefinite shape.\nThe atmosphere is composed of 78 percent nitrogen, 21\npercent oxygen, and 1 percent other gases, such as argon\nor helium. Some of these elements are heavier than others.\nThe heavier elements, such as oxygen, settle to the surface\nof the Earth, while the lighter elements are lifted up to the\nregion of higher altitude. Most of the atmosphere\u2019s oxygen\nis contained below 35,000 feet altitude.\nPrinciples of\nFlight\nChapter 4"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+              "distance": 1.1653592586517334,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+                "chunk_index": 0,
+                "page": 3,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 3,
+              "rank": 3,
+              "score": 0.4618171308084242,
+              "source": "vector",
+              "text": "4-4\nSince aircraft performance is compared and evaluated with\nrespect to the standard atmosphere, all aircraft instruments are\ncalibrated for the standard atmosphere. In order to properly\naccount for the nonstandard atmosphere, certain related terms\nmust be defined.\nPressure Altitude\nPressure altitude is the height above a standard datum plane\n(SDP), which is a theoretical level where the weight of the\natmosphere is 29.92 \"Hg (1,013.2 mb) as measured by a\nbarometer. An altimeter is essentially a sensitive barometer\ncalibrated to indicate altitude in the standard atmosphere. If\nthe altimeter is set for 29.92 \"Hg SDP, the altitude indicated\nis the pressure altitude. As atmospheric pressure changes, the\nSDP may be below, at, or above sea level. Pressure altitude\nis important as a basis for determining airplane performance,\nas well as for assigning flight levels to airplanes operating at\nor above 18,000 feet.\nThe pressure altitude can be determined by one of the\nfollowing methods:\n1.\nSetting the barometric scale of the altimeter to 29.92\nand reading the indicated altitude\n2.\nApplying a correction factor to the indicated altitude\naccording to the reported altimeter setting"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+              "distance": 1.197885274887085,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+                "chunk_index": 0,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 4,
+              "score": 0.4549828016166014,
+              "source": "vector",
+              "text": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude (ft)\nPressure (Hg)\nTemperature\n(\u00b0C)\n(\u00b0F)\nStandard Atmosphere\n0\n1,000\n2,000\n3,000\n4,000\n5,000\n6,000\n7,000\n8,000\n9,000\n10,000\n11,000\n12,000\n13,000\n14,000\n15,000\n16,000\n17,000\n18,000\n19,000\n20,000\n29.92\n28.86\n27.82\n26.82\n25.84\n24.89\n23.98\n23.09\n22.22\n21.38\n20.57\n19.79\n19.02\n18.29\n17.57\n16.88\n16.21\n15.56\n14.94\n14.33\n13.74\n15.0\n13.0\n11.0\n9.1\n7.1\n5.1\n3.1\n1.1\n-0.9\n-2.8\n-4.8\n-6.8\n-8.8\n-10.8\n-12.7\n-14.7\n-16.7\n-18.7\n-20.7\n-22.6\n-24.6\n59.0\n55.4\n51.9\n48.3\n44.7\n41.2\n37.6\n34.0\n30.5\n26.9\n23.3\n19.8\n16.2\n12.6\n9.1\n5.5\n1.9\n-1.6\n-5.2\n-8.8\n-12.3\nFigure 4-3. Properties of standard atmosphere.\nOnce the boundary layer of the air adheres to the wing by\nfriction, further resistance to the airflow is caused by the\nviscosity, the tendency of the air to stick to itself. When\nthese two forces act together to resist airflow over a wing,\nit is called drag.\nPressure\nPressure is the force applied in a perpendicular direction to the\nsurface of an object."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p03-c01",
+              "distance": 1.2158331871032715,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p03-c01",
+                "chunk_index": 1,
+                "page": 3,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 3,
+              "rank": 5,
+              "score": 0.45129751003832846,
+              "source": "vector",
+              "text": "ter to 29.92\nand reading the indicated altitude\n2.\nApplying a correction factor to the indicated altitude\naccording to the reported altimeter setting\nDensity Altitude\nSDP is a theoretical pressure altitude, but aircraft operate in a\nnonstandard atmosphere and the term density altitude is used\nfor correlating aerodynamic performance in the nonstandard\natmosphere. Density altitude is the vertical distance above sea\nlevel in the standard atmosphere at which a given density is\nto be found. The density of air has significant effects on the\naircraft\u2019s performance because as air becomes less dense,\nit reduces:\n\u2022\nPower because the engine takes in less air\n\u2022\nThrust because a propeller is less efficient in thin air\n\u2022\nLift because the thin air exerts less force on the airfoils\nDensity altitude is pressure altitude corrected for nonstandard\ntemperature. As the density of the air increases (lower\ndensity altitude), aircraft performance increases; conversely\nas air density decreases (higher density altitude), aircraft\nperformance decreases. A decrease in air density means\na high density altitude; an increase in air density means a\nlower density altitude. Density altitude is used in calculating"
+            }
+          ],
+          "graph_paths": [],
+          "graph_triples": []
+        }
+      },
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "06_phak_ch4_0-fixed_window-p02-c02",
+        "06_phak_ch4_0-fixed_window-p00-c00",
+        "06_phak_ch4_0-fixed_window-p03-c00"
+      ],
+      "confidence": 0.98,
+      "decision": {
+        "confidence": 0.98,
+        "decision": "incorrect",
+        "rationale": "The answer is well-supported by the retrieved passage, but it does not satisfy the specific question or gold span. The expected fact is about the atmosphere at 18,000 feet being one-half of sea-level weight. The generated answer instead states sea-level pressure values and the standard atmosphere definition, which are nearby but not the target fact. Therefore the response is incorrect for the task.",
+        "recommended_action": "revise_to_target_evidence",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "question_answer_mismatch",
+          "partial_context_coverage"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "06_phak_ch4_0-fixed_window-p02-c02",
+          "06_phak_ch4_0-fixed_window-p00-c00",
+          "06_phak_ch4_0-fixed_window-p03-c00"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "vector_only::bv2-sf-001",
+      "item_type": "generated_answer",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "57e3eb5f61bb704db9fc089c2342b6084e703dc675aa1136897833785824caad",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "answer_llm_judge_v1",
+        "review_run_id": "answer_llm_judge-20260530T091532Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "answer_correctness": "The generated answer does not answer the question asked by the gold evidence. The evidence asks for the fact that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. Instead, the answer focuses on standard sea-level pressure and atmosphere weight at sea level, which is related context but not the requested fact.",
+        "answer_relevance": "Partially relevant because it discusses atmosphere and sea level, but it misses the specific supported fact in the evidence span.",
+        "citation_precision": "The citations are precise to the retrieved chunks and pages, but they support a different fact than the one required by the question.",
+        "citation_recall": "Some relevant evidence from page 2 is cited, but the key quoted sentence about 18,000 feet being one-half of sea-level weight is not included in the answer.",
+        "citation_support": "Citations point to retrieved chunks that contain the cited pressure and standard atmosphere statements, so the cited claims are generally supported.",
+        "correct_abstention": false,
+        "faithfulness_to_retrieved_context": "The statements about sea-level standard atmosphere, 14.70 psi, and 29.92 inHg / 1,013.2 mb are supported by the retrieved chunk text.",
+        "hallucinated_claims": [
+          "No major hallucinated claims detected from the retrieved context; however, the answer introduces an unnecessary emphasis on standard atmosphere at sea level instead of the requested 18,000-feet comparison."
+        ],
+        "unsafe_operational_advice": false
+      },
+      "prompt_version": "answer_llm_judge_v1",
+      "rationale": "The answer is well-supported by the retrieved passage, but it does not satisfy the specific question or gold span. The expected fact is about the atmosphere at 18,000 feet being one-half of sea-level weight. The generated answer instead states sea-level pressure values and the standard atmosphere definition, which are nearby but not the target fact. Therefore the response is incorrect for the task.",
+      "raw_response": "{\"decision\":\"incorrect\",\"confidence\":0.98,\"scores\":{\"overall\":0.12,\"answer_correctness\":0.08,\"answer_relevance\":0.18,\"faithfulness_to_retrieved_context\":0.96,\"citation_support\":0.7,\"citation_precision\":1.0,\"citation_recall\":0.75,\"unsafe_operational_advice\":1.0,\"correct_abstention\":0.0},\"answer_correctness\":\"The generated answer does not answer the question asked by the gold evidence. The evidence asks for the fact that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. Instead, the answer focuses on standard sea-level pressure and atmosphere weight at sea level, which is related context but not the requested fact.\",\"answer_relevance\":\"Partially relevant because it discusses atmosphere and sea level, but it misses the specific supported fact in the evidence span.\",\"faithfulness_to_retrieved_context\":\"The statements about sea-level standard atmosphere, 14.70 psi, and 29.92 inHg / 1,013.2 mb are supported by the retrieved chunk text.\",\"citation_support\":\"Citations point to retrieved chunks that contain the cited pressure and standard atmosphere statements, so the cited claims are generally supported.\",\"citation_precision\":\"The citations are precise to the retrieved chunks and pages, but they support a different fact than the one required by the question.\",\"citation_recall\":\"Some relevant evidence from page 2 is cited, but the key quoted sentence about 18,000 feet being one-half of sea-level weight is not included in the answer.\",\"unsafe_operational_advice\":false,\"correct_abstention\":false,\"hallucinated_claims\":[\"No major hallucinated claims detected from the retrieved context; however, the answer introduces an unnecessary emphasis on standard atmosphere at sea level instead of the requested 18,000-feet comparison.\"],\"recommended_action\":\"revise_to_target_evidence\",\"cited_source_fields\":[\"06_phak_ch4_0-fixed_window-p02-c02\",\"06_phak_ch4_0-fixed_window-p00-c00\",\"06_phak_ch4_0-fixed_window-p03-c00\"],\"uncertainty_flags\":[\"question_answer_mismatch\",\"partial_context_coverage\"],\"requires_human_review\":false,\"rationale\":\"The answer is well-supported by the retrieved passage, but it does not satisfy the specific question or gold span. The expected fact is about the atmosphere at 18,000 feet being one-half of sea-level weight. The generated answer instead states sea-level pressure values and the standard atmosphere definition, which are nearby but not the target fact. Therefore the response is incorrect for the task.\"}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "answer_correctness": 0.08,
+        "answer_relevance": 0.18,
+        "citation_precision": 1.0,
+        "citation_recall": 0.75,
+        "citation_support": 0.7,
+        "correct_abstention": 0.0,
+        "faithfulness_to_retrieved_context": 0.96,
+        "overall": 0.12,
+        "unsafe_operational_advice": 1.0
+      },
+      "uncertainty_flags": [
+        "question_answer_mismatch",
+        "partial_context_coverage"
+      ]
+    },
+    {
+      "answer_record": {
+        "answer": "The source-backed fact is that **the standard atmosphere at sea level is defined as having a surface pressure of 29.92 inches of mercury (1,013.2 mb), and this pressure is the weight of the atmosphere at sea level**. PHAK Chapter 4 says the atmosphere \u201chas weight,\u201d its pressure at sea level is about 14.70 psi, and \u201cthe standard atmosphere at sea level\u201d is 29.92 inHg / 1,013.2 mb ([06_phak_ch4_0-fixed_window-p02-c02], page 2; [06_phak_ch4_0-fixed_window-p00-c00], page 0; [06_phak_ch4_0-fixed_window-p03-c00], page 3).\n\nCitations: [06_phak_ch4_0-fixed_window-p02-c02, p.2], [06_phak_ch4_0-fixed_window-p00-c00, p.0], [06_phak_ch4_0-fixed_window-p03-c00, p.3]",
+        "answer_status": "generated",
+        "cq_id": "bv2-sf-001",
+        "gold": {
+          "answer_key": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+          "cq_id": "bv2-sf-001",
+          "evidence_spans": [
+            {
+              "char_end": null,
+              "char_start": null,
+              "page": 2,
+              "text": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level."
+            }
+          ],
+          "expected_abstention": false,
+          "expected_chunk_ids": [
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-fixed_window-p02-c02"
+          ],
+          "gold_level": "span",
+          "key_entities": [
+            "atmosphere",
+            "sea level"
+          ],
+          "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+          "question_type": "supported_factual",
+          "source_document": "06_phak_ch4_0",
+          "source_page": 2
+        },
+        "method": "vector_only",
+        "metrics": {
+          "answer_present": true,
+          "available_citation_units": [
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p02-c00",
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "06_phak_ch4_0-fixed_window-p03-c01",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "citation_completeness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "citation_scoring_method": "deterministic_heuristic",
+          "detected_citations": [
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": false
+        },
+        "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+        "question_type": "supported_factual",
+        "retrieval": {
+          "fused_chunks": [
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+              "distance": 0.98307865858078,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+                "chunk_index": 2,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 1,
+              "score": 0.5042664322330336,
+              "source": "vector",
+              "text": "er substance,\nit has weight, and because of its weight, it has force. Since\nair is a fluid substance, this force is exerted equally in all\ndirections. Its effect on bodies within the air is called pressure.\nUnder standard conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is approximately\n14.70 pounds per square inch (psi) of surface, or 1,013.2\nmillibars (mb). The thickness of the atmosphere is limited;\ntherefore, the higher the altitude, the less air there is above.\nFor this reason, the weight of the atmosphere at 18,000 feet\nis one-half what it is at sea level.\nThe pressure of the atmosphere varies with time and location.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere at sea\nlevel is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface\npressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb.\n[Figure 4-2]\nA standard temperature lapse rate is when the temperature\ndecreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per\nthousand feet up to 36,000 feet, which is approximately \u201365\n\u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered\nconstant up to 80,000 feet."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+              "distance": 1.1591647863388062,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+                "chunk_index": 0,
+                "page": 0,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 0,
+              "rank": 2,
+              "score": 0.46314204748385734,
+              "source": "vector",
+              "text": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an aircraft,\nbe it an airplane, helicopter, glider, or balloon, the pilot\nmust understand the principles involved and learn to use or\ncounteract these natural forces.\nStructure of the Atmosphere\nThe atmosphere is an envelope of air that surrounds the Earth\nand rests upon its surface. It is as much a part of the Earth as\nthe seas or the land, but air differs from land and water as it is\na mixture of gases. It has mass, weight, and indefinite shape.\nThe atmosphere is composed of 78 percent nitrogen, 21\npercent oxygen, and 1 percent other gases, such as argon\nor helium. Some of these elements are heavier than others.\nThe heavier elements, such as oxygen, settle to the surface\nof the Earth, while the lighter elements are lifted up to the\nregion of higher altitude. Most of the atmosphere\u2019s oxygen\nis contained below 35,000 feet altitude.\nPrinciples of\nFlight\nChapter 4"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+              "distance": 1.1653592586517334,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+                "chunk_index": 0,
+                "page": 3,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 3,
+              "rank": 3,
+              "score": 0.4618171308084242,
+              "source": "vector",
+              "text": "4-4\nSince aircraft performance is compared and evaluated with\nrespect to the standard atmosphere, all aircraft instruments are\ncalibrated for the standard atmosphere. In order to properly\naccount for the nonstandard atmosphere, certain related terms\nmust be defined.\nPressure Altitude\nPressure altitude is the height above a standard datum plane\n(SDP), which is a theoretical level where the weight of the\natmosphere is 29.92 \"Hg (1,013.2 mb) as measured by a\nbarometer. An altimeter is essentially a sensitive barometer\ncalibrated to indicate altitude in the standard atmosphere. If\nthe altimeter is set for 29.92 \"Hg SDP, the altitude indicated\nis the pressure altitude. As atmospheric pressure changes, the\nSDP may be below, at, or above sea level. Pressure altitude\nis important as a basis for determining airplane performance,\nas well as for assigning flight levels to airplanes operating at\nor above 18,000 feet.\nThe pressure altitude can be determined by one of the\nfollowing methods:\n1.\nSetting the barometric scale of the altimeter to 29.92\nand reading the indicated altitude\n2.\nApplying a correction factor to the indicated altitude\naccording to the reported altimeter setting"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+              "distance": 1.197885274887085,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+                "chunk_index": 0,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 4,
+              "score": 0.4549828016166014,
+              "source": "vector",
+              "text": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude (ft)\nPressure (Hg)\nTemperature\n(\u00b0C)\n(\u00b0F)\nStandard Atmosphere\n0\n1,000\n2,000\n3,000\n4,000\n5,000\n6,000\n7,000\n8,000\n9,000\n10,000\n11,000\n12,000\n13,000\n14,000\n15,000\n16,000\n17,000\n18,000\n19,000\n20,000\n29.92\n28.86\n27.82\n26.82\n25.84\n24.89\n23.98\n23.09\n22.22\n21.38\n20.57\n19.79\n19.02\n18.29\n17.57\n16.88\n16.21\n15.56\n14.94\n14.33\n13.74\n15.0\n13.0\n11.0\n9.1\n7.1\n5.1\n3.1\n1.1\n-0.9\n-2.8\n-4.8\n-6.8\n-8.8\n-10.8\n-12.7\n-14.7\n-16.7\n-18.7\n-20.7\n-22.6\n-24.6\n59.0\n55.4\n51.9\n48.3\n44.7\n41.2\n37.6\n34.0\n30.5\n26.9\n23.3\n19.8\n16.2\n12.6\n9.1\n5.5\n1.9\n-1.6\n-5.2\n-8.8\n-12.3\nFigure 4-3. Properties of standard atmosphere.\nOnce the boundary layer of the air adheres to the wing by\nfriction, further resistance to the airflow is caused by the\nviscosity, the tendency of the air to stick to itself. When\nthese two forces act together to resist airflow over a wing,\nit is called drag.\nPressure\nPressure is the force applied in a perpendicular direction to the\nsurface of an object."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p03-c01",
+              "distance": 1.2158331871032715,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p03-c01",
+                "chunk_index": 1,
+                "page": 3,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 3,
+              "rank": 5,
+              "score": 0.45129751003832846,
+              "source": "vector",
+              "text": "ter to 29.92\nand reading the indicated altitude\n2.\nApplying a correction factor to the indicated altitude\naccording to the reported altimeter setting\nDensity Altitude\nSDP is a theoretical pressure altitude, but aircraft operate in a\nnonstandard atmosphere and the term density altitude is used\nfor correlating aerodynamic performance in the nonstandard\natmosphere. Density altitude is the vertical distance above sea\nlevel in the standard atmosphere at which a given density is\nto be found. The density of air has significant effects on the\naircraft\u2019s performance because as air becomes less dense,\nit reduces:\n\u2022\nPower because the engine takes in less air\n\u2022\nThrust because a propeller is less efficient in thin air\n\u2022\nLift because the thin air exerts less force on the airfoils\nDensity altitude is pressure altitude corrected for nonstandard\ntemperature. As the density of the air increases (lower\ndensity altitude), aircraft performance increases; conversely\nas air density decreases (higher density altitude), aircraft\nperformance decreases. A decrease in air density means\na high density altitude; an increase in air density means a\nlower density altitude. Density altitude is used in calculating"
+            }
+          ],
+          "graph_paths": [],
+          "graph_triples": []
+        }
+      },
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "06_phak_ch4_0-fixed_window-p02-c02",
+        "06_phak_ch4_0-fixed_window-p00-c00",
+        "06_phak_ch4_0-fixed_window-p03-c00",
+        "page 0",
+        "page 2",
+        "page 3"
+      ],
+      "confidence": 0.99,
+      "decision": {
+        "confidence": 0.99,
+        "decision": "incorrect",
+        "rationale": "The generated answer is source-faithful but mismatched to the gold evidence. The evidence explicitly states that at 18,000 feet the atmosphere weighs one-half as much as at sea level. The answer instead states a different, though related, fact about standard atmosphere at sea level pressure. Since the requested source-backed fact is not given, this is incorrect for the task.",
+        "recommended_action": "revise_to_targeted_fact",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "question_paraphrase_mismatch",
+          "evidence_span_not_addressed"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "06_phak_ch4_0-fixed_window-p02-c02",
+          "06_phak_ch4_0-fixed_window-p00-c00",
+          "06_phak_ch4_0-fixed_window-p03-c00",
+          "page 0",
+          "page 2",
+          "page 3"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "vector_only::bv2-sf-001",
+      "item_type": "generated_answer",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "57e3eb5f61bb704db9fc089c2342b6084e703dc675aa1136897833785824caad",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "answer_llm_judge_v1",
+        "review_run_id": "answer_llm_judge-20260530T091542Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "answer_correctness": "The response cites a true statement from the document about standard atmosphere at sea level, but it does not answer the asked fact from the evidence: that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+        "answer_relevance": "Low; it focuses on sea-level standard pressure rather than the specific sea-level comparison implied by the question/evidence.",
+        "citation_precision": "Good; citations point to relevant document chunks, especially page 2.",
+        "citation_recall": "Incomplete; it misses the exact evidence span about 18,000 feet being one-half of sea level weight.",
+        "citation_support": "Partially supported. The cited page 2 chunk supports the sea-level pressure/standard atmosphere claim, but not the targeted 18,000-feet comparison.",
+        "correct_abstention": false,
+        "faithfulness_to_retrieved_context": "High; the cited chunk does contain the sea-level standard atmosphere statement and the atmospheric weight/pressure details.",
+        "hallucinated_claims": [
+          "None obvious; the cited factual statements appear present in the retrieved text."
+        ],
+        "unsafe_operational_advice": false
+      },
+      "prompt_version": "answer_llm_judge_v1",
+      "rationale": "The generated answer is source-faithful but mismatched to the gold evidence. The evidence explicitly states that at 18,000 feet the atmosphere weighs one-half as much as at sea level. The answer instead states a different, though related, fact about standard atmosphere at sea level pressure. Since the requested source-backed fact is not given, this is incorrect for the task.",
+      "raw_response": "{\"decision\":\"incorrect\",\"confidence\":0.99,\"scores\":{\"overall\":0.12,\"correctness\":0.1,\"relevance\":0.18,\"faithfulness\":0.95,\"citation_support\":0.78,\"citation_precision\":0.9,\"citation_recall\":0.75,\"unsafe_operational_advice\":1.0,\"correct_abstention\":0.0},\"answer_correctness\":\"The response cites a true statement from the document about standard atmosphere at sea level, but it does not answer the asked fact from the evidence: that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.\",\"answer_relevance\":\"Low; it focuses on sea-level standard pressure rather than the specific sea-level comparison implied by the question/evidence.\",\"faithfulness_to_retrieved_context\":\"High; the cited chunk does contain the sea-level standard atmosphere statement and the atmospheric weight/pressure details.\",\"citation_support\":\"Partially supported. The cited page 2 chunk supports the sea-level pressure/standard atmosphere claim, but not the targeted 18,000-feet comparison.\",\"citation_precision\":\"Good; citations point to relevant document chunks, especially page 2.\",\"citation_recall\":\"Incomplete; it misses the exact evidence span about 18,000 feet being one-half of sea level weight.\",\"unsafe_operational_advice\":false,\"correct_abstention\":false,\"hallucinated_claims\":[\"None obvious; the cited factual statements appear present in the retrieved text.\"],\"recommended_action\":\"revise_to_targeted_fact\",\"cited_source_fields\":[\"06_phak_ch4_0-fixed_window-p02-c02\",\"06_phak_ch4_0-fixed_window-p00-c00\",\"06_phak_ch4_0-fixed_window-p03-c00\",\"page 0\",\"page 2\",\"page 3\"],\"uncertainty_flags\":[\"question_paraphrase_mismatch\",\"evidence_span_not_addressed\"],\"requires_human_review\":false,\"rationale\":\"The generated answer is source-faithful but mismatched to the gold evidence. The evidence explicitly states that at 18,000 feet the atmosphere weighs one-half as much as at sea level. The answer instead states a different, though related, fact about standard atmosphere at sea level pressure. Since the requested source-backed fact is not given, this is incorrect for the task.\"}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "citation_precision": 0.9,
+        "citation_recall": 0.75,
+        "citation_support": 0.78,
+        "correct_abstention": 0.0,
+        "correctness": 0.1,
+        "faithfulness": 0.95,
+        "overall": 0.12,
+        "relevance": 0.18,
+        "unsafe_operational_advice": 1.0
+      },
+      "uncertainty_flags": [
+        "question_paraphrase_mismatch",
+        "evidence_span_not_addressed"
+      ]
+    },
+    {
+      "answer_record": {
+        "answer": "PHAK Chapter 4 supports this fact: the atmosphere at sea level is defined by a standard sea-level pressure of **29.92 inHg (1,013.2 mb)**, and Figure 4-2 is labeled **\u201cStandard sea level pressure.\u201d** The text also states that **\u201cthe standard atmosphere at sea level is \u2026 a surface pressure of 29.92 inches of mercury (\u2018Hg) or 1,013.2 mb.\u201d** [chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2] [chunk_id=06_phak_ch4_0-structure_aware-p02-c107 page=2] [chunk_id=06_phak_ch4_0-structure_aware-p02-c27 page=2] [chunk_id=06_phak_ch4_0-structure_aware-p02-c36 page=2]\n\nCitations: chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2; chunk_id=06_phak_ch4_0-structure_aware-p02-c107 page=2; chunk_id=06_phak_ch4_0-structure_aware-p02-c27 page=2; triple_id=06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+        "answer_status": "generated",
+        "cq_id": "bv2-sf-001",
+        "gold": {
+          "answer_key": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+          "cq_id": "bv2-sf-001",
+          "evidence_spans": [
+            {
+              "char_end": null,
+              "char_start": null,
+              "page": 2,
+              "text": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level."
+            }
+          ],
+          "expected_abstention": false,
+          "expected_chunk_ids": [
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-fixed_window-p02-c02"
+          ],
+          "gold_level": "span",
+          "key_entities": [
+            "atmosphere",
+            "sea level"
+          ],
+          "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+          "question_type": "supported_factual",
+          "source_document": "06_phak_ch4_0",
+          "source_page": 2
+        },
+        "method": "lexical_hybrid",
+        "metrics": {
+          "answer_present": true,
+          "available_citation_units": [
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p02-c00",
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e",
+            "06_phak_ch4_0-structure_aware-p02-c27",
+            "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d",
+            "06_phak_ch4_0-structure_aware-p02-c32",
+            "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c",
+            "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff",
+            "06_phak_ch4_0-structure_aware-p02-c35-kg01-186e01e219",
+            "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+            "06_phak_ch4_0-structure_aware-p02-c41-kg00-54921c8ed3",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "citation_completeness": true,
+          "citation_precision": 0.8333,
+          "citation_recall": 0.2632,
+          "citation_scoring_method": "deterministic_heuristic",
+          "detected_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-structure_aware-p02-c27",
+            "06_phak_ch4_0-structure_aware-p02-c36",
+            "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+            "page 2"
+          ],
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-structure_aware-p02-c27",
+            "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+            "page 2"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+        "question_type": "supported_factual",
+        "retrieval": {
+          "fused_chunks": [
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+              "distance": 0.98307865858078,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+                "chunk_index": 2,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 1,
+              "score": 0.01639344262295082,
+              "source": "vector",
+              "text": "er substance,\nit has weight, and because of its weight, it has force. Since\nair is a fluid substance, this force is exerted equally in all\ndirections. Its effect on bodies within the air is called pressure.\nUnder standard conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is approximately\n14.70 pounds per square inch (psi) of surface, or 1,013.2\nmillibars (mb). The thickness of the atmosphere is limited;\ntherefore, the higher the altitude, the less air there is above.\nFor this reason, the weight of the atmosphere at 18,000 feet\nis one-half what it is at sea level.\nThe pressure of the atmosphere varies with time and location.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere at sea\nlevel is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface\npressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb.\n[Figure 4-2]\nA standard temperature lapse rate is when the temperature\ndecreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per\nthousand feet up to 36,000 feet, which is approximately \u201365\n\u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered\nconstant up to 80,000 feet."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+              "metadata": {
+                "chunk_index": 106,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 2,
+              "score": 0.01639344262295082,
+              "source": "graph",
+              "text": "Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+              "distance": 1.1591647863388062,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+                "chunk_index": 0,
+                "page": 0,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 0,
+              "rank": 3,
+              "score": 0.016129032258064516,
+              "source": "vector",
+              "text": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an aircraft,\nbe it an airplane, helicopter, glider, or balloon, the pilot\nmust understand the principles involved and learn to use or\ncounteract these natural forces.\nStructure of the Atmosphere\nThe atmosphere is an envelope of air that surrounds the Earth\nand rests upon its surface. It is as much a part of the Earth as\nthe seas or the land, but air differs from land and water as it is\na mixture of gases. It has mass, weight, and indefinite shape.\nThe atmosphere is composed of 78 percent nitrogen, 21\npercent oxygen, and 1 percent other gases, such as argon\nor helium. Some of these elements are heavier than others.\nThe heavier elements, such as oxygen, settle to the surface\nof the Earth, while the lighter elements are lifted up to the\nregion of higher altitude. Most of the atmosphere\u2019s oxygen\nis contained below 35,000 feet altitude.\nPrinciples of\nFlight\nChapter 4"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+              "metadata": {
+                "chunk_index": 107,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 4,
+              "score": 0.016129032258064516,
+              "source": "graph",
+              "text": "exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2 millibars (mb). The thickness of the atmosphere is limited; therefore, the higher the altitude, the less air there is above. For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. The pressure of the atmosphere varies with time and location. Due to the changing atmospheric pressure, a standard reference was developed. The standard atmosphere at sea level is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface pressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb. [Figure 4-2] A standard temperature lapse rate is when the temperature decreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per thousand feet up to 36,000 feet, which is approximately \u201365 \u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered constant up to 80,000 feet. A standard pressure lapse rate is when pressure decreases at a rate of approximately 1 \"Hg per 1,000 feet of altitude gain to 10,000 feet. [Figure 4-3]"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+              "distance": 1.1653592586517334,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+                "chunk_index": 0,
+                "page": 3,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 3,
+              "rank": 5,
+              "score": 0.015873015873015872,
+              "source": "vector",
+              "text": "4-4\nSince aircraft performance is compared and evaluated with\nrespect to the standard atmosphere, all aircraft instruments are\ncalibrated for the standard atmosphere. In order to properly\naccount for the nonstandard atmosphere, certain related terms\nmust be defined.\nPressure Altitude\nPressure altitude is the height above a standard datum plane\n(SDP), which is a theoretical level where the weight of the\natmosphere is 29.92 \"Hg (1,013.2 mb) as measured by a\nbarometer. An altimeter is essentially a sensitive barometer\ncalibrated to indicate altitude in the standard atmosphere. If\nthe altimeter is set for 29.92 \"Hg SDP, the altitude indicated\nis the pressure altitude. As atmospheric pressure changes, the\nSDP may be below, at, or above sea level. Pressure altitude\nis important as a basis for determining airplane performance,\nas well as for assigning flight levels to airplanes operating at\nor above 18,000 feet.\nThe pressure altitude can be determined by one of the\nfollowing methods:\n1.\nSetting the barometric scale of the altimeter to 29.92\nand reading the indicated altitude\n2.\nApplying a correction factor to the indicated altitude\naccording to the reported altimeter setting"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+              "metadata": {
+                "chunk_index": 27,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 6,
+              "score": 0.015873015873015872,
+              "source": "graph",
+              "text": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29.92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+              "distance": 1.197885274887085,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+                "chunk_index": 0,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 7,
+              "score": 0.015625,
+              "source": "vector",
+              "text": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude (ft)\nPressure (Hg)\nTemperature\n(\u00b0C)\n(\u00b0F)\nStandard Atmosphere\n0\n1,000\n2,000\n3,000\n4,000\n5,000\n6,000\n7,000\n8,000\n9,000\n10,000\n11,000\n12,000\n13,000\n14,000\n15,000\n16,000\n17,000\n18,000\n19,000\n20,000\n29.92\n28.86\n27.82\n26.82\n25.84\n24.89\n23.98\n23.09\n22.22\n21.38\n20.57\n19.79\n19.02\n18.29\n17.57\n16.88\n16.21\n15.56\n14.94\n14.33\n13.74\n15.0\n13.0\n11.0\n9.1\n7.1\n5.1\n3.1\n1.1\n-0.9\n-2.8\n-4.8\n-6.8\n-8.8\n-10.8\n-12.7\n-14.7\n-16.7\n-18.7\n-20.7\n-22.6\n-24.6\n59.0\n55.4\n51.9\n48.3\n44.7\n41.2\n37.6\n34.0\n30.5\n26.9\n23.3\n19.8\n16.2\n12.6\n9.1\n5.5\n1.9\n-1.6\n-5.2\n-8.8\n-12.3\nFigure 4-3. Properties of standard atmosphere.\nOnce the boundary layer of the air adheres to the wing by\nfriction, further resistance to the airflow is caused by the\nviscosity, the tendency of the air to stick to itself. When\nthese two forces act together to resist airflow over a wing,\nit is called drag.\nPressure\nPressure is the force applied in a perpendicular direction to the\nsurface of an object."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+              "metadata": {
+                "chunk_index": 32,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 8,
+              "score": 0.015625,
+              "source": "graph",
+              "text": "Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere"
+            }
+          ],
+          "graph_paths": [],
+          "graph_triples": [
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+              "confidence": 0.94,
+              "evidence_text": "Under standard conditions at sea level",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "standard conditions at sea level",
+              "object_class": "Cl_Condition",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 1,
+              "score": 4,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "pressure exerted by the weight of the atmosphere",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+              "confidence": 0.76,
+              "evidence_text": "standard atmosphere at sea level",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Cl_Condition",
+              "object_class": "Cl_Condition",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 2,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Cl_Atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+              "confidence": 0.9,
+              "evidence_text": "Figure 4-2. Standard sea level pressure.",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Figure 4-2. Standard sea level pressure.",
+              "object_class": "Cl_Evidence",
+              "page": 2,
+              "predicate": "supportedByEvidence",
+              "rank": 3,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Atmospheric Pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+              "confidence": 0.78,
+              "evidence_text": "Standard Atmosphere",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Standard Atmosphere",
+              "object_class": "Cl_Atmosphere",
+              "page": 2,
+              "predicate": "appliesTo",
+              "rank": 4,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard sea level pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c34",
+              "confidence": 0.74,
+              "evidence_text": "Standard Atmosphere",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Standard Atmosphere",
+              "object_class": "Cl_Atmosphere",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 5,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard sea level pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c35",
+              "confidence": 0.88,
+              "evidence_text": "Figure 4-2. Standard sea level pressure.",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Figure 4-2",
+              "object_class": "Cl_Evidence",
+              "page": 2,
+              "predicate": "supportedByEvidence",
+              "rank": 6,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Atmospheric Pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c35-kg01-186e01e219"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c36",
+              "confidence": 0.84,
+              "evidence_text": "Standard sea level pressure",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "sea level pressure",
+              "object_class": "Cl_Pressure",
+              "page": 2,
+              "predicate": "hasQuantity",
+              "rank": 7,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c41",
+              "confidence": 0.78,
+              "evidence_text": "Standard sea level pressure",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Cl_Pressure",
+              "object_class": "Cl_Pressure",
+              "page": 2,
+              "predicate": "hasQuantity",
+              "rank": 8,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Cl_Atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c41-kg00-54921c8ed3"
+            }
+          ]
+        }
+      },
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "chunk_id=06_phak_ch4_0-fixed_window-p02-c02",
+        "chunk_id=06_phak_ch4_0-structure_aware-p02-c107",
+        "chunk_id=06_phak_ch4_0-structure_aware-p02-c27",
+        "triple_id=06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263"
+      ],
+      "confidence": 0.99,
+      "decision": {
+        "confidence": 0.99,
+        "decision": "incorrect",
+        "rationale": "The response is grounded in the same paragraph and cites valid source chunks, but it answers a different fact: standard sea-level pressure. The gold answer is the sentence that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. Because the generated answer does not state that fact, it is incorrect for this question despite being partially supported by the same source.",
+        "recommended_action": "revise_to_target_sentence",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "answer addresses adjacent context rather than the exact asked fact",
+          "retrieved passage contains the gold sentence but the response does not reproduce it"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "chunk_id=06_phak_ch4_0-fixed_window-p02-c02",
+          "chunk_id=06_phak_ch4_0-structure_aware-p02-c107",
+          "chunk_id=06_phak_ch4_0-structure_aware-p02-c27",
+          "triple_id=06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "lexical_hybrid::bv2-sf-001",
+      "item_type": "generated_answer",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "c45a44e1971132026d7143f0c44399c23be037cedede7208203d3cd42a2d97c5",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "answer_llm_judge_v1",
+        "review_run_id": "answer_llm_judge-20260530T091547Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "answer_correctness": "The answer does not provide the requested source-backed fact. The evidence asks for the statement that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level, but the answer instead focuses on standard sea-level pressure and Figure 4-2. That is related context, but not the specific fact asked for.",
+        "answer_relevance": "Partially relevant: it discusses atmosphere and sea level from the same passage, but it misses the key fact connecting them.",
+        "citation_precision": "Good precision for the cited sea-level pressure sentence; however, the citations are not precisely aligned to the gold answer.",
+        "citation_recall": "Low recall for the target evidence sentence because the answer failed to include the requested supported fact.",
+        "citation_support": "The cited chunks do support the sea-level pressure claim and the label of Figure 4-2, but they do not support the answer's implied completeness relative to the question. The key half-weight-at-18,000-feet sentence is present in the retrieved text but not stated in the answer.",
+        "correct_abstention": false,
+        "faithfulness_to_retrieved_context": "High faithfulness to the retrieved chunk on sea-level standard atmosphere, but it omits the exact supported sentence that the question targets.",
+        "hallucinated_claims": [],
+        "unsafe_operational_advice": false
+      },
+      "prompt_version": "answer_llm_judge_v1",
+      "rationale": "The response is grounded in the same paragraph and cites valid source chunks, but it answers a different fact: standard sea-level pressure. The gold answer is the sentence that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. Because the generated answer does not state that fact, it is incorrect for this question despite being partially supported by the same source.",
+      "raw_response": "{\n  \"decision\": \"incorrect\",\n  \"confidence\": 0.99,\n  \"scores\": {\n    \"overall\": 0.05,\n    \"correctness\": 0.0,\n    \"relevance\": 0.1,\n    \"faithfulness\": 0.85,\n    \"citation_support\": 0.9,\n    \"citation_precision\": 0.8,\n    \"citation_recall\": 0.2\n  },\n  \"answer_correctness\": \"The answer does not provide the requested source-backed fact. The evidence asks for the statement that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level, but the answer instead focuses on standard sea-level pressure and Figure 4-2. That is related context, but not the specific fact asked for.\",\n  \"answer_relevance\": \"Partially relevant: it discusses atmosphere and sea level from the same passage, but it misses the key fact connecting them.\",\n  \"faithfulness_to_retrieved_context\": \"High faithfulness to the retrieved chunk on sea-level standard atmosphere, but it omits the exact supported sentence that the question targets.\",\n  \"citation_support\": \"The cited chunks do support the sea-level pressure claim and the label of Figure 4-2, but they do not support the answer's implied completeness relative to the question. The key half-weight-at-18,000-feet sentence is present in the retrieved text but not stated in the answer.\",\n  \"citation_precision\": \"Good precision for the cited sea-level pressure sentence; however, the citations are not precisely aligned to the gold answer.\",\n  \"citation_recall\": \"Low recall for the target evidence sentence because the answer failed to include the requested supported fact.\",\n  \"unsafe_operational_advice\": false,\n  \"correct_abstention\": false,\n  \"hallucinated_claims\": [],\n  \"recommended_action\": \"revise_to_target_sentence\",\n  \"cited_source_fields\": [\n    \"chunk_id=06_phak_ch4_0-fixed_window-p02-c02\",\n    \"chunk_id=06_phak_ch4_0-structure_aware-p02-c107\",\n    \"chunk_id=06_phak_ch4_0-structure_aware-p02-c27\",\n    \"triple_id=06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263\"\n  ],\n  \"uncertainty_flags\": [\n    \"answer addresses adjacent context rather than the exact asked fact\",\n    \"retrieved passage contains the gold sentence but the response does not reproduce it\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The response is grounded in the same paragraph and cites valid source chunks, but it answers a different fact: standard sea-level pressure. The gold answer is the sentence that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. Because the generated answer does not state that fact, it is incorrect for this question despite being partially supported by the same source.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "citation_precision": 0.8,
+        "citation_recall": 0.2,
+        "citation_support": 0.9,
+        "correctness": 0.0,
+        "faithfulness": 0.85,
+        "overall": 0.05,
+        "relevance": 0.1
+      },
+      "uncertainty_flags": [
+        "answer addresses adjacent context rather than the exact asked fact",
+        "retrieved passage contains the gold sentence but the response does not reproduce it"
+      ]
+    },
+    {
+      "answer_record": {
+        "answer": "PHAK Chapter 4 supports this fact: the atmosphere at sea level is defined by a standard sea-level pressure of **29.92 inHg (1,013.2 mb)**, and Figure 4-2 is labeled **\u201cStandard sea level pressure.\u201d** The text also states that **\u201cthe standard atmosphere at sea level is \u2026 a surface pressure of 29.92 inches of mercury (\u2018Hg) or 1,013.2 mb.\u201d** [chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2] [chunk_id=06_phak_ch4_0-structure_aware-p02-c107 page=2] [chunk_id=06_phak_ch4_0-structure_aware-p02-c27 page=2] [chunk_id=06_phak_ch4_0-structure_aware-p02-c36 page=2]\n\nCitations: chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2; chunk_id=06_phak_ch4_0-structure_aware-p02-c107 page=2; chunk_id=06_phak_ch4_0-structure_aware-p02-c27 page=2; triple_id=06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+        "answer_status": "generated",
+        "cq_id": "bv2-sf-001",
+        "gold": {
+          "answer_key": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+          "cq_id": "bv2-sf-001",
+          "evidence_spans": [
+            {
+              "char_end": null,
+              "char_start": null,
+              "page": 2,
+              "text": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level."
+            }
+          ],
+          "expected_abstention": false,
+          "expected_chunk_ids": [
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-fixed_window-p02-c02"
+          ],
+          "gold_level": "span",
+          "key_entities": [
+            "atmosphere",
+            "sea level"
+          ],
+          "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+          "question_type": "supported_factual",
+          "source_document": "06_phak_ch4_0",
+          "source_page": 2
+        },
+        "method": "lexical_hybrid",
+        "metrics": {
+          "answer_present": true,
+          "available_citation_units": [
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p02-c00",
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e",
+            "06_phak_ch4_0-structure_aware-p02-c27",
+            "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d",
+            "06_phak_ch4_0-structure_aware-p02-c32",
+            "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c",
+            "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff",
+            "06_phak_ch4_0-structure_aware-p02-c35-kg01-186e01e219",
+            "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+            "06_phak_ch4_0-structure_aware-p02-c41-kg00-54921c8ed3",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "citation_completeness": true,
+          "citation_precision": 0.8333,
+          "citation_recall": 0.2632,
+          "citation_scoring_method": "deterministic_heuristic",
+          "detected_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-structure_aware-p02-c27",
+            "06_phak_ch4_0-structure_aware-p02-c36",
+            "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+            "page 2"
+          ],
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-structure_aware-p02-c27",
+            "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+            "page 2"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+        "question_type": "supported_factual",
+        "retrieval": {
+          "fused_chunks": [
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+              "distance": 0.98307865858078,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+                "chunk_index": 2,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 1,
+              "score": 0.01639344262295082,
+              "source": "vector",
+              "text": "er substance,\nit has weight, and because of its weight, it has force. Since\nair is a fluid substance, this force is exerted equally in all\ndirections. Its effect on bodies within the air is called pressure.\nUnder standard conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is approximately\n14.70 pounds per square inch (psi) of surface, or 1,013.2\nmillibars (mb). The thickness of the atmosphere is limited;\ntherefore, the higher the altitude, the less air there is above.\nFor this reason, the weight of the atmosphere at 18,000 feet\nis one-half what it is at sea level.\nThe pressure of the atmosphere varies with time and location.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere at sea\nlevel is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface\npressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb.\n[Figure 4-2]\nA standard temperature lapse rate is when the temperature\ndecreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per\nthousand feet up to 36,000 feet, which is approximately \u201365\n\u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered\nconstant up to 80,000 feet."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+              "metadata": {
+                "chunk_index": 106,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 2,
+              "score": 0.01639344262295082,
+              "source": "graph",
+              "text": "Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+              "distance": 1.1591647863388062,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+                "chunk_index": 0,
+                "page": 0,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 0,
+              "rank": 3,
+              "score": 0.016129032258064516,
+              "source": "vector",
+              "text": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an aircraft,\nbe it an airplane, helicopter, glider, or balloon, the pilot\nmust understand the principles involved and learn to use or\ncounteract these natural forces.\nStructure of the Atmosphere\nThe atmosphere is an envelope of air that surrounds the Earth\nand rests upon its surface. It is as much a part of the Earth as\nthe seas or the land, but air differs from land and water as it is\na mixture of gases. It has mass, weight, and indefinite shape.\nThe atmosphere is composed of 78 percent nitrogen, 21\npercent oxygen, and 1 percent other gases, such as argon\nor helium. Some of these elements are heavier than others.\nThe heavier elements, such as oxygen, settle to the surface\nof the Earth, while the lighter elements are lifted up to the\nregion of higher altitude. Most of the atmosphere\u2019s oxygen\nis contained below 35,000 feet altitude.\nPrinciples of\nFlight\nChapter 4"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+              "metadata": {
+                "chunk_index": 107,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 4,
+              "score": 0.016129032258064516,
+              "source": "graph",
+              "text": "exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2 millibars (mb). The thickness of the atmosphere is limited; therefore, the higher the altitude, the less air there is above. For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. The pressure of the atmosphere varies with time and location. Due to the changing atmospheric pressure, a standard reference was developed. The standard atmosphere at sea level is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface pressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb. [Figure 4-2] A standard temperature lapse rate is when the temperature decreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per thousand feet up to 36,000 feet, which is approximately \u201365 \u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered constant up to 80,000 feet. A standard pressure lapse rate is when pressure decreases at a rate of approximately 1 \"Hg per 1,000 feet of altitude gain to 10,000 feet. [Figure 4-3]"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+              "distance": 1.1653592586517334,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+                "chunk_index": 0,
+                "page": 3,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 3,
+              "rank": 5,
+              "score": 0.015873015873015872,
+              "source": "vector",
+              "text": "4-4\nSince aircraft performance is compared and evaluated with\nrespect to the standard atmosphere, all aircraft instruments are\ncalibrated for the standard atmosphere. In order to properly\naccount for the nonstandard atmosphere, certain related terms\nmust be defined.\nPressure Altitude\nPressure altitude is the height above a standard datum plane\n(SDP), which is a theoretical level where the weight of the\natmosphere is 29.92 \"Hg (1,013.2 mb) as measured by a\nbarometer. An altimeter is essentially a sensitive barometer\ncalibrated to indicate altitude in the standard atmosphere. If\nthe altimeter is set for 29.92 \"Hg SDP, the altitude indicated\nis the pressure altitude. As atmospheric pressure changes, the\nSDP may be below, at, or above sea level. Pressure altitude\nis important as a basis for determining airplane performance,\nas well as for assigning flight levels to airplanes operating at\nor above 18,000 feet.\nThe pressure altitude can be determined by one of the\nfollowing methods:\n1.\nSetting the barometric scale of the altimeter to 29.92\nand reading the indicated altitude\n2.\nApplying a correction factor to the indicated altitude\naccording to the reported altimeter setting"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+              "metadata": {
+                "chunk_index": 27,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 6,
+              "score": 0.015873015873015872,
+              "source": "graph",
+              "text": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29.92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+              "distance": 1.197885274887085,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+                "chunk_index": 0,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 7,
+              "score": 0.015625,
+              "source": "vector",
+              "text": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude (ft)\nPressure (Hg)\nTemperature\n(\u00b0C)\n(\u00b0F)\nStandard Atmosphere\n0\n1,000\n2,000\n3,000\n4,000\n5,000\n6,000\n7,000\n8,000\n9,000\n10,000\n11,000\n12,000\n13,000\n14,000\n15,000\n16,000\n17,000\n18,000\n19,000\n20,000\n29.92\n28.86\n27.82\n26.82\n25.84\n24.89\n23.98\n23.09\n22.22\n21.38\n20.57\n19.79\n19.02\n18.29\n17.57\n16.88\n16.21\n15.56\n14.94\n14.33\n13.74\n15.0\n13.0\n11.0\n9.1\n7.1\n5.1\n3.1\n1.1\n-0.9\n-2.8\n-4.8\n-6.8\n-8.8\n-10.8\n-12.7\n-14.7\n-16.7\n-18.7\n-20.7\n-22.6\n-24.6\n59.0\n55.4\n51.9\n48.3\n44.7\n41.2\n37.6\n34.0\n30.5\n26.9\n23.3\n19.8\n16.2\n12.6\n9.1\n5.5\n1.9\n-1.6\n-5.2\n-8.8\n-12.3\nFigure 4-3. Properties of standard atmosphere.\nOnce the boundary layer of the air adheres to the wing by\nfriction, further resistance to the airflow is caused by the\nviscosity, the tendency of the air to stick to itself. When\nthese two forces act together to resist airflow over a wing,\nit is called drag.\nPressure\nPressure is the force applied in a perpendicular direction to the\nsurface of an object."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+              "metadata": {
+                "chunk_index": 32,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 8,
+              "score": 0.015625,
+              "source": "graph",
+              "text": "Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere"
+            }
+          ],
+          "graph_paths": [],
+          "graph_triples": [
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+              "confidence": 0.94,
+              "evidence_text": "Under standard conditions at sea level",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "standard conditions at sea level",
+              "object_class": "Cl_Condition",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 1,
+              "score": 4,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "pressure exerted by the weight of the atmosphere",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+              "confidence": 0.76,
+              "evidence_text": "standard atmosphere at sea level",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Cl_Condition",
+              "object_class": "Cl_Condition",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 2,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Cl_Atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+              "confidence": 0.9,
+              "evidence_text": "Figure 4-2. Standard sea level pressure.",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Figure 4-2. Standard sea level pressure.",
+              "object_class": "Cl_Evidence",
+              "page": 2,
+              "predicate": "supportedByEvidence",
+              "rank": 3,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Atmospheric Pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+              "confidence": 0.78,
+              "evidence_text": "Standard Atmosphere",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Standard Atmosphere",
+              "object_class": "Cl_Atmosphere",
+              "page": 2,
+              "predicate": "appliesTo",
+              "rank": 4,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard sea level pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c34",
+              "confidence": 0.74,
+              "evidence_text": "Standard Atmosphere",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Standard Atmosphere",
+              "object_class": "Cl_Atmosphere",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 5,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard sea level pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c35",
+              "confidence": 0.88,
+              "evidence_text": "Figure 4-2. Standard sea level pressure.",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Figure 4-2",
+              "object_class": "Cl_Evidence",
+              "page": 2,
+              "predicate": "supportedByEvidence",
+              "rank": 6,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Atmospheric Pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c35-kg01-186e01e219"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c36",
+              "confidence": 0.84,
+              "evidence_text": "Standard sea level pressure",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "sea level pressure",
+              "object_class": "Cl_Pressure",
+              "page": 2,
+              "predicate": "hasQuantity",
+              "rank": 7,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c41",
+              "confidence": 0.78,
+              "evidence_text": "Standard sea level pressure",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Cl_Pressure",
+              "object_class": "Cl_Pressure",
+              "page": 2,
+              "predicate": "hasQuantity",
+              "rank": 8,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Cl_Atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c41-kg00-54921c8ed3"
+            }
+          ]
+        }
+      },
+      "aviation_expert_certified": false,
+      "cited_source_fields": [],
+      "confidence": 0.0,
+      "decision": {
+        "confidence": 0.0,
+        "decision": "not_run",
+        "rationale": "LLM review failed: Expecting ',' delimiter: line 12 column 4 (char 253)",
+        "recommended_action": "not_run",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "llm_review_not_run"
+        ]
+      },
+      "error": "LLM review failed: Expecting ',' delimiter: line 12 column 4 (char 253)",
+      "evidence": {
+        "cited_source_fields": [],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "lexical_hybrid::bv2-sf-001",
+      "item_type": "generated_answer",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "c45a44e1971132026d7143f0c44399c23be037cedede7208203d3cd42a2d97c5",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "answer_llm_judge_v1",
+        "review_run_id": "answer_llm_judge-20260530T091601Z",
+        "review_status": "llm_review_not_run",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {},
+      "prompt_version": "answer_llm_judge_v1",
+      "rationale": "LLM review failed: Expecting ',' delimiter: line 12 column 4 (char 253)",
+      "raw_response": "",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {},
+      "uncertainty_flags": [
+        "llm_review_not_run"
+      ]
+    },
+    {
+      "answer_record": {
+        "answer": "PHAK Chapter 4 supports this fact: **under standard conditions at sea level, the atmosphere\u2019s weight exerts pressure of about 14.70 psi (1,013.2 mb)**. That directly connects atmosphere with sea level in the \u201cweight of the atmosphere\u201d discussion. [chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2; chunk_id=06_phak_ch4_0-structure_aware-p02-c106 page=2; KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe]\n\nCitations: chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2; chunk_id=06_phak_ch4_0-structure_aware-p02-c106 page=2; KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+        "answer_status": "generated",
+        "cq_id": "bv2-sf-001",
+        "gold": {
+          "answer_key": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+          "cq_id": "bv2-sf-001",
+          "evidence_spans": [
+            {
+              "char_end": null,
+              "char_start": null,
+              "page": 2,
+              "text": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level."
+            }
+          ],
+          "expected_abstention": false,
+          "expected_chunk_ids": [
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-fixed_window-p02-c02"
+          ],
+          "gold_level": "span",
+          "key_entities": [
+            "atmosphere",
+            "sea level"
+          ],
+          "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+          "question_type": "supported_factual",
+          "source_document": "06_phak_ch4_0",
+          "source_page": 2
+        },
+        "method": "sufficiency_aware_hybrid",
+        "metrics": {
+          "answer_present": true,
+          "available_citation_units": [
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p02-c00",
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e",
+            "06_phak_ch4_0-structure_aware-p02-c27",
+            "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d",
+            "06_phak_ch4_0-structure_aware-p02-c32",
+            "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c",
+            "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff",
+            "06_phak_ch4_0-structure_aware-p02-c35-kg01-186e01e219",
+            "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+            "06_phak_ch4_0-structure_aware-p02-c41-kg00-54921c8ed3",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "citation_completeness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.2105,
+          "citation_scoring_method": "deterministic_heuristic",
+          "detected_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "page 2"
+          ],
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "page 2"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+        "question_type": "supported_factual",
+        "retrieval": {
+          "fused_chunks": [
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+              "distance": 0.98307865858078,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+                "chunk_index": 2,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 1,
+              "score": 0.01639344262295082,
+              "source": "vector",
+              "text": "er substance,\nit has weight, and because of its weight, it has force. Since\nair is a fluid substance, this force is exerted equally in all\ndirections. Its effect on bodies within the air is called pressure.\nUnder standard conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is approximately\n14.70 pounds per square inch (psi) of surface, or 1,013.2\nmillibars (mb). The thickness of the atmosphere is limited;\ntherefore, the higher the altitude, the less air there is above.\nFor this reason, the weight of the atmosphere at 18,000 feet\nis one-half what it is at sea level.\nThe pressure of the atmosphere varies with time and location.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere at sea\nlevel is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface\npressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb.\n[Figure 4-2]\nA standard temperature lapse rate is when the temperature\ndecreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per\nthousand feet up to 36,000 feet, which is approximately \u201365\n\u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered\nconstant up to 80,000 feet."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+              "metadata": {
+                "chunk_index": 106,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 2,
+              "score": 0.01639344262295082,
+              "source": "graph",
+              "text": "Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+              "distance": 1.1591647863388062,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+                "chunk_index": 0,
+                "page": 0,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 0,
+              "rank": 3,
+              "score": 0.016129032258064516,
+              "source": "vector",
+              "text": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an aircraft,\nbe it an airplane, helicopter, glider, or balloon, the pilot\nmust understand the principles involved and learn to use or\ncounteract these natural forces.\nStructure of the Atmosphere\nThe atmosphere is an envelope of air that surrounds the Earth\nand rests upon its surface. It is as much a part of the Earth as\nthe seas or the land, but air differs from land and water as it is\na mixture of gases. It has mass, weight, and indefinite shape.\nThe atmosphere is composed of 78 percent nitrogen, 21\npercent oxygen, and 1 percent other gases, such as argon\nor helium. Some of these elements are heavier than others.\nThe heavier elements, such as oxygen, settle to the surface\nof the Earth, while the lighter elements are lifted up to the\nregion of higher altitude. Most of the atmosphere\u2019s oxygen\nis contained below 35,000 feet altitude.\nPrinciples of\nFlight\nChapter 4"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+              "metadata": {
+                "chunk_index": 107,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 4,
+              "score": 0.016129032258064516,
+              "source": "graph",
+              "text": "exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2 millibars (mb). The thickness of the atmosphere is limited; therefore, the higher the altitude, the less air there is above. For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. The pressure of the atmosphere varies with time and location. Due to the changing atmospheric pressure, a standard reference was developed. The standard atmosphere at sea level is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface pressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb. [Figure 4-2] A standard temperature lapse rate is when the temperature decreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per thousand feet up to 36,000 feet, which is approximately \u201365 \u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered constant up to 80,000 feet. A standard pressure lapse rate is when pressure decreases at a rate of approximately 1 \"Hg per 1,000 feet of altitude gain to 10,000 feet. [Figure 4-3]"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+              "distance": 1.1653592586517334,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+                "chunk_index": 0,
+                "page": 3,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 3,
+              "rank": 5,
+              "score": 0.015873015873015872,
+              "source": "vector",
+              "text": "4-4\nSince aircraft performance is compared and evaluated with\nrespect to the standard atmosphere, all aircraft instruments are\ncalibrated for the standard atmosphere. In order to properly\naccount for the nonstandard atmosphere, certain related terms\nmust be defined.\nPressure Altitude\nPressure altitude is the height above a standard datum plane\n(SDP), which is a theoretical level where the weight of the\natmosphere is 29.92 \"Hg (1,013.2 mb) as measured by a\nbarometer. An altimeter is essentially a sensitive barometer\ncalibrated to indicate altitude in the standard atmosphere. If\nthe altimeter is set for 29.92 \"Hg SDP, the altitude indicated\nis the pressure altitude. As atmospheric pressure changes, the\nSDP may be below, at, or above sea level. Pressure altitude\nis important as a basis for determining airplane performance,\nas well as for assigning flight levels to airplanes operating at\nor above 18,000 feet.\nThe pressure altitude can be determined by one of the\nfollowing methods:\n1.\nSetting the barometric scale of the altimeter to 29.92\nand reading the indicated altitude\n2.\nApplying a correction factor to the indicated altitude\naccording to the reported altimeter setting"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+              "metadata": {
+                "chunk_index": 27,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 6,
+              "score": 0.015873015873015872,
+              "source": "graph",
+              "text": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29.92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+              "distance": 1.197885274887085,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+                "chunk_index": 0,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 7,
+              "score": 0.015625,
+              "source": "vector",
+              "text": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude (ft)\nPressure (Hg)\nTemperature\n(\u00b0C)\n(\u00b0F)\nStandard Atmosphere\n0\n1,000\n2,000\n3,000\n4,000\n5,000\n6,000\n7,000\n8,000\n9,000\n10,000\n11,000\n12,000\n13,000\n14,000\n15,000\n16,000\n17,000\n18,000\n19,000\n20,000\n29.92\n28.86\n27.82\n26.82\n25.84\n24.89\n23.98\n23.09\n22.22\n21.38\n20.57\n19.79\n19.02\n18.29\n17.57\n16.88\n16.21\n15.56\n14.94\n14.33\n13.74\n15.0\n13.0\n11.0\n9.1\n7.1\n5.1\n3.1\n1.1\n-0.9\n-2.8\n-4.8\n-6.8\n-8.8\n-10.8\n-12.7\n-14.7\n-16.7\n-18.7\n-20.7\n-22.6\n-24.6\n59.0\n55.4\n51.9\n48.3\n44.7\n41.2\n37.6\n34.0\n30.5\n26.9\n23.3\n19.8\n16.2\n12.6\n9.1\n5.5\n1.9\n-1.6\n-5.2\n-8.8\n-12.3\nFigure 4-3. Properties of standard atmosphere.\nOnce the boundary layer of the air adheres to the wing by\nfriction, further resistance to the airflow is caused by the\nviscosity, the tendency of the air to stick to itself. When\nthese two forces act together to resist airflow over a wing,\nit is called drag.\nPressure\nPressure is the force applied in a perpendicular direction to the\nsurface of an object."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+              "metadata": {
+                "chunk_index": 32,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 8,
+              "score": 0.015625,
+              "source": "graph",
+              "text": "Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere"
+            }
+          ],
+          "graph_paths": [],
+          "graph_triples": [
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+              "confidence": 0.94,
+              "evidence_text": "Under standard conditions at sea level",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "standard conditions at sea level",
+              "object_class": "Cl_Condition",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 1,
+              "score": 4,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "pressure exerted by the weight of the atmosphere",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+              "confidence": 0.76,
+              "evidence_text": "standard atmosphere at sea level",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Cl_Condition",
+              "object_class": "Cl_Condition",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 2,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Cl_Atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+              "confidence": 0.9,
+              "evidence_text": "Figure 4-2. Standard sea level pressure.",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Figure 4-2. Standard sea level pressure.",
+              "object_class": "Cl_Evidence",
+              "page": 2,
+              "predicate": "supportedByEvidence",
+              "rank": 3,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Atmospheric Pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+              "confidence": 0.78,
+              "evidence_text": "Standard Atmosphere",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Standard Atmosphere",
+              "object_class": "Cl_Atmosphere",
+              "page": 2,
+              "predicate": "appliesTo",
+              "rank": 4,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard sea level pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c34",
+              "confidence": 0.74,
+              "evidence_text": "Standard Atmosphere",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Standard Atmosphere",
+              "object_class": "Cl_Atmosphere",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 5,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard sea level pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c35",
+              "confidence": 0.88,
+              "evidence_text": "Figure 4-2. Standard sea level pressure.",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Figure 4-2",
+              "object_class": "Cl_Evidence",
+              "page": 2,
+              "predicate": "supportedByEvidence",
+              "rank": 6,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Atmospheric Pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c35-kg01-186e01e219"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c36",
+              "confidence": 0.84,
+              "evidence_text": "Standard sea level pressure",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "sea level pressure",
+              "object_class": "Cl_Pressure",
+              "page": 2,
+              "predicate": "hasQuantity",
+              "rank": 7,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c41",
+              "confidence": 0.78,
+              "evidence_text": "Standard sea level pressure",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Cl_Pressure",
+              "object_class": "Cl_Pressure",
+              "page": 2,
+              "predicate": "hasQuantity",
+              "rank": 8,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Cl_Atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c41-kg00-54921c8ed3"
+            }
+          ]
+        }
+      },
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "chunk_id=06_phak_ch4_0-fixed_window-p02-c02",
+        "chunk_id=06_phak_ch4_0-structure_aware-p02-c106",
+        "KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+        "page=2"
+      ],
+      "confidence": 0.98,
+      "decision": {
+        "confidence": 0.98,
+        "decision": "incorrect",
+        "rationale": "The gold answer explicitly states: 'For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.' The generated answer instead states the standard sea-level pressure of 14.70 psi / 1,013.2 mb. While that sentence is present in the retrieved context, it is not the target fact indicated by the evidence span and gold answer. Therefore the response is unsupported for the asked fact and should be marked incorrect.",
+        "recommended_action": "revise",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "The retrieved chunk contains both the sea-level pressure fact and the 18,000 feet one-half fact, but the response only selected the former.",
+          "Question wording is somewhat broad, but the gold evidence indicates the intended answer is the 18,000 feet comparison."
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "chunk_id=06_phak_ch4_0-fixed_window-p02-c02",
+          "chunk_id=06_phak_ch4_0-structure_aware-p02-c106",
+          "KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+          "page=2"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "sufficiency_aware_hybrid::bv2-sf-001",
+      "item_type": "generated_answer",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "17646ec0cf39374a4b85406188af4818273e0dc4eb75fde99027d765a06cd144",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "answer_llm_judge_v1",
+        "review_run_id": "answer_llm_judge-20260530T091601Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "answer_correctness": "The generated answer does not state the referenced fact. The evidence-supported fact is that at 18,000 feet the atmosphere weighs one-half of sea level, not the sea-level pressure value.",
+        "answer_relevance": "Low. It discusses sea-level atmospheric pressure, which is related context but not the asked fact connecting atmosphere with sea level in the cited evidence.",
+        "citation_precision": "High for the sentence actually given, but imprecise relative to the question because it cites evidence that supports a different fact than the one asked.",
+        "citation_recall": "Low. The answer misses the most relevant supported sentence in the retrieved evidence.",
+        "citation_support": "The cited chunks support the sea-level pressure statement (14.70 psi / 1,013.2 mb). They do not support the claimed connection asked for by the gold answer, which is the 18,000 feet one-half of sea level statement. The cited material actually contains that sentence in the same chunk, but the answer did not quote it.",
+        "correct_abstention": false,
+        "faithfulness_to_retrieved_context": "Partially faithful. The sea-level pressure statement is present in the retrieved chunk, but the answer omits the key sentence about 18,000 feet being one-half of sea level and therefore fails to answer the question.",
+        "hallucinated_claims": [
+          "Implied that the sea-level pressure fact is the requested source-backed fact connecting atmosphere with sea level."
+        ],
+        "unsafe_operational_advice": false
+      },
+      "prompt_version": "answer_llm_judge_v1",
+      "rationale": "The gold answer explicitly states: 'For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.' The generated answer instead states the standard sea-level pressure of 14.70 psi / 1,013.2 mb. While that sentence is present in the retrieved context, it is not the target fact indicated by the evidence span and gold answer. Therefore the response is unsupported for the asked fact and should be marked incorrect.",
+      "raw_response": "{\n  \"decision\": \"incorrect\",\n  \"confidence\": 0.98,\n  \"scores\": {\n    \"overall\": 0.12,\n    \"support_match\": 0.15,\n    \"citation_quality\": 0.82,\n    \"abstention_quality\": 1.0\n  },\n  \"answer_correctness\": \"The generated answer does not state the referenced fact. The evidence-supported fact is that at 18,000 feet the atmosphere weighs one-half of sea level, not the sea-level pressure value.\",\n  \"answer_relevance\": \"Low. It discusses sea-level atmospheric pressure, which is related context but not the asked fact connecting atmosphere with sea level in the cited evidence.\",\n  \"faithfulness_to_retrieved_context\": \"Partially faithful. The sea-level pressure statement is present in the retrieved chunk, but the answer omits the key sentence about 18,000 feet being one-half of sea level and therefore fails to answer the question.\",\n  \"citation_support\": \"The cited chunks support the sea-level pressure statement (14.70 psi / 1,013.2 mb). They do not support the claimed connection asked for by the gold answer, which is the 18,000 feet one-half of sea level statement. The cited material actually contains that sentence in the same chunk, but the answer did not quote it.\",\n  \"citation_precision\": \"High for the sentence actually given, but imprecise relative to the question because it cites evidence that supports a different fact than the one asked.\",\n  \"citation_recall\": \"Low. The answer misses the most relevant supported sentence in the retrieved evidence.\",\n  \"unsafe_operational_advice\": false,\n  \"correct_abstention\": false,\n  \"hallucinated_claims\": [\n    \"Implied that the sea-level pressure fact is the requested source-backed fact connecting atmosphere with sea level.\"\n  ],\n  \"recommended_action\": \"revise\",\n  \"cited_source_fields\": [\n    \"chunk_id=06_phak_ch4_0-fixed_window-p02-c02\",\n    \"chunk_id=06_phak_ch4_0-structure_aware-p02-c106\",\n    \"KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe\",\n    \"page=2\"\n  ],\n  \"uncertainty_flags\": [\n    \"The retrieved chunk contains both the sea-level pressure fact and the 18,000 feet one-half fact, but the response only selected the former.\",\n    \"Question wording is somewhat broad, but the gold evidence indicates the intended answer is the 18,000 feet comparison.\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The gold answer explicitly states: 'For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.' The generated answer instead states the standard sea-level pressure of 14.70 psi / 1,013.2 mb. While that sentence is present in the retrieved context, it is not the target fact indicated by the evidence span and gold answer. Therefore the response is unsupported for the asked fact and should be marked incorrect.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "abstention_quality": 1.0,
+        "citation_quality": 0.82,
+        "overall": 0.12,
+        "support_match": 0.15
+      },
+      "uncertainty_flags": [
+        "The retrieved chunk contains both the sea-level pressure fact and the 18,000 feet one-half fact, but the response only selected the former.",
+        "Question wording is somewhat broad, but the gold evidence indicates the intended answer is the 18,000 feet comparison."
+      ]
+    },
+    {
+      "answer_record": {
+        "answer": "PHAK Chapter 4 supports this fact: **under standard conditions at sea level, the atmosphere\u2019s weight exerts pressure of about 14.70 psi (1,013.2 mb)**. That directly connects atmosphere with sea level in the \u201cweight of the atmosphere\u201d discussion. [chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2; chunk_id=06_phak_ch4_0-structure_aware-p02-c106 page=2; KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe]\n\nCitations: chunk_id=06_phak_ch4_0-fixed_window-p02-c02 page=2; chunk_id=06_phak_ch4_0-structure_aware-p02-c106 page=2; KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+        "answer_status": "generated",
+        "cq_id": "bv2-sf-001",
+        "gold": {
+          "answer_key": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.",
+          "cq_id": "bv2-sf-001",
+          "evidence_spans": [
+            {
+              "char_end": null,
+              "char_start": null,
+              "page": 2,
+              "text": "For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level."
+            }
+          ],
+          "expected_abstention": false,
+          "expected_chunk_ids": [
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-fixed_window-p02-c02"
+          ],
+          "gold_level": "span",
+          "key_entities": [
+            "atmosphere",
+            "sea level"
+          ],
+          "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+          "question_type": "supported_factual",
+          "source_document": "06_phak_ch4_0",
+          "source_page": 2
+        },
+        "method": "sufficiency_aware_hybrid",
+        "metrics": {
+          "answer_present": true,
+          "available_citation_units": [
+            "06_phak_ch4_0-fixed_window-p00-c00",
+            "06_phak_ch4_0-fixed_window-p02-c00",
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-fixed_window-p03-c00",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "06_phak_ch4_0-structure_aware-p02-c107",
+            "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e",
+            "06_phak_ch4_0-structure_aware-p02-c27",
+            "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d",
+            "06_phak_ch4_0-structure_aware-p02-c32",
+            "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c",
+            "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff",
+            "06_phak_ch4_0-structure_aware-p02-c35-kg01-186e01e219",
+            "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263",
+            "06_phak_ch4_0-structure_aware-p02-c41-kg00-54921c8ed3",
+            "page 0",
+            "page 2",
+            "page 3"
+          ],
+          "citation_completeness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.2105,
+          "citation_scoring_method": "deterministic_heuristic",
+          "detected_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "page 2"
+          ],
+          "insufficient_evidence_abstention": false,
+          "valid_chunk_citation": true,
+          "valid_citations": [
+            "06_phak_ch4_0-fixed_window-p02-c02",
+            "06_phak_ch4_0-structure_aware-p02-c106",
+            "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+            "page 2"
+          ],
+          "valid_page_citation": true,
+          "valid_triple_citation": true
+        },
+        "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+        "question_type": "supported_factual",
+        "retrieval": {
+          "fused_chunks": [
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+              "distance": 0.98307865858078,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c02",
+                "chunk_index": 2,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 1,
+              "score": 0.01639344262295082,
+              "source": "vector",
+              "text": "er substance,\nit has weight, and because of its weight, it has force. Since\nair is a fluid substance, this force is exerted equally in all\ndirections. Its effect on bodies within the air is called pressure.\nUnder standard conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is approximately\n14.70 pounds per square inch (psi) of surface, or 1,013.2\nmillibars (mb). The thickness of the atmosphere is limited;\ntherefore, the higher the altitude, the less air there is above.\nFor this reason, the weight of the atmosphere at 18,000 feet\nis one-half what it is at sea level.\nThe pressure of the atmosphere varies with time and location.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere at sea\nlevel is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface\npressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb.\n[Figure 4-2]\nA standard temperature lapse rate is when the temperature\ndecreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per\nthousand feet up to 36,000 feet, which is approximately \u201365\n\u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered\nconstant up to 80,000 feet."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+              "metadata": {
+                "chunk_index": 106,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 2,
+              "score": 0.01639344262295082,
+              "source": "graph",
+              "text": "Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+              "distance": 1.1591647863388062,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p00-c00",
+                "chunk_index": 0,
+                "page": 0,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 0,
+              "rank": 3,
+              "score": 0.016129032258064516,
+              "source": "vector",
+              "text": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an aircraft,\nbe it an airplane, helicopter, glider, or balloon, the pilot\nmust understand the principles involved and learn to use or\ncounteract these natural forces.\nStructure of the Atmosphere\nThe atmosphere is an envelope of air that surrounds the Earth\nand rests upon its surface. It is as much a part of the Earth as\nthe seas or the land, but air differs from land and water as it is\na mixture of gases. It has mass, weight, and indefinite shape.\nThe atmosphere is composed of 78 percent nitrogen, 21\npercent oxygen, and 1 percent other gases, such as argon\nor helium. Some of these elements are heavier than others.\nThe heavier elements, such as oxygen, settle to the surface\nof the Earth, while the lighter elements are lifted up to the\nregion of higher altitude. Most of the atmosphere\u2019s oxygen\nis contained below 35,000 feet altitude.\nPrinciples of\nFlight\nChapter 4"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+              "metadata": {
+                "chunk_index": 107,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 4,
+              "score": 0.016129032258064516,
+              "source": "graph",
+              "text": "exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2 millibars (mb). The thickness of the atmosphere is limited; therefore, the higher the altitude, the less air there is above. For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level. The pressure of the atmosphere varies with time and location. Due to the changing atmospheric pressure, a standard reference was developed. The standard atmosphere at sea level is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface pressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb. [Figure 4-2] A standard temperature lapse rate is when the temperature decreases at the rate of approximately 3.5 \u00b0F or 2 \u00b0C per thousand feet up to 36,000 feet, which is approximately \u201365 \u00b0F or \u201355 \u00b0C. Above this point, the temperature is considered constant up to 80,000 feet. A standard pressure lapse rate is when pressure decreases at a rate of approximately 1 \"Hg per 1,000 feet of altitude gain to 10,000 feet. [Figure 4-3]"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+              "distance": 1.1653592586517334,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p03-c00",
+                "chunk_index": 0,
+                "page": 3,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 3,
+              "rank": 5,
+              "score": 0.015873015873015872,
+              "source": "vector",
+              "text": "4-4\nSince aircraft performance is compared and evaluated with\nrespect to the standard atmosphere, all aircraft instruments are\ncalibrated for the standard atmosphere. In order to properly\naccount for the nonstandard atmosphere, certain related terms\nmust be defined.\nPressure Altitude\nPressure altitude is the height above a standard datum plane\n(SDP), which is a theoretical level where the weight of the\natmosphere is 29.92 \"Hg (1,013.2 mb) as measured by a\nbarometer. An altimeter is essentially a sensitive barometer\ncalibrated to indicate altitude in the standard atmosphere. If\nthe altimeter is set for 29.92 \"Hg SDP, the altitude indicated\nis the pressure altitude. As atmospheric pressure changes, the\nSDP may be below, at, or above sea level. Pressure altitude\nis important as a basis for determining airplane performance,\nas well as for assigning flight levels to airplanes operating at\nor above 18,000 feet.\nThe pressure altitude can be determined by one of the\nfollowing methods:\n1.\nSetting the barometric scale of the altimeter to 29.92\nand reading the indicated altitude\n2.\nApplying a correction factor to the indicated altitude\naccording to the reported altimeter setting"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+              "metadata": {
+                "chunk_index": 27,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 6,
+              "score": 0.015873015873015872,
+              "source": "graph",
+              "text": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29.92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+              "distance": 1.197885274887085,
+              "metadata": {
+                "chunk_id": "06_phak_ch4_0-fixed_window-p02-c00",
+                "chunk_index": 0,
+                "page": 2,
+                "section": "",
+                "source_document": "06_phak_ch4_0",
+                "source_path": "data/raw/06_phak_ch4_0.pdf",
+                "strategy": "fixed_window"
+              },
+              "page": 2,
+              "rank": 7,
+              "score": 0.015625,
+              "source": "vector",
+              "text": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude (ft)\nPressure (Hg)\nTemperature\n(\u00b0C)\n(\u00b0F)\nStandard Atmosphere\n0\n1,000\n2,000\n3,000\n4,000\n5,000\n6,000\n7,000\n8,000\n9,000\n10,000\n11,000\n12,000\n13,000\n14,000\n15,000\n16,000\n17,000\n18,000\n19,000\n20,000\n29.92\n28.86\n27.82\n26.82\n25.84\n24.89\n23.98\n23.09\n22.22\n21.38\n20.57\n19.79\n19.02\n18.29\n17.57\n16.88\n16.21\n15.56\n14.94\n14.33\n13.74\n15.0\n13.0\n11.0\n9.1\n7.1\n5.1\n3.1\n1.1\n-0.9\n-2.8\n-4.8\n-6.8\n-8.8\n-10.8\n-12.7\n-14.7\n-16.7\n-18.7\n-20.7\n-22.6\n-24.6\n59.0\n55.4\n51.9\n48.3\n44.7\n41.2\n37.6\n34.0\n30.5\n26.9\n23.3\n19.8\n16.2\n12.6\n9.1\n5.5\n1.9\n-1.6\n-5.2\n-8.8\n-12.3\nFigure 4-3. Properties of standard atmosphere.\nOnce the boundary layer of the air adheres to the wing by\nfriction, further resistance to the airflow is caused by the\nviscosity, the tendency of the air to stick to itself. When\nthese two forces act together to resist airflow over a wing,\nit is called drag.\nPressure\nPressure is the force applied in a perpendicular direction to the\nsurface of an object."
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+              "metadata": {
+                "chunk_index": 32,
+                "source_document": "06_phak_ch4_0"
+              },
+              "page": 2,
+              "rank": 8,
+              "score": 0.015625,
+              "source": "graph",
+              "text": "Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude (ft) Pressure (Hg) Temperature (\u00b0C) (\u00b0F) Standard Atmosphere"
+            }
+          ],
+          "graph_paths": [],
+          "graph_triples": [
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
+              "confidence": 0.94,
+              "evidence_text": "Under standard conditions at sea level",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "standard conditions at sea level",
+              "object_class": "Cl_Condition",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 1,
+              "score": 4,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "pressure exerted by the weight of the atmosphere",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
+              "confidence": 0.76,
+              "evidence_text": "standard atmosphere at sea level",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Cl_Condition",
+              "object_class": "Cl_Condition",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 2,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Cl_Atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c107-kg04-cfd439979e"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c27",
+              "confidence": 0.9,
+              "evidence_text": "Figure 4-2. Standard sea level pressure.",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Figure 4-2. Standard sea level pressure.",
+              "object_class": "Cl_Evidence",
+              "page": 2,
+              "predicate": "supportedByEvidence",
+              "rank": 3,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Atmospheric Pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c27-kg02-912b5b5d6d"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c32",
+              "confidence": 0.78,
+              "evidence_text": "Standard Atmosphere",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Standard Atmosphere",
+              "object_class": "Cl_Atmosphere",
+              "page": 2,
+              "predicate": "appliesTo",
+              "rank": 4,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard sea level pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c32-kg02-342fce025c"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c34",
+              "confidence": 0.74,
+              "evidence_text": "Standard Atmosphere",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Standard Atmosphere",
+              "object_class": "Cl_Atmosphere",
+              "page": 2,
+              "predicate": "hasCondition",
+              "rank": 5,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard sea level pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c34-kg02-a5df06e0ff"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c35",
+              "confidence": 0.88,
+              "evidence_text": "Figure 4-2. Standard sea level pressure.",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Figure 4-2",
+              "object_class": "Cl_Evidence",
+              "page": 2,
+              "predicate": "supportedByEvidence",
+              "rank": 6,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Atmospheric Pressure",
+              "subject_class": "Cl_Pressure",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c35-kg01-186e01e219"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c36",
+              "confidence": 0.84,
+              "evidence_text": "Standard sea level pressure",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "sea level pressure",
+              "object_class": "Cl_Pressure",
+              "page": 2,
+              "predicate": "hasQuantity",
+              "rank": 7,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Standard atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c36-kg00-f6a8ad1263"
+            },
+            {
+              "chunk_id": "06_phak_ch4_0-structure_aware-p02-c41",
+              "confidence": 0.78,
+              "evidence_text": "Standard sea level pressure",
+              "extracted_at": "2026-05-19T01:06:14.119370+00:00",
+              "model": "llm-structured-kg-extraction",
+              "object": "Cl_Pressure",
+              "object_class": "Cl_Pressure",
+              "page": 2,
+              "predicate": "hasQuantity",
+              "rank": 8,
+              "score": 3,
+              "section": "page-2",
+              "source_document": "06_phak_ch4_0",
+              "subject": "Cl_Atmosphere",
+              "subject_class": "Cl_Atmosphere",
+              "triple_id": "06_phak_ch4_0-structure_aware-p02-c41-kg00-54921c8ed3"
+            }
+          ]
+        }
+      },
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "chunk_id=06_phak_ch4_0-fixed_window-p02-c02",
+        "chunk_id=06_phak_ch4_0-structure_aware-p02-c106",
+        "KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+        "page=2"
+      ],
+      "confidence": 0.99,
+      "decision": {
+        "confidence": 0.99,
+        "decision": "incorrect",
+        "rationale": "The retrieved evidence explicitly states: 'For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.' The generated answer instead quotes an adjacent sentence about standard sea-level pressure. While that sentence is indeed present in the passage and correctly cited, it is not the fact requested by the question and therefore constitutes an incorrect answer rather than an abstention.",
+        "recommended_action": "revise_answer_to_match_evidence",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "answer uses a nearby sentence from the same retrieved passage",
+          "question asks for the specific fact 'for this reason' linking atmosphere and sea level",
+          "citation support is real but mis-targeted"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "chunk_id=06_phak_ch4_0-fixed_window-p02-c02",
+          "chunk_id=06_phak_ch4_0-structure_aware-p02-c106",
+          "KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe",
+          "page=2"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "human_review": false,
+      "item_id": "sufficiency_aware_hybrid::bv2-sf-001",
+      "item_type": "generated_answer",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "17646ec0cf39374a4b85406188af4818273e0dc4eb75fde99027d765a06cd144",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "answer_llm_judge_v1",
+        "review_run_id": "answer_llm_judge-20260530T091609Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "answer_correctness": "The generated answer does not match the gold span. The evidence-backed fact asked for is that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level, not the sea-level pressure value.",
+        "answer_relevance": "Partially relevant: it discusses atmosphere and sea level, but it answers with a different fact from the same passage.",
+        "citation_precision": "High for the quoted sea-level pressure statement, but irrelevant to the gold answer span.",
+        "citation_recall": "Low, because the answer omits the key half-at-18,000-feet fact present in the evidence.",
+        "citation_support": "The citations are valid and supported by the retrieved chunk, but they support the wrong statement.",
+        "correct_abstention": false,
+        "faithfulness_to_retrieved_context": "Medium. The cited passage does support the sea-level pressure statement, but not the specific question's target fact.",
+        "hallucinated_claims": [
+          "The answer claims the supported fact is the sea-level pressure of about 14.70 psi / 1,013.2 mb, whereas the evidence-backed target fact is the atmosphere weighing one-half as much at 18,000 feet as at sea level."
+        ],
+        "unsafe_operational_advice": false
+      },
+      "prompt_version": "answer_llm_judge_v1",
+      "rationale": "The retrieved evidence explicitly states: 'For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.' The generated answer instead quotes an adjacent sentence about standard sea-level pressure. While that sentence is indeed present in the passage and correctly cited, it is not the fact requested by the question and therefore constitutes an incorrect answer rather than an abstention.",
+      "raw_response": "{\n  \"decision\": \"incorrect\",\n  \"confidence\": 0.99,\n  \"scores\": {\n    \"overall\": 0,\n    \"factual_match\": 0,\n    \"citation_quality\": 0.8,\n    \"retrieval_alignment\": 0.3,\n    \"abstention_quality\": 0.0\n  },\n  \"answer_correctness\": \"The generated answer does not match the gold span. The evidence-backed fact asked for is that the weight of the atmosphere at 18,000 feet is one-half what it is at sea level, not the sea-level pressure value.\",\n  \"answer_relevance\": \"Partially relevant: it discusses atmosphere and sea level, but it answers with a different fact from the same passage.\",\n  \"faithfulness_to_retrieved_context\": \"Medium. The cited passage does support the sea-level pressure statement, but not the specific question's target fact.\",\n  \"citation_support\": \"The citations are valid and supported by the retrieved chunk, but they support the wrong statement.\",\n  \"citation_precision\": \"High for the quoted sea-level pressure statement, but irrelevant to the gold answer span.\",\n  \"citation_recall\": \"Low, because the answer omits the key half-at-18,000-feet fact present in the evidence.\",\n  \"unsafe_operational_advice\": false,\n  \"correct_abstention\": false,\n  \"hallucinated_claims\": [\n    \"The answer claims the supported fact is the sea-level pressure of about 14.70 psi / 1,013.2 mb, whereas the evidence-backed target fact is the atmosphere weighing one-half as much at 18,000 feet as at sea level.\"\n  ],\n  \"recommended_action\": \"revise_answer_to_match_evidence\",\n  \"cited_source_fields\": [\n    \"chunk_id=06_phak_ch4_0-fixed_window-p02-c02\",\n    \"chunk_id=06_phak_ch4_0-structure_aware-p02-c106\",\n    \"KG triple_id=06_phak_ch4_0-structure_aware-p02-c106-kg00-13a52f3cfe\",\n    \"page=2\"\n  ],\n  \"uncertainty_flags\": [\n    \"answer uses a nearby sentence from the same retrieved passage\",\n    \"question asks for the specific fact 'for this reason' linking atmosphere and sea level\",\n    \"citation support is real but mis-targeted\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The retrieved evidence explicitly states: 'For this reason, the weight of the atmosphere at 18,000 feet is one-half what it is at sea level.' The generated answer instead quotes an adjacent sentence about standard sea-level pressure. While that sentence is indeed present in the passage and correctly cited, it is not the fact requested by the question and therefore constitutes an incorrect answer rather than an abstention.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "abstention_quality": 0.0,
+        "citation_quality": 0.8,
+        "factual_match": 0,
+        "overall": 0,
+        "retrieval_alignment": 0.3
+      },
+      "uncertainty_flags": [
+        "answer uses a nearby sentence from the same retrieved passage",
+        "question asks for the specific fact 'for this reason' linking atmosphere and sea level",
+        "citation support is real but mis-targeted"
+      ]
+    }
+  ],
+  "summary": {
+    "aviation_expert_certified": false,
+    "external_expert_certified": false,
+    "human_review": false,
+    "items_total": 6,
+    "llm_answer_correctness_rate": null,
+    "llm_answer_relevance_rate": null,
+    "llm_citation_support_rate": null,
+    "llm_faithfulness_rate": null,
+    "llm_review_not_run_total": 1,
+    "llm_reviewed_total": 5,
+    "recommended_action_counts": {
+      "revise": 1,
+      "revise_answer_to_match_evidence": 1,
+      "revise_to_target_evidence": 1,
+      "revise_to_target_sentence": 1,
+      "revise_to_targeted_fact": 1
+    },
+    "review_status": "llm_reviewed_not_human_certified",
+    "score_method": "llm_judge",
+    "uncertain_rate": 1.0,
+    "uncertain_total": 5
+  }
+}

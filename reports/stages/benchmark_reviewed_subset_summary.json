@@ -5,12 +5,16 @@
     "weak_or_generic_question": 8
   },
   "metadata": {
+    "aviation_expert_certified": false,
     "expected_abstention_total": 20,
     "external_aviation_expert_certified": false,
+    "external_expert_certified": false,
+    "human_review": false,
+    "human_review_completed": false,
     "label_set": "06_phak_ch4_0.benchmark_v2.reviewed_subset",
     "labels_total": 60,
-    "manual_review_completed": false,
-    "review_status": "project_review_pending_external_review"
+    "llm_review_completed": false,
+    "review_status": "llm_review_pending_not_human_certified"
   },
   "question_type_counts": {
     "concept_definition": 15,
@@ -19,7 +23,7 @@
     "relation_causal": 15
   },
   "review_status_counts": {
-    "project_review_pending_external_review": 60
+    "llm_review_pending_not_human_certified": 60
   },
   "subset_policy": {
     "counts_by_question_type": {
@@ -29,8 +33,10 @@
       "relation_causal": 15
     },
     "external_aviation_expert_certified": false,
+    "human_review": false,
+    "human_review_completed": false,
     "labels_total": 60,
-    "manual_review_completed": false,
+    "llm_review_completed": false,
     "selection": "all concept_definition, relation_causal, cross_page, and insufficient_evidence labels"
   }
 }

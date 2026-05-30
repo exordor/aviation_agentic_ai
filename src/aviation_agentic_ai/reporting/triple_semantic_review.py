@@ -63,7 +63,7 @@ def _truthy(value: Any) -> bool:
 
 
 def _is_reviewed(annotation: dict[str, Any]) -> bool:
-    if annotation.get("status") in {"reviewed", "accepted", "rejected"}:
+    if annotation.get("status") in {"reviewed", "accepted", "rejected", "llm_reviewed"}:
         return True
     return all(annotation.get(field) in {True, False} for field in REVIEW_FIELDS)
 
@@ -111,8 +111,11 @@ def build_triple_semantic_review_sample(
     records: list[dict[str, Any]] = []
     for triple in sample:
         annotation = {field: "needs_review" for field in REVIEW_FIELDS}
-        annotation["status"] = "needs_manual_review"
+        annotation["status"] = "needs_llm_review"
         annotation["reviewer_notes"] = ""
+        annotation["human_review"] = False
+        annotation["external_expert_certified"] = False
+        annotation["aviation_expert_certified"] = False
         annotation = _merge_annotation(annotation, existing_annotations.get(triple.triple_id))
         records.append(
             {
@@ -127,6 +130,10 @@ def build_triple_semantic_review_sample(
             "sample_size_requested": sample_size,
             "sample_size": len(records),
             "semantic_correctness_claimed": False,
+            "semantic_correctness_status": "llm_review_pending_not_human_certified",
+            "human_review": False,
+            "external_expert_certified": False,
+            "aviation_expert_certified": False,
             "annotations_path": project_relative_path(annotations_path)
             if annotations_path is not None
             else None,
@@ -156,7 +163,9 @@ def write_triple_semantic_review_markdown(
         f"- Triples total: {result['metadata']['triples_total']}",
         f"- Sample size: {result['metadata']['sample_size']}",
         "- Semantic correctness claimed: no",
-        "- Default review status: `needs_manual_review`",
+        "- Default review status: `needs_llm_review`",
+        "- Human review: false",
+        "- External aviation expert certified: false",
         f"- Reviewed triples: {result['summary']['reviewed_total']}",
         f"- Needs review: {result['summary']['needs_review_total']}",
         "- Unreviewed annotation fields stay `needs_review`; rates are shown only after review.",
@@ -165,12 +174,11 @@ def write_triple_semantic_review_markdown(
         "",
         *[f"- `{field}`" for field in result["summary"]["fields"]],
         "",
-        "## Human Review Instructions",
+        "## Model-Based Review Instructions",
         "",
-        "- Mark each correctness field as `true` or `false`; leave uncertain fields as `needs_review`.",
-        "- Set `status` to `reviewed`, `accepted`, or `rejected` after required fields are decided.",
-        "- Use `reviewer_notes` for uncertainty, generic triples, duplicates, or source mismatch.",
-        "- Do not treat this report as semantic correctness evidence until `reviewed_total > 0`.",
+        "- Use `triple-semantic-llm-review` for model-based judging.",
+        "- Leave uncertain fields as `needs_review` unless a schema-valid LLM review is supplied.",
+        "- Do not treat this report as manual or expert semantic correctness evidence.",
         "",
         "## Summary",
         "",

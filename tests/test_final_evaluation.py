@@ -90,7 +90,11 @@ def test_final_evaluation_review_keeps_layered_metrics(tmp_path: Path) -> None:
     gold = _write_json(
         tmp_path / "gold.json",
         {
-            "metadata": {"review_required": False, "review_status": "manual_reviewed"},
+            "metadata": {
+                "review_required": False,
+                "review_status": "internal_project_gold_not_human_certified",
+                "human_review": False,
+            },
             "labels": [
                 {
                     "cq_id": "cq-1",
@@ -140,6 +144,7 @@ def test_final_evaluation_review_keeps_layered_metrics(tmp_path: Path) -> None:
 
     assert result["metadata"]["scoring_policy"] == "layered_metrics_no_mixed_overall_score"
     assert result["gold_label_review"]["review_required"] is False
+    assert result["gold_label_review"]["human_review"] is False
     assert result["default_strategy_decision"]["recommended_default"] == "structure_aware"
     assert "overall_score" not in result
     assert "overall_score" not in result["default_strategy_decision"]

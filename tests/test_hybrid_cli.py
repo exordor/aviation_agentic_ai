@@ -693,7 +693,7 @@ def test_cli_report_answer_eval_subset_uses_mocked_writer(
     def fake_writer(*_args, **_kwargs):
         subset_path = tmp_path / "answer_eval_subset.json"
         subset_path.write_text("{}\n", encoding="utf-8")
-        return subset_path, {"labels": [{} for _ in range(35)]}
+        return subset_path, {"labels": [{} for _ in range(45)]}
 
     monkeypatch.setattr(cli, "write_answer_eval_subset", fake_writer)
 
@@ -708,7 +708,7 @@ def test_cli_report_answer_eval_subset_uses_mocked_writer(
     )
 
     assert result.exit_code == 0, result.output
-    assert "Prepared answer-eval subset with 35 labels" in result.output
+    assert "Prepared answer-eval subset with 45 labels" in result.output
 
 
 def test_cli_report_evaluation_protocol_uses_mocked_writer(
@@ -793,3 +793,67 @@ def test_cli_report_robustness_uses_mocked_writer(tmp_path: Path, monkeypatch) -
 
     assert result.exit_code == 0, result.output
     assert "Evaluated 5 robustness cases" in result.output
+
+
+def test_cli_llm_review_commands_use_mocked_writers(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_benchmark(*_args, **_kwargs):
+        json_path = tmp_path / "benchmark_llm_review.json"
+        md_path = tmp_path / "benchmark_llm_review.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"summary": {"items_total": 2, "llm_reviewed_total": 2}}
+
+    def fake_rewrite(*_args, **_kwargs):
+        json_path = tmp_path / "benchmark_llm_rewrite_proposals.json"
+        md_path = tmp_path / "benchmark_llm_rewrite_proposals.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, None, {"metadata": {"proposals_total": 1}}
+
+    def fake_review(*_args, **_kwargs):
+        json_path = tmp_path / "review.json"
+        md_path = tmp_path / "review.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"summary": {"items_total": 2, "llm_reviewed_total": 2}}
+
+    def fake_answer_gen(*_args, **_kwargs):
+        json_path = tmp_path / "answer_generation_benchmark_subset.json"
+        md_path = tmp_path / "answer_generation_benchmark_subset.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"answers_total": 3}}
+
+    def fake_consistency(*_args, **_kwargs):
+        json_path = tmp_path / "llm_review_consistency.json"
+        md_path = tmp_path / "llm_review_consistency.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"summary": {"consistency_not_measured": False}}
+
+    monkeypatch.setattr(cli, "write_benchmark_llm_review", fake_benchmark)
+    monkeypatch.setattr(cli, "write_benchmark_llm_rewrite_proposals", fake_rewrite)
+    monkeypatch.setattr(cli, "write_triple_semantic_llm_review", fake_review)
+    monkeypatch.setattr(cli, "write_graph_path_llm_review", fake_review)
+    monkeypatch.setattr(cli, "write_answer_llm_judge", fake_review)
+    monkeypatch.setattr(cli, "write_answer_generation_benchmark_subset", fake_answer_gen)
+    monkeypatch.setattr(cli, "write_llm_review_consistency", fake_consistency)
+
+    commands = [
+        ("benchmark-llm-review", "Benchmark LLM review records=2"),
+        ("benchmark-llm-rewrite-proposals", "Prepared 1 rewrite proposals"),
+        ("triple-semantic-llm-review", "Triple LLM review records=2"),
+        ("graph-path-llm-review", "Graph path LLM review records=2"),
+        ("answer-generation-benchmark-subset", "Generated 3 benchmark-subset answers"),
+        ("answer-llm-judge", "Answer LLM judge records=2"),
+        ("llm-review-consistency", "LLM review consistency measured=True"),
+    ]
+    for command, expected in commands:
+        result = CliRunner().invoke(
+            main,
+            ["report", command, "--output-dir", str(tmp_path)],
+        )
+        assert result.exit_code == 0, result.output
+        assert expected in result.output

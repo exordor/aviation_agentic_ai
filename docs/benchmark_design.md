@@ -105,6 +105,7 @@ The summary report writes:
 
 The v2 benchmark is larger and more useful for thesis evaluation than the
 course-project seed set, but it is still machine-seeded from local source chunks.
-It should be manually reviewed before making strong aviation-domain claims, and
-evaluation results should keep retrieval, KG evidence, answer quality, and
-abstention metrics separate.
+It is not human reviewed or aviation-expert certified. LLM-assisted review can
+support internal cleanup and cautious thesis wording, while evaluation results
+must keep retrieval, KG evidence, answer quality, and abstention metrics
+separate.

@@ -281,6 +281,13 @@ uv run aviation-ai report benchmark-v2
 uv run aviation-ai report benchmark-review-pack --no-write-reviewed
 uv run aviation-ai report benchmark-reviewed-subset
 uv run aviation-ai report answer-eval-subset
+uv run aviation-ai report benchmark-llm-review --max-items 60
+uv run aviation-ai report benchmark-llm-rewrite-proposals
+uv run aviation-ai report triple-semantic-llm-review --max-items 50
+uv run aviation-ai report graph-path-llm-review --max-items 50
+uv run aviation-ai report answer-generation-benchmark-subset --max-questions 45
+uv run aviation-ai report answer-llm-judge --max-items 60
+uv run aviation-ai report llm-review-consistency
 uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2
 uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2
 uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json
@@ -292,6 +299,12 @@ The evaluation protocol is documented in `docs/evaluation_protocol.md`. It maps
 mainstream RAGAS-style, ARES-style, IR, GraphRAG, ontology/KG, and aviation
 safety metrics to this project. The project reports layered metrics and does not
 claim or compute a single mixed overall score.
+
+Model-based review is documented in `docs/llm_review_protocol.md`. LLM review
+uses the configured `MODEL_NAME` as `reviewer_model`; it is not human review,
+not expert gold, and not external aviation certification. If LLM dependencies or
+credentials are unavailable, the review commands write explicit `not_run`
+statuses instead of fabricating review results.
 
 ## Thesis Experiment Workflow
 
@@ -318,9 +331,9 @@ The dashboard command writes `reports/stages/thesis_experiment_dashboard.json`
 and `.md`. It aggregates existing reports into an experiment inventory,
 RQ-to-evidence matrix, dataset usage matrix, primary results table,
 failure-mode summary, and thesis-ready claim summary. It does not recompute
-experiments, fabricate manual review results, or produce a mixed overall score.
-`all_passed=false` can be expected while manual benchmark, triple, answer, or
-path review remains pending; automated consistency is reported separately.
+experiments, fabricate human review results, or produce a mixed overall score.
+`all_passed=false` can be expected while model-based benchmark, triple, answer,
+or path review remains pending; automated consistency is reported separately.
 
 ## Thesis Positioning And Claim Safety
 

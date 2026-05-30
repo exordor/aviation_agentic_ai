@@ -177,7 +177,8 @@ def _record_path_metrics(
         "supporting_path_count": supporting_paths,
         "irrelevant_path_count": len(paths) - supporting_paths,
         "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
-        "requires_manual_review": True,
+        "requires_model_review": True,
+        "human_review": False,
     }
 
 
@@ -266,7 +267,8 @@ def _aggregate_path_metrics(records: list[dict[str, Any]]) -> dict[str, Any]:
         ),
         "relation_coverage": relation_coverage,
         "relation_questions_total": len(applicable_relations),
-        "requires_manual_review": True,
+        "requires_model_review": True,
+        "human_review": False,
         "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
     }
 

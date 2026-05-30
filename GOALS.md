@@ -200,6 +200,11 @@ fixed 4000-character budget favors `recursive_medium`, and category winners
 vary. Embedding/index backend comparison and full parent-return retrieval for
 hierarchical/proposition methods remain future work.
 
+The review direction is model-based: benchmark, triple, graph-path, and answer
+review artifacts are LLM-assisted internal checks when run. They are not human
+review, not external aviation expert certification, and not operational
+readiness evidence.
+
 ## Current Non-Goals
 
 - Do not build a production cockpit assistant in this phase.

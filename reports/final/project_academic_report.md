@@ -48,7 +48,7 @@ Evidence-level scoring is more useful for defending GraphRAG: structure-aware hy
 
 The thesis benchmark v2 layer is reported separately from the earlier course gold set. It is machine-seeded and span-validated against repository chunks, but it is not external aviation-expert certification.
 
-Benchmark v2 contains 120 labels: 100 supported labels and 20 insufficient-evidence labels. Validation passed=True; review status=`machine_seeded_requires_manual_review`. The manual-review pack covers 120 labels and uses automatic findings only as prompts for human review. Sources: `reports/stages/benchmark_v2_summary.json`, `reports/stages/benchmark_review_pack.json`.
+Benchmark v2 contains 120 labels: 100 supported labels and 20 insufficient-evidence labels. Validation passed=True; review status=`llm_review_pending_not_human_certified`. The model-review pack covers 120 labels and uses automatic findings only as prompts for LLM-assisted internal review. Sources: `reports/stages/benchmark_v2_summary.json`, `reports/stages/benchmark_review_pack.json`.
 
 On benchmark v2, vector Recall@5=0.475 and default hybrid Recall@5=0.5083; hybrid KG evidence coverage=0.8. These retrieval metrics are kept separate from KG evidence coverage. Source: `reports/stages/retrieval_ablation_benchmark_v2.json`.
 
@@ -56,17 +56,17 @@ Graph traversal shows the expected split between graph reachability and page-lev
 
 The evidence sufficiency layer reports supported decision accuracy=0.71, insufficient-evidence abstention accuracy=1.0, false answer rate on no-answer questions=0.0, false abstention rate on supported questions=0.29, risk-category accuracy=1.0, and boundary violations=0. Source: `reports/stages/sufficiency_evaluation.json`.
 
-The triple semantic review sample contains 100 triples with review fields initialized to `needs_review`; no semantic correctness claim is made until those annotations are completed. Source: `reports/stages/triple_semantic_review_sample.json`.
+The triple semantic review sample contains 100 triples with review fields initialized to `needs_review`; no semantic correctness claim is made unless a separate LLM-estimated review artifact is cited. Source: `reports/stages/triple_semantic_review_sample.json`.
 
 ## 9. Research-Question Synthesis From Thesis Dashboard
 
 The thesis experiment dashboard is the main synthesis artifact for the final report. It maps research questions to datasets, metrics, reports, current claim strength, and remaining gaps. Sources: `reports/stages/thesis_experiment_dashboard.json`, `docs/experiment_workflow.md`.
 
-Dashboard consistency checks passed=False. The dashboard reports vector Recall@5=0.475, lexical hybrid Context Recall=0.7375, traversal Path Recall@5=0.6583, and sufficiency False Abstention Rate=0.29.
+Dashboard consistency checks passed=True. The dashboard reports vector Recall@5=0.475, lexical hybrid Context Recall=0.7375, traversal Path Recall@5=0.6583, and sufficiency False Abstention Rate=0.29.
 
-- RQ1 ontology constraint: claim strength=strong; reports=curated_ontology_evaluation, kg_extraction_comparison, kg_validation; gap=Triple semantic correctness still requires manual review.
-- RQ2 evidence traceability: claim strength=moderate; reports=retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation; gap=Answer-level manual or LLM-judge evaluation is optional and not run.
-- RQ3 graph evidence vs vector sufficiency: claim strength=moderate; reports=retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2; gap=Path relevance metrics are heuristic until manually reviewed.
+- RQ1 ontology constraint: claim strength=strong; reports=curated_ontology_evaluation, kg_extraction_comparison, kg_validation; gap=Triple semantic correctness is absent or LLM-estimated only.
+- RQ2 evidence traceability: claim strength=moderate; reports=retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation; gap=Answer-level LLM-judge evaluation must remain separate from deterministic metrics.
+- RQ3 graph evidence vs vector sufficiency: claim strength=moderate; reports=retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, chunking_comparison_benchmark_v2, chunking_comparison_benchmark_v2_budget, chunking_topk_sensitivity_benchmark_v2, chunking_category_analysis_benchmark_v2; gap=Path relevance is heuristic or model-reviewed, not human-validated.
 - RQ4 safety-aware abstention: claim strength=moderate; reports=sufficiency_evaluation, robustness_evaluation; gap=Sufficiency can create false abstentions on supported questions.
 
 ## 10. Discussion
@@ -83,7 +83,7 @@ The web demo readiness report marks ready=True, default strategy=structure_aware
 
 ## 12.1 Final Evaluation Decision
 
-The final evaluation selects `structure_aware` as the default demo and next-phase GraphRAG strategy while keeping `fixed_window` as the baseline. Gold label review status is `manual_reviewed` with review_required=False. Source: `reports/stages/final_evaluation_review.json`.
+The final evaluation selects `structure_aware` as the default demo and next-phase GraphRAG strategy while keeping `fixed_window` as the baseline. Gold label review status is `internal_project_gold_not_human_certified` with review_required=False. Source: `reports/stages/final_evaluation_review.json`.
 
 ## 13. Advisory Boundary
 
@@ -150,14 +150,30 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/answer_evaluation.md`
 - `reports/stages/answer_evaluation_benchmark_subset.json`
 - `reports/stages/answer_evaluation_benchmark_subset.md`
+- `reports/stages/answer_generation_benchmark_subset.json`
+- `reports/stages/answer_generation_benchmark_subset.md`
+- `reports/stages/answer_llm_judge.json`
+- `reports/stages/answer_llm_judge.md`
+- `reports/stages/benchmark_llm_review.json`
+- `reports/stages/benchmark_llm_review.md`
 - `reports/stages/benchmark_review_pack.json`
 - `reports/stages/benchmark_review_pack.md`
 - `reports/stages/benchmark_reviewed_subset_summary.json`
 - `reports/stages/benchmark_reviewed_subset_summary.md`
 - `reports/stages/benchmark_v2_summary.json`
 - `reports/stages/benchmark_v2_summary.md`
+- `reports/stages/chunking_category_analysis_benchmark_v2.json`
+- `reports/stages/chunking_category_analysis_benchmark_v2.md`
 - `reports/stages/chunking_comparison.json`
 - `reports/stages/chunking_comparison.md`
+- `reports/stages/chunking_comparison_benchmark_v2.json`
+- `reports/stages/chunking_comparison_benchmark_v2.md`
+- `reports/stages/chunking_comparison_benchmark_v2_budget.json`
+- `reports/stages/chunking_comparison_benchmark_v2_budget.md`
+- `reports/stages/chunking_implementation_audit.json`
+- `reports/stages/chunking_implementation_audit.md`
+- `reports/stages/chunking_topk_sensitivity_benchmark_v2.json`
+- `reports/stages/chunking_topk_sensitivity_benchmark_v2.md`
 - `reports/stages/curated_ontology_evaluation.json`
 - `reports/stages/curated_ontology_evaluation.md`
 - `reports/stages/evaluation_protocol_review.json`
@@ -166,6 +182,8 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/evidence_level_evaluation.md`
 - `reports/stages/final_evaluation_review.json`
 - `reports/stages/final_evaluation_review.md`
+- `reports/stages/graph_path_llm_review.json`
+- `reports/stages/graph_path_llm_review.md`
 - `reports/stages/graph_traversal_ablation_benchmark_v2.json`
 - `reports/stages/graph_traversal_ablation_benchmark_v2.md`
 - `reports/stages/graphrag_review.json`
@@ -179,6 +197,8 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/kg_extraction_comparison.md`
 - `reports/stages/kg_validation.json`
 - `reports/stages/kg_validation.md`
+- `reports/stages/llm_review_consistency.json`
+- `reports/stages/llm_review_consistency.md`
 - `reports/stages/retrieval_ablation.json`
 - `reports/stages/retrieval_ablation.md`
 - `reports/stages/retrieval_ablation_benchmark_v2.json`
@@ -192,6 +212,8 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/thesis_claims_review.json`
 - `reports/stages/thesis_experiment_dashboard.json`
 - `reports/stages/thesis_experiment_dashboard.md`
+- `reports/stages/triple_semantic_llm_review.json`
+- `reports/stages/triple_semantic_llm_review.md`
 - `reports/stages/triple_semantic_review.md`
 - `reports/stages/triple_semantic_review_sample.json`
 - `reports/stages/web_demo_final_smoke.json`

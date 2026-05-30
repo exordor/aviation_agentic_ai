@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "aviation_expert_certified": false,
+    "external_expert_certified": false,
+    "human_review": false,
+    "proposal_only": true,
+    "proposals_total": 2,
+    "reviewer_model": "gpt-5.4-mini",
+    "reviewer_type": "llm_judge",
+    "source_gold_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
+    "source_review_path": "reports/stages/benchmark_llm_review.json",
+    "use_for_main_claims": false
+  },
+  "proposals": [
+    {
+      "answer_key": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases.",
+      "aviation_expert_certified": false,
+      "cq_id": "bv2-cd-002",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases."
+        }
+      ],
+      "external_expert_certified": false,
+      "human_review": false,
+      "original_question": "How does PHAK Chapter 4 define or describe gases in the evidence mentioning earth differs water?",
+      "proposal_only": true,
+      "rationale": "The evidence span fully supports the answer key, but the question text is poorly formed and semantically mismatched. The label is not unsafe, yet the category/question should be revised so the prompt clearly asks about air rather than gases and reads naturally.",
+      "recommended_action": "revise_category",
+      "rewritten_question": "How does PHAK Chapter 4 describe air in relation to the Earth and the seas or land?",
+      "use_for_main_claims": false
+    },
+    {
+      "answer_key": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium.",
+      "aviation_expert_certified": false,
+      "cq_id": "bv2-cd-003",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium."
+        }
+      ],
+      "external_expert_certified": false,
+      "human_review": false,
+      "original_question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere composed percent?",
+      "proposal_only": true,
+      "rationale": "The answer key is fully supported by the evidence span, and the item is answerable from the supplied PHAK Chapter 4 text. The main issue is that the question wording is unnatural and imprecise ('define or describe atmosphere in the evidence mentioning atmosphere composed percent'). A clearer composition-focused rewrite would preserve the label while improving quality.",
+      "recommended_action": "rewrite_question",
+      "rewritten_question": "According to PHAK Chapter 4, what is the composition of the atmosphere?",
+      "use_for_main_claims": false
+    }
+  ]
+}

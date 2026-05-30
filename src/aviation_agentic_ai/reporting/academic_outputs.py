@@ -564,9 +564,9 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         f"{metrics['benchmark_v2']['supported_total']} supported labels and "
         f"{metrics['benchmark_v2']['no_answer_total']} insufficient-evidence labels. "
         f"Validation passed={metrics['benchmark_v2']['validation_valid']}; review "
-        f"status=`{metrics['benchmark_v2']['review_status']}`. The manual-review pack "
+        f"status=`{metrics['benchmark_v2']['review_status']}`. The model-review pack "
         f"covers {metrics['benchmark_v2']['review_pack_labels_total']} labels and uses "
-        "automatic findings only as prompts for human review. Sources: "
+        "automatic findings only as prompts for LLM-assisted internal review. Sources: "
         "`reports/stages/benchmark_v2_summary.json`, "
         "`reports/stages/benchmark_review_pack.json`.",
         "",
@@ -602,7 +602,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         f"The triple semantic review sample contains "
         f"{metrics['benchmark_v2']['triple_review_sample_size']} triples with review "
         "fields initialized to `needs_review`; no semantic correctness claim is made "
-        "until those annotations are completed. Source: "
+        "unless a separate LLM-estimated review artifact is cited. Source: "
         "`reports/stages/triple_semantic_review_sample.json`.",
         "",
         "## 9. Research-Question Synthesis From Thesis Dashboard",

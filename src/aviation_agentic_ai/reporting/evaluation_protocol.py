@@ -54,8 +54,11 @@ PRIMARY_THESIS_METRICS: tuple[dict[str, Any], ...] = (
             "Citation Precision",
             "Citation Recall",
         ),
-        "classification": "mainstream_heuristic_until_llm_or_manual_review",
-        "reports": ("reports/stages/answer_evaluation.json",),
+        "classification": "mainstream_heuristic_with_optional_llm_judge",
+        "reports": (
+            "reports/stages/answer_evaluation.json",
+            "reports/stages/answer_llm_judge.json",
+        ),
     },
     {
         "layer": "ontology_kg",
@@ -66,14 +69,15 @@ PRIMARY_THESIS_METRICS: tuple[dict[str, Any], ...] = (
             "unsupported class/property count",
             "provenance completeness",
             "evidence-in-source rate",
-            "triple semantic correctness from manual sample review",
+            "LLM-estimated triple semantic correctness",
         ),
-        "classification": "mainstream_plus_manual_review",
+        "classification": "mainstream_plus_model_based_review",
         "reports": (
             "reports/stages/curated_ontology_evaluation.json",
             "reports/stages/kg_validation.json",
             "reports/stages/kg_extraction_comparison.json",
             "reports/stages/triple_semantic_review_sample.json",
+            "reports/stages/triple_semantic_llm_review.json",
         ),
     },
     {
@@ -153,28 +157,28 @@ METRIC_IMPLEMENTATION_STATUS: tuple[dict[str, Any], ...] = (
     },
     {
         "metric": "Path Recall@5",
-        "status": "heuristic_available_requires_manual_review",
+        "status": "heuristic_available_llm_review_optional",
         "kind": "graphrag_path",
         "field": "path_recall_at_5",
         "reports": ("graph_traversal_ablation",),
     },
     {
         "metric": "Path Precision@5",
-        "status": "heuristic_available_requires_manual_review",
+        "status": "heuristic_available_llm_review_optional",
         "kind": "graphrag_path",
         "field": "path_precision_at_5",
         "reports": ("graph_traversal_ablation",),
     },
     {
         "metric": "Supporting Path Rate",
-        "status": "heuristic_available_requires_manual_review",
+        "status": "heuristic_available_llm_review_optional",
         "kind": "graphrag_path",
         "field": "supporting_path_rate",
         "reports": ("graph_traversal_ablation",),
     },
     {
         "metric": "Irrelevant Path Rate",
-        "status": "heuristic_available_requires_manual_review",
+        "status": "heuristic_available_llm_review_optional",
         "kind": "graphrag_path",
         "field": "irrelevant_path_rate",
         "reports": ("graph_traversal_ablation",),
@@ -216,10 +220,10 @@ METRIC_IMPLEMENTATION_STATUS: tuple[dict[str, Any], ...] = (
     },
     {
         "metric": "Triple Semantic Correctness",
-        "status": "manual_review_template_available_results_missing",
-        "kind": "manual_kg_review",
-        "field": "annotation.status",
-        "reports": ("triple_semantic_review",),
+        "status": "llm_review_template_available_results_optional",
+        "kind": "llm_kg_review",
+        "field": "summary.llm_evidence_support_rate",
+        "reports": ("triple_semantic_review", "triple_semantic_llm_review"),
     },
     {
         "metric": "RDF/OWL Parse Validity",
@@ -301,9 +305,9 @@ METRIC_IMPLEMENTATION_STATUS: tuple[dict[str, Any], ...] = (
 )
 
 EVIDENCE_GAPS = (
-    "Path Recall@k and Path Precision@k are heuristic until manually reviewed path relevance labels exist.",
-    "Triple semantic correctness has a review sample but no completed manual correctness results.",
-    "Faithfulness, answer correctness, and answer relevance are deterministic heuristics unless an explicit LLM-as-judge or manual review run is added.",
+    "Path Recall@k and Path Precision@k are heuristic unless graph-path LLM review is cited.",
+    "Triple semantic correctness is absent or LLM-estimated; no human expert verification is claimed.",
+    "Faithfulness, answer correctness, and answer relevance are deterministic heuristics unless an explicit LLM-as-judge run is added.",
     "Benchmark labels are thesis/course-project evidence, not external aviation-expert certification.",
 )
 

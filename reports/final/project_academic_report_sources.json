@@ -37,7 +37,7 @@
     "web_demo_final_smoke": "reports/stages/web_demo_final_smoke.md",
     "web_demo_readiness": "reports/stages/web_demo_readiness.md"
   },
-  "generated_at": "2026-05-30T01:38:49.279749+00:00",
+  "generated_at": "2026-05-30T09:18:09.874580+00:00",
   "graphrag_interpretations": [
     {
       "claim": "GraphRAG value is evidence structure, not current page-level Recall lift.",
@@ -129,7 +129,7 @@
         "weak_or_generic_question": 49
       },
       "review_pack_labels_total": 120,
-      "review_status": "machine_seeded_requires_manual_review",
+      "review_status": "llm_review_pending_not_human_certified",
       "sufficiency_abstention_accuracy": 1.0,
       "sufficiency_boundary_violation_count": 0,
       "sufficiency_false_abstention_rate": 0.29,
@@ -156,7 +156,7 @@
       "baseline_strategy": "fixed_window",
       "default_strategy": "structure_aware",
       "gold_review_required": false,
-      "gold_review_status": "manual_reviewed"
+      "gold_review_status": "internal_project_gold_not_human_certified"
     },
     "hybrid_rag": {
       "fixed_hybrid_kg_coverage": 0.9,
@@ -181,7 +181,7 @@
       "tbox_only": true
     },
     "thesis_dashboard": {
-      "consistency_passed": false,
+      "consistency_passed": true,
       "false_abstention_rate": 0.29,
       "hybrid_context_recall": 0.7375,
       "traversal_path_recall_at_5": 0.6583,
@@ -209,12 +209,12 @@
         "unsupported class/property count",
         "provenance completeness"
       ],
-      "remaining_gaps": "Triple semantic correctness still requires manual review.",
+      "remaining_gaps": "Triple semantic correctness is absent or LLM-estimated only.",
       "rq": "RQ1 ontology constraint"
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Hybrid reports expose KG evidence and citations; answer scores are deterministic heuristics unless manually reviewed.",
+      "current_result_summary": "Hybrid reports expose KG evidence and citations; answer scores are deterministic heuristics unless LLM-judge scores are explicitly recorded.",
       "evidence_reports": [
         "retrieval_ablation_benchmark_v2",
         "graph_traversal_ablation_benchmark_v2",
@@ -226,15 +226,19 @@
         "citation precision",
         "citation recall"
       ],
-      "remaining_gaps": "Answer-level manual or LLM-judge evaluation is optional and not run.",
+      "remaining_gaps": "Answer-level LLM-judge evaluation must remain separate from deterministic metrics.",
       "rq": "RQ2 evidence traceability"
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Vector and hybrid retrieval are reported separately. Graph traversal can improve path evidence without guaranteeing Recall improvement.",
+      "current_result_summary": "Vector and hybrid retrieval are reported separately. Graph traversal can improve path evidence without guaranteeing Recall improvement. Chunking-v2 is reported with top-k, fixed-budget, and category views.",
       "evidence_reports": [
         "retrieval_ablation_benchmark_v2",
-        "graph_traversal_ablation_benchmark_v2"
+        "graph_traversal_ablation_benchmark_v2",
+        "chunking_comparison_benchmark_v2",
+        "chunking_comparison_benchmark_v2_budget",
+        "chunking_topk_sensitivity_benchmark_v2",
+        "chunking_category_analysis_benchmark_v2"
       ],
       "primary_metrics": [
         "Recall@5",
@@ -242,9 +246,10 @@
         "MRR@5",
         "NDCG@10",
         "Path Recall@5",
-        "Path Precision@5"
+        "Path Precision@5",
+        "Fixed-budget chunking Recall@5"
       ],
-      "remaining_gaps": "Path relevance metrics are heuristic until manually reviewed.",
+      "remaining_gaps": "Path relevance is heuristic or model-reviewed, not human-validated.",
       "rq": "RQ3 graph evidence vs vector sufficiency"
     },
     {
@@ -305,14 +310,30 @@
     "reports/stages/answer_evaluation.md",
     "reports/stages/answer_evaluation_benchmark_subset.json",
     "reports/stages/answer_evaluation_benchmark_subset.md",
+    "reports/stages/answer_generation_benchmark_subset.json",
+    "reports/stages/answer_generation_benchmark_subset.md",
+    "reports/stages/answer_llm_judge.json",
+    "reports/stages/answer_llm_judge.md",
+    "reports/stages/benchmark_llm_review.json",
+    "reports/stages/benchmark_llm_review.md",
     "reports/stages/benchmark_review_pack.json",
     "reports/stages/benchmark_review_pack.md",
     "reports/stages/benchmark_reviewed_subset_summary.json",
     "reports/stages/benchmark_reviewed_subset_summary.md",
     "reports/stages/benchmark_v2_summary.json",
     "reports/stages/benchmark_v2_summary.md",
+    "reports/stages/chunking_category_analysis_benchmark_v2.json",
+    "reports/stages/chunking_category_analysis_benchmark_v2.md",
     "reports/stages/chunking_comparison.json",
     "reports/stages/chunking_comparison.md",
+    "reports/stages/chunking_comparison_benchmark_v2.json",
+    "reports/stages/chunking_comparison_benchmark_v2.md",
+    "reports/stages/chunking_comparison_benchmark_v2_budget.json",
+    "reports/stages/chunking_comparison_benchmark_v2_budget.md",
+    "reports/stages/chunking_implementation_audit.json",
+    "reports/stages/chunking_implementation_audit.md",
+    "reports/stages/chunking_topk_sensitivity_benchmark_v2.json",
+    "reports/stages/chunking_topk_sensitivity_benchmark_v2.md",
     "reports/stages/curated_ontology_evaluation.json",
     "reports/stages/curated_ontology_evaluation.md",
     "reports/stages/evaluation_protocol_review.json",
@@ -321,6 +342,8 @@
     "reports/stages/evidence_level_evaluation.md",
     "reports/stages/final_evaluation_review.json",
     "reports/stages/final_evaluation_review.md",
+    "reports/stages/graph_path_llm_review.json",
+    "reports/stages/graph_path_llm_review.md",
     "reports/stages/graph_traversal_ablation_benchmark_v2.json",
     "reports/stages/graph_traversal_ablation_benchmark_v2.md",
     "reports/stages/graphrag_review.json",
@@ -334,6 +357,8 @@
     "reports/stages/kg_extraction_comparison.md",
     "reports/stages/kg_validation.json",
     "reports/stages/kg_validation.md",
+    "reports/stages/llm_review_consistency.json",
+    "reports/stages/llm_review_consistency.md",
     "reports/stages/retrieval_ablation.json",
     "reports/stages/retrieval_ablation.md",
     "reports/stages/retrieval_ablation_benchmark_v2.json",
@@ -347,6 +372,8 @@
     "reports/stages/thesis_claims_review.json",
     "reports/stages/thesis_experiment_dashboard.json",
     "reports/stages/thesis_experiment_dashboard.md",
+    "reports/stages/triple_semantic_llm_review.json",
+    "reports/stages/triple_semantic_llm_review.md",
     "reports/stages/triple_semantic_review.md",
     "reports/stages/triple_semantic_review_sample.json",
     "reports/stages/web_demo_final_smoke.json",

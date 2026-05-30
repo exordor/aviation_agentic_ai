@@ -104,7 +104,7 @@ def _evaluate_answer(result: dict[str, Any], gold: GoldLabel) -> dict[str, Any]:
             "citation_precision": "deterministic_heuristic",
             "citation_recall": "deterministic_heuristic",
             "llm_as_judge": "not_run",
-            "manual_review": "not_run",
+            "human_review": False,
         },
         "llm_judge": {
             "enabled": False,
@@ -222,7 +222,7 @@ def build_answer_evaluation(
             "evaluation_status": "complete" if answers_total else "pending_answer_generation",
             "score_method": "deterministic_heuristic",
             "llm_as_judge_enabled": False,
-            "manual_review_completed": False,
+            "human_review_completed": False,
             "scoring_policy": "answer_metrics_no_mixed_overall_score",
             "cost_latency": cost_latency_block(
                 elapsed_seconds=perf_counter() - started,

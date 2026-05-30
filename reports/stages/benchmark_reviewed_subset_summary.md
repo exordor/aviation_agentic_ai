@@ -1,11 +1,11 @@
-# Benchmark Reviewed Subset Summary
+# Benchmark LLM-Review Subset Summary
 
 - Label set: `06_phak_ch4_0.benchmark_v2.reviewed_subset`
 - Labels: 60
-- Review status: `project_review_pending_external_review`
-- Manual review completed: no
+- Review status: `llm_review_pending_not_human_certified`
+- Human review completed: no
 - External aviation expert certification: no
-- Scope: scaffold for project-author review; no labels are certified by this report.
+- Scope: scaffold for model-based review; no labels are certified by this report.
 
 ## Question Types
 
@@ -20,7 +20,7 @@
 
 | Status | Count |
 | --- | ---: |
-| project_review_pending_external_review | 60 |
+| llm_review_pending_not_human_certified | 60 |
 
 ## Automatic Review Findings
 

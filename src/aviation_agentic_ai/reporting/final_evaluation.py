@@ -62,6 +62,13 @@ def _gold_label_review(gold_labels: dict[str, Any] | None) -> dict[str, Any]:
             "review_status",
             default="not_marked_reviewed",
         ),
+        "human_review": bool(_get(gold_labels, "metadata", "human_review", default=False)),
+        "external_expert_certified": bool(
+            _get(gold_labels, "metadata", "external_expert_certified", default=False)
+        ),
+        "aviation_expert_certified": bool(
+            _get(gold_labels, "metadata", "aviation_expert_certified", default=False)
+        ),
         "metadata_notes": _get(gold_labels, "metadata", "notes", default=""),
         "label_checks": [
             {
@@ -346,6 +353,8 @@ def write_final_evaluation_review_markdown(
         f"- Gold levels: `{gold.get('gold_levels', {})}`",
         f"- Review required: {gold.get('review_required')}",
         f"- Review status: `{gold.get('review_status')}`",
+        f"- Human review: {gold.get('human_review')}",
+        f"- External aviation expert certified: {gold.get('external_expert_certified')}",
         "",
         "## Strategy Decision",
         "",

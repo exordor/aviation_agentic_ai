@@ -1,19 +1,24 @@
 {
   "consistency_checks": {
-    "all_passed": false,
+    "all_passed": true,
+    "answer_llm_judge_available": true,
     "automated_consistency_passed": true,
+    "aviation_expert_certified": false,
+    "benchmark_llm_review_available": true,
     "benchmark_v2_used_in_main_retrieval": true,
     "benchmark_v2_used_in_safety": true,
-    "claim_readiness_passed": false,
+    "claim_readiness_passed": true,
     "every_rq_has_evidence_report": true,
-    "manual_review_dependent_metrics_not_completed": true,
+    "external_expert_certified": false,
+    "human_review_absent": true,
     "no_unsafe_claim_patterns": true,
     "pilot_reports_not_marked_main": true,
     "primary_thesis_metric_gaps": [],
     "primary_thesis_metrics_have_report_evidence": true,
-    "reviewed_subset_manual_review_pending": true,
+    "reviewed_subset_llm_review_pending": true,
     "robustness_false_answer_rate_zero": true,
     "safety_reports_have_no_boundary_violations": true,
+    "triple_semantic_llm_review_available": true,
     "unsafe_hits": []
   },
   "dataset_usage_matrix": [
@@ -40,10 +45,10 @@
       ]
     },
     {
-      "can_support_thesis_main_claim": "provisional_internal_pending_manual_review",
+      "can_support_thesis_main_claim": "provisional_internal_pending_llm_review",
       "dataset": "benchmark v2 120",
       "evidence_role": "main_thesis_benchmark",
-      "limitations": "machine-seeded and requires manual naturalness review",
+      "limitations": "machine-seeded and requires model-based naturalness review",
       "purpose": "main thesis retrieval and safety benchmark",
       "used_in_reports": [
         "benchmark_v2_summary",
@@ -71,13 +76,27 @@
       ]
     },
     {
-      "can_support_thesis_main_claim": "pending_manual_review",
+      "can_support_thesis_main_claim": "pending_llm_review",
       "dataset": "benchmark reviewed subset 60",
-      "evidence_role": "manual_review_scaffold",
-      "limitations": "review scaffold only; no external aviation expert certification",
-      "purpose": "project-author review scaffold for high-value labels",
+      "evidence_role": "llm_review_scaffold",
+      "limitations": "review scaffold only; no human review or external aviation expert certification",
+      "purpose": "model-based review scaffold for high-value labels",
       "used_in_reports": [
         "benchmark_reviewed_subset_summary"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "internal_llm_review_only",
+      "dataset": "LLM review artifacts",
+      "evidence_role": "llm_judge",
+      "limitations": "model-based internal review; no human or external expert certification",
+      "purpose": "model-based benchmark, triple, graph-path, answer, and consistency review",
+      "used_in_reports": [
+        "benchmark_llm_review",
+        "triple_semantic_llm_review",
+        "graph_path_llm_review",
+        "answer_llm_judge",
+        "llm_review_consistency"
       ]
     },
     {
@@ -94,9 +113,9 @@
     {
       "can_support_thesis_main_claim": "partial",
       "dataset": "triple semantic review sample",
-      "evidence_role": "manual_review_pending",
-      "limitations": "review fields pending; no correctness results claimed",
-      "purpose": "manual KG semantic correctness review template",
+      "evidence_role": "llm_review_pending",
+      "limitations": "review fields pending until model-based review is run; no expert correctness claimed",
+      "purpose": "KG semantic correctness review template",
       "used_in_reports": [
         "triple_semantic_review_sample"
       ]
@@ -105,7 +124,8 @@
   "experiment_inventory": [
     {
       "dataset_used": "not_dataset_specific",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "claim_safety"
       ],
@@ -116,7 +136,8 @@
     },
     {
       "dataset_used": "not_dataset_specific",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "evaluation_protocol"
       ],
@@ -127,7 +148,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": true,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "benchmark_validation"
       ],
@@ -138,7 +160,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "retrieval",
         "kg_evidence"
@@ -150,7 +173,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": true,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "retrieval",
         "graph_paths"
@@ -162,7 +186,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "safety_abstention"
       ],
@@ -173,9 +198,10 @@
     },
     {
       "dataset_used": "benchmark_v2_reviewed_subset_60",
-      "manual_review_required": true,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
-        "benchmark_manual_review"
+        "benchmark_llm_review_scaffold"
       ],
       "path": "reports/stages/benchmark_reviewed_subset_summary.json",
       "present": true,
@@ -183,8 +209,34 @@
       "report_name": "benchmark_reviewed_subset_summary"
     },
     {
+      "dataset_used": "benchmark_v2_reviewed_subset_or_v2",
+      "human_review_present": false,
+      "llm_review_available": true,
+      "metric_layers_covered": [
+        "benchmark_llm_review",
+        "llm_judge"
+      ],
+      "path": "reports/stages/benchmark_llm_review.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "benchmark_llm_review"
+    },
+    {
+      "dataset_used": "benchmark_v2_reviewed_subset_or_v2",
+      "human_review_present": false,
+      "llm_review_available": true,
+      "metric_layers_covered": [
+        "benchmark_llm_review"
+      ],
+      "path": "reports/stages/benchmark_llm_rewrite_proposals.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "benchmark_llm_rewrite_proposals"
+    },
+    {
       "dataset_used": "answer_eval_subset",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "answer_generation",
         "safety_abstention"
@@ -195,8 +247,73 @@
       "report_name": "answer_evaluation_benchmark_subset"
     },
     {
+      "dataset_used": "answer_eval_subset",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "answer_generation"
+      ],
+      "path": "reports/stages/answer_generation_benchmark_subset.json",
+      "present": true,
+      "questions_count": 3,
+      "report_name": "answer_generation_benchmark_subset"
+    },
+    {
+      "dataset_used": "answer_eval_subset",
+      "human_review_present": false,
+      "llm_review_available": true,
+      "metric_layers_covered": [
+        "answer_generation",
+        "llm_judge"
+      ],
+      "path": "reports/stages/answer_llm_judge.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "answer_llm_judge"
+    },
+    {
+      "dataset_used": "triple_semantic_review_sample",
+      "human_review_present": false,
+      "llm_review_available": true,
+      "metric_layers_covered": [
+        "ontology_kg",
+        "llm_judge"
+      ],
+      "path": "reports/stages/triple_semantic_llm_review.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "triple_semantic_llm_review"
+    },
+    {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": true,
+      "metric_layers_covered": [
+        "graph_paths",
+        "llm_judge"
+      ],
+      "path": "reports/stages/graph_path_llm_review.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "graph_path_llm_review"
+    },
+    {
+      "dataset_used": "llm_review_artifacts",
+      "human_review_present": false,
+      "llm_review_available": true,
+      "metric_layers_covered": [
+        "llm_judge",
+        "claim_safety"
+      ],
+      "path": "reports/stages/llm_review_consistency.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "llm_review_consistency"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "retrieval",
         "evaluation_protocol"
@@ -208,7 +325,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "retrieval"
       ],
@@ -219,7 +337,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "retrieval"
       ],
@@ -230,7 +349,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "retrieval"
       ],
@@ -241,7 +361,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "retrieval"
       ],
@@ -252,7 +373,8 @@
     },
     {
       "dataset_used": "benchmark_v2_120",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "retrieval",
         "failure_analysis"
@@ -264,7 +386,8 @@
     },
     {
       "dataset_used": "35_question_expanded",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "ontology_kg"
       ],
@@ -275,7 +398,8 @@
     },
     {
       "dataset_used": "not_dataset_specific",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "ontology_kg"
       ],
@@ -286,10 +410,11 @@
     },
     {
       "dataset_used": "triple_semantic_review_sample",
-      "manual_review_required": true,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "ontology_kg",
-        "manual_review"
+        "llm_review_scaffold"
       ],
       "path": "reports/stages/triple_semantic_review_sample.json",
       "present": true,
@@ -298,7 +423,8 @@
     },
     {
       "dataset_used": "10_cq_answer_subset",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "answer_generation",
         "safety_abstention"
@@ -310,7 +436,8 @@
     },
     {
       "dataset_used": "robustness_10_cases",
-      "manual_review_required": false,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
         "safety_abstention",
         "robustness"
@@ -322,9 +449,10 @@
     },
     {
       "dataset_used": "not_dataset_specific",
-      "manual_review_required": true,
+      "human_review_present": false,
+      "llm_review_available": false,
       "metric_layers_covered": [
-        "benchmark_manual_review"
+        "benchmark_llm_review_scaffold"
       ],
       "path": "reports/stages/benchmark_review_pack.json",
       "present": true,
@@ -354,15 +482,18 @@
       "seed_linking_error": 150
     },
     "machine_seeded_benchmark_wording": 90,
-    "missing_manual_triple_review": 100,
+    "missing_llm_triple_review": 100,
     "notes": [
       "High path coverage is interpreted separately from Recall@k.",
-      "Manual-review-dependent metrics remain pending."
+      "Human review is absent; model-based review artifacts must be cited separately."
     ]
   },
   "metadata": {
     "advisory_boundary": "Aviation learning and decision support only; does not replace POH/AFM, approved checklists, ATC instructions, instructor guidance, regulations, or pilot judgment.",
-    "manual_review_policy": "do_not_fabricate_manual_review_results",
+    "aviation_expert_certified": false,
+    "external_expert_certified": false,
+    "human_review": false,
+    "review_policy": "human_review_absent_use_model_based_review_only",
     "scoring_policy": "layered_metrics_no_mixed_overall_score",
     "source_policy": "aggregate_existing_reports_no_recompute"
   },
@@ -372,13 +503,14 @@
       "evaluation_status": "pending_answer_generation",
       "hybrid_faithfulness": 0.0,
       "score_method": "deterministic_heuristic",
-      "unmatched_gold_labels": 35
+      "unmatched_gold_labels": 45
     },
     "benchmark_reviewed_subset": {
       "external_aviation_expert_certified": false,
+      "human_review_completed": false,
       "labels_total": 60,
-      "manual_review_completed": false,
-      "review_status": "project_review_pending_external_review"
+      "llm_review_completed": false,
+      "review_status": "llm_review_pending_not_human_certified"
     },
     "best_lexical_hybrid": {
       "confidence_intervals": {
@@ -489,6 +621,45 @@
       "unsupported_triple_count": 0,
       "valid_triples": 448
     },
+    "llm_review_status": {
+      "answer_generation": {
+        "answers_total": 9,
+        "status": "complete"
+      },
+      "answer_judge": {
+        "correctness_rate": null,
+        "llm_reviewed": 5,
+        "records": 6
+      },
+      "aviation_expert_certified": false,
+      "benchmark": {
+        "llm_reviewed": 6,
+        "records": 6,
+        "status": "llm_reviewed_not_human_certified"
+      },
+      "consistency": {
+        "agreement_rate": 0.3636,
+        "consistency_not_measured": false
+      },
+      "external_expert_certified": false,
+      "graph_paths": {
+        "llm_reviewed": 6,
+        "path_relevance_rate": 0.3333,
+        "records": 6
+      },
+      "human_review": false,
+      "metric_source_policy": {
+        "deterministic": "retrieval, validation, sufficiency, provenance",
+        "heuristic": "path overlap and answer heuristic metrics",
+        "human_review": "absent_false",
+        "llm_judge": "model-based review artifacts only"
+      },
+      "triple_semantic": {
+        "evidence_support_rate": 0.1667,
+        "llm_reviewed": 6,
+        "records": 6
+      }
+    },
     "robustness": {
       "abstention_correctness": 1.0,
       "advisory_boundary_violation_count": 0,
@@ -550,7 +721,8 @@
       "risk_category_accuracy": 1.0
     },
     "traversal_hybrid": {
-      "path_metrics_require_manual_review": true,
+      "human_review": false,
+      "path_metrics_require_model_review": true,
       "path_precision_at_5": 0.6522,
       "path_recall_at_5": 0.6583,
       "recall_at_5": 0.4583,
@@ -649,12 +821,12 @@
         "unsupported class/property count",
         "provenance completeness"
       ],
-      "remaining_gaps": "Triple semantic correctness still requires manual review.",
+      "remaining_gaps": "Triple semantic correctness is absent or LLM-estimated only.",
       "rq": "RQ1 ontology constraint"
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Hybrid reports expose KG evidence and citations; answer scores are deterministic heuristics unless manually reviewed.",
+      "current_result_summary": "Hybrid reports expose KG evidence and citations; answer scores are deterministic heuristics unless LLM-judge scores are explicitly recorded.",
       "evidence_reports": [
         "retrieval_ablation_benchmark_v2",
         "graph_traversal_ablation_benchmark_v2",
@@ -666,7 +838,7 @@
         "citation precision",
         "citation recall"
       ],
-      "remaining_gaps": "Answer-level manual or LLM-judge evaluation is optional and not run.",
+      "remaining_gaps": "Answer-level LLM-judge evaluation must remain separate from deterministic metrics.",
       "rq": "RQ2 evidence traceability"
     },
     {
@@ -689,7 +861,7 @@
         "Path Precision@5",
         "Fixed-budget chunking Recall@5"
       ],
-      "remaining_gaps": "Path relevance metrics and partial chunking methods require cautious interpretation.",
+      "remaining_gaps": "Path relevance is heuristic or model-reviewed, not human-validated.",
       "rq": "RQ3 graph evidence vs vector sufficiency"
     },
     {

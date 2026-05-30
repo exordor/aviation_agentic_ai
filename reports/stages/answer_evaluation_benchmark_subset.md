@@ -1,10 +1,10 @@
 # Answer Evaluation
 
-- Run ID: `answer-evaluation-20260530T013848Z`
+- Run ID: `answer-evaluation-20260530T091148Z`
 - Answers: 0
 - Evaluation status: `pending_answer_generation`
 - Matched gold labels: 0
-- Unmatched gold labels: 35
+- Unmatched gold labels: 45
 - Scoring: answer layer only; no retrieval/KG mixed total score.
 - Score method: deterministic heuristic unless an optional LLM/manual field is explicitly populated.
 

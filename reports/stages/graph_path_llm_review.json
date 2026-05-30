@@ -1,0 +1,1335 @@
+{
+  "consistency": {
+    "agreement_rate": 0.6667,
+    "aviation_expert_certified": false,
+    "comparable_item_groups": 3,
+    "consistency_not_measured": false,
+    "contradiction_count": 1,
+    "external_expert_certified": false,
+    "high_confidence_disagreement_count": 1,
+    "human_review": false,
+    "items_not_safe_for_strong_claims": 1,
+    "items_requiring_human_review_even_if_no_human_available": 1,
+    "reviewed_item_groups": 3
+  },
+  "metadata": {
+    "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+    "aviation_expert_certified": false,
+    "command": "aviation-ai report graph-path-llm-review --max-items 3",
+    "cost_latency": {
+      "cases_total": null,
+      "chunks_path": null,
+      "chunks_size_bytes": null,
+      "elapsed_seconds": 37.875,
+      "index_dir": null,
+      "index_size_bytes": null,
+      "kg_path": null,
+      "kg_size_bytes": null,
+      "llm_token_usage": null,
+      "questions_total": 3
+    },
+    "external_expert_certified": false,
+    "graph_traversal_report_path": "reports/stages/graph_traversal_ablation_benchmark_v2.json",
+    "human_review": false,
+    "items_total": 3,
+    "llm_runtime_available": true,
+    "max_items": 3,
+    "reviewer_model": "gpt-5.4-mini",
+    "reviewer_type": "llm_judge",
+    "roles": [
+      "strict_evidence_reviewer",
+      "skeptical_aviation_boundary_reviewer"
+    ],
+    "run_llm_requested": true,
+    "score_method": "llm_judge"
+  },
+  "records": [
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "question",
+        "question_type",
+        "metrics.graph_paths.key_entities_covered",
+        "metrics.graph_paths.path_count",
+        "metrics.graph_paths.supporting_path_count",
+        "metrics.kg_evidence.key_entities_covered",
+        "metrics.kg_evidence.supporting_triple_count",
+        "metrics.kg_evidence.provenance_complete_rate",
+        "metrics.retrieval.matched_chunk_ids",
+        "metrics.retrieval.first_relevant_rank",
+        "metrics.retrieval.context_precision_at_5"
+      ],
+      "confidence": 0.71,
+      "decision": {
+        "confidence": 0.71,
+        "decision": "keep_as_explanation",
+        "rationale": "The evidence strongly matches the question's key entities ('air', 'forces', 'aircraft', 'performance') and retrieval indicates the most relevant chunk was found at rank 1 with full recall. KG evidence also shows complete provenance and fully supporting triples. However, there are no explicit graph paths, so the relation chain cannot be directly validated; this makes path-level relevance and explanatory quality uncertain rather than fully confirmed. The material is still relevant enough to keep as an explanation, and it does not appear misleading.",
+        "recommended_action": "keep_as_explanation",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "No explicit graph_paths were provided (path_count = 0).",
+          "Assessment relies on retrieval and KG evidence rather than an actual relation chain.",
+          "Question text is awkward/possibly truncated, reducing exact semantic certainty."
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "question",
+          "question_type",
+          "metrics.graph_paths.key_entities_covered",
+          "metrics.graph_paths.path_count",
+          "metrics.graph_paths.supporting_path_count",
+          "metrics.kg_evidence.key_entities_covered",
+          "metrics.kg_evidence.supporting_triple_count",
+          "metrics.kg_evidence.provenance_complete_rate",
+          "metrics.retrieval.matched_chunk_ids",
+          "metrics.retrieval.first_relevant_rank",
+          "metrics.retrieval.context_precision_at_5"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "graph_path_item": {
+        "cq_id": "bv2-rc-001",
+        "failure_categories": [],
+        "graph_paths": [],
+        "metrics": {
+          "graph_paths": {
+            "avg_path_length": 0.0,
+            "expected_relations": [],
+            "human_review": false,
+            "irrelevant_path_count": 0,
+            "irrelevant_path_rate": 0.0,
+            "key_entities_covered": [
+              "air",
+              "aircraft",
+              "forces",
+              "performance"
+            ],
+            "key_entity_coverage": 1.0,
+            "matched_relations": [],
+            "path_count": 0,
+            "path_coverage": false,
+            "path_hops": [],
+            "path_precision_at_5": 0.0,
+            "path_recall_at_5": 0.0,
+            "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
+            "relation_coverage": null,
+            "relation_coverage_applicable": false,
+            "requires_model_review": true,
+            "supporting_path_count": 0,
+            "supporting_path_rate": 0.0
+          },
+          "kg_evidence": {
+            "evidence_coverage": true,
+            "invalid_triple_count": 0,
+            "key_entities_covered": [
+              "air",
+              "aircraft",
+              "forces",
+              "performance"
+            ],
+            "key_entity_coverage": true,
+            "provenance_complete_rate": 1.0,
+            "related_triple_count": 8,
+            "supporting_triple_count": 8,
+            "unsupported_triple_count": 0
+          },
+          "retrieval": {
+            "context_precision_at_5": 0.2,
+            "context_recall": 1.0,
+            "expected_abstention": false,
+            "first_relevant_rank": 1,
+            "gold_level": "span",
+            "matched_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c02"
+            ],
+            "matched_source_pages": [
+              0
+            ],
+            "mrr_at_10": 1.0,
+            "mrr_at_5": 1.0,
+            "ndcg_at_10": 1.0,
+            "precision_at_10": 0.1,
+            "precision_at_5": 0.2,
+            "recall_at_10": true,
+            "recall_at_5": true,
+            "retrieved_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c02",
+              "06_phak_ch4_0-structure_aware-p00-c03",
+              "06_phak_ch4_0-structure_aware-p01-c03",
+              "06_phak_ch4_0-structure_aware-p05-c43",
+              "06_phak_ch4_0-structure_aware-p02-c105"
+            ],
+            "retrieved_source_pages": [
+              0,
+              0,
+              1,
+              5,
+              2
+            ]
+          }
+        },
+        "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning examines fundamental physical?",
+        "question_type": "relation_causal",
+        "retrieved_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "page": 0,
+            "rank": 1,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+            "page": 0,
+            "rank": 2,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+            "page": 1,
+            "rank": 3,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "page": 5,
+            "rank": 4,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+            "page": 2,
+            "rank": 5,
+            "source": "vector"
+          }
+        ],
+        "scenario": "hybrid_vector_lexical_graph"
+      },
+      "human_review": false,
+      "item_id": "hybrid_vector_lexical_graph::bv2-rc-001",
+      "item_type": "graph_path",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "c5518df060dc426aa1389f70d82e1895acdcadb9a949fc803c93bd806b0865d4",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "graph_path_llm_review_v1",
+        "review_run_id": "graph_path_llm_review-20260530T091418Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "entities_match_question": "1",
+        "evidence_chunks_support_path": "1",
+        "path_is_explanatory": "uncertain",
+        "path_is_misleading": "0",
+        "path_relevant_to_question": "uncertain",
+        "relation_chain_supports_answer": "uncertain"
+      },
+      "prompt_version": "graph_path_llm_review_v1",
+      "rationale": "The evidence strongly matches the question's key entities ('air', 'forces', 'aircraft', 'performance') and retrieval indicates the most relevant chunk was found at rank 1 with full recall. KG evidence also shows complete provenance and fully supporting triples. However, there are no explicit graph paths, so the relation chain cannot be directly validated; this makes path-level relevance and explanatory quality uncertain rather than fully confirmed. The material is still relevant enough to keep as an explanation, and it does not appear misleading.",
+      "raw_response": "{\n  \"decision\": \"keep_as_explanation\",\n  \"confidence\": 0.71,\n  \"scores\": {\n    \"relevance\": 0.88,\n    \"evidence_support\": 0.82,\n    \"explanatory_value\": 0.78,\n    \"misleading_risk\": 0.12\n  },\n  \"path_relevant_to_question\": \"uncertain\",\n  \"entities_match_question\": \"1\",\n  \"relation_chain_supports_answer\": \"uncertain\",\n  \"evidence_chunks_support_path\": \"1\",\n  \"path_is_explanatory\": \"uncertain\",\n  \"path_is_misleading\": \"0\",\n  \"recommended_action\": \"keep_as_explanation\",\n  \"cited_source_fields\": [\n    \"question\",\n    \"question_type\",\n    \"metrics.graph_paths.key_entities_covered\",\n    \"metrics.graph_paths.path_count\",\n    \"metrics.graph_paths.supporting_path_count\",\n    \"metrics.kg_evidence.key_entities_covered\",\n    \"metrics.kg_evidence.supporting_triple_count\",\n    \"metrics.kg_evidence.provenance_complete_rate\",\n    \"metrics.retrieval.matched_chunk_ids\",\n    \"metrics.retrieval.first_relevant_rank\",\n    \"metrics.retrieval.context_precision_at_5\"\n  ],\n  \"uncertainty_flags\": [\n    \"No explicit graph_paths were provided (path_count = 0).\",\n    \"Assessment relies on retrieval and KG evidence rather than an actual relation chain.\",\n    \"Question text is awkward/possibly truncated, reducing exact semantic certainty.\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The evidence strongly matches the question's key entities ('air', 'forces', 'aircraft', 'performance') and retrieval indicates the most relevant chunk was found at rank 1 with full recall. KG evidence also shows complete provenance and fully supporting triples. However, there are no explicit graph paths, so the relation chain cannot be directly validated; this makes path-level relevance and explanatory quality uncertain rather than fully confirmed. The material is still relevant enough to keep as an explanation, and it does not appear misleading.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "evidence_support": 0.82,
+        "explanatory_value": 0.78,
+        "misleading_risk": 0.12,
+        "relevance": 0.88
+      },
+      "uncertainty_flags": [
+        "No explicit graph_paths were provided (path_count = 0).",
+        "Assessment relies on retrieval and KG evidence rather than an actual relation chain.",
+        "Question text is awkward/possibly truncated, reducing exact semantic certainty."
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "metrics.graph_paths.path_count",
+        "metrics.graph_paths.graph_paths",
+        "metrics.graph_paths.requires_model_review",
+        "metrics.graph_paths.path_coverage",
+        "metrics.graph_paths.supporting_path_count",
+        "metrics.graph_paths.matched_relations",
+        "metrics.retrieval.matched_chunk_ids",
+        "metrics.retrieval.context_precision_at_5",
+        "metrics.kg_evidence.supporting_triple_count",
+        "metrics.kg_evidence.related_triple_count"
+      ],
+      "confidence": 0.98,
+      "decision": {
+        "confidence": 0.98,
+        "decision": "reject",
+        "rationale": "There are no graph paths available to judge (path_count=0, graph_paths=[]), so nothing can explain the queried relationship between air and forces. Although retrieval and KG evidence indicate some relevant chapter content and supporting triples, that is not the same as an actual explanatory path. The evidence supports topical relevance but not a relation chain answering the question. For path judgment, this should be removed rather than kept.",
+        "recommended_action": "remove",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "no_graph_paths_provided",
+          "cannot_verify_relation_chain_from_empty_paths",
+          "question_is_awkwardly_formulated",
+          "retrieval_has_some_relevant_chunk_overlap_but_not_path_support"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "metrics.graph_paths.path_count",
+          "metrics.graph_paths.graph_paths",
+          "metrics.graph_paths.requires_model_review",
+          "metrics.graph_paths.path_coverage",
+          "metrics.graph_paths.supporting_path_count",
+          "metrics.graph_paths.matched_relations",
+          "metrics.retrieval.matched_chunk_ids",
+          "metrics.retrieval.context_precision_at_5",
+          "metrics.kg_evidence.supporting_triple_count",
+          "metrics.kg_evidence.related_triple_count"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "graph_path_item": {
+        "cq_id": "bv2-rc-001",
+        "failure_categories": [],
+        "graph_paths": [],
+        "metrics": {
+          "graph_paths": {
+            "avg_path_length": 0.0,
+            "expected_relations": [],
+            "human_review": false,
+            "irrelevant_path_count": 0,
+            "irrelevant_path_rate": 0.0,
+            "key_entities_covered": [
+              "air",
+              "aircraft",
+              "forces",
+              "performance"
+            ],
+            "key_entity_coverage": 1.0,
+            "matched_relations": [],
+            "path_count": 0,
+            "path_coverage": false,
+            "path_hops": [],
+            "path_precision_at_5": 0.0,
+            "path_recall_at_5": 0.0,
+            "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
+            "relation_coverage": null,
+            "relation_coverage_applicable": false,
+            "requires_model_review": true,
+            "supporting_path_count": 0,
+            "supporting_path_rate": 0.0
+          },
+          "kg_evidence": {
+            "evidence_coverage": true,
+            "invalid_triple_count": 0,
+            "key_entities_covered": [
+              "air",
+              "aircraft",
+              "forces",
+              "performance"
+            ],
+            "key_entity_coverage": true,
+            "provenance_complete_rate": 1.0,
+            "related_triple_count": 8,
+            "supporting_triple_count": 8,
+            "unsupported_triple_count": 0
+          },
+          "retrieval": {
+            "context_precision_at_5": 0.2,
+            "context_recall": 1.0,
+            "expected_abstention": false,
+            "first_relevant_rank": 1,
+            "gold_level": "span",
+            "matched_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c02"
+            ],
+            "matched_source_pages": [
+              0
+            ],
+            "mrr_at_10": 1.0,
+            "mrr_at_5": 1.0,
+            "ndcg_at_10": 1.0,
+            "precision_at_10": 0.1,
+            "precision_at_5": 0.2,
+            "recall_at_10": true,
+            "recall_at_5": true,
+            "retrieved_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c02",
+              "06_phak_ch4_0-structure_aware-p00-c03",
+              "06_phak_ch4_0-structure_aware-p01-c03",
+              "06_phak_ch4_0-structure_aware-p05-c43",
+              "06_phak_ch4_0-structure_aware-p02-c105"
+            ],
+            "retrieved_source_pages": [
+              0,
+              0,
+              1,
+              5,
+              2
+            ]
+          }
+        },
+        "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning examines fundamental physical?",
+        "question_type": "relation_causal",
+        "retrieved_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "page": 0,
+            "rank": 1,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+            "page": 0,
+            "rank": 2,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+            "page": 1,
+            "rank": 3,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "page": 5,
+            "rank": 4,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p02-c105",
+            "page": 2,
+            "rank": 5,
+            "source": "vector"
+          }
+        ],
+        "scenario": "hybrid_vector_lexical_graph"
+      },
+      "human_review": false,
+      "item_id": "hybrid_vector_lexical_graph::bv2-rc-001",
+      "item_type": "graph_path",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "c5518df060dc426aa1389f70d82e1895acdcadb9a949fc803c93bd806b0865d4",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "graph_path_llm_review_v1",
+        "review_run_id": "graph_path_llm_review-20260530T091424Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "entities_match_question": 1,
+        "evidence_chunks_support_path": 1,
+        "path_is_explanatory": 0,
+        "path_is_misleading": 1,
+        "path_relevant_to_question": 0,
+        "relation_chain_supports_answer": 0
+      },
+      "prompt_version": "graph_path_llm_review_v1",
+      "rationale": "There are no graph paths available to judge (path_count=0, graph_paths=[]), so nothing can explain the queried relationship between air and forces. Although retrieval and KG evidence indicate some relevant chapter content and supporting triples, that is not the same as an actual explanatory path. The evidence supports topical relevance but not a relation chain answering the question. For path judgment, this should be removed rather than kept.",
+      "raw_response": "{\n  \"decision\": \"reject\",\n  \"confidence\": 0.98,\n  \"scores\": {\n    \"relevance\": 0.0,\n    \"explanation_quality\": 0.0,\n    \"support_strength\": 0.1\n  },\n  \"path_relevant_to_question\": 0,\n  \"entities_match_question\": 1,\n  \"relation_chain_supports_answer\": 0,\n  \"evidence_chunks_support_path\": 1,\n  \"path_is_explanatory\": 0,\n  \"path_is_misleading\": 1,\n  \"recommended_action\": \"remove\",\n  \"cited_source_fields\": [\n    \"metrics.graph_paths.path_count\",\n    \"metrics.graph_paths.graph_paths\",\n    \"metrics.graph_paths.requires_model_review\",\n    \"metrics.graph_paths.path_coverage\",\n    \"metrics.graph_paths.supporting_path_count\",\n    \"metrics.graph_paths.matched_relations\",\n    \"metrics.retrieval.matched_chunk_ids\",\n    \"metrics.retrieval.context_precision_at_5\",\n    \"metrics.kg_evidence.supporting_triple_count\",\n    \"metrics.kg_evidence.related_triple_count\"\n  ],\n  \"uncertainty_flags\": [\n    \"no_graph_paths_provided\",\n    \"cannot_verify_relation_chain_from_empty_paths\",\n    \"question_is_awkwardly_formulated\",\n    \"retrieval_has_some_relevant_chunk_overlap_but_not_path_support\"\n  ],\n  \"requires_human_review\": 0,\n  \"rationale\": \"There are no graph paths available to judge (path_count=0, graph_paths=[]), so nothing can explain the queried relationship between air and forces. Although retrieval and KG evidence indicate some relevant chapter content and supporting triples, that is not the same as an actual explanatory path. The evidence supports topical relevance but not a relation chain answering the question. For path judgment, this should be removed rather than kept.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "explanation_quality": 0.0,
+        "relevance": 0.0,
+        "support_strength": 0.1
+      },
+      "uncertainty_flags": [
+        "no_graph_paths_provided",
+        "cannot_verify_relation_chain_from_empty_paths",
+        "question_is_awkwardly_formulated",
+        "retrieval_has_some_relevant_chunk_overlap_but_not_path_support"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "question",
+        "question_type",
+        "retrieved_chunks",
+        "metrics.graph_paths",
+        "metrics.kg_evidence",
+        "metrics.retrieval",
+        "metrics.graph_paths.key_entities_covered",
+        "metrics.graph_paths.path_count",
+        "metrics.graph_paths.supporting_path_count",
+        "metrics.kg_evidence.supporting_triple_count",
+        "metrics.kg_evidence.evidence_coverage"
+      ],
+      "confidence": 0.78,
+      "decision": {
+        "confidence": 0.78,
+        "decision": "keep_as_explanation",
+        "rationale": "The question asks for the relationship described in PHAK Chapter 4 between air and forces, and the metrics show strong key-entity coverage for air, aircraft, and forces plus complete evidence coverage. However, there are no actual graph paths supplied, so the specific relation chain cannot be directly verified. On the available evidence, the retrieved chunk and KG evidence appear relevant and explanatory, but the lack of explicit paths prevents a full certainty judgment. This should be kept as an explanation with moderate confidence rather than removed.",
+        "recommended_action": "keep_as_explanation",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "no_graph_paths_provided",
+          "relation_chain_not_observable",
+          "relevance inferred from metrics rather than explicit path",
+          "question wording is somewhat ambiguous"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "question",
+          "question_type",
+          "retrieved_chunks",
+          "metrics.graph_paths",
+          "metrics.kg_evidence",
+          "metrics.retrieval",
+          "metrics.graph_paths.key_entities_covered",
+          "metrics.graph_paths.path_count",
+          "metrics.graph_paths.supporting_path_count",
+          "metrics.kg_evidence.supporting_triple_count",
+          "metrics.kg_evidence.evidence_coverage"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "graph_path_item": {
+        "cq_id": "bv2-rc-002",
+        "failure_categories": [],
+        "graph_paths": [],
+        "metrics": {
+          "graph_paths": {
+            "avg_path_length": 0.0,
+            "expected_relations": [],
+            "human_review": false,
+            "irrelevant_path_count": 0,
+            "irrelevant_path_rate": 0.0,
+            "key_entities_covered": [
+              "air",
+              "aircraft",
+              "forces"
+            ],
+            "key_entity_coverage": 1.0,
+            "matched_relations": [],
+            "path_count": 0,
+            "path_coverage": false,
+            "path_hops": [],
+            "path_precision_at_5": 0.0,
+            "path_recall_at_5": 0.0,
+            "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
+            "relation_coverage": null,
+            "relation_coverage_applicable": false,
+            "requires_model_review": true,
+            "supporting_path_count": 0,
+            "supporting_path_rate": 0.0
+          },
+          "kg_evidence": {
+            "evidence_coverage": true,
+            "invalid_triple_count": 0,
+            "key_entities_covered": [
+              "air",
+              "aircraft",
+              "forces"
+            ],
+            "key_entity_coverage": true,
+            "provenance_complete_rate": 1.0,
+            "related_triple_count": 8,
+            "supporting_triple_count": 8,
+            "unsupported_triple_count": 0
+          },
+          "retrieval": {
+            "context_precision_at_5": 0.2,
+            "context_recall": 1.0,
+            "expected_abstention": false,
+            "first_relevant_rank": 1,
+            "gold_level": "span",
+            "matched_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c02"
+            ],
+            "matched_source_pages": [
+              0
+            ],
+            "mrr_at_10": 1.0,
+            "mrr_at_5": 1.0,
+            "ndcg_at_10": 1.0,
+            "precision_at_10": 0.1,
+            "precision_at_5": 0.2,
+            "recall_at_10": true,
+            "recall_at_5": true,
+            "retrieved_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c02",
+              "06_phak_ch4_0-structure_aware-p00-c03",
+              "06_phak_ch4_0-structure_aware-p07-c26",
+              "06_phak_ch4_0-structure_aware-p05-c43",
+              "06_phak_ch4_0-structure_aware-p08-c07"
+            ],
+            "retrieved_source_pages": [
+              0,
+              0,
+              7,
+              5,
+              8
+            ]
+          }
+        },
+        "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning control airplane helicopter?",
+        "question_type": "relation_causal",
+        "retrieved_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "page": 0,
+            "rank": 1,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+            "page": 0,
+            "rank": 2,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c26",
+            "page": 7,
+            "rank": 3,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "page": 5,
+            "rank": 4,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c07",
+            "page": 8,
+            "rank": 5,
+            "source": "vector"
+          }
+        ],
+        "scenario": "hybrid_vector_lexical_graph"
+      },
+      "human_review": false,
+      "item_id": "hybrid_vector_lexical_graph::bv2-rc-002",
+      "item_type": "graph_path",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "c10349ccfeaf1b654a18a458e51a79a8dea4f28954be0d53e3bb4fc8cefcb5c8",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "graph_path_llm_review_v1",
+        "review_run_id": "graph_path_llm_review-20260530T091430Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "entities_match_question": 1,
+        "evidence_chunks_support_path": 1,
+        "path_is_explanatory": 1,
+        "path_is_misleading": 0,
+        "path_relevant_to_question": "uncertain",
+        "relation_chain_supports_answer": "uncertain"
+      },
+      "prompt_version": "graph_path_llm_review_v1",
+      "rationale": "The question asks for the relationship described in PHAK Chapter 4 between air and forces, and the metrics show strong key-entity coverage for air, aircraft, and forces plus complete evidence coverage. However, there are no actual graph paths supplied, so the specific relation chain cannot be directly verified. On the available evidence, the retrieved chunk and KG evidence appear relevant and explanatory, but the lack of explicit paths prevents a full certainty judgment. This should be kept as an explanation with moderate confidence rather than removed.",
+      "raw_response": "{\n  \"decision\": \"keep_as_explanation\",\n  \"confidence\": 0.78,\n  \"scores\": {\n    \"relevance\": 0.92,\n    \"explanatory_power\": 0.86,\n    \"evidence_support\": 0.81,\n    \"misleading_risk\": 0.12\n  },\n  \"path_relevant_to_question\": \"uncertain\",\n  \"entities_match_question\": 1,\n  \"relation_chain_supports_answer\": \"uncertain\",\n  \"evidence_chunks_support_path\": 1,\n  \"path_is_explanatory\": 1,\n  \"path_is_misleading\": 0,\n  \"recommended_action\": \"keep_as_explanation\",\n  \"cited_source_fields\": [\n    \"question\",\n    \"question_type\",\n    \"retrieved_chunks\",\n    \"metrics.graph_paths\",\n    \"metrics.kg_evidence\",\n    \"metrics.retrieval\",\n    \"metrics.graph_paths.key_entities_covered\",\n    \"metrics.graph_paths.path_count\",\n    \"metrics.graph_paths.supporting_path_count\",\n    \"metrics.kg_evidence.supporting_triple_count\",\n    \"metrics.kg_evidence.evidence_coverage\"\n  ],\n  \"uncertainty_flags\": [\n    \"no_graph_paths_provided\",\n    \"relation_chain_not_observable\",\n    \"relevance inferred from metrics rather than explicit path\",\n    \"question wording is somewhat ambiguous\"\n  ],\n  \"requires_human_review\": 0,\n  \"rationale\": \"The question asks for the relationship described in PHAK Chapter 4 between air and forces, and the metrics show strong key-entity coverage for air, aircraft, and forces plus complete evidence coverage. However, there are no actual graph paths supplied, so the specific relation chain cannot be directly verified. On the available evidence, the retrieved chunk and KG evidence appear relevant and explanatory, but the lack of explicit paths prevents a full certainty judgment. This should be kept as an explanation with moderate confidence rather than removed.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "evidence_support": 0.81,
+        "explanatory_power": 0.86,
+        "misleading_risk": 0.12,
+        "relevance": 0.92
+      },
+      "uncertainty_flags": [
+        "no_graph_paths_provided",
+        "relation_chain_not_observable",
+        "relevance inferred from metrics rather than explicit path",
+        "question wording is somewhat ambiguous"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "question",
+        "question_type",
+        "metrics.graph_paths.key_entities_covered",
+        "metrics.graph_paths.path_count",
+        "metrics.graph_paths.supporting_path_count",
+        "metrics.graph_paths.requires_model_review",
+        "metrics.kg_evidence.evidence_coverage",
+        "metrics.kg_evidence.supporting_triple_count",
+        "metrics.retrieval.matched_chunk_ids",
+        "metrics.retrieval.first_relevant_rank",
+        "retrieved_chunks"
+      ],
+      "confidence": 0.88,
+      "decision": {
+        "confidence": 0.88,
+        "decision": "keep_as_explanation",
+        "rationale": "The question asks for the relationship described in PHAK Chapter 4 between air and forces, with mention of control airplane helicopter. The available metrics show strong key-entity overlap (air, aircraft, forces), complete evidence coverage, and at least one highly relevant retrieved chunk at rank 1. However, there are no explicit graph paths in the item, so the judgment is based on retrieval/evidence metrics rather than a concrete path chain. That makes the item relevant and usable as explanatory support, but not fully verifiable as a graph-path explanation. It is not misleading because the entity set and supporting evidence align with the question, and the metrics indicate supporting triples with no unsupported triples.",
+        "recommended_action": "keep_as_explanation",
+        "requires_human_review": false,
+        "uncertainty_flags": [
+          "no_explicit_graph_paths_present",
+          "relation_chain_assessed_from_metrics_not_path_hops",
+          "question_text_is_somewhat_underspecified"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "question",
+          "question_type",
+          "metrics.graph_paths.key_entities_covered",
+          "metrics.graph_paths.path_count",
+          "metrics.graph_paths.supporting_path_count",
+          "metrics.graph_paths.requires_model_review",
+          "metrics.kg_evidence.evidence_coverage",
+          "metrics.kg_evidence.supporting_triple_count",
+          "metrics.retrieval.matched_chunk_ids",
+          "metrics.retrieval.first_relevant_rank",
+          "retrieved_chunks"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "graph_path_item": {
+        "cq_id": "bv2-rc-002",
+        "failure_categories": [],
+        "graph_paths": [],
+        "metrics": {
+          "graph_paths": {
+            "avg_path_length": 0.0,
+            "expected_relations": [],
+            "human_review": false,
+            "irrelevant_path_count": 0,
+            "irrelevant_path_rate": 0.0,
+            "key_entities_covered": [
+              "air",
+              "aircraft",
+              "forces"
+            ],
+            "key_entity_coverage": 1.0,
+            "matched_relations": [],
+            "path_count": 0,
+            "path_coverage": false,
+            "path_hops": [],
+            "path_precision_at_5": 0.0,
+            "path_recall_at_5": 0.0,
+            "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
+            "relation_coverage": null,
+            "relation_coverage_applicable": false,
+            "requires_model_review": true,
+            "supporting_path_count": 0,
+            "supporting_path_rate": 0.0
+          },
+          "kg_evidence": {
+            "evidence_coverage": true,
+            "invalid_triple_count": 0,
+            "key_entities_covered": [
+              "air",
+              "aircraft",
+              "forces"
+            ],
+            "key_entity_coverage": true,
+            "provenance_complete_rate": 1.0,
+            "related_triple_count": 8,
+            "supporting_triple_count": 8,
+            "unsupported_triple_count": 0
+          },
+          "retrieval": {
+            "context_precision_at_5": 0.2,
+            "context_recall": 1.0,
+            "expected_abstention": false,
+            "first_relevant_rank": 1,
+            "gold_level": "span",
+            "matched_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c02"
+            ],
+            "matched_source_pages": [
+              0
+            ],
+            "mrr_at_10": 1.0,
+            "mrr_at_5": 1.0,
+            "ndcg_at_10": 1.0,
+            "precision_at_10": 0.1,
+            "precision_at_5": 0.2,
+            "recall_at_10": true,
+            "recall_at_5": true,
+            "retrieved_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p00-c02",
+              "06_phak_ch4_0-structure_aware-p00-c03",
+              "06_phak_ch4_0-structure_aware-p07-c26",
+              "06_phak_ch4_0-structure_aware-p05-c43",
+              "06_phak_ch4_0-structure_aware-p08-c07"
+            ],
+            "retrieved_source_pages": [
+              0,
+              0,
+              7,
+              5,
+              8
+            ]
+          }
+        },
+        "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning control airplane helicopter?",
+        "question_type": "relation_causal",
+        "retrieved_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "page": 0,
+            "rank": 1,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+            "page": 0,
+            "rank": 2,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p07-c26",
+            "page": 7,
+            "rank": 3,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p05-c43",
+            "page": 5,
+            "rank": 4,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p08-c07",
+            "page": 8,
+            "rank": 5,
+            "source": "vector"
+          }
+        ],
+        "scenario": "hybrid_vector_lexical_graph"
+      },
+      "human_review": false,
+      "item_id": "hybrid_vector_lexical_graph::bv2-rc-002",
+      "item_type": "graph_path",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "c10349ccfeaf1b654a18a458e51a79a8dea4f28954be0d53e3bb4fc8cefcb5c8",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "graph_path_llm_review_v1",
+        "review_run_id": "graph_path_llm_review-20260530T091434Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "entities_match_question": 1,
+        "evidence_chunks_support_path": 1,
+        "path_is_explanatory": 1,
+        "path_is_misleading": 0,
+        "path_relevant_to_question": 1,
+        "relation_chain_supports_answer": 1
+      },
+      "prompt_version": "graph_path_llm_review_v1",
+      "rationale": "The question asks for the relationship described in PHAK Chapter 4 between air and forces, with mention of control airplane helicopter. The available metrics show strong key-entity overlap (air, aircraft, forces), complete evidence coverage, and at least one highly relevant retrieved chunk at rank 1. However, there are no explicit graph paths in the item, so the judgment is based on retrieval/evidence metrics rather than a concrete path chain. That makes the item relevant and usable as explanatory support, but not fully verifiable as a graph-path explanation. It is not misleading because the entity set and supporting evidence align with the question, and the metrics indicate supporting triples with no unsupported triples.",
+      "raw_response": "{\n  \"decision\": \"keep_as_explanation\",\n  \"confidence\": 0.88,\n  \"scores\": {\n    \"relevance\": 0.92,\n    \"entity_match\": 1.0,\n    \"relation_support\": 0.78,\n    \"explanatory_value\": 0.81,\n    \"misleading_risk\": 0.12\n  },\n  \"path_relevant_to_question\": 1,\n  \"entities_match_question\": 1,\n  \"relation_chain_supports_answer\": 1,\n  \"evidence_chunks_support_path\": 1,\n  \"path_is_explanatory\": 1,\n  \"path_is_misleading\": 0,\n  \"recommended_action\": \"keep_as_explanation\",\n  \"cited_source_fields\": [\n    \"question\",\n    \"question_type\",\n    \"metrics.graph_paths.key_entities_covered\",\n    \"metrics.graph_paths.path_count\",\n    \"metrics.graph_paths.supporting_path_count\",\n    \"metrics.graph_paths.requires_model_review\",\n    \"metrics.kg_evidence.evidence_coverage\",\n    \"metrics.kg_evidence.supporting_triple_count\",\n    \"metrics.retrieval.matched_chunk_ids\",\n    \"metrics.retrieval.first_relevant_rank\",\n    \"retrieved_chunks\"\n  ],\n  \"uncertainty_flags\": [\n    \"no_explicit_graph_paths_present\",\n    \"relation_chain_assessed_from_metrics_not_path_hops\",\n    \"question_text_is_somewhat_underspecified\"\n  ],\n  \"requires_human_review\": false,\n  \"rationale\": \"The question asks for the relationship described in PHAK Chapter 4 between air and forces, with mention of control airplane helicopter. The available metrics show strong key-entity overlap (air, aircraft, forces), complete evidence coverage, and at least one highly relevant retrieved chunk at rank 1. However, there are no explicit graph paths in the item, so the judgment is based on retrieval/evidence metrics rather than a concrete path chain. That makes the item relevant and usable as explanatory support, but not fully verifiable as a graph-path explanation. It is not misleading because the entity set and supporting evidence align with the question, and the metrics indicate supporting triples with no unsupported triples.\"\n}",
+      "requires_human_review": false,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "entity_match": 1.0,
+        "explanatory_value": 0.81,
+        "misleading_risk": 0.12,
+        "relation_support": 0.78,
+        "relevance": 0.92
+      },
+      "uncertainty_flags": [
+        "no_explicit_graph_paths_present",
+        "relation_chain_assessed_from_metrics_not_path_hops",
+        "question_text_is_somewhat_underspecified"
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "metrics.graph_paths.path_count",
+        "metrics.graph_paths.supporting_path_count",
+        "metrics.graph_paths.supporting_path_rate",
+        "metrics.graph_paths.path_coverage",
+        "metrics.graph_paths.key_entities_covered",
+        "metrics.graph_paths.matched_relations",
+        "metrics.graph_paths.expected_relations",
+        "metrics.kg_evidence.evidence_coverage",
+        "metrics.kg_evidence.supporting_triple_count",
+        "metrics.kg_evidence.unsupported_triple_count",
+        "retrieved_chunks",
+        "metrics.retrieval.matched_chunk_ids"
+      ],
+      "confidence": 0.91,
+      "decision": {
+        "confidence": 0.91,
+        "decision": "downweight",
+        "rationale": "There are no actual graph paths to evaluate, so the item cannot be judged as a supporting explanatory path. The key entity 'fluid' matches the question and the evidence retrieval appears to have relevant chunks, but there is no relation chain, no supporting path, and no matched relations to justify the causal/relation claim. This makes the item weak as an explanation and better suited for downweighting rather than keeping as a path-based explanation.",
+        "recommended_action": "downweight",
+        "requires_human_review": true,
+        "uncertainty_flags": [
+          "No graph paths were provided (path_count=0), so path-specific relevance cannot be directly verified.",
+          "The evidence retrieval appears strong for the key entity 'fluid', but relation coverage is unavailable and matched_relations is empty.",
+          "Question wording is awkward/possibly malformed, making relation interpretation uncertain."
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "metrics.graph_paths.path_count",
+          "metrics.graph_paths.supporting_path_count",
+          "metrics.graph_paths.supporting_path_rate",
+          "metrics.graph_paths.path_coverage",
+          "metrics.graph_paths.key_entities_covered",
+          "metrics.graph_paths.matched_relations",
+          "metrics.graph_paths.expected_relations",
+          "metrics.kg_evidence.evidence_coverage",
+          "metrics.kg_evidence.supporting_triple_count",
+          "metrics.kg_evidence.unsupported_triple_count",
+          "retrieved_chunks",
+          "metrics.retrieval.matched_chunk_ids"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "graph_path_item": {
+        "cq_id": "bv2-rc-003",
+        "failure_categories": [],
+        "graph_paths": [],
+        "metrics": {
+          "graph_paths": {
+            "avg_path_length": 0.0,
+            "expected_relations": [],
+            "human_review": false,
+            "irrelevant_path_count": 0,
+            "irrelevant_path_rate": 0.0,
+            "key_entities_covered": [
+              "fluid"
+            ],
+            "key_entity_coverage": 1.0,
+            "matched_relations": [],
+            "path_count": 0,
+            "path_coverage": false,
+            "path_hops": [],
+            "path_precision_at_5": 0.0,
+            "path_recall_at_5": 0.0,
+            "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
+            "relation_coverage": null,
+            "relation_coverage_applicable": false,
+            "requires_model_review": true,
+            "supporting_path_count": 0,
+            "supporting_path_rate": 0.0
+          },
+          "kg_evidence": {
+            "evidence_coverage": true,
+            "invalid_triple_count": 0,
+            "key_entities_covered": [
+              "fluid"
+            ],
+            "key_entity_coverage": true,
+            "provenance_complete_rate": 1.0,
+            "related_triple_count": 8,
+            "supporting_triple_count": 8,
+            "unsupported_triple_count": 0
+          },
+          "retrieval": {
+            "context_precision_at_5": 0.2,
+            "context_recall": 1.0,
+            "expected_abstention": false,
+            "first_relevant_rank": 1,
+            "gold_level": "span",
+            "matched_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c02"
+            ],
+            "matched_source_pages": [
+              1
+            ],
+            "mrr_at_10": 1.0,
+            "mrr_at_5": 1.0,
+            "ndcg_at_10": 1.0,
+            "precision_at_10": 0.1,
+            "precision_at_5": 0.2,
+            "recall_at_10": true,
+            "recall_at_5": true,
+            "retrieved_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c02",
+              "06_phak_ch4_0-structure_aware-p00-c02",
+              "06_phak_ch4_0-structure_aware-p01-c04",
+              "06_phak_ch4_0-structure_aware-p00-c03",
+              "06_phak_ch4_0-structure_aware-p01-c03"
+            ],
+            "retrieved_source_pages": [
+              1,
+              0,
+              1,
+              0,
+              1
+            ]
+          }
+        },
+        "question": "What relationship does PHAK Chapter 4 describe between fluid and the cited evidence in the evidence mentioning people fluid usually?",
+        "question_type": "relation_causal",
+        "retrieved_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+            "page": 1,
+            "rank": 1,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "page": 0,
+            "rank": 2,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c04",
+            "page": 1,
+            "rank": 3,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+            "page": 0,
+            "rank": 4,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+            "page": 1,
+            "rank": 5,
+            "source": "vector"
+          }
+        ],
+        "scenario": "hybrid_vector_lexical_graph"
+      },
+      "human_review": false,
+      "item_id": "hybrid_vector_lexical_graph::bv2-rc-003",
+      "item_type": "graph_path",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "bc505b98a2475c6ac4cfd0febf81303615489c153e8f5a12c0ce6442aa08028c",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "graph_path_llm_review_v1",
+        "review_run_id": "graph_path_llm_review-20260530T091441Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "strict_evidence_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "entities_match_question": 1,
+        "evidence_chunks_support_path": 1,
+        "path_is_explanatory": 0,
+        "path_is_misleading": 0,
+        "path_relevant_to_question": "uncertain",
+        "relation_chain_supports_answer": 0
+      },
+      "prompt_version": "graph_path_llm_review_v1",
+      "rationale": "There are no actual graph paths to evaluate, so the item cannot be judged as a supporting explanatory path. The key entity 'fluid' matches the question and the evidence retrieval appears to have relevant chunks, but there is no relation chain, no supporting path, and no matched relations to justify the causal/relation claim. This makes the item weak as an explanation and better suited for downweighting rather than keeping as a path-based explanation.",
+      "raw_response": "{\n  \"decision\": \"downweight\",\n  \"confidence\": 0.91,\n  \"scores\": {\n    \"relevance\": 0.35,\n    \"explanatory_power\": 0.2,\n    \"evidence_support\": 0.7,\n    \"entity_alignment\": 0.8,\n    \"relation_support\": 0.1\n  },\n  \"path_relevant_to_question\": \"uncertain\",\n  \"entities_match_question\": 1,\n  \"relation_chain_supports_answer\": 0,\n  \"evidence_chunks_support_path\": 1,\n  \"path_is_explanatory\": 0,\n  \"path_is_misleading\": 0,\n  \"recommended_action\": \"downweight\",\n  \"cited_source_fields\": [\n    \"metrics.graph_paths.path_count\",\n    \"metrics.graph_paths.supporting_path_count\",\n    \"metrics.graph_paths.supporting_path_rate\",\n    \"metrics.graph_paths.path_coverage\",\n    \"metrics.graph_paths.key_entities_covered\",\n    \"metrics.graph_paths.matched_relations\",\n    \"metrics.graph_paths.expected_relations\",\n    \"metrics.kg_evidence.evidence_coverage\",\n    \"metrics.kg_evidence.supporting_triple_count\",\n    \"metrics.kg_evidence.unsupported_triple_count\",\n    \"retrieved_chunks\",\n    \"metrics.retrieval.matched_chunk_ids\"\n  ],\n  \"uncertainty_flags\": [\n    \"No graph paths were provided (path_count=0), so path-specific relevance cannot be directly verified.\",\n    \"The evidence retrieval appears strong for the key entity 'fluid', but relation coverage is unavailable and matched_relations is empty.\",\n    \"Question wording is awkward/possibly malformed, making relation interpretation uncertain.\"\n  ],\n  \"requires_human_review\": \"uncertain\",\n  \"rationale\": \"There are no actual graph paths to evaluate, so the item cannot be judged as a supporting explanatory path. The key entity 'fluid' matches the question and the evidence retrieval appears to have relevant chunks, but there is no relation chain, no supporting path, and no matched relations to justify the causal/relation claim. This makes the item weak as an explanation and better suited for downweighting rather than keeping as a path-based explanation.\"\n}",
+      "requires_human_review": true,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "entity_alignment": 0.8,
+        "evidence_support": 0.7,
+        "explanatory_power": 0.2,
+        "relation_support": 0.1,
+        "relevance": 0.35
+      },
+      "uncertainty_flags": [
+        "No graph paths were provided (path_count=0), so path-specific relevance cannot be directly verified.",
+        "The evidence retrieval appears strong for the key entity 'fluid', but relation coverage is unavailable and matched_relations is empty.",
+        "Question wording is awkward/possibly malformed, making relation interpretation uncertain."
+      ]
+    },
+    {
+      "aviation_expert_certified": false,
+      "cited_source_fields": [
+        "metrics.graph_paths.path_count",
+        "metrics.graph_paths.supporting_path_count",
+        "metrics.graph_paths.supporting_path_rate",
+        "metrics.graph_paths.matched_relations",
+        "metrics.graph_paths.expected_relations",
+        "metrics.graph_paths.path_relevance_method",
+        "metrics.kg_evidence.supporting_triple_count",
+        "metrics.kg_evidence.related_triple_count",
+        "metrics.retrieval.matched_chunk_ids",
+        "metrics.retrieval.retrieved_chunk_ids"
+      ],
+      "confidence": 0.86,
+      "decision": {
+        "confidence": 0.86,
+        "decision": "downweight",
+        "rationale": "There are no graph paths provided (path_count=0), so there is no actual relation chain to judge as explanatory. Although retrieval shows one matched chunk and KG evidence reports supporting triples, the absence of graph paths means the system cannot substantiate a path-based answer. The question text is also partially garbled ('evidence mentioning people fluid usually'), which increases ambiguity. Because entity coverage includes 'fluid' but no path supports a relation between fluid and the cited evidence, the item should be downweighted rather than kept as an explanation.",
+        "recommended_action": "downweight",
+        "requires_human_review": true,
+        "uncertainty_flags": [
+          "no_graph_paths_present",
+          "question_ambiguous_or_corrupted_phrase",
+          "supporting_kg_triples_exist_but_no_explicit_path_chain",
+          "relation_coverage_not_applicable"
+        ]
+      },
+      "error": "",
+      "evidence": {
+        "cited_source_fields": [
+          "metrics.graph_paths.path_count",
+          "metrics.graph_paths.supporting_path_count",
+          "metrics.graph_paths.supporting_path_rate",
+          "metrics.graph_paths.matched_relations",
+          "metrics.graph_paths.expected_relations",
+          "metrics.graph_paths.path_relevance_method",
+          "metrics.kg_evidence.supporting_triple_count",
+          "metrics.kg_evidence.related_triple_count",
+          "metrics.retrieval.matched_chunk_ids",
+          "metrics.retrieval.retrieved_chunk_ids"
+        ],
+        "source_excerpt": ""
+      },
+      "external_expert_certified": false,
+      "graph_path_item": {
+        "cq_id": "bv2-rc-003",
+        "failure_categories": [],
+        "graph_paths": [],
+        "metrics": {
+          "graph_paths": {
+            "avg_path_length": 0.0,
+            "expected_relations": [],
+            "human_review": false,
+            "irrelevant_path_count": 0,
+            "irrelevant_path_rate": 0.0,
+            "key_entities_covered": [
+              "fluid"
+            ],
+            "key_entity_coverage": 1.0,
+            "matched_relations": [],
+            "path_count": 0,
+            "path_coverage": false,
+            "path_hops": [],
+            "path_precision_at_5": 0.0,
+            "path_recall_at_5": 0.0,
+            "path_relevance_method": "heuristic_key_entity_relation_or_gold_chunk_overlap",
+            "relation_coverage": null,
+            "relation_coverage_applicable": false,
+            "requires_model_review": true,
+            "supporting_path_count": 0,
+            "supporting_path_rate": 0.0
+          },
+          "kg_evidence": {
+            "evidence_coverage": true,
+            "invalid_triple_count": 0,
+            "key_entities_covered": [
+              "fluid"
+            ],
+            "key_entity_coverage": true,
+            "provenance_complete_rate": 1.0,
+            "related_triple_count": 8,
+            "supporting_triple_count": 8,
+            "unsupported_triple_count": 0
+          },
+          "retrieval": {
+            "context_precision_at_5": 0.2,
+            "context_recall": 1.0,
+            "expected_abstention": false,
+            "first_relevant_rank": 1,
+            "gold_level": "span",
+            "matched_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c02"
+            ],
+            "matched_source_pages": [
+              1
+            ],
+            "mrr_at_10": 1.0,
+            "mrr_at_5": 1.0,
+            "ndcg_at_10": 1.0,
+            "precision_at_10": 0.1,
+            "precision_at_5": 0.2,
+            "recall_at_10": true,
+            "recall_at_5": true,
+            "retrieved_chunk_ids": [
+              "06_phak_ch4_0-structure_aware-p01-c02",
+              "06_phak_ch4_0-structure_aware-p00-c02",
+              "06_phak_ch4_0-structure_aware-p01-c04",
+              "06_phak_ch4_0-structure_aware-p00-c03",
+              "06_phak_ch4_0-structure_aware-p01-c03"
+            ],
+            "retrieved_source_pages": [
+              1,
+              0,
+              1,
+              0,
+              1
+            ]
+          }
+        },
+        "question": "What relationship does PHAK Chapter 4 describe between fluid and the cited evidence in the evidence mentioning people fluid usually?",
+        "question_type": "relation_causal",
+        "retrieved_chunks": [
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c02",
+            "page": 1,
+            "rank": 1,
+            "source": "graph+vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c02",
+            "page": 0,
+            "rank": 2,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c04",
+            "page": 1,
+            "rank": 3,
+            "source": "vector"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p00-c03",
+            "page": 0,
+            "rank": 4,
+            "source": "graph"
+          },
+          {
+            "chunk_id": "06_phak_ch4_0-structure_aware-p01-c03",
+            "page": 1,
+            "rank": 5,
+            "source": "vector"
+          }
+        ],
+        "scenario": "hybrid_vector_lexical_graph"
+      },
+      "human_review": false,
+      "item_id": "hybrid_vector_lexical_graph::bv2-rc-003",
+      "item_type": "graph_path",
+      "metadata": {
+        "aviation_expert_certified": false,
+        "external_expert_certified": false,
+        "human_review": false,
+        "input_hash": "bc505b98a2475c6ac4cfd0febf81303615489c153e8f5a12c0ce6442aa08028c",
+        "limitations": [
+          "Model-based review is not human review.",
+          "Model-based review is not external aviation expert certification.",
+          "LLM judges can be biased, inconsistent, or overconfident.",
+          "Outputs support internal error discovery and cautious thesis wording only."
+        ],
+        "prompt_version": "graph_path_llm_review_v1",
+        "review_run_id": "graph_path_llm_review-20260530T091447Z",
+        "review_status": "llm_reviewed_not_human_certified",
+        "reviewer_model": "gpt-5.4-mini",
+        "reviewer_role": "skeptical_aviation_boundary_reviewer",
+        "reviewer_type": "llm_judge",
+        "score_method": "llm_judge",
+        "temperature": 0.0
+      },
+      "output_fields": {
+        "entities_match_question": 1,
+        "evidence_chunks_support_path": 1,
+        "path_is_explanatory": 0,
+        "path_is_misleading": 1,
+        "path_relevant_to_question": 0,
+        "relation_chain_supports_answer": 0
+      },
+      "prompt_version": "graph_path_llm_review_v1",
+      "rationale": "There are no graph paths provided (path_count=0), so there is no actual relation chain to judge as explanatory. Although retrieval shows one matched chunk and KG evidence reports supporting triples, the absence of graph paths means the system cannot substantiate a path-based answer. The question text is also partially garbled ('evidence mentioning people fluid usually'), which increases ambiguity. Because entity coverage includes 'fluid' but no path supports a relation between fluid and the cited evidence, the item should be downweighted rather than kept as an explanation.",
+      "raw_response": "{\n  \"decision\": \"downweight\",\n  \"confidence\": 0.86,\n  \"scores\": {\n    \"relevance\": 0.42,\n    \"explanatory_power\": 0.18,\n    \"entity_match\": 0.9,\n    \"relation_support\": 0.15,\n    \"misleading_risk\": 0.35\n  },\n  \"path_relevant_to_question\": 0,\n  \"entities_match_question\": 1,\n  \"relation_chain_supports_answer\": 0,\n  \"evidence_chunks_support_path\": 1,\n  \"path_is_explanatory\": 0,\n  \"path_is_misleading\": 1,\n  \"recommended_action\": \"downweight\",\n  \"cited_source_fields\": [\n    \"metrics.graph_paths.path_count\",\n    \"metrics.graph_paths.supporting_path_count\",\n    \"metrics.graph_paths.supporting_path_rate\",\n    \"metrics.graph_paths.matched_relations\",\n    \"metrics.graph_paths.expected_relations\",\n    \"metrics.graph_paths.path_relevance_method\",\n    \"metrics.kg_evidence.supporting_triple_count\",\n    \"metrics.kg_evidence.related_triple_count\",\n    \"metrics.retrieval.matched_chunk_ids\",\n    \"metrics.retrieval.retrieved_chunk_ids\"\n  ],\n  \"uncertainty_flags\": [\n    \"no_graph_paths_present\",\n    \"question_ambiguous_or_corrupted_phrase\",\n    \"supporting_kg_triples_exist_but_no_explicit_path_chain\",\n    \"relation_coverage_not_applicable\"\n  ],\n  \"requires_human_review\": 1,\n  \"rationale\": \"There are no graph paths provided (path_count=0), so there is no actual relation chain to judge as explanatory. Although retrieval shows one matched chunk and KG evidence reports supporting triples, the absence of graph paths means the system cannot substantiate a path-based answer. The question text is also partially garbled ('evidence mentioning people fluid usually'), which increases ambiguity. Because entity coverage includes 'fluid' but no path supports a relation between fluid and the cited evidence, the item should be downweighted rather than kept as an explanation.\"\n}",
+      "requires_human_review": true,
+      "reviewer_model": "gpt-5.4-mini",
+      "reviewer_type": "llm_judge",
+      "scores": {
+        "entity_match": 0.9,
+        "explanatory_power": 0.18,
+        "misleading_risk": 0.35,
+        "relation_support": 0.15,
+        "relevance": 0.42
+      },
+      "uncertainty_flags": [
+        "no_graph_paths_present",
+        "question_ambiguous_or_corrupted_phrase",
+        "supporting_kg_triples_exist_but_no_explicit_path_chain",
+        "relation_coverage_not_applicable"
+      ]
+    }
+  ],
+  "summary": {
+    "aviation_expert_certified": false,
+    "by_failure_category": {
+      "no_failure_category": {
+        "llm_reviewed_not_human_certified": 6
+      }
+    },
+    "external_expert_certified": false,
+    "human_review": false,
+    "items_total": 6,
+    "llm_explanatory_path_rate": 0.4,
+    "llm_misleading_path_rate": 0.3333,
+    "llm_path_relevance_rate": 0.3333,
+    "llm_review_not_run_total": 0,
+    "llm_reviewed_total": 6,
+    "recommended_action_counts": {
+      "downweight": 2,
+      "keep_as_explanation": 3,
+      "remove": 1
+    },
+    "review_status": "llm_reviewed_not_human_certified",
+    "score_method": "llm_judge",
+    "uncertain_rate": 1.0,
+    "uncertain_total": 6
+  }
+}

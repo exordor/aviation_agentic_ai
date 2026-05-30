@@ -24,7 +24,7 @@ def _label(cq_id: str, question_type: str, expected_abstention: bool = False) ->
         "evidence_spans": [] if expected_abstention else [{"page": 1, "text": "Source-backed answer."}],
         "key_entities": ["source", "answer"],
         "gold_level": "no_answer" if expected_abstention else "span",
-        "review": {"status": "machine_seeded_requires_manual_review"},
+        "review": {"status": "llm_review_pending_not_human_certified"},
         "tags": [question_type],
     }
 
@@ -42,7 +42,7 @@ def _payload_with_counts(counts: dict[str, int]) -> dict:
             )
     return {
         "label_set": "test",
-        "review_status": "machine_seeded_requires_manual_review",
+        "review_status": "llm_review_pending_not_human_certified",
         "labels": labels,
     }
 
@@ -55,7 +55,7 @@ def test_benchmark_review_pack_flags_machine_wording_and_writes_review_copy(
     gold_path.write_text(
         json.dumps(
             {
-                "review_status": "machine_seeded_requires_manual_review",
+                "review_status": "llm_review_pending_not_human_certified",
                 "labels": [
                     {
                         "cq_id": "q1",
@@ -69,7 +69,7 @@ def test_benchmark_review_pack_flags_machine_wording_and_writes_review_copy(
                         "expected_abstention": False,
                         "key_entities": ["lift", "drag"],
                         "evidence_spans": [{"page": 4, "text": "Lift causes induced drag."}],
-                        "review": {"status": "machine_seeded_requires_manual_review"},
+                        "review": {"status": "llm_review_pending_not_human_certified"},
                     },
                     {
                         "cq_id": "q2",
@@ -80,7 +80,7 @@ def test_benchmark_review_pack_flags_machine_wording_and_writes_review_copy(
                         "expected_abstention": True,
                         "key_entities": ["NOTAM"],
                         "evidence_spans": [],
-                        "review": {"status": "machine_seeded_requires_manual_review"},
+                        "review": {"status": "llm_review_pending_not_human_certified"},
                     },
                 ],
             }
@@ -104,8 +104,8 @@ def test_benchmark_review_pack_flags_machine_wording_and_writes_review_copy(
         == 1
     )
     reviewed = json.loads(reviewed_path.read_text(encoding="utf-8"))
-    assert reviewed["review_status"] == "manual_review_pending"
-    assert reviewed["labels"][0]["review"]["status"] == "needs_manual_review"
+    assert reviewed["review_status"] == "llm_review_pending_not_human_certified"
+    assert reviewed["labels"][0]["review"]["status"] == "needs_llm_review"
 
 
 def test_reviewed_subset_selects_core_60_and_marks_pending_review() -> None:
@@ -122,17 +122,15 @@ def test_reviewed_subset_selects_core_60_and_marks_pending_review() -> None:
     subset = build_reviewed_subset_payload(payload)
 
     assert len(subset["labels"]) == 60
-    assert subset["review_status"] == "project_review_pending_external_review"
+    assert subset["review_status"] == "llm_review_pending_not_human_certified"
     assert subset["label_distribution"] == {
         "concept_definition": 15,
         "cross_page": 10,
         "insufficient_evidence": 20,
         "relation_causal": 15,
     }
-    assert subset["labels"][0]["review"]["status"] == "project_review_pending_external_review"
-    assert subset["labels"][0]["review"]["project_author_review_status"] == (
-        "needs_project_author_review"
-    )
+    assert subset["labels"][0]["review"]["status"] == "llm_review_pending_not_human_certified"
+    assert subset["labels"][0]["review"]["project_author_review_status"] == "not_used_no_human_review"
     assert subset["labels"][0]["review"]["external_aviation_expert_certified"] is False
 
 
@@ -151,10 +149,10 @@ def test_answer_eval_subset_is_stratified_and_heuristic_only() -> None:
 
     subset = build_answer_eval_subset_payload(payload)
 
-    assert len(subset["labels"]) == 35
+    assert len(subset["labels"]) == 45
     assert subset["subset_policy"]["score_method"] == "deterministic_heuristic"
     assert subset["subset_policy"]["llm_as_judge_enabled"] is False
-    assert subset["label_distribution"]["insufficient_evidence"] == 10
+    assert subset["label_distribution"]["insufficient_evidence"] == 8
 
 
 def test_triple_semantic_review_initializes_annotations_as_needs_review(
@@ -196,7 +194,7 @@ def test_triple_semantic_review_initializes_annotations_as_needs_review(
     assert result["summary"]["reviewed_total"] == 0
     assert result["summary"]["needs_review_total"] == 1
     annotation = result["records"][0]["annotation"]
-    assert annotation["status"] == "needs_manual_review"
+    assert annotation["status"] == "needs_llm_review"
     assert annotation["subject_correct"] == "needs_review"
     assert annotation["evidence_supports_triple"] == "needs_review"
 

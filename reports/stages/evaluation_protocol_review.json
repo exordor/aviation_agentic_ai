@@ -1,8 +1,8 @@
 {
   "evidence_gaps_before_thesis_submission": [
-    "Path Recall@k and Path Precision@k are heuristic until manually reviewed path relevance labels exist.",
-    "Triple semantic correctness has a review sample but no completed manual correctness results.",
-    "Faithfulness, answer correctness, and answer relevance are deterministic heuristics unless an explicit LLM-as-judge or manual review run is added.",
+    "Path Recall@k and Path Precision@k are heuristic unless graph-path LLM review is cited.",
+    "Triple semantic correctness is absent or LLM-estimated; no human expert verification is claimed.",
+    "Faithfulness, answer correctness, and answer relevance are deterministic heuristics unless an explicit LLM-as-judge run is added.",
     "Benchmark labels are thesis/course-project evidence, not external aviation-expert certification."
   ],
   "implemented_metrics": [
@@ -93,7 +93,7 @@
       "reports": [
         "graph_traversal_ablation"
       ],
-      "status": "heuristic_available_requires_manual_review"
+      "status": "heuristic_available_llm_review_optional"
     },
     {
       "field": "path_precision_at_5",
@@ -102,7 +102,7 @@
       "reports": [
         "graph_traversal_ablation"
       ],
-      "status": "heuristic_available_requires_manual_review"
+      "status": "heuristic_available_llm_review_optional"
     },
     {
       "field": "supporting_path_rate",
@@ -111,7 +111,7 @@
       "reports": [
         "graph_traversal_ablation"
       ],
-      "status": "heuristic_available_requires_manual_review"
+      "status": "heuristic_available_llm_review_optional"
     },
     {
       "field": "irrelevant_path_rate",
@@ -120,7 +120,7 @@
       "reports": [
         "graph_traversal_ablation"
       ],
-      "status": "heuristic_available_requires_manual_review"
+      "status": "heuristic_available_llm_review_optional"
     },
     {
       "field": "citation_precision",
@@ -368,7 +368,7 @@
       "reports": [
         "graph_traversal_ablation"
       ],
-      "status": "heuristic_available_requires_manual_review"
+      "status": "heuristic_available_llm_review_optional"
     },
     {
       "field": "path_precision_at_5",
@@ -377,7 +377,7 @@
       "reports": [
         "graph_traversal_ablation"
       ],
-      "status": "heuristic_available_requires_manual_review"
+      "status": "heuristic_available_llm_review_optional"
     },
     {
       "field": "supporting_path_rate",
@@ -386,7 +386,7 @@
       "reports": [
         "graph_traversal_ablation"
       ],
-      "status": "heuristic_available_requires_manual_review"
+      "status": "heuristic_available_llm_review_optional"
     },
     {
       "field": "irrelevant_path_rate",
@@ -395,7 +395,7 @@
       "reports": [
         "graph_traversal_ablation"
       ],
-      "status": "heuristic_available_requires_manual_review"
+      "status": "heuristic_available_llm_review_optional"
     },
     {
       "field": "citation_precision",
@@ -443,13 +443,14 @@
       "status": "implemented_heuristic_llm_judge_optional_not_run"
     },
     {
-      "field": "annotation.status",
-      "kind": "manual_kg_review",
+      "field": "summary.llm_evidence_support_rate",
+      "kind": "llm_kg_review",
       "metric": "Triple Semantic Correctness",
       "reports": [
-        "triple_semantic_review"
+        "triple_semantic_review",
+        "triple_semantic_llm_review"
       ],
-      "status": "manual_review_template_available_results_missing"
+      "status": "llm_review_template_available_results_optional"
     },
     {
       "field": "structural_metrics.rdf_valid",
@@ -586,15 +587,6 @@
         "answer_evaluation"
       ],
       "status": "implemented_heuristic_llm_judge_optional_not_run"
-    },
-    {
-      "field": "annotation.status",
-      "kind": "manual_kg_review",
-      "metric": "Triple Semantic Correctness",
-      "reports": [
-        "triple_semantic_review"
-      ],
-      "status": "manual_review_template_available_results_missing"
     }
   ],
   "primary_thesis_metrics": [
@@ -635,7 +627,7 @@
       ]
     },
     {
-      "classification": "mainstream_heuristic_until_llm_or_manual_review",
+      "classification": "mainstream_heuristic_with_optional_llm_judge",
       "layer": "answer_generation",
       "metrics": [
         "Faithfulness",
@@ -646,11 +638,12 @@
         "Citation Recall"
       ],
       "reports": [
-        "reports/stages/answer_evaluation.json"
+        "reports/stages/answer_evaluation.json",
+        "reports/stages/answer_llm_judge.json"
       ]
     },
     {
-      "classification": "mainstream_plus_manual_review",
+      "classification": "mainstream_plus_model_based_review",
       "layer": "ontology_kg",
       "metrics": [
         "RDF/OWL parse validity",
@@ -659,13 +652,14 @@
         "unsupported class/property count",
         "provenance completeness",
         "evidence-in-source rate",
-        "triple semantic correctness from manual sample review"
+        "LLM-estimated triple semantic correctness"
       ],
       "reports": [
         "reports/stages/curated_ontology_evaluation.json",
         "reports/stages/kg_validation.json",
         "reports/stages/kg_extraction_comparison.json",
-        "reports/stages/triple_semantic_review_sample.json"
+        "reports/stages/triple_semantic_review_sample.json",
+        "reports/stages/triple_semantic_llm_review.json"
       ]
     },
     {
@@ -688,6 +682,10 @@
   "report_presence": {
     "reports/stages/answer_evaluation.json": {
       "path": "reports/stages/answer_evaluation.json",
+      "present": true
+    },
+    "reports/stages/answer_llm_judge.json": {
+      "path": "reports/stages/answer_llm_judge.json",
       "present": true
     },
     "reports/stages/chunking_comparison.json": {
@@ -728,6 +726,10 @@
     },
     "reports/stages/sufficiency_evaluation.json": {
       "path": "reports/stages/sufficiency_evaluation.json",
+      "present": true
+    },
+    "reports/stages/triple_semantic_llm_review.json": {
+      "path": "reports/stages/triple_semantic_llm_review.json",
       "present": true
     },
     "reports/stages/triple_semantic_review_sample.json": {

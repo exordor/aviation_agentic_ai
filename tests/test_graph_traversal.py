@@ -272,7 +272,8 @@ def test_graph_traversal_ablation_reports_heuristic_path_metrics(tmp_path: Path)
     assert paths["path_precision_at_5"] == 1.0
     assert paths["supporting_path_rate"] == 1.0
     assert paths["irrelevant_path_rate"] == 0.0
-    assert paths["requires_manual_review"] is True
+    assert paths["requires_model_review"] is True
+    assert paths["human_review"] is False
 
 
 def test_cli_report_graph_traversal_ablation_uses_mocked_writer(
