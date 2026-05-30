@@ -1,0 +1,249 @@
+{
+  "review_input": "reports/reviews/adversarial-review-implementation-2026-05-30.md",
+  "triage_date": "2026-05-30",
+  "policy": {
+    "do_not_trust_report_blindly": true,
+    "code_changes_before_triage": false,
+    "preserve_scientific_claims": true,
+    "preserve_cli_compatibility": true
+  },
+  "findings": [
+    {
+      "finding_id": "C1",
+      "severity": "P1",
+      "title": "JSON extraction duplication remains open",
+      "current_status": "partially_valid",
+      "files_inspected": [
+        "src/aviation_agentic_ai/utils/json.py",
+        "src/aviation_agentic_ai/kg/extraction.py",
+        "src/aviation_agentic_ai/ontology/generation.py",
+        "src/aviation_agentic_ai/ontology/evaluation.py",
+        "src/aviation_agentic_ai/evaluation/llm_review.py",
+        "tests/test_json_utils.py",
+        "tests/test_kg_extraction.py"
+      ],
+      "evidence": [
+        "Current modules already delegate to a shared utility in utils/json.py, so the report's claim of four independent full implementations is stale.",
+        "The shared utility is still object-centered and lacks parse_json_payload and a typed extraction error requested by the implementation plan.",
+        "Array payload and multi-brace prose behavior are not covered by the requested new test surface."
+      ],
+      "planned_action": "Extend the shared JSON extraction utility surface without breaking existing wrapper functions. Add tests for objects, arrays, fenced blocks, embedded JSON, malformed JSON, empty text, and multiple brace-like sections.",
+      "risk_if_unfixed": "LLM response parsing remains underspecified for arrays and malformed payload diagnostics, even though the worst duplication risk has already been reduced.",
+      "tests_required": [
+        "tests/test_json_extraction.py",
+        "existing JSON utility and KG extraction tests"
+      ],
+      "documentation_report_impact": "Triage and remediation summary only; no scientific metric changes."
+    },
+    {
+      "finding_id": "C2",
+      "severity": "P2",
+      "title": "_window_text soft-break boundary behavior",
+      "current_status": "partially_valid",
+      "files_inspected": [
+        "src/aviation_agentic_ai/chunking/chunks.py",
+        "tests/test_chunking.py"
+      ],
+      "evidence": [
+        "_window_text already has a word-boundary fallback, contradicting the report's claim that it is unchanged.",
+        "The current implementation still combines paragraph, sentence, and word breaks under one max_chars//2 threshold instead of explicitly preferring paragraph, then sentence, then whitespace with a separate min_end policy."
+      ],
+      "planned_action": "Refactor boundary selection into explicit helpers that preserve progress and char ranges while preferring paragraph, sentence, then whitespace boundaries.",
+      "risk_if_unfixed": "Chunk boundaries can remain less readable than necessary for fixed-small style chunking, affecting retrieval diagnostics but not existing reported metrics unless reports are regenerated.",
+      "tests_required": [
+        "short paragraph under fixed_small",
+        "long paragraph with sentence breaks",
+        "whitespace-only fallback",
+        "no-whitespace hard cut",
+        "overlap progress and invalid-overlap tests"
+      ],
+      "documentation_report_impact": "No metric change unless chunking reports are explicitly regenerated."
+    },
+    {
+      "finding_id": "I3",
+      "severity": "P2",
+      "title": "NDCG / gold matching may false-match source_page=-1",
+      "current_status": "already_fixed",
+      "files_inspected": [
+        "src/aviation_agentic_ai/evaluation/metrics.py",
+        "tests/test_metric_edge_cases.py"
+      ],
+      "evidence": [
+        "_hit_matches_gold returns False when gold.source_page < 0 before page fallback matching.",
+        "No-answer labels are excluded from normal retrieval targets before page matching.",
+        "Existing edge-case tests cover page-unset behavior."
+      ],
+      "planned_action": "No code change unless tests reveal a regression during Phase 1 verification.",
+      "risk_if_unfixed": "Not applicable in current state.",
+      "tests_required": [
+        "retain existing source_page=-1 metric tests",
+        "rerun full metric tests after related changes"
+      ],
+      "documentation_report_impact": "Record as already fixed in remediation summary."
+    },
+    {
+      "finding_id": "I6",
+      "severity": "P4",
+      "title": "LLM evidence strict substring containment remains brittle",
+      "current_status": "partially_valid",
+      "files_inspected": [
+        "src/aviation_agentic_ai/kg/extraction.py",
+        "tests/test_kg_extraction.py"
+      ],
+      "evidence": [
+        "Strict exact containment remains the acceptance criterion, which is intentional for provenance safety.",
+        "Current code already records filtered triple counts, filter reasons, and diagnostic evidence near-misses using token-overlap metadata.",
+        "The requested normalized/fuzzy evidence helpers are not yet exposed as a clear evidence matching policy surface."
+      ],
+      "planned_action": "Keep exact provenance as the only accepted KG evidence, but add named exact/normalized/fuzzy diagnostic helpers and tests in Phase 2 if Phase 1 remains stable.",
+      "risk_if_unfixed": "Diagnostics are less explicit than they could be, but accepting fuzzy evidence without a policy would risk provenance overclaiming.",
+      "tests_required": [
+        "exact evidence match",
+        "normalized match diagnostic",
+        "fuzzy match above and below threshold",
+        "unsupported triples still rejected"
+      ],
+      "documentation_report_impact": "Remediation must state fuzzy/normalized matches are diagnostic only."
+    },
+    {
+      "finding_id": "M3",
+      "severity": "P1",
+      "title": "_proposition_segments may emit short first segment",
+      "current_status": "already_fixed",
+      "files_inspected": [
+        "src/aviation_agentic_ai/chunking/chunks.py",
+        "tests/test_chunking.py"
+      ],
+      "evidence": [
+        "_proposition_segments already forward-merges leading short fragments while more than one segment exists.",
+        "tests/test_chunking.py contains test_proposition_like_merges_leading_short_fragment."
+      ],
+      "planned_action": "No code change beyond rerunning chunking tests after C2 changes.",
+      "risk_if_unfixed": "Not applicable in current state.",
+      "tests_required": [
+        "retain existing leading-short-fragment test",
+        "add middle/last/only-short tests only if new failures are found"
+      ],
+      "documentation_report_impact": "Record as already fixed in remediation summary."
+    },
+    {
+      "finding_id": "NF1",
+      "severity": "P3",
+      "title": "_source_set uses '+' delimiter ambiguously",
+      "current_status": "still_valid",
+      "files_inspected": [
+        "src/aviation_agentic_ai/retrieval/hybrid.py",
+        "tests/test_hybrid_retrieval.py"
+      ],
+      "evidence": [
+        "_source_set currently splits source strings on a literal '+'.",
+        "Current source labels do not contain '+', but the invariant is not documented or guarded."
+      ],
+      "planned_action": "Introduce a delimiter constant and source merge helper with tests for duplicates, empty source, and invalid labels while preserving the public source string format.",
+      "risk_if_unfixed": "Future source labels containing '+' could be split incorrectly and misreported.",
+      "tests_required": [
+        "merge vector + graph",
+        "duplicate source labels",
+        "empty source becomes unknown",
+        "invalid source label with delimiter raises or is sanitized"
+      ],
+      "documentation_report_impact": "No metric impact; remediation summary records invariant."
+    },
+    {
+      "finding_id": "NF2",
+      "severity": "P3",
+      "title": "llm_runtime_available duplicates provider lookup",
+      "current_status": "still_valid",
+      "files_inspected": [
+        "src/aviation_agentic_ai/evaluation/llm_review.py",
+        "src/aviation_agentic_ai/llm/providers.py",
+        "tests/test_llm_review_reports.py"
+      ],
+      "evidence": [
+        "llm_runtime_available still reads os.getenv('LLM_PROVIDER', 'openai').lower() directly.",
+        "llm/providers.py exposes configured_llm_provider for the same policy."
+      ],
+      "planned_action": "Use configured_llm_provider in llm_runtime_available and preserve existing API-key checks.",
+      "risk_if_unfixed": "Provider handling could drift if central provider logic changes.",
+      "tests_required": [
+        "runtime availability uses environment loader",
+        "unsupported provider returns false",
+        "missing API key behavior remains unchanged"
+      ],
+      "documentation_report_impact": "No report metric impact."
+    },
+    {
+      "finding_id": "NF3",
+      "severity": "P4",
+      "title": "generate_ontology raises generic RuntimeError after partial output",
+      "current_status": "partially_valid",
+      "files_inspected": [
+        "src/aviation_agentic_ai/ontology/generation.py",
+        "tests/test_ontology_generation.py"
+      ],
+      "evidence": [
+        "Partial TTL and manifests are already written on failure, so the original data-loss risk is addressed.",
+        "Failure paths still raise RuntimeError instead of a typed exception carrying partial paths for programmatic callers."
+      ],
+      "planned_action": "Defer until after P1/P2 unless time permits; if implemented, add OntologyGenerationError without changing CLI behavior.",
+      "risk_if_unfixed": "Programmatic callers must read partial output paths after catching RuntimeError.",
+      "tests_required": [
+        "failure path raises typed error",
+        "exception exposes partial paths",
+        "partial TTL and manifest exist"
+      ],
+      "documentation_report_impact": "No scientific metric impact."
+    },
+    {
+      "finding_id": "NF4",
+      "severity": "P2",
+      "title": "_score silently returns 0.0 for missing or invalid scores",
+      "current_status": "still_valid",
+      "files_inspected": [
+        "src/aviation_agentic_ai/retrieval/hybrid.py",
+        "tests/test_hybrid_retrieval.py"
+      ],
+      "evidence": [
+        "_score returns 0.0 for missing, None, or non-numeric score values.",
+        "This behavior is deterministic and probably acceptable, but not documented or directly tested."
+      ],
+      "planned_action": "Document _score behavior and add direct tests for missing score, non-numeric score, numeric strings, and rank-only items.",
+      "risk_if_unfixed": "Future changes could misinterpret unscored duplicate-hit merge behavior.",
+      "tests_required": [
+        "missing score",
+        "non-numeric score",
+        "numeric string",
+        "rank-only duplicate item"
+      ],
+      "documentation_report_impact": "No metric impact."
+    },
+    {
+      "finding_id": "NF5",
+      "severity": "P3",
+      "title": "load_questions_and_gold_labels may load gold labels twice",
+      "current_status": "still_valid",
+      "files_inspected": [
+        "src/aviation_agentic_ai/evaluation/gold.py",
+        "tests/test_experiment_protocol.py"
+      ],
+      "evidence": [
+        "When gold labels exist but lack embedded question text, load_questions_and_gold_labels loads labels once for inspection and again through gold_labels_for_questions.",
+        "Current benchmark size makes this a minor latency issue, but avoiding double parse is straightforward."
+      ],
+      "planned_action": "Allow gold_labels_for_questions to accept already-loaded labels and add a spy-loader test proving one load in both branches.",
+      "risk_if_unfixed": "Avoidable duplicate parsing on fallback path.",
+      "tests_required": [
+        "labels with question text load once",
+        "labels without question text load once and overlay boundary questions",
+        "missing labels still raise expected error"
+      ],
+      "documentation_report_impact": "No report metric impact."
+    }
+  ],
+  "phase_plan": [
+    "Phase 1: JSON extraction surface, chunk boundary behavior, and verification that I3/M3 remain fixed.",
+    "Phase 2: Evidence matching diagnostics and retrieval source/score robustness.",
+    "Phase 3: Provider lookup consistency, gold label loader double-load, optional ontology typed exception.",
+    "Phase 4: Remediation summary plus dashboard/final-report wording only if implementation-review remediation should be surfaced."
+  ]
+}
