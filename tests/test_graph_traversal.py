@@ -280,7 +280,7 @@ def test_cli_report_graph_traversal_ablation_uses_mocked_writer(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "graph_traversal_ablation.json"
@@ -289,7 +289,11 @@ def test_cli_report_graph_traversal_ablation_uses_mocked_writer(
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"metadata": {"scenarios_total": 7, "questions_total": 2}}
 
-    monkeypatch.setattr(cli, "write_graph_traversal_ablation", fake_writer)
+    monkeypatch.setattr(
+        cli_report_evaluation,
+        "write_graph_traversal_ablation",
+        fake_writer,
+    )
 
     result = CliRunner().invoke(
         main,

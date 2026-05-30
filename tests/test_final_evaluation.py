@@ -152,7 +152,7 @@ def test_final_evaluation_review_keeps_layered_metrics(tmp_path: Path) -> None:
 
 
 def test_cli_report_final_evaluation_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     def fake_writer(output_dir, **kwargs):
         output = Path(output_dir)
@@ -165,7 +165,7 @@ def test_cli_report_final_evaluation_uses_mocked_writer(tmp_path: Path, monkeypa
             "default_strategy_decision": {"recommended_default": "structure_aware"}
         }
 
-    monkeypatch.setattr(cli, "write_final_evaluation_review", fake_writer)
+    monkeypatch.setattr(cli_report_evaluation, "write_final_evaluation_review", fake_writer)
     result = CliRunner().invoke(
         main,
         ["report", "final-evaluation", "--output-dir", str(tmp_path)],

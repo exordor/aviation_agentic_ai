@@ -392,7 +392,7 @@ def test_cli_report_chunking_topk_and_category_use_mocked_writers(
 
 
 def test_cli_report_hybrid_rag_passes_report_name(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     calls = {}
 
@@ -404,7 +404,7 @@ def test_cli_report_hybrid_rag_passes_report_name(tmp_path: Path, monkeypatch) -
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"metadata": {"questions_total": 2}}
 
-    monkeypatch.setattr(cli, "write_hybrid_rag_experiment", fake_writer)
+    monkeypatch.setattr(cli_report_evaluation, "write_hybrid_rag_experiment", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -424,7 +424,7 @@ def test_cli_report_hybrid_rag_passes_report_name(tmp_path: Path, monkeypatch) -
 
 
 def test_cli_report_graphrag_review_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     def fake_writer(*_args, **kwargs):
         json_path = tmp_path / f"{kwargs['report_name']}.json"
@@ -437,7 +437,7 @@ def test_cli_report_graphrag_review_uses_mocked_writer(tmp_path: Path, monkeypat
             {"metadata": {"structure_aware_present": False, "evidence_eval_present": False}},
         )
 
-    monkeypatch.setattr(cli, "write_graphrag_review", fake_writer)
+    monkeypatch.setattr(cli_report_evaluation, "write_graphrag_review", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -517,7 +517,7 @@ def test_cli_cqs_validate_benchmark_uses_mocked_validator(tmp_path: Path, monkey
 
 
 def test_cli_report_evidence_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "evidence_level_evaluation.json"
@@ -526,7 +526,7 @@ def test_cli_report_evidence_eval_uses_mocked_writer(tmp_path: Path, monkeypatch
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"metadata": {"labels_total": 10}}
 
-    monkeypatch.setattr(cli, "write_evidence_level_evaluation", fake_writer)
+    monkeypatch.setattr(cli_report_evaluation, "write_evidence_level_evaluation", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -543,7 +543,7 @@ def test_cli_report_evidence_eval_uses_mocked_writer(tmp_path: Path, monkeypatch
 
 
 def test_cli_report_retrieval_ablation_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "retrieval_ablation.json"
@@ -552,7 +552,7 @@ def test_cli_report_retrieval_ablation_uses_mocked_writer(tmp_path: Path, monkey
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"metadata": {"scenarios_total": 3, "questions_total": 2}}
 
-    monkeypatch.setattr(cli, "write_retrieval_ablation", fake_writer)
+    monkeypatch.setattr(cli_report_evaluation, "write_retrieval_ablation", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -641,7 +641,7 @@ def test_cli_report_benchmark_review_pack_uses_mocked_writer(
 def test_cli_report_kg_extraction_comparison_uses_mocked_writer(
     tmp_path: Path, monkeypatch
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "kg_extraction_comparison.json"
@@ -650,7 +650,7 @@ def test_cli_report_kg_extraction_comparison_uses_mocked_writer(
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"experiments": {"fixed_window": {}, "structure_aware": {}}}
 
-    monkeypatch.setattr(cli, "write_kg_extraction_comparison", fake_writer)
+    monkeypatch.setattr(cli_report_evaluation, "write_kg_extraction_comparison", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -667,7 +667,7 @@ def test_cli_report_kg_extraction_comparison_uses_mocked_writer(
 
 
 def test_cli_report_answer_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "answer_evaluation.json"
@@ -676,7 +676,7 @@ def test_cli_report_answer_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) 
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"metadata": {"answers_total": 4}}
 
-    monkeypatch.setattr(cli, "write_answer_evaluation", fake_writer)
+    monkeypatch.setattr(cli_report_evaluation, "write_answer_evaluation", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -690,6 +690,66 @@ def test_cli_report_answer_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) 
 
     assert result.exit_code == 0, result.output
     assert "Evaluated 4 answers" in result.output
+
+
+def test_cli_report_sufficiency_and_triple_review_use_mocked_writers(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli_report_evaluation
+
+    def fake_sufficiency(*_args, **_kwargs):
+        json_path = tmp_path / "sufficiency_evaluation.json"
+        md_path = tmp_path / "sufficiency_evaluation.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return (
+            json_path,
+            md_path,
+            {"metrics": {"insufficient_evidence_abstention_accuracy": 0.75}},
+        )
+
+    def fake_triple_review(*_args, **_kwargs):
+        json_path = tmp_path / "triple_semantic_review_sample.json"
+        md_path = tmp_path / "triple_semantic_review_sample.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"sample_size": 12}}
+
+    monkeypatch.setattr(
+        cli_report_evaluation,
+        "write_sufficiency_evaluation",
+        fake_sufficiency,
+    )
+    monkeypatch.setattr(
+        cli_report_evaluation,
+        "write_triple_semantic_review",
+        fake_triple_review,
+    )
+
+    sufficiency = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "sufficiency-eval",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+    triple = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "triple-semantic-review",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert sufficiency.exit_code == 0, sufficiency.output
+    assert "insufficient-evidence abstention accuracy=0.75" in sufficiency.output
+    assert triple.exit_code == 0, triple.output
+    assert "Prepared 12 triples for semantic review" in triple.output
 
 
 def test_cli_report_benchmark_reviewed_subset_uses_mocked_writer(
@@ -811,7 +871,7 @@ def test_cli_report_thesis_dashboard_uses_mocked_writer(
 
 
 def test_cli_report_robustness_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_evaluation
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "robustness_evaluation.json"
@@ -820,7 +880,7 @@ def test_cli_report_robustness_uses_mocked_writer(tmp_path: Path, monkeypatch) -
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"metadata": {"cases_total": 5}}
 
-    monkeypatch.setattr(cli, "write_robustness_evaluation", fake_writer)
+    monkeypatch.setattr(cli_report_evaluation, "write_robustness_evaluation", fake_writer)
 
     result = CliRunner().invoke(
         main,
