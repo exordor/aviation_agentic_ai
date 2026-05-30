@@ -26,6 +26,8 @@ BENCHMARK_V2_CHUNKING_STRATEGIES = (
     "recursive_medium",
     "recursive_large",
     "structure_aware",
+    "structure_aware_medium",
+    "structure_aware_large",
     "semantic_meta_like",
     "embedding_semantic",
     "proposition_like",
@@ -44,6 +46,8 @@ CHUNK_SIZE_TIERS: dict[str, tuple[int, int]] = {
     "recursive_small": (400, 80),
     "recursive_medium": (900, 150),
     "recursive_large": (1600, 250),
+    "structure_aware_medium": (900, 150),
+    "structure_aware_large": (1600, 250),
     "embedding_semantic": (900, 150),
     "proposition_like": (900, 80),
     "hierarchical_parent_child": (400, 80),
@@ -65,6 +69,33 @@ PROPOSITION_CUE_RE = re.compile(
 
 
 @dataclass(frozen=True)
+class ChunkingProfile:
+    name: str
+    family: str
+    max_chars: int
+    overlap_chars: int
+    max_tokens: int | None
+    overlap_tokens: int | None
+    retrieval_unit: str
+    returned_context_unit: str
+    semantic_backend: str
+    lexical_fallback: bool
+    real_embeddings: bool
+    boundary_threshold: float | None
+    parent_context_enabled: bool
+    parent_child_retrieval: str
+    context_prefix_enabled: bool
+    implementation_status: str
+    limitations: tuple[str, ...]
+    name_accuracy: str
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data["limitations"] = list(self.limitations)
+        return data
+
+
+@dataclass(frozen=True)
 class SourceChunk:
     chunk_id: str
     source_document: str
@@ -74,6 +105,7 @@ class SourceChunk:
     char_start: int
     char_end: int
     text: str
+    token_count: int = 0
     strategy: str = "fixed_window"
     section: str = ""
     parent_chunk_id: str = ""
@@ -89,6 +121,154 @@ class SourceChunk:
 
 def _normalize_text(text: str) -> str:
     return "\n".join(" ".join(line.split()) for line in text.splitlines() if line.strip())
+
+
+def approximate_token_count(text: str) -> int:
+    """Approximate token count with deterministic whitespace tokenization."""
+    return len(text.split())
+
+
+def _approx_tokens_for_chars(chars: int | None) -> int | None:
+    if chars is None:
+        return None
+    return max(1, round(chars / 4))
+
+
+def chunking_profile(
+    strategy: str,
+    *,
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+) -> ChunkingProfile:
+    if strategy not in CHUNKING_STRATEGIES:
+        raise ValueError(f"Unsupported chunking strategy: {strategy}")
+    effective_max_chars, effective_overlap_chars = _strategy_size_settings(
+        strategy,
+        max_chars,
+        overlap_chars,
+    )
+    base = {
+        "name": strategy,
+        "max_chars": effective_max_chars,
+        "overlap_chars": effective_overlap_chars,
+        "max_tokens": _approx_tokens_for_chars(effective_max_chars),
+        "overlap_tokens": _approx_tokens_for_chars(effective_overlap_chars),
+        "retrieval_unit": "chunk_text",
+        "returned_context_unit": "chunk_text",
+        "semantic_backend": "none",
+        "lexical_fallback": False,
+        "real_embeddings": False,
+        "boundary_threshold": None,
+        "parent_context_enabled": False,
+        "parent_child_retrieval": "not_applicable",
+        "context_prefix_enabled": False,
+        "implementation_status": "implemented",
+        "limitations": (),
+        "name_accuracy": "accurate",
+    }
+    def make_profile(**overrides: Any) -> ChunkingProfile:
+        values = {**base, **overrides}
+        return ChunkingProfile(**values)
+
+    if strategy in {"fixed_window", "fixed_small", "fixed_medium", "fixed_large"}:
+        return make_profile(
+            family="fixed_window",
+            limitations=("May cut semantic or structural boundaries.",),
+        )
+    if strategy in {
+        "sentence_recursive",
+        "recursive_small",
+        "recursive_medium",
+        "recursive_large",
+    }:
+        return make_profile(
+            family="sentence_recursive",
+            retrieval_unit="sentence_merged_chunk",
+            returned_context_unit="sentence_merged_chunk",
+            limitations=("Sentence-aware merging is deterministic, not learned.",),
+        )
+    if strategy in {"structure_aware", "structure_aware_medium", "structure_aware_large"}:
+        return make_profile(
+            family="structure_aware",
+            retrieval_unit="section_line_merged_chunk",
+            returned_context_unit="section_line_merged_chunk",
+            limitations=("Heading/list detection is heuristic and page-local.",),
+        )
+    if strategy == "semantic_meta_like":
+        return make_profile(
+            family="semantic_boundary_lexical",
+            retrieval_unit="lexical_semantic_chunk",
+            returned_context_unit="lexical_semantic_chunk",
+            semantic_backend="lexical_similarity",
+            lexical_fallback=True,
+            boundary_threshold=0.08,
+            limitations=("Semantic boundary decisions use lexical similarity, not embeddings.",),
+        )
+    if strategy == "embedding_semantic":
+        return make_profile(
+            family="semantic_boundary_embedding",
+            retrieval_unit="embedding_semantic_chunk",
+            returned_context_unit="embedding_semantic_chunk",
+            semantic_backend="sentence_transformers_or_fallback_lexical",
+            lexical_fallback=True,
+            real_embeddings=True,
+            boundary_threshold=0.08,
+            implementation_status="implemented_with_deterministic_fallback",
+            limitations=("Only true semantic when the sentence-transformers backend loads.",),
+            name_accuracy="conditional_on_backend",
+        )
+    if strategy == "proposition_like":
+        return make_profile(
+            family="proposition_like_heuristic",
+            retrieval_unit="cue_sentence_or_merged_chunk",
+            returned_context_unit="proposition_only",
+            implementation_status="heuristic_partial",
+            limitations=(
+                "Cue-word segmentation is deterministic and not LLM proposition extraction.",
+                "Current retrieval returns proposition-like units, not parent paragraph context.",
+            ),
+            name_accuracy="partial_should_not_be_called_llm_proposition_extraction",
+        )
+    if strategy == "hierarchical_parent_child":
+        return make_profile(
+            family="hierarchical_parent_child",
+            retrieval_unit="child_chunk",
+            returned_context_unit="child_chunk_text",
+            parent_context_enabled=False,
+            parent_child_retrieval="partial_child_index_parent_metadata",
+            implementation_status="partial",
+            limitations=(
+                "Parent text is stored in chunk metadata but the retriever returns child text.",
+                "Do not claim full parent-return retrieval for this strategy.",
+            ),
+            name_accuracy="partial_parent_metadata_only",
+        )
+    if strategy == "contextual_prefix":
+        return make_profile(
+            family="contextual_prefix",
+            retrieval_unit="prefix_plus_chunk_text",
+            returned_context_unit="prefix_plus_chunk_text",
+            context_prefix_enabled=True,
+            implementation_status="implemented_no_llm_contextualization",
+            limitations=("Prefix is deterministic source metadata, not LLM contextual retrieval.",),
+        )
+    raise ValueError(f"Unsupported chunking strategy: {strategy}")
+
+
+def chunking_profiles(
+    strategies: tuple[str, ...] = CHUNKING_STRATEGIES,
+    *,
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+) -> dict[str, ChunkingProfile]:
+    return {
+        strategy: chunking_profile(
+            strategy,
+            max_chars=max_chars,
+            overlap_chars=overlap_chars,
+        )
+        for strategy in strategies
+    }
 
 
 def chunk_output_path_for_strategy(base_output_path: str | Path, strategy: str) -> Path:
@@ -496,12 +676,12 @@ def _chunk_windows_for_strategy(
             effective_max_chars,
             effective_overlap_chars,
         )
-    if strategy == "structure_aware":
+    if strategy in {"structure_aware", "structure_aware_medium", "structure_aware_large"}:
         return _merge_segments(
             _structure_segments(text),
-            max_chars,
-            overlap_chars,
-            force_section_boundaries=True,
+            effective_max_chars,
+            effective_overlap_chars,
+            force_section_boundaries=strategy == "structure_aware",
         )
     if strategy == "proposition_like":
         return _proposition_segments(text, effective_max_chars, effective_overlap_chars)
@@ -544,6 +724,11 @@ def _chunk_windows_with_metadata_for_strategy(
     strategy_metadata: dict[str, Any] = {
         "configured_max_chars": effective_max_chars,
         "configured_overlap_chars": effective_overlap_chars,
+        "profile_family": chunking_profile(
+            strategy,
+            max_chars=max_chars,
+            overlap_chars=overlap_chars,
+        ).family,
     }
     if strategy == "embedding_semantic":
         if semantic_metadata_override is not None:
@@ -702,6 +887,8 @@ def build_chunks(
                 **strategy_metadata,
                 **dict(window.get("metadata", {})),
             }
+            token_count = approximate_token_count(str(window["text"]))
+            metadata["token_count"] = token_count
             chunks.append(
                 SourceChunk(
                     chunk_id=chunk_id,
@@ -712,6 +899,7 @@ def build_chunks(
                     char_start=int(window["start"]),
                     char_end=int(window["end"]),
                     text=str(window["text"]),
+                    token_count=token_count,
                     strategy=strategy,
                     section=str(window.get("section", "")),
                     parent_chunk_id=parent_chunk_id,

@@ -17,6 +17,7 @@ def _metadata_for_chunk(chunk: SourceChunk) -> dict[str, str | int | float | boo
         "source_path": chunk.source_path,
         "page": chunk.page,
         "chunk_index": chunk.chunk_index,
+        "token_count": chunk.token_count,
         "strategy": chunk.strategy,
         "section": chunk.section,
     }

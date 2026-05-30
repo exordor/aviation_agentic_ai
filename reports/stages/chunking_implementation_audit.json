@@ -1,0 +1,1837 @@
+{
+  "metadata": {
+    "chunks_dir": "data/chunks",
+    "claim_policy": "Audit describes implemented behavior. Partial methods are not treated as full semantic, parent-child, or LLM proposition extraction.",
+    "pdf_path": "data/raw/06_phak_ch4_0.pdf",
+    "run_manifest": {
+      "artifacts": {
+        "chunks_dir": "data/chunks",
+        "pdf_path": "data/raw/06_phak_ch4_0.pdf"
+      },
+      "chunking_strategy": "multiple",
+      "collection_name": "not_used",
+      "command": "aviation-ai report chunking-implementation-audit",
+      "created_at": "2026-05-30T03:16:39.612796+00:00",
+      "document": {
+        "chapter": "4",
+        "document_id": "06_phak_ch4_0",
+        "page_end": null,
+        "page_start": null,
+        "revision_date": null,
+        "source_path": "data/raw/06_phak_ch4_0.pdf",
+        "source_type": "faa_handbook_chapter",
+        "title": "06 phak ch4 0"
+      },
+      "embedding": {
+        "provider": "not_used_for_retrieval_index"
+      },
+      "experiment_name": "chunking_implementation_audit",
+      "llm": {
+        "model": "not_used",
+        "provider": "none"
+      },
+      "parameters": {
+        "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+        "max_chars": 1200,
+        "max_pages": null,
+        "overlap_chars": 150,
+        "semantic_download": true,
+        "strategies": [
+          "fixed_window",
+          "sentence_recursive",
+          "structure_aware",
+          "semantic_meta_like",
+          "fixed_small",
+          "fixed_medium",
+          "fixed_large",
+          "recursive_small",
+          "recursive_medium",
+          "recursive_large",
+          "structure_aware_medium",
+          "structure_aware_large",
+          "embedding_semantic",
+          "proposition_like",
+          "hierarchical_parent_child",
+          "contextual_prefix"
+        ]
+      },
+      "rebuild_policy": {
+        "chunks": true,
+        "indexes": false,
+        "kg": false
+      },
+      "run_id": "chunking-implementation-audit-20260530T031639Z"
+    },
+    "strategies_total": 16
+  },
+  "profiles": {
+    "contextual_prefix": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": true,
+      "family": "contextual_prefix",
+      "implementation_status": "implemented_no_llm_contextualization",
+      "lexical_fallback": false,
+      "limitations": [
+        "Prefix is deterministic source metadata, not LLM contextual retrieval."
+      ],
+      "max_chars": 900,
+      "max_tokens": 225,
+      "name": "contextual_prefix",
+      "name_accuracy": "accurate",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "prefix_plus_chunk_text",
+      "returned_context_unit": "prefix_plus_chunk_text",
+      "semantic_backend": "none"
+    },
+    "embedding_semantic": {
+      "boundary_threshold": 0.08,
+      "context_prefix_enabled": false,
+      "family": "semantic_boundary_embedding",
+      "implementation_status": "implemented_with_deterministic_fallback",
+      "lexical_fallback": true,
+      "limitations": [
+        "Only true semantic when the sentence-transformers backend loads."
+      ],
+      "max_chars": 900,
+      "max_tokens": 225,
+      "name": "embedding_semantic",
+      "name_accuracy": "conditional_on_backend",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": true,
+      "retrieval_unit": "embedding_semantic_chunk",
+      "returned_context_unit": "embedding_semantic_chunk",
+      "semantic_backend": "sentence_transformers_or_fallback_lexical"
+    },
+    "fixed_large": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "fixed_window",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "May cut semantic or structural boundaries."
+      ],
+      "max_chars": 1600,
+      "max_tokens": 400,
+      "name": "fixed_large",
+      "name_accuracy": "accurate",
+      "overlap_chars": 250,
+      "overlap_tokens": 62,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "chunk_text",
+      "returned_context_unit": "chunk_text",
+      "semantic_backend": "none"
+    },
+    "fixed_medium": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "fixed_window",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "May cut semantic or structural boundaries."
+      ],
+      "max_chars": 900,
+      "max_tokens": 225,
+      "name": "fixed_medium",
+      "name_accuracy": "accurate",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "chunk_text",
+      "returned_context_unit": "chunk_text",
+      "semantic_backend": "none"
+    },
+    "fixed_small": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "fixed_window",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "May cut semantic or structural boundaries."
+      ],
+      "max_chars": 400,
+      "max_tokens": 100,
+      "name": "fixed_small",
+      "name_accuracy": "accurate",
+      "overlap_chars": 80,
+      "overlap_tokens": 20,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "chunk_text",
+      "returned_context_unit": "chunk_text",
+      "semantic_backend": "none"
+    },
+    "fixed_window": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "fixed_window",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "May cut semantic or structural boundaries."
+      ],
+      "max_chars": 1200,
+      "max_tokens": 300,
+      "name": "fixed_window",
+      "name_accuracy": "accurate",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "chunk_text",
+      "returned_context_unit": "chunk_text",
+      "semantic_backend": "none"
+    },
+    "hierarchical_parent_child": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "hierarchical_parent_child",
+      "implementation_status": "partial",
+      "lexical_fallback": false,
+      "limitations": [
+        "Parent text is stored in chunk metadata but the retriever returns child text.",
+        "Do not claim full parent-return retrieval for this strategy."
+      ],
+      "max_chars": 400,
+      "max_tokens": 100,
+      "name": "hierarchical_parent_child",
+      "name_accuracy": "partial_parent_metadata_only",
+      "overlap_chars": 80,
+      "overlap_tokens": 20,
+      "parent_child_retrieval": "partial_child_index_parent_metadata",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "child_chunk",
+      "returned_context_unit": "child_chunk_text",
+      "semantic_backend": "none"
+    },
+    "proposition_like": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "proposition_like_heuristic",
+      "implementation_status": "heuristic_partial",
+      "lexical_fallback": false,
+      "limitations": [
+        "Cue-word segmentation is deterministic and not LLM proposition extraction.",
+        "Current retrieval returns proposition-like units, not parent paragraph context."
+      ],
+      "max_chars": 900,
+      "max_tokens": 225,
+      "name": "proposition_like",
+      "name_accuracy": "partial_should_not_be_called_llm_proposition_extraction",
+      "overlap_chars": 80,
+      "overlap_tokens": 20,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "cue_sentence_or_merged_chunk",
+      "returned_context_unit": "proposition_only",
+      "semantic_backend": "none"
+    },
+    "recursive_large": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "sentence_recursive",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Sentence-aware merging is deterministic, not learned."
+      ],
+      "max_chars": 1600,
+      "max_tokens": 400,
+      "name": "recursive_large",
+      "name_accuracy": "accurate",
+      "overlap_chars": 250,
+      "overlap_tokens": 62,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "sentence_merged_chunk",
+      "returned_context_unit": "sentence_merged_chunk",
+      "semantic_backend": "none"
+    },
+    "recursive_medium": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "sentence_recursive",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Sentence-aware merging is deterministic, not learned."
+      ],
+      "max_chars": 900,
+      "max_tokens": 225,
+      "name": "recursive_medium",
+      "name_accuracy": "accurate",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "sentence_merged_chunk",
+      "returned_context_unit": "sentence_merged_chunk",
+      "semantic_backend": "none"
+    },
+    "recursive_small": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "sentence_recursive",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Sentence-aware merging is deterministic, not learned."
+      ],
+      "max_chars": 400,
+      "max_tokens": 100,
+      "name": "recursive_small",
+      "name_accuracy": "accurate",
+      "overlap_chars": 80,
+      "overlap_tokens": 20,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "sentence_merged_chunk",
+      "returned_context_unit": "sentence_merged_chunk",
+      "semantic_backend": "none"
+    },
+    "semantic_meta_like": {
+      "boundary_threshold": 0.08,
+      "context_prefix_enabled": false,
+      "family": "semantic_boundary_lexical",
+      "implementation_status": "implemented",
+      "lexical_fallback": true,
+      "limitations": [
+        "Semantic boundary decisions use lexical similarity, not embeddings."
+      ],
+      "max_chars": 1200,
+      "max_tokens": 300,
+      "name": "semantic_meta_like",
+      "name_accuracy": "accurate",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "lexical_semantic_chunk",
+      "returned_context_unit": "lexical_semantic_chunk",
+      "semantic_backend": "lexical_similarity"
+    },
+    "sentence_recursive": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "sentence_recursive",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Sentence-aware merging is deterministic, not learned."
+      ],
+      "max_chars": 1200,
+      "max_tokens": 300,
+      "name": "sentence_recursive",
+      "name_accuracy": "accurate",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "sentence_merged_chunk",
+      "returned_context_unit": "sentence_merged_chunk",
+      "semantic_backend": "none"
+    },
+    "structure_aware": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "structure_aware",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Heading/list detection is heuristic and page-local."
+      ],
+      "max_chars": 1200,
+      "max_tokens": 300,
+      "name": "structure_aware",
+      "name_accuracy": "accurate",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "section_line_merged_chunk",
+      "returned_context_unit": "section_line_merged_chunk",
+      "semantic_backend": "none"
+    },
+    "structure_aware_large": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "structure_aware",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Heading/list detection is heuristic and page-local."
+      ],
+      "max_chars": 1600,
+      "max_tokens": 400,
+      "name": "structure_aware_large",
+      "name_accuracy": "accurate",
+      "overlap_chars": 250,
+      "overlap_tokens": 62,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "section_line_merged_chunk",
+      "returned_context_unit": "section_line_merged_chunk",
+      "semantic_backend": "none"
+    },
+    "structure_aware_medium": {
+      "boundary_threshold": null,
+      "context_prefix_enabled": false,
+      "family": "structure_aware",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Heading/list detection is heuristic and page-local."
+      ],
+      "max_chars": 900,
+      "max_tokens": 225,
+      "name": "structure_aware_medium",
+      "name_accuracy": "accurate",
+      "overlap_chars": 150,
+      "overlap_tokens": 38,
+      "parent_child_retrieval": "not_applicable",
+      "parent_context_enabled": false,
+      "real_embeddings": false,
+      "retrieval_unit": "section_line_merged_chunk",
+      "returned_context_unit": "section_line_merged_chunk",
+      "semantic_backend": "none"
+    }
+  },
+  "strategies": [
+    {
+      "chunk_config": {
+        "max_chars": 1200,
+        "max_tokens_approx": 300,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 1034.11,
+        "avg_tokens": 172.03,
+        "boundary_preservation_rate": 0.3714,
+        "chunk_count": 35,
+        "chunks_total": 35,
+        "overlap_redundancy": 0.1035,
+        "p95_chars": 1196
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.fixed_window.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "fixed_window",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "May cut semantic or structural boundaries."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "1200"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "fixed_window"
+        ],
+        "token_count": [
+          "1",
+          "146",
+          "157",
+          "175",
+          "179",
+          "184",
+          "185",
+          "187",
+          "188",
+          "189",
+          "190",
+          "191",
+          "193",
+          "195",
+          "196",
+          "197",
+          "199",
+          "200",
+          "201",
+          "203",
+          "206",
+          "208",
+          "210",
+          "215",
+          "219",
+          "43",
+          "52",
+          "98"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "chunk_text",
+      "returned_context_unit": "chunk_text",
+      "semantic_backend": "none",
+      "strategy": "fixed_window"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 1200,
+        "max_tokens_approx": 300,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 1022.11,
+        "avg_tokens": 172.2,
+        "boundary_preservation_rate": 0.2571,
+        "chunk_count": 35,
+        "chunks_total": 35,
+        "overlap_redundancy": 0.0902,
+        "p95_chars": 1191
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.sentence_recursive.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "sentence_recursive",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Sentence-aware merging is deterministic, not learned."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "1200"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "sentence_recursive"
+        ],
+        "token_count": [
+          "1",
+          "104",
+          "133",
+          "141",
+          "170",
+          "183",
+          "184",
+          "185",
+          "187",
+          "188",
+          "189",
+          "193",
+          "194",
+          "196",
+          "197",
+          "199",
+          "200",
+          "201",
+          "204",
+          "205",
+          "207",
+          "208",
+          "209",
+          "215",
+          "268",
+          "30",
+          "48",
+          "52"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "sentence_merged_chunk",
+      "returned_context_unit": "sentence_merged_chunk",
+      "semantic_backend": "none",
+      "strategy": "sentence_recursive"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 1200,
+        "max_tokens_approx": 300,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 233.36,
+        "avg_tokens": 42.07,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 267,
+        "chunks_total": 267,
+        "overlap_redundancy": 0.4789,
+        "p95_chars": 1080
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "structure_aware",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Heading/list detection is heuristic and page-local."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "1200"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "structure_aware"
+        ],
+        "token_count": [
+          "1",
+          "10",
+          "105",
+          "106",
+          "107",
+          "11",
+          "116",
+          "12",
+          "124",
+          "128",
+          "13",
+          "136",
+          "139",
+          "14",
+          "142",
+          "144",
+          "145",
+          "15",
+          "158",
+          "16",
+          "17",
+          "170",
+          "172",
+          "18",
+          "182",
+          "183",
+          "184",
+          "185",
+          "19",
+          "190",
+          "193",
+          "196",
+          "197",
+          "198",
+          "2",
+          "20",
+          "200",
+          "205",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26",
+          "27",
+          "28",
+          "29",
+          "3",
+          "30",
+          "31",
+          "32",
+          "33",
+          "34",
+          "35",
+          "36",
+          "37",
+          "38",
+          "39",
+          "4",
+          "40",
+          "41",
+          "42",
+          "43",
+          "44",
+          "45",
+          "47",
+          "48",
+          "49",
+          "5",
+          "50",
+          "51",
+          "56",
+          "6",
+          "61",
+          "64",
+          "7",
+          "70",
+          "76",
+          "8",
+          "87",
+          "9",
+          "90",
+          "95"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "section_line_merged_chunk",
+      "returned_context_unit": "section_line_merged_chunk",
+      "semantic_backend": "none",
+      "strategy": "structure_aware"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 1200,
+        "max_tokens_approx": 300,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 580.55,
+        "avg_tokens": 98.09,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 56,
+        "chunks_total": 56,
+        "overlap_redundancy": 0.0,
+        "p95_chars": 712
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.semantic_meta_like.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "semantic_boundary_lexical",
+      "implementation_status": "implemented",
+      "lexical_fallback": true,
+      "limitations": [
+        "Semantic boundary decisions use lexical similarity, not embeddings."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "1200"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "semantic_boundary_lexical"
+        ],
+        "semantic_backend": [
+          "lexical_similarity"
+        ],
+        "token_count": [
+          "1",
+          "100",
+          "101",
+          "102",
+          "103",
+          "104",
+          "105",
+          "106",
+          "107",
+          "108",
+          "109",
+          "110",
+          "111",
+          "112",
+          "115",
+          "118",
+          "119",
+          "121",
+          "122",
+          "126",
+          "129",
+          "136",
+          "138",
+          "143",
+          "20",
+          "39",
+          "4",
+          "56",
+          "63",
+          "67",
+          "73",
+          "82",
+          "93",
+          "94",
+          "95",
+          "97",
+          "98",
+          "99"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "lexical_semantic_chunk",
+      "returned_context_unit": "lexical_semantic_chunk",
+      "semantic_backend": "lexical_similarity",
+      "strategy": "semantic_meta_like"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 400,
+        "max_tokens_approx": 100,
+        "overlap_chars": 80,
+        "overlap_tokens_approx": 20
+      },
+      "chunk_stats": {
+        "avg_chars": 361.75,
+        "avg_tokens": 60.49,
+        "boundary_preservation_rate": 0.2679,
+        "chunk_count": 112,
+        "chunks_total": 112,
+        "overlap_redundancy": 0.2009,
+        "p95_chars": 398
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.fixed_small.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "fixed_window",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "May cut semantic or structural boundaries."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "400"
+        ],
+        "configured_overlap_chars": [
+          "80"
+        ],
+        "profile_family": [
+          "fixed_window"
+        ],
+        "token_count": [
+          "1",
+          "16",
+          "17",
+          "24",
+          "30",
+          "39",
+          "43",
+          "46",
+          "49",
+          "50",
+          "51",
+          "52",
+          "54",
+          "55",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "61",
+          "62",
+          "63",
+          "64",
+          "65",
+          "66",
+          "67",
+          "68",
+          "69",
+          "70",
+          "71",
+          "72",
+          "73",
+          "74",
+          "81",
+          "84"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "chunk_text",
+      "returned_context_unit": "chunk_text",
+      "semantic_backend": "none",
+      "strategy": "fixed_small"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 900,
+        "max_tokens_approx": 225,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 794.21,
+        "avg_tokens": 132.25,
+        "boundary_preservation_rate": 0.25,
+        "chunk_count": 48,
+        "chunks_total": 48,
+        "overlap_redundancy": 0.1493,
+        "p95_chars": 896
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.fixed_medium.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "fixed_window",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "May cut semantic or structural boundaries."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "fixed_window"
+        ],
+        "token_count": [
+          "1",
+          "125",
+          "127",
+          "132",
+          "134",
+          "136",
+          "137",
+          "138",
+          "139",
+          "140",
+          "141",
+          "142",
+          "145",
+          "146",
+          "147",
+          "148",
+          "149",
+          "150",
+          "151",
+          "153",
+          "154",
+          "155",
+          "156",
+          "160",
+          "167",
+          "168",
+          "46",
+          "66",
+          "68",
+          "79",
+          "83",
+          "88",
+          "99"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "chunk_text",
+      "returned_context_unit": "chunk_text",
+      "semantic_backend": "none",
+      "strategy": "fixed_medium"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 1600,
+        "max_tokens_approx": 400,
+        "overlap_chars": 250,
+        "overlap_tokens_approx": 62
+      },
+      "chunk_stats": {
+        "avg_chars": 1359.19,
+        "avg_tokens": 225.96,
+        "boundary_preservation_rate": 0.3704,
+        "chunk_count": 27,
+        "chunks_total": 27,
+        "overlap_redundancy": 0.1158,
+        "p95_chars": 1594
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.fixed_large.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "fixed_window",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "May cut semantic or structural boundaries."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "1600"
+        ],
+        "configured_overlap_chars": [
+          "250"
+        ],
+        "profile_family": [
+          "fixed_window"
+        ],
+        "token_count": [
+          "1",
+          "120",
+          "123",
+          "165",
+          "179",
+          "182",
+          "188",
+          "224",
+          "235",
+          "240",
+          "243",
+          "246",
+          "248",
+          "254",
+          "259",
+          "260",
+          "261",
+          "265",
+          "266",
+          "271",
+          "275",
+          "280",
+          "281",
+          "286"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "chunk_text",
+      "returned_context_unit": "chunk_text",
+      "semantic_backend": "none",
+      "strategy": "fixed_large"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 400,
+        "max_tokens_approx": 100,
+        "overlap_chars": 80,
+        "overlap_tokens_approx": 20
+      },
+      "chunk_stats": {
+        "avg_chars": 358.78,
+        "avg_tokens": 60.58,
+        "boundary_preservation_rate": 0.3084,
+        "chunk_count": 107,
+        "chunks_total": 107,
+        "overlap_redundancy": 0.152,
+        "p95_chars": 399
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.recursive_small.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "sentence_recursive",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Sentence-aware merging is deterministic, not learned."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "400"
+        ],
+        "configured_overlap_chars": [
+          "80"
+        ],
+        "profile_family": [
+          "sentence_recursive"
+        ],
+        "token_count": [
+          "1",
+          "102",
+          "16",
+          "30",
+          "31",
+          "33",
+          "37",
+          "38",
+          "39",
+          "48",
+          "50",
+          "51",
+          "52",
+          "53",
+          "54",
+          "55",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "61",
+          "62",
+          "63",
+          "64",
+          "65",
+          "66",
+          "67",
+          "68",
+          "69",
+          "70",
+          "71",
+          "75",
+          "76",
+          "81",
+          "82",
+          "84",
+          "99"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "sentence_merged_chunk",
+      "returned_context_unit": "sentence_merged_chunk",
+      "semantic_backend": "none",
+      "strategy": "recursive_small"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 900,
+        "max_tokens_approx": 225,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 782.17,
+        "avg_tokens": 132.4,
+        "boundary_preservation_rate": 0.25,
+        "chunk_count": 48,
+        "chunks_total": 48,
+        "overlap_redundancy": 0.1327,
+        "p95_chars": 898
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.recursive_medium.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "sentence_recursive",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Sentence-aware merging is deterministic, not learned."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "sentence_recursive"
+        ],
+        "token_count": [
+          "1",
+          "122",
+          "130",
+          "131",
+          "134",
+          "135",
+          "136",
+          "137",
+          "138",
+          "139",
+          "140",
+          "141",
+          "142",
+          "143",
+          "144",
+          "145",
+          "146",
+          "147",
+          "148",
+          "149",
+          "150",
+          "151",
+          "152",
+          "154",
+          "155",
+          "157",
+          "161",
+          "168",
+          "171",
+          "219",
+          "40",
+          "49",
+          "62",
+          "66",
+          "78",
+          "88",
+          "90"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "sentence_merged_chunk",
+      "returned_context_unit": "sentence_merged_chunk",
+      "semantic_backend": "none",
+      "strategy": "recursive_medium"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 1600,
+        "max_tokens_approx": 400,
+        "overlap_chars": 250,
+        "overlap_tokens_approx": 62
+      },
+      "chunk_stats": {
+        "avg_chars": 1355.26,
+        "avg_tokens": 228,
+        "boundary_preservation_rate": 0.3704,
+        "chunk_count": 27,
+        "chunks_total": 27,
+        "overlap_redundancy": 0.1105,
+        "p95_chars": 1593
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.recursive_large.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "sentence_recursive",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Sentence-aware merging is deterministic, not learned."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "1600"
+        ],
+        "configured_overlap_chars": [
+          "250"
+        ],
+        "profile_family": [
+          "sentence_recursive"
+        ],
+        "token_count": [
+          "1",
+          "104",
+          "117",
+          "174",
+          "177",
+          "185",
+          "188",
+          "213",
+          "230",
+          "239",
+          "241",
+          "247",
+          "250",
+          "254",
+          "259",
+          "260",
+          "262",
+          "266",
+          "267",
+          "272",
+          "274",
+          "275",
+          "280",
+          "283",
+          "344"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "sentence_merged_chunk",
+      "returned_context_unit": "sentence_merged_chunk",
+      "semantic_backend": "none",
+      "strategy": "recursive_large"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 900,
+        "max_tokens_approx": 225,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 775.02,
+        "avg_tokens": 129.04,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 48,
+        "chunks_total": 48,
+        "overlap_redundancy": 0.1273,
+        "p95_chars": 896
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware_medium.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "structure_aware",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Heading/list detection is heuristic and page-local."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "structure_aware"
+        ],
+        "token_count": [
+          "1",
+          "110",
+          "122",
+          "130",
+          "132",
+          "134",
+          "135",
+          "136",
+          "138",
+          "139",
+          "141",
+          "142",
+          "143",
+          "144",
+          "145",
+          "146",
+          "147",
+          "149",
+          "150",
+          "151",
+          "152",
+          "154",
+          "155",
+          "156",
+          "157",
+          "160",
+          "161",
+          "167",
+          "168",
+          "33",
+          "40",
+          "62",
+          "64",
+          "78",
+          "83",
+          "90"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "section_line_merged_chunk",
+      "returned_context_unit": "section_line_merged_chunk",
+      "semantic_backend": "none",
+      "strategy": "structure_aware_medium"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 1600,
+        "max_tokens_approx": 400,
+        "overlap_chars": 250,
+        "overlap_tokens_approx": 62
+      },
+      "chunk_stats": {
+        "avg_chars": 1349.63,
+        "avg_tokens": 224.26,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 27,
+        "chunks_total": 27,
+        "overlap_redundancy": 0.1091,
+        "p95_chars": 1591
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.structure_aware_large.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "structure_aware",
+      "implementation_status": "implemented",
+      "lexical_fallback": false,
+      "limitations": [
+        "Heading/list detection is heuristic and page-local."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "1600"
+        ],
+        "configured_overlap_chars": [
+          "250"
+        ],
+        "profile_family": [
+          "structure_aware"
+        ],
+        "token_count": [
+          "1",
+          "117",
+          "123",
+          "161",
+          "177",
+          "181",
+          "188",
+          "211",
+          "230",
+          "238",
+          "239",
+          "241",
+          "246",
+          "247",
+          "252",
+          "254",
+          "260",
+          "265",
+          "267",
+          "269",
+          "275",
+          "280",
+          "281",
+          "286"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "section_line_merged_chunk",
+      "returned_context_unit": "section_line_merged_chunk",
+      "semantic_backend": "none",
+      "strategy": "structure_aware_large"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 900,
+        "max_tokens_approx": 225,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 613.47,
+        "avg_tokens": 103.64,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 53,
+        "chunks_total": 53,
+        "overlap_redundancy": 0.0,
+        "p95_chars": 890
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.embedding_semantic.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "semantic_boundary_embedding",
+      "implementation_status": "implemented_with_deterministic_fallback",
+      "lexical_fallback": true,
+      "limitations": [
+        "Only true semantic when the sentence-transformers backend loads."
+      ],
+      "name_accuracy": "conditional_on_backend",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "semantic_boundary_embedding"
+        ],
+        "semantic_backend": [
+          "sentence_transformers"
+        ],
+        "semantic_embedding_model": [
+          "sentence-transformers/all-MiniLM-L6-v2"
+        ],
+        "token_count": [
+          "1",
+          "101",
+          "102",
+          "106",
+          "107",
+          "108",
+          "111",
+          "113",
+          "115",
+          "119",
+          "120",
+          "123",
+          "125",
+          "13",
+          "132",
+          "135",
+          "137",
+          "138",
+          "140",
+          "141",
+          "142",
+          "144",
+          "145",
+          "146",
+          "147",
+          "150",
+          "151",
+          "157",
+          "158",
+          "215",
+          "25",
+          "29",
+          "40",
+          "42",
+          "69",
+          "71",
+          "75",
+          "78",
+          "79",
+          "82",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "93",
+          "94",
+          "99"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": true,
+      "retrieval_unit": "embedding_semantic_chunk",
+      "returned_context_unit": "embedding_semantic_chunk",
+      "semantic_backend": "sentence_transformers",
+      "strategy": "embedding_semantic"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 900,
+        "max_tokens_approx": 225,
+        "overlap_chars": 80,
+        "overlap_tokens_approx": 20
+      },
+      "chunk_stats": {
+        "avg_chars": 383.33,
+        "avg_tokens": 64.92,
+        "boundary_preservation_rate": 0.9529,
+        "chunk_count": 85,
+        "chunks_total": 85,
+        "overlap_redundancy": 0.0028,
+        "p95_chars": 809
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.proposition_like.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "proposition_like_heuristic",
+      "implementation_status": "heuristic_partial",
+      "lexical_fallback": false,
+      "limitations": [
+        "Cue-word segmentation is deterministic and not LLM proposition extraction.",
+        "Current retrieval returns proposition-like units, not parent paragraph context."
+      ],
+      "name_accuracy": "partial_should_not_be_called_llm_proposition_extraction",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "80"
+        ],
+        "llm_proposition_extraction": [
+          "False"
+        ],
+        "profile_family": [
+          "proposition_like_heuristic"
+        ],
+        "proposition_extraction": [
+          "heuristic_sentence_cue"
+        ],
+        "token_count": [
+          "1",
+          "107",
+          "112",
+          "113",
+          "115",
+          "117",
+          "118",
+          "126",
+          "129",
+          "135",
+          "142",
+          "15",
+          "167",
+          "183",
+          "19",
+          "21",
+          "219",
+          "22",
+          "24",
+          "25",
+          "26",
+          "28",
+          "29",
+          "30",
+          "33",
+          "34",
+          "35",
+          "36",
+          "39",
+          "40",
+          "42",
+          "43",
+          "44",
+          "46",
+          "47",
+          "49",
+          "50",
+          "51",
+          "54",
+          "56",
+          "57",
+          "61",
+          "62",
+          "64",
+          "66",
+          "67",
+          "69",
+          "71",
+          "72",
+          "73",
+          "75",
+          "78",
+          "80",
+          "82",
+          "83",
+          "84",
+          "85",
+          "9",
+          "93",
+          "95",
+          "97",
+          "99"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "cue_sentence_or_merged_chunk",
+      "returned_context_unit": "proposition_only",
+      "semantic_backend": "none",
+      "strategy": "proposition_like"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 400,
+        "max_tokens_approx": 100,
+        "overlap_chars": 80,
+        "overlap_tokens_approx": 20
+      },
+      "chunk_stats": {
+        "avg_chars": 358.78,
+        "avg_tokens": 60.58,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 107,
+        "chunks_total": 107,
+        "overlap_redundancy": 0.152,
+        "p95_chars": 399
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.hierarchical_parent_child.benchmark_v2.jsonl",
+      "context_prefix_enabled": false,
+      "family": "hierarchical_parent_child",
+      "implementation_status": "partial",
+      "lexical_fallback": false,
+      "limitations": [
+        "Parent text is stored in chunk metadata but the retriever returns child text.",
+        "Do not claim full parent-return retrieval for this strategy."
+      ],
+      "name_accuracy": "partial_parent_metadata_only",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "400"
+        ],
+        "configured_overlap_chars": [
+          "80"
+        ],
+        "parent_context_available": [
+          "True"
+        ],
+        "profile_family": [
+          "hierarchical_parent_child"
+        ],
+        "retrieval_integration": [
+          "partial_child_index_parent_metadata"
+        ],
+        "token_count": [
+          "1",
+          "102",
+          "16",
+          "30",
+          "31",
+          "33",
+          "37",
+          "38",
+          "39",
+          "48",
+          "50",
+          "51",
+          "52",
+          "53",
+          "54",
+          "55",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "61",
+          "62",
+          "63",
+          "64",
+          "65",
+          "66",
+          "67",
+          "68",
+          "69",
+          "70",
+          "71",
+          "75",
+          "76",
+          "81",
+          "82",
+          "84",
+          "99"
+        ]
+      },
+      "parent_child_retrieval": "partial_child_index_parent_metadata",
+      "real_embeddings": false,
+      "retrieval_unit": "child_chunk",
+      "returned_context_unit": "child_chunk_text",
+      "semantic_backend": "none",
+      "strategy": "hierarchical_parent_child"
+    },
+    {
+      "chunk_config": {
+        "max_chars": 900,
+        "max_tokens_approx": 225,
+        "overlap_chars": 150,
+        "overlap_tokens_approx": 38
+      },
+      "chunk_stats": {
+        "avg_chars": 303.71,
+        "avg_tokens": 48.94,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 279,
+        "chunks_total": 279,
+        "overlap_redundancy": 0.49,
+        "p95_chars": 944
+      },
+      "chunks_path": "data/chunks/06_phak_ch4_0.contextual_prefix.benchmark_v2.jsonl",
+      "context_prefix_enabled": true,
+      "family": "contextual_prefix",
+      "implementation_status": "implemented_no_llm_contextualization",
+      "lexical_fallback": false,
+      "limitations": [
+        "Prefix is deterministic source metadata, not LLM contextual retrieval."
+      ],
+      "name_accuracy": "accurate",
+      "observed_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "contextualization": [
+          "deterministic_prefix"
+        ],
+        "llm_contextualization": [
+          "False"
+        ],
+        "profile_family": [
+          "contextual_prefix"
+        ],
+        "token_count": [
+          "10",
+          "101",
+          "102",
+          "103",
+          "11",
+          "112",
+          "113",
+          "114",
+          "12",
+          "127",
+          "13",
+          "130",
+          "131",
+          "138",
+          "14",
+          "140",
+          "142",
+          "144",
+          "146",
+          "148",
+          "149",
+          "15",
+          "150",
+          "152",
+          "153",
+          "154",
+          "156",
+          "158",
+          "159",
+          "16",
+          "161",
+          "166",
+          "167",
+          "168",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26",
+          "27",
+          "28",
+          "29",
+          "30",
+          "31",
+          "32",
+          "33",
+          "34",
+          "35",
+          "36",
+          "37",
+          "38",
+          "39",
+          "40",
+          "41",
+          "42",
+          "43",
+          "44",
+          "45",
+          "46",
+          "47",
+          "48",
+          "49",
+          "50",
+          "51",
+          "52",
+          "54",
+          "55",
+          "56",
+          "57",
+          "60",
+          "61",
+          "63",
+          "68",
+          "69",
+          "71",
+          "72",
+          "77",
+          "8",
+          "85",
+          "9",
+          "98"
+        ]
+      },
+      "parent_child_retrieval": "not_applicable",
+      "real_embeddings": false,
+      "retrieval_unit": "prefix_plus_chunk_text",
+      "returned_context_unit": "prefix_plus_chunk_text",
+      "semantic_backend": "none",
+      "strategy": "contextual_prefix"
+    }
+  ]
+}

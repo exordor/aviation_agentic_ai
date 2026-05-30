@@ -16,6 +16,12 @@
 | `sufficiency_evaluation` | True | benchmark_v2_120 | 120 | safety_abstention | False |
 | `benchmark_reviewed_subset_summary` | True | benchmark_v2_reviewed_subset_60 | 60 | benchmark_manual_review | True |
 | `answer_evaluation_benchmark_subset` | True | answer_eval_subset | n/a | answer_generation, safety_abstention | False |
+| `chunking_implementation_audit` | True | benchmark_v2_120 | n/a | retrieval, evaluation_protocol | False |
+| `chunking_comparison_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False |
+| `chunking_comparison_benchmark_v2_budget` | True | benchmark_v2_120 | n/a | retrieval | False |
+| `chunking_topk_sensitivity_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False |
+| `chunking_category_analysis_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False |
+| `chunking_failure_cards_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval, failure_analysis | False |
 | `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False |
 | `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False |
 | `triple_semantic_review_sample` | True | triple_semantic_review_sample | n/a | ontology_kg, manual_review | True |
@@ -29,7 +35,7 @@
 | --- | --- | --- | --- | --- |
 | RQ1 ontology constraint | curated_ontology_evaluation, kg_extraction_comparison, kg_validation | RDF/OWL parse validity, label/comment coverage, unsupported class/property count, provenance completeness | strong | Triple semantic correctness still requires manual review. |
 | RQ2 evidence traceability | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation | KG evidence coverage, citation completeness, citation precision, citation recall | moderate | Answer-level manual or LLM-judge evaluation is optional and not run. |
-| RQ3 graph evidence vs vector sufficiency | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2 | Recall@5, Recall@10, MRR@5, NDCG@10, Path Recall@5, Path Precision@5 | moderate | Path relevance metrics are heuristic until manually reviewed. |
+| RQ3 graph evidence vs vector sufficiency | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, chunking_comparison_benchmark_v2, chunking_comparison_benchmark_v2_budget, chunking_topk_sensitivity_benchmark_v2, chunking_category_analysis_benchmark_v2 | Recall@5, Recall@10, MRR@5, NDCG@10, Path Recall@5, Path Precision@5, Fixed-budget chunking Recall@5 | moderate | Path relevance metrics and partial chunking methods require cautious interpretation. |
 | RQ4 safety-aware abstention | sufficiency_evaluation, robustness_evaluation | Abstention Accuracy, False Answer Rate, False Abstention Rate, Risk Category Accuracy | moderate | Sufficiency can create false abstentions on supported questions. |
 
 ## Dataset Usage Matrix
@@ -39,6 +45,7 @@
 | 10-CQ pilot | demo and qualitative answer inspection | pilot | partial | too small for main thesis retrieval claims |
 | 35-question expanded | pilot ablation and KG extraction comparison | pilot | partial | pilot-sized and not the main benchmark |
 | benchmark v2 120 | main thesis retrieval and safety benchmark | main_thesis_benchmark | provisional_internal_pending_manual_review | machine-seeded and requires manual naturalness review |
+| benchmark v2 chunking experiment | chunking strategy comparison under top-k, fixed-budget, and category views | retrieval_design_diagnostic | partial_benchmark_specific | implementation-maturity labels required; top-k context volume differs by chunk size |
 | benchmark reviewed subset 60 | project-author review scaffold for high-value labels | manual_review_scaffold | pending_manual_review | review scaffold only; no external aviation expert certification |
 | answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | stratified subset; deterministic heuristic scores unless annotated |
 | triple semantic review sample | manual KG semantic correctness review template | manual_review_pending | partial | review fields pending; no correctness results claimed |
@@ -54,6 +61,7 @@
 | robustness | Abstention Correctness=1.0, False Answer Rate=0.0, Boundary Violations=0 |
 | benchmark reviewed subset | Labels=60, Review Status=project_review_pending_external_review, External Expert Certified=False |
 | answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=35, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |
+| chunking benchmark v2 | Top-k best=fixed_large (Recall@5=0.86), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |
 | KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |
 | triple semantic review | Sample=100, reviewed=0, needs_review=100 |
 
@@ -69,6 +77,7 @@
 ## Failure-Mode Summary
 
 - Graph failure categories: {'generic_seed_node': 75, 'graph_fusion_dilution': 100, 'kg_sparse_for_question': 374, 'low_value_predicate': 154, 'path_found_but_wrong_chunk': 322, 'seed_linking_error': 150}
+- Chunking failure-card samples: {'chunk_too_large_low_precision': 3, 'chunk_too_small_lost_context': 8, 'cross_page_evidence_split': 14, 'missed_gold_evidence_at_5': 14, 'no_answer_retrieved_misleading_context': 14, 'parent_child_not_used': 1, 'proposition_context_loss': 1, 'section_boundary_split': 6, 'semantic_boundary_error': 2}
 - False abstention on supported questions: 29
 - Machine-seeded benchmark wording findings: 90
 - Missing manual triple review items: 100

@@ -16,6 +16,17 @@ The benchmark-v2 report uses `data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`
 with 120 labels and keeps supported labels separate from insufficient-evidence
 labels.
 
+The hardening layer adds four independent diagnostics:
+
+- implementation audit: checks strategy names against actual returned context
+  units and backend status.
+- fixed-context-budget comparison: keeps each query under the same default
+  4000-character context budget.
+- top-k sensitivity: reports k=3, 5, 10, and 20 instead of relying on one k.
+- category analysis: separates supported factual, concept definition, causal,
+  cross-page, paraphrase, terminology variation, and insufficient-evidence
+  labels.
+
 ## Chunking Families
 
 Mainstream RAG and GraphRAG systems commonly use several chunking families:
@@ -31,7 +42,7 @@ Mainstream RAG and GraphRAG systems commonly use several chunking families:
 
 This repository currently implements fixed-window, sentence-recursive,
 structure-aware, lexical semantic-meta-like, fixed size tiers, recursive size
-tiers, embedding semantic chunking with lexical fallback, deterministic
+tiers, structure-aware medium/large variants, embedding semantic chunking with lexical fallback, deterministic
 proposition-like chunking, hierarchical parent-child chunk scaffolding, and
 deterministic contextual prefixes. Late chunking remains future work and is not
 exposed as a runnable strategy.
@@ -63,6 +74,11 @@ Chunking and cost diagnostics are reported beside retrieval metrics:
 - Index size when available.
 - KG extraction cost impact notes inferred from chunk count and chunk size.
 
+Top-k retrieval metrics are not automatically fair across chunk sizes, because a
+large-chunk strategy can expose more characters at the same k. The fixed-budget
+report is therefore the stronger comparison when discussing retrieval design,
+while top-k sensitivity remains useful for operational diagnostics.
+
 Insufficient-evidence labels have no gold retrieval target. The report therefore
 does not treat them as ordinary recall failures. It reports whether top-5
 retrieved context overlaps key entities, because such context may look
@@ -87,3 +103,14 @@ sentence cues. It is not LLM proposition extraction.
 `hierarchical_parent_child` creates child chunks with parent metadata. The
 current benchmark-v2 retrieval indexes child text and records parent context as
 metadata, so parent-return retrieval is marked as partial.
+
+The following commands generate the hardened artifacts, outside the default
+thesis workflow:
+
+```bash
+uv run aviation-ai report chunking-implementation-audit
+uv run aviation-ai report chunking-comparison-v2
+uv run aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context_budget
+uv run aviation-ai report chunking-topk-sensitivity-v2
+uv run aviation-ai report chunking-category-analysis-v2
+```

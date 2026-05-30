@@ -1,0 +1,1933 @@
+{
+  "metadata": {
+    "claim_policy": "Top-k sensitivity is diagnostic. Larger k also changes context volume, so it is not a universal chunker ranking.",
+    "labels": {
+      "labels_total": 120,
+      "no_answer_total": 20,
+      "question_type_counts": {
+        "concept_definition": 15,
+        "cross_page": 10,
+        "insufficient_evidence": 20,
+        "paraphrase": 10,
+        "relation_causal": 15,
+        "supported_factual": 40,
+        "terminology_variation": 10
+      },
+      "supported_total": 100
+    },
+    "scoring_policy": "supported_labels_only_for_retrieval; no mixed overall score",
+    "source_report": "reports/stages/chunking_comparison_benchmark_v2.json",
+    "top_k_values": [
+      3,
+      5,
+      10,
+      20
+    ]
+  },
+  "rankings": {
+    "10": [
+      {
+        "context_recall": 0.945,
+        "mean_context_chars": 14261.21,
+        "mrr": 0.6412,
+        "recall": 0.96,
+        "strategy": "structure_aware_large"
+      },
+      {
+        "context_recall": 0.945,
+        "mean_context_chars": 14272.6,
+        "mrr": 0.6372,
+        "recall": 0.96,
+        "strategy": "recursive_large"
+      },
+      {
+        "context_recall": 0.945,
+        "mean_context_chars": 14284.33,
+        "mrr": 0.6303,
+        "recall": 0.96,
+        "strategy": "fixed_large"
+      },
+      {
+        "context_recall": 0.885,
+        "mean_context_chars": 8084.29,
+        "mrr": 0.5353,
+        "recall": 0.91,
+        "strategy": "recursive_medium"
+      },
+      {
+        "context_recall": 0.875,
+        "mean_context_chars": 8219.7,
+        "mrr": 0.5448,
+        "recall": 0.9,
+        "strategy": "fixed_medium"
+      },
+      {
+        "context_recall": 0.86,
+        "mean_context_chars": 8050.6,
+        "mrr": 0.5269,
+        "recall": 0.89,
+        "strategy": "structure_aware_medium"
+      },
+      {
+        "context_recall": 0.815,
+        "mean_context_chars": 6415.1,
+        "mrr": 0.5517,
+        "recall": 0.85,
+        "strategy": "embedding_semantic"
+      },
+      {
+        "context_recall": 0.78,
+        "mean_context_chars": 3577.26,
+        "mrr": 0.4782,
+        "recall": 0.81,
+        "strategy": "hierarchical_parent_child"
+      },
+      {
+        "context_recall": 0.78,
+        "mean_context_chars": 3577.26,
+        "mrr": 0.4782,
+        "recall": 0.81,
+        "strategy": "recursive_small"
+      },
+      {
+        "context_recall": 0.76,
+        "mean_context_chars": 3661.93,
+        "mrr": 0.4328,
+        "recall": 0.8,
+        "strategy": "fixed_small"
+      },
+      {
+        "context_recall": 0.755,
+        "mean_context_chars": 6041.71,
+        "mrr": 0.4658,
+        "recall": 0.79,
+        "strategy": "semantic_meta_like"
+      },
+      {
+        "context_recall": 0.655,
+        "mean_context_chars": 4191.55,
+        "mrr": 0.4065,
+        "recall": 0.68,
+        "strategy": "structure_aware"
+      },
+      {
+        "context_recall": 0.585,
+        "mean_context_chars": 4081.91,
+        "mrr": 0.3638,
+        "recall": 0.62,
+        "strategy": "proposition_like"
+      },
+      {
+        "context_recall": 0.48,
+        "mean_context_chars": 3125.98,
+        "mrr": 0.2773,
+        "recall": 0.51,
+        "strategy": "contextual_prefix"
+      }
+    ],
+    "20": [
+      {
+        "context_recall": 0.945,
+        "mean_context_chars": 28457.46,
+        "mrr": 0.6434,
+        "recall": 0.99,
+        "strategy": "structure_aware_large"
+      },
+      {
+        "context_recall": 0.945,
+        "mean_context_chars": 28489.87,
+        "mrr": 0.6392,
+        "recall": 0.99,
+        "strategy": "recursive_large"
+      },
+      {
+        "context_recall": 0.945,
+        "mean_context_chars": 28596.46,
+        "mrr": 0.6323,
+        "recall": 0.99,
+        "strategy": "fixed_large"
+      },
+      {
+        "context_recall": 0.885,
+        "mean_context_chars": 16243.71,
+        "mrr": 0.5389,
+        "recall": 0.96,
+        "strategy": "recursive_medium"
+      },
+      {
+        "context_recall": 0.815,
+        "mean_context_chars": 12563.05,
+        "mrr": 0.5593,
+        "recall": 0.95,
+        "strategy": "embedding_semantic"
+      },
+      {
+        "context_recall": 0.875,
+        "mean_context_chars": 16429.13,
+        "mrr": 0.5485,
+        "recall": 0.95,
+        "strategy": "fixed_medium"
+      },
+      {
+        "context_recall": 0.86,
+        "mean_context_chars": 16146.36,
+        "mrr": 0.5312,
+        "recall": 0.95,
+        "strategy": "structure_aware_medium"
+      },
+      {
+        "context_recall": 0.78,
+        "mean_context_chars": 7192.65,
+        "mrr": 0.4862,
+        "recall": 0.92,
+        "strategy": "hierarchical_parent_child"
+      },
+      {
+        "context_recall": 0.78,
+        "mean_context_chars": 7192.65,
+        "mrr": 0.4862,
+        "recall": 0.92,
+        "strategy": "recursive_small"
+      },
+      {
+        "context_recall": 0.755,
+        "mean_context_chars": 11985.3,
+        "mrr": 0.473,
+        "recall": 0.89,
+        "strategy": "semantic_meta_like"
+      },
+      {
+        "context_recall": 0.76,
+        "mean_context_chars": 7316.71,
+        "mrr": 0.4373,
+        "recall": 0.86,
+        "strategy": "fixed_small"
+      },
+      {
+        "context_recall": 0.655,
+        "mean_context_chars": 7968.81,
+        "mrr": 0.4169,
+        "recall": 0.82,
+        "strategy": "structure_aware"
+      },
+      {
+        "context_recall": 0.585,
+        "mean_context_chars": 8159.64,
+        "mrr": 0.3703,
+        "recall": 0.71,
+        "strategy": "proposition_like"
+      },
+      {
+        "context_recall": 0.48,
+        "mean_context_chars": 5471.75,
+        "mrr": 0.2814,
+        "recall": 0.57,
+        "strategy": "contextual_prefix"
+      }
+    ],
+    "3": [
+      {
+        "context_recall": 0.745,
+        "mean_context_chars": 4252.35,
+        "mrr": 0.6083,
+        "recall": 0.79,
+        "strategy": "recursive_large"
+      },
+      {
+        "context_recall": 0.735,
+        "mean_context_chars": 4297.31,
+        "mrr": 0.6117,
+        "recall": 0.78,
+        "strategy": "structure_aware_large"
+      },
+      {
+        "context_recall": 0.72,
+        "mean_context_chars": 4325.55,
+        "mrr": 0.595,
+        "recall": 0.76,
+        "strategy": "fixed_large"
+      },
+      {
+        "context_recall": 0.615,
+        "mean_context_chars": 2389.99,
+        "mrr": 0.48,
+        "recall": 0.64,
+        "strategy": "recursive_medium"
+      },
+      {
+        "context_recall": 0.595,
+        "mean_context_chars": 1937.73,
+        "mrr": 0.5117,
+        "recall": 0.63,
+        "strategy": "embedding_semantic"
+      },
+      {
+        "context_recall": 0.595,
+        "mean_context_chars": 2390.62,
+        "mrr": 0.4733,
+        "recall": 0.62,
+        "strategy": "structure_aware_medium"
+      },
+      {
+        "context_recall": 0.585,
+        "mean_context_chars": 2424.65,
+        "mrr": 0.4867,
+        "recall": 0.61,
+        "strategy": "fixed_medium"
+      },
+      {
+        "context_recall": 0.575,
+        "mean_context_chars": 1063.86,
+        "mrr": 0.4383,
+        "recall": 0.6,
+        "strategy": "hierarchical_parent_child"
+      },
+      {
+        "context_recall": 0.575,
+        "mean_context_chars": 1063.86,
+        "mrr": 0.4383,
+        "recall": 0.6,
+        "strategy": "recursive_small"
+      },
+      {
+        "context_recall": 0.535,
+        "mean_context_chars": 1845.11,
+        "mrr": 0.4217,
+        "recall": 0.56,
+        "strategy": "semantic_meta_like"
+      },
+      {
+        "context_recall": 0.5,
+        "mean_context_chars": 1102.22,
+        "mrr": 0.3867,
+        "recall": 0.52,
+        "strategy": "fixed_small"
+      },
+      {
+        "context_recall": 0.465,
+        "mean_context_chars": 1415.27,
+        "mrr": 0.3733,
+        "recall": 0.49,
+        "strategy": "structure_aware"
+      },
+      {
+        "context_recall": 0.4,
+        "mean_context_chars": 1198.03,
+        "mrr": 0.325,
+        "recall": 0.42,
+        "strategy": "proposition_like"
+      },
+      {
+        "context_recall": 0.32,
+        "mean_context_chars": 1079.49,
+        "mrr": 0.2433,
+        "recall": 0.34,
+        "strategy": "contextual_prefix"
+      }
+    ],
+    "5": [
+      {
+        "context_recall": 0.83,
+        "mean_context_chars": 7183.1,
+        "mrr": 0.617,
+        "recall": 0.86,
+        "strategy": "fixed_large"
+      },
+      {
+        "context_recall": 0.82,
+        "mean_context_chars": 7180.47,
+        "mrr": 0.6262,
+        "recall": 0.85,
+        "strategy": "structure_aware_large"
+      },
+      {
+        "context_recall": 0.81,
+        "mean_context_chars": 7128.77,
+        "mrr": 0.6198,
+        "recall": 0.84,
+        "strategy": "recursive_large"
+      },
+      {
+        "context_recall": 0.79,
+        "mean_context_chars": 4045.84,
+        "mrr": 0.5245,
+        "recall": 0.83,
+        "strategy": "recursive_medium"
+      },
+      {
+        "context_recall": 0.75,
+        "mean_context_chars": 4074.47,
+        "mrr": 0.5287,
+        "recall": 0.79,
+        "strategy": "fixed_medium"
+      },
+      {
+        "context_recall": 0.75,
+        "mean_context_chars": 4034.42,
+        "mrr": 0.5113,
+        "recall": 0.79,
+        "strategy": "structure_aware_medium"
+      },
+      {
+        "context_recall": 0.695,
+        "mean_context_chars": 3203.35,
+        "mrr": 0.5337,
+        "recall": 0.73,
+        "strategy": "embedding_semantic"
+      },
+      {
+        "context_recall": 0.68,
+        "mean_context_chars": 1775.77,
+        "mrr": 0.4628,
+        "recall": 0.71,
+        "strategy": "hierarchical_parent_child"
+      },
+      {
+        "context_recall": 0.68,
+        "mean_context_chars": 1775.77,
+        "mrr": 0.4628,
+        "recall": 0.71,
+        "strategy": "recursive_small"
+      },
+      {
+        "context_recall": 0.65,
+        "mean_context_chars": 3059.09,
+        "mrr": 0.4502,
+        "recall": 0.68,
+        "strategy": "semantic_meta_like"
+      },
+      {
+        "context_recall": 0.61,
+        "mean_context_chars": 1828.28,
+        "mrr": 0.4137,
+        "recall": 0.64,
+        "strategy": "fixed_small"
+      },
+      {
+        "context_recall": 0.545,
+        "mean_context_chars": 2191.64,
+        "mrr": 0.3913,
+        "recall": 0.57,
+        "strategy": "structure_aware"
+      },
+      {
+        "context_recall": 0.53,
+        "mean_context_chars": 2046.77,
+        "mrr": 0.356,
+        "recall": 0.56,
+        "strategy": "proposition_like"
+      },
+      {
+        "context_recall": 0.42,
+        "mean_context_chars": 1732.8,
+        "mrr": 0.2693,
+        "recall": 0.45,
+        "strategy": "contextual_prefix"
+      }
+    ]
+  },
+  "strategies": {
+    "contextual_prefix": {
+      "chunking": {
+        "avg_chars": 303.71,
+        "avg_tokens": 48.94,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 279,
+        "chunks_total": 279,
+        "overlap_redundancy": 0.49,
+        "p95_chars": 944
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "contextualization": [
+          "deterministic_prefix"
+        ],
+        "llm_contextualization": [
+          "False"
+        ],
+        "profile_family": [
+          "contextual_prefix"
+        ],
+        "token_count": [
+          "10",
+          "101",
+          "102",
+          "103",
+          "11",
+          "112",
+          "113",
+          "114",
+          "12",
+          "127",
+          "13",
+          "130",
+          "131",
+          "138",
+          "14",
+          "140",
+          "142",
+          "144",
+          "146",
+          "148",
+          "149",
+          "15",
+          "150",
+          "152",
+          "153",
+          "154",
+          "156",
+          "158",
+          "159",
+          "16",
+          "161",
+          "166",
+          "167",
+          "168",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26",
+          "27",
+          "28",
+          "29",
+          "30",
+          "31",
+          "32",
+          "33",
+          "34",
+          "35",
+          "36",
+          "37",
+          "38",
+          "39",
+          "40",
+          "41",
+          "42",
+          "43",
+          "44",
+          "45",
+          "46",
+          "47",
+          "48",
+          "49",
+          "50",
+          "51",
+          "52",
+          "54",
+          "55",
+          "56",
+          "57",
+          "60",
+          "61",
+          "63",
+          "68",
+          "69",
+          "71",
+          "72",
+          "77",
+          "8",
+          "85",
+          "9",
+          "98"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.48,
+          "mean_context_chars": 3125.98,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.2773,
+          "n": 100,
+          "precision": 0.06,
+          "recall": 0.51
+        },
+        "20": {
+          "context_recall": 0.48,
+          "mean_context_chars": 5471.75,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.2814,
+          "n": 100,
+          "precision": 0.0335,
+          "recall": 0.57
+        },
+        "3": {
+          "context_recall": 0.32,
+          "mean_context_chars": 1079.49,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.2433,
+          "n": 100,
+          "precision": 0.13,
+          "recall": 0.34
+        },
+        "5": {
+          "context_recall": 0.42,
+          "mean_context_chars": 1732.8,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.2693,
+          "n": 100,
+          "precision": 0.106,
+          "recall": 0.45
+        }
+      }
+    },
+    "embedding_semantic": {
+      "chunking": {
+        "avg_chars": 613.47,
+        "avg_tokens": 103.64,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 53,
+        "chunks_total": 53,
+        "overlap_redundancy": 0.0,
+        "p95_chars": 890
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "semantic_boundary_embedding"
+        ],
+        "semantic_backend": [
+          "sentence_transformers"
+        ],
+        "semantic_embedding_model": [
+          "sentence-transformers/all-MiniLM-L6-v2"
+        ],
+        "token_count": [
+          "1",
+          "101",
+          "102",
+          "106",
+          "107",
+          "108",
+          "111",
+          "113",
+          "115",
+          "119",
+          "120",
+          "123",
+          "125",
+          "13",
+          "132",
+          "135",
+          "137",
+          "138",
+          "140",
+          "141",
+          "142",
+          "144",
+          "145",
+          "146",
+          "147",
+          "150",
+          "151",
+          "157",
+          "158",
+          "215",
+          "25",
+          "29",
+          "40",
+          "42",
+          "69",
+          "71",
+          "75",
+          "78",
+          "79",
+          "82",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "93",
+          "94",
+          "99"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.815,
+          "mean_context_chars": 6415.1,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.5517,
+          "n": 100,
+          "precision": 0.087,
+          "recall": 0.85
+        },
+        "20": {
+          "context_recall": 0.815,
+          "mean_context_chars": 12563.05,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.5593,
+          "n": 100,
+          "precision": 0.05,
+          "recall": 0.95
+        },
+        "3": {
+          "context_recall": 0.595,
+          "mean_context_chars": 1937.73,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.5117,
+          "n": 100,
+          "precision": 0.21,
+          "recall": 0.63
+        },
+        "5": {
+          "context_recall": 0.695,
+          "mean_context_chars": 3203.35,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.5337,
+          "n": 100,
+          "precision": 0.146,
+          "recall": 0.73
+        }
+      }
+    },
+    "fixed_large": {
+      "chunking": {
+        "avg_chars": 1359.19,
+        "avg_tokens": 225.96,
+        "boundary_preservation_rate": 0.3704,
+        "chunk_count": 27,
+        "chunks_total": 27,
+        "overlap_redundancy": 0.1158,
+        "p95_chars": 1594
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "1600"
+        ],
+        "configured_overlap_chars": [
+          "250"
+        ],
+        "profile_family": [
+          "fixed_window"
+        ],
+        "token_count": [
+          "1",
+          "120",
+          "123",
+          "165",
+          "179",
+          "182",
+          "188",
+          "224",
+          "235",
+          "240",
+          "243",
+          "246",
+          "248",
+          "254",
+          "259",
+          "260",
+          "261",
+          "265",
+          "266",
+          "271",
+          "275",
+          "280",
+          "281",
+          "286"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.945,
+          "mean_context_chars": 14284.33,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.6303,
+          "n": 100,
+          "precision": 0.11,
+          "recall": 0.96
+        },
+        "20": {
+          "context_recall": 0.945,
+          "mean_context_chars": 28596.46,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.6323,
+          "n": 100,
+          "precision": 0.0595,
+          "recall": 0.99
+        },
+        "3": {
+          "context_recall": 0.72,
+          "mean_context_chars": 4325.55,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.595,
+          "n": 100,
+          "precision": 0.2766,
+          "recall": 0.76
+        },
+        "5": {
+          "context_recall": 0.83,
+          "mean_context_chars": 7183.1,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.617,
+          "n": 100,
+          "precision": 0.194,
+          "recall": 0.86
+        }
+      }
+    },
+    "fixed_medium": {
+      "chunking": {
+        "avg_chars": 794.21,
+        "avg_tokens": 132.25,
+        "boundary_preservation_rate": 0.25,
+        "chunk_count": 48,
+        "chunks_total": 48,
+        "overlap_redundancy": 0.1493,
+        "p95_chars": 896
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "fixed_window"
+        ],
+        "token_count": [
+          "1",
+          "125",
+          "127",
+          "132",
+          "134",
+          "136",
+          "137",
+          "138",
+          "139",
+          "140",
+          "141",
+          "142",
+          "145",
+          "146",
+          "147",
+          "148",
+          "149",
+          "150",
+          "151",
+          "153",
+          "154",
+          "155",
+          "156",
+          "160",
+          "167",
+          "168",
+          "46",
+          "66",
+          "68",
+          "79",
+          "83",
+          "88",
+          "99"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.875,
+          "mean_context_chars": 8219.7,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.5448,
+          "n": 100,
+          "precision": 0.098,
+          "recall": 0.9
+        },
+        "20": {
+          "context_recall": 0.875,
+          "mean_context_chars": 16429.13,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.5485,
+          "n": 100,
+          "precision": 0.053,
+          "recall": 0.95
+        },
+        "3": {
+          "context_recall": 0.585,
+          "mean_context_chars": 2424.65,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.4867,
+          "n": 100,
+          "precision": 0.2133,
+          "recall": 0.61
+        },
+        "5": {
+          "context_recall": 0.75,
+          "mean_context_chars": 4074.47,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.5287,
+          "n": 100,
+          "precision": 0.166,
+          "recall": 0.79
+        }
+      }
+    },
+    "fixed_small": {
+      "chunking": {
+        "avg_chars": 361.75,
+        "avg_tokens": 60.49,
+        "boundary_preservation_rate": 0.2679,
+        "chunk_count": 112,
+        "chunks_total": 112,
+        "overlap_redundancy": 0.2009,
+        "p95_chars": 398
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "400"
+        ],
+        "configured_overlap_chars": [
+          "80"
+        ],
+        "profile_family": [
+          "fixed_window"
+        ],
+        "token_count": [
+          "1",
+          "16",
+          "17",
+          "24",
+          "30",
+          "39",
+          "43",
+          "46",
+          "49",
+          "50",
+          "51",
+          "52",
+          "54",
+          "55",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "61",
+          "62",
+          "63",
+          "64",
+          "65",
+          "66",
+          "67",
+          "68",
+          "69",
+          "70",
+          "71",
+          "72",
+          "73",
+          "74",
+          "81",
+          "84"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.76,
+          "mean_context_chars": 3661.93,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.4328,
+          "n": 100,
+          "precision": 0.082,
+          "recall": 0.8
+        },
+        "20": {
+          "context_recall": 0.76,
+          "mean_context_chars": 7316.71,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.4373,
+          "n": 100,
+          "precision": 0.0465,
+          "recall": 0.86
+        },
+        "3": {
+          "context_recall": 0.5,
+          "mean_context_chars": 1102.22,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.3867,
+          "n": 100,
+          "precision": 0.1733,
+          "recall": 0.52
+        },
+        "5": {
+          "context_recall": 0.61,
+          "mean_context_chars": 1828.28,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.4137,
+          "n": 100,
+          "precision": 0.13,
+          "recall": 0.64
+        }
+      }
+    },
+    "hierarchical_parent_child": {
+      "chunking": {
+        "avg_chars": 358.78,
+        "avg_tokens": 60.58,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 107,
+        "chunks_total": 107,
+        "overlap_redundancy": 0.152,
+        "p95_chars": 399
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "400"
+        ],
+        "configured_overlap_chars": [
+          "80"
+        ],
+        "parent_context_available": [
+          "True"
+        ],
+        "profile_family": [
+          "hierarchical_parent_child"
+        ],
+        "retrieval_integration": [
+          "partial_child_index_parent_metadata"
+        ],
+        "token_count": [
+          "1",
+          "102",
+          "16",
+          "30",
+          "31",
+          "33",
+          "37",
+          "38",
+          "39",
+          "48",
+          "50",
+          "51",
+          "52",
+          "53",
+          "54",
+          "55",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "61",
+          "62",
+          "63",
+          "64",
+          "65",
+          "66",
+          "67",
+          "68",
+          "69",
+          "70",
+          "71",
+          "75",
+          "76",
+          "81",
+          "82",
+          "84",
+          "99"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.78,
+          "mean_context_chars": 3577.26,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.4782,
+          "n": 100,
+          "precision": 0.086,
+          "recall": 0.81
+        },
+        "20": {
+          "context_recall": 0.78,
+          "mean_context_chars": 7192.65,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.4862,
+          "n": 100,
+          "precision": 0.0505,
+          "recall": 0.92
+        },
+        "3": {
+          "context_recall": 0.575,
+          "mean_context_chars": 1063.86,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.4383,
+          "n": 100,
+          "precision": 0.21,
+          "recall": 0.6
+        },
+        "5": {
+          "context_recall": 0.68,
+          "mean_context_chars": 1775.77,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.4628,
+          "n": 100,
+          "precision": 0.15,
+          "recall": 0.71
+        }
+      }
+    },
+    "proposition_like": {
+      "chunking": {
+        "avg_chars": 383.33,
+        "avg_tokens": 64.92,
+        "boundary_preservation_rate": 0.9529,
+        "chunk_count": 85,
+        "chunks_total": 85,
+        "overlap_redundancy": 0.0028,
+        "p95_chars": 809
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "80"
+        ],
+        "llm_proposition_extraction": [
+          "False"
+        ],
+        "profile_family": [
+          "proposition_like_heuristic"
+        ],
+        "proposition_extraction": [
+          "heuristic_sentence_cue"
+        ],
+        "token_count": [
+          "1",
+          "107",
+          "112",
+          "113",
+          "115",
+          "117",
+          "118",
+          "126",
+          "129",
+          "135",
+          "142",
+          "15",
+          "167",
+          "183",
+          "19",
+          "21",
+          "219",
+          "22",
+          "24",
+          "25",
+          "26",
+          "28",
+          "29",
+          "30",
+          "33",
+          "34",
+          "35",
+          "36",
+          "39",
+          "40",
+          "42",
+          "43",
+          "44",
+          "46",
+          "47",
+          "49",
+          "50",
+          "51",
+          "54",
+          "56",
+          "57",
+          "61",
+          "62",
+          "64",
+          "66",
+          "67",
+          "69",
+          "71",
+          "72",
+          "73",
+          "75",
+          "78",
+          "80",
+          "82",
+          "83",
+          "84",
+          "85",
+          "9",
+          "93",
+          "95",
+          "97",
+          "99"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.585,
+          "mean_context_chars": 4081.91,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.3638,
+          "n": 100,
+          "precision": 0.062,
+          "recall": 0.62
+        },
+        "20": {
+          "context_recall": 0.585,
+          "mean_context_chars": 8159.64,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.3703,
+          "n": 100,
+          "precision": 0.037,
+          "recall": 0.71
+        },
+        "3": {
+          "context_recall": 0.4,
+          "mean_context_chars": 1198.03,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.325,
+          "n": 100,
+          "precision": 0.14,
+          "recall": 0.42
+        },
+        "5": {
+          "context_recall": 0.53,
+          "mean_context_chars": 2046.77,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.356,
+          "n": 100,
+          "precision": 0.112,
+          "recall": 0.56
+        }
+      }
+    },
+    "recursive_large": {
+      "chunking": {
+        "avg_chars": 1355.26,
+        "avg_tokens": 228,
+        "boundary_preservation_rate": 0.3704,
+        "chunk_count": 27,
+        "chunks_total": 27,
+        "overlap_redundancy": 0.1105,
+        "p95_chars": 1593
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "1600"
+        ],
+        "configured_overlap_chars": [
+          "250"
+        ],
+        "profile_family": [
+          "sentence_recursive"
+        ],
+        "token_count": [
+          "1",
+          "104",
+          "117",
+          "174",
+          "177",
+          "185",
+          "188",
+          "213",
+          "230",
+          "239",
+          "241",
+          "247",
+          "250",
+          "254",
+          "259",
+          "260",
+          "262",
+          "266",
+          "267",
+          "272",
+          "274",
+          "275",
+          "280",
+          "283",
+          "344"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.945,
+          "mean_context_chars": 14272.6,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.6372,
+          "n": 100,
+          "precision": 0.112,
+          "recall": 0.96
+        },
+        "20": {
+          "context_recall": 0.945,
+          "mean_context_chars": 28489.87,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.6392,
+          "n": 100,
+          "precision": 0.06,
+          "recall": 0.99
+        },
+        "3": {
+          "context_recall": 0.745,
+          "mean_context_chars": 4252.35,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.6083,
+          "n": 100,
+          "precision": 0.2833,
+          "recall": 0.79
+        },
+        "5": {
+          "context_recall": 0.81,
+          "mean_context_chars": 7128.77,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.6198,
+          "n": 100,
+          "precision": 0.19,
+          "recall": 0.84
+        }
+      }
+    },
+    "recursive_medium": {
+      "chunking": {
+        "avg_chars": 782.17,
+        "avg_tokens": 132.4,
+        "boundary_preservation_rate": 0.25,
+        "chunk_count": 48,
+        "chunks_total": 48,
+        "overlap_redundancy": 0.1327,
+        "p95_chars": 898
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "sentence_recursive"
+        ],
+        "token_count": [
+          "1",
+          "122",
+          "130",
+          "131",
+          "134",
+          "135",
+          "136",
+          "137",
+          "138",
+          "139",
+          "140",
+          "141",
+          "142",
+          "143",
+          "144",
+          "145",
+          "146",
+          "147",
+          "148",
+          "149",
+          "150",
+          "151",
+          "152",
+          "154",
+          "155",
+          "157",
+          "161",
+          "168",
+          "171",
+          "219",
+          "40",
+          "49",
+          "62",
+          "66",
+          "78",
+          "88",
+          "90"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.885,
+          "mean_context_chars": 8084.29,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.5353,
+          "n": 100,
+          "precision": 0.101,
+          "recall": 0.91
+        },
+        "20": {
+          "context_recall": 0.885,
+          "mean_context_chars": 16243.71,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.5389,
+          "n": 100,
+          "precision": 0.0545,
+          "recall": 0.96
+        },
+        "3": {
+          "context_recall": 0.615,
+          "mean_context_chars": 2389.99,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.48,
+          "n": 100,
+          "precision": 0.2233,
+          "recall": 0.64
+        },
+        "5": {
+          "context_recall": 0.79,
+          "mean_context_chars": 4045.84,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.5245,
+          "n": 100,
+          "precision": 0.176,
+          "recall": 0.83
+        }
+      }
+    },
+    "recursive_small": {
+      "chunking": {
+        "avg_chars": 358.78,
+        "avg_tokens": 60.58,
+        "boundary_preservation_rate": 0.3084,
+        "chunk_count": 107,
+        "chunks_total": 107,
+        "overlap_redundancy": 0.152,
+        "p95_chars": 399
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "400"
+        ],
+        "configured_overlap_chars": [
+          "80"
+        ],
+        "profile_family": [
+          "sentence_recursive"
+        ],
+        "token_count": [
+          "1",
+          "102",
+          "16",
+          "30",
+          "31",
+          "33",
+          "37",
+          "38",
+          "39",
+          "48",
+          "50",
+          "51",
+          "52",
+          "53",
+          "54",
+          "55",
+          "56",
+          "57",
+          "58",
+          "59",
+          "60",
+          "61",
+          "62",
+          "63",
+          "64",
+          "65",
+          "66",
+          "67",
+          "68",
+          "69",
+          "70",
+          "71",
+          "75",
+          "76",
+          "81",
+          "82",
+          "84",
+          "99"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.78,
+          "mean_context_chars": 3577.26,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.4782,
+          "n": 100,
+          "precision": 0.086,
+          "recall": 0.81
+        },
+        "20": {
+          "context_recall": 0.78,
+          "mean_context_chars": 7192.65,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.4862,
+          "n": 100,
+          "precision": 0.0505,
+          "recall": 0.92
+        },
+        "3": {
+          "context_recall": 0.575,
+          "mean_context_chars": 1063.86,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.4383,
+          "n": 100,
+          "precision": 0.21,
+          "recall": 0.6
+        },
+        "5": {
+          "context_recall": 0.68,
+          "mean_context_chars": 1775.77,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.4628,
+          "n": 100,
+          "precision": 0.15,
+          "recall": 0.71
+        }
+      }
+    },
+    "semantic_meta_like": {
+      "chunking": {
+        "avg_chars": 580.55,
+        "avg_tokens": 98.09,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 56,
+        "chunks_total": 56,
+        "overlap_redundancy": 0.0,
+        "p95_chars": 712
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "1200"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "semantic_boundary_lexical"
+        ],
+        "semantic_backend": [
+          "lexical_similarity"
+        ],
+        "token_count": [
+          "1",
+          "100",
+          "101",
+          "102",
+          "103",
+          "104",
+          "105",
+          "106",
+          "107",
+          "108",
+          "109",
+          "110",
+          "111",
+          "112",
+          "115",
+          "118",
+          "119",
+          "121",
+          "122",
+          "126",
+          "129",
+          "136",
+          "138",
+          "143",
+          "20",
+          "39",
+          "4",
+          "56",
+          "63",
+          "67",
+          "73",
+          "82",
+          "93",
+          "94",
+          "95",
+          "97",
+          "98",
+          "99"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.755,
+          "mean_context_chars": 6041.71,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.4658,
+          "n": 100,
+          "precision": 0.08,
+          "recall": 0.79
+        },
+        "20": {
+          "context_recall": 0.755,
+          "mean_context_chars": 11985.3,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.473,
+          "n": 100,
+          "precision": 0.048,
+          "recall": 0.89
+        },
+        "3": {
+          "context_recall": 0.535,
+          "mean_context_chars": 1845.11,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.4217,
+          "n": 100,
+          "precision": 0.1866,
+          "recall": 0.56
+        },
+        "5": {
+          "context_recall": 0.65,
+          "mean_context_chars": 3059.09,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.4502,
+          "n": 100,
+          "precision": 0.136,
+          "recall": 0.68
+        }
+      }
+    },
+    "structure_aware": {
+      "chunking": {
+        "avg_chars": 233.36,
+        "avg_tokens": 42.07,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 267,
+        "chunks_total": 267,
+        "overlap_redundancy": 0.4789,
+        "p95_chars": 1080
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "1200"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "structure_aware"
+        ],
+        "token_count": [
+          "1",
+          "10",
+          "105",
+          "106",
+          "107",
+          "11",
+          "116",
+          "12",
+          "124",
+          "128",
+          "13",
+          "136",
+          "139",
+          "14",
+          "142",
+          "144",
+          "145",
+          "15",
+          "158",
+          "16",
+          "17",
+          "170",
+          "172",
+          "18",
+          "182",
+          "183",
+          "184",
+          "185",
+          "19",
+          "190",
+          "193",
+          "196",
+          "197",
+          "198",
+          "2",
+          "20",
+          "200",
+          "205",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26",
+          "27",
+          "28",
+          "29",
+          "3",
+          "30",
+          "31",
+          "32",
+          "33",
+          "34",
+          "35",
+          "36",
+          "37",
+          "38",
+          "39",
+          "4",
+          "40",
+          "41",
+          "42",
+          "43",
+          "44",
+          "45",
+          "47",
+          "48",
+          "49",
+          "5",
+          "50",
+          "51",
+          "56",
+          "6",
+          "61",
+          "64",
+          "7",
+          "70",
+          "76",
+          "8",
+          "87",
+          "9",
+          "90",
+          "95"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.655,
+          "mean_context_chars": 4191.55,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.4065,
+          "n": 100,
+          "precision": 0.081,
+          "recall": 0.68
+        },
+        "20": {
+          "context_recall": 0.655,
+          "mean_context_chars": 7968.81,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.4169,
+          "n": 100,
+          "precision": 0.048,
+          "recall": 0.82
+        },
+        "3": {
+          "context_recall": 0.465,
+          "mean_context_chars": 1415.27,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.3733,
+          "n": 100,
+          "precision": 0.1833,
+          "recall": 0.49
+        },
+        "5": {
+          "context_recall": 0.545,
+          "mean_context_chars": 2191.64,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.3913,
+          "n": 100,
+          "precision": 0.132,
+          "recall": 0.57
+        }
+      }
+    },
+    "structure_aware_large": {
+      "chunking": {
+        "avg_chars": 1349.63,
+        "avg_tokens": 224.26,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 27,
+        "chunks_total": 27,
+        "overlap_redundancy": 0.1091,
+        "p95_chars": 1591
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "1600"
+        ],
+        "configured_overlap_chars": [
+          "250"
+        ],
+        "profile_family": [
+          "structure_aware"
+        ],
+        "token_count": [
+          "1",
+          "117",
+          "123",
+          "161",
+          "177",
+          "181",
+          "188",
+          "211",
+          "230",
+          "238",
+          "239",
+          "241",
+          "246",
+          "247",
+          "252",
+          "254",
+          "260",
+          "265",
+          "267",
+          "269",
+          "275",
+          "280",
+          "281",
+          "286"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.945,
+          "mean_context_chars": 14261.21,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.6412,
+          "n": 100,
+          "precision": 0.108,
+          "recall": 0.96
+        },
+        "20": {
+          "context_recall": 0.945,
+          "mean_context_chars": 28457.46,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.6434,
+          "n": 100,
+          "precision": 0.0585,
+          "recall": 0.99
+        },
+        "3": {
+          "context_recall": 0.735,
+          "mean_context_chars": 4297.31,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.6117,
+          "n": 100,
+          "precision": 0.2766,
+          "recall": 0.78
+        },
+        "5": {
+          "context_recall": 0.82,
+          "mean_context_chars": 7180.47,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.6262,
+          "n": 100,
+          "precision": 0.188,
+          "recall": 0.85
+        }
+      }
+    },
+    "structure_aware_medium": {
+      "chunking": {
+        "avg_chars": 775.02,
+        "avg_tokens": 129.04,
+        "boundary_preservation_rate": 1.0,
+        "chunk_count": 48,
+        "chunks_total": 48,
+        "overlap_redundancy": 0.1273,
+        "p95_chars": 896
+      },
+      "implementation_metadata": {
+        "configured_max_chars": [
+          "900"
+        ],
+        "configured_overlap_chars": [
+          "150"
+        ],
+        "profile_family": [
+          "structure_aware"
+        ],
+        "token_count": [
+          "1",
+          "110",
+          "122",
+          "130",
+          "132",
+          "134",
+          "135",
+          "136",
+          "138",
+          "139",
+          "141",
+          "142",
+          "143",
+          "144",
+          "145",
+          "146",
+          "147",
+          "149",
+          "150",
+          "151",
+          "152",
+          "154",
+          "155",
+          "156",
+          "157",
+          "160",
+          "161",
+          "167",
+          "168",
+          "33",
+          "40",
+          "62",
+          "64",
+          "78",
+          "83",
+          "90"
+        ]
+      },
+      "top_k": {
+        "10": {
+          "context_recall": 0.86,
+          "mean_context_chars": 8050.6,
+          "mean_hits_returned": 10.0,
+          "mrr": 0.5269,
+          "n": 100,
+          "precision": 0.096,
+          "recall": 0.89
+        },
+        "20": {
+          "context_recall": 0.86,
+          "mean_context_chars": 16146.36,
+          "mean_hits_returned": 20.0,
+          "mrr": 0.5312,
+          "n": 100,
+          "precision": 0.0525,
+          "recall": 0.95
+        },
+        "3": {
+          "context_recall": 0.595,
+          "mean_context_chars": 2390.62,
+          "mean_hits_returned": 3.0,
+          "mrr": 0.4733,
+          "n": 100,
+          "precision": 0.2166,
+          "recall": 0.62
+        },
+        "5": {
+          "context_recall": 0.75,
+          "mean_context_chars": 4034.42,
+          "mean_hits_returned": 5.0,
+          "mrr": 0.5113,
+          "n": 100,
+          "precision": 0.164,
+          "recall": 0.79
+        }
+      }
+    }
+  }
+}

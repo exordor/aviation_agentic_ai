@@ -273,6 +273,8 @@ def test_cli_report_chunking_comparison_v2_uses_mocked_writer(
     def fake_writer(*_args, **kwargs):
         calls["max_labels"] = kwargs["max_labels"]
         calls["semantic_download"] = kwargs["semantic_download"]
+        calls["evaluation_mode"] = kwargs["evaluation_mode"]
+        calls["context_budget_chars"] = kwargs["context_budget_chars"]
         json_path = tmp_path / "chunking_comparison_benchmark_v2.json"
         md_path = tmp_path / "chunking_comparison_benchmark_v2.md"
         failure_json = tmp_path / "chunking_failure_cards_benchmark_v2.json"
@@ -300,12 +302,89 @@ def test_cli_report_chunking_comparison_v2_uses_mocked_writer(
             "--max-labels",
             "3",
             "--no-semantic-download",
+            "--evaluation-mode",
+            "fixed_context_budget",
+            "--context-budget-chars",
+            "1234",
         ],
     )
 
     assert result.exit_code == 0, result.output
-    assert calls == {"max_labels": 3, "semantic_download": False}
+    assert calls == {
+        "max_labels": 3,
+        "semantic_download": False,
+        "evaluation_mode": "fixed_context_budget",
+        "context_budget_chars": 1234,
+    }
     assert "benchmark-v2 chunking strategies" in result.output
+
+
+def test_cli_report_chunking_implementation_audit_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "chunking_implementation_audit.json"
+        md_path = tmp_path / "chunking_implementation_audit.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"strategies_total": 3}}
+
+    monkeypatch.setattr(cli, "write_chunking_implementation_audit", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "chunking-implementation-audit",
+            "--output-dir",
+            str(tmp_path),
+            "--reuse-chunks",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Audited 3 chunking strategies" in result.output
+
+
+def test_cli_report_chunking_topk_and_category_use_mocked_writers(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_topk(*_args, **_kwargs):
+        json_path = tmp_path / "chunking_topk_sensitivity_benchmark_v2.json"
+        md_path = tmp_path / "chunking_topk_sensitivity_benchmark_v2.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"top_k_values": [3, 5, 10, 20]}}
+
+    def fake_category(*_args, **_kwargs):
+        json_path = tmp_path / "chunking_category_analysis_benchmark_v2.json"
+        md_path = tmp_path / "chunking_category_analysis_benchmark_v2.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"metadata": {"categories": ["relation_causal"]}}
+
+    monkeypatch.setattr(cli, "write_chunking_topk_sensitivity_v2", fake_topk)
+    monkeypatch.setattr(cli, "write_chunking_category_analysis_v2", fake_category)
+
+    topk = CliRunner().invoke(
+        main,
+        ["report", "chunking-topk-sensitivity-v2", "--output-dir", str(tmp_path)],
+    )
+    category = CliRunner().invoke(
+        main,
+        ["report", "chunking-category-analysis-v2", "--output-dir", str(tmp_path)],
+    )
+
+    assert topk.exit_code == 0, topk.output
+    assert category.exit_code == 0, category.output
+    assert "top-k sensitivity" in topk.output
+    assert "category analysis" in category.output
 
 
 def test_cli_report_hybrid_rag_passes_report_name(tmp_path: Path, monkeypatch) -> None:

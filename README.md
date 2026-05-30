@@ -220,6 +220,10 @@ overwrite the pilot report or slow the default thesis workflow:
 
 ```bash
 uv run aviation-ai report chunking-comparison-v2
+uv run aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context_budget
+uv run aviation-ai report chunking-implementation-audit
+uv run aviation-ai report chunking-topk-sensitivity-v2
+uv run aviation-ai report chunking-category-analysis-v2
 ```
 
 This command evaluates mainstream chunking families on benchmark v2 and writes
@@ -227,7 +231,11 @@ This command evaluates mainstream chunking families on benchmark v2 and writes
 `reports/stages/chunking_failure_cards_benchmark_v2.json`, and `.md`. It reports
 supported-only retrieval metrics, insufficient-evidence diagnostics, chunk-size
 sensitivity, category-level results, confidence intervals, and qualitative
-failure cards. It is not included in `thesis-all` by default. The protocol is
+failure cards. The fixed-budget mode writes
+`reports/stages/chunking_comparison_benchmark_v2_budget.json` and `.md`; the
+independent hardening commands write implementation-audit, top-k sensitivity, and
+category-analysis reports. These commands are not included in `thesis-all` or
+the default thesis report generation targets by design. The protocol is
 documented in `docs/chunking_experiment_protocol.md`.
 
 ## Hybrid RAG Experiment

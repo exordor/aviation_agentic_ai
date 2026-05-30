@@ -5,6 +5,7 @@ from aviation_agentic_ai.chunking.chunks import (
     CHUNKING_STRATEGIES,
     SourceChunk,
     build_chunks,
+    chunking_profile,
     read_chunks_jsonl,
     write_chunks_jsonl,
 )
@@ -80,11 +81,26 @@ def test_all_chunking_strategies_generate_non_empty_stable_chunks(monkeypatch) -
         assert all(chunk.text for chunk in chunks)
         assert chunks[0].chunk_id.startswith(f"source-{strategy}-p00-c")
         assert all(chunk.strategy == strategy for chunk in chunks)
+        assert all(chunk.token_count > 0 for chunk in chunks)
 
 
 def test_benchmark_v2_chunking_strategies_are_registered() -> None:
     assert set(BENCHMARK_V2_CHUNKING_STRATEGIES).issubset(set(CHUNKING_STRATEGIES))
+    assert "structure_aware_medium" in CHUNKING_STRATEGIES
+    assert "structure_aware_large" in CHUNKING_STRATEGIES
     assert "late_chunking_stub" not in CHUNKING_STRATEGIES
+
+
+def test_chunking_profile_marks_partial_and_fallback_methods() -> None:
+    embedding = chunking_profile("embedding_semantic")
+    hierarchy = chunking_profile("hierarchical_parent_child")
+    proposition = chunking_profile("proposition_like")
+
+    assert embedding.semantic_backend == "sentence_transformers_or_fallback_lexical"
+    assert embedding.lexical_fallback is True
+    assert hierarchy.implementation_status == "partial"
+    assert hierarchy.parent_child_retrieval == "partial_child_index_parent_metadata"
+    assert proposition.returned_context_unit == "proposition_only"
 
 
 def test_fixed_and_recursive_size_tiers_apply_relative_sizes(monkeypatch) -> None:
@@ -106,6 +122,27 @@ def test_fixed_and_recursive_size_tiers_apply_relative_sizes(monkeypatch) -> Non
     assert len(recursive_small) > len(recursive_large)
     assert fixed_small[0].metadata["configured_max_chars"] == 400
     assert fixed_large[0].metadata["configured_max_chars"] == 1600
+
+
+def test_structure_aware_size_variants_apply_relative_sizes(monkeypatch) -> None:
+    from aviation_agentic_ai.chunking import chunks as chunk_module
+
+    text = "\n".join(
+        [f"Section {index}\n" + " ".join(["Lift affects climb."] * 10) for index in range(30)]
+    )
+    monkeypatch.setattr(
+        chunk_module,
+        "extract_pages",
+        lambda *_args, **_kwargs: [PdfPage(page_number=0, text=text)],
+    )
+
+    small = build_chunks("data/raw/source.pdf", strategy="structure_aware")
+    medium = build_chunks("data/raw/source.pdf", strategy="structure_aware_medium")
+    large = build_chunks("data/raw/source.pdf", strategy="structure_aware_large")
+
+    assert len(small) >= len(medium) >= len(large)
+    assert medium[0].metadata["configured_max_chars"] == 900
+    assert large[0].metadata["configured_max_chars"] == 1600
 
 
 def test_sentence_recursive_preserves_sentence_endings(monkeypatch) -> None:

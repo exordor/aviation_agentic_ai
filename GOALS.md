@@ -1,6 +1,6 @@
 # Project Goals
 
-Last updated: 2026-05-26
+Last updated: 2026-05-30
 
 This file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.
 
@@ -82,7 +82,15 @@ Success criteria:
 - Per-question evidence cards explain gold evidence, vector retrieval, graph retrieval, hybrid fusion behavior, citation status, and failure category for each evaluated CQ.
 - Thesis claims are reviewed with a claim safety matrix so unsupported Recall, certification, and operational-safety claims are kept out of final reports.
 
-Current status: protocol modules and real experiment evidence exist for chunking comparison, fixed-window Hybrid RAG, structure-aware KG extraction, structure-aware Hybrid RAG, reviewed chunk/span gold labels, expanded 35-question course-project gold, evidence-level evaluation, retrieval ablation, KG extraction comparison, answer evaluation, robustness evaluation, final evaluation review, and per-question evidence cards. The gold labels are course-project gold and not external aviation examiner certification.
+Current status: protocol modules and real experiment evidence exist for the
+10-CQ pilot, expanded 35-question labels, benchmark v2 120-label retrieval and
+safety benchmark, benchmark reviewed-subset scaffold, answer-evaluation subset,
+chunking-v2 hardening, fixed-window Hybrid RAG, structure-aware KG extraction,
+structure-aware Hybrid RAG, evidence-level evaluation, retrieval ablation, KG
+extraction comparison, answer evaluation, robustness evaluation, final
+evaluation review, and per-question evidence cards. The gold labels are
+course-project / thesis-oriented evidence and are not external aviation examiner
+certification.
 
 ## G5 - Report Hygiene And Final Project Report
 
@@ -146,38 +154,51 @@ Success criteria:
 - The project can answer "what does each component do?", "why is it needed?", "why not use a simpler baseline?", and "where can the system fail?"
 - Limitations are explicit: coarse gold labels, incomplete KG coverage, LLM dependency, source-scope limits, and non-production advisory boundary.
 
-Current status: ontology design documentation, KG validation evidence, chunking
-comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, GraphRAG
-review, evidence-level evaluation, web demo readiness, academic report,
-final evaluation review, web demo readiness/smoke evidence, academic report,
-defense notes, AI-enhanced defense PPT, and per-question evidence cards are
-available. The current defense framing is:
-structure-aware improves evidence support while costing more KG extraction work;
-GraphRAG should be defended as evidence traceability, KG evidence coverage, and
-safety-aware abstention rather than a simple page-level Recall winner; and the
-web demo is offline-first by default for reproducible review.
+Current status: ontology design documentation, KG validation evidence, pilot
+chunking comparison, benchmark-v2 chunking hardening reports, fixed-window
+Hybrid RAG, structure-aware Hybrid RAG, GraphRAG review, evidence-level
+evaluation, web demo readiness/smoke evidence, academic report, final
+evaluation review, defense notes, AI-enhanced defense PPT, and per-question
+evidence cards are available. The current defense framing is: GraphRAG should be
+defended as evidence traceability, KG evidence coverage, and safety-aware
+abstention rather than a simple page-level Recall winner; chunking-v2 top-k
+results are valid for their setting but must be balanced against fixed-budget
+and category-specific results; and the web demo is offline-first by default for
+reproducible review.
 
-## G9 - Experimental Expansion And Robustness
+## G9 - Experimental Expansion, Robustness, And Chunking Hardening
 
 Extend the current proof-of-pipeline experiments into a stronger evaluation suite that can support more defensible research claims about GraphRAG value.
 
 Rationale:
 
-- The current experiment proves that the system works end to end on 10 boundary CQs.
-- Stronger claims require more gold labels, retrieval ablations, KG extraction comparisons, answer-level evaluation, and robustness checks.
+- The 10-CQ experiment proves that the system works end to end, but it remains pilot evidence.
+- Stronger claims require benchmark-v2 labels, retrieval ablations, KG extraction comparisons, answer-level evaluation, robustness checks, and chunking comparisons that do not overclaim a universal best strategy.
 - The project should keep retrieval quality, KG evidence quality, answer faithfulness, cost, and safety boundary behavior as separate experiment layers.
 
 Success criteria:
 
-- Gold labels expand from 10 boundary CQs to a larger set of 30-50 questions with chunk/span evidence, key entities, and no-answer or insufficient-evidence cases.
+- Gold labels expand beyond 10 boundary CQs to benchmark-sized labels with chunk/span evidence, key entities, and no-answer or insufficient-evidence cases.
 - Retrieval ablations compare vector-only, graph-only, hybrid RRF, hybrid with graph disabled, different graph hops, and different top-k settings.
 - KG extraction experiments compare fixed-window and structure-aware chunks, model choice, max-token settings, prompt strictness, provenance completeness, and unsupported triple rejection.
 - Answer-level evaluation records citation correctness, faithfulness, answer relevance, abstention correctness, and advisory-boundary violations without creating a single mixed score.
 - Robustness tests include paraphrased CQs, terminology variation, cross-page questions, ambiguous questions, and insufficient-evidence questions.
+- Chunking-v2 evaluation includes implementation audit, fixed-budget comparison, top-k sensitivity, category analysis, confidence intervals, and qualitative failure cards.
 - Cost and latency reports record chunk build time, KG extraction cost/time, index build time, query latency, token usage, and collection/index size.
 - Dataset expansion beyond PHAK Chapter 4 only starts after document metadata and section schema are enforced for each new source.
 
-Current status: in progress. The 10-CQ experiment remains the baseline, and a first expanded evaluation suite now exists with 35 gold-label questions, 5 insufficient-evidence cases, deterministic retrieval ablation, KG extraction comparison, answer evaluation, robustness evaluation, cost/latency metadata blocks, and a document expansion protocol. Embedding/index backend comparison remains future work.
+Current status: in progress. The 10-CQ experiment remains pilot evidence; the
+expanded 35-label suite, benchmark v2 120-label benchmark, benchmark reviewed
+subset scaffold, answer-eval subset, deterministic retrieval ablation, graph
+traversal ablation, sufficiency evaluation, KG extraction comparison, answer
+evaluation, robustness evaluation, cost/latency metadata blocks, and document
+expansion protocol now exist. Chunking-v2 hardening is implemented with
+implementation audit, top-k comparison, fixed-context-budget comparison, top-k
+sensitivity, category analysis, confidence intervals, and failure cards. Current
+chunking conclusion is benchmark-specific: default top-k favors `fixed_large`,
+fixed 4000-character budget favors `recursive_medium`, and category winners
+vary. Embedding/index backend comparison and full parent-return retrieval for
+hierarchical/proposition methods remain future work.
 
 ## Current Non-Goals
 
@@ -200,4 +221,4 @@ Current status: in progress. The 10-CQ experiment remains the baseline, and a fi
 | G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
 | G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TASKS.md` P2 |
 | G8 | `docs/thesis_positioning.md`, final report, academic report, comparison reports, evidence cards, defense notes, defense PPT | `TASKS.md` P1/P2 |
-| G9 | expanded gold labels, ablation reports, robustness reports, cost/latency reports | `TASKS.md` P3 |
+| G9 | benchmark v2 labels, ablation reports, robustness reports, cost/latency reports, chunking-v2 hardening reports | `TASKS.md` P3 |

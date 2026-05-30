@@ -8,7 +8,9 @@
       "section_boundary_split",
       "semantic_boundary_error",
       "cross_page_evidence_split",
-      "no_answer_retrieved_misleading_context"
+      "no_answer_retrieved_misleading_context",
+      "proposition_context_loss",
+      "parent_child_not_used"
     ],
     "selection_policy": "first deterministic matching sample per strategy and failure type",
     "source_report": "reports/stages/chunking_comparison_benchmark_v2.json"
@@ -77,12 +79,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p02-c33",
                   "chunk_index": 33,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 44,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=2; section=Standard Atmosphere",
                   "page": 2,
                   "section": "Standard Atmosphere",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 44
                 },
                 "page": 2,
                 "rank": 1,
@@ -99,12 +104,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p02-c34",
                   "chunk_index": 34,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 44,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=2; section=0",
                   "page": 2,
                   "section": "0",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 44
                 },
                 "page": 2,
                 "rank": 2,
@@ -121,12 +129,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p00-c03",
                   "chunk_index": 3,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 25,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=0; section=Introduction",
                   "page": 0,
                   "section": "Introduction",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 25
                 },
                 "page": 0,
                 "rank": 3,
@@ -201,12 +212,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p01-c03",
                   "chunk_index": 3,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 26,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=1; section=Air is a Fluid",
                   "page": 1,
                   "section": "Air is a Fluid",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 26
                 },
                 "page": 1,
                 "rank": 1,
@@ -223,12 +237,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p01-c04",
                   "chunk_index": 4,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 146,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=1; section=Viscosity",
                   "page": 1,
                   "section": "Viscosity",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 146
                 },
                 "page": 1,
                 "rank": 2,
@@ -245,12 +262,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p01-c02",
                   "chunk_index": 2,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 138,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=1; section=Air is a Fluid",
                   "page": 1,
                   "section": "Air is a Fluid",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 138
                 },
                 "page": 1,
                 "rank": 3,
@@ -321,12 +341,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p02-c33",
                   "chunk_index": 33,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 44,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=2; section=Standard Atmosphere",
                   "page": 2,
                   "section": "Standard Atmosphere",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 44
                 },
                 "page": 2,
                 "rank": 1,
@@ -343,12 +366,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p02-c34",
                   "chunk_index": 34,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 44,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=2; section=0",
                   "page": 2,
                   "section": "0",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 44
                 },
                 "page": 2,
                 "rank": 2,
@@ -365,12 +391,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p00-c03",
                   "chunk_index": 3,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 25,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=0; section=Introduction",
                   "page": 0,
                   "section": "Introduction",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 25
                 },
                 "page": 0,
                 "rank": 3,
@@ -447,12 +476,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p02-c107",
                   "chunk_index": 107,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 168,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=2; section=14.70 pounds per square inch (psi) of surface, or 1,013.2",
                   "page": 2,
                   "section": "14.70 pounds per square inch (psi) of surface, or 1,013.2",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 168
                 },
                 "page": 2,
                 "rank": 1,
@@ -469,12 +501,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p04-c06",
                   "chunk_index": 6,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 85,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=4; section=is 22.22 \"Hg. Using the National Oceanic and Atmospheric",
                   "page": 4,
                   "section": "is 22.22 \"Hg. Using the National Oceanic and Atmospheric",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 85
                 },
                 "page": 4,
                 "rank": 2,
@@ -491,12 +526,15 @@
                   "chunk_id": "06_phak_ch4_0-contextual_prefix-p02-c108",
                   "chunk_index": 108,
                   "chunk_llm_contextualization": false,
+                  "chunk_profile_family": "contextual_prefix",
+                  "chunk_token_count": 69,
                   "context_prefix": "Source: PHAK Chapter 4; document=06_phak_ch4_0; page=2; section=14.70 pounds per square inch (psi) of surface, or 1,013.2",
                   "page": 2,
                   "section": "14.70 pounds per square inch (psi) of surface, or 1,013.2",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "contextual_prefix"
+                  "strategy": "contextual_prefix",
+                  "token_count": 69
                 },
                 "page": 2,
                 "rank": 3,
@@ -508,6 +546,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [],
@@ -579,14 +625,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 85,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 85
                 },
                 "page": 2,
                 "rank": 1,
@@ -601,14 +650,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p02-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 87,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 87
                 },
                 "page": 2,
                 "rank": 2,
@@ -623,14 +675,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c06",
                   "chunk_index": 6,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 141,
                   "page": 3,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 141
                 },
                 "page": 3,
                 "rank": 3,
@@ -703,14 +758,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 146,
                   "page": 0,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 146
                 },
                 "page": 0,
                 "rank": 1,
@@ -725,14 +783,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 107,
                   "page": 3,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 107
                 },
                 "page": 3,
                 "rank": 2,
@@ -747,14 +808,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 89,
                   "page": 3,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 89
                 },
                 "page": 3,
                 "rank": 3,
@@ -823,14 +887,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 85,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 85
                 },
                 "page": 2,
                 "rank": 1,
@@ -845,14 +912,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p02-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 87,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 87
                 },
                 "page": 2,
                 "rank": 2,
@@ -867,14 +937,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c06",
                   "chunk_index": 6,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 141,
                   "page": 3,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 141
                 },
                 "page": 3,
                 "rank": 3,
@@ -949,14 +1022,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p02-c04",
                   "chunk_index": 4,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 94,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 94
                 },
                 "page": 2,
                 "rank": 1,
@@ -971,14 +1047,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p02-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 215,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 215
                 },
                 "page": 2,
                 "rank": 2,
@@ -993,14 +1072,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p04-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 79,
                   "page": 4,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 79
                 },
                 "page": 4,
                 "rank": 3,
@@ -1012,6 +1094,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [],
@@ -1073,14 +1163,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 85,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 85
                 },
                 "page": 2,
                 "rank": 1,
@@ -1095,14 +1188,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p02-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 87,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 87
                 },
                 "page": 2,
                 "rank": 2,
@@ -1117,14 +1213,17 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c06",
                   "chunk_index": 6,
+                  "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                  "chunk_token_count": 141,
                   "page": 3,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "embedding_semantic"
+                  "strategy": "embedding_semantic",
+                  "token_count": 141
                 },
                 "page": 3,
                 "rank": 3,
@@ -1199,11 +1298,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 188,
                   "page": 0,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 188
                 },
                 "page": 0,
                 "rank": 1,
@@ -1218,11 +1320,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p03-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 246,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 246
                 },
                 "page": 3,
                 "rank": 2,
@@ -1237,11 +1342,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p02-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 286,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 286
                 },
                 "page": 2,
                 "rank": 3,
@@ -1318,11 +1426,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p01-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 259,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 259
                 },
                 "page": 1,
                 "rank": 1,
@@ -1337,11 +1448,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p01-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 266,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 266
                 },
                 "page": 1,
                 "rank": 2,
@@ -1356,11 +1470,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p05-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 271,
                   "page": 5,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 271
                 },
                 "page": 5,
                 "rank": 3,
@@ -1429,11 +1546,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p02-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 265,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 265
                 },
                 "page": 2,
                 "rank": 1,
@@ -1448,11 +1568,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p04-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 240,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 240
                 },
                 "page": 4,
                 "rank": 2,
@@ -1467,11 +1590,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 188,
                   "page": 0,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 188
                 },
                 "page": 0,
                 "rank": 3,
@@ -1546,11 +1672,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p04-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 240,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 240
                 },
                 "page": 4,
                 "rank": 1,
@@ -1565,11 +1694,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 165,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 165
                 },
                 "page": 2,
                 "rank": 2,
@@ -1584,11 +1716,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p02-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 286,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 286
                 },
                 "page": 2,
                 "rank": 3,
@@ -1600,6 +1735,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [
@@ -1657,11 +1800,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p02-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 265,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 265
                 },
                 "page": 2,
                 "rank": 1,
@@ -1676,11 +1822,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p04-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 240,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 240
                 },
                 "page": 4,
                 "rank": 2,
@@ -1695,11 +1844,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-fixed_large-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 188,
                   "page": 0,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large"
+                  "strategy": "fixed_large",
+                  "token_count": 188
                 },
                 "page": 0,
                 "rank": 3,
@@ -1786,11 +1938,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 146,
                   "page": 0,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 146
                 },
                 "page": 0,
                 "rank": 1,
@@ -1805,11 +1960,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 139,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 139
                 },
                 "page": 3,
                 "rank": 2,
@@ -1824,11 +1982,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 138,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 138
                 },
                 "page": 3,
                 "rank": 3,
@@ -1897,11 +2058,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 139,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 139
                 },
                 "page": 2,
                 "rank": 1,
@@ -1916,11 +2080,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c06",
                   "chunk_index": 6,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 99,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 99
                 },
                 "page": 3,
                 "rank": 2,
@@ -1935,11 +2102,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c05",
                   "chunk_index": 5,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 146,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 146
                 },
                 "page": 3,
                 "rank": 3,
@@ -2014,11 +2184,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p04-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 134,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 134
                 },
                 "page": 4,
                 "rank": 1,
@@ -2033,11 +2206,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 146,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 146
                 },
                 "page": 2,
                 "rank": 2,
@@ -2052,11 +2228,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 167,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 167
                 },
                 "page": 2,
                 "rank": 3,
@@ -2068,6 +2247,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [
@@ -2125,11 +2312,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 139,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 139
                 },
                 "page": 2,
                 "rank": 1,
@@ -2144,11 +2334,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c06",
                   "chunk_index": 6,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 99,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 99
                 },
                 "page": 3,
                 "rank": 2,
@@ -2163,11 +2356,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c05",
                   "chunk_index": 5,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 146,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium"
+                  "strategy": "fixed_medium",
+                  "token_count": 146
                 },
                 "page": 3,
                 "rank": 3,
@@ -2246,11 +2442,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p02-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 61,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 61
                 },
                 "page": 2,
                 "rank": 1,
@@ -2265,11 +2464,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p03-c13",
                   "chunk_index": 13,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 65,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 65
                 },
                 "page": 3,
                 "rank": 2,
@@ -2284,11 +2486,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p03-c16",
                   "chunk_index": 16,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 57,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 57
                 },
                 "page": 3,
                 "rank": 3,
@@ -2361,11 +2566,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p01-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 62,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 62
                 },
                 "page": 1,
                 "rank": 1,
@@ -2380,11 +2588,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p01-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 63,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 63
                 },
                 "page": 1,
                 "rank": 2,
@@ -2399,11 +2610,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p01-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 64,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 64
                 },
                 "page": 1,
                 "rank": 3,
@@ -2476,11 +2690,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p03-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 57,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 57
                 },
                 "page": 3,
                 "rank": 1,
@@ -2495,11 +2712,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p03-c11",
                   "chunk_index": 11,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 62,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 62
                 },
                 "page": 3,
                 "rank": 2,
@@ -2514,11 +2734,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p03-c08",
                   "chunk_index": 8,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 51,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 51
                 },
                 "page": 3,
                 "rank": 3,
@@ -2593,11 +2816,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p02-c09",
                   "chunk_index": 9,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 64,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 64
                 },
                 "page": 2,
                 "rank": 1,
@@ -2612,11 +2838,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p04-c05",
                   "chunk_index": 5,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 65,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 65
                 },
                 "page": 4,
                 "rank": 2,
@@ -2631,11 +2860,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p04-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 57,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 57
                 },
                 "page": 4,
                 "rank": 3,
@@ -2647,6 +2879,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [
@@ -2708,11 +2948,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p03-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 57,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 57
                 },
                 "page": 3,
                 "rank": 1,
@@ -2727,11 +2970,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p03-c11",
                   "chunk_index": 11,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 62,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 62
                 },
                 "page": 3,
                 "rank": 2,
@@ -2746,11 +2992,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p03-c08",
                   "chunk_index": 8,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 51,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small"
+                  "strategy": "fixed_small",
+                  "token_count": 51
                 },
                 "page": 3,
                 "rank": 3,
@@ -2830,7 +3079,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c06",
                   "chunk_index": 6,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 62,
                   "page": 2,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-parent99",
                   "parent_page": 2,
@@ -2838,7 +3089,8 @@
                   "section": "Atmospheric Pressure",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 62
                 },
                 "page": 2,
                 "rank": 1,
@@ -2854,7 +3106,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c07",
                   "chunk_index": 7,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 61,
                   "page": 2,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-parent99",
                   "parent_page": 2,
@@ -2862,7 +3116,8 @@
                   "section": "Atmospheric Pressure",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 61
                 },
                 "page": 2,
                 "rank": 2,
@@ -2878,7 +3133,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p03-c13",
                   "chunk_index": 13,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 71,
                   "page": 3,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p03-parent03",
                   "parent_page": 3,
@@ -2886,7 +3143,8 @@
                   "section": "Density Altitude",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 71
                 },
                 "page": 3,
                 "rank": 3,
@@ -2960,7 +3218,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p01-c02",
                   "chunk_index": 2,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 58,
                   "page": 1,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p01-parent01",
                   "parent_page": 1,
@@ -2968,7 +3228,8 @@
                   "section": "Air is a Fluid",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 58
                 },
                 "page": 1,
                 "rank": 1,
@@ -2984,7 +3245,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p01-c01",
                   "chunk_index": 1,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 63,
                   "page": 1,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p01-parent01",
                   "parent_page": 1,
@@ -2992,7 +3255,8 @@
                   "section": "Air is a Fluid",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 63
                 },
                 "page": 1,
                 "rank": 2,
@@ -3008,7 +3272,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p01-c03",
                   "chunk_index": 3,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 64,
                   "page": 1,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p01-parent02",
                   "parent_page": 1,
@@ -3016,7 +3282,8 @@
                   "section": "Viscosity",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 64
                 },
                 "page": 1,
                 "rank": 3,
@@ -3086,7 +3353,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c06",
                   "chunk_index": 6,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 62,
                   "page": 2,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-parent99",
                   "parent_page": 2,
@@ -3094,7 +3363,8 @@
                   "section": "Atmospheric Pressure",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 62
                 },
                 "page": 2,
                 "rank": 1,
@@ -3110,7 +3380,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c07",
                   "chunk_index": 7,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 61,
                   "page": 2,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-parent99",
                   "parent_page": 2,
@@ -3118,7 +3390,8 @@
                   "section": "Atmospheric Pressure",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 61
                 },
                 "page": 2,
                 "rank": 2,
@@ -3134,7 +3407,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p03-c13",
                   "chunk_index": 13,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 71,
                   "page": 3,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p03-parent03",
                   "parent_page": 3,
@@ -3142,7 +3417,8 @@
                   "section": "Density Altitude",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 71
                 },
                 "page": 3,
                 "rank": 3,
@@ -3218,7 +3494,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p04-c07",
                   "chunk_index": 7,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 58,
                   "page": 4,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p04-parent03",
                   "parent_page": 4,
@@ -3226,7 +3504,8 @@
                   "section": "is 22.22 \"Hg. Using the National Oceanic and Atmospheric",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 58
                 },
                 "page": 4,
                 "rank": 1,
@@ -3242,7 +3521,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p04-c05",
                   "chunk_index": 5,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 59,
                   "page": 4,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p04-parent02",
                   "parent_page": 4,
@@ -3250,7 +3531,8 @@
                   "section": "Effect of Humidity (Moisture) on Density",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 59
                 },
                 "page": 4,
                 "rank": 2,
@@ -3266,7 +3548,9 @@
                   "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c10",
                   "chunk_index": 10,
                   "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
                   "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 60,
                   "page": 2,
                   "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-parent100",
                   "parent_page": 2,
@@ -3274,7 +3558,8 @@
                   "section": "14.70 pounds per square inch (psi) of surface, or 1,013.2",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "hierarchical_parent_child"
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 60
                 },
                 "page": 2,
                 "rank": 3,
@@ -3286,6 +3571,145 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [
+          {
+            "cq_id": "bv2-sf-006",
+            "expected_abstention": false,
+            "metrics": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 0.0,
+              "expected_abstention": false,
+              "first_relevant_rank": null,
+              "gold_level": "span",
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": false,
+              "recall_at_5": false,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-hierarchical_parent_child-p02-c06",
+                "06_phak_ch4_0-hierarchical_parent_child-p02-c07",
+                "06_phak_ch4_0-hierarchical_parent_child-p03-c13",
+                "06_phak_ch4_0-hierarchical_parent_child-p05-c06",
+                "06_phak_ch4_0-hierarchical_parent_child-p03-c10",
+                "06_phak_ch4_0-hierarchical_parent_child-p05-c00",
+                "06_phak_ch4_0-hierarchical_parent_child-p02-c05",
+                "06_phak_ch4_0-hierarchical_parent_child-p03-c14",
+                "06_phak_ch4_0-hierarchical_parent_child-p05-c07",
+                "06_phak_ch4_0-hierarchical_parent_child-p03-c00"
+              ],
+              "retrieved_source_pages": [
+                2,
+                2,
+                3,
+                5,
+                3,
+                5,
+                2,
+                3,
+                5,
+                3
+              ]
+            },
+            "no_answer_diagnostics": {},
+            "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
+            "question_type": "supported_factual",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c06",
+                "metadata": {
+                  "chunk_configured_max_chars": 400,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c06",
+                  "chunk_index": 6,
+                  "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
+                  "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 62,
+                  "page": 2,
+                  "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-parent99",
+                  "parent_page": 2,
+                  "parent_section": "Atmospheric Pressure",
+                  "section": "Atmospheric Pressure",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 62
+                },
+                "page": 2,
+                "rank": 1,
+                "score": 0.4912447302478357,
+                "source": "vector",
+                "text_excerpt": "speed indicator, and manifold pressure gauge. Air is very light, but it has mass and is affected by the attraction of gravity. Therefore, like any other substance, it has weight, and because of its weight, it has force. Since air is a fluid"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c07",
+                "metadata": {
+                  "chunk_configured_max_chars": 400,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-c07",
+                  "chunk_index": 7,
+                  "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
+                  "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 61,
+                  "page": 2,
+                  "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p02-parent99",
+                  "parent_page": 2,
+                  "parent_section": "Atmospheric Pressure",
+                  "section": "Atmospheric Pressure",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 61
+                },
+                "page": 2,
+                "rank": 2,
+                "score": 0.4900970816156397,
+                "source": "vector",
+                "text_excerpt": "directions. Its effect on bodies within the air is called pressure. Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14. 70 pounds per square inch (psi) of surface, or 1,0"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p03-c13",
+                "metadata": {
+                  "chunk_configured_max_chars": 400,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p03-c13",
+                  "chunk_index": 13,
+                  "chunk_parent_context_available": true,
+                  "chunk_profile_family": "hierarchical_parent_child",
+                  "chunk_retrieval_integration": "partial_child_index_parent_metadata",
+                  "chunk_token_count": 71,
+                  "page": 3,
+                  "parent_chunk_id": "06_phak_ch4_0-hierarchical_parent_child-p03-parent03",
+                  "parent_page": 3,
+                  "parent_section": "Density Altitude",
+                  "section": "Density Altitude",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "hierarchical_parent_child",
+                  "token_count": 71
+                },
+                "page": 3,
+                "rank": 3,
+                "score": 0.48097979744580854,
+                "source": "vector",
+                "text_excerpt": "are more indicative of low density altitude. Effect of Pressure on Density Since air is a gas, it can be compressed or expanded. When air is compressed, a greater amount of air can occupy a given volume. Conversely, when pressure on a given"
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [],
@@ -3358,12 +3782,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p05-c00",
                   "chunk_index": 0,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 82,
                   "page": 5,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 82
                 },
                 "page": 5,
                 "rank": 1,
@@ -3379,12 +3806,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p02-c03",
                   "chunk_index": 3,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 78,
                   "page": 2,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 78
                 },
                 "page": 2,
                 "rank": 2,
@@ -3400,12 +3830,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
                   "chunk_index": 8,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 183,
                   "page": 3,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 183
                 },
                 "page": 3,
                 "rank": 3,
@@ -3479,12 +3912,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p01-c01",
                   "chunk_index": 1,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 40,
                   "page": 1,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 40
                 },
                 "page": 1,
                 "rank": 1,
@@ -3500,12 +3936,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p01-c02",
                   "chunk_index": 2,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 82,
                   "page": 1,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 82
                 },
                 "page": 1,
                 "rank": 2,
@@ -3521,12 +3960,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p01-c03",
                   "chunk_index": 3,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 135,
                   "page": 1,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 135
                 },
                 "page": 1,
                 "rank": 3,
@@ -3596,12 +4038,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p05-c00",
                   "chunk_index": 0,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 82,
                   "page": 5,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 82
                 },
                 "page": 5,
                 "rank": 1,
@@ -3617,12 +4062,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p02-c03",
                   "chunk_index": 3,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 78,
                   "page": 2,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 78
                 },
                 "page": 2,
                 "rank": 2,
@@ -3638,12 +4086,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
                   "chunk_index": 8,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 183,
                   "page": 3,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 183
                 },
                 "page": 3,
                 "rank": 3,
@@ -3719,12 +4170,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p04-c06",
                   "chunk_index": 6,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 47,
                   "page": 4,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 47
                 },
                 "page": 4,
                 "rank": 1,
@@ -3740,12 +4194,15 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p06-c04",
                   "chunk_index": 4,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 80,
                   "page": 6,
                   "section": "proposition_like",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 80
                 },
                 "page": 6,
                 "rank": 2,
@@ -3761,18 +4218,151 @@
                   "chunk_id": "06_phak_ch4_0-proposition_like-p02-c00",
                   "chunk_index": 0,
                   "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 219,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "proposition_like"
+                  "strategy": "proposition_like",
+                  "token_count": 219
                 },
                 "page": 2,
                 "rank": 3,
                 "score": 0.42655853435591484,
                 "source": "vector",
                 "text_excerpt": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29. 92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude "
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [
+          {
+            "cq_id": "bv2-sf-006",
+            "expected_abstention": false,
+            "metrics": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 0.0,
+              "expected_abstention": false,
+              "first_relevant_rank": null,
+              "gold_level": "span",
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": false,
+              "recall_at_5": false,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-proposition_like-p05-c00",
+                "06_phak_ch4_0-proposition_like-p02-c03",
+                "06_phak_ch4_0-proposition_like-p03-c08",
+                "06_phak_ch4_0-proposition_like-p04-c04",
+                "06_phak_ch4_0-proposition_like-p05-c04",
+                "06_phak_ch4_0-proposition_like-p03-c09",
+                "06_phak_ch4_0-proposition_like-p07-c04",
+                "06_phak_ch4_0-proposition_like-p02-c05",
+                "06_phak_ch4_0-proposition_like-p07-c03",
+                "06_phak_ch4_0-proposition_like-p00-c01"
+              ],
+              "retrieved_source_pages": [
+                5,
+                2,
+                3,
+                4,
+                5,
+                3,
+                7,
+                2,
+                7,
+                0
+              ]
+            },
+            "no_answer_diagnostics": {},
+            "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
+            "question_type": "supported_factual",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-proposition_like-p05-c00",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-proposition_like-p05-c00",
+                  "chunk_index": 0,
+                  "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
+                  "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 82,
+                  "page": 5,
+                  "section": "proposition_like",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "proposition_like",
+                  "token_count": 82
+                },
+                "page": 5,
+                "rank": 1,
+                "score": 0.4681063185029496,
+                "source": "vector",
+                "text_excerpt": "4-6 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE 8 6 4 2 0 I0 VELOCITY 8 6 4 2 0 I0 PRESSURE Figure 4-4. Air pressure decreases in a venturi tube. When a body is acted upon by a constant force, its"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-proposition_like-p02-c03",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-proposition_like-p02-c03",
+                  "chunk_index": 3,
+                  "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
+                  "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 78,
+                  "page": 2,
+                  "section": "proposition_like",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "proposition_like",
+                  "token_count": 78
+                },
+                "page": 2,
+                "rank": 2,
+                "score": 0.4620258065781141,
+                "source": "vector",
+                "text_excerpt": "force exerted per square inch of an object, or PSI. An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object. If the pressure on one surface of the object becomes less than the pressure e"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
+                  "chunk_index": 8,
+                  "chunk_llm_proposition_extraction": false,
+                  "chunk_profile_family": "proposition_like_heuristic",
+                  "chunk_proposition_extraction": "heuristic_sentence_cue",
+                  "chunk_token_count": 183,
+                  "page": 3,
+                  "section": "proposition_like",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "proposition_like",
+                  "token_count": 183
+                },
+                "page": 3,
+                "rank": 3,
+                "score": 0.4618055375873544,
+                "source": "vector",
+                "text_excerpt": "The conditions that result in a high density altitude are high elevations, low atmospheric pressures, high temperatures, high humidity, or some combination of these factors. Lower elevations, high atmospheric pressure, low temperatures, and"
               }
             ]
           }
@@ -3849,11 +4439,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 188,
                   "page": 0,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 188
                 },
                 "page": 0,
                 "rank": 1,
@@ -3868,11 +4461,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p03-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 250,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 250
                 },
                 "page": 3,
                 "rank": 2,
@@ -3887,11 +4483,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p02-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 344,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 344
                 },
                 "page": 2,
                 "rank": 3,
@@ -3968,11 +4567,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p01-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 259,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 259
                 },
                 "page": 1,
                 "rank": 1,
@@ -3987,11 +4589,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p01-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 272,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 272
                 },
                 "page": 1,
                 "rank": 2,
@@ -4006,11 +4611,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 274,
                   "page": 5,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 274
                 },
                 "page": 5,
                 "rank": 3,
@@ -4083,11 +4691,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 188,
                   "page": 0,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 188
                 },
                 "page": 0,
                 "rank": 1,
@@ -4102,11 +4713,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p04-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 247,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 247
                 },
                 "page": 4,
                 "rank": 2,
@@ -4121,11 +4735,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 274,
                   "page": 5,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 274
                 },
                 "page": 5,
                 "rank": 3,
@@ -4200,11 +4817,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p04-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 247,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 247
                 },
                 "page": 4,
                 "rank": 1,
@@ -4219,11 +4839,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 174,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 174
                 },
                 "page": 2,
                 "rank": 2,
@@ -4238,11 +4861,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p02-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 344,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 344
                 },
                 "page": 2,
                 "rank": 3,
@@ -4254,6 +4880,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [
@@ -4315,11 +4949,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 188,
                   "page": 0,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 188
                 },
                 "page": 0,
                 "rank": 1,
@@ -4334,11 +4971,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p04-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 247,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 247
                 },
                 "page": 4,
                 "rank": 2,
@@ -4353,11 +4993,14 @@
                   "chunk_configured_overlap_chars": 250,
                   "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 274,
                   "page": 5,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large"
+                  "strategy": "recursive_large",
+                  "token_count": 274
                 },
                 "page": 5,
                 "rank": 3,
@@ -4444,11 +5087,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p00-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 146,
                   "page": 0,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 146
                 },
                 "page": 0,
                 "rank": 1,
@@ -4463,11 +5109,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p03-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 130,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 130
                 },
                 "page": 3,
                 "rank": 2,
@@ -4482,11 +5131,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p03-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 122,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 122
                 },
                 "page": 3,
                 "rank": 3,
@@ -4555,11 +5207,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p03-c05",
                   "chunk_index": 5,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 144,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 144
                 },
                 "page": 3,
                 "rank": 1,
@@ -4574,11 +5229,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 146,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 146
                 },
                 "page": 2,
                 "rank": 2,
@@ -4593,11 +5251,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 147,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 147
                 },
                 "page": 2,
                 "rank": 3,
@@ -4672,11 +5333,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p04-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 149,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 149
                 },
                 "page": 4,
                 "rank": 1,
@@ -4691,11 +5355,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p04-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 143,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 143
                 },
                 "page": 4,
                 "rank": 2,
@@ -4710,11 +5377,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 147,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 147
                 },
                 "page": 2,
                 "rank": 3,
@@ -4726,6 +5396,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [
@@ -4783,11 +5461,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p03-c05",
                   "chunk_index": 5,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 144,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 144
                 },
                 "page": 3,
                 "rank": 1,
@@ -4802,11 +5483,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 146,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 146
                 },
                 "page": 2,
                 "rank": 2,
@@ -4821,11 +5505,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-recursive_medium-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 147,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_medium"
+                  "strategy": "recursive_medium",
+                  "token_count": 147
                 },
                 "page": 2,
                 "rank": 3,
@@ -4904,11 +5591,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p02-c06",
                   "chunk_index": 6,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 62,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 62
                 },
                 "page": 2,
                 "rank": 1,
@@ -4923,11 +5613,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p02-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 61,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 61
                 },
                 "page": 2,
                 "rank": 2,
@@ -4942,11 +5635,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p03-c13",
                   "chunk_index": 13,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 71,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 71
                 },
                 "page": 3,
                 "rank": 3,
@@ -5019,11 +5715,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p01-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 58,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 58
                 },
                 "page": 1,
                 "rank": 1,
@@ -5038,11 +5737,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p01-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 63,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 63
                 },
                 "page": 1,
                 "rank": 2,
@@ -5057,11 +5759,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p01-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 64,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 64
                 },
                 "page": 1,
                 "rank": 3,
@@ -5130,11 +5835,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p02-c06",
                   "chunk_index": 6,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 62,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 62
                 },
                 "page": 2,
                 "rank": 1,
@@ -5149,11 +5857,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p02-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 61,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 61
                 },
                 "page": 2,
                 "rank": 2,
@@ -5168,11 +5879,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p03-c13",
                   "chunk_index": 13,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 71,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 71
                 },
                 "page": 3,
                 "rank": 3,
@@ -5247,11 +5961,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p04-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 58,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 58
                 },
                 "page": 4,
                 "rank": 1,
@@ -5266,11 +5983,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p04-c05",
                   "chunk_index": 5,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 59,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 59
                 },
                 "page": 4,
                 "rank": 2,
@@ -5285,11 +6005,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p02-c10",
                   "chunk_index": 10,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 60,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 60
                 },
                 "page": 2,
                 "rank": 3,
@@ -5301,6 +6024,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [
@@ -5358,11 +6089,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p02-c06",
                   "chunk_index": 6,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 62,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 62
                 },
                 "page": 2,
                 "rank": 1,
@@ -5377,11 +6111,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p02-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 61,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 61
                 },
                 "page": 2,
                 "rank": 2,
@@ -5396,11 +6133,14 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-recursive_small-p03-c13",
                   "chunk_index": 13,
+                  "chunk_profile_family": "sentence_recursive",
+                  "chunk_token_count": 71,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_small"
+                  "strategy": "recursive_small",
+                  "token_count": 71
                 },
                 "page": 3,
                 "rank": 3,
@@ -5479,12 +6219,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 100,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 100
                 },
                 "page": 2,
                 "rank": 1,
@@ -5499,12 +6242,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p05-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 103,
                   "page": 5,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 103
                 },
                 "page": 5,
                 "rank": 2,
@@ -5519,12 +6265,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 108,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 108
                 },
                 "page": 2,
                 "rank": 3,
@@ -5593,12 +6342,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p01-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 103,
                   "page": 1,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 103
                 },
                 "page": 1,
                 "rank": 1,
@@ -5613,12 +6365,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p01-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 104,
                   "page": 1,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 104
                 },
                 "page": 1,
                 "rank": 2,
@@ -5633,12 +6388,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p01-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 108,
                   "page": 1,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 108
                 },
                 "page": 1,
                 "rank": 3,
@@ -5707,12 +6465,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 100,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 100
                 },
                 "page": 2,
                 "rank": 1,
@@ -5727,12 +6488,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p05-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 103,
                   "page": 5,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 103
                 },
                 "page": 5,
                 "rank": 2,
@@ -5747,12 +6511,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 108,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 108
                 },
                 "page": 2,
                 "rank": 3,
@@ -5827,12 +6594,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p04-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 97,
                   "page": 4,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 97
                 },
                 "page": 4,
                 "rank": 1,
@@ -5847,12 +6617,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p02-c04",
                   "chunk_index": 4,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 109,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 109
                 },
                 "page": 2,
                 "rank": 2,
@@ -5867,12 +6640,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p02-c05",
                   "chunk_index": 5,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 100,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 100
                 },
                 "page": 2,
                 "rank": 3,
@@ -5884,6 +6660,14 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [],
@@ -5945,12 +6729,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p02-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 100,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 100
                 },
                 "page": 2,
                 "rank": 1,
@@ -5965,12 +6752,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p05-c03",
                   "chunk_index": 3,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 103,
                   "page": 5,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 103
                 },
                 "page": 5,
                 "rank": 2,
@@ -5985,12 +6775,15 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-semantic_meta_like-p02-c02",
                   "chunk_index": 2,
+                  "chunk_profile_family": "semantic_boundary_lexical",
                   "chunk_semantic_backend": "lexical_similarity",
+                  "chunk_token_count": 108,
                   "page": 2,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "semantic_meta_like"
+                  "strategy": "semantic_meta_like",
+                  "token_count": 108
                 },
                 "page": 2,
                 "rank": 3,
@@ -6065,11 +6858,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
                   "chunk_index": 106,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 28,
                   "page": 2,
                   "section": "Atmospheric Pressure",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 28
                 },
                 "page": 2,
                 "rank": 1,
@@ -6084,11 +6880,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p03-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 19,
                   "page": 3,
                   "section": "Density Altitude",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 19
                 },
                 "page": 3,
                 "rank": 2,
@@ -6103,11 +6902,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
                   "chunk_index": 4,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 136,
                   "page": 0,
                   "section": "Structure of the Atmosphere",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 136
                 },
                 "page": 0,
                 "rank": 3,
@@ -6180,11 +6982,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p03-c00",
                   "chunk_index": 0,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 38,
                   "page": 3,
                   "section": "4-4",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 38
                 },
                 "page": 3,
                 "rank": 1,
@@ -6199,11 +7004,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p03-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 22,
                   "page": 3,
                   "section": "4-4",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 22
                 },
                 "page": 3,
                 "rank": 2,
@@ -6218,11 +7026,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p02-c109",
                   "chunk_index": 109,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 36,
                   "page": 2,
                   "section": "The International Civil Aviation Organization (ICAO) has",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 36
                 },
                 "page": 2,
                 "rank": 3,
@@ -6291,11 +7102,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p02-c106",
                   "chunk_index": 106,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 28,
                   "page": 2,
                   "section": "Atmospheric Pressure",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 28
                 },
                 "page": 2,
                 "rank": 1,
@@ -6310,11 +7124,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p03-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 19,
                   "page": 3,
                   "section": "Density Altitude",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 19
                 },
                 "page": 3,
                 "rank": 2,
@@ -6329,11 +7146,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p00-c04",
                   "chunk_index": 4,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 136,
                   "page": 0,
                   "section": "Structure of the Atmosphere",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 136
                 },
                 "page": 0,
                 "rank": 3,
@@ -6370,19 +7190,19 @@
                 "06_phak_ch4_0-structure_aware-p02-c107",
                 "06_phak_ch4_0-structure_aware-p02-c57",
                 "06_phak_ch4_0-structure_aware-p02-c43",
+                "06_phak_ch4_0-structure_aware-p04-c03",
                 "06_phak_ch4_0-structure_aware-p02-c42",
                 "06_phak_ch4_0-structure_aware-p02-c39",
                 "06_phak_ch4_0-structure_aware-p02-c40",
                 "06_phak_ch4_0-structure_aware-p02-c41",
                 "06_phak_ch4_0-structure_aware-p02-c38",
-                "06_phak_ch4_0-structure_aware-p02-c37",
-                "06_phak_ch4_0-structure_aware-p02-c36"
+                "06_phak_ch4_0-structure_aware-p02-c37"
               ],
               "retrieved_source_pages": [
                 2,
                 2,
                 2,
-                2,
+                4,
                 2,
                 2,
                 2,
@@ -6408,11 +7228,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p02-c107",
                   "chunk_index": 107,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 184,
                   "page": 2,
                   "section": "14.70 pounds per square inch (psi) of surface, or 1,013.2",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 184
                 },
                 "page": 2,
                 "rank": 1,
@@ -6427,11 +7250,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p02-c57",
                   "chunk_index": 57,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 28,
                   "page": 2,
                   "section": "27.82",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 28
                 },
                 "page": 2,
                 "rank": 2,
@@ -6446,11 +7272,14 @@
                   "chunk_configured_overlap_chars": 150,
                   "chunk_id": "06_phak_ch4_0-structure_aware-p02-c43",
                   "chunk_index": 43,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 26,
                   "page": 2,
                   "section": "9,000",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware"
+                  "strategy": "structure_aware",
+                  "token_count": 26
                 },
                 "page": 2,
                 "rank": 3,
@@ -6462,6 +7291,930 @@
           }
         ],
         "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "section_boundary_split": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "semantic_boundary_error": {
+        "samples": [],
+        "samples_total": 0
+      }
+    },
+    "structure_aware_large": {
+      "chunk_too_large_low_precision": {
+        "samples": [
+          {
+            "cq_id": "bv2-sf-001",
+            "expected_abstention": false,
+            "metrics": {
+              "context_precision_at_5": 0.2,
+              "context_recall": 1.0,
+              "expected_abstention": false,
+              "first_relevant_rank": 1,
+              "gold_level": "span",
+              "matched_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_large-p02-c01"
+              ],
+              "matched_source_pages": [
+                2
+              ],
+              "mrr_at_10": 1.0,
+              "mrr_at_5": 1.0,
+              "ndcg_at_10": 1.0,
+              "precision_at_10": 0.1,
+              "precision_at_5": 0.2,
+              "recall_at_10": true,
+              "recall_at_5": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_large-p02-c01",
+                "06_phak_ch4_0-structure_aware_large-p00-c00",
+                "06_phak_ch4_0-structure_aware_large-p03-c00",
+                "06_phak_ch4_0-structure_aware_large-p02-c00",
+                "06_phak_ch4_0-structure_aware_large-p04-c01",
+                "06_phak_ch4_0-structure_aware_large-p03-c02",
+                "06_phak_ch4_0-structure_aware_large-p03-c01",
+                "06_phak_ch4_0-structure_aware_large-p03-c03",
+                "06_phak_ch4_0-structure_aware_large-p02-c02",
+                "06_phak_ch4_0-structure_aware_large-p04-c02"
+              ],
+              "retrieved_source_pages": [
+                2,
+                0,
+                3,
+                2,
+                4,
+                3,
+                3,
+                3,
+                2,
+                4
+              ]
+            },
+            "no_answer_diagnostics": {},
+            "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
+            "question_type": "supported_factual",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p02-c01",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p02-c01",
+                  "chunk_index": 1,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 265,
+                  "page": 2,
+                  "section": "Atmospheric Pressure",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 265
+                },
+                "page": 2,
+                "rank": 1,
+                "score": 0.465691856468051,
+                "source": "vector",
+                "text_excerpt": "around the entire surface of the object. If the pressure on one surface of the object becomes less than the pressure exerted on the other surfaces, the object will move in the direction of the lower pressure. Atmospheric Pressure Although t"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p00-c00",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p00-c00",
+                  "chunk_index": 0,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 188,
+                  "page": 0,
+                  "section": "4-1",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 188
+                },
+                "page": 0,
+                "rank": 2,
+                "score": 0.46314204748385734,
+                "source": "vector",
+                "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p03-c00",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p03-c00",
+                  "chunk_index": 0,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 246,
+                  "page": 3,
+                  "section": "4-4",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 246
+                },
+                "page": 3,
+                "rank": 3,
+                "score": 0.4620350695993155,
+                "source": "vector",
+                "text_excerpt": "4-4 Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere. In order to properly account for the nonstandard atmosphere, certain rela"
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "chunk_too_small_lost_context": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "cross_page_evidence_split": {
+        "samples": [
+          {
+            "cq_id": "bv2-xp-001",
+            "expected_abstention": false,
+            "metrics": {
+              "context_precision_at_5": 0.2,
+              "context_recall": 0.5,
+              "expected_abstention": false,
+              "first_relevant_rank": 1,
+              "gold_level": "span",
+              "matched_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_large-p01-c00"
+              ],
+              "matched_source_pages": [
+                1
+              ],
+              "mrr_at_10": 1.0,
+              "mrr_at_5": 1.0,
+              "ndcg_at_10": 0.6131,
+              "precision_at_10": 0.1,
+              "precision_at_5": 0.2,
+              "recall_at_10": true,
+              "recall_at_5": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_large-p01-c00",
+                "06_phak_ch4_0-structure_aware_large-p05-c01",
+                "06_phak_ch4_0-structure_aware_large-p01-c01",
+                "06_phak_ch4_0-structure_aware_large-p08-c00",
+                "06_phak_ch4_0-structure_aware_large-p01-c02",
+                "06_phak_ch4_0-structure_aware_large-p04-c02",
+                "06_phak_ch4_0-structure_aware_large-p04-c00",
+                "06_phak_ch4_0-structure_aware_large-p03-c03",
+                "06_phak_ch4_0-structure_aware_large-p08-c01",
+                "06_phak_ch4_0-structure_aware_large-p07-c01"
+              ],
+              "retrieved_source_pages": [
+                1,
+                5,
+                1,
+                8,
+                1,
+                4,
+                4,
+                3,
+                8,
+                7
+              ]
+            },
+            "no_answer_diagnostics": {},
+            "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
+            "question_type": "cross_page",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p01-c00",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p01-c00",
+                  "chunk_index": 0,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 252,
+                  "page": 1,
+                  "section": "4-2",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 252
+                },
+                "page": 1,
+                "rank": 1,
+                "score": 0.5006552569945506,
+                "source": "vector",
+                "text_excerpt": "4-2 Leading edge of wing under 1,500x magnification Figure 4-1. Microscopic surface of a wing. Air is a Fluid When most people hear the word \u201cfluid,\u201d they usually think of liquid. However, gasses, like air, are also fluids. Fluids take on t"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p05-c01",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p05-c01",
+                  "chunk_index": 1,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 269,
+                  "page": 5,
+                  "section": "Bernoulli\u2019s Principle of Differential Pressure",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 269
+                },
+                "page": 5,
+                "rank": 2,
+                "score": 0.4252365155985046,
+                "source": "vector",
+                "text_excerpt": "moving fluid (liquid or gas) increases, the pressure within the fluid decreases. This principle explains what happens to air passing over the curved top of the airplane wing. A practical application of Bernoulli\u2019s Principle is the venturi t"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p01-c01",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p01-c01",
+                  "chunk_index": 1,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 267,
+                  "page": 1,
+                  "section": "Viscosity",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 267
+                },
+                "page": 1,
+                "rank": 3,
+                "score": 0.4244508900173027,
+                "source": "vector",
+                "text_excerpt": "freely while the oil flows much more slowly. As another example, different types of similar liquids will display different behaviors because of different viscosities. Grease is very viscous. Given time, grease will flow, even though the flo"
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "missed_gold_evidence_at_5": {
+        "samples": [
+          {
+            "cq_id": "bv2-sf-004",
+            "expected_abstention": false,
+            "metrics": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "expected_abstention": false,
+              "first_relevant_rank": 7,
+              "gold_level": "span",
+              "matched_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_large-p05-c00"
+              ],
+              "matched_source_pages": [
+                5
+              ],
+              "mrr_at_10": 0.1429,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.3333,
+              "precision_at_10": 0.1,
+              "precision_at_5": 0.0,
+              "recall_at_10": true,
+              "recall_at_5": false,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_large-p00-c00",
+                "06_phak_ch4_0-structure_aware_large-p04-c02",
+                "06_phak_ch4_0-structure_aware_large-p05-c01",
+                "06_phak_ch4_0-structure_aware_large-p08-c00",
+                "06_phak_ch4_0-structure_aware_large-p03-c03",
+                "06_phak_ch4_0-structure_aware_large-p02-c01",
+                "06_phak_ch4_0-structure_aware_large-p05-c00",
+                "06_phak_ch4_0-structure_aware_large-p04-c03",
+                "06_phak_ch4_0-structure_aware_large-p01-c00",
+                "06_phak_ch4_0-structure_aware_large-p03-c01"
+              ],
+              "retrieved_source_pages": [
+                0,
+                4,
+                5,
+                8,
+                3,
+                2,
+                5,
+                4,
+                1,
+                3
+              ]
+            },
+            "no_answer_diagnostics": {},
+            "question": "According to PHAK Chapter 4, what source-backed fact connects gases with air in the evidence mentioning airplane engine pushes?",
+            "question_type": "supported_factual",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p00-c00",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p00-c00",
+                  "chunk_index": 0,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 188,
+                  "page": 0,
+                  "section": "4-1",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 188
+                },
+                "page": 0,
+                "rank": 1,
+                "score": 0.47609009664189544,
+                "source": "vector",
+                "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p04-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p04-c02",
+                  "chunk_index": 2,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 247,
+                  "page": 4,
+                  "section": "Theories in the Production of Lift",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 247
+                },
+                "page": 4,
+                "rank": 2,
+                "score": 0.4510485662045116,
+                "source": "vector",
+                "text_excerpt": "without using additional interpretive charts. In any case, the effects of humidity on density altitude include a decrease in overall performance in high humidity conditions. Theories in the Production of Lift In order to achieve flight in a"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p05-c01",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p05-c01",
+                  "chunk_index": 1,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 269,
+                  "page": 5,
+                  "section": "Bernoulli\u2019s Principle of Differential Pressure",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 269
+                },
+                "page": 5,
+                "rank": 3,
+                "score": 0.43830545460549464,
+                "source": "vector",
+                "text_excerpt": "moving fluid (liquid or gas) increases, the pressure within the fluid decreases. This principle explains what happens to air passing over the curved top of the airplane wing. A practical application of Bernoulli\u2019s Principle is the venturi t"
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "no_answer_retrieved_misleading_context": {
+        "samples": [
+          {
+            "cq_id": "bv2-ie-011-runway-performance",
+            "expected_abstention": true,
+            "metrics": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "expected_abstention": true,
+              "first_relevant_rank": null,
+              "gold_level": "no_answer",
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": false,
+              "recall_at_5": false,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_large-p04-c01",
+                "06_phak_ch4_0-structure_aware_large-p02-c02",
+                "06_phak_ch4_0-structure_aware_large-p02-c00",
+                "06_phak_ch4_0-structure_aware_large-p00-c00",
+                "06_phak_ch4_0-structure_aware_large-p03-c00",
+                "06_phak_ch4_0-structure_aware_large-p02-c01",
+                "06_phak_ch4_0-structure_aware_large-p04-c00",
+                "06_phak_ch4_0-structure_aware_large-p04-c02",
+                "06_phak_ch4_0-structure_aware_large-p06-c01",
+                "06_phak_ch4_0-structure_aware_large-p04-c03"
+              ],
+              "retrieved_source_pages": [
+                4,
+                2,
+                2,
+                0,
+                3,
+                2,
+                4,
+                4,
+                6,
+                4
+              ]
+            },
+            "no_answer_diagnostics": {
+              "key_entity_overlap": true,
+              "overlap_entities": [
+                "temperature"
+              ],
+              "retrieved_context_at_5": true
+            },
+            "question": "How much runway will my aircraft need today with current wind, temperature, and loading?",
+            "question_type": "insufficient_evidence",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p04-c01",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p04-c01",
+                  "chunk_index": 1,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 238,
+                  "page": 4,
+                  "section": "Effect of Humidity (Moisture) on Density",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 238
+                },
+                "page": 4,
+                "rank": 1,
+                "score": 0.44048681502385956,
+                "source": "vector",
+                "text_excerpt": "As temperature increases, the air can hold greater amounts of water vapor. When comparing two separate air masses, the first warm and moist (both qualities tending to lighten the air) and the second cold and dry (both qualities making it he"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p02-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p02-c02",
+                  "chunk_index": 2,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 161,
+                  "page": 2,
+                  "section": "14.70 pounds per square inch (psi) of surface, or 1,013.2",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 161
+                },
+                "page": 2,
+                "rank": 2,
+                "score": 0.4382765777218135,
+                "source": "vector",
+                "text_excerpt": "Due to the changing atmospheric pressure, a standard reference was developed. The standard atmosphere at sea level is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface pressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb. [Figure 4-2"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_large-p02-c00",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p02-c00",
+                  "chunk_index": 0,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 286,
+                  "page": 2,
+                  "section": "4-3",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_large",
+                  "token_count": 286
+                },
+                "page": 2,
+                "rank": 3,
+                "score": 0.42655853435591484,
+                "source": "vector",
+                "text_excerpt": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29.92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude ("
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "section_boundary_split": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "semantic_boundary_error": {
+        "samples": [],
+        "samples_total": 0
+      }
+    },
+    "structure_aware_medium": {
+      "chunk_too_large_low_precision": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "chunk_too_small_lost_context": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "cross_page_evidence_split": {
+        "samples": [
+          {
+            "cq_id": "bv2-xp-002",
+            "expected_abstention": false,
+            "metrics": {
+              "context_precision_at_5": 0.2,
+              "context_recall": 0.5,
+              "expected_abstention": false,
+              "first_relevant_rank": 5,
+              "gold_level": "span",
+              "matched_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_medium-p03-c00"
+              ],
+              "matched_source_pages": [
+                3
+              ],
+              "mrr_at_10": 0.2,
+              "mrr_at_5": 0.2,
+              "ndcg_at_10": 0.2372,
+              "precision_at_10": 0.1,
+              "precision_at_5": 0.2,
+              "recall_at_10": true,
+              "recall_at_5": true,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_medium-p00-c00",
+                "06_phak_ch4_0-structure_aware_medium-p03-c02",
+                "06_phak_ch4_0-structure_aware_medium-p03-c03",
+                "06_phak_ch4_0-structure_aware_medium-p03-c01",
+                "06_phak_ch4_0-structure_aware_medium-p03-c00",
+                "06_phak_ch4_0-structure_aware_medium-p00-c01",
+                "06_phak_ch4_0-structure_aware_medium-p04-c01",
+                "06_phak_ch4_0-structure_aware_medium-p02-c03",
+                "06_phak_ch4_0-structure_aware_medium-p02-c04",
+                "06_phak_ch4_0-structure_aware_medium-p03-c06"
+              ],
+              "retrieved_source_pages": [
+                0,
+                3,
+                3,
+                3,
+                3,
+                0,
+                4,
+                2,
+                2,
+                3
+              ]
+            },
+            "no_answer_diagnostics": {},
+            "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
+            "question_type": "cross_page",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p00-c00",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p00-c00",
+                  "chunk_index": 0,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 146,
+                  "page": 0,
+                  "section": "4-1",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 146
+                },
+                "page": 0,
+                "rank": 1,
+                "score": 0.5216214710400433,
+                "source": "vector",
+                "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c02",
+                  "chunk_index": 2,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 130,
+                  "page": 3,
+                  "section": "Density Altitude",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 130
+                },
+                "page": 3,
+                "rank": 2,
+                "score": 0.5026720945885051,
+                "source": "vector",
+                "text_excerpt": "to be found. The density of air has significant effects on the aircraft\u2019s performance because as air becomes less dense, it reduces: \u2022 Power because the engine takes in less air \u2022 Thrust because a propeller is less efficient in thin air \u2022 L"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c03",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c03",
+                  "chunk_index": 3,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 122,
+                  "page": 3,
+                  "section": "Density Altitude",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 122
+                },
+                "page": 3,
+                "rank": 3,
+                "score": 0.498986455177097,
+                "source": "vector",
+                "text_excerpt": "aircraft performance because under standard atmospheric conditions, air at each level in the atmosphere not only has a specific density, its pressure altitude and density altitude identify the same level. The computation of density altitude"
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "missed_gold_evidence_at_5": {
+        "samples": [
+          {
+            "cq_id": "bv2-sf-006",
+            "expected_abstention": false,
+            "metrics": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 0.0,
+              "expected_abstention": false,
+              "first_relevant_rank": null,
+              "gold_level": "span",
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": false,
+              "recall_at_5": false,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_medium-p02-c02",
+                "06_phak_ch4_0-structure_aware_medium-p03-c05",
+                "06_phak_ch4_0-structure_aware_medium-p04-c02",
+                "06_phak_ch4_0-structure_aware_medium-p00-c01",
+                "06_phak_ch4_0-structure_aware_medium-p03-c06",
+                "06_phak_ch4_0-structure_aware_medium-p02-c01",
+                "06_phak_ch4_0-structure_aware_medium-p02-c03",
+                "06_phak_ch4_0-structure_aware_medium-p05-c02",
+                "06_phak_ch4_0-structure_aware_medium-p04-c01",
+                "06_phak_ch4_0-structure_aware_medium-p00-c00"
+              ],
+              "retrieved_source_pages": [
+                2,
+                3,
+                4,
+                0,
+                3,
+                2,
+                2,
+                5,
+                4,
+                0
+              ]
+            },
+            "no_answer_diagnostics": {},
+            "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
+            "question_type": "supported_factual",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p02-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p02-c02",
+                  "chunk_index": 2,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 142,
+                  "page": 2,
+                  "section": "Atmospheric Pressure",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 142
+                },
+                "page": 2,
+                "rank": 1,
+                "score": 0.47579681114459066,
+                "source": "vector",
+                "text_excerpt": "on the other surfaces, the object will move in the direction of the lower pressure. Atmospheric Pressure Although there are various kinds of pressure, pilots are mainly concerned with atmospheric pressure. It is one of the basic factors in "
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c05",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c05",
+                  "chunk_index": 5,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 144,
+                  "page": 3,
+                  "section": "Density Altitude",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 144
+                },
+                "page": 3,
+                "rank": 2,
+                "score": 0.467997495267922,
+                "source": "vector",
+                "text_excerpt": "atmospheric pressures, high temperatures, high humidity, or some combination of these factors. Lower elevations, high atmospheric pressure, low temperatures, and low humidity are more indicative of low density altitude. Effect of Pressure o"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p04-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p04-c02",
+                  "chunk_index": 2,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 143,
+                  "page": 4,
+                  "section": "Effect of Humidity (Moisture) on Density",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 143
+                },
+                "page": 4,
+                "rank": 3,
+                "score": 0.450012000523152,
+                "source": "vector",
+                "text_excerpt": "the air) and the second cold and dry (both qualities making it heavier), the first must be less dense than the second. Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density. "
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "no_answer_retrieved_misleading_context": {
+        "samples": [
+          {
+            "cq_id": "bv2-ie-011-runway-performance",
+            "expected_abstention": true,
+            "metrics": {
+              "context_precision_at_5": 0.0,
+              "context_recall": 1.0,
+              "expected_abstention": true,
+              "first_relevant_rank": null,
+              "gold_level": "no_answer",
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": false,
+              "recall_at_5": false,
+              "retrieved_chunk_ids": [
+                "06_phak_ch4_0-structure_aware_medium-p04-c02",
+                "06_phak_ch4_0-structure_aware_medium-p02-c03",
+                "06_phak_ch4_0-structure_aware_medium-p04-c03",
+                "06_phak_ch4_0-structure_aware_medium-p02-c00",
+                "06_phak_ch4_0-structure_aware_medium-p02-c04",
+                "06_phak_ch4_0-structure_aware_medium-p00-c00",
+                "06_phak_ch4_0-structure_aware_medium-p03-c00",
+                "06_phak_ch4_0-structure_aware_medium-p03-c01",
+                "06_phak_ch4_0-structure_aware_medium-p04-c06",
+                "06_phak_ch4_0-structure_aware_medium-p04-c01"
+              ],
+              "retrieved_source_pages": [
+                4,
+                2,
+                4,
+                2,
+                2,
+                0,
+                3,
+                3,
+                4,
+                4
+              ]
+            },
+            "no_answer_diagnostics": {
+              "key_entity_overlap": true,
+              "overlap_entities": [
+                "temperature"
+              ],
+              "retrieved_context_at_5": true
+            },
+            "question": "How much runway will my aircraft need today with current wind, temperature, and loading?",
+            "question_type": "insufficient_evidence",
+            "top_hits": [
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p04-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p04-c02",
+                  "chunk_index": 2,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 143,
+                  "page": 4,
+                  "section": "Effect of Humidity (Moisture) on Density",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 143
+                },
+                "page": 4,
+                "rank": 1,
+                "score": 0.46277588695317046,
+                "source": "vector",
+                "text_excerpt": "the air) and the second cold and dry (both qualities making it heavier), the first must be less dense than the second. Pressure, temperature, and humidity have a great influence on aircraft performance because of their effect upon density. "
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p02-c03",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p02-c03",
+                  "chunk_index": 3,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 150,
+                  "page": 2,
+                  "section": "Atmospheric Pressure",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 150
+                },
+                "page": 2,
+                "rank": 2,
+                "score": 0.4473201635853067,
+                "source": "vector",
+                "text_excerpt": "Under standard conditions at sea level, the average pressure exerted by the weight of the atmosphere is approximately 14.70 pounds per square inch (psi) of surface, or 1,013.2 millibars (mb). The thickness of the atmosphere is limited; ther"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p04-c03",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p04-c03",
+                  "chunk_index": 3,
+                  "chunk_profile_family": "structure_aware",
+                  "chunk_token_count": 132,
+                  "page": 4,
+                  "section": "is 22.22 \"Hg. Using the National Oceanic and Atmospheric",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "structure_aware_medium",
+                  "token_count": 132
+                },
+                "page": 4,
+                "rank": 3,
+                "score": 0.44317397766201566,
+                "source": "vector",
+                "text_excerpt": "the 22.22 for 8,000 feet in the station pressure window. Enter a temperature of 80\u00b0 and a dew point of 75\u00b0. The result is a density altitude of 11,564 feet. With no humidity, the density altitude would be almost 500 feet lower. Another webs"
+              }
+            ]
+          }
+        ],
+        "samples_total": 1
+      },
+      "parent_child_not_used": {
+        "samples": [],
+        "samples_total": 0
+      },
+      "proposition_context_loss": {
+        "samples": [],
+        "samples_total": 0
       },
       "section_boundary_split": {
         "samples": [],

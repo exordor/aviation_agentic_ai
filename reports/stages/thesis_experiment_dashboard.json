@@ -49,7 +49,25 @@
         "benchmark_v2_summary",
         "retrieval_ablation_benchmark_v2",
         "graph_traversal_ablation_benchmark_v2",
-        "sufficiency_evaluation"
+        "sufficiency_evaluation",
+        "chunking_comparison_benchmark_v2",
+        "chunking_comparison_benchmark_v2_budget",
+        "chunking_topk_sensitivity_benchmark_v2",
+        "chunking_category_analysis_benchmark_v2"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "partial_benchmark_specific",
+      "dataset": "benchmark v2 chunking experiment",
+      "evidence_role": "retrieval_design_diagnostic",
+      "limitations": "implementation-maturity labels required; top-k context volume differs by chunk size",
+      "purpose": "chunking strategy comparison under top-k, fixed-budget, and category views",
+      "used_in_reports": [
+        "chunking_implementation_audit",
+        "chunking_comparison_benchmark_v2",
+        "chunking_comparison_benchmark_v2_budget",
+        "chunking_topk_sensitivity_benchmark_v2",
+        "chunking_category_analysis_benchmark_v2"
       ]
     },
     {
@@ -177,6 +195,74 @@
       "report_name": "answer_evaluation_benchmark_subset"
     },
     {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "retrieval",
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/chunking_implementation_audit.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "chunking_implementation_audit"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "retrieval"
+      ],
+      "path": "reports/stages/chunking_comparison_benchmark_v2.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "chunking_comparison_benchmark_v2"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "retrieval"
+      ],
+      "path": "reports/stages/chunking_comparison_benchmark_v2_budget.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "chunking_comparison_benchmark_v2_budget"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "retrieval"
+      ],
+      "path": "reports/stages/chunking_topk_sensitivity_benchmark_v2.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "chunking_topk_sensitivity_benchmark_v2"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "retrieval"
+      ],
+      "path": "reports/stages/chunking_category_analysis_benchmark_v2.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "chunking_category_analysis_benchmark_v2"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "retrieval",
+        "failure_analysis"
+      ],
+      "path": "reports/stages/chunking_failure_cards_benchmark_v2.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "chunking_failure_cards_benchmark_v2"
+    },
+    {
       "dataset_used": "35_question_expanded",
       "manual_review_required": false,
       "metric_layers_covered": [
@@ -247,6 +333,17 @@
     }
   ],
   "failure_mode_summary": {
+    "chunking_failure_card_samples": {
+      "chunk_too_large_low_precision": 3,
+      "chunk_too_small_lost_context": 8,
+      "cross_page_evidence_split": 14,
+      "missed_gold_evidence_at_5": 14,
+      "no_answer_retrieved_misleading_context": 14,
+      "parent_child_not_used": 1,
+      "proposition_context_loss": 1,
+      "section_boundary_split": 6,
+      "semantic_boundary_error": 2
+    },
     "false_abstention_on_supported_question": 29,
     "graph_failure_categories": {
       "generic_seed_node": 75,
@@ -356,6 +453,35 @@
       "recall_at_10": 0.5917,
       "recall_at_5": 0.5083,
       "scenario": "hybrid_hops2_v5_h8"
+    },
+    "chunking_benchmark_v2": {
+      "audit_status": "Audit describes implemented behavior. Partial methods are not treated as full semantic, parent-child, or LLM proposition extraction.",
+      "budget_best_strategy": "recursive_medium",
+      "budget_recall_at_5_supported": 0.79,
+      "category_best": {
+        "concept_definition": "recursive_large",
+        "cross_page": "fixed_large",
+        "insufficient_evidence": "diagnostic_only",
+        "paraphrase": "embedding_semantic",
+        "relation_causal": "hierarchical_parent_child",
+        "supported_factual": "structure_aware_large",
+        "terminology_variation": "recursive_medium"
+      },
+      "claim_warning": "Top-k chunking rankings expose unequal context budgets; fixed-budget and category diagnostics are stronger evidence but still benchmark-specific.",
+      "partial_methods": [
+        "hierarchical_parent_child"
+      ],
+      "semantic_backend": [
+        "sentence_transformers"
+      ],
+      "topk_best_strategy": "fixed_large",
+      "topk_recall_at_5_supported": 0.86,
+      "topk_sensitivity_best_by_k": {
+        "10": "structure_aware_large",
+        "20": "structure_aware_large",
+        "3": "recursive_large",
+        "5": "fixed_large"
+      }
     },
     "kg": {
       "evidence_in_source_rate": 1.0,
@@ -545,10 +671,14 @@
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Vector and hybrid retrieval are reported separately. Graph traversal can improve path evidence without guaranteeing Recall improvement.",
+      "current_result_summary": "Vector and hybrid retrieval are reported separately. Graph traversal can improve path evidence without guaranteeing Recall improvement. Chunking-v2 is reported with top-k, fixed-budget, and category views.",
       "evidence_reports": [
         "retrieval_ablation_benchmark_v2",
-        "graph_traversal_ablation_benchmark_v2"
+        "graph_traversal_ablation_benchmark_v2",
+        "chunking_comparison_benchmark_v2",
+        "chunking_comparison_benchmark_v2_budget",
+        "chunking_topk_sensitivity_benchmark_v2",
+        "chunking_category_analysis_benchmark_v2"
       ],
       "primary_metrics": [
         "Recall@5",
@@ -556,9 +686,10 @@
         "MRR@5",
         "NDCG@10",
         "Path Recall@5",
-        "Path Precision@5"
+        "Path Precision@5",
+        "Fixed-budget chunking Recall@5"
       ],
-      "remaining_gaps": "Path relevance metrics are heuristic until manually reviewed.",
+      "remaining_gaps": "Path relevance metrics and partial chunking methods require cautious interpretation.",
       "rq": "RQ3 graph evidence vs vector sufficiency"
     },
     {

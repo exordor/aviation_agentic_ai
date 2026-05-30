@@ -1,6 +1,6 @@
 # Project Task Board
 
-Last updated: 2026-05-26
+Last updated: 2026-05-30
 
 This file tracks concrete execution tasks. Durable project outcomes and scope boundaries live in `GOALS.md`.
 
@@ -15,11 +15,11 @@ A task should be small enough to finish, verify, and check off. When a task prod
 
 ## Active Task Queue
 
-1. Review `reports/stages/evidence_cards.md` and use the per-question failure categories to decide which hybrid fusion dilution cases need tuning or manual gold-label refinement.
-2. Add embedding/index backend comparison after retrieval ablation results are reviewed.
-3. If needed, rerun Hybrid RAG answer generation on the expanded gold labels instead of only the original 10 CQ answer set.
-4. Strengthen robustness abstention behavior, because the first deterministic robustness run has abstention correctness = 0.6.
-5. Decide whether to expose the expanded evaluation suite and evidence cards in the web demo or keep them as report-only evidence.
+1. Decide whether the next chunking iteration should implement full parent-return retrieval for `hierarchical_parent_child` and parent-context return for `proposition_like`, or keep them as partial diagnostic methods.
+2. Add embedding/index backend comparison after benchmark-v2 retrieval and chunking hardening results are reviewed.
+3. Strengthen robustness abstention behavior, because the first deterministic robustness run has abstention correctness = 0.6.
+4. If needed, rerun Hybrid RAG answer generation on the expanded or benchmark-v2 subsets instead of only the original 10-CQ answer set.
+5. Decide whether to expose benchmark-v2 chunking/category/failure evidence in the web demo or keep it as report-only thesis evidence.
 
 Related goals: G2, G3, G4, G6, G8, G9 in `GOALS.md`.
 
@@ -220,6 +220,31 @@ Related goals: G2, G3, G4, G6, G8, G9.
   - Scope: document metadata, section schema, source type, revision/date, page range, section hierarchy, and advisory risk level.
   - Evidence: `docs/document_expansion_protocol.md`.
   - Acceptance: no emergency/procedure manual is added until its metadata and section schema can be validated.
+- [x] Implement benchmark-v2 chunking experiment hardening.
+  - Commands:
+    - `uv run aviation-ai report chunking-implementation-audit`
+    - `uv run aviation-ai report chunking-comparison-v2`
+    - `uv run aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context_budget`
+    - `uv run aviation-ai report chunking-topk-sensitivity-v2`
+    - `uv run aviation-ai report chunking-category-analysis-v2`
+    - `uv run aviation-ai report thesis-experiment-dashboard`
+    - `uv run aviation-ai report project --no-ai`
+  - Evidence:
+    - `reports/stages/chunking_implementation_audit.md`
+    - `reports/stages/chunking_comparison_benchmark_v2.md`
+    - `reports/stages/chunking_comparison_benchmark_v2_budget.md`
+    - `reports/stages/chunking_topk_sensitivity_benchmark_v2.md`
+    - `reports/stages/chunking_category_analysis_benchmark_v2.md`
+    - `reports/stages/chunking_failure_cards_benchmark_v2.md`
+    - `reports/stages/thesis_experiment_dashboard.md`
+    - `reports/final/project_report.md`
+  - Result: 14 benchmark-v2 strategies were evaluated over 120 labels. Default top-k supported Recall@5 ranks `fixed_large` first at 0.86; fixed 4000-character context budget ranks `recursive_medium` first at 0.79. Top-k winners vary by k, and category winners vary by question type.
+  - Implementation status: `embedding_semantic` used the `sentence_transformers` backend in the generated run; `hierarchical_parent_child` remains partial child-index/parent-metadata retrieval; `proposition_like` remains proposition-only; `structure_aware_medium` and `structure_aware_large` now produce larger structure-aware chunks than legacy `structure_aware`.
+  - Acceptance: reports explicitly avoid a universal best-chunker claim, separate supported labels from insufficient-evidence diagnostics, include confidence intervals and failure cards, and keep the new commands outside default thesis generation.
+- [ ] Implement full parent-context retrieval for partial chunking methods if thesis scope requires it.
+  - Candidate scope: index child text, retrieve child chunks, return parent paragraph/section context, and evaluate child-hit versus parent-evidence coverage separately.
+  - Affected strategies: `hierarchical_parent_child`, `proposition_like`.
+  - Acceptance: implementation audit no longer marks these methods as partial, or the partial status remains explicit if not implemented.
 
 ## P4 - Automation And GitLab Tasks
 

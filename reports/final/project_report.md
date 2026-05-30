@@ -13,6 +13,7 @@ Scope boundary: This system is for aviation learning and decision-support only. 
 - **10-CQ pilot**: demo and qualitative answer inspection; evidence role=`pilot`; thesis main claim support=partial; limitations: too small for main thesis retrieval claims.
 - **35-question expanded**: pilot ablation and KG extraction comparison; evidence role=`pilot`; thesis main claim support=partial; limitations: pilot-sized and not the main benchmark.
 - **benchmark v2 120**: main thesis retrieval and safety benchmark; evidence role=`main_thesis_benchmark`; thesis main claim support=provisional_internal_pending_manual_review; limitations: machine-seeded and requires manual naturalness review.
+- **benchmark v2 chunking experiment**: chunking strategy comparison under top-k, fixed-budget, and category views; evidence role=`retrieval_design_diagnostic`; thesis main claim support=partial_benchmark_specific; limitations: implementation-maturity labels required; top-k context volume differs by chunk size.
 - **benchmark reviewed subset 60**: project-author review scaffold for high-value labels; evidence role=`manual_review_scaffold`; thesis main claim support=pending_manual_review; limitations: review scaffold only; no external aviation expert certification.
 - **answer-eval subset**: answer citation and faithfulness heuristics; evidence role=`pilot`; thesis main claim support=partial; limitations: stratified subset; deterministic heuristic scores unless annotated.
 - **triple semantic review sample**: manual KG semantic correctness review template; evidence role=`manual_review_pending`; thesis main claim support=partial; limitations: review fields pending; no correctness results claimed.
@@ -36,6 +37,8 @@ Evidence traceability is supported by KG provenance, citation metrics, and the d
 Benchmark v2 vector-only: Recall@5=0.475, Recall@10=0.475, MRR@5=0.3261, NDCG@10=0.3863. Lexical hybrid: Recall@5=0.5083, Recall@10=0.5917, MRR@5=0.34, NDCG@10=0.4425, Context Recall=0.7375, KG evidence coverage=0.8.
 
 Traversal hybrid: Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522. Path metrics are heuristic and require manual review. High path coverage is not treated as evidence of high retrieval quality unless Recall/MRR/NDCG also support that claim.
+
+Chunking-v2 evidence is interpreted as retrieval-design evidence, not as a universal best-chunker claim. Top-k best strategy=fixed_large with supported Recall@5=0.86; fixed-budget best strategy=recursive_medium with supported Recall@5=0.79. Partial methods=['hierarchical_parent_child']; semantic backend=['sentence_transformers']. Top-k chunking rankings expose unequal context budgets; fixed-budget and category diagnostics are stronger evidence but still benchmark-specific.
 
 ## RQ4: safety-aware abstention
 
@@ -87,5 +90,5 @@ Benchmark v2 is thesis/course-project evidence, not external aviation expert cer
 
 - **RQ1 ontology constraint**: reports=['curated_ontology_evaluation', 'kg_extraction_comparison', 'kg_validation']; metrics=['RDF/OWL parse validity', 'label/comment coverage', 'unsupported class/property count', 'provenance completeness']; claim strength=strong; gaps=Triple semantic correctness still requires manual review..
 - **RQ2 evidence traceability**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2', 'answer_evaluation']; metrics=['KG evidence coverage', 'citation completeness', 'citation precision', 'citation recall']; claim strength=moderate; gaps=Answer-level manual or LLM-judge evaluation is optional and not run..
-- **RQ3 graph evidence vs vector sufficiency**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2']; metrics=['Recall@5', 'Recall@10', 'MRR@5', 'NDCG@10', 'Path Recall@5', 'Path Precision@5']; claim strength=moderate; gaps=Path relevance metrics are heuristic until manually reviewed..
+- **RQ3 graph evidence vs vector sufficiency**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2', 'chunking_comparison_benchmark_v2', 'chunking_comparison_benchmark_v2_budget', 'chunking_topk_sensitivity_benchmark_v2', 'chunking_category_analysis_benchmark_v2']; metrics=['Recall@5', 'Recall@10', 'MRR@5', 'NDCG@10', 'Path Recall@5', 'Path Precision@5', 'Fixed-budget chunking Recall@5']; claim strength=moderate; gaps=Path relevance metrics and partial chunking methods require cautious interpretation..
 - **RQ4 safety-aware abstention**: reports=['sufficiency_evaluation', 'robustness_evaluation']; metrics=['Abstention Accuracy', 'False Answer Rate', 'False Abstention Rate', 'Risk Category Accuracy']; claim strength=moderate; gaps=Sufficiency can create false abstentions on supported questions..

@@ -225,7 +225,11 @@ def _compact_robustness_report(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def _compact_json_data(path: Path, data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
-    if path.name == "chunking_comparison.json":
+    if path.name in {
+        "chunking_comparison.json",
+        "chunking_comparison_benchmark_v2.json",
+        "chunking_comparison_benchmark_v2_budget.json",
+    }:
         return _compact_chunking_report(data), True
     if path.name.startswith("hybrid_rag") and path.suffix == ".json":
         return _compact_hybrid_report(data), True
@@ -335,6 +339,46 @@ def _read_thesis_ready_artifacts(root: Path) -> dict[str, Any]:
         / "reports"
         / "stages"
         / "answer_evaluation_benchmark_subset.json",
+        "chunking_implementation_audit": root
+        / "reports"
+        / "stages"
+        / "chunking_implementation_audit.md",
+        "chunking_implementation_audit_json": root
+        / "reports"
+        / "stages"
+        / "chunking_implementation_audit.json",
+        "chunking_comparison_benchmark_v2": root
+        / "reports"
+        / "stages"
+        / "chunking_comparison_benchmark_v2.md",
+        "chunking_comparison_benchmark_v2_json": root
+        / "reports"
+        / "stages"
+        / "chunking_comparison_benchmark_v2.json",
+        "chunking_comparison_benchmark_v2_budget": root
+        / "reports"
+        / "stages"
+        / "chunking_comparison_benchmark_v2_budget.md",
+        "chunking_comparison_benchmark_v2_budget_json": root
+        / "reports"
+        / "stages"
+        / "chunking_comparison_benchmark_v2_budget.json",
+        "chunking_topk_sensitivity_benchmark_v2": root
+        / "reports"
+        / "stages"
+        / "chunking_topk_sensitivity_benchmark_v2.md",
+        "chunking_topk_sensitivity_benchmark_v2_json": root
+        / "reports"
+        / "stages"
+        / "chunking_topk_sensitivity_benchmark_v2.json",
+        "chunking_category_analysis_benchmark_v2": root
+        / "reports"
+        / "stages"
+        / "chunking_category_analysis_benchmark_v2.md",
+        "chunking_category_analysis_benchmark_v2_json": root
+        / "reports"
+        / "stages"
+        / "chunking_category_analysis_benchmark_v2.json",
         "triple_semantic_review": root / "reports" / "stages" / "triple_semantic_review.md",
         "triple_semantic_review_json": root
         / "reports"
@@ -686,6 +730,7 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
     robustness = primary.get("robustness", {})
     reviewed_subset = primary.get("benchmark_reviewed_subset", {})
     answer_subset = primary.get("answer_evaluation_benchmark_subset", {})
+    chunking = primary.get("chunking_benchmark_v2", {})
     kg = primary.get("kg", {})
     triple = primary.get("triple_semantic_review", {})
     lines = [
@@ -760,6 +805,15 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"{traversal.get('path_precision_at_5')}. Path metrics are heuristic and "
             "require manual review. High path coverage is not treated as evidence of "
             "high retrieval quality unless Recall/MRR/NDCG also support that claim.",
+            "",
+            "Chunking-v2 evidence is interpreted as retrieval-design evidence, not as a "
+            "universal best-chunker claim. Top-k best strategy="
+            f"{chunking.get('topk_best_strategy')} with supported Recall@5="
+            f"{chunking.get('topk_recall_at_5_supported')}; fixed-budget best strategy="
+            f"{chunking.get('budget_best_strategy')} with supported Recall@5="
+            f"{chunking.get('budget_recall_at_5_supported')}. Partial methods="
+            f"{chunking.get('partial_methods')}; semantic backend="
+            f"{chunking.get('semantic_backend')}. {chunking.get('claim_warning')}",
             "",
             "## RQ4: safety-aware abstention",
             "",
@@ -898,6 +952,20 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "graph_traversal_ablation_benchmark_v2_json",
         {},
     ).get("data", {})
+    chunking_audit = thesis_sources.get("chunking_implementation_audit_json", {}).get("data", {})
+    chunking_v2 = thesis_sources.get("chunking_comparison_benchmark_v2_json", {}).get("data", {})
+    chunking_budget = thesis_sources.get(
+        "chunking_comparison_benchmark_v2_budget_json",
+        {},
+    ).get("data", {})
+    chunking_sensitivity = thesis_sources.get(
+        "chunking_topk_sensitivity_benchmark_v2_json",
+        {},
+    ).get("data", {})
+    chunking_category = thesis_sources.get(
+        "chunking_category_analysis_benchmark_v2_json",
+        {},
+    ).get("data", {})
     sufficiency = thesis_sources.get("sufficiency_evaluation_json", {}).get("data", {})
     triple_review = thesis_sources.get("triple_semantic_review_json", {}).get("data", {})
     benchmark_v2_lines: list[str] = []
@@ -969,6 +1037,55 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
             f"Recall@5={_metric_value(traversal, 'retrieval', 'recall_at_5')}; guarded "
             "hybrid traversal Recall@5="
             f"{_metric_value(guarded, 'retrieval', 'recall_at_5')}."
+        )
+    if isinstance(chunking_audit, dict) and chunking_audit:
+        partial = [
+            row.get("strategy")
+            for row in chunking_audit.get("strategies", [])
+            if isinstance(row, dict)
+            and str(row.get("implementation_status", "")).startswith("partial")
+        ]
+        benchmark_v2_lines.append(
+            "Chunking implementation audit: "
+            f"{chunking_audit.get('metadata', {}).get('strategies_total', 'TBD')} strategies; "
+            f"partial methods={partial}. Names are interpreted by implemented behavior."
+        )
+    if isinstance(chunking_v2, dict) and chunking_v2:
+        ranking = chunking_v2.get("ranking", [])
+        best = ranking[0] if ranking and isinstance(ranking[0], dict) else {}
+        benchmark_v2_lines.append(
+            "Benchmark v2 chunking top-k comparison: best supported-only top-k strategy="
+            f"{best.get('strategy', 'TBD')} with Recall@5="
+            f"{best.get('recall_at_5_supported', 'TBD')}. This is benchmark-specific "
+            "and top-k context volume differs by chunk size."
+        )
+    if isinstance(chunking_budget, dict) and chunking_budget:
+        ranking = chunking_budget.get("ranking", [])
+        best = ranking[0] if ranking and isinstance(ranking[0], dict) else {}
+        benchmark_v2_lines.append(
+            "Fixed-budget chunking comparison: best strategy="
+            f"{best.get('strategy', 'TBD')} with supported Recall@5="
+            f"{best.get('recall_at_5_supported', 'TBD')} under the recorded context budget."
+        )
+    if isinstance(chunking_sensitivity, dict) and chunking_sensitivity:
+        best_by_k = {
+            key: rows[0].get("strategy", "TBD")
+            for key, rows in chunking_sensitivity.get("rankings", {}).items()
+            if isinstance(rows, list) and rows
+        }
+        benchmark_v2_lines.append(
+            "Top-k sensitivity chunking winners by k: "
+            f"{best_by_k}. These are diagnostics, not a single overall score."
+        )
+    if isinstance(chunking_category, dict) and chunking_category:
+        category_best = {
+            key: value.get("strategy", "TBD")
+            for key, value in chunking_category.get("best_by_category", {}).items()
+            if isinstance(value, dict)
+        }
+        benchmark_v2_lines.append(
+            "Chunking category analysis best strategies: "
+            f"{category_best}. Insufficient-evidence labels are diagnostic only."
         )
     if isinstance(sufficiency, dict) and sufficiency:
         metrics = sufficiency.get("metrics", {})
@@ -1078,6 +1195,11 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         [
             "- `uv run aviation-ai report benchmark-v2`",
             "- `uv run aviation-ai report benchmark-review-pack`",
+            "- `uv run aviation-ai report chunking-implementation-audit`",
+            "- `uv run aviation-ai report chunking-comparison-v2`",
+            "- `uv run aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context_budget`",
+            "- `uv run aviation-ai report chunking-topk-sensitivity-v2`",
+            "- `uv run aviation-ai report chunking-category-analysis-v2`",
             "- `uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2`",
             "- `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`",
             "- `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`",
@@ -1213,6 +1335,10 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "`reports/stages/retrieval_ablation_benchmark_v2.md`, "
         "`reports/stages/graph_traversal_ablation_benchmark_v2.md`, "
         "`reports/stages/sufficiency_evaluation.md`, "
+        "`reports/stages/chunking_comparison_benchmark_v2.md`, "
+        "`reports/stages/chunking_comparison_benchmark_v2_budget.md`, "
+        "`reports/stages/chunking_topk_sensitivity_benchmark_v2.md`, "
+        "`reports/stages/chunking_category_analysis_benchmark_v2.md`, "
         "`reports/stages/triple_semantic_review.md`",
         "- Configs: `configs/default.yaml`, `configs/ontology_generation.yaml`, "
         "`configs/extraction_profile.yaml`",
@@ -1232,6 +1358,8 @@ def build_project_report_prompt(evidence: dict[str, Any], draft: str) -> str:
         "- If evidence is missing, write TBD or Not yet run.\n"
         "- Do not include API keys, tokens, secrets, or environment variable values.\n"
         "- Preserve the revised thesis claim and layered evaluation framing.\n"
+        "- Do not claim a universal best chunker, a mixed overall score, external "
+        "aviation expert certification, or operational readiness.\n"
         "- Preserve the advisory boundary and do not claim the assistant replaces POH, "
         "checklists, ATC, instructor guidance, or pilot judgment.\n"
         "- Keep all required sections from the deterministic draft.\n\n"

@@ -14,5 +14,9 @@ def test_readme_lists_thesis_ready_report_commands() -> None:
         "aviation-ai report sufficiency-eval",
         "aviation-ai report triple-semantic-review",
         "aviation-ai report chunking-comparison-v2",
+        "aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context_budget",
+        "aviation-ai report chunking-implementation-audit",
+        "aviation-ai report chunking-topk-sensitivity-v2",
+        "aviation-ai report chunking-category-analysis-v2",
     ]:
         assert command in readme

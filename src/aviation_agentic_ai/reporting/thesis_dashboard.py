@@ -18,6 +18,12 @@ REPORT_SOURCES: dict[str, str] = {
     "sufficiency_evaluation": "reports/stages/sufficiency_evaluation.json",
     "benchmark_reviewed_subset_summary": "reports/stages/benchmark_reviewed_subset_summary.json",
     "answer_evaluation_benchmark_subset": "reports/stages/answer_evaluation_benchmark_subset.json",
+    "chunking_implementation_audit": "reports/stages/chunking_implementation_audit.json",
+    "chunking_comparison_benchmark_v2": "reports/stages/chunking_comparison_benchmark_v2.json",
+    "chunking_comparison_benchmark_v2_budget": "reports/stages/chunking_comparison_benchmark_v2_budget.json",
+    "chunking_topk_sensitivity_benchmark_v2": "reports/stages/chunking_topk_sensitivity_benchmark_v2.json",
+    "chunking_category_analysis_benchmark_v2": "reports/stages/chunking_category_analysis_benchmark_v2.json",
+    "chunking_failure_cards_benchmark_v2": "reports/stages/chunking_failure_cards_benchmark_v2.json",
     "kg_extraction_comparison": "reports/stages/kg_extraction_comparison.json",
     "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.json",
     "triple_semantic_review_sample": "reports/stages/triple_semantic_review_sample.json",
@@ -87,6 +93,12 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "sufficiency_evaluation": ("safety_abstention",),
         "benchmark_reviewed_subset_summary": ("benchmark_manual_review",),
         "answer_evaluation_benchmark_subset": ("answer_generation", "safety_abstention"),
+        "chunking_implementation_audit": ("retrieval", "evaluation_protocol"),
+        "chunking_comparison_benchmark_v2": ("retrieval",),
+        "chunking_comparison_benchmark_v2_budget": ("retrieval",),
+        "chunking_topk_sensitivity_benchmark_v2": ("retrieval",),
+        "chunking_category_analysis_benchmark_v2": ("retrieval",),
+        "chunking_failure_cards_benchmark_v2": ("retrieval", "failure_analysis"),
         "kg_extraction_comparison": ("ontology_kg",),
         "curated_ontology_evaluation": ("ontology_kg",),
         "triple_semantic_review_sample": ("ontology_kg", "manual_review"),
@@ -101,6 +113,12 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "sufficiency_evaluation": "benchmark_v2_120",
         "benchmark_reviewed_subset_summary": "benchmark_v2_reviewed_subset_60",
         "answer_evaluation_benchmark_subset": "answer_eval_subset",
+        "chunking_implementation_audit": "benchmark_v2_120",
+        "chunking_comparison_benchmark_v2": "benchmark_v2_120",
+        "chunking_comparison_benchmark_v2_budget": "benchmark_v2_120",
+        "chunking_topk_sensitivity_benchmark_v2": "benchmark_v2_120",
+        "chunking_category_analysis_benchmark_v2": "benchmark_v2_120",
+        "chunking_failure_cards_benchmark_v2": "benchmark_v2_120",
         "answer_evaluation": "10_cq_answer_subset",
         "robustness_evaluation": "robustness_10_cases",
         "kg_extraction_comparison": "35_question_expanded",
@@ -147,6 +165,11 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     robustness = reports["robustness_evaluation"]
     reviewed_subset = reports.get("benchmark_reviewed_subset_summary", {})
     answer_subset = reports.get("answer_evaluation_benchmark_subset", {})
+    chunking_audit = reports.get("chunking_implementation_audit", {})
+    chunking_topk = reports.get("chunking_comparison_benchmark_v2", {})
+    chunking_budget = reports.get("chunking_comparison_benchmark_v2_budget", {})
+    chunking_sensitivity = reports.get("chunking_topk_sensitivity_benchmark_v2", {})
+    chunking_category = reports.get("chunking_category_analysis_benchmark_v2", {})
     kg = reports["kg_extraction_comparison"]
     triple = reports["triple_semantic_review_sample"]
 
@@ -239,6 +262,73 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             ),
             "score_method": "deterministic_heuristic",
         },
+        "chunking_benchmark_v2": {
+            "audit_status": _metric(
+                chunking_audit,
+                "metadata",
+                "claim_policy",
+            ),
+            "topk_best_strategy": _metric(
+                chunking_topk,
+                "ranking",
+                default=[{"strategy": "TBD"}],
+            )[0].get("strategy", "TBD")
+            if isinstance(_metric(chunking_topk, "ranking", default=[]), list)
+            and _metric(chunking_topk, "ranking", default=[])
+            else "TBD",
+            "topk_recall_at_5_supported": _metric(
+                chunking_topk,
+                "ranking",
+                default=[{"recall_at_5_supported": "TBD"}],
+            )[0].get("recall_at_5_supported", "TBD")
+            if isinstance(_metric(chunking_topk, "ranking", default=[]), list)
+            and _metric(chunking_topk, "ranking", default=[])
+            else "TBD",
+            "budget_best_strategy": _metric(
+                chunking_budget,
+                "ranking",
+                default=[{"strategy": "TBD"}],
+            )[0].get("strategy", "TBD")
+            if isinstance(_metric(chunking_budget, "ranking", default=[]), list)
+            and _metric(chunking_budget, "ranking", default=[])
+            else "TBD",
+            "budget_recall_at_5_supported": _metric(
+                chunking_budget,
+                "ranking",
+                default=[{"recall_at_5_supported": "TBD"}],
+            )[0].get("recall_at_5_supported", "TBD")
+            if isinstance(_metric(chunking_budget, "ranking", default=[]), list)
+            and _metric(chunking_budget, "ranking", default=[])
+            else "TBD",
+            "topk_sensitivity_best_by_k": {
+                key: rows[0].get("strategy", "TBD")
+                for key, rows in chunking_sensitivity.get("rankings", {}).items()
+                if isinstance(rows, list) and rows
+            },
+            "category_best": {
+                key: value.get("strategy", "TBD")
+                for key, value in chunking_category.get("best_by_category", {}).items()
+                if isinstance(value, dict)
+            },
+            "partial_methods": [
+                row.get("strategy")
+                for row in chunking_audit.get("strategies", [])
+                if isinstance(row, dict)
+                and str(row.get("implementation_status", "")).startswith("partial")
+            ],
+            "semantic_backend": _metric(
+                chunking_topk,
+                "strategies",
+                "embedding_semantic",
+                "implementation_metadata",
+                "semantic_backend",
+                default="TBD",
+            ),
+            "claim_warning": (
+                "Top-k chunking rankings expose unequal context budgets; fixed-budget "
+                "and category diagnostics are stronger evidence but still benchmark-specific."
+            ),
+        },
         "kg": {
             "provenance_completeness": structure_kg.get("provenance_complete_rate"),
             "evidence_in_source_rate": structure_kg.get("evidence_in_chunk_rate"),
@@ -274,8 +364,17 @@ def _failure_summary(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     ]
     benchmark_findings = reports.get("benchmark_review_pack", {}).get("finding_counts", {})
     triple = reports["triple_semantic_review_sample"]
+    chunking_failure_cards = reports.get("chunking_failure_cards_benchmark_v2", {})
+    chunking_failures: Counter[str] = Counter()
+    for failures in chunking_failure_cards.get("strategies", {}).values():
+        if not isinstance(failures, dict):
+            continue
+        for failure_type, failure in failures.items():
+            if isinstance(failure, dict):
+                chunking_failures[failure_type] += int(failure.get("samples_total", 0))
     return {
         "graph_failure_categories": dict(sorted(categories.items())),
+        "chunking_failure_card_samples": dict(sorted(chunking_failures.items())),
         "false_abstention_on_supported_question": len(sufficiency_errors),
         "machine_seeded_benchmark_wording": benchmark_findings.get(
             "unnatural_machine_generated_wording",
@@ -315,10 +414,30 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
                 "retrieval_ablation_benchmark_v2",
                 "graph_traversal_ablation_benchmark_v2",
                 "sufficiency_evaluation",
+                "chunking_comparison_benchmark_v2",
+                "chunking_comparison_benchmark_v2_budget",
+                "chunking_topk_sensitivity_benchmark_v2",
+                "chunking_category_analysis_benchmark_v2",
             ],
             "limitations": "machine-seeded and requires manual naturalness review",
             "can_support_thesis_main_claim": "provisional_internal_pending_manual_review",
             "evidence_role": "main_thesis_benchmark",
+        },
+        {
+            "dataset": "benchmark v2 chunking experiment",
+            "purpose": "chunking strategy comparison under top-k, fixed-budget, and category views",
+            "used_in_reports": [
+                "chunking_implementation_audit",
+                "chunking_comparison_benchmark_v2",
+                "chunking_comparison_benchmark_v2_budget",
+                "chunking_topk_sensitivity_benchmark_v2",
+                "chunking_category_analysis_benchmark_v2",
+            ],
+            "limitations": (
+                "implementation-maturity labels required; top-k context volume differs by chunk size"
+            ),
+            "can_support_thesis_main_claim": "partial_benchmark_specific",
+            "evidence_role": "retrieval_design_diagnostic",
         },
         {
             "dataset": "benchmark reviewed subset 60",
@@ -394,6 +513,10 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
             "evidence_reports": [
                 "retrieval_ablation_benchmark_v2",
                 "graph_traversal_ablation_benchmark_v2",
+                "chunking_comparison_benchmark_v2",
+                "chunking_comparison_benchmark_v2_budget",
+                "chunking_topk_sensitivity_benchmark_v2",
+                "chunking_category_analysis_benchmark_v2",
             ],
             "primary_metrics": [
                 "Recall@5",
@@ -402,13 +525,15 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 "NDCG@10",
                 "Path Recall@5",
                 "Path Precision@5",
+                "Fixed-budget chunking Recall@5",
             ],
             "current_result_summary": (
                 "Vector and hybrid retrieval are reported separately. Graph traversal "
-                "can improve path evidence without guaranteeing Recall improvement."
+                "can improve path evidence without guaranteeing Recall improvement. "
+                "Chunking-v2 is reported with top-k, fixed-budget, and category views."
             ),
             "claim_strength": "moderate",
-            "remaining_gaps": "Path relevance metrics are heuristic until manually reviewed.",
+            "remaining_gaps": "Path relevance metrics and partial chunking methods require cautious interpretation.",
         },
         {
             "rq": "RQ4 safety-aware abstention",
@@ -763,6 +888,14 @@ def write_thesis_experiment_dashboard_markdown(
                 "Score Method=deterministic_heuristic |"
             ),
             (
+                "| chunking benchmark v2 | "
+                f"Top-k best={primary['chunking_benchmark_v2']['topk_best_strategy']} "
+                f"(Recall@5={primary['chunking_benchmark_v2']['topk_recall_at_5_supported']}), "
+                f"Fixed-budget best={primary['chunking_benchmark_v2']['budget_best_strategy']} "
+                f"(Recall@5={primary['chunking_benchmark_v2']['budget_recall_at_5_supported']}), "
+                f"Partial methods={primary['chunking_benchmark_v2']['partial_methods']} |"
+            ),
+            (
                 "| KG | "
                 f"Provenance Completeness={primary['kg']['provenance_completeness']}, "
                 f"Evidence-in-source Rate={primary['kg']['evidence_in_source_rate']}, "
@@ -793,6 +926,10 @@ def write_thesis_experiment_dashboard_markdown(
     failure = result["failure_mode_summary"]
     lines.extend(["", "## Failure-Mode Summary", ""])
     lines.append(f"- Graph failure categories: {failure['graph_failure_categories']}")
+    lines.append(
+        "- Chunking failure-card samples: "
+        f"{failure.get('chunking_failure_card_samples', {})}"
+    )
     lines.append(
         "- False abstention on supported questions: "
         f"{failure['false_abstention_on_supported_question']}"

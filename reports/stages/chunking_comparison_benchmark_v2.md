@@ -1,46 +1,53 @@
 # Chunking Comparison Benchmark V2
 
-- Run ID: `chunking-comparison-benchmark-v2-20260530T022413Z`
+- Run ID: `chunking-comparison-benchmark-v2-20260530T033902Z`
 - Labels: 120
 - Supported labels: 100
 - Insufficient-evidence labels: 20
+- Evaluation mode: `top_k`
+- Context budget chars: None
 - Scoring: layered metrics only; no single mixed overall score.
 - Claim boundary: rankings are benchmark-specific and do not identify a universal best chunker.
 - Supported-only retrieval metrics are primary; all-label metrics are diagnostic.
+- Top-k rankings can privilege larger chunks by exposing more context; fixed-budget results are the fairer comparison when available.
 
 ## Supported-Only Ranking
 
 | Rank | Strategy | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | 1 | fixed_large | 0.86 | 0.96 | 0.194 | 0.617 | 0.6303 | 0.7357 | 0.194 | 0.945 |
-| 2 | recursive_large | 0.84 | 0.96 | 0.19 | 0.6198 | 0.6372 | 0.7475 | 0.19 | 0.945 |
-| 3 | recursive_medium | 0.83 | 0.91 | 0.176 | 0.5245 | 0.5353 | 0.6403 | 0.176 | 0.885 |
-| 4 | fixed_medium | 0.79 | 0.9 | 0.166 | 0.5287 | 0.5448 | 0.6361 | 0.166 | 0.875 |
-| 5 | embedding_semantic | 0.73 | 0.85 | 0.146 | 0.5337 | 0.5517 | 0.6023 | 0.146 | 0.815 |
-| 6 | hierarchical_parent_child | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |
-| 7 | recursive_small | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |
-| 8 | semantic_meta_like | 0.68 | 0.79 | 0.136 | 0.4502 | 0.4658 | 0.5277 | 0.136 | 0.755 |
-| 9 | fixed_small | 0.64 | 0.8 | 0.13 | 0.4137 | 0.4328 | 0.5087 | 0.13 | 0.76 |
-| 10 | structure_aware | 0.57 | 0.68 | 0.132 | 0.3913 | 0.4065 | 0.5099 | 0.132 | 0.655 |
-| 11 | proposition_like | 0.56 | 0.62 | 0.112 | 0.356 | 0.3638 | 0.4085 | 0.112 | 0.585 |
-| 12 | contextual_prefix | 0.45 | 0.51 | 0.106 | 0.2693 | 0.2773 | 0.362 | 0.106 | 0.48 |
+| 2 | structure_aware_large | 0.85 | 0.96 | 0.188 | 0.6262 | 0.6412 | 0.7355 | 0.188 | 0.945 |
+| 3 | recursive_large | 0.84 | 0.96 | 0.19 | 0.6198 | 0.6372 | 0.7475 | 0.19 | 0.945 |
+| 4 | recursive_medium | 0.83 | 0.91 | 0.176 | 0.5245 | 0.5353 | 0.6403 | 0.176 | 0.885 |
+| 5 | fixed_medium | 0.79 | 0.9 | 0.166 | 0.5287 | 0.5448 | 0.6361 | 0.166 | 0.875 |
+| 6 | structure_aware_medium | 0.79 | 0.89 | 0.164 | 0.5113 | 0.5269 | 0.6178 | 0.164 | 0.86 |
+| 7 | embedding_semantic | 0.73 | 0.85 | 0.146 | 0.5337 | 0.5517 | 0.6023 | 0.146 | 0.815 |
+| 8 | hierarchical_parent_child | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |
+| 9 | recursive_small | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |
+| 10 | semantic_meta_like | 0.68 | 0.79 | 0.136 | 0.4502 | 0.4658 | 0.5277 | 0.136 | 0.755 |
+| 11 | fixed_small | 0.64 | 0.8 | 0.13 | 0.4137 | 0.4328 | 0.5087 | 0.13 | 0.76 |
+| 12 | structure_aware | 0.57 | 0.68 | 0.132 | 0.3922 | 0.4073 | 0.5106 | 0.132 | 0.655 |
+| 13 | proposition_like | 0.56 | 0.62 | 0.112 | 0.356 | 0.3638 | 0.4085 | 0.112 | 0.585 |
+| 14 | contextual_prefix | 0.45 | 0.51 | 0.106 | 0.2693 | 0.2773 | 0.362 | 0.106 | 0.48 |
 
 ## Strategy Cost And Chunking Diagnostics
 
 | Strategy | Chunks | Avg chars | P95 chars | Avg tokens | Boundary preservation | Overlap redundancy | Index build s | Mean query s | P95 query s | Index bytes | Cost notes |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| fixed_small | 112 | 361.75 | 398 | 60.49 | 0.2679 | 0.2009 | 2.573 | 0.0894 | 0.0962 | 1851884 | Small chunks may improve localization while increasing index size and KG extraction units. |
-| fixed_medium | 48 | 794.21 | 896 | 132.25 | 0.25 | 0.1493 | 0.953 | 0.0875 | 0.092 | 1331692 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |
-| fixed_large | 27 | 1359.19 | 1594 | 225.96 | 0.3704 | 0.1158 | 0.5696 | 0.0888 | 0.0969 | 1319404 | Large chunks may preserve broad context while diluting top-k precision. |
-| recursive_small | 107 | 358.78 | 399 | 60.58 | 0.3084 | 0.152 | 2.0219 | 0.087 | 0.0905 | 1786348 | Small chunks may improve localization while increasing index size and KG extraction units. |
-| recursive_medium | 48 | 782.17 | 898 | 132.4 | 0.25 | 0.1327 | 0.9346 | 0.0881 | 0.0934 | 1262060 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |
-| recursive_large | 27 | 1355.26 | 1593 | 228 | 0.3704 | 0.1105 | 0.5721 | 0.0877 | 0.0933 | 1294828 | Large chunks may preserve broad context while diluting top-k precision. |
-| structure_aware | 267 | 233.36 | 1080 | 42.07 | 1.0 | 0.4789 | 5.1098 | 0.0876 | 0.0965 | 2564588 | Small chunks may improve localization while increasing index size and KG extraction units. |
-| semantic_meta_like | 56 | 580.55 | 712 | 98.09 | 1.0 | 0.0 | 1.1066 | 0.0915 | 0.1075 | 1343980 | Small chunks may improve localization while increasing index size and KG extraction units. |
-| embedding_semantic | 53 | 613.47 | 890 | 103.64 | 1.0 | 0.0 | 1.0658 | 0.0884 | 0.0929 | 1479148 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |
-| proposition_like | 85 | 383.33 | 809 | 64.92 | 0.9529 | 0.0028 | 1.659 | 0.0877 | 0.0907 | 1679852 | Heuristic proposition-like segmentation may increase chunk count and review cost. |
-| hierarchical_parent_child | 107 | 358.78 | 399 | 60.58 | 1.0 | 0.152 | 2.0409 | 0.0891 | 0.0964 | 1864172 | Child chunks are indexed with parent metadata; full parent-return retrieval is not claimed in this report. |
-| contextual_prefix | 279 | 303.71 | 944 | 48.94 | 1.0 | 0.49 | 5.3685 | 0.0893 | 0.0944 | 2970092 | Deterministic prefixes add metadata tokens to every indexed chunk. |
+| fixed_small | 112 | 361.75 | 398 | 60.49 | 0.2679 | 0.2009 | 0.0 | 0.0925 | 0.1029 | 2216756 | Small chunks may improve localization while increasing index size and KG extraction units. |
+| fixed_medium | 48 | 794.21 | 896 | 132.25 | 0.25 | 0.1493 | 0.0 | 0.0881 | 0.0939 | 1819444 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |
+| fixed_large | 27 | 1359.19 | 1594 | 225.96 | 0.3704 | 0.1158 | 0.0 | 0.088 | 0.0939 | 1676084 | Large chunks may preserve broad context while diluting top-k precision. |
+| recursive_small | 107 | 358.78 | 399 | 60.58 | 0.3084 | 0.152 | 0.0 | 0.09 | 0.1057 | 2257716 | Small chunks may improve localization while increasing index size and KG extraction units. |
+| recursive_medium | 48 | 782.17 | 898 | 132.4 | 0.25 | 0.1327 | 0.0 | 0.0883 | 0.0976 | 1606452 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |
+| recursive_large | 27 | 1355.26 | 1593 | 228 | 0.3704 | 0.1105 | 0.0 | 0.0885 | 0.0937 | 1643316 | Large chunks may preserve broad context while diluting top-k precision. |
+| structure_aware | 267 | 233.36 | 1080 | 42.07 | 1.0 | 0.4789 | 0.0 | 0.0884 | 0.0949 | 3068724 | Small chunks may improve localization while increasing index size and KG extraction units. |
+| structure_aware_medium | 48 | 775.02 | 896 | 129.04 | 1.0 | 0.1273 | 0.0 | 0.088 | 0.0929 | 2580808 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |
+| structure_aware_large | 27 | 1349.63 | 1591 | 224.26 | 1.0 | 0.1091 | 0.0 | 0.0947 | 0.1182 | 2589000 | Large chunks may preserve broad context while diluting top-k precision. |
+| semantic_meta_like | 56 | 580.55 | 712 | 98.09 | 1.0 | 0.0 | 0.0 | 0.0911 | 0.1021 | 1868596 | Small chunks may improve localization while increasing index size and KG extraction units. |
+| embedding_semantic | 53 | 613.47 | 890 | 103.64 | 1.0 | 0.0 | 0.0 | 0.0913 | 0.1011 | 1889076 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |
+| proposition_like | 85 | 383.33 | 809 | 64.92 | 0.9529 | 0.0028 | 0.0 | 0.0889 | 0.0949 | 2126644 | Heuristic proposition-like segmentation may increase chunk count and review cost. |
+| hierarchical_parent_child | 107 | 358.78 | 399 | 60.58 | 1.0 | 0.152 | 0.0 | 0.0895 | 0.0963 | 2315060 | Child chunks are indexed with parent metadata; full parent-return retrieval is not claimed in this report. |
+| contextual_prefix | 279 | 303.71 | 944 | 48.94 | 1.0 | 0.49 | 0.0 | 0.0896 | 0.099 | 4002612 | Deterministic prefixes add metadata tokens to every indexed chunk. |
 
 ## Confidence Intervals
 
@@ -78,9 +85,19 @@
 | recursive_large | context_recall | 0.945 | 0.9 - 0.98 | 100 |
 | structure_aware | recall_at_5 | 0.57 | 0.47 - 0.67 | 100 |
 | structure_aware | recall_at_10 | 0.68 | 0.59 - 0.77 | 100 |
-| structure_aware | mrr_at_5 | 0.3913 | 0.3083 - 0.4778 | 100 |
-| structure_aware | ndcg_at_10 | 0.5099 | 0.4099 - 0.6153 | 100 |
+| structure_aware | mrr_at_5 | 0.3922 | 0.3097 - 0.4787 | 100 |
+| structure_aware | ndcg_at_10 | 0.5106 | 0.4099 - 0.6167 | 100 |
 | structure_aware | context_recall | 0.655 | 0.565 - 0.75 | 100 |
+| structure_aware_medium | recall_at_5 | 0.79 | 0.7 - 0.87 | 100 |
+| structure_aware_medium | recall_at_10 | 0.89 | 0.83 - 0.95 | 100 |
+| structure_aware_medium | mrr_at_5 | 0.5113 | 0.4327 - 0.5935 | 100 |
+| structure_aware_medium | ndcg_at_10 | 0.6178 | 0.5456 - 0.6935 | 100 |
+| structure_aware_medium | context_recall | 0.86 | 0.795 - 0.92 | 100 |
+| structure_aware_large | recall_at_5 | 0.85 | 0.79 - 0.91 | 100 |
+| structure_aware_large | recall_at_10 | 0.96 | 0.92 - 0.99 | 100 |
+| structure_aware_large | mrr_at_5 | 0.6262 | 0.5508 - 0.6955 | 100 |
+| structure_aware_large | ndcg_at_10 | 0.7355 | 0.6753 - 0.7997 | 100 |
+| structure_aware_large | context_recall | 0.945 | 0.9 - 0.98 | 100 |
 | semantic_meta_like | recall_at_5 | 0.68 | 0.58 - 0.77 | 100 |
 | semantic_meta_like | recall_at_10 | 0.79 | 0.71 - 0.86 | 100 |
 | semantic_meta_like | mrr_at_5 | 0.4502 | 0.368 - 0.5257 | 100 |
@@ -118,6 +135,8 @@
 | recursive_medium | 0.83 | 0.6917 | 1.0 | 0.05 |
 | recursive_large | 0.84 | 0.7 | 1.0 | 0.05 |
 | structure_aware | 0.57 | 0.475 | 1.0 | 0.05 |
+| structure_aware_medium | 0.79 | 0.6583 | 1.0 | 0.05 |
+| structure_aware_large | 0.85 | 0.7083 | 1.0 | 0.05 |
 | semantic_meta_like | 0.68 | 0.5667 | 1.0 | 0.05 |
 | embedding_semantic | 0.73 | 0.6083 | 1.0 | 0.05 |
 | proposition_like | 0.56 | 0.4667 | 1.0 | 0.05 |
@@ -195,11 +214,25 @@ Small chunks can improve entity/fact localization; large chunks can preserve bro
 | recursive_large | insufficient_evidence | 20 | 0.0 | 0.0 | 0.0 | 1.0 |
 | structure_aware | supported_factual | 40 | 0.425 | 0.525 | 0.2683 | 0.525 |
 | structure_aware | concept_definition | 15 | 0.8667 | 0.9333 | 0.6167 | 0.9333 |
-| structure_aware | relation_causal | 15 | 0.9333 | 0.9333 | 0.5967 | 0.9333 |
+| structure_aware | relation_causal | 15 | 0.9333 | 0.9333 | 0.6022 | 0.9333 |
 | structure_aware | cross_page | 10 | 0.5 | 0.6 | 0.4333 | 0.35 |
 | structure_aware | paraphrase | 10 | 0.4 | 0.7 | 0.3333 | 0.7 |
 | structure_aware | terminology_variation | 10 | 0.4 | 0.6 | 0.2533 | 0.6 |
 | structure_aware | insufficient_evidence | 20 | 0.0 | 0.0 | 0.0 | 1.0 |
+| structure_aware_medium | supported_factual | 40 | 0.75 | 0.825 | 0.4212 | 0.825 |
+| structure_aware_medium | concept_definition | 15 | 1.0 | 1.0 | 0.7267 | 1.0 |
+| structure_aware_medium | relation_causal | 15 | 0.9333 | 1.0 | 0.75 | 1.0 |
+| structure_aware_medium | cross_page | 10 | 0.8 | 1.0 | 0.4533 | 0.7 |
+| structure_aware_medium | paraphrase | 10 | 0.5 | 0.8 | 0.4333 | 0.8 |
+| structure_aware_medium | terminology_variation | 10 | 0.7 | 0.8 | 0.3267 | 0.8 |
+| structure_aware_medium | insufficient_evidence | 20 | 0.0 | 0.0 | 0.0 | 1.0 |
+| structure_aware_large | supported_factual | 40 | 0.825 | 0.975 | 0.6442 | 0.975 |
+| structure_aware_large | concept_definition | 15 | 1.0 | 1.0 | 0.8056 | 1.0 |
+| structure_aware_large | relation_causal | 15 | 0.8 | 0.8667 | 0.6467 | 0.8667 |
+| structure_aware_large | cross_page | 10 | 1.0 | 1.0 | 0.5833 | 0.85 |
+| structure_aware_large | paraphrase | 10 | 0.7 | 0.9 | 0.4833 | 0.9 |
+| structure_aware_large | terminology_variation | 10 | 0.8 | 1.0 | 0.44 | 1.0 |
+| structure_aware_large | insufficient_evidence | 20 | 0.0 | 0.0 | 0.0 | 1.0 |
 | semantic_meta_like | supported_factual | 40 | 0.625 | 0.775 | 0.4029 | 0.775 |
 | semantic_meta_like | concept_definition | 15 | 0.8 | 0.8667 | 0.6 | 0.8667 |
 | semantic_meta_like | relation_causal | 15 | 0.9333 | 0.9333 | 0.5944 | 0.9333 |
@@ -238,15 +271,17 @@ Small chunks can improve entity/fact localization; large chunks can preserve bro
 
 ## Implementation Metadata
 
-- `fixed_small`: `{"configured_max_chars": ["400"], "configured_overlap_chars": ["80"]}`
-- `fixed_medium`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"]}`
-- `fixed_large`: `{"configured_max_chars": ["1600"], "configured_overlap_chars": ["250"]}`
-- `recursive_small`: `{"configured_max_chars": ["400"], "configured_overlap_chars": ["80"]}`
-- `recursive_medium`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"]}`
-- `recursive_large`: `{"configured_max_chars": ["1600"], "configured_overlap_chars": ["250"]}`
-- `structure_aware`: `{"configured_max_chars": ["1200"], "configured_overlap_chars": ["150"]}`
-- `semantic_meta_like`: `{"configured_max_chars": ["1200"], "configured_overlap_chars": ["150"], "semantic_backend": ["lexical_similarity"]}`
-- `embedding_semantic`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"], "semantic_backend": ["sentence_transformers"], "semantic_embedding_model": ["sentence-transformers/all-MiniLM-L6-v2"]}`
-- `proposition_like`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["80"], "llm_proposition_extraction": ["False"], "proposition_extraction": ["heuristic_sentence_cue"]}`
-- `hierarchical_parent_child`: `{"configured_max_chars": ["400"], "configured_overlap_chars": ["80"], "parent_context_available": ["True"], "retrieval_integration": ["partial_child_index_parent_metadata"]}`
-- `contextual_prefix`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"], "contextualization": ["deterministic_prefix"], "llm_contextualization": ["False"]}`
+- `fixed_small`: `{"configured_max_chars": ["400"], "configured_overlap_chars": ["80"], "profile_family": ["fixed_window"], "token_count": ["1", "16", "17", "24", "30", "39", "43", "46", "49", "50", "51", "52", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "81", "84"]}`
+- `fixed_medium`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"], "profile_family": ["fixed_window"], "token_count": ["1", "125", "127", "132", "134", "136", "137", "138", "139", "140", "141", "142", "145", "146", "147", "148", "149", "150", "151", "153", "154", "155", "156", "160", "167", "168", "46", "66", "68", "79", "83", "88", "99"]}`
+- `fixed_large`: `{"configured_max_chars": ["1600"], "configured_overlap_chars": ["250"], "profile_family": ["fixed_window"], "token_count": ["1", "120", "123", "165", "179", "182", "188", "224", "235", "240", "243", "246", "248", "254", "259", "260", "261", "265", "266", "271", "275", "280", "281", "286"]}`
+- `recursive_small`: `{"configured_max_chars": ["400"], "configured_overlap_chars": ["80"], "profile_family": ["sentence_recursive"], "token_count": ["1", "102", "16", "30", "31", "33", "37", "38", "39", "48", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "75", "76", "81", "82", "84", "99"]}`
+- `recursive_medium`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"], "profile_family": ["sentence_recursive"], "token_count": ["1", "122", "130", "131", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143", "144", "145", "146", "147", "148", "149", "150", "151", "152", "154", "155", "157", "161", "168", "171", "219", "40", "49", "62", "66", "78", "88", "90"]}`
+- `recursive_large`: `{"configured_max_chars": ["1600"], "configured_overlap_chars": ["250"], "profile_family": ["sentence_recursive"], "token_count": ["1", "104", "117", "174", "177", "185", "188", "213", "230", "239", "241", "247", "250", "254", "259", "260", "262", "266", "267", "272", "274", "275", "280", "283", "344"]}`
+- `structure_aware`: `{"configured_max_chars": ["1200"], "configured_overlap_chars": ["150"], "profile_family": ["structure_aware"], "token_count": ["1", "10", "105", "106", "107", "11", "116", "12", "124", "128", "13", "136", "139", "14", "142", "144", "145", "15", "158", "16", "17", "170", "172", "18", "182", "183", "184", "185", "19", "190", "193", "196", "197", "198", "2", "20", "200", "205", "21", "22", "23", "24", "25", "26", "27", "28", "29", "3", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "4", "40", "41", "42", "43", "44", "45", "47", "48", "49", "5", "50", "51", "56", "6", "61", "64", "7", "70", "76", "8", "87", "9", "90", "95"]}`
+- `structure_aware_medium`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"], "profile_family": ["structure_aware"], "token_count": ["1", "110", "122", "130", "132", "134", "135", "136", "138", "139", "141", "142", "143", "144", "145", "146", "147", "149", "150", "151", "152", "154", "155", "156", "157", "160", "161", "167", "168", "33", "40", "62", "64", "78", "83", "90"]}`
+- `structure_aware_large`: `{"configured_max_chars": ["1600"], "configured_overlap_chars": ["250"], "profile_family": ["structure_aware"], "token_count": ["1", "117", "123", "161", "177", "181", "188", "211", "230", "238", "239", "241", "246", "247", "252", "254", "260", "265", "267", "269", "275", "280", "281", "286"]}`
+- `semantic_meta_like`: `{"configured_max_chars": ["1200"], "configured_overlap_chars": ["150"], "profile_family": ["semantic_boundary_lexical"], "semantic_backend": ["lexical_similarity"], "token_count": ["1", "100", "101", "102", "103", "104", "105", "106", "107", "108", "109", "110", "111", "112", "115", "118", "119", "121", "122", "126", "129", "136", "138", "143", "20", "39", "4", "56", "63", "67", "73", "82", "93", "94", "95", "97", "98", "99"]}`
+- `embedding_semantic`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"], "profile_family": ["semantic_boundary_embedding"], "semantic_backend": ["sentence_transformers"], "semantic_embedding_model": ["sentence-transformers/all-MiniLM-L6-v2"], "token_count": ["1", "101", "102", "106", "107", "108", "111", "113", "115", "119", "120", "123", "125", "13", "132", "135", "137", "138", "140", "141", "142", "144", "145", "146", "147", "150", "151", "157", "158", "215", "25", "29", "40", "42", "69", "71", "75", "78", "79", "82", "85", "86", "87", "88", "89", "93", "94", "99"]}`
+- `proposition_like`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["80"], "llm_proposition_extraction": ["False"], "profile_family": ["proposition_like_heuristic"], "proposition_extraction": ["heuristic_sentence_cue"], "token_count": ["1", "107", "112", "113", "115", "117", "118", "126", "129", "135", "142", "15", "167", "183", "19", "21", "219", "22", "24", "25", "26", "28", "29", "30", "33", "34", "35", "36", "39", "40", "42", "43", "44", "46", "47", "49", "50", "51", "54", "56", "57", "61", "62", "64", "66", "67", "69", "71", "72", "73", "75", "78", "80", "82", "83", "84", "85", "9", "93", "95", "97", "99"]}`
+- `hierarchical_parent_child`: `{"configured_max_chars": ["400"], "configured_overlap_chars": ["80"], "parent_context_available": ["True"], "profile_family": ["hierarchical_parent_child"], "retrieval_integration": ["partial_child_index_parent_metadata"], "token_count": ["1", "102", "16", "30", "31", "33", "37", "38", "39", "48", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "75", "76", "81", "82", "84", "99"]}`
+- `contextual_prefix`: `{"configured_max_chars": ["900"], "configured_overlap_chars": ["150"], "contextualization": ["deterministic_prefix"], "llm_contextualization": ["False"], "profile_family": ["contextual_prefix"], "token_count": ["10", "101", "102", "103", "11", "112", "113", "114", "12", "127", "13", "130", "131", "138", "14", "140", "142", "144", "146", "148", "149", "15", "150", "152", "153", "154", "156", "158", "159", "16", "161", "166", "167", "168", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "54", "55", "56", "57", "60", "61", "63", "68", "69", "71", "72", "77", "8", "85", "9", "98"]}`
