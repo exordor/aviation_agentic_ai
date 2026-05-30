@@ -9,6 +9,16 @@ if TYPE_CHECKING:
     from langchain_core.language_models.chat_models import BaseChatModel
 
 
+def _required_env(name: str, provider: str) -> str:
+    value = os.getenv(name)
+    if value:
+        return value
+    raise RuntimeError(
+        f"LLM_PROVIDER={provider} requires {name}. Configure the environment before "
+        "requesting an LLM, or select a provider that does not require that key."
+    )
+
+
 def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel":
     """Return a LangChain-compatible chat model from environment configuration."""
     try:
@@ -26,7 +36,7 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel"
         return ChatOpenAI(
             model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
             base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-            api_key=os.getenv("OPENAI_API_KEY"),
+            api_key=_required_env("OPENAI_API_KEY", provider),
             temperature=temperature,
             max_tokens=max_tokens,
         )
@@ -35,7 +45,7 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel"
         return ChatOpenAI(
             model=os.getenv("MODEL_NAME", "deepseek-chat"),
             base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"),
-            api_key=os.getenv("DEEPSEEK_API_KEY"),
+            api_key=_required_env("DEEPSEEK_API_KEY", provider),
             temperature=temperature,
             max_tokens=max_tokens,
         )

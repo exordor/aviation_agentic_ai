@@ -61,6 +61,30 @@ def test_get_llm_routes_deepseek_to_openai_compatible_endpoint(monkeypatch) -> N
     }
 
 
+def test_get_llm_rejects_openai_without_api_key(monkeypatch) -> None:
+    _install_fake_langchain_openai(monkeypatch)
+    monkeypatch.setattr(providers, "load_environment", lambda: None)
+    monkeypatch.setenv("LLM_PROVIDER", "openai")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    with pytest.raises(RuntimeError, match="OPENAI_API_KEY"):
+        providers.get_llm()
+
+    assert FakeChatOpenAI.calls == []
+
+
+def test_get_llm_rejects_deepseek_without_api_key(monkeypatch) -> None:
+    _install_fake_langchain_openai(monkeypatch)
+    monkeypatch.setattr(providers, "load_environment", lambda: None)
+    monkeypatch.setenv("LLM_PROVIDER", "deepseek")
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+
+    with pytest.raises(RuntimeError, match="DEEPSEEK_API_KEY"):
+        providers.get_llm()
+
+    assert FakeChatOpenAI.calls == []
+
+
 def test_get_llm_routes_vllm_to_local_openai_compatible_endpoint(monkeypatch) -> None:
     _install_fake_langchain_openai(monkeypatch)
     monkeypatch.setattr(providers, "load_environment", lambda: None)
