@@ -13,6 +13,7 @@ from aviation_agentic_ai.cli_index import index
 from aviation_agentic_ai.cli_kg import kg
 from aviation_agentic_ai.cli_ontology import ontology
 from aviation_agentic_ai.cli_query import query
+from aviation_agentic_ai.cli_report_web import register_web_report_commands
 from aviation_agentic_ai.cli_web import web
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.paths import project_relative_path
@@ -68,8 +69,6 @@ from aviation_agentic_ai.reporting.sufficiency_eval import write_sufficiency_eva
 from aviation_agentic_ai.reporting.thesis_dashboard import write_thesis_experiment_dashboard
 from aviation_agentic_ai.reporting.thesis_claims import write_thesis_claims_review
 from aviation_agentic_ai.reporting.triple_semantic_review import write_triple_semantic_review
-from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
-from aviation_agentic_ai.reporting.web_demo_smoke import write_web_demo_smoke
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
 
 
@@ -1397,39 +1396,7 @@ def report_final_evaluation(
     )
 
 
-@report.command("web-demo-readiness")
-@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
-@click.option("--report-name", default="web_demo_readiness", show_default=True)
-def report_web_demo_readiness(output_dir: Path | None, report_name: str) -> None:
-    """Write offline-first web demo readiness reports."""
-    config = load_default_config()
-    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-    json_path, md_path, result = write_web_demo_readiness(
-        report_dir,
-        report_name=report_name,
-    )
-    click.echo(f"Wrote {project_relative_path(json_path)}")
-    click.echo(f"Wrote {project_relative_path(md_path)}")
-    click.echo(
-        "Web demo readiness: "
-        f"{result['ready']}; default strategy: {result['selected_default_strategy']}."
-    )
-
-
-@report.command("web-demo-smoke")
-@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
-@click.option("--report-name", default="web_demo_final_smoke", show_default=True)
-def report_web_demo_smoke(output_dir: Path | None, report_name: str) -> None:
-    """Run offline FastAPI web demo smoke checks and write evidence reports."""
-    config = load_default_config()
-    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-    json_path, md_path, result = write_web_demo_smoke(
-        report_dir,
-        report_name=report_name,
-    )
-    click.echo(f"Wrote {project_relative_path(json_path)}")
-    click.echo(f"Wrote {project_relative_path(md_path)}")
-    click.echo(f"Web demo final smoke: {result['ready']}.")
+register_web_report_commands(report)
 
 
 @report.command("chunking-comparison")

@@ -488,7 +488,7 @@ def test_web_demo_smoke_uses_fastapi_testclient(tmp_path: Path) -> None:
 
 
 def test_cli_report_web_demo_readiness_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_web
 
     def fake_writer(output_dir, *, report_name):
         output = Path(output_dir)
@@ -502,7 +502,7 @@ def test_cli_report_web_demo_readiness_uses_mocked_writer(tmp_path: Path, monkey
             "selected_default_strategy": "structure_aware",
         }
 
-    monkeypatch.setattr(cli, "write_web_demo_readiness", fake_writer)
+    monkeypatch.setattr(cli_report_web, "write_web_demo_readiness", fake_writer)
     result = CliRunner().invoke(
         main,
         [
@@ -518,7 +518,7 @@ def test_cli_report_web_demo_readiness_uses_mocked_writer(tmp_path: Path, monkey
 
 
 def test_cli_report_web_demo_smoke_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_web
 
     def fake_writer(output_dir, *, report_name):
         output = Path(output_dir)
@@ -529,7 +529,7 @@ def test_cli_report_web_demo_smoke_uses_mocked_writer(tmp_path: Path, monkeypatc
         md_path.write_text("# Web Demo Final Smoke\n", encoding="utf-8")
         return json_path, md_path, {"ready": True}
 
-    monkeypatch.setattr(cli, "write_web_demo_smoke", fake_writer)
+    monkeypatch.setattr(cli_report_web, "write_web_demo_smoke", fake_writer)
     result = CliRunner().invoke(
         main,
         ["report", "web-demo-smoke", "--output-dir", str(tmp_path)],
