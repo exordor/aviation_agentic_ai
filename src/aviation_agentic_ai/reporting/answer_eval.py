@@ -12,7 +12,7 @@ from aviation_agentic_ai.evaluation.metrics import answer_metrics
 from aviation_agentic_ai.evaluation.protocol import build_run_manifest
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.io import (
-    normalize_report_text,
+    normalize_report_text as _normalize,
     read_json_object_or_empty,
     write_json_report,
 )
@@ -20,10 +20,6 @@ from aviation_agentic_ai.reporting.io import (
 
 def _load_json(path: str | Path) -> dict[str, Any]:
     return read_json_object_or_empty(path)
-
-
-def _normalize(text: str) -> str:
-    return normalize_report_text(text)
 
 
 def _citation_correct(result: dict[str, Any], gold: GoldLabel) -> bool:

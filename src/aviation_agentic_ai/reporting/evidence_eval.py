@@ -7,7 +7,7 @@ from aviation_agentic_ai.evaluation.gold import EvidenceSpan, GoldLabel, load_go
 from aviation_agentic_ai.evaluation.metrics import answer_metrics, kg_evidence_metrics
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.io import (
-    normalize_report_text,
+    normalize_report_text as _normalize,
     read_json_object_or_none,
     write_json_report,
 )
@@ -15,10 +15,6 @@ from aviation_agentic_ai.reporting.io import (
 
 def _load_json(path: str | Path) -> dict[str, Any] | None:
     return read_json_object_or_none(path, wrap_non_object=True)
-
-
-def _normalize(text: str) -> str:
-    return normalize_report_text(text)
 
 
 def _span_hit(span: EvidenceSpan, chunks: list[dict[str, Any]]) -> bool:

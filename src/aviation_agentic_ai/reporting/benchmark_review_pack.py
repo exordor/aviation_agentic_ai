@@ -8,7 +8,10 @@ from typing import Any
 from aviation_agentic_ai.evaluation.benchmark_validation import read_benchmark_payload
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.retrieval.sufficiency import detect_risk_category
-from aviation_agentic_ai.reporting.io import normalize_report_text, write_json_report
+from aviation_agentic_ai.reporting.io import (
+    normalize_report_text as _normalize,
+    write_json_report,
+)
 
 
 UNNATURAL_PATTERNS = (
@@ -37,10 +40,6 @@ ANSWER_EVAL_SUBSET_RULES = (
     ("terminology_variation", 4),
     ("insufficient_evidence", 8),
 )
-
-
-def _normalize(text: str) -> str:
-    return normalize_report_text(text)
 
 
 def _span_key(span: dict[str, Any]) -> str:

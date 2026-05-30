@@ -6,7 +6,7 @@ from typing import Any
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.accessors import nested_value as _metric
 from aviation_agentic_ai.reporting.io import (
-    normalize_report_text,
+    normalize_report_text as _normalize,
     read_json_object,
     write_json_report,
 )
@@ -26,10 +26,6 @@ FAILURE_CATEGORIES = (
 
 def _load_json(path: str | Path) -> dict[str, Any]:
     return read_json_object(path)
-
-
-def _normalize(text: Any) -> str:
-    return normalize_report_text(text)
 
 
 def _truthy(value: Any) -> bool:

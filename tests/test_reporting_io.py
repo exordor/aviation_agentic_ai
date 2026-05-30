@@ -86,3 +86,7 @@ def test_write_json_report_can_preserve_insertion_order(tmp_path: Path) -> None:
 
 def test_normalize_report_text_matches_existing_report_wrappers() -> None:
     assert normalize_report_text("  Lift\nAFFECTS   Drag  ") == "lift affects drag"
+
+
+def test_normalize_report_text_accepts_non_string_report_values() -> None:
+    assert normalize_report_text(123) == "123"

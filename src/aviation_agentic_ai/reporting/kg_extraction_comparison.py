@@ -10,14 +10,13 @@ from aviation_agentic_ai.evaluation.gold import load_gold_labels
 from aviation_agentic_ai.evaluation.protocol import build_run_manifest
 from aviation_agentic_ai.kg.extraction import KGReadError
 from aviation_agentic_ai.paths import project_relative_path
-from aviation_agentic_ai.reporting.io import normalize_report_text, write_json_report
+from aviation_agentic_ai.reporting.io import (
+    normalize_report_text as _normalize,
+    write_json_report,
+)
 
 
 PROVENANCE_FIELDS = ("triple_id", "chunk_id", "page", "evidence_text")
-
-
-def _normalize(text: str) -> str:
-    return normalize_report_text(text)
 
 
 def _triple_dicts(path: str | Path) -> list[dict[str, Any]]:
