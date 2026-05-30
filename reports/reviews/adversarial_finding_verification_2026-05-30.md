@@ -32,6 +32,7 @@ verified backlog rather than silently mixed into this iteration.
 | M6 | Still valid. Evaluation protocol tests were mostly structural. | Added value-level assertions for the metric catalog, implemented/pending metric sets, report-presence coverage, precision/CI interpretation notes, and review/certification limitation language in `EVIDENCE_GAPS`. |
 | M7 | Still valid. Empty KG JSONL round-trip was not tested. | Added `write_kg_jsonl([])` / `read_kg_jsonl` round-trip coverage. |
 | Coverage gaps | Still valid for the coverage-summary rows on `evaluation/document_metadata.py`, `utils/pdf.py`, and `llm/providers.py`. Existing coverage was indirect or schema-only. | Added direct tests for PDF extraction zero-based page numbering, empty-page skipping, `max_pages` truncation before text extraction, document metadata defaults/overrides with stable relative paths, and LLM provider routing/defaults with a mocked OpenAI-compatible client. |
+| Compliance audit | Still valid as a recurring repository-hygiene risk. The original pass checked that `.env`, vector indexes, chunks, and model artifacts were absent/ignored, but the check was not automated. | Added repository hygiene tests that verify `.gitignore` covers secret/runtime/model artifacts and `git ls-files` does not include `.env`, generated chunks/indexes, model directories, or common model/vector-store binary formats. |
 
 ## Verified Backlog
 
