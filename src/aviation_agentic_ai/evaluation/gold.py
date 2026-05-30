@@ -85,6 +85,10 @@ class GoldLabel:
         return asdict(self)
 
 
+class GoldLabelReadError(ValueError):
+    """Raised when a gold-label artifact cannot be parsed with useful context."""
+
+
 def load_boundary_questions(cq_path: str | Path) -> list[dict[str, Any]]:
     artifact = load_cq_artifact(cq_path)
     questions: list[dict[str, Any]] = []
@@ -100,22 +104,50 @@ def _read_gold_payload(path: Path) -> list[dict[str, Any]]:
     if not text:
         return []
     if path.suffix == ".jsonl":
-        return [json.loads(line) for line in text.splitlines() if line.strip()]
-    payload = json.loads(text)
+        labels: list[dict[str, Any]] = []
+        for line_number, line in enumerate(text.splitlines(), start=1):
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+                if not isinstance(item, dict):
+                    raise TypeError("expected JSON object")
+            except (json.JSONDecodeError, TypeError) as exc:
+                raise GoldLabelReadError(
+                    f"Invalid gold label JSONL record in {project_relative_path(path)} "
+                    f"at line {line_number}: {exc}"
+                ) from exc
+            labels.append(item)
+        return labels
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise GoldLabelReadError(
+            f"Invalid gold label JSON in {project_relative_path(path)}: {exc}"
+        ) from exc
     if isinstance(payload, dict):
         labels = payload.get("labels", [])
         if not isinstance(labels, list):
-            raise ValueError(f"Gold label file has non-list labels: {project_relative_path(path)}")
+            raise GoldLabelReadError(
+                f"Gold label file has non-list labels: {project_relative_path(path)}"
+            )
         return [item for item in labels if isinstance(item, dict)]
     if isinstance(payload, list):
         return [item for item in payload if isinstance(item, dict)]
-    raise ValueError(f"Unsupported gold label payload: {project_relative_path(path)}")
+    raise GoldLabelReadError(f"Unsupported gold label payload: {project_relative_path(path)}")
 
 
 def load_gold_labels(path: str | Path) -> dict[str, GoldLabel]:
     labels: dict[str, GoldLabel] = {}
-    for item in _read_gold_payload(Path(path)):
-        label = GoldLabel.from_dict(item)
+    gold_path = Path(path)
+    for index, item in enumerate(_read_gold_payload(gold_path), start=1):
+        try:
+            label = GoldLabel.from_dict(item)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise GoldLabelReadError(
+                f"Invalid gold label record in {project_relative_path(gold_path)} "
+                f"at label {index}: {exc}"
+            ) from exc
         labels[label.cq_id] = label
     return labels
 

@@ -8,6 +8,7 @@ from aviation_agentic_ai.evaluation.document_metadata import (
 )
 from aviation_agentic_ai.evaluation.gold import (
     GoldLabel,
+    GoldLabelReadError,
     gold_labels_for_questions,
     load_gold_labels,
 )
@@ -114,6 +115,55 @@ def test_gold_labels_support_page_chunk_and_span_levels(tmp_path: Path) -> None:
     assert labels["q2"].gold_level == "chunk"
     assert labels["q3"].gold_level == "span"
     assert labels["q3"].evidence_spans[0].text == "stall warning"
+
+
+def test_gold_jsonl_errors_include_line_number(tmp_path: Path) -> None:
+    labels_path = tmp_path / "gold.jsonl"
+    labels_path.write_text(
+        json.dumps({"cq_id": "q1", "source_document": "doc", "source_page": 1})
+        + "\nnot-json\n",
+        encoding="utf-8",
+    )
+
+    try:
+        load_gold_labels(labels_path)
+    except GoldLabelReadError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected GoldLabelReadError")
+
+    assert "gold.jsonl" in message
+    assert "line 2" in message
+
+
+def test_gold_record_errors_include_label_index(tmp_path: Path) -> None:
+    labels_path = tmp_path / "gold.json"
+    labels_path.write_text(
+        json.dumps(
+            {
+                "labels": [
+                    {
+                        "cq_id": "q1",
+                        "source_document": "doc",
+                        "source_page": 1,
+                        "evidence_spans": [{"text": "missing page"}],
+                    }
+                ]
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    try:
+        load_gold_labels(labels_path)
+    except GoldLabelReadError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected GoldLabelReadError")
+
+    assert "gold.json" in message
+    assert "label 1" in message
 
 
 def test_gold_labels_fall_back_to_source_page_from_cqs() -> None:
