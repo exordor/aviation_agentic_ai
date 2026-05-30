@@ -55,10 +55,10 @@ def test_cli_index_build_uses_mocked_builder(tmp_path: Path, monkeypatch) -> Non
 
 
 def test_cli_query_uses_mocked_runner(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_query
 
     monkeypatch.setattr(
-        cli,
+        cli_query,
         "run_query",
         lambda *_args, **_kwargs: {"answer": "Grounded answer. Citations: doc-p00-c00"},
     )

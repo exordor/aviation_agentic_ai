@@ -22,7 +22,7 @@ verified backlog rather than silently mixed into this iteration.
 | I5 | Still valid. `get_llm` had no return annotation. | Added a `BaseChatModel` return annotation behind `TYPE_CHECKING` so optional LangChain imports remain lazy. |
 | I1 | Still valid. Retrieval, graph traversal, chunking, and source-scope modules carried independent tokenizer/stopword logic. | Added `aviation_agentic_ai.utils.text` with shared normalization, token regex, stopwords, and tokenization helpers. Existing local wrappers now delegate to the shared utility. |
 | I6 | Still partly valid. `.env` loading was scattered across LLM provider, evaluation metadata, web readiness, and ontology generation. | Added `config.load_environment()` as the single dotenv loading entry point and updated LLM access/reporting paths to use it. Provider selection remains explicit at call sites. |
-| I7 | Still valid. `cli.py` remains a large Click file with many direct subsystem imports. | Began the subsystem Click group pattern by extracting `web serve` into `aviation_agentic_ai.cli_web`, `chunk build` into `aviation_agentic_ai.cli_chunk`, and `index build` into `aviation_agentic_ai.cli_index`, registering the groups from `cli.py` without changing public command surfaces. |
+| I7 | Still valid. `cli.py` remains a large Click file with many direct subsystem imports. | Continued the subsystem Click group pattern by extracting `web serve` into `aviation_agentic_ai.cli_web`, `chunk build` into `aviation_agentic_ai.cli_chunk`, `index build` into `aviation_agentic_ai.cli_index`, and the top-level `query` command into `aviation_agentic_ai.cli_query`, registering the commands from `cli.py` without changing public command surfaces. |
 | I8 | Still valid as a broader maintenance concern. Several reporting modules duplicated JSON report loading/writing and lightweight normalization. | Added `aviation_agentic_ai.reporting.io`; migrated the evidence-card, evidence-evaluation, answer-evaluation, sufficiency, GraphRAG review, benchmark-review-pack, KG-comparison, thesis-dashboard helpers, plus the next batch of sorted report JSON writers. Missing-file/non-object behavior and JSON formatting are preserved. |
 | M3 | Still valid as wording polish. Retrieval-only ablation used `provider: none`, which could read like a missing setting rather than intentional no-LLM execution. | Retrieval ablation manifests now record `provider: not_used_retrieval_only` and an explicit usage note that no generation or LLM judge is used. |
 | M1 | Still valid. Chroma collection deletion swallowed every exception. | Reset now suppresses only missing/not-found collection errors and re-raises unexpected failures. |
@@ -36,7 +36,7 @@ verified backlog rather than silently mixed into this iteration.
 
 | ID | Current assessment | Reason deferred |
 | --- | --- | --- |
-| I7 remainder | Still partly valid. Most CLI command groups still live in `cli.py`. | Continue extracting one subsystem group at a time with CLI tests after each move; query routing is the next small candidate, while KG/ontology/report groups are larger. |
+| I7 remainder | Still partly valid. Most CLI command groups still live in `cli.py`. | Continue extracting one subsystem group at a time with CLI tests after each move; KG/ontology/report groups are larger and should remain separate reviewable batches. |
 | I8 remainder | Still partly valid. A smaller set of custom readers and unsorted JSON writers remains. | Sorted report writers have been migrated in batches; custom loaders and intentionally unsorted outputs should continue only where behavior can be preserved exactly. |
 
 ## Verification Commands
@@ -54,5 +54,7 @@ verified backlog rather than silently mixed into this iteration.
 - `uv run aviation-ai chunk build --help`
 - `uv run aviation-ai index --help`
 - `uv run aviation-ai index build --help`
+- `uv run pytest tests/test_hybrid_cli.py::test_cli_query_uses_mocked_runner`
+- `uv run aviation-ai query --help`
 
 Focused and full verification passed after this iteration.
