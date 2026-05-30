@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import json
 from collections import Counter
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 from aviation_agentic_ai.reporting.evaluation_protocol import PRIMARY_THESIS_METRICS
+from aviation_agentic_ai.reporting.io import read_json_object_or_empty, write_json_report
 
 
 REPORT_SOURCES: dict[str, str] = {
@@ -89,10 +89,7 @@ SAFE_UNSUPPORTED_CONTEXT_SECTIONS = (
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    if not path.exists():
-        return {}
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return data if isinstance(data, dict) else {"value": data}
+    return read_json_object_or_empty(path, wrap_non_object=True)
 
 
 def _metric(data: dict[str, Any], *keys: str, default: Any = "TBD") -> Any:
@@ -896,10 +893,7 @@ def write_thesis_experiment_dashboard_json(
     result: dict[str, Any],
     output_path: str | Path,
 ) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_thesis_experiment_dashboard_markdown(

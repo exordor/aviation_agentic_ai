@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.evaluation.gold import EvidenceSpan, GoldLabel, load_gold_labels
 from aviation_agentic_ai.evaluation.metrics import answer_metrics, kg_evidence_metrics
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.io import (
+    normalize_report_text,
+    read_json_object_or_none,
+    write_json_report,
+)
 
 
 def _load_json(path: str | Path) -> dict[str, Any] | None:
-    source = Path(path)
-    if not source.exists():
-        return None
-    data = json.loads(source.read_text(encoding="utf-8"))
-    return data if isinstance(data, dict) else {"value": data}
+    return read_json_object_or_none(path, wrap_non_object=True)
 
 
 def _normalize(text: str) -> str:
-    return " ".join(str(text).lower().split())
+    return normalize_report_text(text)
 
 
 def _span_hit(span: EvidenceSpan, chunks: list[dict[str, Any]]) -> bool:
@@ -213,10 +213,7 @@ def build_evidence_level_evaluation(
 
 
 def write_evidence_level_evaluation_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_evidence_level_evaluation_markdown(

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from time import perf_counter
@@ -12,18 +11,19 @@ from aviation_agentic_ai.evaluation.gold import GoldLabel, load_gold_labels
 from aviation_agentic_ai.evaluation.metrics import answer_metrics
 from aviation_agentic_ai.evaluation.protocol import build_run_manifest
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.io import (
+    normalize_report_text,
+    read_json_object_or_empty,
+    write_json_report,
+)
 
 
 def _load_json(path: str | Path) -> dict[str, Any]:
-    source = Path(path)
-    if not source.exists():
-        return {}
-    payload = json.loads(source.read_text(encoding="utf-8"))
-    return payload if isinstance(payload, dict) else {}
+    return read_json_object_or_empty(path)
 
 
 def _normalize(text: str) -> str:
-    return " ".join(str(text).lower().split())
+    return normalize_report_text(text)
 
 
 def _citation_correct(result: dict[str, Any], gold: GoldLabel) -> bool:
@@ -235,10 +235,7 @@ def build_answer_evaluation(
 
 
 def write_answer_evaluation_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_answer_evaluation_markdown(result: dict[str, Any], output_path: str | Path) -> Path:

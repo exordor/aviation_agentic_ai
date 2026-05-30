@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-import re
 from collections import Counter, defaultdict
 from copy import deepcopy
 from pathlib import Path
@@ -10,6 +8,7 @@ from typing import Any
 from aviation_agentic_ai.evaluation.benchmark_validation import read_benchmark_payload
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.retrieval.sufficiency import detect_risk_category
+from aviation_agentic_ai.reporting.io import normalize_report_text, write_json_report
 
 
 UNNATURAL_PATTERNS = (
@@ -41,7 +40,7 @@ ANSWER_EVAL_SUBSET_RULES = (
 
 
 def _normalize(text: str) -> str:
-    return re.sub(r"\s+", " ", text.lower()).strip()
+    return normalize_report_text(text)
 
 
 def _span_key(span: dict[str, Any]) -> str:
@@ -271,20 +270,14 @@ def build_benchmark_reviewed_subset_summary(subset_payload: dict[str, Any]) -> d
 
 
 def write_subset_payload(payload: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(payload, output_path)
 
 
 def write_benchmark_reviewed_subset_summary_json(
     result: dict[str, Any],
     output_path: str | Path,
 ) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_benchmark_reviewed_subset_summary_markdown(
@@ -399,10 +392,7 @@ def build_benchmark_review_pack(gold_labels_path: str | Path) -> dict[str, Any]:
 
 
 def write_benchmark_review_pack_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_benchmark_review_pack_markdown(
@@ -447,11 +437,8 @@ def write_benchmark_review_pack_markdown(
 
 
 def write_reviewed_benchmark_payload(payload: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     reviewed = build_reviewed_benchmark_payload(payload)
-    path.write_text(json.dumps(reviewed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(reviewed, output_path)
 
 
 def write_benchmark_review_pack(

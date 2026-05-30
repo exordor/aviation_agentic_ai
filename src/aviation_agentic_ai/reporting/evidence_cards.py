@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.io import (
+    normalize_report_text,
+    read_json_object,
+    write_json_report,
+)
 
 
 FAILURE_CATEGORIES = (
@@ -20,15 +24,11 @@ FAILURE_CATEGORIES = (
 
 
 def _load_json(path: str | Path) -> dict[str, Any]:
-    source = Path(path)
-    payload = json.loads(source.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict):
-        raise ValueError(f"Expected object JSON report: {project_relative_path(source)}")
-    return payload
+    return read_json_object(path)
 
 
 def _normalize(text: Any) -> str:
-    return " ".join(str(text).lower().split())
+    return normalize_report_text(text)
 
 
 def _metric(data: dict[str, Any], *keys: str, default: Any = None) -> Any:
@@ -363,10 +363,7 @@ def build_evidence_cards(experiment: dict[str, Any], top_k: int = 5) -> dict[str
 
 
 def write_evidence_cards_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def evidence_cards_markdown_lines(result: dict[str, Any], heading_level: int = 2) -> list[str]:

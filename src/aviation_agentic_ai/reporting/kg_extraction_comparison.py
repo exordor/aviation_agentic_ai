@@ -9,13 +9,14 @@ from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
 from aviation_agentic_ai.evaluation.gold import load_gold_labels
 from aviation_agentic_ai.evaluation.protocol import build_run_manifest
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.io import normalize_report_text, write_json_report
 
 
 PROVENANCE_FIELDS = ("triple_id", "chunk_id", "page", "evidence_text")
 
 
 def _normalize(text: str) -> str:
-    return " ".join(str(text).lower().split())
+    return normalize_report_text(text)
 
 
 def _triple_dicts(path: str | Path) -> list[dict[str, Any]]:
@@ -161,10 +162,7 @@ def build_kg_extraction_comparison(
 
 
 def write_kg_extraction_comparison_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_kg_extraction_comparison_markdown(

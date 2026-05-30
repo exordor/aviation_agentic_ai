@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -12,14 +11,11 @@ from aviation_agentic_ai.retrieval.sufficiency import (
     detect_risk_category,
     evaluate_evidence_sufficiency,
 )
+from aviation_agentic_ai.reporting.io import read_json_object_or_empty, write_json_report
 
 
 def _load_json(path: str | Path) -> dict[str, Any]:
-    source = Path(path)
-    if not source.exists():
-        return {}
-    data = json.loads(source.read_text(encoding="utf-8"))
-    return data if isinstance(data, dict) else {"value": data}
+    return read_json_object_or_empty(path, wrap_non_object=True)
 
 
 def _records_by_cq(retrieval_report: dict[str, Any], scenario_name: str | None) -> dict[str, dict[str, Any]]:
@@ -238,10 +234,7 @@ def build_sufficiency_evaluation(
 
 
 def write_sufficiency_evaluation_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_sufficiency_evaluation_markdown(result: dict[str, Any], output_path: str | Path) -> Path:
