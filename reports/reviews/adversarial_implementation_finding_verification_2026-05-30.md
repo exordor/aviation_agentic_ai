@@ -20,7 +20,7 @@ verified backlog.
 | I4 | Valid. Ontology generation failure paths could leave only page-level checkpoints and no main output when a later page failed. | Failure paths now write a clearly labelled partial ontology to the configured output path and record `output_complete=false`, `partial_output_written=true`, and a failure stage in the manifest. |
 | I5 | Valid as observability gap. LLM-returned KG triples rejected by deterministic filters were silently absent from reports. | KG extraction now reports candidate triples, filtered triples, and filter reasons. |
 | I6 | Valid as a recall/observability concern. Strict quote containment can drop near-valid LLM evidence. | KG extraction now records diagnostic-only filtered evidence near-misses using token-overlap metadata. These candidates remain rejected and are not accepted as KG evidence, so KG semantics and scientific results do not change. |
-| Original I7 | Still valid as a broad architecture issue. `cli.py` remains large and imports many subsystem functions directly. | Continued incremental CLI modularization by moving the web command group into `aviation_agentic_ai.cli_web`, the chunk command group into `aviation_agentic_ai.cli_chunk`, the index command group into `aviation_agentic_ai.cli_index`, the top-level query command into `aviation_agentic_ai.cli_query`, and the KG extraction/validation group into `aviation_agentic_ai.cli_kg`; command behavior and help output were verified. |
+| Original I7 | Still valid as a broad architecture issue. `cli.py` remains large and imports many subsystem functions directly. | Continued incremental CLI modularization by moving the web command group into `aviation_agentic_ai.cli_web`, the chunk command group into `aviation_agentic_ai.cli_chunk`, the index command group into `aviation_agentic_ai.cli_index`, the top-level query command into `aviation_agentic_ai.cli_query`, the KG extraction/validation group into `aviation_agentic_ai.cli_kg`, and the top-level CQ gold-label utilities into `aviation_agentic_ai.cli_cqs`; command behavior and help output were verified. |
 | Duplication | Still valid as a broad maintenance concern. JSON extraction/tokenizer duplication was already reduced, but reporting modules still repeated JSON report I/O and lightweight normalization. | Added `aviation_agentic_ai.reporting.io`; migrated the first low-risk reporting batch and the next batch of sorted JSON report writers while preserving existing missing-file, non-object, and formatting semantics. |
 | M1 | Partly valid. Empty bootstrap intervals returned `n=0` with zero-valued compatibility fields, which could be overread as a measured zero. | Evaluation protocol review now states that `n=0` CI statistics are undefined and that numeric fields are placeholders, not measured zero performance. The bootstrap API is left compatible. |
 | M2 | Valid. `_cosine_similarity` silently truncated mismatched vectors with `zip`. | Mismatched vector lengths now raise `ValueError`. |
@@ -33,7 +33,7 @@ verified backlog.
 | --- | --- | --- |
 | I6 acceptance | Still intentionally deferred. Near-miss evidence is now visible in extraction diagnostics, but fuzzy acceptance could admit paraphrases as provenance. | Accepting fuzzy evidence changes KG semantics and should require a separate evaluation protocol and claim update. |
 | Duplication remainder | Still partly valid. A smaller set of custom readers and unsorted JSON writers remains. | Continue only where exact behavior can be preserved; intentionally unsorted outputs were not migrated in this batch. |
-| Original I7/I8 remainder | Still valid. Most report commands and the ontology/CQ commands still live in `cli.py`, and a smaller set of custom report readers/writers remains. | Continue in reviewable batches rather than mixing broad mechanical churn with behavior changes; ontology/CQ and report groups are larger CLI slices and report I/O cleanup should remain scoped to exact behavior preservation. |
+| Original I7/I8 remainder | Still valid. Most report commands and the ontology command group still live in `cli.py`, and a smaller set of custom report readers/writers remains. | Continue in reviewable batches rather than mixing broad mechanical churn with behavior changes; ontology and report groups are larger CLI slices and report I/O cleanup should remain scoped to exact behavior preservation. |
 
 ## Verification Commands
 
@@ -56,6 +56,10 @@ verified backlog.
 - `uv run aviation-ai kg --help`
 - `uv run aviation-ai kg extract --help`
 - `uv run aviation-ai kg validate --help`
+- `uv run pytest tests/test_hybrid_cli.py::test_cli_cqs_gold_draft_uses_mocked_builder tests/test_hybrid_cli.py::test_cli_cqs_validate_benchmark_uses_mocked_validator`
+- `uv run aviation-ai cqs --help`
+- `uv run aviation-ai cqs gold-draft --help`
+- `uv run aviation-ai cqs validate-benchmark --help`
 - `uv run pytest tests/test_ontology_generation.py`
 - `uv run pytest tests/test_evaluation_protocol_metrics.py tests/test_bootstrap_ci.py`
 - `uv run aviation-ai report chunking-comparison-v2 --no-semantic-download`

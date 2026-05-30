@@ -450,13 +450,13 @@ def test_cli_report_graphrag_review_uses_mocked_writer(tmp_path: Path, monkeypat
 
 
 def test_cli_cqs_gold_draft_uses_mocked_builder(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_cqs
 
     def fake_builder(*_args, output_path, **_kwargs):
         output_path.write_text('{"labels": []}\n', encoding="utf-8")
         return {"labels": [{}, {}]}
 
-    monkeypatch.setattr(cli, "build_gold_draft", fake_builder)
+    monkeypatch.setattr(cli_cqs, "build_gold_draft", fake_builder)
 
     result = CliRunner().invoke(
         main,
@@ -475,7 +475,7 @@ def test_cli_cqs_gold_draft_uses_mocked_builder(tmp_path: Path, monkeypatch) -> 
 
 
 def test_cli_cqs_validate_benchmark_uses_mocked_validator(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_cqs
 
     calls = {}
 
@@ -493,7 +493,7 @@ def test_cli_cqs_validate_benchmark_uses_mocked_validator(tmp_path: Path, monkey
             },
         }
 
-    monkeypatch.setattr(cli, "validate_benchmark", fake_validate_benchmark)
+    monkeypatch.setattr(cli_cqs, "validate_benchmark", fake_validate_benchmark)
 
     result = CliRunner().invoke(
         main,

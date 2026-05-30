@@ -5,19 +5,16 @@ from pathlib import Path
 
 import click
 
-from aviation_agentic_ai.chunking.chunks import (
-    DEFAULT_SEMANTIC_EMBEDDING_MODEL,
-    chunk_output_path_for_strategy,
-)
+from aviation_agentic_ai.chunking.chunks import DEFAULT_SEMANTIC_EMBEDDING_MODEL
 from aviation_agentic_ai.cli_chunk import chunk_group
+from aviation_agentic_ai.cli_common import default_benchmark_chunks as _default_benchmark_chunks
 from aviation_agentic_ai.cli_common import default_ontology_path as _default_ontology_path
+from aviation_agentic_ai.cli_cqs import cqs
 from aviation_agentic_ai.cli_index import index
 from aviation_agentic_ai.cli_kg import kg
 from aviation_agentic_ai.cli_query import query
 from aviation_agentic_ai.cli_web import web
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
-from aviation_agentic_ai.evaluation.benchmark_validation import validate_benchmark
-from aviation_agentic_ai.evaluation.gold_draft import build_gold_draft
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.ontology.cq import CQValidationError, generate_cqs, load_cq_artifact
 from aviation_agentic_ai.ontology.evaluation import evaluate_ontology
@@ -98,6 +95,7 @@ main.add_command(chunk_group)
 main.add_command(index)
 main.add_command(query)
 main.add_command(kg)
+main.add_command(cqs)
 
 
 @main.group()
@@ -272,93 +270,6 @@ def ontology_cqs(
     )
     pages = len(next(iter(result.values()))) if result else 0
     click.echo(f"Wrote CQ output for {pages} pages.")
-
-
-@main.group("cqs")
-def cqs() -> None:
-    """Competency-question gold label utilities."""
-
-
-def _default_benchmark_chunks() -> list[Path]:
-    config = load_default_config()
-    default_chunks = resolve_project_path(config["paths"]["chunks_file"])
-    structure_chunks = chunk_output_path_for_strategy(default_chunks, "structure_aware")
-    return [path for path in (structure_chunks, default_chunks) if path.exists()]
-
-
-@cqs.command("gold-draft")
-@click.option("--boundary-cqs", type=click.Path(path_type=Path), default=None)
-@click.option("--chunks", "chunks_paths", type=click.Path(path_type=Path), multiple=True)
-@click.option("--output", "output_path", type=click.Path(path_type=Path), default=None)
-@click.option("--max-chunks-per-strategy", type=int, default=3, show_default=True)
-@click.option("--max-spans", type=int, default=2, show_default=True)
-def cqs_gold_draft(
-    boundary_cqs: Path | None,
-    chunks_paths: tuple[Path, ...],
-    output_path: Path | None,
-    max_chunks_per_strategy: int,
-    max_spans: int,
-) -> None:
-    """Draft chunk/span gold labels from source chunks."""
-    config = load_default_config()
-    default_chunks = resolve_project_path(config["paths"]["chunks_file"])
-    default_structure_chunks = chunk_output_path_for_strategy(default_chunks, "structure_aware")
-    chunk_inputs = list(chunks_paths) or [
-        path for path in (default_chunks, default_structure_chunks) if path.exists()
-    ]
-    output = output_path or resolve_project_path("data/cqs/06_phak_ch4_0.gold.json")
-    payload = build_gold_draft(
-        boundary_cqs or resolve_project_path("data/cqs/06_phak_ch4_0.boundary.json"),
-        chunk_inputs,
-        output_path=output,
-        max_chunks_per_strategy=max_chunks_per_strategy,
-        max_spans=max_spans,
-    )
-    click.echo(f"Wrote {project_relative_path(output)}")
-    click.echo(f"Drafted {len(payload['labels'])} gold labels from {len(chunk_inputs)} chunk files.")
-
-
-@cqs.command("validate-benchmark")
-@click.option(
-    "--gold-labels",
-    type=click.Path(path_type=Path),
-    default=None,
-    help="Benchmark gold label JSON file to validate.",
-)
-@click.option(
-    "--chunks",
-    "chunks_paths",
-    type=click.Path(path_type=Path),
-    multiple=True,
-    help="Source chunk JSONL files used to validate evidence spans.",
-)
-@click.option("--min-labels", type=int, default=100, show_default=True)
-def cqs_validate_benchmark(
-    gold_labels: Path | None,
-    chunks_paths: tuple[Path, ...],
-    min_labels: int,
-) -> None:
-    """Validate thesis benchmark gold labels against source chunks."""
-    label_path = gold_labels or resolve_project_path(
-        "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"
-    )
-    chunk_inputs = list(chunks_paths) or _default_benchmark_chunks()
-    result = validate_benchmark(label_path, chunk_inputs, min_labels=min_labels)
-    if not result["valid"]:
-        details = "\n".join(result["errors"][:10])
-        raise click.ClickException(
-            f"Benchmark validation failed with {result['errors_total']} errors.\n{details}"
-        )
-    metadata = result["metadata"]
-    click.echo(
-        f"OK: validated {metadata['labels_total']} benchmark labels from "
-        f"{project_relative_path(label_path)}"
-    )
-    click.echo(
-        f"Supported: {metadata['supported_total']}; "
-        f"insufficient-evidence: {metadata['no_answer_total']}; "
-        f"warnings: {result['warnings_total']}"
-    )
 
 
 @ontology.command("validate-cqs")
