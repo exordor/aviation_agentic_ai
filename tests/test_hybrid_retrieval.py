@@ -1,11 +1,12 @@
 import sys
 from pathlib import Path
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 
 from aviation_agentic_ai.chunking.chunks import SourceChunk, write_chunks_jsonl
 from aviation_agentic_ai.kg.extraction import KGTriple, write_kg_jsonl
 from aviation_agentic_ai.retrieval.hybrid import (
     build_answer_prompt,
+    generate_grounded_answer,
     graph_search,
     reciprocal_rank_fusion,
     run_retrieval,
@@ -63,6 +64,39 @@ def test_answer_prompt_contains_grounding_constraints() -> None:
     assert "insufficient" in prompt
     assert "Do not claim to replace" in prompt
     assert "triple_id=t1" in prompt
+
+
+def test_generate_grounded_answer_returns_non_answer_when_llm_fails(
+    monkeypatch,
+) -> None:
+    class FakeHumanMessage:
+        def __init__(self, content: str) -> None:
+            self.content = content
+
+    messages_module = ModuleType("langchain_core.messages")
+    messages_module.HumanMessage = FakeHumanMessage
+    monkeypatch.setitem(sys.modules, "langchain_core", ModuleType("langchain_core"))
+    monkeypatch.setitem(sys.modules, "langchain_core.messages", messages_module)
+
+    from aviation_agentic_ai.llm import providers
+
+    class FailingLLM:
+        def invoke(self, _messages):
+            raise ConnectionError("offline provider")
+
+    monkeypatch.setattr(providers, "get_llm", lambda **_kwargs: FailingLLM())
+
+    answer, prompt = generate_grounded_answer(
+        "What affects lift?",
+        [{"chunk_id": "c1", "page": 0, "source": "vector", "text": "Lift evidence."}],
+        [],
+    )
+
+    assert "Insufficient evidence to generate an LLM answer" in answer
+    assert "ConnectionError" in answer
+    assert "Citations: none" in answer
+    assert "What affects lift?" in prompt
+    assert "Lift evidence." in prompt
 
 
 def test_graph_search_returns_triple_and_chunk_evidence(tmp_path: Path) -> None:
