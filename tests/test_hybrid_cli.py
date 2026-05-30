@@ -233,7 +233,7 @@ def test_cli_kg_validate_passes_report_name(tmp_path: Path, monkeypatch) -> None
 
 
 def test_cli_report_chunking_comparison_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_chunking
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "chunking_comparison.json"
@@ -246,7 +246,7 @@ def test_cli_report_chunking_comparison_uses_mocked_writer(tmp_path: Path, monke
             {"ranking": [{"strategy": "fixed_window"}], "strategies": {"fixed_window": {}}},
         )
 
-    monkeypatch.setattr(cli, "write_chunking_comparison", fake_writer)
+    monkeypatch.setattr(cli_report_chunking, "write_chunking_comparison", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -266,7 +266,7 @@ def test_cli_report_chunking_comparison_v2_uses_mocked_writer(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_chunking
 
     calls = {}
 
@@ -290,7 +290,7 @@ def test_cli_report_chunking_comparison_v2_uses_mocked_writer(
             {"strategies": {}},
         )
 
-    monkeypatch.setattr(cli, "write_chunking_comparison_v2", fake_writer)
+    monkeypatch.setattr(cli_report_chunking, "write_chunking_comparison_v2", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -323,7 +323,7 @@ def test_cli_report_chunking_implementation_audit_uses_mocked_writer(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_chunking
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "chunking_implementation_audit.json"
@@ -332,7 +332,7 @@ def test_cli_report_chunking_implementation_audit_uses_mocked_writer(
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"metadata": {"strategies_total": 3}}
 
-    monkeypatch.setattr(cli, "write_chunking_implementation_audit", fake_writer)
+    monkeypatch.setattr(cli_report_chunking, "write_chunking_implementation_audit", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -353,7 +353,7 @@ def test_cli_report_chunking_topk_and_category_use_mocked_writers(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_chunking
 
     def fake_topk(*_args, **_kwargs):
         json_path = tmp_path / "chunking_topk_sensitivity_benchmark_v2.json"
@@ -369,8 +369,12 @@ def test_cli_report_chunking_topk_and_category_use_mocked_writers(
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"metadata": {"categories": ["relation_causal"]}}
 
-    monkeypatch.setattr(cli, "write_chunking_topk_sensitivity_v2", fake_topk)
-    monkeypatch.setattr(cli, "write_chunking_category_analysis_v2", fake_category)
+    monkeypatch.setattr(cli_report_chunking, "write_chunking_topk_sensitivity_v2", fake_topk)
+    monkeypatch.setattr(
+        cli_report_chunking,
+        "write_chunking_category_analysis_v2",
+        fake_category,
+    )
 
     topk = CliRunner().invoke(
         main,
