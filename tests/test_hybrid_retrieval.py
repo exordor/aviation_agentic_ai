@@ -248,6 +248,104 @@ def test_run_query_graph_no_overlap_abstains_without_llm(
     assert "Citations: none" in result["answer"]
 
 
+def test_run_query_hybrid_routes_retrieved_evidence_into_llm_prompt(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai.llm import providers
+    from aviation_agentic_ai.retrieval import hybrid
+
+    class FakeHumanMessage:
+        def __init__(self, content: str) -> None:
+            self.content = content
+
+    messages_module = ModuleType("langchain_core.messages")
+    messages_module.HumanMessage = FakeHumanMessage
+    monkeypatch.setitem(sys.modules, "langchain_core", ModuleType("langchain_core"))
+    monkeypatch.setitem(sys.modules, "langchain_core.messages", messages_module)
+
+    captured: dict[str, object] = {}
+
+    class FakeLLM:
+        def invoke(self, messages):
+            captured["prompt"] = messages[0].content
+            return SimpleNamespace(content="Grounded answer.\n\nCitations: vector-c1, t1")
+
+    def fake_get_llm(**kwargs):
+        captured["llm_kwargs"] = kwargs
+        return FakeLLM()
+
+    monkeypatch.setattr(providers, "get_llm", fake_get_llm)
+    monkeypatch.setattr(
+        hybrid,
+        "query_chroma_index",
+        lambda *_args, **_kwargs: [
+            {
+                "chunk_id": "vector-c1",
+                "rank": 1,
+                "score": 0.99,
+                "source": "vector",
+                "page": 0,
+                "text": "Vector lift evidence.",
+                "metadata": {},
+            }
+        ],
+    )
+    chunk = SourceChunk(
+        chunk_id="doc-p00-c00",
+        source_document="doc",
+        source_path="data/raw/doc.pdf",
+        page=0,
+        chunk_index=0,
+        char_start=0,
+        char_end=40,
+        text="Angle of attack affects lift.",
+    )
+    triple = KGTriple(
+        triple_id="t1",
+        subject="angle of attack",
+        predicate="affects",
+        object="lift",
+        subject_class="Cl_AngleOfAttack",
+        object_class="Cl_Lift",
+        source_document="doc",
+        page=0,
+        section="page-0",
+        chunk_id=chunk.chunk_id,
+        evidence_text=chunk.text,
+        model="test",
+        confidence=1.0,
+        extracted_at="2026-05-18T00:00:00+00:00",
+    )
+    chunks_path = write_chunks_jsonl([chunk], tmp_path / "chunks.jsonl")
+    kg_path = write_kg_jsonl([triple], tmp_path / "kg.jsonl")
+
+    result = run_query(
+        "How does angle of attack affect lift?",
+        mode="hybrid",
+        chunks_path=chunks_path,
+        kg_path=kg_path,
+        index_dir=tmp_path / "index",
+        graph_method="lexical",
+        graph_fusion_policy="rrf",
+        temperature=0.2,
+        max_tokens=77,
+    )
+
+    assert result["answer"] == "Grounded answer.\n\nCitations: vector-c1, t1"
+    assert result["vector_hits"][0]["chunk_id"] == "vector-c1"
+    assert result["graph_triples"][0]["triple_id"] == "t1"
+    assert {item["chunk_id"] for item in result["fused_chunks"]} == {
+        "doc-p00-c00",
+        "vector-c1",
+    }
+    assert captured["llm_kwargs"] == {"temperature": 0.2, "max_tokens": 77}
+    prompt = str(captured["prompt"])
+    assert "Vector lift evidence." in prompt
+    assert "triple_id=t1" in prompt
+    assert "Answer only from the retrieved evidence" in prompt
+
+
 def test_run_retrieval_hybrid_records_lexical_hops_as_not_applicable(
     tmp_path: Path,
     monkeypatch,
