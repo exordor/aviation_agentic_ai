@@ -3,6 +3,7 @@ from pathlib import Path
 from aviation_agentic_ai.chunking.chunks import (
     BENCHMARK_V2_CHUNKING_STRATEGIES,
     CHUNKING_STRATEGIES,
+    ChunkReadError,
     SourceChunk,
     _cosine_similarity,
     _proposition_segments,
@@ -52,6 +53,46 @@ def test_chunk_jsonl_round_trip(tmp_path: Path) -> None:
     path = write_chunks_jsonl([chunk], tmp_path / "chunks.jsonl")
 
     assert read_chunks_jsonl(path) == [chunk]
+
+
+def test_read_chunks_jsonl_reports_line_number_for_malformed_json(tmp_path: Path) -> None:
+    chunk = SourceChunk(
+        chunk_id="doc-p00-c00",
+        source_document="doc",
+        source_path="data/raw/doc.pdf",
+        page=0,
+        chunk_index=0,
+        char_start=0,
+        char_end=12,
+        text="Air and lift.",
+    )
+    path = write_chunks_jsonl([chunk], tmp_path / "chunks.jsonl")
+    path.write_text(path.read_text(encoding="utf-8") + "not-json\n", encoding="utf-8")
+
+    try:
+        read_chunks_jsonl(path)
+    except ChunkReadError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected ChunkReadError")
+
+    assert "chunks.jsonl" in message
+    assert "line 2" in message
+
+
+def test_read_chunks_jsonl_reports_line_number_for_missing_fields(tmp_path: Path) -> None:
+    path = tmp_path / "chunks.jsonl"
+    path.write_text('{"chunk_id": "missing-required-fields"}\n', encoding="utf-8")
+
+    try:
+        read_chunks_jsonl(path)
+    except ChunkReadError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected ChunkReadError")
+
+    assert "chunks.jsonl" in message
+    assert "line 1" in message
 
 
 def test_all_chunking_strategies_generate_non_empty_stable_chunks(monkeypatch) -> None:

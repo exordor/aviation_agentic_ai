@@ -120,6 +120,10 @@ class SourceChunk:
         return asdict(self)
 
 
+class ChunkReadError(ValueError):
+    """Raised when a chunk JSONL artifact cannot be parsed with line-level context."""
+
+
 def _normalize_text(text: str) -> str:
     return "\n".join(" ".join(line.split()) for line in text.splitlines() if line.strip())
 
@@ -937,11 +941,23 @@ def write_chunks_jsonl(chunks: list[SourceChunk], output_path: str | Path) -> Pa
 
 def read_chunks_jsonl(path: str | Path) -> list[SourceChunk]:
     chunks: list[SourceChunk] = []
-    for line in Path(path).read_text(encoding="utf-8").splitlines():
+    chunk_path = Path(path)
+    for line_number, line in enumerate(
+        chunk_path.read_text(encoding="utf-8").splitlines(),
+        start=1,
+    ):
         if not line.strip():
             continue
-        data = json.loads(line)
-        chunks.append(SourceChunk(**data))
+        try:
+            data = json.loads(line)
+            if not isinstance(data, dict):
+                raise TypeError("expected JSON object")
+            chunks.append(SourceChunk(**data))
+        except (json.JSONDecodeError, TypeError) as exc:
+            raise ChunkReadError(
+                f"Invalid chunk JSONL record in {project_relative_path(chunk_path)} "
+                f"at line {line_number}: {exc}"
+            ) from exc
     return chunks
 
 
