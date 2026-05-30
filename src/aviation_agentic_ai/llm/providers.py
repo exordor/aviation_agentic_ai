@@ -9,6 +9,27 @@ if TYPE_CHECKING:
     from langchain_core.language_models.chat_models import BaseChatModel
 
 
+DEFAULT_LLM_MODELS: dict[str, str] = {
+    "openai": "gpt-4o-mini",
+    "deepseek": "deepseek-chat",
+    "vllm": "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8",
+}
+SUPPORTED_LLM_PROVIDERS = frozenset(DEFAULT_LLM_MODELS)
+
+
+def configured_llm_provider() -> str:
+    return os.getenv("LLM_PROVIDER", "openai").lower()
+
+
+def default_model_for_provider(provider: str) -> str:
+    return DEFAULT_LLM_MODELS.get(provider, "unknown")
+
+
+def configured_llm_model(provider: str | None = None) -> str:
+    effective_provider = provider or configured_llm_provider()
+    return os.getenv("MODEL_NAME", default_model_for_provider(effective_provider))
+
+
 def _required_env(name: str, provider: str) -> str:
     value = os.getenv(name)
     if value:
@@ -30,11 +51,12 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel"
         ) from exc
 
     load_environment()
-    provider = os.getenv("LLM_PROVIDER", "openai").lower()
+    provider = configured_llm_provider()
+    model = configured_llm_model(provider)
 
     if provider == "openai":
         return ChatOpenAI(
-            model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
+            model=model,
             base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
             api_key=_required_env("OPENAI_API_KEY", provider),
             temperature=temperature,
@@ -43,7 +65,7 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel"
 
     if provider == "deepseek":
         return ChatOpenAI(
-            model=os.getenv("MODEL_NAME", "deepseek-chat"),
+            model=model,
             base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"),
             api_key=_required_env("DEEPSEEK_API_KEY", provider),
             temperature=temperature,
@@ -52,7 +74,7 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel"
 
     if provider == "vllm":
         return ChatOpenAI(
-            model=os.getenv("MODEL_NAME", "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8"),
+            model=model,
             base_url=f"http://localhost:{os.getenv('VLLM_PORT', '8000')}/v1",
             api_key="not-needed",
             temperature=temperature,

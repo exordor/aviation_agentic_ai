@@ -8,6 +8,11 @@ from typing import Any, Literal
 from pydantic import BaseModel
 
 from aviation_agentic_ai.config import load_environment
+from aviation_agentic_ai.llm.providers import (
+    SUPPORTED_LLM_PROVIDERS,
+    configured_llm_model,
+    configured_llm_provider,
+)
 from aviation_agentic_ai.paths import PROJECT_ROOT
 from aviation_agentic_ai.retrieval.hybrid import run_query
 from aviation_agentic_ai.retrieval.sufficiency import evaluate_evidence_sufficiency
@@ -33,13 +38,8 @@ class QueryRequest(BaseModel):
 
 def _llm_metadata() -> dict[str, str]:
     load_environment()
-    provider = os.getenv("LLM_PROVIDER", "openai").lower()
-    default_model = {
-        "openai": "gpt-4o-mini",
-        "deepseek": "deepseek-chat",
-        "vllm": "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8",
-    }.get(provider, "unknown")
-    return {"provider": provider, "model": os.getenv("MODEL_NAME", default_model)}
+    provider = configured_llm_provider()
+    return {"provider": provider, "model": configured_llm_model(provider)}
 
 
 def build_live_query_readiness(
@@ -93,7 +93,7 @@ def build_live_query_readiness(
         return {**base, "reason": "OPENAI_API_KEY is not configured."}
     if provider == "deepseek" and not os.getenv("DEEPSEEK_API_KEY"):
         return {**base, "reason": "DEEPSEEK_API_KEY is not configured."}
-    if provider not in {"openai", "deepseek", "vllm"}:
+    if provider not in SUPPORTED_LLM_PROVIDERS:
         return {**base, "reason": f"Unsupported LLM_PROVIDER: {provider}"}
 
     return {**base, "enabled": True, "reason": "Live query is ready."}

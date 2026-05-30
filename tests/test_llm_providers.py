@@ -20,6 +20,18 @@ def _install_fake_langchain_openai(monkeypatch) -> None:
     monkeypatch.setitem(__import__("sys").modules, "langchain_openai", module)
 
 
+def test_llm_provider_helpers_expose_shared_defaults(monkeypatch) -> None:
+    monkeypatch.delenv("MODEL_NAME", raising=False)
+    monkeypatch.setenv("LLM_PROVIDER", "vllm")
+
+    assert providers.SUPPORTED_LLM_PROVIDERS == frozenset({"openai", "deepseek", "vllm"})
+    assert providers.configured_llm_provider() == "vllm"
+    assert providers.configured_llm_model("openai") == "gpt-4o-mini"
+    assert providers.configured_llm_model("deepseek") == "deepseek-chat"
+    assert providers.configured_llm_model("vllm") == "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8"
+    assert providers.configured_llm_model("unknown-provider") == "unknown"
+
+
 def test_get_llm_uses_environment_loader_and_openai_defaults(monkeypatch) -> None:
     _install_fake_langchain_openai(monkeypatch)
     load_calls: list[str] = []

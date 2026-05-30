@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 from rdflib import Graph, OWL, RDF, RDFS, URIRef
 
 from aviation_agentic_ai.config import load_environment
+from aviation_agentic_ai.llm.providers import configured_llm_model, configured_llm_provider
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.ontology.evaluation import (
     ONTOLOGY_NAMESPACE,
@@ -182,16 +183,16 @@ def _host_only(url: str) -> str:
 def _llm_manifest_metadata() -> dict[str, str]:
     load_environment()
 
-    provider = os.getenv("LLM_PROVIDER", "openai").lower()
+    provider = configured_llm_provider()
+    model = configured_llm_model(provider)
     if provider == "deepseek":
-        model = os.getenv("MODEL_NAME", "deepseek-chat")
         base_url = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
     elif provider == "vllm":
-        model = os.getenv("MODEL_NAME", "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8")
         base_url = f"http://localhost:{os.getenv('VLLM_PORT', '8000')}/v1"
-    else:
-        model = os.getenv("MODEL_NAME", "gpt-4o-mini")
+    elif provider == "openai":
         base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    else:
+        base_url = ""
     return {"provider": provider, "model": model, "base_url_host": _host_only(base_url)}
 
 

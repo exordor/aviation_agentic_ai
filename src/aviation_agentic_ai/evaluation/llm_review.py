@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from aviation_agentic_ai.config import load_environment
 from aviation_agentic_ai.evaluation.protocol import safe_llm_metadata
+from aviation_agentic_ai.llm.providers import SUPPORTED_LLM_PROVIDERS
 from aviation_agentic_ai.utils.json import extract_json_object as _extract_json_object_text
 
 
@@ -149,7 +150,7 @@ def reviewer_model_name() -> str:
 def llm_runtime_available() -> bool:
     load_environment()
     provider = os.getenv("LLM_PROVIDER", "openai").lower()
-    if provider not in {"openai", "deepseek", "vllm"}:
+    if provider not in SUPPORTED_LLM_PROVIDERS:
         return False
     if provider == "openai" and not os.getenv("OPENAI_API_KEY"):
         return False

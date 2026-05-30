@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.config import load_environment
+from aviation_agentic_ai.llm.providers import configured_llm_model, configured_llm_provider
 from aviation_agentic_ai.paths import project_relative_path
 
 
@@ -21,15 +21,10 @@ def _safe_path_value(value: Any) -> Any:
 
 def safe_llm_metadata() -> dict[str, str]:
     load_environment()
-    provider = os.getenv("LLM_PROVIDER", "openai").lower()
-    default_model = {
-        "openai": "gpt-4o-mini",
-        "deepseek": "deepseek-chat",
-        "vllm": "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8",
-    }.get(provider, "unknown")
+    provider = configured_llm_provider()
     return {
         "provider": provider,
-        "model": os.getenv("MODEL_NAME", default_model),
+        "model": configured_llm_model(provider),
     }
 
 
