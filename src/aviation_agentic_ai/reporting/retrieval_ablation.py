@@ -22,6 +22,7 @@ from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.retrieval.hybrid import run_retrieval
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
 from aviation_agentic_ai.reporting.io import write_json_report
+from aviation_agentic_ai.reporting.retrieval_summaries import hit_summary, triple_summary
 
 
 RetrievalRunner = Callable[..., dict[str, Any]]
@@ -129,33 +130,6 @@ def _label_breakdown(gold_labels: dict[str, GoldLabel]) -> dict[str, Any]:
     }
 
 
-def _hit_summary(hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [
-        {
-            "chunk_id": str(hit.get("chunk_id", "")),
-            "page": hit.get("page"),
-            "rank": hit.get("rank"),
-            "source": hit.get("source"),
-        }
-        for hit in hits
-    ]
-
-
-def _triple_summary(triples: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [
-        {
-            "triple_id": str(triple.get("triple_id", "")),
-            "chunk_id": str(triple.get("chunk_id", "")),
-            "page": triple.get("page"),
-            "rank": triple.get("rank"),
-            "subject": triple.get("subject"),
-            "predicate": triple.get("predicate"),
-            "object": triple.get("object"),
-        }
-        for triple in triples
-    ]
-
-
 def _explain_scenario(mode: str, aggregate: dict[str, Any]) -> str:
     retrieval = aggregate["retrieval"]
     kg = aggregate["kg_evidence"]
@@ -241,8 +215,8 @@ def build_retrieval_ablation(
                         "hybrid_top_k": hybrid_top_k,
                     },
                     "metrics": metrics,
-                    "hits": _hit_summary(result.get("fused_chunks", [])),
-                    "graph_triples": _triple_summary(result.get("graph_triples", [])),
+                    "hits": hit_summary(result.get("fused_chunks", [])),
+                    "graph_triples": triple_summary(result.get("graph_triples", [])),
                 }
             )
         aggregate = _aggregate(records)

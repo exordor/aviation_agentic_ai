@@ -16,11 +16,8 @@ from aviation_agentic_ai.evaluation.metrics import (
 )
 from aviation_agentic_ai.evaluation.protocol import build_run_manifest, embedding_metadata
 from aviation_agentic_ai.paths import project_relative_path
-from aviation_agentic_ai.reporting.retrieval_ablation import (
-    _hit_summary,
-    _triple_summary,
-)
 from aviation_agentic_ai.reporting.io import write_json_report
+from aviation_agentic_ai.reporting.retrieval_summaries import hit_summary, triple_summary
 from aviation_agentic_ai.retrieval.graph_traversal import (
     RELATION_KEYWORDS,
     normalize_entity_label,
@@ -456,8 +453,8 @@ def build_graph_traversal_ablation(
                         "hybrid_top_k": hybrid_top_k,
                     },
                     "metrics": metrics,
-                    "hits": _hit_summary(result.get("fused_chunks", [])),
-                    "graph_triples": _triple_summary(result.get("graph_triples", [])),
+                    "hits": hit_summary(result.get("fused_chunks", [])),
+                    "graph_triples": triple_summary(result.get("graph_triples", [])),
                     "graph_paths": _path_summary(result.get("graph_paths", [])[:10]),
                 }
             )
