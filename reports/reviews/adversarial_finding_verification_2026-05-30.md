@@ -31,6 +31,7 @@ verified backlog rather than silently mixed into this iteration.
 | M5 | Still valid. Retrieval and answer metrics had missing empty-input tests. | Added explicit empty-input retrieval and answer metric tests. |
 | M6 | Still valid. Evaluation protocol tests were mostly structural. | Added value-level assertions for the metric catalog, implemented/pending metric sets, report-presence coverage, precision/CI interpretation notes, and review/certification limitation language in `EVIDENCE_GAPS`. |
 | M7 | Still valid. Empty KG JSONL round-trip was not tested. | Added `write_kg_jsonl([])` / `read_kg_jsonl` round-trip coverage. |
+| Coverage gaps | Still valid for the coverage-summary rows on `evaluation/document_metadata.py` and `utils/pdf.py`. Existing coverage was indirect or schema-only. | Added direct tests for PDF extraction zero-based page numbering, empty-page skipping, `max_pages` truncation before text extraction, and document metadata defaults/overrides with stable relative paths. |
 
 ## Verified Backlog
 
