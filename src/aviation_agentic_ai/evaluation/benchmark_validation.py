@@ -21,6 +21,10 @@ SUPPORTED_REQUIRED_FIELDS = (
 )
 
 
+class BenchmarkValidationReadError(ValueError):
+    """Raised when benchmark validation input artifacts cannot be parsed."""
+
+
 def normalize_evidence_text(text: str) -> str:
     """Normalize whitespace while preserving source casing."""
     return " ".join(str(text).split())
@@ -28,12 +32,21 @@ def normalize_evidence_text(text: str) -> str:
 
 def read_benchmark_payload(path: str | Path) -> dict[str, Any]:
     source = Path(path)
-    payload = json.loads(source.read_text(encoding="utf-8"))
+    try:
+        payload = json.loads(source.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise BenchmarkValidationReadError(
+            f"Invalid benchmark payload JSON in {project_relative_path(source)}: {exc}"
+        ) from exc
     if not isinstance(payload, dict):
-        raise ValueError(f"Benchmark payload must be a JSON object: {project_relative_path(source)}")
+        raise BenchmarkValidationReadError(
+            f"Benchmark payload must be a JSON object: {project_relative_path(source)}"
+        )
     labels = payload.get("labels")
     if not isinstance(labels, list):
-        raise ValueError(f"Benchmark payload has non-list labels: {project_relative_path(source)}")
+        raise BenchmarkValidationReadError(
+            f"Benchmark payload has non-list labels: {project_relative_path(source)}"
+        )
     return payload
 
 
@@ -43,12 +56,16 @@ def _read_chunks(path: str | Path) -> list[dict[str, Any]]:
     for line_number, line in enumerate(source.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
-        item = json.loads(line)
-        if not isinstance(item, dict):
-            raise ValueError(
-                f"Chunk file contains a non-object item at "
-                f"{project_relative_path(source)}:{line_number}"
-            )
+        try:
+            item = json.loads(line)
+            if not isinstance(item, dict):
+                raise TypeError("expected JSON object")
+            int(item.get("page", -1))
+        except (json.JSONDecodeError, TypeError, ValueError) as exc:
+            raise BenchmarkValidationReadError(
+                f"Invalid chunk validation JSONL record in {project_relative_path(source)} "
+                f"at line {line_number}: {exc}"
+            ) from exc
         chunks.append(item)
     return chunks
 

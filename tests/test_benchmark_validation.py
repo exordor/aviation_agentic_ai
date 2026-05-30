@@ -1,7 +1,10 @@
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.evaluation.benchmark_validation import validate_benchmark
+from aviation_agentic_ai.evaluation.benchmark_validation import (
+    BenchmarkValidationReadError,
+    validate_benchmark,
+)
 from aviation_agentic_ai.reporting.benchmark_v2 import write_benchmark_v2_summary
 
 
@@ -163,6 +166,44 @@ def test_benchmark_validation_fails_on_bad_no_answer_format(tmp_path: Path) -> N
     assert any("source_page=-1" in error for error in result["errors"])
     assert any("empty expected_chunk_ids" in error for error in result["errors"])
     assert any("empty evidence_spans" in error for error in result["errors"])
+
+
+def test_benchmark_validation_reports_chunk_jsonl_line_number(tmp_path: Path) -> None:
+    chunks = tmp_path / "chunks.jsonl"
+    gold = tmp_path / "gold.json"
+    _write_chunks(chunks)
+    chunks.write_text(chunks.read_text(encoding="utf-8") + "not-json\n", encoding="utf-8")
+    _write_benchmark(gold, [_supported_label()])
+
+    try:
+        validate_benchmark(gold, [chunks], min_labels=1)
+    except BenchmarkValidationReadError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected BenchmarkValidationReadError")
+
+    assert "chunks.jsonl" in message
+    assert "line 2" in message
+
+
+def test_benchmark_validation_reports_invalid_chunk_page_line_number(tmp_path: Path) -> None:
+    chunks = tmp_path / "chunks.jsonl"
+    gold = tmp_path / "gold.json"
+    _write_chunks(chunks)
+    payload = json.loads(chunks.read_text(encoding="utf-8"))
+    payload["page"] = "not-an-int"
+    chunks.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+    _write_benchmark(gold, [_supported_label()])
+
+    try:
+        validate_benchmark(gold, [chunks], min_labels=1)
+    except BenchmarkValidationReadError as exc:
+        message = str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected BenchmarkValidationReadError")
+
+    assert "chunks.jsonl" in message
+    assert "line 1" in message
 
 
 def test_benchmark_v2_summary_writes_reports(tmp_path: Path) -> None:
