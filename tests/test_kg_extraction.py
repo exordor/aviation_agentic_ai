@@ -165,6 +165,12 @@ def test_extract_kg_llm_filters_unsupported_or_bad_evidence(
     assert report["valid"]
     assert len(triples) == 1
     assert triples[0].object_class == "Cl_Wing"
+    assert report["llm_candidate_triples_total"] == 3
+    assert report["llm_filtered_triples_total"] == 2
+    assert report["llm_filtered_triples_by_reason"] == {
+        "evidence_text_not_in_chunk": 1,
+        "unsupported_object_class": 1,
+    }
 
 
 def test_extract_kg_llm_records_chunk_errors_without_aborting(

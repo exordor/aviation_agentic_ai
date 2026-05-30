@@ -302,7 +302,8 @@ def _window_text(text: str, max_chars: int, overlap_chars: int) -> list[tuple[in
         if hard_end < text_length:
             paragraph_break = text.rfind("\n", start, hard_end)
             sentence_break = max(text.rfind(". ", start, hard_end), text.rfind("; ", start, hard_end))
-            soft_end = max(paragraph_break, sentence_break)
+            word_break = text.rfind(" ", start, hard_end)
+            soft_end = max(paragraph_break, sentence_break, word_break)
             if soft_end > start + max_chars // 2:
                 end = soft_end + 1
         chunk_text = text[start:end].strip()
@@ -327,6 +328,8 @@ def _lexical_similarity(left: str, right: str) -> float:
 
 
 def _cosine_similarity(left: list[float], right: list[float]) -> float:
+    if len(left) != len(right):
+        raise ValueError("Cosine similarity requires vectors with the same length.")
     left_norm = sqrt(sum(value * value for value in left))
     right_norm = sqrt(sum(value * value for value in right))
     if not left_norm or not right_norm:

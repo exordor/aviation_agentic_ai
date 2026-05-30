@@ -1,6 +1,6 @@
 # Graph Traversal Ablation
 
-- Run ID: `graph-traversal-ablation-20260530T094921Z`
+- Run ID: `graph-traversal-ablation-20260530T100101Z`
 - Questions: 120
 - Scenarios: 8
 - Scoring: retrieval, KG evidence, and graph path metrics are kept separate.

@@ -14,6 +14,7 @@ from aviation_agentic_ai.chunking.chunks import SourceChunk, read_chunks_jsonl
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.ontology.evaluation import local_name
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.utils.json import extract_json_payload as _extract_json_payload_text
 
 
 @dataclass(frozen=True)
@@ -79,17 +80,7 @@ def _normalize_for_contains(text: str) -> str:
 
 
 def _extract_json_payload(text: str) -> str:
-    stripped = text.strip()
-    fenced = re.fullmatch(r"```(?:json)?\s*(.*?)\s*```", stripped, flags=re.DOTALL | re.IGNORECASE)
-    if fenced:
-        stripped = fenced.group(1).strip()
-    if stripped.startswith("{") and stripped.endswith("}"):
-        return stripped
-    start = stripped.find("{")
-    end = stripped.rfind("}")
-    if start >= 0 and end > start:
-        return stripped[start : end + 1]
-    return stripped
+    return _extract_json_payload_text(text)
 
 
 def _stable_triple_id(chunk_id: str, index: int, triple: dict[str, Any]) -> str:
@@ -205,6 +196,7 @@ def _llm_triples_for_chunk(
     extracted_at: str,
     temperature: float,
     max_tokens: int,
+    extraction_stats: dict[str, Any] | None = None,
 ) -> list[KGTriple]:
     payload = json.loads(
         _extract_json_payload(
@@ -218,6 +210,10 @@ def _llm_triples_for_chunk(
     raw_triples = payload.get("triples", [])
     if not isinstance(raw_triples, list):
         raise ValueError("Expected top-level 'triples' array from KG extraction LLM.")
+    if extraction_stats is not None:
+        extraction_stats["llm_candidate_triples_total"] = (
+            int(extraction_stats.get("llm_candidate_triples_total", 0)) + len(raw_triples)
+        )
 
     triples: list[KGTriple] = []
     allowed_classes = set(profile.instantiable_classes)
@@ -225,6 +221,8 @@ def _llm_triples_for_chunk(
     chunk_text = _normalize_for_contains(chunk.text)
     for index, raw in enumerate(raw_triples):
         if not isinstance(raw, dict):
+            if extraction_stats is not None:
+                _record_filtered_triple(extraction_stats, "non_object")
             continue
         confidence = float(raw.get("confidence", 0.0))
         normalized = {
@@ -235,13 +233,20 @@ def _llm_triples_for_chunk(
             "object_class": str(raw.get("object_class", "")),
         }
         evidence_text = str(raw.get("evidence_text", "")).strip()
-        if (
-            normalized["subject_class"] not in allowed_classes
-            or normalized["object_class"] not in allowed_classes
-            or normalized["predicate"] not in allowed_predicates
-            or not evidence_text
-            or _normalize_for_contains(evidence_text) not in chunk_text
-        ):
+        filter_reason = ""
+        if normalized["subject_class"] not in allowed_classes:
+            filter_reason = "unsupported_subject_class"
+        elif normalized["object_class"] not in allowed_classes:
+            filter_reason = "unsupported_object_class"
+        elif normalized["predicate"] not in allowed_predicates:
+            filter_reason = "unsupported_predicate"
+        elif not evidence_text:
+            filter_reason = "missing_evidence_text"
+        elif _normalize_for_contains(evidence_text) not in chunk_text:
+            filter_reason = "evidence_text_not_in_chunk"
+        if filter_reason:
+            if extraction_stats is not None:
+                _record_filtered_triple(extraction_stats, filter_reason)
             continue
         triples.append(
             KGTriple(
@@ -262,6 +267,14 @@ def _llm_triples_for_chunk(
             )
         )
     return triples
+
+
+def _record_filtered_triple(extraction_stats: dict[str, Any], reason: str) -> None:
+    extraction_stats["llm_filtered_triples_total"] = (
+        int(extraction_stats.get("llm_filtered_triples_total", 0)) + 1
+    )
+    by_reason = extraction_stats.setdefault("llm_filtered_triples_by_reason", {})
+    by_reason[reason] = int(by_reason.get(reason, 0)) + 1
 
 
 def write_kg_jsonl(triples: list[KGTriple], output_path: str | Path) -> Path:
@@ -517,6 +530,8 @@ def write_kg_validation_reports(
         f"- Validation errors: {report['errors_total']}",
         f"- Extraction complete: {report.get('extraction_complete', 'not_recorded')}",
         f"- Extraction errors: {report.get('extraction_errors_total', 0)}",
+        f"- LLM candidate triples: {report.get('llm_candidate_triples_total', 0)}",
+        f"- LLM filtered triples: {report.get('llm_filtered_triples_total', 0)}",
     ]
     if report["errors"]:
         lines.extend(["", "## First Errors", ""])
@@ -551,6 +566,11 @@ def extract_kg_file(
     extracted_at = datetime.now(UTC).isoformat()
     triples: list[KGTriple] = []
     extraction_errors: list[dict[str, Any]] = []
+    extraction_stats: dict[str, Any] = {
+        "llm_candidate_triples_total": 0,
+        "llm_filtered_triples_total": 0,
+        "llm_filtered_triples_by_reason": {},
+    }
     total = len(selected_chunks)
     for index, chunk in enumerate(selected_chunks, start=1):
         if dry_run:
@@ -563,6 +583,7 @@ def extract_kg_file(
                     extracted_at,
                     temperature=temperature,
                     max_tokens=max_tokens,
+                    extraction_stats=extraction_stats,
                 )
             except Exception as exc:
                 extraction_errors.append(
@@ -584,6 +605,7 @@ def extract_kg_file(
             "extraction_complete": not extraction_errors,
             "extraction_errors_total": len(extraction_errors),
             "extraction_errors": extraction_errors,
+            **extraction_stats,
         }
     )
     if not report["valid"]:

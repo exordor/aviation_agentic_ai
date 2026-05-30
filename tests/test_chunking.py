@@ -4,6 +4,8 @@ from aviation_agentic_ai.chunking.chunks import (
     BENCHMARK_V2_CHUNKING_STRATEGIES,
     CHUNKING_STRATEGIES,
     SourceChunk,
+    _cosine_similarity,
+    _window_text,
     build_chunks,
     chunking_profile,
     read_chunks_jsonl,
@@ -101,6 +103,22 @@ def test_chunking_profile_marks_partial_and_fallback_methods() -> None:
     assert hierarchy.implementation_status == "partial"
     assert hierarchy.parent_child_retrieval == "partial_child_index_parent_metadata"
     assert proposition.returned_context_unit == "proposition_only"
+
+
+def test_window_text_prefers_word_boundary_before_hard_cut() -> None:
+    windows = _window_text("alpha beta gamma delta", max_chars=12, overlap_chars=0)
+
+    assert windows[0][2] == "alpha beta"
+    assert not windows[0][2].endswith("g")
+
+
+def test_cosine_similarity_rejects_mismatched_dimensions() -> None:
+    try:
+        _cosine_similarity([1.0, 0.0], [1.0])
+    except ValueError as exc:
+        assert "same length" in str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected ValueError")
 
 
 def test_fixed_and_recursive_size_tiers_apply_relative_sizes(monkeypatch) -> None:

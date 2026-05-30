@@ -98,9 +98,37 @@ def reciprocal_rank_fusion(
         item = dict(merged[chunk_id])
         item["rank"] = rank
         item["score"] = score
-        item["source"] = "+".join(sorted(source for source in sources[chunk_id] if source))
+        item["source"] = "+".join(sorted(source for source in sources[chunk_id] if source)) or "unknown"
         fused.append(item)
     return fused
+
+
+def _source_set(value: Any) -> set[str]:
+    return {source for source in str(value or "").split("+") if source}
+
+
+def _merged_source(left: Any, right: Any) -> str:
+    sources = sorted(_source_set(left) | _source_set(right))
+    return "+".join(sources) or "unknown"
+
+
+def _score(item: dict[str, Any]) -> float:
+    try:
+        return float(item.get("score", 0.0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _merge_duplicate_hit(
+    existing: dict[str, Any],
+    candidate: dict[str, Any],
+    *,
+    prefer_existing: bool = False,
+) -> dict[str, Any]:
+    winner = existing if prefer_existing or _score(existing) >= _score(candidate) else candidate
+    merged = dict(winner)
+    merged["source"] = _merged_source(existing.get("source"), candidate.get("source"))
+    return merged
 
 
 def _strong_graph_overlap(
@@ -155,17 +183,22 @@ def vector_first_guarded_fusion(
         else [*vector_hits, *graph_hits]
     )
     fused: list[dict[str, Any]] = []
-    seen: set[str] = set()
+    positions: dict[str, int] = {}
+    protected_ids = {str(item["chunk_id"]) for item in protected}
     for item in [*protected, *fused_tail_source]:
         chunk_id = str(item["chunk_id"])
-        if chunk_id in seen:
+        if chunk_id in positions:
+            fused[positions[chunk_id]] = _merge_duplicate_hit(
+                fused[positions[chunk_id]],
+                item,
+                prefer_existing=chunk_id in protected_ids,
+            )
             continue
         output = dict(item)
-        output["source"] = str(output.get("source", ""))
+        output["source"] = str(output.get("source") or "unknown")
         fused.append(output)
-        seen.add(chunk_id)
-        if len(fused) >= top_k:
-            break
+        positions[chunk_id] = len(fused) - 1
+    fused = fused[:top_k]
     for rank, item in enumerate(fused, start=1):
         item["rank"] = rank
     return fused

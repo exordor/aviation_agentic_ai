@@ -31,6 +31,15 @@ def test_reciprocal_rank_fusion_uses_ranks_and_top_k() -> None:
     assert fused[0]["score"] < 1
 
 
+def test_reciprocal_rank_fusion_uses_unknown_for_missing_source() -> None:
+    fused = reciprocal_rank_fusion(
+        [[{"chunk_id": "a", "rank": 1, "score": 1.0, "source": ""}]],
+        top_k=1,
+    )
+
+    assert fused[0]["source"] == "unknown"
+
+
 def test_answer_prompt_contains_grounding_constraints() -> None:
     prompt = build_answer_prompt(
         "How does angle of attack affect lift?",
@@ -220,6 +229,27 @@ def test_vector_first_guarded_fusion_preserves_vector_when_graph_overlap_is_weak
 
     assert [item["chunk_id"] for item in fused] == ["v1", "v2", "g1"]
     assert [item["rank"] for item in fused] == [1, 2, 3]
+
+
+def test_vector_first_guarded_fusion_merges_duplicate_weak_graph_hit() -> None:
+    fused = vector_first_guarded_fusion(
+        "What affects thrust?",
+        vector_hits=[
+            {"chunk_id": "v1", "rank": 1, "score": 1.0, "source": "vector"},
+            {"chunk_id": "shared", "rank": 2, "score": 0.1, "source": "vector"},
+        ],
+        graph_hits=[
+            {"chunk_id": "shared", "rank": 1, "score": 5.0, "source": "graph"},
+        ],
+        graph_triples=[],
+        graph_paths=[],
+        top_k=2,
+        preserve_top_n=1,
+    )
+
+    assert [item["chunk_id"] for item in fused] == ["v1", "shared"]
+    assert fused[1]["score"] == 5.0
+    assert fused[1]["source"] == "graph+vector"
 
 
 def test_chroma_index_builder_can_use_mock_client(tmp_path: Path, monkeypatch) -> None:

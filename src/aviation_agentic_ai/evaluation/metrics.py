@@ -39,6 +39,8 @@ def _hit_matches_gold(hit: dict[str, Any], gold: GoldLabel) -> bool:
         return any(_span_matches_hit(span, hit) for span in gold.evidence_spans)
     if gold.expected_chunk_ids:
         return str(hit.get("chunk_id", "")) in set(gold.expected_chunk_ids)
+    if gold.source_page < 0:
+        return False
     return int(hit.get("page", -1)) == gold.source_page
 
 

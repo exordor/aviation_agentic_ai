@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from datetime import UTC, datetime
 from dataclasses import dataclass
 from hashlib import sha256
@@ -23,6 +22,7 @@ from aviation_agentic_ai.ontology.evaluation import (
 from aviation_agentic_ai.ontology.cq import load_cq_artifact
 from aviation_agentic_ai.ontology.profiles import DomainProfile, get_domain_profile
 from aviation_agentic_ai.ontology.validation import verify_turtle_text
+from aviation_agentic_ai.utils.json import extract_json_payload as _extract_json_payload_text
 from aviation_agentic_ai.utils.pdf import extract_pages
 
 
@@ -121,17 +121,7 @@ def _invoke_text(llm: Any, prompt: str) -> str:
 
 
 def _extract_json_payload(text: str) -> str:
-    stripped = text.strip()
-    fenced = re.fullmatch(r"```(?:json)?\s*(.*?)\s*```", stripped, flags=re.DOTALL | re.IGNORECASE)
-    if fenced:
-        stripped = fenced.group(1).strip()
-    if stripped.startswith("{") and stripped.endswith("}"):
-        return stripped
-    start = stripped.find("{")
-    end = stripped.rfind("}")
-    if start >= 0 and end > start:
-        return stripped[start : end + 1]
-    return stripped
+    return _extract_json_payload_text(text)
 
 
 def _parse_validated_artifact(

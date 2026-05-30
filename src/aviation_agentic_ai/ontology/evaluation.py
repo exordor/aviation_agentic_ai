@@ -12,6 +12,7 @@ from rdflib import Graph, OWL, RDF, RDFS, URIRef
 
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.ontology.cq import load_cq_artifact
+from aviation_agentic_ai.utils.json import extract_json_object as _extract_json_object_text
 
 
 ONTOLOGY_NAMESPACE = "http://www.example.org/aviation/phak#"
@@ -1127,15 +1128,10 @@ def build_ai_review_prompt(cq: CompetencyQuestionRecord, context: dict[str, Any]
 
 
 def _extract_json_object(text: str) -> dict[str, Any]:
-    stripped = text.strip()
-    if stripped.startswith("```"):
-        stripped = re.sub(r"^```(?:json)?\s*", "", stripped)
-        stripped = re.sub(r"\s*```$", "", stripped)
-    start = stripped.find("{")
-    end = stripped.rfind("}")
-    if start == -1 or end == -1 or end < start:
-        raise ValueError("AI reviewer response did not contain a JSON object.")
-    return json.loads(stripped[start : end + 1])
+    try:
+        return _extract_json_object_text(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError("AI reviewer response did not contain a JSON object.") from exc
 
 
 def parse_ai_review_response(cq_id: str, text: str) -> dict[str, Any]:

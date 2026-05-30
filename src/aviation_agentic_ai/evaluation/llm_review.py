@@ -3,13 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import re
 from datetime import UTC, datetime
 from typing import Any, Callable
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from aviation_agentic_ai.evaluation.protocol import safe_llm_metadata
+from aviation_agentic_ai.utils.json import extract_json_object as _extract_json_object_text
 
 
 LLM_REVIEWER_TYPE = "llm_judge"
@@ -185,25 +185,10 @@ def build_review_metadata(
 
 
 def extract_json_object(text: str) -> dict[str, Any]:
-    stripped = text.strip()
-    fenced = re.fullmatch(
-        r"```(?:json)?\s*(.*?)\s*```",
-        stripped,
-        flags=re.IGNORECASE | re.DOTALL,
-    )
-    if fenced:
-        stripped = fenced.group(1).strip()
     try:
-        payload = json.loads(stripped)
-    except json.JSONDecodeError:
-        start = stripped.find("{")
-        end = stripped.rfind("}")
-        if start < 0 or end < start:
-            raise
-        payload = json.loads(stripped[start : end + 1])
-    if not isinstance(payload, dict):
-        raise ValueError("LLM review response must be a JSON object.")
-    return payload
+        return _extract_json_object_text(text)
+    except ValueError as exc:
+        raise ValueError("LLM review response must be a JSON object.") from exc
 
 
 def invoke_llm_text(prompt: str, temperature: float, max_tokens: int) -> str:
