@@ -5,6 +5,10 @@ from types import ModuleType, SimpleNamespace
 from aviation_agentic_ai.chunking.chunks import SourceChunk, write_chunks_jsonl
 from aviation_agentic_ai.kg.extraction import KGTriple, write_kg_jsonl
 from aviation_agentic_ai.retrieval.hybrid import (
+    SOURCE_DELIMITER,
+    UNKNOWN_SOURCE,
+    _merged_source,
+    _score,
     build_answer_prompt,
     generate_grounded_answer,
     graph_search,
@@ -40,6 +44,28 @@ def test_reciprocal_rank_fusion_uses_unknown_for_missing_source() -> None:
     )
 
     assert fused[0]["source"] == "unknown"
+
+
+def test_reciprocal_rank_fusion_normalizes_merged_source_labels() -> None:
+    fused = reciprocal_rank_fusion(
+        [
+            [{"chunk_id": "a", "rank": 1, "score": 1.0, "source": "vector+graph"}],
+            [{"chunk_id": "a", "rank": 1, "score": 1.0, "source": "graph"}],
+            [{"chunk_id": "a", "rank": 1, "score": 1.0, "source": UNKNOWN_SOURCE}],
+        ],
+        top_k=1,
+    )
+
+    assert SOURCE_DELIMITER == "+"
+    assert fused[0]["source"] == "graph+vector"
+    assert _merged_source(" vector ", "graph+unknown") == "graph+vector"
+
+
+def test_score_defaults_invalid_values_to_zero() -> None:
+    assert _score({"score": 2}) == 2.0
+    assert _score({"score": "2.5"}) == 2.5
+    assert _score({"score": None}) == 0.0
+    assert _score({"score": "not-a-number"}) == 0.0
 
 
 def test_answer_prompt_contains_grounding_constraints() -> None:

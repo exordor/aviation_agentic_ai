@@ -1,0 +1,179 @@
+{
+  "review_input": "reports/reviews/adversarial-review-implementation-2026-05-30.md",
+  "triage_artifact": "reports/reviews/deepseek_v4pro_implementation_triage.json",
+  "remediation_date": "2026-05-30",
+  "status": "full_quality_gates_passed",
+  "policy": {
+    "treat_external_review_as_input_not_truth": true,
+    "scientific_metrics_changed": false,
+    "reports_regenerated_for_metric_claims": false,
+    "human_review_claimed": false,
+    "external_aviation_expert_certified": false,
+    "operational_readiness_claimed": false
+  },
+  "items": [
+    {
+      "finding_id": "C1",
+      "severity": "P1",
+      "remediation_status": "implemented",
+      "files_changed": [
+        "src/aviation_agentic_ai/utils/json_extraction.py",
+        "src/aviation_agentic_ai/utils/json.py",
+        "src/aviation_agentic_ai/kg/extraction.py",
+        "src/aviation_agentic_ai/ontology/generation.py",
+        "src/aviation_agentic_ai/ontology/evaluation.py",
+        "src/aviation_agentic_ai/evaluation/llm_review.py",
+        "tests/test_json_extraction.py"
+      ],
+      "summary": "Added a canonical JSON extraction module with object, array, fenced-block, embedded-payload, malformed-payload, empty-text, and multi-brace behavior. Existing wrapper imports remain compatible.",
+      "tests": [
+        "tests/test_json_extraction.py",
+        "tests/test_json_utils.py",
+        "tests/test_kg_extraction.py::test_extract_json_payload_variants",
+        "tests/test_llm_review_reports.py::test_llm_review_schema_rejects_certification_flags"
+      ],
+      "metric_impact": "none"
+    },
+    {
+      "finding_id": "C2",
+      "severity": "P2",
+      "remediation_status": "implemented",
+      "files_changed": [
+        "src/aviation_agentic_ai/chunking/chunks.py",
+        "tests/test_chunking.py"
+      ],
+      "summary": "Refactored fixed-window boundary selection into explicit paragraph, sentence, whitespace, and hard-cut helpers while preserving progress and short-page behavior.",
+      "tests": [
+        "tests/test_chunking.py"
+      ],
+      "metric_impact": "none unless chunking reports are explicitly regenerated"
+    },
+    {
+      "finding_id": "I3",
+      "severity": "P2",
+      "remediation_status": "verified_already_fixed",
+      "files_changed": [],
+      "summary": "No-answer labels with source_page=-1 remain excluded from page fallback matching.",
+      "tests": [
+        "tests/test_metric_edge_cases.py"
+      ],
+      "metric_impact": "none"
+    },
+    {
+      "finding_id": "I6",
+      "severity": "P4",
+      "remediation_status": "deferred",
+      "files_changed": [],
+      "summary": "Exact evidence containment remains the acceptance policy. Existing near-miss diagnostics are retained, and fuzzy or normalized matches remain diagnostic-only rather than accepted provenance.",
+      "tests": [
+        "tests/test_kg_extraction.py"
+      ],
+      "metric_impact": "none"
+    },
+    {
+      "finding_id": "M3",
+      "severity": "P1",
+      "remediation_status": "verified_already_fixed",
+      "files_changed": [],
+      "summary": "Leading short proposition-like fragments are already forward-merged and covered by chunking tests.",
+      "tests": [
+        "tests/test_chunking.py"
+      ],
+      "metric_impact": "none"
+    },
+    {
+      "finding_id": "NF1",
+      "severity": "P3",
+      "remediation_status": "implemented",
+      "files_changed": [
+        "src/aviation_agentic_ai/retrieval/hybrid.py",
+        "tests/test_hybrid_retrieval.py"
+      ],
+      "summary": "Centralized source delimiter and unknown-source handling. Existing public source strings are preserved, duplicate labels are normalized, and merged strings are parsed consistently.",
+      "tests": [
+        "tests/test_hybrid_retrieval.py::test_reciprocal_rank_fusion_normalizes_merged_source_labels"
+      ],
+      "metric_impact": "none"
+    },
+    {
+      "finding_id": "NF2",
+      "severity": "P3",
+      "remediation_status": "implemented",
+      "files_changed": [
+        "src/aviation_agentic_ai/evaluation/llm_review.py",
+        "tests/test_llm_review_reports.py"
+      ],
+      "summary": "Runtime availability now uses the central configured_llm_provider helper and preserves provider-specific key checks.",
+      "tests": [
+        "tests/test_llm_review_reports.py::test_llm_runtime_available_uses_central_environment_loader",
+        "tests/test_llm_review_reports.py::test_llm_runtime_available_rejects_unsupported_provider",
+        "tests/test_llm_review_reports.py::test_llm_runtime_available_accepts_vllm_without_api_key"
+      ],
+      "metric_impact": "none"
+    },
+    {
+      "finding_id": "NF3",
+      "severity": "P4",
+      "remediation_status": "deferred",
+      "files_changed": [],
+      "summary": "Typed ontology exception work is deferred because partial TTL/manifest preservation already addresses the data-loss risk. CLI behavior is unchanged.",
+      "tests": [
+        "tests/test_ontology_generation.py"
+      ],
+      "metric_impact": "none"
+    },
+    {
+      "finding_id": "NF4",
+      "severity": "P2",
+      "remediation_status": "implemented",
+      "files_changed": [
+        "src/aviation_agentic_ai/retrieval/hybrid.py",
+        "tests/test_hybrid_retrieval.py"
+      ],
+      "summary": "Documented _score behavior and added direct tests for numeric, numeric-string, missing, None, and non-numeric scores.",
+      "tests": [
+        "tests/test_hybrid_retrieval.py::test_score_defaults_invalid_values_to_zero"
+      ],
+      "metric_impact": "none"
+    },
+    {
+      "finding_id": "NF5",
+      "severity": "P3",
+      "remediation_status": "implemented",
+      "files_changed": [
+        "src/aviation_agentic_ai/evaluation/gold.py",
+        "tests/test_experiment_protocol.py"
+      ],
+      "summary": "The fallback question/gold-label loader reuses preloaded labels instead of reading the same gold-label file again.",
+      "tests": [
+        "tests/test_experiment_protocol.py::test_load_questions_and_gold_labels_reuses_preloaded_gold_for_cq_fallback"
+      ],
+      "metric_impact": "none"
+    }
+  ],
+  "deferred_items": [
+    "I6",
+    "NF3"
+  ],
+  "verification": {
+    "focused_tests": {
+      "status": "passed",
+      "command": "uv run pytest tests/test_json_extraction.py tests/test_json_utils.py tests/test_kg_extraction.py::test_extract_json_payload_variants tests/test_llm_review_reports.py::test_llm_runtime_available_uses_central_environment_loader tests/test_llm_review_reports.py::test_llm_runtime_available_rejects_unsupported_provider tests/test_llm_review_reports.py::test_llm_runtime_available_accepts_vllm_without_api_key tests/test_chunking.py tests/test_experiment_protocol.py::test_load_questions_and_gold_labels_reuses_preloaded_gold_for_cq_fallback tests/test_hybrid_retrieval.py::test_reciprocal_rank_fusion_normalizes_merged_source_labels tests/test_hybrid_retrieval.py::test_score_defaults_invalid_values_to_zero"
+    },
+    "full_quality_gates": {
+      "status": "passed",
+      "commands": [
+        "uv run ruff check .",
+        "uv run pytest",
+        "make validate",
+        "uv run aviation-ai report thesis-experiment-dashboard",
+        "uv run aviation-ai report project --no-ai"
+      ]
+    }
+  },
+  "claim_impact": {
+    "new_metrics_claimed": false,
+    "existing_metric_reports_regenerated": false,
+    "dashboard_final_report_update": "source inventory/status only; no strengthened claim"
+  }
+}

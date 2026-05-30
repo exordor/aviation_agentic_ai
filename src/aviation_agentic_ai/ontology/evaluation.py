@@ -13,7 +13,9 @@ from rdflib import Graph, OWL, RDF, RDFS, URIRef
 from aviation_agentic_ai.ontology.cq import load_cq_artifact
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.utils.io import write_json_document
-from aviation_agentic_ai.utils.json import extract_json_object as _extract_json_object_text
+from aviation_agentic_ai.utils.json_extraction import (
+    extract_json_object as _extract_json_object_text,
+)
 
 
 ONTOLOGY_NAMESPACE = "http://www.example.org/aviation/phak#"

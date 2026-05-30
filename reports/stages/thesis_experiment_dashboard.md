@@ -29,6 +29,7 @@
 | `chunking_topk_sensitivity_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |
 | `chunking_category_analysis_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |
 | `chunking_failure_cards_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval, failure_analysis | False | False |
+| `deepseek_v4pro_implementation_remediation` | True | not_dataset_specific | n/a | implementation_review, claim_safety | False | False |
 | `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False | False |
 | `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False | False |
 | `triple_semantic_review_sample` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_review_scaffold | False | False |
@@ -73,6 +74,7 @@
 | KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |
 | triple semantic review | Sample=100, reviewed=0, needs_review=100 |
 | LLM review status | Benchmark reviewed=6, triple evidence support=0.1667, graph path relevance=0.3333, answer judge correctness=None, human review=false |
+| implementation review remediation | Status=full_quality_gates_passed, implemented=6, verified already fixed=2, deferred=['I6', 'NF3'], metrics changed=False |
 
 ## Safety Confidence Intervals
 

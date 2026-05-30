@@ -304,19 +304,38 @@ def _window_text(text: str, max_chars: int, overlap_chars: int) -> list[tuple[in
         hard_end = min(start + max_chars, text_length)
         end = hard_end
         if hard_end < text_length:
-            paragraph_break = text.rfind("\n", start, hard_end)
-            sentence_break = max(text.rfind(". ", start, hard_end), text.rfind("; ", start, hard_end))
-            word_break = text.rfind(" ", start, hard_end)
-            soft_end = max(paragraph_break, sentence_break, word_break)
-            if soft_end > start + max_chars // 2:
-                end = soft_end + 1
+            min_end = min(hard_end, start + max(1, max_chars // 4))
+            end = _find_soft_break(text, start, hard_end, min_end) or hard_end
         chunk_text = text[start:end].strip()
         if chunk_text:
             windows.append((start, end, chunk_text))
         if end >= text_length:
             break
-        start = max(end - overlap_chars, start + 1)
+        start = _safe_next_start(end, overlap_chars, start)
     return windows
+
+
+def _find_soft_break(text: str, start: int, hard_end: int, min_end: int) -> int | None:
+    """Find a readable boundary, preferring paragraph, sentence, then whitespace."""
+    paragraph_break = text.rfind("\n", min_end, hard_end)
+    if paragraph_break >= min_end:
+        return paragraph_break + 1
+    sentence_break = max(
+        text.rfind(". ", min_end, hard_end),
+        text.rfind("; ", min_end, hard_end),
+        text.rfind("? ", min_end, hard_end),
+        text.rfind("! ", min_end, hard_end),
+    )
+    if sentence_break >= min_end:
+        return sentence_break + 1
+    word_break = text.rfind(" ", min_end, hard_end)
+    if word_break >= min_end:
+        return word_break
+    return None
+
+
+def _safe_next_start(end: int, overlap_chars: int, start: int) -> int:
+    return max(end - overlap_chars, start + 1)
 
 
 def _tokenize(text: str) -> set[str]:

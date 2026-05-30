@@ -15,6 +15,7 @@ def _write_json(path: Path, payload: dict) -> None:
 
 def _write_dashboard_fixture(root: Path) -> None:
     stages = root / "reports" / "stages"
+    reviews = root / "reports" / "reviews"
     (root / "docs").mkdir(parents=True)
     (root / "reports" / "final").mkdir(parents=True)
     (root / "docs" / "thesis_positioning.md").write_text("layered evaluation\n", encoding="utf-8")
@@ -183,6 +184,23 @@ def _write_dashboard_fixture(root: Path) -> None:
         stages / "llm_review_consistency.json",
         {"summary": {"agreement_rate": 1.0, "consistency_not_measured": False}},
     )
+    _write_json(
+        reviews / "deepseek_v4pro_implementation_remediation.json",
+        {
+            "status": "focused_tests_passed_pending_full_quality_gates",
+            "policy": {
+                "scientific_metrics_changed": False,
+                "human_review_claimed": False,
+                "external_aviation_expert_certified": False,
+            },
+            "deferred_items": ["I6", "NF3"],
+            "items": [
+                {"finding_id": "C1", "remediation_status": "implemented"},
+                {"finding_id": "I3", "remediation_status": "verified_already_fixed"},
+                {"finding_id": "I6", "remediation_status": "deferred"},
+            ],
+        },
+    )
 
 
 def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None:
@@ -217,6 +235,11 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     assert result["consistency_checks"]["human_review_absent"]
     assert result["consistency_checks"]["benchmark_llm_review_available"]
     assert result["primary_results"]["llm_review_status"]["human_review"] is False
+    remediation = result["primary_results"]["implementation_review_remediation"]
+    assert remediation["implemented_items"] == 1
+    assert remediation["verified_already_fixed_items"] == 1
+    assert remediation["deferred_items"] == ["I6", "NF3"]
+    assert remediation["scientific_metrics_changed"] is False
     assert result["consistency_checks"]["no_unsafe_claim_patterns"]
 
 

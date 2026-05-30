@@ -23,7 +23,9 @@ from aviation_agentic_ai.ontology.evaluation import (
 from aviation_agentic_ai.ontology.cq import load_cq_artifact
 from aviation_agentic_ai.ontology.profiles import DomainProfile, get_domain_profile
 from aviation_agentic_ai.ontology.validation import verify_turtle_text
-from aviation_agentic_ai.utils.json import extract_json_payload as _extract_json_payload_text
+from aviation_agentic_ai.utils.json_extraction import (
+    extract_json_payload as _extract_json_payload_text,
+)
 from aviation_agentic_ai.utils.pdf import extract_pages
 
 

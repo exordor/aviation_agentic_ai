@@ -15,7 +15,9 @@ from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.ontology.evaluation import local_name
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.utils.io import write_json_document
-from aviation_agentic_ai.utils.json import extract_json_payload as _extract_json_payload_text
+from aviation_agentic_ai.utils.json_extraction import (
+    extract_json_payload as _extract_json_payload_text,
+)
 from aviation_agentic_ai.utils.text import tokenize_terms
 
 

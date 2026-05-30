@@ -385,6 +385,19 @@
       "report_name": "chunking_failure_cards_benchmark_v2"
     },
     {
+      "dataset_used": "not_dataset_specific",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "implementation_review",
+        "claim_safety"
+      ],
+      "path": "reports/reviews/deepseek_v4pro_implementation_remediation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "deepseek_v4pro_implementation_remediation"
+    },
+    {
       "dataset_used": "35_question_expanded",
       "human_review_present": false,
       "llm_review_available": false,
@@ -614,6 +627,18 @@
         "3": "recursive_large",
         "5": "structure_aware_large"
       }
+    },
+    "implementation_review_remediation": {
+      "deferred_items": [
+        "I6",
+        "NF3"
+      ],
+      "external_aviation_expert_certified": false,
+      "human_review_claimed": false,
+      "implemented_items": 6,
+      "scientific_metrics_changed": false,
+      "status": "full_quality_gates_passed",
+      "verified_already_fixed_items": 2
     },
     "kg": {
       "evidence_in_source_rate": 1.0,

@@ -32,6 +32,9 @@ REPORT_SOURCES: dict[str, str] = {
     "chunking_topk_sensitivity_benchmark_v2": "reports/stages/chunking_topk_sensitivity_benchmark_v2.json",
     "chunking_category_analysis_benchmark_v2": "reports/stages/chunking_category_analysis_benchmark_v2.json",
     "chunking_failure_cards_benchmark_v2": "reports/stages/chunking_failure_cards_benchmark_v2.json",
+    "deepseek_v4pro_implementation_remediation": (
+        "reports/reviews/deepseek_v4pro_implementation_remediation.json"
+    ),
     "kg_extraction_comparison": "reports/stages/kg_extraction_comparison.json",
     "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.json",
     "triple_semantic_review_sample": "reports/stages/triple_semantic_review_sample.json",
@@ -116,6 +119,10 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "chunking_topk_sensitivity_benchmark_v2": ("retrieval",),
         "chunking_category_analysis_benchmark_v2": ("retrieval",),
         "chunking_failure_cards_benchmark_v2": ("retrieval", "failure_analysis"),
+        "deepseek_v4pro_implementation_remediation": (
+            "implementation_review",
+            "claim_safety",
+        ),
         "kg_extraction_comparison": ("ontology_kg",),
         "curated_ontology_evaluation": ("ontology_kg",),
         "triple_semantic_review_sample": ("ontology_kg", "llm_review_scaffold"),
@@ -143,6 +150,7 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "chunking_topk_sensitivity_benchmark_v2": "benchmark_v2_120",
         "chunking_category_analysis_benchmark_v2": "benchmark_v2_120",
         "chunking_failure_cards_benchmark_v2": "benchmark_v2_120",
+        "deepseek_v4pro_implementation_remediation": "not_dataset_specific",
         "answer_evaluation": "10_cq_answer_subset",
         "robustness_evaluation": "robustness_10_cases",
         "kg_extraction_comparison": "35_question_expanded",
@@ -196,6 +204,7 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     answer_generation = reports.get("answer_generation_benchmark_subset", {})
     answer_llm = reports.get("answer_llm_judge", {})
     llm_consistency = reports.get("llm_review_consistency", {})
+    implementation_remediation = reports.get("deepseek_v4pro_implementation_remediation", {})
 
     vector = _scenario_metrics(retrieval, "vector_hops2_v5_h8")
     hybrid = _scenario_metrics(retrieval, "hybrid_hops2_v5_h8")
@@ -429,6 +438,39 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "human_review": False,
             "external_expert_certified": False,
             "aviation_expert_certified": False,
+        },
+        "implementation_review_remediation": {
+            "status": implementation_remediation.get("status", "not_present"),
+            "implemented_items": sum(
+                1
+                for item in implementation_remediation.get("items", [])
+                if isinstance(item, dict) and item.get("remediation_status") == "implemented"
+            ),
+            "verified_already_fixed_items": sum(
+                1
+                for item in implementation_remediation.get("items", [])
+                if isinstance(item, dict)
+                and item.get("remediation_status") == "verified_already_fixed"
+            ),
+            "deferred_items": implementation_remediation.get("deferred_items", []),
+            "scientific_metrics_changed": _metric(
+                implementation_remediation,
+                "policy",
+                "scientific_metrics_changed",
+                default=False,
+            ),
+            "human_review_claimed": _metric(
+                implementation_remediation,
+                "policy",
+                "human_review_claimed",
+                default=False,
+            ),
+            "external_aviation_expert_certified": _metric(
+                implementation_remediation,
+                "policy",
+                "external_aviation_expert_certified",
+                default=False,
+            ),
         },
     }
 
@@ -1034,6 +1076,16 @@ def write_thesis_experiment_dashboard_markdown(
                 "answer judge correctness="
                 f"{primary['llm_review_status']['answer_judge']['correctness_rate']}, "
                 "human review=false |"
+            ),
+            (
+                "| implementation review remediation | "
+                f"Status={primary['implementation_review_remediation']['status']}, "
+                f"implemented={primary['implementation_review_remediation']['implemented_items']}, "
+                f"verified already fixed="
+                f"{primary['implementation_review_remediation']['verified_already_fixed_items']}, "
+                f"deferred={primary['implementation_review_remediation']['deferred_items']}, "
+                "metrics changed="
+                f"{primary['implementation_review_remediation']['scientific_metrics_changed']} |"
             ),
         ]
     )

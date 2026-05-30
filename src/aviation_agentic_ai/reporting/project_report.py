@@ -433,6 +433,14 @@ def _read_thesis_ready_artifacts(root: Path) -> dict[str, Any]:
         / "reports"
         / "stages"
         / "thesis_experiment_dashboard.json",
+        "deepseek_v4pro_implementation_remediation": root
+        / "reports"
+        / "reviews"
+        / "deepseek_v4pro_implementation_remediation.md",
+        "deepseek_v4pro_implementation_remediation_json": root
+        / "reports"
+        / "reviews"
+        / "deepseek_v4pro_implementation_remediation.json",
     }
     return {key: _read_artifact_source(path, base=root) for key, path in paths.items()}
 
@@ -767,6 +775,7 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
     kg = primary.get("kg", {})
     triple = primary.get("triple_semantic_review", {})
     llm_review = primary.get("llm_review_status", {})
+    remediation = primary.get("implementation_review_remediation", {})
     lines = [
         "# Aviation Agentic AI Project Report",
         "",
@@ -889,6 +898,18 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"LLM review consistency: {llm_review.get('consistency', {})}.",
             "All review-dependent claims are phrased as LLM-assisted or LLM-estimated, "
             "not human-verified.",
+            "",
+            "## Implementation Review Remediation",
+            "",
+            "The DeepSeek V4Pro implementation review was triaged as adversarial input "
+            "and remediated only where current repository evidence supported the "
+            "finding. Remediation status="
+            f"{remediation.get('status', 'not_present')}; implemented items="
+            f"{remediation.get('implemented_items', 0)}; verified already-fixed items="
+            f"{remediation.get('verified_already_fixed_items', 0)}; deferred items="
+            f"{remediation.get('deferred_items', [])}. Scientific metrics changed="
+            f"{remediation.get('scientific_metrics_changed', False)}. This section is an "
+            "implementation-hardening status, not a new experiment result.",
             "",
             "## Failure analysis",
             "",

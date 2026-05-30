@@ -176,9 +176,10 @@ def load_questions_and_gold_labels(
     truth for report question ordering and metadata. Otherwise, fall back to the
     boundary CQ artifact and overlay any available gold labels by CQ id.
     """
+    loaded_labels: dict[str, GoldLabel] | None = None
     if gold_labels_path is not None:
-        labels = load_gold_labels(gold_labels_path)
-        if labels and all(label.question for label in labels.values()):
+        loaded_labels = load_gold_labels(gold_labels_path)
+        if loaded_labels and all(label.question for label in loaded_labels.values()):
             questions = [
                 {
                     "id": label.cq_id,
@@ -189,8 +190,11 @@ def load_questions_and_gold_labels(
                     "expected_answer": label.answer_key,
                     "cq_type": label.question_type,
                 }
-                for label in labels.values()
+                for label in loaded_labels.values()
             ]
-            return questions, labels
+            return questions, loaded_labels
     questions = load_boundary_questions(boundary_cq_path)
-    return questions, gold_labels_for_questions(questions, gold_labels_path)
+    labels = {str(question["id"]): GoldLabel.from_cq(question) for question in questions}
+    if loaded_labels is not None:
+        labels.update(loaded_labels)
+    return questions, labels

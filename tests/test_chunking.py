@@ -6,7 +6,9 @@ from aviation_agentic_ai.chunking.chunks import (
     ChunkReadError,
     SourceChunk,
     _cosine_similarity,
+    _find_soft_break,
     _proposition_segments,
+    _safe_next_start,
     _window_text,
     build_chunks,
     chunking_profile,
@@ -152,6 +154,57 @@ def test_window_text_prefers_word_boundary_before_hard_cut() -> None:
 
     assert windows[0][2] == "alpha beta"
     assert not windows[0][2].endswith("g")
+
+
+def test_window_text_prefers_short_paragraph_boundary() -> None:
+    text = "Short paragraph stays together.\nNext paragraph has enough words to continue."
+    windows = _window_text(text, max_chars=50, overlap_chars=0)
+
+    assert windows[0][2] == "Short paragraph stays together."
+    assert windows[0][1] == text.index("\n") + 1
+
+
+def test_window_text_prefers_sentence_boundary_before_whitespace() -> None:
+    text = "Lift changes with angle of attack. Drag changes too and continues past the limit."
+    windows = _window_text(text, max_chars=55, overlap_chars=0)
+
+    assert windows[0][2] == "Lift changes with angle of attack."
+
+
+def test_window_text_uses_whitespace_when_no_punctuation_exists() -> None:
+    windows = _window_text("alpha beta gamma delta epsilon", max_chars=18, overlap_chars=0)
+
+    assert windows[0][2] == "alpha beta gamma"
+
+
+def test_window_text_hard_cuts_when_no_soft_boundary_exists() -> None:
+    windows = _window_text("abcdefghijklmnop", max_chars=6, overlap_chars=0)
+
+    assert windows[0] == (0, 6, "abcdef")
+
+
+def test_window_text_overlap_progresses_and_keeps_valid_ranges() -> None:
+    windows = _window_text("alpha beta gamma delta epsilon zeta", max_chars=12, overlap_chars=4)
+
+    assert windows
+    assert all(start < end for start, end, _text in windows)
+    assert [start for start, _end, _text in windows] == sorted(
+        start for start, _end, _text in windows
+    )
+    assert _safe_next_start(10, 4, 0) == 6
+
+
+def test_find_soft_break_returns_none_without_readable_boundary() -> None:
+    assert _find_soft_break("abcdefghijklmnop", 0, 6, 2) is None
+
+
+def test_window_text_rejects_invalid_overlap() -> None:
+    try:
+        _window_text("alpha beta", max_chars=10, overlap_chars=10)
+    except ValueError as exc:
+        assert "smaller than max_chars" in str(exc)
+    else:  # pragma: no cover - assertion guard.
+        raise AssertionError("Expected invalid overlap to raise")
 
 
 def test_cosine_similarity_rejects_mismatched_dimensions() -> None:

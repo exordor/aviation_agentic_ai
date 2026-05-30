@@ -59,6 +59,10 @@ Answer generation and LLM judge: generation={'answers_total': 9, 'status': 'comp
 LLM review consistency: {'agreement_rate': 0.3636, 'consistency_not_measured': False}.
 All review-dependent claims are phrased as LLM-assisted or LLM-estimated, not human-verified.
 
+## Implementation Review Remediation
+
+The DeepSeek V4Pro implementation review was triaged as adversarial input and remediated only where current repository evidence supported the finding. Remediation status=full_quality_gates_passed; implemented items=6; verified already-fixed items=2; deferred items=['I6', 'NF3']. Scientific metrics changed=False. This section is an implementation-hardening status, not a new experiment result.
+
 ## Failure analysis
 
 Graph failure categories: {'generic_seed_node': 75, 'graph_fusion_dilution': 100, 'kg_sparse_for_question': 374, 'low_value_predicate': 154, 'path_found_but_wrong_chunk': 322, 'seed_linking_error': 150}.

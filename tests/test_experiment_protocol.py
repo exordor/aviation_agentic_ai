@@ -102,6 +102,43 @@ def test_load_questions_and_gold_labels_uses_full_gold_label_questions(
     ]
 
 
+def test_load_questions_and_gold_labels_reuses_preloaded_gold_for_cq_fallback(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    calls: list[Path] = []
+    overlay_label = GoldLabel(cq_id="q1", source_document="gold-doc", source_page=7)
+
+    def load_gold_once(path: str | Path) -> dict[str, GoldLabel]:
+        calls.append(Path(path))
+        return {"q1": overlay_label}
+
+    monkeypatch.setattr(
+        "aviation_agentic_ai.evaluation.gold.load_gold_labels",
+        load_gold_once,
+    )
+    monkeypatch.setattr(
+        "aviation_agentic_ai.evaluation.gold.load_boundary_questions",
+        lambda _path: [
+            {
+                "id": "q1",
+                "competency_question": "What is lift?",
+                "source_document": "cq-doc",
+                "source_page": 1,
+            }
+        ],
+    )
+
+    questions, labels = load_questions_and_gold_labels(
+        tmp_path / "boundary.json",
+        tmp_path / "gold.json",
+    )
+
+    assert len(calls) == 1
+    assert questions[0]["id"] == "q1"
+    assert labels["q1"] == overlay_label
+
+
 def test_document_and_section_metadata_schema() -> None:
     document = document_metadata_from_pdf(
         "data/raw/06_phak_ch4_0.pdf",

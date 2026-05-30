@@ -127,6 +127,47 @@ def test_adversarial_review_schema_is_validated_and_skipped_by_progress(
     assert progress["reviews_total"] == 1
 
 
+def test_deepseek_implementation_triage_and_remediation_artifacts_have_required_shape() -> None:
+    root = Path(__file__).resolve().parents[1]
+    triage = json.loads(
+        (root / "reports/reviews/deepseek_v4pro_implementation_triage.json").read_text(
+            encoding="utf-8",
+        )
+    )
+    remediation = json.loads(
+        (
+            root / "reports/reviews/deepseek_v4pro_implementation_remediation.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    required_triage_fields = {
+        "finding_id",
+        "severity",
+        "current_status",
+        "files_inspected",
+        "evidence",
+        "planned_action",
+        "risk_if_unfixed",
+        "tests_required",
+        "documentation_report_impact",
+    }
+    assert triage["policy"]["do_not_trust_report_blindly"] is True
+    assert triage["policy"]["code_changes_before_triage"] is False
+    assert {finding["finding_id"] for finding in triage["findings"]} >= {"C1", "C2", "NF5"}
+    assert all(required_triage_fields <= set(finding) for finding in triage["findings"])
+
+    assert remediation["policy"]["scientific_metrics_changed"] is False
+    assert remediation["policy"]["human_review_claimed"] is False
+    assert remediation["policy"]["external_aviation_expert_certified"] is False
+    assert {"I6", "NF3"} <= set(remediation["deferred_items"])
+    implemented = {
+        item["finding_id"]
+        for item in remediation["items"]
+        if item["remediation_status"] == "implemented"
+    }
+    assert {"C1", "C2", "NF1", "NF2", "NF4", "NF5"} <= implemented
+
+
 def test_write_review_progress_handles_empty_directory(tmp_path: Path) -> None:
     reviews_dir = tmp_path / "reviews"
     output_dir = tmp_path / "stages"

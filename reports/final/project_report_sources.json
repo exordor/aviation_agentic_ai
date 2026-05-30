@@ -24647,7 +24647,7 @@
       "present": true
     }
   },
-  "generated_at": "2026-05-30T10:46:40.340750+00:00",
+  "generated_at": "2026-05-30T14:02:15.147952+00:00",
   "goals": {
     "excerpt": "# Project Goals\n\nLast updated: 2026-05-30\n\nThis file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.\n\n## Goal vs Task\n\n- A goal describes an outcome the project must achieve.\n- A task describes a concrete action that can be completed and checked off.\n- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.\n- Reports under `reports/` provide evidence that a goal has been met.\n\n## G1 - Course Objective And Project Rationale\n\nBuild a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.\n\nSuccess criteria:\n\n- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.\n- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.\n- The project can explain where GraphRAG adds evidence traceability beyond plain LLM prompting or vector-only RAG, and where vector retrieval is sufficient.\n- The project uses FAA aviation handbook material as the starting source corpus.\n- The report clearly connects implementation choices to the course objective.\n\nCurrent status: in progress.\n\n## G2 - Ontology-Grounded KG Deliverable\n\nDeliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.\n\nRationale:\n\n- The KG is a project deliverable, not only an intermediate cache.\n- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.\n- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.\n\nSuccess criteria:\n\n- A baseline or generated TBox ontology exists and can be validated.\n- The extraction profile maps focused aviation classes/properties back to the ontology design.\n- Focused ABox/KG triples are extracted only when supported by source chunks.\n- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.\n- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.\n\nCurrent status: active curated ontology is available; focused KG was extracted and validated against the curated schema.\n\n## G3 - GraphRAG Core Pipeline\n\nImplement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.\n\nTarget pipeline:\n\n```text\nPDF -> chunks -> ontology-constrained KG/ABox\n    -> Chroma vector index\n    -> graph retrieval + vector retrieval\n    -> reciprocal-rank hybrid fusion\n    -> grounded LLM answer with citations\n```\n\nSuccess criteria:\n\n- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.\n- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.\n- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.\n- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.\n- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.\n\nCurrent status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 in the 10-question run while preserving KG evidence coverage. The expanded 35-question ablation shows vector Recall@5 can be higher than default hybrid Recall@5, so GraphRAG is defended as structured evidence support rather than a universal Recall winner.\n\n## G4 - Evaluation An",
     "path": "GOALS.md",
@@ -45052,6 +45052,196 @@
       "path": "reports/stages/chunking_topk_sensitivity_benchmark_v2.json",
       "present": true
     },
+    "deepseek_v4pro_implementation_remediation": {
+      "excerpt": "# DeepSeek V4Pro Implementation Remediation - 2026-05-30\n\nInput review: `reports/reviews/adversarial-review-implementation-2026-05-30.md`\n\nTriage artifact: `reports/reviews/deepseek_v4pro_implementation_triage.json`\n\nStatus: full quality gates passed.\n\nThis remediation treats the DeepSeek V4Pro review as adversarial input, not\nground truth. The implementation changes below do not alter scientific metrics,\ndo not regenerate metric-bearing reports, and do not strengthen thesis claims.\nNo human review, external aviation expert certification, or operational\nreadiness is claimed.\n\n## Remediation Summary\n\n| ID | Severity | Status | Action | Metric Impact |\n| --- | --- | --- | --- | --- |\n| C1 | P1 | implemented | Added canonical JSON extraction with typed errors, array support, embedded/fenced payload handling, and compatibility re-exports. | none |\n| C2 | P2 | implemented | Refactored fixed-window soft-break handling into paragraph, sentence, whitespace, and hard-cut helpers. | none unless chunking reports are explicitly regenerated |\n| I3 | P2 | verified already fixed | Confirmed page-unset no-answer labels remain excluded from page fallback matching. | none |\n| I6 | P4 | deferred | Kept exact evidence containment as acceptance policy; fuzzy/normalized evidence remains diagnostic-only. | none |\n| M3 | P1 | verified already fixed | Confirmed leading short proposition-like fragments are already forward-merged. | none |\n| NF1 | P3 | implemented | Centralized source delimiter and unknown-source normalization while preserving public source strings. | none |\n| NF2 | P3 | implemented | `llm_runtime_available` now uses the central configured provider helper. | none |\n| NF3 | P4 | deferred | Typed ontology exception work deferred; partial TTL/manifest preservation already handles the main risk. | none |\n| NF4 | P2 | implemented | Documented and tested invalid/missing retrieval-score fallback to `0.0`. | none |\n| NF5 | P3 | implemented | Reused preloaded gold labels during CQ fallback to avoid double parsing. | none |\n\n## Deferred Items\n\n- `I6`: Exact containment remains the only accepted KG provenance. Near-miss\n  evidence diagnostics can be named more explicitly later, but accepting fuzzy\n  matches would weaken provenance.\n- `NF3`: A typed ontology exception can improve programmatic callers later. The\n  current CLI behavior and partial-output preservation remain unchanged.\n\n## Verification\n\nFocused tests passed:\n\n```bash\nuv run pytest tests/test_json_extraction.py tests/test_json_utils.py tests/test_kg_extraction.py::test_extract_json_payload_variants tests/test_llm_review_reports.py::test_llm_runtime_available_uses_central_environment_loader tests/test_llm_review_reports.py::test_llm_runtime_available_rejects_unsupported_provider tests/test_llm_review_reports.py::test_llm_runtime_available_accepts_vllm_without_api_key tests/test_chunking.py tests/test_experiment_protocol.py::test_load_questions_and_gold_labels_reuses_preloaded_gold_for_cq_fallback tests/test_hybrid_retrieval.py::test_reciprocal_rank_fusion_normalizes_merged_source_labels tests/test_hybrid_retrieval.py::test_score_defaults_invalid_values_to_zero\n```\n\nFull gates passed:\n\n```bash\nuv run ruff check .\nuv run pytest\nmake validate\nuv run aviation-ai report thesis-experiment-dashboard\nuv run aviation-ai report project --no-ai\n```\n\n## Claim Impact\n\n- No new benchmark metric is claimed.\n- Existing metric-bearing reports were not regenerated by this remediation.\n- Dashboard/final-report synchronization should cite this as implementation\n  remediation status only, not as retrieval or aviation-safety evidence.\n",
+      "path": "reports/reviews/deepseek_v4pro_implementation_remediation.md",
+      "present": true,
+      "truncated": false
+    },
+    "deepseek_v4pro_implementation_remediation_json": {
+      "compacted": false,
+      "data": {
+        "claim_impact": {
+          "dashboard_final_report_update": "source inventory/status only; no strengthened claim",
+          "existing_metric_reports_regenerated": false,
+          "new_metrics_claimed": false
+        },
+        "deferred_items": [
+          "I6",
+          "NF3"
+        ],
+        "items": [
+          {
+            "files_changed": [
+              "src/aviation_agentic_ai/utils/json_extraction.py",
+              "src/aviation_agentic_ai/utils/json.py",
+              "src/aviation_agentic_ai/kg/extraction.py",
+              "src/aviation_agentic_ai/ontology/generation.py",
+              "src/aviation_agentic_ai/ontology/evaluation.py",
+              "src/aviation_agentic_ai/evaluation/llm_review.py",
+              "tests/test_json_extraction.py"
+            ],
+            "finding_id": "C1",
+            "metric_impact": "none",
+            "remediation_status": "implemented",
+            "severity": "P1",
+            "summary": "Added a canonical JSON extraction module with object, array, fenced-block, embedded-payload, malformed-payload, empty-text, and multi-brace behavior. Existing wrapper imports remain compatible.",
+            "tests": [
+              "tests/test_json_extraction.py",
+              "tests/test_json_utils.py",
+              "tests/test_kg_extraction.py::test_extract_json_payload_variants",
+              "tests/test_llm_review_reports.py::test_llm_review_schema_rejects_certification_flags"
+            ]
+          },
+          {
+            "files_changed": [
+              "src/aviation_agentic_ai/chunking/chunks.py",
+              "tests/test_chunking.py"
+            ],
+            "finding_id": "C2",
+            "metric_impact": "none unless chunking reports are explicitly regenerated",
+            "remediation_status": "implemented",
+            "severity": "P2",
+            "summary": "Refactored fixed-window boundary selection into explicit paragraph, sentence, whitespace, and hard-cut helpers while preserving progress and short-page behavior.",
+            "tests": [
+              "tests/test_chunking.py"
+            ]
+          },
+          {
+            "files_changed": [],
+            "finding_id": "I3",
+            "metric_impact": "none",
+            "remediation_status": "verified_already_fixed",
+            "severity": "P2",
+            "summary": "No-answer labels with source_page=-1 remain excluded from page fallback matching.",
+            "tests": [
+              "tests/test_metric_edge_cases.py"
+            ]
+          },
+          {
+            "files_changed": [],
+            "finding_id": "I6",
+            "metric_impact": "none",
+            "remediation_status": "deferred",
+            "severity": "P4",
+            "summary": "Exact evidence containment remains the acceptance policy. Existing near-miss diagnostics are retained, and fuzzy or normalized matches remain diagnostic-only rather than accepted provenance.",
+            "tests": [
+              "tests/test_kg_extraction.py"
+            ]
+          },
+          {
+            "files_changed": [],
+            "finding_id": "M3",
+            "metric_impact": "none",
+            "remediation_status": "verified_already_fixed",
+            "severity": "P1",
+            "summary": "Leading short proposition-like fragments are already forward-merged and covered by chunking tests.",
+            "tests": [
+              "tests/test_chunking.py"
+            ]
+          },
+          {
+            "files_changed": [
+              "src/aviation_agentic_ai/retrieval/hybrid.py",
+              "tests/test_hybrid_retrieval.py"
+            ],
+            "finding_id": "NF1",
+            "metric_impact": "none",
+            "remediation_status": "implemented",
+            "severity": "P3",
+            "summary": "Centralized source delimiter and unknown-source handling. Existing public source strings are preserved, duplicate labels are normalized, and merged strings are parsed consistently.",
+            "tests": [
+              "tests/test_hybrid_retrieval.py::test_reciprocal_rank_fusion_normalizes_merged_source_labels"
+            ]
+          },
+          {
+            "files_changed": [
+              "src/aviation_agentic_ai/evaluation/llm_review.py",
+              "tests/test_llm_review_reports.py"
+            ],
+            "finding_id": "NF2",
+            "metric_impact": "none",
+            "remediation_status": "implemented",
+            "severity": "P3",
+            "summary": "Runtime availability now uses the central configured_llm_provider helper and preserves provider-specific key checks.",
+            "tests": [
+              "tests/test_llm_review_reports.py::test_llm_runtime_available_uses_central_environment_loader",
+              "tests/test_llm_review_reports.py::test_llm_runtime_available_rejects_unsupported_provider",
+              "tests/test_llm_review_reports.py::test_llm_runtime_available_accepts_vllm_without_api_key"
+            ]
+          },
+          {
+            "files_changed": [],
+            "finding_id": "NF3",
+            "metric_impact": "none",
+            "remediation_status": "deferred",
+            "severity": "P4",
+            "summary": "Typed ontology exception work is deferred because partial TTL/manifest preservation already addresses the data-loss risk. CLI behavior is unchanged.",
+            "tests": [
+              "tests/test_ontology_generation.py"
+            ]
+          },
+          {
+            "files_changed": [
+              "src/aviation_agentic_ai/retrieval/hybrid.py",
+              "tests/test_hybrid_retrieval.py"
+            ],
+            "finding_id": "NF4",
+            "metric_impact": "none",
+            "remediation_status": "implemented",
+            "severity": "P2",
+            "summary": "Documented _score behavior and added direct tests for numeric, numeric-string, missing, None, and non-numeric scores.",
+            "tests": [
+              "tests/test_hybrid_retrieval.py::test_score_defaults_invalid_values_to_zero"
+            ]
+          },
+          {
+            "files_changed": [
+              "src/aviation_agentic_ai/evaluation/gold.py",
+              "tests/test_experiment_protocol.py"
+            ],
+            "finding_id": "NF5",
+            "metric_impact": "none",
+            "remediation_status": "implemented",
+            "severity": "P3",
+            "summary": "The fallback question/gold-label loader reuses preloaded labels instead of reading the same gold-label file again.",
+            "tests": [
+              "tests/test_experiment_protocol.py::test_load_questions_and_gold_labels_reuses_preloaded_gold_for_cq_fallback"
+            ]
+          }
+        ],
+        "policy": {
+          "external_aviation_expert_certified": false,
+          "human_review_claimed": false,
+          "operational_readiness_claimed": false,
+          "reports_regenerated_for_metric_claims": false,
+          "scientific_metrics_changed": false,
+          "treat_external_review_as_input_not_truth": true
+        },
+        "remediation_date": "2026-05-30",
+        "review_input": "reports/reviews/adversarial-review-implementation-2026-05-30.md",
+        "status": "full_quality_gates_passed",
+        "triage_artifact": "reports/reviews/deepseek_v4pro_implementation_triage.json",
+        "verification": {
+          "focused_tests": {
+            "command": "uv run pytest tests/test_json_extraction.py tests/test_json_utils.py tests/test_kg_extraction.py::test_extract_json_payload_variants tests/test_llm_review_reports.py::test_llm_runtime_available_uses_central_environment_loader tests/test_llm_review_reports.py::test_llm_runtime_available_rejects_unsupported_provider tests/test_llm_review_reports.py::test_llm_runtime_available_accepts_vllm_without_api_key tests/test_chunking.py tests/test_experiment_protocol.py::test_load_questions_and_gold_labels_reuses_preloaded_gold_for_cq_fallback tests/test_hybrid_retrieval.py::test_reciprocal_rank_fusion_normalizes_merged_source_labels tests/test_hybrid_retrieval.py::test_score_defaults_invalid_values_to_zero",
+            "status": "passed"
+          },
+          "full_quality_gates": {
+            "commands": [
+              "uv run ruff check .",
+              "uv run pytest",
+              "make validate",
+              "uv run aviation-ai report thesis-experiment-dashboard",
+              "uv run aviation-ai report project --no-ai"
+            ],
+            "status": "passed"
+          }
+        }
+      },
+      "path": "reports/reviews/deepseek_v4pro_implementation_remediation.json",
+      "present": true
+    },
     "evaluation_protocol_review": {
       "excerpt": "# Evaluation Protocol Review\n\n- Protocol doc: `docs/evaluation_protocol.md`\n- Scoring policy: layered metrics; no single mixed overall score.\n\n## Primary Thesis Metrics\n\n| Layer | Classification | Metrics | Reports |\n| --- | --- | --- | --- |\n| retrieval | mainstream | Recall@5, Recall@10, MRR@5, MRR@10, NDCG@10, Precision@5, Context Precision@5, Context Recall | `reports/stages/retrieval_ablation.json`, `reports/stages/retrieval_ablation_benchmark_v2.json`, `reports/stages/chunking_comparison.json` |\n| graph_evidence | mainstream_plus_heuristic_path_review | Key Entity Coverage, Relation Coverage, Path Recall@5, Path Precision@5, Supporting Path Rate, Average Path Length, Irrelevant Path Rate | `reports/stages/graph_traversal_ablation.json`, `reports/stages/graph_traversal_ablation_benchmark_v2.json` |\n| answer_generation | mainstream_heuristic_with_optional_llm_judge | Faithfulness, Answer Correctness, Answer Relevance, Citation Completeness, Citation Precision, Citation Recall | `reports/stages/answer_evaluation.json`, `reports/stages/answer_llm_judge.json` |\n| ontology_kg | mainstream_plus_model_based_review | RDF/OWL parse validity, label/comment coverage, domain/range completeness, unsupported class/property count, provenance completeness, evidence-in-source rate, LLM-estimated triple semantic correctness | `reports/stages/curated_ontology_evaluation.json`, `reports/stages/kg_validation.json`, `reports/stages/kg_extraction_comparison.json`, `reports/stages/triple_semantic_review_sample.json`, `reports/stages/triple_semantic_llm_review.json` |\n| safety_abstention | safety_sensitive_project_primary | Abstention Accuracy, False Answer Rate, False Abstention Rate, Advisory Boundary Violation Count, Risk Category Accuracy | `reports/stages/sufficiency_evaluation.json`, `reports/stages/robustness_evaluation.json`, `reports/stages/answer_evaluation.json` |\n\n## Metric Implementation Status\n\n| Metric | Status | Kind | Field | Reports |\n| --- | --- | --- | --- | --- |\n| Recall@5 | implemented | mainstream_ir | `recall_at_5` | retrieval_ablation, graph_traversal_ablation |\n| Recall@10 | implemented | mainstream_ir | `recall_at_10` | retrieval_ablation, graph_traversal_ablation |\n| Precision@5 | implemented | mainstream_ir | `precision_at_5` | retrieval_ablation, graph_traversal_ablation |\n| MRR@5 | implemented | mainstream_ir | `mrr_at_5` | retrieval_ablation, graph_traversal_ablation |\n| MRR@10 | implemented | mainstream_ir | `mrr_at_10` | retrieval_ablation, graph_traversal_ablation |\n| NDCG@10 | implemented | mainstream_ir | `ndcg_at_10` | retrieval_ablation, graph_traversal_ablation |\n| Context Precision@5 | implemented | ragas_style | `context_precision_at_5` | retrieval_ablation, graph_traversal_ablation |\n| Context Recall | implemented | ragas_style | `context_recall` | retrieval_ablation, graph_traversal_ablation |\n| Path Recall@5 | heuristic_available_llm_review_optional | graphrag_path | `path_recall_at_5` | graph_traversal_ablation |\n| Path Precision@5 | heuristic_available_llm_review_optional | graphrag_path | `path_precision_at_5` | graph_traversal_ablation |\n| Supporting Path Rate | heuristic_available_llm_review_optional | graphrag_path | `supporting_path_rate` | graph_traversal_ablation |\n| Irrelevant Path Rate | heuristic_available_llm_review_optional | graphrag_path | `irrelevant_path_rate` | graph_traversal_ablation |\n| Citation Precision | implemented | deterministic_answer_heuristic | `citation_precision` | answer_evaluation |\n| Citation Recall | implemented | deterministic_answer_heuristic | `citation_recall` | answer_evaluation |\n| Faithfulness | implemented_heuristic_llm_judge_optional_not_run | ragas_ares_style | `faithfulness` | answer_evaluation |\n| Answer Correctness | implemented_heuristic_llm_judge_optional_not_run | ragas_style | `answer_correctness` | answer_evaluation |\n| Answer Relevance | implemented_heuristic_llm_judge_optional_not_run | ragas_ares_style | `answer_relevance` | answer_evaluation |\n| Triple Semantic Correctness | llm_review_template_available_results_optional | llm_kg_review | `summary.llm_evidence_support_rate` | triple_semantic_review, triple_semantic_llm_review |\n| RDF/OWL Parse Validity | implemented | ontology_structural | `structural_metrics.rdf_valid` | curated_ontology_evaluation |\n| Label/Comment Coverage | implemented | ontology_usability_annotation | `structural_metrics.*_coverage` | curated_ontology_evaluation |\n| Domain/Range Completeness | implemented | ontology_functional | `structural_metrics.properties_with_domain/range` | curated_ontology_evaluation |\n| Unsupported Class/Property Count | implemented | kg_validation | `errors_total and unsupported_triple_count` | kg_validation, kg_extraction_comparison |\n| Provenance Completeness | implemented | kg_validation | `provenance_complete_rate` | kg_extraction_comparison, retrieval_ablation |\n| Evidence-In-Source Rate | implemented | kg_validation | `evidence_in_chunk_rate` | kg_extraction_comparison |\n| Abstention Accuracy | implemented | safety_sensitive | `abstention_accuracy` | sufficiency_evaluation, robustness_evaluation |\n| False Answer Rate | implemented | safety_sensitive | `false_answer_rate` | sufficiency_evaluation, robustness_evaluation |\n| False Abstention Rate | implemented | safety_sensitive | `false_abstention_rate` | sufficiency_evaluation, robustness_evaluation |\n| Advisory Boundary Violation Count | implemented | safety_sensitive | `advisory_boundary_violation_count` | sufficiency_evaluation, robustness_evaluation, answer_evaluation |\n| Risk Category Accuracy | implemented | safety_sensitive | `risk_category_accuracy` | sufficiency_evaluation, robustness_evaluation |\n\n## Metric Interpretation Notes\n\n- **precision_denominators**: Precision@5 divides by the fixed cutoff of 5, while Context Precision@5 divides by the number of returned top-five contexts when fewer than five contexts exist. They are related diagnostics, not interchangeable fields.\n- **empty_bootstrap_ci**: Bootstrap CI blocks with n=0 are undefined for that subset. Numeric mean/lower/upper placeholders are retained for compatibility and must not be interpreted as measured zero performance.\n\n## Report Presence\n\n| Report | Present |\n| --- | ---: |\n| `reports/stages/answer_evaluation.json` | True |\n| `reports/stages/answer_llm_judge.json` | True |\n| `reports/stages/chunking_comparison.json` | True |\n| `reports/stages/curated_ontology_evaluation.json` | True |\n| `reports/stages/graph_traversal_ablation.json` | True |\n| `reports/stages/graph_traversal_ablation_benchmark_v2.json` | True |\n| `reports/stages/kg_extraction_comparison.json` | True |\n| `reports/stages/kg_validation.json` | True |\n| `reports/stages/retrieval_ablation.json` | True |\n| `reports/stages/retrieval_ablation_benchmark_v2.json` | True |\n| `reports/stages/robustness_evaluation.json` | True |\n| `reports/stages/sufficiency_evaluation.json` | True |\n| `reports/stages/triple_semantic_llm_review.json` | True |\n| `reports/stages/triple_semantic_review_sample.json` | True |\n\n## Evidence Gaps Before Thesis Submission\n\n- Path Recall@k and Path Precision@k are heuristic unless graph-path LLM review is cited.\n- Triple semantic correctness is absent or LLM-estimated; no human expert verification is claimed.\n- Faithfulness, answer correctness, and answer relevance are deterministic heuristics unless an explicit LLM-as-judge run is added.\n- Benchmark labels are thesis/course-project evidence, not external aviation-expert certification.\n",
       "path": "reports/stages/evaluation_protocol_review.md",
@@ -56676,7 +56866,7 @@
       "present": true
     },
     "thesis_experiment_dashboard": {
-      "excerpt": "# Thesis Experiment Dashboard\n\n- Source policy: aggregate existing reports; do not recompute experiments unnecessarily.\n- Scoring policy: layered metrics; no mixed overall score.\n- Advisory boundary: Aviation learning and decision support only; does not replace POH/AFM, approved checklists, ATC instructions, instructor guidance, regulations, or pilot judgment.\n\n## Experiment Inventory\n\n| Report | Present | Dataset | Questions | Layers | Human review present | LLM review available |\n| --- | ---: | --- | ---: | --- | ---: | ---: |\n| `thesis_claims_review` | True | not_dataset_specific | n/a | claim_safety | False | False |\n| `evaluation_protocol_review` | True | not_dataset_specific | n/a | evaluation_protocol | False | False |\n| `benchmark_v2_summary` | True | benchmark_v2_120 | 120 | benchmark_validation | False | False |\n| `retrieval_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, kg_evidence | False | False |\n| `graph_traversal_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, graph_paths | False | False |\n| `sufficiency_evaluation` | True | benchmark_v2_120 | 120 | safety_abstention | False | False |\n| `benchmark_reviewed_subset_summary` | True | benchmark_v2_reviewed_subset_60 | 60 | benchmark_llm_review_scaffold | False | False |\n| `benchmark_llm_review` | True | benchmark_v2_reviewed_subset_or_v2 | n/a | benchmark_llm_review, llm_judge | False | True |\n| `benchmark_llm_rewrite_proposals` | True | benchmark_v2_reviewed_subset_or_v2 | n/a | benchmark_llm_review | False | True |\n| `answer_evaluation_benchmark_subset` | True | answer_eval_subset | n/a | answer_generation, safety_abstention | False | False |\n| `answer_generation_benchmark_subset` | True | answer_eval_subset | 3 | answer_generation | False | False |\n| `answer_llm_judge` | True | answer_eval_subset | n/a | answer_generation, llm_judge | False | True |\n| `triple_semantic_llm_review` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_judge | False | True |\n| `graph_path_llm_review` | True | benchmark_v2_120 | n/a | graph_paths, llm_judge | False | True |\n| `llm_review_consistency` | True | llm_review_artifacts | n/a | llm_judge, claim_safety | False | True |\n| `chunking_implementation_audit` | True | benchmark_v2_120 | n/a | retrieval, evaluation_protocol | False | False |\n| `chunking_comparison_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_comparison_benchmark_v2_budget` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_topk_sensitivity_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_category_analysis_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_failure_cards_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval, failure_analysis | False | False |\n| `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False | False |\n| `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False | False |\n| `triple_semantic_review_sample` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_review_scaffold | False | False |\n| `answer_evaluation` | True | 10_cq_answer_subset | n/a | answer_generation, safety_abstention | False | False |\n| `robustness_evaluation` | True | robustness_10_cases | n/a | safety_abstention, robustness | False | False |\n| `benchmark_review_pack` | True | not_dataset_specific | 120 | benchmark_llm_review_scaffold | False | False |\n\n## RQ-To-Evidence Matrix\n\n| RQ | Evidence reports | Primary metrics | Claim strength | Remaining gaps |\n| --- | --- | --- | --- | --- |\n| RQ1 ontology constraint | curated_ontology_evaluation, kg_extraction_comparison, kg_validation | RDF/OWL parse validity, label/comment coverage, unsupported class/property count, provenance completeness | strong | Triple semantic correctness is absent or LLM-estimated only. |\n| RQ2 evidence traceability | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation | KG evidence coverage, citation completeness, citation precision, citation recall | moderate | Answer-level LLM-judge evaluation must remain separate from deterministic metrics. |\n| RQ3 graph evidence vs vector sufficiency | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, chunking_comparison_benchmark_v2, chunking_comparison_benchmark_v2_budget, chunking_topk_sensitivity_benchmark_v2, chunking_category_analysis_benchmark_v2 | Recall@5, Recall@10, MRR@5, NDCG@10, Path Recall@5, Path Precision@5, Fixed-budget chunking Recall@5 | moderate | Path relevance is heuristic or model-reviewed, not human-validated. |\n| RQ4 safety-aware abstention | sufficiency_evaluation, robustness_evaluation | Abstention Accuracy, False Answer Rate, False Abstention Rate, Risk Category Accuracy | moderate | Sufficiency can create false abstentions on supported questions. |\n\n## Dataset Usage Matrix\n\n| Dataset | Purpose | Evidence role | Main claim support | Limitations |\n| --- | --- | --- | --- | --- |\n| 10-CQ pilot | demo and qualitative answer inspection | pilot | partial | too small for main thesis retrieval claims |\n| 35-question expanded | pilot ablation and KG extraction comparison | pilot | partial | pilot-sized and not the main benchmark |\n| benchmark v2 120 | main thesis retrieval and safety benchmark | main_thesis_benchmark | provisional_internal_pending_llm_review | machine-seeded and requires model-based naturalness review |\n| benchmark v2 chunking experiment | chunking strategy comparison under top-k, fixed-budget, and category views | retrieval_design_diagnostic | partial_benchmark_specific | implementation-maturity labels required; top-k context volume differs by chunk size |\n| benchmark reviewed subset 60 | model-based review scaffold for high-value labels | llm_review_scaffold | pending_llm_review | review scaffold only; no human review or external aviation expert certification |\n| LLM review artifacts | model-based benchmark, triple, graph-path, answer, and consistency review | llm_judge | internal_llm_review_only | model-based internal review; no human or external expert certification |\n| answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | stratified subset; deterministic heuristic scores unless annotated |\n| triple semantic review sample | KG semantic correctness review template | llm_review_pending | partial | review fields pending until model-based review is run; no expert correctness claimed |\n\n## Primary Results\n\n| Metric group | Key numbers |\n| --- | --- |\n| vector-only benchmark v2 | Recall@5=0.475, Recall@10=0.475, MRR@5=0.3268, NDCG@10=0.3869 |\n| lexical hybrid benchmark v2 | Recall@5=0.5167, Recall@10=0.5917, MRR@5=0.3417, NDCG@10=0.443, Context Recall=0.7375 |\n| traversal hybrid | Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522 (heuristic or model-reviewed; no human review) |\n| sufficiency | Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29 |\n| robustness | Abstention Correctness=1.0, False Answer Rate=0.0, Boundary Violations=0 |\n| benchmark reviewed subset | Labels=60, Review Status=llm_review_pending_not_human_certified, External Expert Certified=False |\n| answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=45, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |\n| chunking benchmark v2 | Top-k best=structure_aware_large (Recall@5=0.85), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |\n| KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |\n| triple semantic review | Sample=100, reviewed=0, needs_review=100 |\n| LLM review status | Benchmark reviewed=6, triple evidence support=0.1667, graph path relevance=0.3333, answer judge correctness=None, human review=false |\n\n## Safety Confidence Intervals\n\n| Metric | Mean | 95% CI | n |",
+      "excerpt": "# Thesis Experiment Dashboard\n\n- Source policy: aggregate existing reports; do not recompute experiments unnecessarily.\n- Scoring policy: layered metrics; no mixed overall score.\n- Advisory boundary: Aviation learning and decision support only; does not replace POH/AFM, approved checklists, ATC instructions, instructor guidance, regulations, or pilot judgment.\n\n## Experiment Inventory\n\n| Report | Present | Dataset | Questions | Layers | Human review present | LLM review available |\n| --- | ---: | --- | ---: | --- | ---: | ---: |\n| `thesis_claims_review` | True | not_dataset_specific | n/a | claim_safety | False | False |\n| `evaluation_protocol_review` | True | not_dataset_specific | n/a | evaluation_protocol | False | False |\n| `benchmark_v2_summary` | True | benchmark_v2_120 | 120 | benchmark_validation | False | False |\n| `retrieval_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, kg_evidence | False | False |\n| `graph_traversal_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, graph_paths | False | False |\n| `sufficiency_evaluation` | True | benchmark_v2_120 | 120 | safety_abstention | False | False |\n| `benchmark_reviewed_subset_summary` | True | benchmark_v2_reviewed_subset_60 | 60 | benchmark_llm_review_scaffold | False | False |\n| `benchmark_llm_review` | True | benchmark_v2_reviewed_subset_or_v2 | n/a | benchmark_llm_review, llm_judge | False | True |\n| `benchmark_llm_rewrite_proposals` | True | benchmark_v2_reviewed_subset_or_v2 | n/a | benchmark_llm_review | False | True |\n| `answer_evaluation_benchmark_subset` | True | answer_eval_subset | n/a | answer_generation, safety_abstention | False | False |\n| `answer_generation_benchmark_subset` | True | answer_eval_subset | 3 | answer_generation | False | False |\n| `answer_llm_judge` | True | answer_eval_subset | n/a | answer_generation, llm_judge | False | True |\n| `triple_semantic_llm_review` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_judge | False | True |\n| `graph_path_llm_review` | True | benchmark_v2_120 | n/a | graph_paths, llm_judge | False | True |\n| `llm_review_consistency` | True | llm_review_artifacts | n/a | llm_judge, claim_safety | False | True |\n| `chunking_implementation_audit` | True | benchmark_v2_120 | n/a | retrieval, evaluation_protocol | False | False |\n| `chunking_comparison_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_comparison_benchmark_v2_budget` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_topk_sensitivity_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_category_analysis_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_failure_cards_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval, failure_analysis | False | False |\n| `deepseek_v4pro_implementation_remediation` | True | not_dataset_specific | n/a | implementation_review, claim_safety | False | False |\n| `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False | False |\n| `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False | False |\n| `triple_semantic_review_sample` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_review_scaffold | False | False |\n| `answer_evaluation` | True | 10_cq_answer_subset | n/a | answer_generation, safety_abstention | False | False |\n| `robustness_evaluation` | True | robustness_10_cases | n/a | safety_abstention, robustness | False | False |\n| `benchmark_review_pack` | True | not_dataset_specific | 120 | benchmark_llm_review_scaffold | False | False |\n\n## RQ-To-Evidence Matrix\n\n| RQ | Evidence reports | Primary metrics | Claim strength | Remaining gaps |\n| --- | --- | --- | --- | --- |\n| RQ1 ontology constraint | curated_ontology_evaluation, kg_extraction_comparison, kg_validation | RDF/OWL parse validity, label/comment coverage, unsupported class/property count, provenance completeness | strong | Triple semantic correctness is absent or LLM-estimated only. |\n| RQ2 evidence traceability | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation | KG evidence coverage, citation completeness, citation precision, citation recall | moderate | Answer-level LLM-judge evaluation must remain separate from deterministic metrics. |\n| RQ3 graph evidence vs vector sufficiency | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, chunking_comparison_benchmark_v2, chunking_comparison_benchmark_v2_budget, chunking_topk_sensitivity_benchmark_v2, chunking_category_analysis_benchmark_v2 | Recall@5, Recall@10, MRR@5, NDCG@10, Path Recall@5, Path Precision@5, Fixed-budget chunking Recall@5 | moderate | Path relevance is heuristic or model-reviewed, not human-validated. |\n| RQ4 safety-aware abstention | sufficiency_evaluation, robustness_evaluation | Abstention Accuracy, False Answer Rate, False Abstention Rate, Risk Category Accuracy | moderate | Sufficiency can create false abstentions on supported questions. |\n\n## Dataset Usage Matrix\n\n| Dataset | Purpose | Evidence role | Main claim support | Limitations |\n| --- | --- | --- | --- | --- |\n| 10-CQ pilot | demo and qualitative answer inspection | pilot | partial | too small for main thesis retrieval claims |\n| 35-question expanded | pilot ablation and KG extraction comparison | pilot | partial | pilot-sized and not the main benchmark |\n| benchmark v2 120 | main thesis retrieval and safety benchmark | main_thesis_benchmark | provisional_internal_pending_llm_review | machine-seeded and requires model-based naturalness review |\n| benchmark v2 chunking experiment | chunking strategy comparison under top-k, fixed-budget, and category views | retrieval_design_diagnostic | partial_benchmark_specific | implementation-maturity labels required; top-k context volume differs by chunk size |\n| benchmark reviewed subset 60 | model-based review scaffold for high-value labels | llm_review_scaffold | pending_llm_review | review scaffold only; no human review or external aviation expert certification |\n| LLM review artifacts | model-based benchmark, triple, graph-path, answer, and consistency review | llm_judge | internal_llm_review_only | model-based internal review; no human or external expert certification |\n| answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | stratified subset; deterministic heuristic scores unless annotated |\n| triple semantic review sample | KG semantic correctness review template | llm_review_pending | partial | review fields pending until model-based review is run; no expert correctness claimed |\n\n## Primary Results\n\n| Metric group | Key numbers |\n| --- | --- |\n| vector-only benchmark v2 | Recall@5=0.475, Recall@10=0.475, MRR@5=0.3268, NDCG@10=0.3869 |\n| lexical hybrid benchmark v2 | Recall@5=0.5167, Recall@10=0.5917, MRR@5=0.3417, NDCG@10=0.443, Context Recall=0.7375 |\n| traversal hybrid | Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522 (heuristic or model-reviewed; no human review) |\n| sufficiency | Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29 |\n| robustness | Abstention Correctness=1.0, False Answer Rate=0.0, Boundary Violations=0 |\n| benchmark reviewed subset | Labels=60, Review Status=llm_review_pending_not_human_certified, External Expert Certified=False |\n| answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=45, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |\n| chunking benchmark v2 | Top-k best=structure_aware_large (Recall@5=0.85), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |\n| KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |\n| triple semantic review | Sample=100, reviewed=0, needs_review=100 |\n| LLM review status | Benchmark reviewed=6, triple evidence support=0.1667, graph ",
       "path": "reports/stages/thesis_experiment_dashboard.md",
       "present": true,
       "truncated": true
@@ -57070,6 +57260,19 @@
             "report_name": "chunking_failure_cards_benchmark_v2"
           },
           {
+            "dataset_used": "not_dataset_specific",
+            "human_review_present": false,
+            "llm_review_available": false,
+            "metric_layers_covered": [
+              "implementation_review",
+              "claim_safety"
+            ],
+            "path": "reports/reviews/deepseek_v4pro_implementation_remediation.json",
+            "present": true,
+            "questions_count": "n/a",
+            "report_name": "deepseek_v4pro_implementation_remediation"
+          },
+          {
             "dataset_used": "35_question_expanded",
             "human_review_present": false,
             "llm_review_available": false,
@@ -57299,6 +57502,18 @@
               "3": "recursive_large",
               "5": "structure_aware_large"
             }
+          },
+          "implementation_review_remediation": {
+            "deferred_items": [
+              "I6",
+              "NF3"
+            ],
+            "external_aviation_expert_certified": false,
+            "human_review_claimed": false,
+            "implemented_items": 6,
+            "scientific_metrics_changed": false,
+            "status": "full_quality_gates_passed",
+            "verified_already_fixed_items": 2
           },
           "kg": {
             "evidence_in_source_rate": 1.0,

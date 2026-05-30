@@ -11,6 +11,10 @@ from aviation_agentic_ai.utils.io import write_json_document
 from aviation_agentic_ai.utils.text import tokenize_terms
 
 
+SOURCE_DELIMITER = "+"
+UNKNOWN_SOURCE = "unknown"
+
+
 def tokenize(text: str) -> set[str]:
     return tokenize_terms(text)
 
@@ -89,7 +93,7 @@ def reciprocal_rank_fusion(
             chunk_id = str(item["chunk_id"])
             scores[chunk_id] = scores.get(chunk_id, 0.0) + 1.0 / (k + rank)
             merged.setdefault(chunk_id, dict(item))
-            sources.setdefault(chunk_id, set()).add(str(item.get("source", "")))
+            sources.setdefault(chunk_id, set()).update(_source_set(item.get("source", "")))
     fused: list[dict[str, Any]] = []
     for rank, (chunk_id, score) in enumerate(
         sorted(scores.items(), key=lambda item: (-item[1], item[0]))[:top_k],
@@ -98,21 +102,29 @@ def reciprocal_rank_fusion(
         item = dict(merged[chunk_id])
         item["rank"] = rank
         item["score"] = score
-        item["source"] = "+".join(sorted(source for source in sources[chunk_id] if source)) or "unknown"
+        item["source"] = _format_source_set(sources[chunk_id])
         fused.append(item)
     return fused
 
 
 def _source_set(value: Any) -> set[str]:
-    return {source for source in str(value or "").split("+") if source}
+    return {
+        source.strip()
+        for source in str(value or "").split(SOURCE_DELIMITER)
+        if source.strip() and source.strip() != UNKNOWN_SOURCE
+    }
+
+
+def _format_source_set(sources: set[str]) -> str:
+    return SOURCE_DELIMITER.join(sorted(sources)) or UNKNOWN_SOURCE
 
 
 def _merged_source(left: Any, right: Any) -> str:
-    sources = sorted(_source_set(left) | _source_set(right))
-    return "+".join(sources) or "unknown"
+    return _format_source_set(_source_set(left) | _source_set(right))
 
 
 def _score(item: dict[str, Any]) -> float:
+    """Return numeric retrieval score, treating missing or invalid values as zero."""
     try:
         return float(item.get("score", 0.0))
     except (TypeError, ValueError):
