@@ -6,6 +6,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, Callable
 
+from aviation_agentic_ai.evaluation.bootstrap_ci import bootstrap_metric_ci
 from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
 from aviation_agentic_ai.evaluation.gold import (
     GoldLabel,
@@ -50,10 +51,31 @@ def _scenario_name(mode: str, graph_hops: int, vector_top_k: int, hybrid_top_k: 
 
 
 def _aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
+    retrieval_records = [record["metrics"]["retrieval"] for record in records]
     return {
-        "retrieval": aggregate_retrieval_metrics(
-            [record["metrics"]["retrieval"] for record in records]
-        ),
+        "retrieval": aggregate_retrieval_metrics(retrieval_records),
+        "retrieval_confidence_intervals": {
+            "recall_at_5": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: bool(metric.get("recall_at_5", False)),
+            ),
+            "recall_at_10": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: bool(metric.get("recall_at_10", False)),
+            ),
+            "mrr_at_5": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: float(metric.get("mrr_at_5", 0.0)),
+            ),
+            "ndcg_at_10": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: float(metric.get("ndcg_at_10", 0.0)),
+            ),
+            "context_recall": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: float(metric.get("context_recall", 0.0)),
+            ),
+        },
         "kg_evidence": aggregate_kg_evidence_metrics(
             [record["metrics"]["kg_evidence"] for record in records]
         ),
@@ -302,12 +324,14 @@ def write_retrieval_ablation_markdown(result: dict[str, Any], output_path: str |
         f"{result['metadata'].get('label_breakdown', {}).get('no_answer_total', 0)}",
         f"- Scenarios: {result['metadata']['scenarios_total']}",
         "- Scoring: layered retrieval and KG evidence metrics; no mixed overall score.",
+        "- Confidence intervals: deterministic bootstrap 95% CIs over per-question metrics.",
         "",
         "| Scenario | Mode | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall | KG coverage | Avg triples |",
         "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for name, scenario in result["scenarios"].items():
         retrieval = scenario["aggregate"]["retrieval"]
+        ci = scenario["aggregate"].get("retrieval_confidence_intervals", {})
         kg = scenario["aggregate"]["kg_evidence"]
         lines.append(
             f"| {name} | {scenario['mode']} | {retrieval['recall_at_5']} | "
@@ -317,6 +341,12 @@ def write_retrieval_ablation_markdown(result: dict[str, Any], output_path: str |
             f"{retrieval['context_recall']} | "
             f"{kg['evidence_coverage']} | {kg['avg_related_triple_count']} |"
         )
+        if ci:
+            recall_ci = ci.get("recall_at_5", {})
+            lines.append(
+                f"<!-- {name} Recall@5 95% CI: "
+                f"{recall_ci.get('lower')} - {recall_ci.get('upper')} -->"
+            )
     lines.extend(["", "## Interpretation", ""])
     for name, scenario in result["scenarios"].items():
         lines.extend([f"### {name}", "", scenario["explanation"], ""])

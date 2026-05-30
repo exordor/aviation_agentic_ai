@@ -57,6 +57,7 @@ from aviation_agentic_ai.reporting.reviews import write_review_progress
 from aviation_agentic_ai.reporting.retrieval_ablation import write_retrieval_ablation
 from aviation_agentic_ai.reporting.robustness import write_robustness_evaluation
 from aviation_agentic_ai.reporting.sufficiency_eval import write_sufficiency_evaluation
+from aviation_agentic_ai.reporting.thesis_dashboard import write_thesis_experiment_dashboard
 from aviation_agentic_ai.reporting.thesis_claims import write_thesis_claims_review
 from aviation_agentic_ai.reporting.triple_semantic_review import write_triple_semantic_review
 from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
@@ -950,6 +951,28 @@ def report_evaluation_protocol(output_dir: Path | None, report_name: str) -> Non
     click.echo(
         "Reviewed evaluation protocol metrics; pending gaps: "
         f"{len(result['missing_or_pending_metrics'])}."
+    )
+
+
+@report.command("thesis-experiment-dashboard")
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="thesis_experiment_dashboard", show_default=True)
+def report_thesis_experiment_dashboard(
+    output_dir: Path | None,
+    report_name: str,
+) -> None:
+    """Aggregate thesis experiment reports into an RQ-oriented dashboard."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, result = write_thesis_experiment_dashboard(
+        report_dir,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(
+        "Built thesis experiment dashboard; consistency checks passed="
+        f"{result['consistency_checks']['all_passed']}."
     )
 
 

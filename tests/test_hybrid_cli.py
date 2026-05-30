@@ -555,6 +555,35 @@ def test_cli_report_evaluation_protocol_uses_mocked_writer(
     assert "pending gaps: 2" in result.output
 
 
+def test_cli_report_thesis_dashboard_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "thesis_experiment_dashboard.json"
+        md_path = tmp_path / "thesis_experiment_dashboard.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return json_path, md_path, {"consistency_checks": {"all_passed": True}}
+
+    monkeypatch.setattr(cli, "write_thesis_experiment_dashboard", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "thesis-experiment-dashboard",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "consistency checks passed=True" in result.output
+
+
 def test_cli_report_robustness_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai import cli
 

@@ -16,7 +16,7 @@ A vector-only RAG baseline can retrieve relevant pages, but it does not expose t
 
 ## 3. Methodology
 
-The implemented pipeline is PDF -> chunks -> curated ontology -> KG/ABox -> Chroma vector index -> graph/vector/hybrid retrieval -> grounded LLM answer -> layered evaluation report. The pipeline is CLI-first so that every major artifact can be regenerated and inspected. Sources: `README.md`, `configs/default.yaml`, `reports/final/project_report_sources.json`.
+The implemented pipeline is PDF -> chunks -> curated ontology -> KG/ABox -> Chroma vector index -> graph/vector/hybrid retrieval -> grounded LLM answer -> layered evaluation report. The pipeline is CLI-first so that every major artifact can be regenerated and inspected. Sources: `README.md`, `configs/default.yaml`, `reports/stages/thesis_experiment_dashboard.json`.
 
 ## 4. Explainable Ontology Design
 
@@ -58,27 +58,38 @@ The evidence sufficiency layer reports supported decision accuracy=0.71, insuffi
 
 The triple semantic review sample contains 100 triples with review fields initialized to `needs_review`; no semantic correctness claim is made until those annotations are completed. Source: `reports/stages/triple_semantic_review_sample.json`.
 
-## 9. Discussion
+## 9. Research-Question Synthesis From Thesis Dashboard
+
+The thesis experiment dashboard is the main synthesis artifact for the final report. It maps research questions to datasets, metrics, reports, current claim strength, and remaining gaps. Sources: `reports/stages/thesis_experiment_dashboard.json`, `docs/experiment_workflow.md`.
+
+Dashboard consistency checks passed=True. The dashboard reports vector Recall@5=0.475, lexical hybrid Context Recall=0.7375, traversal Path Recall@5=0.6583, and sufficiency False Abstention Rate=0.29.
+
+- RQ1 ontology constraint: claim strength=strong; reports=curated_ontology_evaluation, kg_extraction_comparison, kg_validation; gap=Triple semantic correctness still requires manual review.
+- RQ2 evidence traceability: claim strength=moderate; reports=retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation; gap=Answer-level manual or LLM-judge evaluation is optional and not run.
+- RQ3 graph evidence vs vector sufficiency: claim strength=moderate; reports=retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2; gap=Path relevance metrics are heuristic until manually reviewed.
+- RQ4 safety-aware abstention: claim strength=moderate; reports=sufficiency_evaluation, robustness_evaluation; gap=Sufficiency can create false abstentions on supported questions.
+
+## 10. Discussion
 
 The main interpretation is that vector-only retrieval can remain competitive on coarse page-level gold labels, while GraphRAG contributes relation-level evidence coverage and provenance. This distinction prevents the evaluation from collapsing retrieval, KG evidence, answer quality, and abstention into one misleading score. Source: `reports/stages/graphrag_review.json`.
 
-## 10. Limitations and Threats to Validity
+## 11. Limitations and Threats to Validity
 
 The gold labels are reviewed for source alignment, but they remain course-project labels rather than external aviation examiner certification. The dataset is limited to PHAK Chapter 4. KG extraction depends on LLM structured output and therefore requires deterministic validation. Visual assets are explanatory presentation artifacts and must not be treated as experiment evidence.
 
-## 11. Web Demonstrator
+## 12. Web Demonstrator
 
 The web demo readiness report marks ready=True, default strategy=structure_aware, and explanation ready=True. The final smoke report marks ready=True. The demo presents answer evidence, KG triples, relationship graph, mode comparison, pipeline explanation, and advisory boundary. Sources: `reports/stages/web_demo_readiness.json`, `reports/stages/web_demo_final_smoke.json`.
 
-## 11.1 Final Evaluation Decision
+## 12.1 Final Evaluation Decision
 
 The final evaluation selects `structure_aware` as the default demo and next-phase GraphRAG strategy while keeping `fixed_window` as the baseline. Gold label review status is `manual_reviewed` with review_required=False. Source: `reports/stages/final_evaluation_review.json`.
 
-## 12. Advisory Boundary
+## 13. Advisory Boundary
 
 This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.
 
-## 13. Conclusion
+## 14. Conclusion
 
 The project is ready to be presented as a reproducible, evidence-layered GraphRAG prototype. The strongest defensible claim is not that graph retrieval universally beats vector retrieval, but that ontology-constrained KG evidence makes retrieved answers more explainable and auditable in the aviation handbook setting.
 
@@ -100,6 +111,7 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`
 - `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`
 - `uv run aviation-ai report triple-semantic-review --sample-size 100`
+- `uv run aviation-ai report thesis-experiment-dashboard`
 - `uv run aviation-ai report academic-paper --no-ai`
 - `uv run aviation-ai report defense-notes`
 - `uv run aviation-ai report defense-deck-outline`
@@ -144,6 +156,8 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/chunking_comparison.md`
 - `reports/stages/curated_ontology_evaluation.json`
 - `reports/stages/curated_ontology_evaluation.md`
+- `reports/stages/evaluation_protocol_review.json`
+- `reports/stages/evaluation_protocol_review.md`
 - `reports/stages/evidence_level_evaluation.json`
 - `reports/stages/evidence_level_evaluation.md`
 - `reports/stages/final_evaluation_review.json`
@@ -172,6 +186,8 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/stages/sufficiency_evaluation.json`
 - `reports/stages/sufficiency_evaluation.md`
 - `reports/stages/thesis_claims_review.json`
+- `reports/stages/thesis_experiment_dashboard.json`
+- `reports/stages/thesis_experiment_dashboard.md`
 - `reports/stages/triple_semantic_review.md`
 - `reports/stages/triple_semantic_review_sample.json`
 - `reports/stages/web_demo_final_smoke.json`

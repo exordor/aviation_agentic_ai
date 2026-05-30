@@ -87,6 +87,9 @@ be audited with `uv run aviation-ai report evaluation-protocol`. It explicitly
 maps mainstream RAGAS-style metrics, ARES-style component evaluation, standard
 IR metrics, GraphRAG path/evidence metrics, ontology/KG construction metrics,
 and aviation safety-abstention metrics onto the current project reports.
+The full thesis experiment sequence is documented in
+`docs/experiment_workflow.md` and summarized by
+`uv run aviation-ai report thesis-experiment-dashboard`.
 
 ## Claim Safety Matrix
 

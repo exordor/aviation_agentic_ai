@@ -116,6 +116,7 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
     traversal_v2 = _artifact_data(evidence, "graph_traversal_ablation_benchmark_v2")
     sufficiency = _artifact_data(evidence, "sufficiency_evaluation")
     triple_review = _artifact_data(evidence, "triple_semantic_review")
+    dashboard = _artifact_data(evidence, "thesis_experiment_dashboard")
     ranking = chunking.get("ranking", []) if isinstance(chunking.get("ranking"), list) else []
     best_chunking = ranking[0] if ranking else {}
     fixed_hybrid_agg = fixed_hybrid.get("aggregate", {})
@@ -405,7 +406,41 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
                     "sample_size",
                 ),
             },
+            "thesis_dashboard": {
+                "consistency_passed": _metric(
+                    dashboard,
+                    "consistency_checks",
+                    "all_passed",
+                ),
+                "vector_recall_at_5": _metric(
+                    dashboard,
+                    "primary_results",
+                    "vector_only",
+                    "recall_at_5",
+                ),
+                "hybrid_context_recall": _metric(
+                    dashboard,
+                    "primary_results",
+                    "best_lexical_hybrid",
+                    "context_recall",
+                ),
+                "traversal_path_recall_at_5": _metric(
+                    dashboard,
+                    "primary_results",
+                    "traversal_hybrid",
+                    "path_recall_at_5",
+                ),
+                "false_abstention_rate": _metric(
+                    dashboard,
+                    "primary_results",
+                    "sufficiency",
+                    "false_abstention_rate",
+                ),
+            },
         },
+        "rq_to_evidence_matrix": dashboard.get("rq_to_evidence_matrix", [])
+        if isinstance(dashboard, dict)
+        else [],
         "graphrag_interpretations": graphrag_review.get("interpretations", []),
         "advisory_boundary": evidence.get("advisory_boundary", ""),
         "visual_assets": VISUAL_ASSETS,
@@ -453,7 +488,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "Chroma vector index -> graph/vector/hybrid retrieval -> grounded LLM answer -> "
         "layered evaluation report. The pipeline is CLI-first so that every major "
         "artifact can be regenerated and inspected. Sources: `README.md`, "
-        "`configs/default.yaml`, `reports/final/project_report_sources.json`.",
+        "`configs/default.yaml`, `reports/stages/thesis_experiment_dashboard.json`.",
         "",
         "## 4. Explainable Ontology Design",
         "",
@@ -570,7 +605,33 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "until those annotations are completed. Source: "
         "`reports/stages/triple_semantic_review_sample.json`.",
         "",
-        "## 9. Discussion",
+        "## 9. Research-Question Synthesis From Thesis Dashboard",
+        "",
+        "The thesis experiment dashboard is the main synthesis artifact for the final "
+        "report. It maps research questions to datasets, metrics, reports, current "
+        "claim strength, and remaining gaps. Sources: "
+        "`reports/stages/thesis_experiment_dashboard.json`, "
+        "`docs/experiment_workflow.md`.",
+        "",
+        f"Dashboard consistency checks passed="
+        f"{metrics['thesis_dashboard']['consistency_passed']}. The dashboard reports "
+        f"vector Recall@5={metrics['thesis_dashboard']['vector_recall_at_5']}, lexical "
+        f"hybrid Context Recall={metrics['thesis_dashboard']['hybrid_context_recall']}, "
+        f"traversal Path Recall@5="
+        f"{metrics['thesis_dashboard']['traversal_path_recall_at_5']}, and sufficiency "
+        f"False Abstention Rate={metrics['thesis_dashboard']['false_abstention_rate']}.",
+        "",
+        *[
+            (
+                f"- {row.get('rq')}: claim strength={row.get('claim_strength')}; "
+                f"reports={', '.join(row.get('evidence_reports', []))}; "
+                f"gap={row.get('remaining_gaps')}"
+            )
+            for row in summary.get("rq_to_evidence_matrix", [])
+            if isinstance(row, dict)
+        ],
+        "",
+        "## 10. Discussion",
         "",
         "The main interpretation is that vector-only retrieval can remain competitive on "
         "coarse page-level gold labels, while GraphRAG contributes relation-level evidence "
@@ -579,7 +640,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "Source: "
         "`reports/stages/graphrag_review.json`.",
         "",
-        "## 10. Limitations and Threats to Validity",
+        "## 11. Limitations and Threats to Validity",
         "",
         "The gold labels are reviewed for source alignment, but they remain course-project "
         "labels rather than external aviation examiner certification. The dataset is "
@@ -587,7 +648,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "therefore requires deterministic validation. Visual assets are explanatory "
         "presentation artifacts and must not be treated as experiment evidence.",
         "",
-        "## 11. Web Demonstrator",
+        "## 12. Web Demonstrator",
         "",
         f"The web demo readiness report marks ready={metrics['web_demo']['ready']}, "
         f"default strategy={metrics['web_demo']['default_strategy']}, and explanation "
@@ -597,7 +658,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "advisory boundary. Sources: `reports/stages/web_demo_readiness.json`, "
         "`reports/stages/web_demo_final_smoke.json`.",
         "",
-        "## 11.1 Final Evaluation Decision",
+        "## 12.1 Final Evaluation Decision",
         "",
         f"The final evaluation selects `{metrics['final_evaluation']['default_strategy']}` "
         "as the default demo and next-phase GraphRAG strategy while keeping "
@@ -606,11 +667,11 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         f"with review_required={metrics['final_evaluation']['gold_review_required']}. "
         "Source: `reports/stages/final_evaluation_review.json`.",
         "",
-        "## 12. Advisory Boundary",
+        "## 13. Advisory Boundary",
         "",
         summary["advisory_boundary"],
         "",
-        "## 13. Conclusion",
+        "## 14. Conclusion",
         "",
         "The project is ready to be presented as a reproducible, evidence-layered "
         "GraphRAG prototype. The strongest defensible claim is not that graph retrieval "
@@ -636,6 +697,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "- `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`",
         "- `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`",
         "- `uv run aviation-ai report triple-semantic-review --sample-size 100`",
+        "- `uv run aviation-ai report thesis-experiment-dashboard`",
         "- `uv run aviation-ai report academic-paper --no-ai`",
         "- `uv run aviation-ai report defense-notes`",
         "- `uv run aviation-ai report defense-deck-outline`",

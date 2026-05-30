@@ -1,114 +1,81 @@
 # Aviation Agentic AI Project Report
 
-## Project motivation and course objective alignment
-
-This project investigates a reproducible aviation-domain RAG pipeline that turns FAA training text into ontology, KG, retrieval, and grounded-answer artifacts. Course goal evidence: `GOALS.md` (present).
-
-## Thesis claim positioning
+## Research claim and scope
 
 This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can improve evidence traceability, structured KG evidence coverage, and insufficient-evidence abstention. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.
 
-Thesis positioning evidence: `docs/thesis_positioning.md` (present); claim review evidence: `reports/stages/thesis_claims_review.md` (present).
+This deterministic report is organized by research questions and uses `reports/stages/thesis_experiment_dashboard.json` as the main evidence source. The dashboard aggregates existing reports without recomputing experiments. It keeps retrieval, graph evidence, answer quality, ontology/KG quality, and safety-abstention metrics separate; no mixed overall score is created.
 
-## Architecture overview
+Scope boundary: This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.
 
-The implementation is CLI-first and separates ontology, KG extraction, chunking, retrieval, evaluation, and reporting modules. Primary configuration evidence is `configs/default.yaml`, `configs/ontology_generation.yaml`, and `configs/extraction_profile.yaml`.
+## Dataset and benchmark
 
-## Ontology/TBox generation and evaluation
+- **10-CQ pilot**: demo and qualitative answer inspection; evidence role=`pilot`; thesis main claim support=partial; limitations: too small for main thesis retrieval claims.
+- **35-question expanded**: pilot ablation and KG extraction comparison; evidence role=`pilot`; thesis main claim support=partial; limitations: pilot-sized and not the main benchmark.
+- **benchmark v2 120**: main thesis retrieval and safety benchmark; evidence role=`main_thesis_benchmark`; thesis main claim support=yes; limitations: machine-seeded and requires manual naturalness review.
+- **answer-eval subset**: answer citation and faithfulness heuristics; evidence role=`pilot`; thesis main claim support=partial; limitations: small subset; deterministic heuristic scores.
+- **triple semantic review sample**: manual KG semantic correctness review template; evidence role=`manual_review_pending`; thesis main claim support=partial; limitations: review fields pending; no correctness results claimed.
 
-The active ontology is `data/ontology/curated/06_phak_ch4_0.curated.ttl`, with design rationale in `docs/ontology_design.md`. It replaces the historical baseline as the explainable schema used for KG extraction.
-Curated ontology metrics: triples=188, classes=35, object_properties=9, TBox-only=True, label coverage=1.0.
-Ontology judgment: valid TBox prototype=True, publication-ready=False.
-Historical ontology evaluation artifacts indexed: 10.
+Benchmark v2 is the main thesis retrieval and safety benchmark. The 10-CQ and 35-question sets remain pilot/demo evidence and must not be presented as the main thesis benchmark.
 
-## KG/ABox extraction and validation
+## Evaluation protocol
 
-The KG stage is designed around focused triples with provenance and deterministic validation against the extraction profile.
-Validated KG artifact: `data/kg/06_phak_ch4_0.kg.jsonl`. Triples=172; validation errors=0; ontology constraint=`data/ontology/curated/06_phak_ch4_0.curated.ttl`.
-Structure-aware KG artifact: `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl`. Triples=448; validation errors=0. It is kept separate from the fixed-window KG to avoid mixing chunk-id schemas.
+The evaluation protocol is defined in `docs/evaluation_protocol.md` and audited by `reports/stages/evaluation_protocol_review.json`. Primary metrics include Recall@5/@10, MRR@5/@10, NDCG@10, Precision@5, Context Precision@5, Context Recall, graph path metrics, citation metrics, KG validation metrics, and safety-abstention metrics.
 
-## Chunking comparison design
+## RQ1: ontology-constrained KG extraction
 
-Chunking comparison evidence: `reports/stages/chunking_comparison.md`. It evaluated 10 boundary CQs across 4 strategies.
-Best chunking strategy: structure_aware with Recall@5=1.0, MRR@5=0.82, and Context Precision@5=0.52.
-Fixed-window remains the KG-aligned strategy for the current Hybrid RAG run: Recall@5=1.0, MRR@5=0.7583, Context Precision@5=0.42, chunks=35.
-Interpretation: structure_aware improves ranking quality and context precision by preserving handbook structure, but its finer granularity increases chunk count to 267. It is a candidate for future KG re-extraction rather than being mixed with the current fixed-window KG.
+Current KG evidence: structure-aware valid triples=448, provenance completeness=1.0, evidence-in-source rate=1.0, unsupported triple count=0. Triple semantic review sample size=100, reviewed=0, needs_review=100; no semantic correctness claim is made until manual annotations are completed.
 
-## Hybrid RAG protocol and layered metrics
+## RQ2: evidence traceability
 
-Hybrid RAG evidence: `reports/stages/hybrid_rag_experiment.md`. It evaluated 10 boundary CQs using `fixed_window` chunks, collection `phak_ch4_chunks`, and LLM openai/gpt-5.4-mini.
-Retrieval metrics: vector Recall@5=1.0, graph Recall@5=0.8, hybrid Recall@5=0.9; vector MRR@5=0.7583, graph MRR@5=0.65, hybrid MRR@5=0.7533.
-KG evidence metrics: graph coverage=0.9, hybrid coverage=0.9, hybrid provenance complete=1.0, hybrid invalid triples=0.0.
-LLM answer metrics: vector citation completeness=1.0, graph=1.0, hybrid=1.0; hybrid insufficient-evidence abstention=0.0.
-Hybrid lift is reported as layered evidence, not a mixed total score: vs vector Recall@5=-0.1, vs graph Recall@5=0.1.
-Structure-aware Hybrid RAG evidence: `reports/stages/hybrid_rag_structure_aware.md`. It evaluated 10 boundary CQs with hybrid Recall@5=1.0, KG evidence coverage=0.9, and lift vs vector Recall@5=0.0.
-GraphRAG interpretation evidence: `reports/stages/graphrag_review.md` explains retrieval, KG evidence, and LLM answer behavior separately.
-Evidence-level evaluation: `reports/stages/evidence_level_evaluation.md` shows structure-aware hybrid span hit rate=0.7 and supported answers=9; fixed-window hybrid span hit rate=0.9 and supported answers=8.
+Evidence traceability is supported by KG provenance, citation metrics, and the dashboard inventory. Answer-level scores are deterministic heuristics unless an LLM-judge or manual review score is explicitly recorded.
 
-## Current results and limitations
+## RQ3: vector vs graph vs hybrid retrieval (Hybrid RAG protocol and layered metrics)
 
-Current evidence now covers the explainable curated ontology, fixed-window KG, structure-aware KG, chunking comparison, fixed-window Hybrid RAG, structure-aware Hybrid RAG, and GraphRAG review when their reports are present in the stage index.
-Web demo readiness: ready=True, default strategy=structure_aware.
-The web demo is an offline-first FastAPI interface with a macOS-style sidebar, toolbar controls, answer workspace, chunk evidence, KG triple evidence, KG relationship graph, pipeline explanation, mode comparison, Why This Result panel, and advisory boundary display.
-Web explanation readiness: ready=True, default path=structure_aware + hybrid, recommended strategy=structure_aware.
-Final evaluation review: default strategy=structure_aware, baseline=fixed_window, gold review status=manual_reviewed, review required=False.
-Web demo smoke: ready=True for static/API checks.
-Expanded evaluation labels: 35 questions, including 5 insufficient-evidence/no-answer cases.
-Retrieval ablation: 12 scenarios over 35 questions; vector Recall@5=0.6857, graph-disabled hybrid Recall@5=0.6857, and default hybrid Recall@5=0.6286.
-KG extraction comparison: fixed-window valid triples=172 with key-entity coverage=0.8286; structure-aware valid triples=448 with key-entity coverage=0.8571.
-Answer evaluation: hybrid citation completeness=1.0, citation correctness=0.9, answer faithfulness=0.9, advisory-boundary violations=0.
-Robustness evaluation: retrieval stability=0.8, citation stability=0.7, abstention correctness=0.6.
-Benchmark v2 summary: 120 labels, supported=100, insufficient-evidence=20, validation passed=True, review status=`machine_seeded_requires_manual_review`.
-Benchmark manual-review pack: 120 labels grouped by question type; automatic findings include {'insufficient_evidence_label_needs_aviation_safety_review': 15, 'unnatural_machine_generated_wording': 90, 'weak_or_generic_question': 49}. These are review prompts, not completed expert certification.
-Benchmark v2 retrieval ablation: vector Recall@5=0.475, default hybrid Recall@5=0.5083, and hybrid KG evidence coverage=0.8.
-Benchmark v2 graph traversal: 2-hop traversal path coverage=0.75, standalone Recall@5=0.1333; guarded hybrid traversal Recall@5=0.4583.
-Sufficiency evaluation: insufficient-evidence abstention accuracy=1.0, false answer rate on no-answer questions=0.0, false abstention rate on supported questions=0.29, boundary violations=0.
-Triple semantic review sample: 100 triples are prepared with all semantic annotation fields marked `needs_review`; no semantic-correctness claim is made.
-Limitations: chunk/span gold labels are reviewed for source alignment but are not external aviation examiner certification, structure-aware KG extraction is more expensive because it uses many smaller chunks, and GraphRAG should be defended as structured evidence support rather than a single-score Recall improvement.
+Benchmark v2 vector-only: Recall@5=0.475, Recall@10=0.475, MRR@5=0.3261, NDCG@10=0.3863. Lexical hybrid: Recall@5=0.5083, Recall@10=0.5917, MRR@5=0.34, NDCG@10=0.4425, Context Recall=0.7375, KG evidence coverage=0.8.
 
-## Advisory assistant boundary
+Traversal hybrid: Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522. Path metrics are heuristic and require manual review. High path coverage is not treated as evidence of high retrieval quality unless Recall/MRR/NDCG also support that claim.
 
-This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.
+## RQ4: safety-aware abstention
 
-## Next work plan
+Benchmark v2 safety metrics: Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29, Risk Category Accuracy=1.0. Sufficiency improves safety against unsupported questions but false abstentions on supported questions remain a visible limitation.
 
-1. Run final quality gates and keep the repository ready for submission.
-2. Add GitLab CI for `ruff` and `pytest` if automated checks are required.
-3. Optionally mirror the remaining P3 tasks into GitLab issues.
-4. Expand beyond PHAK Chapter 4 only after document metadata and section schema are enforced.
+## Failure analysis
+
+Graph failure categories: {'generic_seed_node': 75, 'graph_fusion_dilution': 100, 'kg_sparse_for_question': 374, 'low_value_predicate': 154, 'path_found_but_wrong_chunk': 322, 'seed_linking_error': 150}.
+False abstentions on supported questions: 29.
+Machine-seeded benchmark wording findings: 90.
+Missing manual triple review items: 100.
+
+## Limitations
+
+Benchmark v2 is thesis/course-project evidence, not external aviation expert certification. Path relevance and triple semantic correctness remain manual-review dependent. The system is not operational flight software and does not replace official sources or pilot judgment.
 
 ## Reproducibility appendix
 
-- `uv run aviation-ai report chunking-comparison`
-- `uv run aviation-ai index build`
-- `uv run aviation-ai report hybrid-rag`
-- `uv run aviation-ai kg extract --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --output data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --ttl-output data/kg/06_phak_ch4_0.structure_aware.kg.ttl`
-- `uv run aviation-ai kg validate --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --output-dir reports/stages --report-name structure_aware_kg_validation`
-- `uv run aviation-ai index build --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --collection-name phak_ch4_chunks_structure_aware`
-- `uv run aviation-ai report hybrid-rag --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --collection-name phak_ch4_chunks_structure_aware --chunking-strategy structure_aware --report-name hybrid_rag_structure_aware`
-- `uv run aviation-ai report graphrag-review`
-- `uv run aviation-ai cqs gold-draft`
-- `uv run aviation-ai report evidence-eval`
-- `uv run aviation-ai report web-demo-readiness`
-- `uv run aviation-ai web serve`
-- `uv run aviation-ai report web-demo-smoke`
-- `uv run aviation-ai report final-evaluation`
-- `uv run aviation-ai report thesis-claims`
-- `uv run aviation-ai report benchmark-v2`
-- `uv run aviation-ai report benchmark-review-pack`
-- `uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2`
-- `uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2`
-- `uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json`
-- `uv run aviation-ai report triple-semantic-review --sample-size 100`
-- `uv run aviation-ai report hygiene --apply`
+- `make validate`
+- `make reports-core`
+- `make reports-main-experiments`
+- `make reports-review`
+- `make thesis-dashboard`
 - `uv run aviation-ai report project --no-ai`
-- `uv run aviation-ai report project --ai`
+- `uv run aviation-ai report academic-paper --no-ai`
 
-## Evidence Sources
+## Dashboard consistency checks
 
-- Stage index: `reports/stages/index.json` (present)
-- README: `README.md` (present)
-- Goal: `GOALS.md` (present)
-- Thesis positioning: `docs/thesis_positioning.md` (present)
-- Thesis-ready stage evidence: `reports/stages/benchmark_v2_summary.md`, `reports/stages/retrieval_ablation_benchmark_v2.md`, `reports/stages/graph_traversal_ablation_benchmark_v2.md`, `reports/stages/sufficiency_evaluation.md`, `reports/stages/triple_semantic_review.md`
-- Configs: `configs/default.yaml`, `configs/ontology_generation.yaml`, `configs/extraction_profile.yaml`
+- `all_passed`: True
+- `benchmark_v2_used_in_main_retrieval`: True
+- `benchmark_v2_used_in_safety`: True
+- `every_rq_has_evidence_report`: True
+- `manual_review_dependent_metrics_not_completed`: True
+- `no_unsafe_claim_patterns`: True
+- `pilot_reports_not_marked_main`: True
+- `primary_thesis_metric_gaps`: []
+- `primary_thesis_metrics_have_report_evidence`: True
+
+## RQ evidence matrix
+
+- **RQ1 ontology constraint**: reports=['curated_ontology_evaluation', 'kg_extraction_comparison', 'kg_validation']; metrics=['RDF/OWL parse validity', 'label/comment coverage', 'unsupported class/property count', 'provenance completeness']; claim strength=strong; gaps=Triple semantic correctness still requires manual review..
+- **RQ2 evidence traceability**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2', 'answer_evaluation']; metrics=['KG evidence coverage', 'citation completeness', 'citation precision', 'citation recall']; claim strength=moderate; gaps=Answer-level manual or LLM-judge evaluation is optional and not run..
+- **RQ3 graph evidence vs vector sufficiency**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2']; metrics=['Recall@5', 'Recall@10', 'MRR@5', 'NDCG@10', 'Path Recall@5', 'Path Precision@5']; claim strength=moderate; gaps=Path relevance metrics are heuristic until manually reviewed..
+- **RQ4 safety-aware abstention**: reports=['sufficiency_evaluation', 'robustness_evaluation']; metrics=['Abstention Accuracy', 'False Answer Rate', 'False Abstention Rate', 'Risk Category Accuracy']; claim strength=moderate; gaps=Sufficiency can create false abstentions on supported questions..

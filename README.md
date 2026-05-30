@@ -150,6 +150,9 @@ aviation-ai report web-demo-smoke
 aviation-ai report final-evaluation
 aviation-ai report thesis-claims
 aviation-ai report evaluation-protocol
+aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2
+aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2
+aviation-ai report thesis-experiment-dashboard
 aviation-ai web serve
 aviation-ai report hygiene --dry-run
 aviation-ai report project --no-ai
@@ -260,6 +263,31 @@ The evaluation protocol is documented in `docs/evaluation_protocol.md`. It maps
 mainstream RAGAS-style, ARES-style, IR, GraphRAG, ontology/KG, and aviation
 safety metrics to this project. The project reports layered metrics and does not
 claim or compute a single mixed overall score.
+
+## Thesis Experiment Workflow
+
+The canonical thesis workflow is documented in `docs/experiment_workflow.md`.
+It connects research questions, datasets, baselines, metrics, reports,
+limitations, and final thesis claims. Use the Makefile targets for the
+deterministic workflow; they do not require API keys.
+
+```bash
+uv sync --extra dev --extra graphrag
+make validate
+uv run aviation-ai cqs validate-benchmark --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json
+make reports-core
+make reports-main-experiments
+make reports-review
+make thesis-dashboard
+uv run aviation-ai report project --no-ai
+uv run aviation-ai report academic-paper --no-ai
+```
+
+The dashboard command writes `reports/stages/thesis_experiment_dashboard.json`
+and `.md`. It aggregates existing reports into an experiment inventory,
+RQ-to-evidence matrix, dataset usage matrix, primary results table,
+failure-mode summary, and thesis-ready claim summary. It does not recompute
+experiments, fabricate manual review results, or produce a mixed overall score.
 
 ## Thesis Positioning And Claim Safety
 

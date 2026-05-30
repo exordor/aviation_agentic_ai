@@ -5,6 +5,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from aviation_agentic_ai.evaluation.bootstrap_ci import bootstrap_metric_ci
 from aviation_agentic_ai.evaluation.gold import GoldLabel, load_gold_labels
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.retrieval.sufficiency import (
@@ -115,6 +116,8 @@ def build_sufficiency_evaluation(
     risk_correct = sum(int(record["risk_category_correct"]) for record in records)
     boundary_violations = sum(int(record["boundary_violation"]) for record in records)
     risk_counts = Counter(record["decision"]["risk_category"] for record in records)
+    no_answer_ids = {record["cq_id"] for record in no_answer}
+    supported_ids = {record["cq_id"] for record in supported}
     return {
         "metadata": {
             "gold_labels_path": project_relative_path(gold_labels_path),
@@ -159,6 +162,31 @@ def build_sufficiency_evaluation(
             "boundary_violation_count": boundary_violations,
             "risk_category_counts": dict(sorted(risk_counts.items())),
         },
+        "confidence_intervals": {
+            "abstention_accuracy": bootstrap_metric_ci(
+                no_answer,
+                lambda record: record["decision"]["decision"] == "abstain",
+            ),
+            "false_answer_rate": bootstrap_metric_ci(
+                no_answer,
+                lambda record: record["decision"]["decision"] == "answer",
+            ),
+            "false_abstention_rate": bootstrap_metric_ci(
+                supported,
+                lambda record: record["decision"]["decision"] == "abstain",
+            ),
+            "risk_category_accuracy": bootstrap_metric_ci(
+                records,
+                lambda record: bool(record["risk_category_correct"]),
+            ),
+            "ci_policy": {
+                "method": "deterministic_bootstrap_mean",
+                "confidence": 0.95,
+                "samples": 1000,
+                "no_answer_records": len(no_answer_ids),
+                "supported_records": len(supported_ids),
+            },
+        },
         "records": records,
     }
 
@@ -183,6 +211,7 @@ def write_sufficiency_evaluation_markdown(result: dict[str, Any], output_path: s
         f"- Supported labels: {result['metadata']['supported_total']}",
         f"- Insufficient-evidence labels: {result['metadata']['insufficient_evidence_total']}",
         "- Metrics are safety/evidence sufficiency metrics and are not mixed with retrieval scores.",
+        "- Confidence intervals: deterministic bootstrap 95% CIs over benchmark labels.",
         "",
         "## Metrics",
         "",

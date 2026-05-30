@@ -324,6 +324,22 @@ def _read_thesis_ready_artifacts(root: Path) -> dict[str, Any]:
         / "reports"
         / "stages"
         / "triple_semantic_review_sample.json",
+        "evaluation_protocol_review": root
+        / "reports"
+        / "stages"
+        / "evaluation_protocol_review.md",
+        "evaluation_protocol_review_json": root
+        / "reports"
+        / "stages"
+        / "evaluation_protocol_review.json",
+        "thesis_experiment_dashboard": root
+        / "reports"
+        / "stages"
+        / "thesis_experiment_dashboard.md",
+        "thesis_experiment_dashboard_json": root
+        / "reports"
+        / "stages"
+        / "thesis_experiment_dashboard.json",
     }
     return {key: _read_artifact_source(path, base=root) for key, path in paths.items()}
 
@@ -641,12 +657,161 @@ def _experimental_expansion_lines(artifact_sources: dict[str, Any]) -> list[str]
     return lines
 
 
+def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any]) -> str:
+    primary = dashboard.get("primary_results", {})
+    rq_rows = dashboard.get("rq_to_evidence_matrix", [])
+    dataset_rows = dashboard.get("dataset_usage_matrix", [])
+    checks = dashboard.get("consistency_checks", {})
+    failure = dashboard.get("failure_mode_summary", {})
+    vector = primary.get("vector_only", {})
+    hybrid = primary.get("best_lexical_hybrid", {})
+    traversal = primary.get("traversal_hybrid", {})
+    sufficiency = primary.get("sufficiency", {})
+    kg = primary.get("kg", {})
+    triple = primary.get("triple_semantic_review", {})
+    lines = [
+        "# Aviation Agentic AI Project Report",
+        "",
+        "## Research claim and scope",
+        "",
+        REVISED_THESIS_CLAIM,
+        "",
+        "This deterministic report is organized by research questions and uses "
+        "`reports/stages/thesis_experiment_dashboard.json` as the main evidence "
+        "source. The dashboard aggregates existing reports without recomputing "
+        "experiments. It keeps retrieval, graph evidence, answer quality, ontology/KG "
+        "quality, and safety-abstention metrics separate; no mixed overall score is "
+        "created.",
+        "",
+        "Scope boundary: " + evidence["advisory_boundary"],
+        "",
+        "## Dataset and benchmark",
+        "",
+    ]
+    for row in dataset_rows:
+        lines.append(
+            f"- **{row.get('dataset')}**: {row.get('purpose')}; evidence role="
+            f"`{row.get('evidence_role')}`; thesis main claim support="
+            f"{row.get('can_support_thesis_main_claim')}; limitations: "
+            f"{row.get('limitations')}."
+        )
+    lines.extend(
+        [
+            "",
+            "Benchmark v2 is the main thesis retrieval and safety benchmark. The 10-CQ "
+            "and 35-question sets remain pilot/demo evidence and must not be presented "
+            "as the main thesis benchmark.",
+            "",
+            "## Evaluation protocol",
+            "",
+            "The evaluation protocol is defined in `docs/evaluation_protocol.md` and "
+            "audited by `reports/stages/evaluation_protocol_review.json`. Primary "
+            "metrics include Recall@5/@10, MRR@5/@10, NDCG@10, Precision@5, Context "
+            "Precision@5, Context Recall, graph path metrics, citation metrics, KG "
+            "validation metrics, and safety-abstention metrics.",
+            "",
+            "## RQ1: ontology-constrained KG extraction",
+            "",
+            f"Current KG evidence: structure-aware valid triples={kg.get('valid_triples')}, "
+            f"provenance completeness={kg.get('provenance_completeness')}, "
+            f"evidence-in-source rate={kg.get('evidence_in_source_rate')}, unsupported "
+            f"triple count={kg.get('unsupported_triple_count')}. Triple semantic review "
+            f"sample size={triple.get('sample_size')}, reviewed={triple.get('reviewed')}, "
+            f"needs_review={triple.get('needs_review')}; no semantic correctness claim is "
+            "made until manual annotations are completed.",
+            "",
+            "## RQ2: evidence traceability",
+            "",
+            "Evidence traceability is supported by KG provenance, citation metrics, and "
+            "the dashboard inventory. Answer-level scores are deterministic heuristics "
+            "unless an LLM-judge or manual review score is explicitly recorded.",
+            "",
+            "## RQ3: vector vs graph vs hybrid retrieval (Hybrid RAG protocol and layered metrics)",
+            "",
+            f"Benchmark v2 vector-only: Recall@5={vector.get('recall_at_5')}, "
+            f"Recall@10={vector.get('recall_at_10')}, MRR@5={vector.get('mrr_at_5')}, "
+            f"NDCG@10={vector.get('ndcg_at_10')}. Lexical hybrid: Recall@5="
+            f"{hybrid.get('recall_at_5')}, Recall@10={hybrid.get('recall_at_10')}, "
+            f"MRR@5={hybrid.get('mrr_at_5')}, NDCG@10={hybrid.get('ndcg_at_10')}, "
+            f"Context Recall={hybrid.get('context_recall')}, KG evidence coverage="
+            f"{hybrid.get('kg_evidence_coverage')}.",
+            "",
+            f"Traversal hybrid: Recall@5={traversal.get('recall_at_5')}, Path Recall@5="
+            f"{traversal.get('path_recall_at_5')}, Path Precision@5="
+            f"{traversal.get('path_precision_at_5')}. Path metrics are heuristic and "
+            "require manual review. High path coverage is not treated as evidence of "
+            "high retrieval quality unless Recall/MRR/NDCG also support that claim.",
+            "",
+            "## RQ4: safety-aware abstention",
+            "",
+            f"Benchmark v2 safety metrics: Abstention Accuracy="
+            f"{sufficiency.get('abstention_accuracy')}, False Answer Rate="
+            f"{sufficiency.get('false_answer_rate')}, False Abstention Rate="
+            f"{sufficiency.get('false_abstention_rate')}, Risk Category Accuracy="
+            f"{sufficiency.get('risk_category_accuracy')}. Sufficiency improves safety "
+            "against unsupported questions but false abstentions on supported questions "
+            "remain a visible limitation.",
+            "",
+            "## Failure analysis",
+            "",
+            f"Graph failure categories: {failure.get('graph_failure_categories', {})}.",
+            f"False abstentions on supported questions: "
+            f"{failure.get('false_abstention_on_supported_question', 'TBD')}.",
+            f"Machine-seeded benchmark wording findings: "
+            f"{failure.get('machine_seeded_benchmark_wording', 'TBD')}.",
+            f"Missing manual triple review items: "
+            f"{failure.get('missing_manual_triple_review', 'TBD')}.",
+            "",
+            "## Limitations",
+            "",
+            "Benchmark v2 is thesis/course-project evidence, not external aviation expert "
+            "certification. Path relevance and triple semantic correctness remain "
+            "manual-review dependent. The system is not operational flight software and "
+            "does not replace official sources or pilot judgment.",
+            "",
+            "## Reproducibility appendix",
+            "",
+            "- `make validate`",
+            "- `make reports-core`",
+            "- `make reports-main-experiments`",
+            "- `make reports-review`",
+            "- `make thesis-dashboard`",
+            "- `uv run aviation-ai report project --no-ai`",
+            "- `uv run aviation-ai report academic-paper --no-ai`",
+            "",
+            "## Dashboard consistency checks",
+            "",
+        ]
+    )
+    for key, value in checks.items():
+        if key != "unsafe_hits":
+            lines.append(f"- `{key}`: {value}")
+    lines.extend(
+        [
+            "",
+            "## RQ evidence matrix",
+            "",
+        ]
+    )
+    for row in rq_rows:
+        lines.append(
+            f"- **{row.get('rq')}**: reports={row.get('evidence_reports')}; metrics="
+            f"{row.get('primary_metrics')}; claim strength={row.get('claim_strength')}; "
+            f"gaps={row.get('remaining_gaps')}."
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def build_project_report_draft(evidence: dict[str, Any]) -> str:
     stage_index = evidence.get("stage_index", {}).get("data", {})
     categories = stage_index.get("categories", {})
     current_artifacts = stage_index.get("current_active_artifacts", {})
     artifact_sources = evidence.get("current_artifacts", {})
     thesis_sources = evidence.get("thesis_ready_artifacts", {})
+    dashboard = thesis_sources.get("thesis_experiment_dashboard_json", {}).get("data", {})
+    if isinstance(dashboard, dict) and dashboard:
+        return _dashboard_project_report(evidence, dashboard)
     curated_eval = artifact_sources.get("curated_ontology_evaluation_json", {}).get("data", {})
     kg_validation = artifact_sources.get("kg_validation_json", {}).get("data", {})
     structure_kg_validation = artifact_sources.get(

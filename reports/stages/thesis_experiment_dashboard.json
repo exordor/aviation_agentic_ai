@@ -1,0 +1,572 @@
+{
+  "consistency_checks": {
+    "all_passed": true,
+    "benchmark_v2_used_in_main_retrieval": true,
+    "benchmark_v2_used_in_safety": true,
+    "every_rq_has_evidence_report": true,
+    "manual_review_dependent_metrics_not_completed": true,
+    "no_unsafe_claim_patterns": true,
+    "pilot_reports_not_marked_main": true,
+    "primary_thesis_metric_gaps": [],
+    "primary_thesis_metrics_have_report_evidence": true,
+    "unsafe_hits": []
+  },
+  "dataset_usage_matrix": [
+    {
+      "can_support_thesis_main_claim": "partial",
+      "dataset": "10-CQ pilot",
+      "evidence_role": "pilot",
+      "limitations": "too small for main thesis retrieval claims",
+      "purpose": "demo and qualitative answer inspection",
+      "used_in_reports": [
+        "hybrid_rag_experiment",
+        "answer_evaluation"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "partial",
+      "dataset": "35-question expanded",
+      "evidence_role": "pilot",
+      "limitations": "pilot-sized and not the main benchmark",
+      "purpose": "pilot ablation and KG extraction comparison",
+      "used_in_reports": [
+        "retrieval_ablation",
+        "kg_extraction_comparison"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "yes",
+      "dataset": "benchmark v2 120",
+      "evidence_role": "main_thesis_benchmark",
+      "limitations": "machine-seeded and requires manual naturalness review",
+      "purpose": "main thesis retrieval and safety benchmark",
+      "used_in_reports": [
+        "benchmark_v2_summary",
+        "retrieval_ablation_benchmark_v2",
+        "graph_traversal_ablation_benchmark_v2",
+        "sufficiency_evaluation"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "partial",
+      "dataset": "answer-eval subset",
+      "evidence_role": "pilot",
+      "limitations": "small subset; deterministic heuristic scores",
+      "purpose": "answer citation and faithfulness heuristics",
+      "used_in_reports": [
+        "answer_evaluation"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "partial",
+      "dataset": "triple semantic review sample",
+      "evidence_role": "manual_review_pending",
+      "limitations": "review fields pending; no correctness results claimed",
+      "purpose": "manual KG semantic correctness review template",
+      "used_in_reports": [
+        "triple_semantic_review_sample"
+      ]
+    }
+  ],
+  "experiment_inventory": [
+    {
+      "dataset_used": "not_dataset_specific",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "claim_safety"
+      ],
+      "path": "reports/stages/thesis_claims_review.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "thesis_claims_review"
+    },
+    {
+      "dataset_used": "not_dataset_specific",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/evaluation_protocol_review.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "evaluation_protocol_review"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": true,
+      "metric_layers_covered": [
+        "benchmark_validation"
+      ],
+      "path": "reports/stages/benchmark_v2_summary.json",
+      "present": true,
+      "questions_count": 120,
+      "report_name": "benchmark_v2_summary"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "retrieval",
+        "kg_evidence"
+      ],
+      "path": "reports/stages/retrieval_ablation_benchmark_v2.json",
+      "present": true,
+      "questions_count": 120,
+      "report_name": "retrieval_ablation_benchmark_v2"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": true,
+      "metric_layers_covered": [
+        "retrieval",
+        "graph_paths"
+      ],
+      "path": "reports/stages/graph_traversal_ablation_benchmark_v2.json",
+      "present": true,
+      "questions_count": 120,
+      "report_name": "graph_traversal_ablation_benchmark_v2"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "safety_abstention"
+      ],
+      "path": "reports/stages/sufficiency_evaluation.json",
+      "present": true,
+      "questions_count": 120,
+      "report_name": "sufficiency_evaluation"
+    },
+    {
+      "dataset_used": "35_question_expanded",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "ontology_kg"
+      ],
+      "path": "reports/stages/kg_extraction_comparison.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "kg_extraction_comparison"
+    },
+    {
+      "dataset_used": "not_dataset_specific",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "ontology_kg"
+      ],
+      "path": "reports/stages/curated_ontology_evaluation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "curated_ontology_evaluation"
+    },
+    {
+      "dataset_used": "triple_semantic_review_sample",
+      "manual_review_required": true,
+      "metric_layers_covered": [
+        "ontology_kg",
+        "manual_review"
+      ],
+      "path": "reports/stages/triple_semantic_review_sample.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "triple_semantic_review_sample"
+    },
+    {
+      "dataset_used": "10_cq_answer_subset",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "answer_generation",
+        "safety_abstention"
+      ],
+      "path": "reports/stages/answer_evaluation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "answer_evaluation"
+    },
+    {
+      "dataset_used": "robustness_10_cases",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "safety_abstention",
+        "robustness"
+      ],
+      "path": "reports/stages/robustness_evaluation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "robustness_evaluation"
+    },
+    {
+      "dataset_used": "not_dataset_specific",
+      "manual_review_required": true,
+      "metric_layers_covered": [
+        "benchmark_manual_review"
+      ],
+      "path": "reports/stages/benchmark_review_pack.json",
+      "present": true,
+      "questions_count": 120,
+      "report_name": "benchmark_review_pack"
+    }
+  ],
+  "failure_mode_summary": {
+    "false_abstention_on_supported_question": 29,
+    "graph_failure_categories": {
+      "generic_seed_node": 75,
+      "graph_fusion_dilution": 100,
+      "kg_sparse_for_question": 374,
+      "low_value_predicate": 154,
+      "path_found_but_wrong_chunk": 322,
+      "seed_linking_error": 150
+    },
+    "machine_seeded_benchmark_wording": 90,
+    "missing_manual_triple_review": 100,
+    "notes": [
+      "High path coverage is interpreted separately from Recall@k.",
+      "Manual-review-dependent metrics remain pending."
+    ]
+  },
+  "metadata": {
+    "advisory_boundary": "Aviation learning and decision support only; does not replace POH/AFM, approved checklists, ATC instructions, instructor guidance, regulations, or pilot judgment.",
+    "manual_review_policy": "do_not_fabricate_manual_review_results",
+    "scoring_policy": "layered_metrics_no_mixed_overall_score",
+    "source_policy": "aggregate_existing_reports_no_recompute"
+  },
+  "primary_results": {
+    "best_lexical_hybrid": {
+      "confidence_intervals": {
+        "context_recall": {
+          "lower": 0.6625,
+          "mean": 0.7375,
+          "samples": 1000,
+          "upper": 0.8125
+        },
+        "mrr_at_5": {
+          "lower": 0.2697,
+          "mean": 0.34,
+          "samples": 1000,
+          "upper": 0.4174
+        },
+        "ndcg_at_10": {
+          "lower": 0.3559,
+          "mean": 0.4425,
+          "samples": 1000,
+          "upper": 0.5322
+        },
+        "recall_at_10": {
+          "lower": 0.5,
+          "mean": 0.5917,
+          "samples": 1000,
+          "upper": 0.6833
+        },
+        "recall_at_5": {
+          "lower": 0.4167,
+          "mean": 0.5083,
+          "samples": 1000,
+          "upper": 0.6
+        }
+      },
+      "context_recall": 0.7375,
+      "kg_evidence_coverage": 0.8,
+      "mrr_at_5": 0.34,
+      "ndcg_at_10": 0.4425,
+      "recall_at_10": 0.5917,
+      "recall_at_5": 0.5083,
+      "scenario": "hybrid_hops2_v5_h8"
+    },
+    "kg": {
+      "evidence_in_source_rate": 1.0,
+      "provenance_completeness": 1.0,
+      "unsupported_triple_count": 0,
+      "valid_triples": 448
+    },
+    "standalone_traversal": {
+      "path_coverage": 0.75,
+      "recall_at_5": 0.1333
+    },
+    "sufficiency": {
+      "abstention_accuracy": 1.0,
+      "confidence_intervals": {
+        "abstention_accuracy": {
+          "lower": 1.0,
+          "mean": 1.0,
+          "samples": 1000,
+          "upper": 1.0
+        },
+        "ci_policy": {
+          "confidence": 0.95,
+          "method": "deterministic_bootstrap_mean",
+          "no_answer_records": 20,
+          "samples": 1000,
+          "supported_records": 100
+        },
+        "false_abstention_rate": {
+          "lower": 0.21,
+          "mean": 0.29,
+          "samples": 1000,
+          "upper": 0.38
+        },
+        "false_answer_rate": {
+          "lower": 0.0,
+          "mean": 0.0,
+          "samples": 1000,
+          "upper": 0.0
+        },
+        "risk_category_accuracy": {
+          "lower": 1.0,
+          "mean": 1.0,
+          "samples": 1000,
+          "upper": 1.0
+        }
+      },
+      "false_abstention_rate": 0.29,
+      "false_answer_rate": 0.0,
+      "risk_category_accuracy": 1.0
+    },
+    "traversal_hybrid": {
+      "path_metrics_require_manual_review": true,
+      "path_precision_at_5": 0.6522,
+      "path_recall_at_5": 0.6583,
+      "recall_at_5": 0.4583,
+      "scenario": "hybrid_vector_traversal_guarded"
+    },
+    "triple_semantic_review": {
+      "needs_review": 100,
+      "reviewed": 0,
+      "sample_size": 100,
+      "semantic_correctness_claimed": false
+    },
+    "vector_only": {
+      "confidence_intervals": {
+        "context_recall": {
+          "lower": 0.5375,
+          "mean": 0.6208,
+          "samples": 1000,
+          "upper": 0.7083
+        },
+        "mrr_at_5": {
+          "lower": 0.2547,
+          "mean": 0.3261,
+          "samples": 1000,
+          "upper": 0.4017
+        },
+        "ndcg_at_10": {
+          "lower": 0.3023,
+          "mean": 0.3863,
+          "samples": 1000,
+          "upper": 0.4754
+        },
+        "recall_at_10": {
+          "lower": 0.3917,
+          "mean": 0.475,
+          "samples": 1000,
+          "upper": 0.5667
+        },
+        "recall_at_5": {
+          "lower": 0.3917,
+          "mean": 0.475,
+          "samples": 1000,
+          "upper": 0.5667
+        }
+      },
+      "mrr_at_5": 0.3261,
+      "ndcg_at_10": 0.3863,
+      "recall_at_10": 0.475,
+      "recall_at_5": 0.475
+    }
+  },
+  "rq_to_evidence_matrix": [
+    {
+      "claim_strength": "strong",
+      "current_result_summary": "Curated ontology validates as a task ontology; structure-aware KG has provenance completeness=1.0.",
+      "evidence_reports": [
+        "curated_ontology_evaluation",
+        "kg_extraction_comparison",
+        "kg_validation"
+      ],
+      "primary_metrics": [
+        "RDF/OWL parse validity",
+        "label/comment coverage",
+        "unsupported class/property count",
+        "provenance completeness"
+      ],
+      "remaining_gaps": "Triple semantic correctness still requires manual review.",
+      "rq": "RQ1 ontology constraint"
+    },
+    {
+      "claim_strength": "moderate",
+      "current_result_summary": "Hybrid reports expose KG evidence and citations; answer scores are deterministic heuristics unless manually reviewed.",
+      "evidence_reports": [
+        "retrieval_ablation_benchmark_v2",
+        "graph_traversal_ablation_benchmark_v2",
+        "answer_evaluation"
+      ],
+      "primary_metrics": [
+        "KG evidence coverage",
+        "citation completeness",
+        "citation precision",
+        "citation recall"
+      ],
+      "remaining_gaps": "Answer-level manual or LLM-judge evaluation is optional and not run.",
+      "rq": "RQ2 evidence traceability"
+    },
+    {
+      "claim_strength": "moderate",
+      "current_result_summary": "Vector and hybrid retrieval are reported separately. Graph traversal can improve path evidence without guaranteeing Recall improvement.",
+      "evidence_reports": [
+        "retrieval_ablation_benchmark_v2",
+        "graph_traversal_ablation_benchmark_v2"
+      ],
+      "primary_metrics": [
+        "Recall@5",
+        "Recall@10",
+        "MRR@5",
+        "NDCG@10",
+        "Path Recall@5",
+        "Path Precision@5"
+      ],
+      "remaining_gaps": "Path relevance metrics are heuristic until manually reviewed.",
+      "rq": "RQ3 graph evidence vs vector sufficiency"
+    },
+    {
+      "claim_strength": "moderate",
+      "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible.",
+      "evidence_reports": [
+        "sufficiency_evaluation",
+        "robustness_evaluation"
+      ],
+      "primary_metrics": [
+        "Abstention Accuracy",
+        "False Answer Rate",
+        "False Abstention Rate",
+        "Risk Category Accuracy"
+      ],
+      "remaining_gaps": "Sufficiency can create false abstentions on supported questions.",
+      "rq": "RQ4 safety-aware abstention"
+    }
+  ],
+  "thesis_ready_claim_summary": [
+    {
+      "claim": "Ontology constrains KG extraction.",
+      "evidence": [
+        "docs/ontology_design.md",
+        "configs/extraction_profile.yaml",
+        "reports/stages/kg_validation.json",
+        "reports/stages/structure_aware_kg_validation.json"
+      ],
+      "limitations": "Extraction profile terms map to the curated ontology; KG validation rejects unsupported schema terms.",
+      "safe_wording": "The task ontology constrains which focused classes and relations can enter the KG.",
+      "supported_strength": "strong",
+      "unsafe_wording_to_avoid": "The ontology fully models aviation knowledge."
+    },
+    {
+      "claim": "KG triples preserve provenance.",
+      "evidence": [
+        "data/kg/06_phak_ch4_0.kg.jsonl",
+        "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
+        "reports/stages/kg_validation.json",
+        "reports/stages/structure_aware_kg_validation.json"
+      ],
+      "limitations": "KG validation reports zero missing-provenance errors in the current fixed-window and structure-aware artifacts.",
+      "safe_wording": "Current extracted triples carry source chunk provenance checked by deterministic validation.",
+      "supported_strength": "strong",
+      "unsafe_wording_to_avoid": "Every KG triple is semantically correct."
+    },
+    {
+      "claim": "GraphRAG improves Recall@5.",
+      "evidence": [
+        "reports/stages/retrieval_ablation.json",
+        "reports/stages/graphrag_review.json",
+        "reports/stages/hybrid_rag_experiment.json",
+        "reports/stages/hybrid_rag_structure_aware.json"
+      ],
+      "limitations": "Expanded retrieval ablation shows vector Recall@5 can be higher than default hybrid Recall@5.",
+      "safe_wording": "GraphRAG does not always improve Recall@5; report Recall separately from KG evidence coverage.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "GraphRAG always improves Recall@5."
+    },
+    {
+      "claim": "GraphRAG improves structured evidence support.",
+      "evidence": [
+        "reports/stages/graphrag_review.json",
+        "reports/stages/evidence_level_evaluation.json",
+        "reports/stages/kg_extraction_comparison.json"
+      ],
+      "limitations": "Graph and hybrid modes expose KG coverage, provenance, triples, and evidence-level answer support.",
+      "safe_wording": "GraphRAG improves inspectable structured evidence support in the current benchmark.",
+      "supported_strength": "moderate",
+      "unsafe_wording_to_avoid": "GraphRAG is always more accurate than vector retrieval."
+    },
+    {
+      "claim": "Hybrid RAG always beats vector-only RAG.",
+      "evidence": [
+        "reports/stages/retrieval_ablation.json",
+        "reports/stages/hybrid_rag_experiment.json",
+        "reports/stages/graphrag_review.json"
+      ],
+      "limitations": "Fixed-window and expanded ablations include cases where vector retrieval is equal or better on Recall@5.",
+      "safe_wording": "Hybrid RAG can add KG evidence coverage while vector retrieval can remain sufficient for simple factual questions.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "Hybrid RAG always beats vector-only RAG."
+    },
+    {
+      "claim": "The system can answer aviation operational questions.",
+      "evidence": [
+        "src/aviation_agentic_ai/advisory.py",
+        "docs/document_expansion_protocol.md",
+        "reports/stages/robustness_evaluation.json"
+      ],
+      "limitations": "The advisory boundary limits the system to learning and decision support; live operational data and official procedures are out of scope.",
+      "safe_wording": "The system can answer aviation training questions when evidence is sufficient and should abstain otherwise.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "The system can support operational flight decisions."
+    },
+    {
+      "claim": "The system can support aviation learning questions.",
+      "evidence": [
+        "reports/stages/answer_evaluation.json",
+        "reports/stages/evidence_cards.md",
+        "reports/stages/web_demo_readiness.json"
+      ],
+      "limitations": "The pipeline answers PHAK Chapter 4 training questions with citations and evidence panels.",
+      "safe_wording": "The prototype supports aviation learning questions over its scoped source material.",
+      "supported_strength": "moderate",
+      "unsafe_wording_to_avoid": "The prototype is a certified aviation assistant."
+    },
+    {
+      "claim": "The system can replace POH/checklists/ATC/instructor judgment.",
+      "evidence": [
+        "src/aviation_agentic_ai/advisory.py",
+        "GOALS.md",
+        "README.md"
+      ],
+      "limitations": "The advisory boundary explicitly rejects replacement of official sources or human judgment.",
+      "safe_wording": "The system does not replace POH, approved checklists, ATC, instructor guidance, or pilot judgment.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "The system can replace POH, checklists, ATC, or instructor judgment."
+    },
+    {
+      "claim": "The benchmark is externally aviation-expert certified.",
+      "evidence": [
+        "data/cqs/06_phak_ch4_0.gold.json",
+        "data/cqs/06_phak_ch4_0.expanded.gold.json",
+        "reports/stages/final_evaluation_review.json"
+      ],
+      "limitations": "Current labels are reviewed course-project / thesis-oriented gold, not external examiner certification.",
+      "safe_wording": "The benchmark is course-project / thesis-oriented gold with documented limitations.",
+      "supported_strength": "not supported",
+      "unsafe_wording_to_avoid": "The benchmark is externally aviation-expert certified."
+    },
+    {
+      "claim": "The benchmark is course-project / thesis-oriented gold.",
+      "evidence": [
+        "data/cqs/06_phak_ch4_0.gold.json",
+        "data/cqs/06_phak_ch4_0.expanded.gold.json",
+        "docs/benchmark_design.md",
+        "reports/stages/final_evaluation_review.json"
+      ],
+      "limitations": "Reports identify the 10-question and expanded 35-question labels as project/thesis evidence.",
+      "safe_wording": "The benchmark is course-project / thesis-oriented gold, useful for internal evaluation but not external certification.",
+      "supported_strength": "strong",
+      "unsafe_wording_to_avoid": "The benchmark proves aviation-domain correctness."
+    }
+  ]
+}

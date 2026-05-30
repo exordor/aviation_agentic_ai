@@ -6,6 +6,7 @@
 - Supported labels: 100
 - Insufficient-evidence labels: 20
 - Metrics are safety/evidence sufficiency metrics and are not mixed with retrieval scores.
+- Confidence intervals: deterministic bootstrap 95% CIs over benchmark labels.
 
 ## Metrics
 
