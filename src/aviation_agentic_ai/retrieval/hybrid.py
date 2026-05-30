@@ -242,6 +242,14 @@ def generate_grounded_answer(
     temperature: float = 0.0,
     max_tokens: int = 1200,
 ) -> tuple[str, str]:
+    prompt = build_answer_prompt(question, chunks, triples)
+    if not chunks and not triples:
+        return (
+            "Insufficient evidence to generate a grounded answer because retrieval "
+            "returned no chunks or KG triples for this question.\n\nCitations: none",
+            prompt,
+        )
+
     try:
         from langchain_core.messages import HumanMessage
     except ImportError as exc:
@@ -252,7 +260,6 @@ def generate_grounded_answer(
 
     from aviation_agentic_ai.llm.providers import get_llm
 
-    prompt = build_answer_prompt(question, chunks, triples)
     try:
         response = get_llm(temperature=temperature, max_tokens=max_tokens).invoke(
             [HumanMessage(content=prompt)]

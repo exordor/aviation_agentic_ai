@@ -9,6 +9,7 @@ from aviation_agentic_ai.retrieval.hybrid import (
     generate_grounded_answer,
     graph_search,
     reciprocal_rank_fusion,
+    run_query,
     run_retrieval,
     vector_first_guarded_fusion,
 )
@@ -99,6 +100,28 @@ def test_generate_grounded_answer_returns_non_answer_when_llm_fails(
     assert "Lift evidence." in prompt
 
 
+def test_generate_grounded_answer_abstains_without_retrieved_evidence(
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai.llm import providers
+
+    def fail_get_llm(**_kwargs):
+        raise AssertionError("LLM should not be called without retrieved evidence")
+
+    monkeypatch.setattr(providers, "get_llm", fail_get_llm)
+
+    answer, prompt = generate_grounded_answer(
+        "Current runway closure status?",
+        [],
+        [],
+    )
+
+    assert "retrieval returned no chunks or KG triples" in answer
+    assert "Citations: none" in answer
+    assert "Retrieved chunks:\nNone" in prompt
+    assert "KG evidence:\nNone" in prompt
+
+
 def test_graph_search_returns_triple_and_chunk_evidence(tmp_path: Path) -> None:
     chunk = SourceChunk(
         chunk_id="doc-p00-c00",
@@ -169,6 +192,60 @@ def test_graph_search_returns_empty_results_without_overlap(tmp_path: Path) -> N
 
     assert chunks == []
     assert triples == []
+
+
+def test_run_query_graph_no_overlap_abstains_without_llm(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai.llm import providers
+
+    def fail_get_llm(**_kwargs):
+        raise AssertionError("LLM should not be called without retrieved evidence")
+
+    monkeypatch.setattr(providers, "get_llm", fail_get_llm)
+    chunk = SourceChunk(
+        chunk_id="doc-p00-c00",
+        source_document="doc",
+        source_path="data/raw/doc.pdf",
+        page=0,
+        chunk_index=0,
+        char_start=0,
+        char_end=40,
+        text="Angle of attack affects lift.",
+    )
+    triple = KGTriple(
+        triple_id="t1",
+        subject="angle of attack",
+        predicate="affects",
+        object="lift",
+        subject_class="Cl_AngleOfAttack",
+        object_class="Cl_Lift",
+        source_document="doc",
+        page=0,
+        section="page-0",
+        chunk_id=chunk.chunk_id,
+        evidence_text=chunk.text,
+        model="test",
+        confidence=1.0,
+        extracted_at="2026-05-18T00:00:00+00:00",
+    )
+    chunks_path = write_chunks_jsonl([chunk], tmp_path / "chunks.jsonl")
+    kg_path = write_kg_jsonl([triple], tmp_path / "kg.jsonl")
+
+    result = run_query(
+        "Current runway closure status?",
+        mode="graph",
+        chunks_path=chunks_path,
+        kg_path=kg_path,
+        index_dir=tmp_path / "index",
+    )
+
+    assert result["graph_hits"] == []
+    assert result["graph_triples"] == []
+    assert result["fused_chunks"] == []
+    assert "retrieval returned no chunks or KG triples" in result["answer"]
+    assert "Citations: none" in result["answer"]
 
 
 def test_run_retrieval_hybrid_records_lexical_hops_as_not_applicable(
