@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
+from types import ModuleType
 
+from aviation_agentic_ai.evaluation import llm_review
 from aviation_agentic_ai.evaluation.llm_review import (
     LLMReviewMetadata,
     extract_json_object,
     input_hash,
+    llm_runtime_available,
     not_run_result,
 )
 from aviation_agentic_ai.reporting.llm_review_reports import (
@@ -90,6 +94,23 @@ def test_llm_review_schema_rejects_certification_flags() -> None:
     )
     assert result.metadata.review_status == "llm_review_not_run"
     assert result.human_review is False
+
+
+def test_llm_runtime_available_uses_central_environment_loader(monkeypatch) -> None:
+    calls: list[str] = []
+
+    def load_environment() -> bool:
+        calls.append("loaded")
+        monkeypatch.setenv("OPENAI_API_KEY", "sk-from-loader")
+        return True
+
+    monkeypatch.setattr(llm_review, "load_environment", load_environment)
+    monkeypatch.setenv("LLM_PROVIDER", "openai")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setitem(sys.modules, "langchain_openai", ModuleType("langchain_openai"))
+
+    assert llm_runtime_available() is True
+    assert calls == ["loaded"]
 
 
 def test_benchmark_llm_review_marks_model_based_not_human(tmp_path: Path) -> None:
