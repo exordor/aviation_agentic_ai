@@ -82,7 +82,7 @@ def test_cli_query_uses_mocked_runner(tmp_path: Path, monkeypatch) -> None:
 
 
 def test_cli_kg_extract_uses_configured_token_budget(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_kg
 
     calls = {}
 
@@ -90,7 +90,7 @@ def test_cli_kg_extract_uses_configured_token_budget(tmp_path: Path, monkeypatch
         calls.update(kwargs)
         return tmp_path / "kg.jsonl", [object()], {"errors_total": 0}
 
-    monkeypatch.setattr(cli, "extract_kg_file", fake_extract_kg_file)
+    monkeypatch.setattr(cli_kg, "extract_kg_file", fake_extract_kg_file)
 
     result = CliRunner().invoke(
         main,
@@ -115,7 +115,7 @@ def test_cli_kg_extract_uses_configured_token_budget(tmp_path: Path, monkeypatch
 
 
 def test_cli_kg_extract_max_tokens_override(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_kg
 
     calls = {}
 
@@ -123,7 +123,7 @@ def test_cli_kg_extract_max_tokens_override(tmp_path: Path, monkeypatch) -> None
         calls.update(kwargs)
         return tmp_path / "kg.jsonl", [object()], {"errors_total": 0}
 
-    monkeypatch.setattr(cli, "extract_kg_file", fake_extract_kg_file)
+    monkeypatch.setattr(cli_kg, "extract_kg_file", fake_extract_kg_file)
 
     result = CliRunner().invoke(
         main,
@@ -148,7 +148,7 @@ def test_cli_kg_extract_max_tokens_override(tmp_path: Path, monkeypatch) -> None
 
 
 def test_cli_kg_extract_can_write_ttl_export(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_kg
 
     calls = {}
 
@@ -160,8 +160,8 @@ def test_cli_kg_extract_can_write_ttl_export(tmp_path: Path, monkeypatch) -> Non
         output_path.write_text("@prefix : <http://example.org/> .\n", encoding="utf-8")
         return output_path
 
-    monkeypatch.setattr(cli, "extract_kg_file", fake_extract_kg_file)
-    monkeypatch.setattr(cli, "write_kg_ttl", fake_write_kg_ttl)
+    monkeypatch.setattr(cli_kg, "extract_kg_file", fake_extract_kg_file)
+    monkeypatch.setattr(cli_kg, "write_kg_ttl", fake_write_kg_ttl)
 
     result = CliRunner().invoke(
         main,
@@ -187,7 +187,7 @@ def test_cli_kg_extract_can_write_ttl_export(tmp_path: Path, monkeypatch) -> Non
 
 
 def test_cli_kg_validate_passes_report_name(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_kg
 
     calls = {}
 
@@ -213,8 +213,8 @@ def test_cli_kg_validate_passes_report_name(tmp_path: Path, monkeypatch) -> None
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path
 
-    monkeypatch.setattr(cli, "validate_kg_file", fake_validate_kg_file)
-    monkeypatch.setattr(cli, "write_kg_validation_reports", fake_write_reports)
+    monkeypatch.setattr(cli_kg, "validate_kg_file", fake_validate_kg_file)
+    monkeypatch.setattr(cli_kg, "write_kg_validation_reports", fake_write_reports)
 
     result = CliRunner().invoke(
         main,
