@@ -113,6 +113,16 @@ def test_llm_runtime_available_uses_central_environment_loader(monkeypatch) -> N
     assert calls == ["loaded"]
 
 
+def test_llm_runtime_available_rejects_unsupported_provider(monkeypatch) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(llm_review, "load_environment", lambda: calls.append("loaded"))
+    monkeypatch.setenv("LLM_PROVIDER", "unknown-provider")
+    monkeypatch.setitem(sys.modules, "langchain_openai", ModuleType("langchain_openai"))
+
+    assert llm_runtime_available() is False
+    assert calls == ["loaded"]
+
+
 def test_benchmark_llm_review_marks_model_based_not_human(tmp_path: Path) -> None:
     gold = tmp_path / "gold.json"
     gold.write_text(json.dumps(_gold_payload()) + "\n", encoding="utf-8")

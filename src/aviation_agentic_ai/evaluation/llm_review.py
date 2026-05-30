@@ -149,6 +149,8 @@ def reviewer_model_name() -> str:
 def llm_runtime_available() -> bool:
     load_environment()
     provider = os.getenv("LLM_PROVIDER", "openai").lower()
+    if provider not in {"openai", "deepseek", "vllm"}:
+        return False
     if provider == "openai" and not os.getenv("OPENAI_API_KEY"):
         return False
     if provider == "deepseek" and not os.getenv("DEEPSEEK_API_KEY"):
