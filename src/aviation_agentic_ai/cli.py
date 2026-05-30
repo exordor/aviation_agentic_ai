@@ -10,6 +10,7 @@ from aviation_agentic_ai.chunking.chunks import (
     chunk_output_path_for_strategy,
 )
 from aviation_agentic_ai.cli_chunk import chunk_group
+from aviation_agentic_ai.cli_index import index
 from aviation_agentic_ai.cli_web import web
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.evaluation.benchmark_validation import validate_benchmark
@@ -83,7 +84,7 @@ from aviation_agentic_ai.reporting.triple_semantic_review import write_triple_se
 from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
 from aviation_agentic_ai.reporting.web_demo_smoke import write_web_demo_smoke
 from aviation_agentic_ai.retrieval.hybrid import run_query, write_query_result
-from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME, build_chroma_index
+from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
 
 
 def _default_ontology_path() -> Path:
@@ -109,6 +110,7 @@ def main() -> None:
 
 main.add_command(web)
 main.add_command(chunk_group)
+main.add_command(index)
 
 
 @main.group()
@@ -559,38 +561,6 @@ def kg_validate(
         click.echo(f"Wrote {project_relative_path(json_path)}")
         click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"OK: validated {report['triples_total']} KG triples.")
-
-
-@main.group()
-def index() -> None:
-    """Chunking and vector-index commands."""
-
-
-@index.command("build")
-@click.option("--chunks", "chunks_path", type=click.Path(path_type=Path), default=None)
-@click.option("--index-dir", type=click.Path(path_type=Path), default=None)
-@click.option("--collection-name", default=None)
-@click.option("--reset/--no-reset", default=True, show_default=True)
-def index_build(
-    chunks_path: Path | None,
-    index_dir: Path | None,
-    collection_name: str | None,
-    reset: bool,
-) -> None:
-    """Build retrieval indexes."""
-    config = load_default_config()
-    index_root = index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma"
-    report = build_chroma_index(
-        chunks_path or resolve_project_path(config["paths"]["chunks_file"]),
-        index_root,
-        collection_name=collection_name
-        or config.get("retrieval", {}).get("collection_name", DEFAULT_COLLECTION_NAME),
-        reset=reset,
-    )
-    click.echo(
-        f"Indexed {report['chunks_indexed']} chunks into "
-        f"{report['collection_name']} at {report['index_dir']}."
-    )
 
 
 @main.command()

@@ -26,10 +26,10 @@ def test_cli_chunk_build_uses_default_command_shape(tmp_path: Path, monkeypatch)
 
 
 def test_cli_index_build_uses_mocked_builder(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_index
 
     monkeypatch.setattr(
-        cli,
+        cli_index,
         "build_chroma_index",
         lambda *_args, **_kwargs: {
             "chunks_indexed": 2,
