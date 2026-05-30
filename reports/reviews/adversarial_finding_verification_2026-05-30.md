@@ -22,7 +22,7 @@ verified backlog rather than silently mixed into this iteration.
 | I5 | Still valid. `get_llm` had no return annotation. | Added a `BaseChatModel` return annotation behind `TYPE_CHECKING` so optional LangChain imports remain lazy. |
 | I1 | Still valid. Retrieval, graph traversal, chunking, and source-scope modules carried independent tokenizer/stopword logic. | Added `aviation_agentic_ai.utils.text` with shared normalization, token regex, stopwords, and tokenization helpers. Existing local wrappers now delegate to the shared utility. |
 | I6 | Still partly valid. `.env` loading was scattered across LLM provider, evaluation metadata, web readiness, and ontology generation. | Added `config.load_environment()` as the single dotenv loading entry point and updated LLM access/reporting paths to use it. Provider selection remains explicit at call sites. |
-| I8 | Still valid as a broader maintenance concern. Several reporting modules duplicated JSON report loading/writing and lightweight normalization. | Added `aviation_agentic_ai.reporting.io` and migrated the evidence-card, evidence-evaluation, answer-evaluation, sufficiency, GraphRAG review, benchmark-review-pack, KG-comparison, and thesis-dashboard helpers while preserving each module's missing-file/non-object behavior. |
+| I8 | Still valid as a broader maintenance concern. Several reporting modules duplicated JSON report loading/writing and lightweight normalization. | Added `aviation_agentic_ai.reporting.io`; migrated the evidence-card, evidence-evaluation, answer-evaluation, sufficiency, GraphRAG review, benchmark-review-pack, KG-comparison, thesis-dashboard helpers, plus the next batch of sorted report JSON writers. Missing-file/non-object behavior and JSON formatting are preserved. |
 | M3 | Still valid as wording polish. Retrieval-only ablation used `provider: none`, which could read like a missing setting rather than intentional no-LLM execution. | Retrieval ablation manifests now record `provider: not_used_retrieval_only` and an explicit usage note that no generation or LLM judge is used. |
 | M1 | Still valid. Chroma collection deletion swallowed every exception. | Reset now suppresses only missing/not-found collection errors and re-raises unexpected failures. |
 | M2 | Still valid. `_extract_json_payload` had no direct tests. | Added direct tests for fenced JSON, bare JSON, embedded JSON, and empty input. |
@@ -36,7 +36,7 @@ verified backlog rather than silently mixed into this iteration.
 | ID | Current assessment | Reason deferred |
 | --- | --- | --- |
 | I7 | Still valid. `cli.py` remains a large Click god-file. | Architectural CLI modularization is high churn and not needed for the first reliability/test hardening patch. |
-| I8 remainder | Still partly valid. Large report modules still contain repeated JSON writer/read patterns and should be migrated incrementally. | The first helper extraction is complete; finishing every report writer in one patch would be high churn and should continue in reviewable batches. |
+| I8 remainder | Still partly valid. A smaller set of custom readers and unsorted JSON writers remains. | Sorted report writers have been migrated in batches; custom loaders and intentionally unsorted outputs should continue only where behavior can be preserved exactly. |
 
 ## Verification Commands
 
@@ -44,5 +44,6 @@ verified backlog rather than silently mixed into this iteration.
 - `uv run pytest tests/test_kg_extraction.py tests/test_hybrid_retrieval.py tests/test_sufficiency_eval.py tests/test_bootstrap_ci.py tests/test_cost_latency.py tests/test_metric_edge_cases.py tests/test_graph_traversal.py`
 - `uv run pytest tests/test_text_utils.py tests/test_experiment_protocol.py tests/test_experimental_expansion.py tests/test_evaluation_protocol_metrics.py tests/test_chunking.py`
 - `uv run pytest tests/test_reporting_io.py tests/test_evidence_cards.py tests/test_evidence_eval.py tests/test_sufficiency_eval.py tests/test_graphrag_review.py tests/test_thesis_dashboard.py tests/test_review_pack_and_triples.py tests/test_experimental_expansion.py tests/test_final_evaluation.py`
+- `uv run pytest tests/test_chunking_comparison.py tests/test_hybrid_rag_reporting.py tests/test_graph_traversal.py tests/test_llm_review_reports.py tests/test_project_report.py tests/test_web_demo.py tests/test_generation_run_reporting.py tests/test_overnight_reporting.py tests/test_report_hygiene.py`
 
 Focused and full verification passed after this iteration.

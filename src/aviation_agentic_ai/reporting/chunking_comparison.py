@@ -38,6 +38,7 @@ from aviation_agentic_ai.evaluation.protocol import (
     embedding_metadata,
 )
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.io import write_json_report
 from aviation_agentic_ai.retrieval.indexing import (
     DEFAULT_COLLECTION_NAME,
     build_chroma_index,
@@ -344,10 +345,7 @@ def build_chunking_comparison(
 
 
 def write_chunking_comparison_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_chunking_comparison_markdown(result: dict[str, Any], output_path: str | Path) -> Path:
@@ -755,10 +753,7 @@ def write_chunking_implementation_audit_json(
     result: dict[str, Any],
     output_path: str | Path,
 ) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_chunking_implementation_audit_markdown(
@@ -1322,17 +1317,11 @@ def build_chunking_failure_cards_v2(result: dict[str, Any]) -> dict[str, Any]:
 
 
 def write_chunking_comparison_v2_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_chunking_failure_cards_v2_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_chunking_comparison_v2_markdown(
@@ -1534,10 +1523,7 @@ def write_chunking_topk_sensitivity_v2_json(
     result: dict[str, Any],
     output_path: str | Path,
 ) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_chunking_topk_sensitivity_v2_markdown(
@@ -1653,10 +1639,7 @@ def write_chunking_category_analysis_v2_json(
     result: dict[str, Any],
     output_path: str | Path,
 ) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_chunking_category_analysis_v2_markdown(

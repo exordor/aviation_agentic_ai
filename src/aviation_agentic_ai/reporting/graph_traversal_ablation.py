@@ -21,6 +21,7 @@ from aviation_agentic_ai.reporting.retrieval_ablation import (
     _questions_and_labels,
     _triple_summary,
 )
+from aviation_agentic_ai.reporting.io import write_json_report
 from aviation_agentic_ai.retrieval.graph_traversal import (
     RELATION_KEYWORDS,
     normalize_entity_label,
@@ -540,10 +541,7 @@ def write_graph_traversal_ablation_json(
     result: dict[str, Any],
     output_path: str | Path,
 ) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_graph_traversal_ablation_markdown(

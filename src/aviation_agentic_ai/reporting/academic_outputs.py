@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
+from aviation_agentic_ai.reporting.io import write_json_report
 from aviation_agentic_ai.reporting.project_report import build_project_evidence_pack
 from aviation_agentic_ai.reporting.thesis_claims import REVISED_THESIS_CLAIM
 
@@ -1131,9 +1131,7 @@ def build_defense_deck_outline_markdown(outline: dict[str, Any]) -> str:
 
 
 def _write_json(data: dict[str, Any], output_path: Path) -> Path:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return output_path
+    return write_json_report(data, output_path)
 
 
 def _write_markdown(markdown: str, output_path: Path) -> Path:
@@ -1341,7 +1339,7 @@ def write_visual_assets(output_dir: str | Path) -> tuple[list[Path], dict[str, A
         ],
     }
     manifest_path = asset_dir / "visual_assets_manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_json_report(manifest, manifest_path)
     written.append(manifest_path)
     return written, manifest
 

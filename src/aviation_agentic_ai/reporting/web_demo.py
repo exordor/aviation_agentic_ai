@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
+from aviation_agentic_ai.reporting.io import read_json_object_or_none, write_json_report
 from aviation_agentic_ai.web.data import (
     ARTIFACTS,
     build_demo_explanation,
@@ -15,11 +15,7 @@ from aviation_agentic_ai.web.data import (
 
 
 def _read_json(path: str | Path) -> dict[str, Any] | None:
-    source = Path(path)
-    if not source.exists():
-        return None
-    data = json.loads(source.read_text(encoding="utf-8"))
-    return data if isinstance(data, dict) else {"value": data}
+    return read_json_object_or_none(path, wrap_non_object=True)
 
 
 def _metric_value(data: dict[str, Any] | None, *keys: str, default: Any = None) -> Any:
@@ -177,10 +173,7 @@ def build_web_demo_readiness(
 
 
 def write_web_demo_readiness_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_web_demo_readiness_markdown(

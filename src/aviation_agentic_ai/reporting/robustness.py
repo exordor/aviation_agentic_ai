@@ -15,6 +15,7 @@ from aviation_agentic_ai.retrieval.sufficiency import (
 )
 from aviation_agentic_ai.retrieval.hybrid import run_retrieval
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
+from aviation_agentic_ai.reporting.io import write_json_report
 
 
 QueryRunner = Callable[..., dict[str, Any]]
@@ -227,10 +228,7 @@ def build_robustness_evaluation(
 
 
 def write_robustness_evaluation_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_robustness_evaluation_markdown(result: dict[str, Any], output_path: str | Path) -> Path:

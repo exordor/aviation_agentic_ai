@@ -39,7 +39,7 @@ Benchmark v2 vector-only: Recall@5=0.475, Recall@10=0.475, MRR@5=0.3268, NDCG@10
 
 Traversal hybrid: Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522. Path metrics are heuristic and may be model-reviewed, but they are not human-validated. High path coverage is not treated as evidence of high retrieval quality unless Recall/MRR/NDCG also support that claim.
 
-Chunking-v2 evidence is interpreted as retrieval-design evidence, not as a universal best-chunker claim. Top-k best strategy=fixed_large with supported Recall@5=0.86; fixed-budget best strategy=recursive_medium with supported Recall@5=0.79. Partial methods=['hierarchical_parent_child']; semantic backend=['sentence_transformers']. Top-k chunking rankings expose unequal context budgets; fixed-budget and category diagnostics are stronger evidence but still benchmark-specific.
+Chunking-v2 evidence is interpreted as retrieval-design evidence, not as a universal best-chunker claim. Top-k best strategy=structure_aware_large with supported Recall@5=0.85; fixed-budget best strategy=recursive_medium with supported Recall@5=0.79. Partial methods=['hierarchical_parent_child']; semantic backend=['sentence_transformers']. Top-k chunking rankings expose unequal context budgets; fixed-budget and category diagnostics are stronger evidence but still benchmark-specific.
 
 ## RQ4: safety-aware abstention
 

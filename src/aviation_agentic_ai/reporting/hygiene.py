@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import shutil
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
@@ -8,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
+from aviation_agentic_ai.reporting.io import write_json_report
 
 
 STAGE_INDEX_FILES = {"index.json", "index.md"}
@@ -204,10 +204,7 @@ def apply_hygiene_plan(plan: dict[str, Any], *, base: str | Path = PROJECT_ROOT)
 
 
 def write_stage_index_json(index: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(index, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(index, output_path)
 
 
 def write_stage_index_markdown(index: dict[str, Any], output_path: str | Path) -> Path:

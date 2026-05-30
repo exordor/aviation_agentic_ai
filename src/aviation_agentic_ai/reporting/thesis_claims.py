@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from datetime import UTC, datetime
 from pathlib import Path
@@ -8,6 +7,7 @@ from typing import Any
 
 from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
+from aviation_agentic_ai.reporting.io import write_json_report
 
 
 REVISED_THESIS_CLAIM = (
@@ -466,10 +466,7 @@ def build_thesis_claims_review(
 
 
 def write_thesis_claims_review_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def _md_cell(value: Any) -> str:

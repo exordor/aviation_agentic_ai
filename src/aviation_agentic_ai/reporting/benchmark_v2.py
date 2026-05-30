@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -9,6 +8,7 @@ from aviation_agentic_ai.evaluation.benchmark_validation import (
     read_benchmark_payload,
     validate_benchmark,
 )
+from aviation_agentic_ai.reporting.io import write_json_report
 
 
 def _sample_labels(payload: dict[str, Any], sample_size: int = 2) -> dict[str, list[dict[str, Any]]]:
@@ -52,10 +52,7 @@ def build_benchmark_v2_summary(
 
 
 def write_benchmark_v2_summary_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_benchmark_v2_summary_markdown(result: dict[str, Any], output_path: str | Path) -> Path:

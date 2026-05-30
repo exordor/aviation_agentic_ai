@@ -9,6 +9,7 @@ from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 from aviation_agentic_ai.reporting.hygiene import build_hygiene_plan
+from aviation_agentic_ai.reporting.io import write_json_report
 from aviation_agentic_ai.reporting.thesis_claims import REVISED_THESIS_CLAIM
 
 
@@ -1446,10 +1447,7 @@ def _invoke_llm_project_report(prompt: str, temperature: float, max_tokens: int)
 
 
 def write_project_report_sources(evidence: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(evidence, output_path)
 
 
 def write_project_report_markdown(markdown: str, output_path: str | Path) -> Path:

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any, Callable
 
@@ -29,6 +28,7 @@ from aviation_agentic_ai.reporting.evidence_cards import (
     build_evidence_cards,
     evidence_cards_markdown_lines,
 )
+from aviation_agentic_ai.reporting.io import write_json_report
 from aviation_agentic_ai.retrieval.hybrid import run_query
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
 
@@ -226,10 +226,7 @@ def build_hybrid_rag_experiment(
 
 
 def write_hybrid_rag_experiment_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_hybrid_rag_experiment_markdown(result: dict[str, Any], output_path: str | Path) -> Path:

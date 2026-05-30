@@ -6,6 +6,7 @@ from typing import Any
 
 from aviation_agentic_ai.kg.extraction import read_kg_jsonl
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.io import write_json_report
 
 
 REVIEW_FIELDS = (
@@ -144,10 +145,7 @@ def build_triple_semantic_review_sample(
 
 
 def write_triple_semantic_review_json(result: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(result, output_path)
 
 
 def write_triple_semantic_review_markdown(
