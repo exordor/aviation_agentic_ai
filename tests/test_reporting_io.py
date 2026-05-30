@@ -2,6 +2,8 @@ from pathlib import Path
 
 from aviation_agentic_ai.reporting.io import (
     normalize_report_text,
+    read_json_document,
+    read_json_document_or_none,
     read_json_object,
     read_json_object_or_empty,
     read_json_object_or_none,
@@ -12,8 +14,17 @@ from aviation_agentic_ai.reporting.io import (
 def test_reporting_json_helpers_preserve_missing_file_policies(tmp_path: Path) -> None:
     missing = tmp_path / "missing.json"
 
+    assert read_json_document_or_none(missing) is None
     assert read_json_object_or_empty(missing) == {}
     assert read_json_object_or_none(missing) is None
+
+
+def test_reporting_json_document_helpers_accept_non_object_payloads(tmp_path: Path) -> None:
+    path = tmp_path / "list.json"
+    path.write_text("[1, 2]\n", encoding="utf-8")
+
+    assert read_json_document(path) == [1, 2]
+    assert read_json_document_or_none(path) == [1, 2]
 
 
 def test_reporting_json_helpers_preserve_non_object_policies(tmp_path: Path) -> None:

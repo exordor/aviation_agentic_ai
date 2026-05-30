@@ -12,10 +12,24 @@ def normalize_report_text(value: Any) -> str:
     return " ".join(str(value).lower().split())
 
 
+def read_json_document(path: str | Path) -> Any:
+    """Read a JSON document that must exist."""
+    source = Path(path)
+    return json.loads(source.read_text(encoding="utf-8"))
+
+
+def read_json_document_or_none(path: str | Path) -> Any | None:
+    """Read any JSON document, returning None when absent."""
+    source = Path(path)
+    if not source.exists():
+        return None
+    return read_json_document(source)
+
+
 def read_json_object(path: str | Path) -> dict[str, Any]:
     """Read a JSON report that must exist and contain an object."""
     source = Path(path)
-    payload = json.loads(source.read_text(encoding="utf-8"))
+    payload = read_json_document(source)
     if not isinstance(payload, dict):
         raise ValueError(f"Expected object JSON report: {project_relative_path(source)}")
     return payload
@@ -28,9 +42,9 @@ def read_json_object_or_empty(
 ) -> dict[str, Any]:
     """Read a JSON object report, returning an empty object when absent."""
     source = Path(path)
-    if not source.exists():
+    payload = read_json_document_or_none(source)
+    if payload is None:
         return {}
-    payload = json.loads(source.read_text(encoding="utf-8"))
     if isinstance(payload, dict):
         return payload
     return {"value": payload} if wrap_non_object else {}
@@ -43,9 +57,9 @@ def read_json_object_or_none(
 ) -> dict[str, Any] | None:
     """Read a JSON object report, returning None when absent."""
     source = Path(path)
-    if not source.exists():
+    payload = read_json_document_or_none(source)
+    if payload is None:
         return None
-    payload = json.loads(source.read_text(encoding="utf-8"))
     if isinstance(payload, dict):
         return payload
     return {"value": payload} if wrap_non_object else None

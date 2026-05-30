@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.kg.extraction import read_kg_jsonl
 from aviation_agentic_ai.paths import project_relative_path
-from aviation_agentic_ai.reporting.io import write_json_report
+from aviation_agentic_ai.reporting.io import read_json_object_or_empty, write_json_report
 
 
 REVIEW_FIELDS = (
@@ -29,12 +28,7 @@ CORRECTNESS_FIELDS = (
 def _load_existing_annotations(path: str | Path | None) -> dict[str, dict[str, Any]]:
     if path is None:
         return {}
-    source = Path(path)
-    if not source.exists():
-        return {}
-    payload = json.loads(source.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict):
-        return {}
+    payload = read_json_object_or_empty(path, wrap_non_object=False)
     annotations: dict[str, dict[str, Any]] = {}
     for record in payload.get("records", []):
         if not isinstance(record, dict):

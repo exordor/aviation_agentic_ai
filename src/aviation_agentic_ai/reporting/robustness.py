@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from time import perf_counter
 from typing import Any, Callable
@@ -15,7 +14,7 @@ from aviation_agentic_ai.retrieval.sufficiency import (
 )
 from aviation_agentic_ai.retrieval.hybrid import run_retrieval
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
-from aviation_agentic_ai.reporting.io import write_json_report
+from aviation_agentic_ai.reporting.io import read_json_document_or_none, write_json_report
 
 
 QueryRunner = Callable[..., dict[str, Any]]
@@ -44,10 +43,9 @@ def _run_retrieval_with_deterministic_answer(*args: Any, **kwargs: Any) -> dict[
 
 
 def _load_cases(path: str | Path) -> list[dict[str, Any]]:
-    source = Path(path)
-    if not source.exists():
+    payload = read_json_document_or_none(path)
+    if payload is None:
         return []
-    payload = json.loads(source.read_text(encoding="utf-8"))
     if isinstance(payload, dict):
         cases = payload.get("cases", [])
         return [case for case in cases if isinstance(case, dict)]

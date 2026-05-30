@@ -9,7 +9,7 @@ from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 from aviation_agentic_ai.reporting.hygiene import build_hygiene_plan
-from aviation_agentic_ai.reporting.io import write_json_report
+from aviation_agentic_ai.reporting.io import read_json_object_or_empty, write_json_report
 from aviation_agentic_ai.reporting.thesis_claims import REVISED_THESIS_CLAIM
 
 
@@ -252,8 +252,7 @@ def _read_json_source(path: Path, *, base: str | Path = PROJECT_ROOT) -> dict[st
             "present": False,
             "data": {},
         }
-    data = json.loads(path.read_text(encoding="utf-8"))
-    data = data if isinstance(data, dict) else {"value": data}
+    data = read_json_object_or_empty(path, wrap_non_object=True)
     compacted_data, compacted = _compact_json_data(path, data)
     return {
         "path": project_relative_path(path, base=base),
