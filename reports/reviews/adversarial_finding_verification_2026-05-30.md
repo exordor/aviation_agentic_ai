@@ -22,7 +22,7 @@ verified backlog rather than silently mixed into this iteration.
 | I5 | Still valid. `get_llm` had no return annotation. | Added a `BaseChatModel` return annotation behind `TYPE_CHECKING` so optional LangChain imports remain lazy. |
 | I1 | Still valid. Retrieval, graph traversal, chunking, and source-scope modules carried independent tokenizer/stopword logic. | Added `aviation_agentic_ai.utils.text` with shared normalization, token regex, stopwords, and tokenization helpers. Existing local wrappers now delegate to the shared utility. |
 | I6 | Still partly valid. `.env` loading was scattered across LLM provider, evaluation metadata, web readiness, and ontology generation. | Added `config.load_environment()` as the single dotenv loading entry point and updated LLM access/reporting paths to use it. Provider selection remains explicit at call sites. |
-| I7 | Still valid. `cli.py` remains a large Click file with many direct subsystem imports. | Continued the subsystem Click group pattern by extracting `web serve` into `aviation_agentic_ai.cli_web`, `chunk build` into `aviation_agentic_ai.cli_chunk`, `index build` into `aviation_agentic_ai.cli_index`, the top-level `query` command into `aviation_agentic_ai.cli_query`, the `kg extract`/`kg validate` group into `aviation_agentic_ai.cli_kg`, and the top-level `cqs` gold-label utilities into `aviation_agentic_ai.cli_cqs`, registering the commands from `cli.py` without changing public command surfaces. |
+| I7 | Still valid. `cli.py` remains a large Click file with many direct subsystem imports. | Continued the subsystem Click group pattern by extracting `web serve` into `aviation_agentic_ai.cli_web`, `chunk build` into `aviation_agentic_ai.cli_chunk`, `index build` into `aviation_agentic_ai.cli_index`, the top-level `query` command into `aviation_agentic_ai.cli_query`, the `kg extract`/`kg validate` group into `aviation_agentic_ai.cli_kg`, top-level `cqs` gold-label utilities into `aviation_agentic_ai.cli_cqs`, and the ontology command group into `aviation_agentic_ai.cli_ontology`, registering the commands from `cli.py` without changing public command surfaces. |
 | I8 | Still valid as a broader maintenance concern. Several reporting modules duplicated JSON report loading/writing and lightweight normalization. | Added `aviation_agentic_ai.reporting.io`; migrated the evidence-card, evidence-evaluation, answer-evaluation, sufficiency, GraphRAG review, benchmark-review-pack, KG-comparison, thesis-dashboard helpers, plus the next batch of sorted report JSON writers. Missing-file/non-object behavior and JSON formatting are preserved. |
 | M3 | Still valid as wording polish. Retrieval-only ablation used `provider: none`, which could read like a missing setting rather than intentional no-LLM execution. | Retrieval ablation manifests now record `provider: not_used_retrieval_only` and an explicit usage note that no generation or LLM judge is used. |
 | M1 | Still valid. Chroma collection deletion swallowed every exception. | Reset now suppresses only missing/not-found collection errors and re-raises unexpected failures. |
@@ -36,7 +36,7 @@ verified backlog rather than silently mixed into this iteration.
 
 | ID | Current assessment | Reason deferred |
 | --- | --- | --- |
-| I7 remainder | Still partly valid. Most report commands and the ontology command group still live in `cli.py`. | Continue extracting one subsystem group at a time with CLI tests after each move; ontology and report groups are larger and should remain separate reviewable batches. |
+| I7 remainder | Still partly valid. Most report commands still live in `cli.py`. | Continue extracting report command clusters in reviewable batches with CLI tests after each move. |
 | I8 remainder | Still partly valid. A smaller set of custom readers and unsorted JSON writers remains. | Sorted report writers have been migrated in batches; custom loaders and intentionally unsorted outputs should continue only where behavior can be preserved exactly. |
 
 ## Verification Commands
@@ -64,5 +64,9 @@ verified backlog rather than silently mixed into this iteration.
 - `uv run aviation-ai cqs --help`
 - `uv run aviation-ai cqs gold-draft --help`
 - `uv run aviation-ai cqs validate-benchmark --help`
+- `uv run pytest tests/test_ontology_evaluation.py::test_cli_ontology_evaluate_no_ai_review tests/test_ontology_evaluation.py::test_cli_ontology_evaluate_defaults_to_deterministic_report_name tests/test_ontology_evaluation.py::test_cli_ontology_validate_cqs`
+- `uv run aviation-ai ontology --help`
+- `uv run aviation-ai ontology evaluate --help`
+- `uv run aviation-ai ontology validate-cqs --help`
 
 Focused and full verification passed after this iteration.
