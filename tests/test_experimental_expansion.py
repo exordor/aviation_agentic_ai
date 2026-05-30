@@ -3,6 +3,7 @@ from pathlib import Path
 
 from aviation_agentic_ai.evaluation.gold import GoldLabel, load_gold_labels
 from aviation_agentic_ai.evaluation.metrics import retrieval_metrics
+from aviation_agentic_ai.kg.extraction import KGReadError
 from aviation_agentic_ai.ontology.cq import normalize_cq_artifact
 from aviation_agentic_ai.reporting.answer_eval import write_answer_evaluation
 from aviation_agentic_ai.reporting.kg_extraction_comparison import write_kg_extraction_comparison
@@ -218,6 +219,27 @@ def test_kg_extraction_comparison_counts_quality_and_duplicates(tmp_path: Path) 
     assert result["experiments"]["fixed_window"]["valid_triples"] == 1
     assert result["experiments"]["structure_aware"]["duplicate_triple_count"] == 1
     assert result["experiments"]["structure_aware"]["key_entity_coverage"] == 0.5
+
+
+def test_kg_extraction_comparison_reports_invalid_jsonl_line(tmp_path: Path) -> None:
+    fixed = tmp_path / "fixed.kg.jsonl"
+    structure = tmp_path / "structure.kg.jsonl"
+    fixed.write_text('{"triple_id": "t1"}\nnot-json\n', encoding="utf-8")
+    structure.write_text("", encoding="utf-8")
+
+    try:
+        write_kg_extraction_comparison(
+            tmp_path,
+            fixed_kg_path=fixed,
+            structure_aware_kg_path=structure,
+        )
+    except KGReadError as exc:
+        message = str(exc)
+        assert "Invalid KG comparison JSONL record" in message
+        assert "fixed.kg.jsonl" in message
+        assert "line 2" in message
+    else:
+        raise AssertionError("Malformed KG comparison JSONL should fail with KGReadError")
 
 
 def test_answer_and_robustness_reports_handle_abstention(tmp_path: Path) -> None:

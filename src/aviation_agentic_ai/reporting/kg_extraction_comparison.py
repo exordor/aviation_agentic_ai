@@ -8,6 +8,7 @@ from typing import Any
 from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
 from aviation_agentic_ai.evaluation.gold import load_gold_labels
 from aviation_agentic_ai.evaluation.protocol import build_run_manifest
+from aviation_agentic_ai.kg.extraction import KGReadError
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.io import normalize_report_text, write_json_report
 
@@ -24,9 +25,15 @@ def _triple_dicts(path: str | Path) -> list[dict[str, Any]]:
     if not source.exists():
         return []
     triples: list[dict[str, Any]] = []
-    for line in source.read_text(encoding="utf-8").splitlines():
+    for line_number, line in enumerate(source.read_text(encoding="utf-8").splitlines(), start=1):
         if line.strip():
-            item = json.loads(line)
+            try:
+                item = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise KGReadError(
+                    f"Invalid KG comparison JSONL record in {project_relative_path(source)} "
+                    f"at line {line_number}: {exc}"
+                ) from exc
             if isinstance(item, dict):
                 triples.append(item)
     return triples
