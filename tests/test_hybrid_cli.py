@@ -800,7 +800,7 @@ def test_cli_report_robustness_uses_mocked_writer(tmp_path: Path, monkeypatch) -
 
 
 def test_cli_llm_review_commands_use_mocked_writers(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_llm
 
     def fake_benchmark(*_args, **_kwargs):
         json_path = tmp_path / "benchmark_llm_review.json"
@@ -837,13 +837,17 @@ def test_cli_llm_review_commands_use_mocked_writers(tmp_path: Path, monkeypatch)
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"summary": {"consistency_not_measured": False}}
 
-    monkeypatch.setattr(cli, "write_benchmark_llm_review", fake_benchmark)
-    monkeypatch.setattr(cli, "write_benchmark_llm_rewrite_proposals", fake_rewrite)
-    monkeypatch.setattr(cli, "write_triple_semantic_llm_review", fake_review)
-    monkeypatch.setattr(cli, "write_graph_path_llm_review", fake_review)
-    monkeypatch.setattr(cli, "write_answer_llm_judge", fake_review)
-    monkeypatch.setattr(cli, "write_answer_generation_benchmark_subset", fake_answer_gen)
-    monkeypatch.setattr(cli, "write_llm_review_consistency", fake_consistency)
+    monkeypatch.setattr(cli_report_llm, "write_benchmark_llm_review", fake_benchmark)
+    monkeypatch.setattr(cli_report_llm, "write_benchmark_llm_rewrite_proposals", fake_rewrite)
+    monkeypatch.setattr(cli_report_llm, "write_triple_semantic_llm_review", fake_review)
+    monkeypatch.setattr(cli_report_llm, "write_graph_path_llm_review", fake_review)
+    monkeypatch.setattr(cli_report_llm, "write_answer_llm_judge", fake_review)
+    monkeypatch.setattr(
+        cli_report_llm,
+        "write_answer_generation_benchmark_subset",
+        fake_answer_gen,
+    )
+    monkeypatch.setattr(cli_report_llm, "write_llm_review_consistency", fake_consistency)
 
     commands = [
         ("benchmark-llm-review", "Benchmark LLM review records=2"),
