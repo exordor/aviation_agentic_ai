@@ -210,6 +210,9 @@ def _build_manifest(
     max_tokens: int,
     accepted_pages: list[int],
     failed_pages: list[dict[str, Any]],
+    output_complete: bool = True,
+    partial_output_written: bool = False,
+    partial_reason: str = "",
 ) -> dict[str, Any]:
     return {
         "run_id": run_id,
@@ -231,9 +234,28 @@ def _build_manifest(
             "cq_sha256": _sha256_file(cq_path),
         },
         "output_path": project_relative_path(output_path),
+        "output_complete": output_complete,
+        "partial_output_written": partial_output_written,
+        "partial_reason": partial_reason,
         "accepted_pages": accepted_pages,
         "failed_pages": failed_pages,
     }
+
+
+def _partial_ttl_content(ttl: str, failure: dict[str, Any]) -> str:
+    return (
+        "# partial_generation: true\n"
+        "# status: incomplete_ontology_generation_output\n"
+        "# Do not treat this file as a complete generated ontology.\n"
+        f"# failed_page: {failure.get('page')}\n"
+        f"# failed_stage: {failure.get('stage')}\n\n"
+        f"{ttl}"
+    )
+
+
+def _write_partial_output(output_path: Path, ttl: str, failure: dict[str, Any]) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(_partial_ttl_content(ttl, failure), encoding="utf-8")
 
 
 def _parse_turtle_text(ttl_text: str) -> Graph:
@@ -460,6 +482,7 @@ def generate_ontology(
                 "message": str(exc),
             }
             failed_pages.append(failure)
+            _write_partial_output(output, ttl, failure)
             if artifacts is not None:
                 _write_json(
                     artifacts / "manifest.json",
@@ -477,6 +500,9 @@ def generate_ontology(
                         max_tokens=max_tokens,
                         accepted_pages=accepted_pages,
                         failed_pages=failed_pages,
+                        output_complete=False,
+                        partial_output_written=True,
+                        partial_reason=failure["stage"],
                     ),
                 )
             raise RuntimeError(
@@ -501,6 +527,7 @@ def generate_ontology(
                     "message": str(exc),
                 }
                 failed_pages.append(failure)
+                _write_partial_output(output, ttl, failure)
                 last_validation = {
                     "rdf_valid": False,
                     "rdf_message": "",
@@ -530,6 +557,9 @@ def generate_ontology(
                             max_tokens=max_tokens,
                             accepted_pages=accepted_pages,
                             failed_pages=failed_pages,
+                            output_complete=False,
+                            partial_output_written=True,
+                            partial_reason=failure["stage"],
                         ),
                     )
                 raise RuntimeError(
@@ -568,6 +598,7 @@ def generate_ontology(
         else:
             failure = {"page": page.page_number, "stage": "candidate_validation", "message": last_error}
             failed_pages.append(failure)
+            _write_partial_output(output, ttl, failure)
             if artifacts is not None:
                 page_prefix = f"page_{page.page_number:02d}"
                 (artifacts / f"{page_prefix}_candidate.ttl").write_text(candidate, encoding="utf-8")
@@ -588,6 +619,9 @@ def generate_ontology(
                         max_tokens=max_tokens,
                         accepted_pages=accepted_pages,
                         failed_pages=failed_pages,
+                        output_complete=False,
+                        partial_output_written=True,
+                        partial_reason=failure["stage"],
                     ),
                 )
             raise RuntimeError(f"Failed to generate valid Turtle for page {page.page_number}: {last_error}")

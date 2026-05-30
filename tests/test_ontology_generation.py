@@ -189,6 +189,114 @@ def test_non_dry_run_manifest_records_llm_failure(tmp_path: Path, monkeypatch) -
     manifest = json.loads((artifact_dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["failed_pages"][0]["stage"] == "srd_tip_validation"
     assert "model denied" in manifest["failed_pages"][0]["message"]
+    assert manifest["output_complete"] is False
+    assert manifest["partial_output_written"] is True
+    assert manifest["partial_reason"] == "srd_tip_validation"
+    assert output_path.exists()
+    partial_text = output_path.read_text(encoding="utf-8")
+    assert "partial_generation: true" in partial_text
+    valid, message = verify_turtle_text(partial_text)
+    assert valid, message
+
+
+def test_non_dry_run_late_failure_preserves_labelled_partial_output(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai.ontology import generation
+    from aviation_agentic_ai.llm import providers
+
+    cq_path = tmp_path / "cqs.json"
+    output_path = tmp_path / "generated.ttl"
+    artifact_dir = tmp_path / "artifacts"
+    cqs = normalize_cq_artifact(
+        {
+            "doc": {
+                "0": [
+                    {
+                        "competency_question": "What class represents lift?",
+                        "key_entities": ["lift"],
+                        "odp_hint": "Taxonomy",
+                        "expected_answer": "Lift",
+                    }
+                ],
+                "1": [
+                    {
+                        "competency_question": "What class represents drag?",
+                        "key_entities": ["drag"],
+                        "odp_hint": "Taxonomy",
+                        "expected_answer": "Drag",
+                    }
+                ],
+            }
+        }
+    )
+    cq_path.write_text(json.dumps(cqs) + "\n", encoding="utf-8")
+
+    accepted_candidate = (
+        build_initial_ttl_content()
+        + "\n:Cl_TestLift a owl:Class ;\n"
+        + '    rdfs:label "Test lift" .\n'
+    )
+
+    class LateFailingLLM:
+        def invoke(self, messages):
+            prompt = messages[0].content
+            if "Second page" in prompt:
+                raise RuntimeError("second page denied")
+            if "Semantic Requirements Document" in prompt:
+                return json.dumps(
+                    {
+                        "cq_ids": ["cq-0"],
+                        "source_page": 0,
+                        "evidence_quotes": ["Lift needs airflow."],
+                        "key_concepts": ["Lift"],
+                    }
+                )
+            if "Technical Implementation Plan" in prompt:
+                return json.dumps(
+                    {
+                        "classes": ["Cl_TestLift"],
+                        "properties": ["hasCondition"],
+                        "axiom_plan": ["Cl_TestLift subclass of aviation concept"],
+                        "domain_range_plan": ["reuse existing hasCondition domain and range"],
+                        "risk_flags": [],
+                    }
+                )
+            return accepted_candidate
+
+    monkeypatch.setattr(
+        generation,
+        "extract_pages",
+        lambda *_args, **_kwargs: [
+            SimpleNamespace(page_number=0, text="Lift needs airflow."),
+            SimpleNamespace(page_number=1, text="Second page about drag."),
+        ],
+    )
+    monkeypatch.setattr(providers, "get_llm", lambda **_kwargs: LateFailingLLM())
+    monkeypatch.setattr(
+        generation,
+        "verify_generated_candidate_quality",
+        lambda _candidate, _previous: (True, "accepted for test"),
+    )
+
+    with pytest.raises(RuntimeError, match="Failed to generate validated SRD/TIP"):
+        generate_ontology(
+            pdf_path="data/raw/06_phak_ch4_0.pdf",
+            cq_path=cq_path,
+            output_path=output_path,
+            artifact_dir=artifact_dir,
+            run_id="late-failing-run",
+            max_qa_cycles=0,
+        )
+
+    partial_text = output_path.read_text(encoding="utf-8")
+    manifest = json.loads((artifact_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert ":Cl_TestLift" in partial_text
+    assert "partial_generation: true" in partial_text
+    assert manifest["accepted_pages"] == [0]
+    assert manifest["failed_pages"][0]["page"] == 1
+    assert manifest["output_complete"] is False
 
 
 def test_generated_candidate_quality_gates_preserve_terms() -> None:
