@@ -540,14 +540,14 @@ def test_cli_report_web_demo_smoke_uses_mocked_writer(tmp_path: Path, monkeypatc
 
 
 def test_cli_web_serve_uses_mocked_server(monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_web
 
     calls = {}
 
     def fake_server(**kwargs):
         calls.update(kwargs)
 
-    monkeypatch.setattr(cli, "serve_web_app", fake_server)
+    monkeypatch.setattr(cli_web, "serve_web_app", fake_server)
     result = CliRunner().invoke(
         main,
         ["web", "serve", "--port", "8123"],

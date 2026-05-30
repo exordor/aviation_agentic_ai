@@ -11,6 +11,7 @@ from aviation_agentic_ai.chunking.chunks import (
     build_chunk_file,
     chunk_output_path_for_strategy,
 )
+from aviation_agentic_ai.cli_web import web
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.evaluation.benchmark_validation import validate_benchmark
 from aviation_agentic_ai.evaluation.gold_draft import build_gold_draft
@@ -84,7 +85,6 @@ from aviation_agentic_ai.reporting.web_demo import write_web_demo_readiness
 from aviation_agentic_ai.reporting.web_demo_smoke import write_web_demo_smoke
 from aviation_agentic_ai.retrieval.hybrid import run_query, write_query_result
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME, build_chroma_index
-from aviation_agentic_ai.web.server import serve_web_app
 
 
 def _default_ontology_path() -> Path:
@@ -108,31 +108,7 @@ def main() -> None:
     """Aviation Agentic AI CLI."""
 
 
-@main.group()
-def web() -> None:
-    """Local web demo commands."""
-
-
-@web.command("serve")
-@click.option("--host", default="127.0.0.1", show_default=True)
-@click.option("--port", type=int, default=8000, show_default=True)
-@click.option("--reload/--no-reload", default=False, show_default=True)
-@click.option(
-    "--enable-live-query/--disable-live-query",
-    default=None,
-    help="Force-enable or force-disable live LLM querying. Default: auto-detect readiness.",
-)
-def web_serve(host: str, port: int, reload: bool, enable_live_query: bool | None) -> None:
-    """Serve the offline-first FastAPI web demo."""
-    try:
-        serve_web_app(
-            host=host,
-            port=port,
-            reload=reload,
-            enable_live_query=enable_live_query,
-        )
-    except RuntimeError as exc:
-        raise click.ClickException(str(exc)) from exc
+main.add_command(web)
 
 
 @main.group()
