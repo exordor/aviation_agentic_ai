@@ -8,6 +8,8 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from aviation_agentic_ai.ontology.profiles import DomainProfile, get_domain_profile
+from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.utils.io import read_json_document, write_json_document
 from aviation_agentic_ai.utils.pdf import extract_pages
 
 
@@ -24,6 +26,10 @@ class CQList(BaseModel):
 
 class CQValidationError(ValueError):
     """Raised when a CQ artifact is malformed or not normalized."""
+
+
+class CQReadError(CQValidationError):
+    """Raised when a CQ artifact cannot be read with useful context."""
 
 
 BASE_CQ_FIELDS = {"competency_question", "key_entities", "odp_hint", "expected_answer"}
@@ -245,8 +251,18 @@ def validate_cq_artifact(data: dict[str, Any], require_normalized: bool = True) 
 
 def load_cq_artifact(path: str | Path, require_normalized: bool = True) -> dict[str, Any]:
     cq_path = Path(path)
-    data = json.loads(cq_path.read_text(encoding="utf-8"))
-    validate_cq_artifact(data, require_normalized=require_normalized)
+    try:
+        data = read_json_document(cq_path)
+    except json.JSONDecodeError as exc:
+        raise CQReadError(
+            f"Invalid CQ artifact JSON in {project_relative_path(cq_path)}: {exc}"
+        ) from exc
+    try:
+        validate_cq_artifact(data, require_normalized=require_normalized)
+    except CQValidationError as exc:
+        raise CQReadError(
+            f"Invalid CQ artifact in {project_relative_path(cq_path)}: {exc}"
+        ) from exc
     return data
 
 
@@ -269,8 +285,7 @@ def build_cq_prompt(page_text: str, profile: DomainProfile) -> str:
 
 
 def _dump_json(data: dict[str, Any], output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    write_json_document(data, output_path, sort_keys=False)
 
 
 def generate_cqs(

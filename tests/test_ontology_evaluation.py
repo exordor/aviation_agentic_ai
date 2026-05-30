@@ -8,6 +8,7 @@ from rdflib import Graph
 
 from aviation_agentic_ai.cli import main
 from aviation_agentic_ai.ontology.cq import (
+    CQReadError,
     CQValidationError,
     load_cq_artifact,
     normalize_cq_artifact,
@@ -314,6 +315,35 @@ def test_cq_validation_rejects_legacy_artifacts(tmp_path: Path) -> None:
         assert "missing normalized fields" in str(exc)
     else:
         raise AssertionError("Legacy CQ artifact should fail strict validation")
+
+
+def test_load_cq_artifact_reports_malformed_json_path(tmp_path: Path) -> None:
+    cq_path = tmp_path / "broken-cqs.json"
+    cq_path.write_text('{"doc": ', encoding="utf-8")
+
+    try:
+        load_cq_artifact(cq_path)
+    except CQReadError as exc:
+        message = str(exc)
+        assert "Invalid CQ artifact JSON" in message
+        assert "broken-cqs.json" in message
+    else:
+        raise AssertionError("Malformed CQ artifact should fail with CQReadError")
+
+
+def test_load_cq_artifact_reports_invalid_payload_path(tmp_path: Path) -> None:
+    cq_path = tmp_path / "list-cqs.json"
+    cq_path.write_text("[]\n", encoding="utf-8")
+
+    try:
+        load_cq_artifact(cq_path)
+    except CQReadError as exc:
+        message = str(exc)
+        assert "Invalid CQ artifact in" in message
+        assert "list-cqs.json" in message
+        assert "non-empty JSON object" in message
+    else:
+        raise AssertionError("Invalid CQ artifact should fail with CQReadError")
 
 
 def test_odp_normalization_uses_controlled_vocabulary() -> None:
