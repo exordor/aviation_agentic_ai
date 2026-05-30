@@ -1,20 +1,31 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 from statistics import mean
+from time import perf_counter
 from typing import Any, Callable
 
 from aviation_agentic_ai.chunking.chunks import (
-    CHUNKING_STRATEGIES,
+    BENCHMARK_V2_CHUNKING_STRATEGIES,
+    DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    PILOT_CHUNKING_STRATEGIES,
     SourceChunk,
     build_chunk_file,
     chunk_output_path_for_strategy,
     collection_name_for_strategy,
     read_chunks_jsonl,
 )
+from aviation_agentic_ai.evaluation.bootstrap_ci import bootstrap_metric_ci
+from aviation_agentic_ai.evaluation.cost_latency import artifact_size_bytes
 from aviation_agentic_ai.evaluation.document_metadata import document_metadata_from_pdf
-from aviation_agentic_ai.evaluation.gold import gold_labels_for_questions, load_boundary_questions
+from aviation_agentic_ai.evaluation.gold import (
+    GoldLabel,
+    gold_labels_for_questions,
+    load_boundary_questions,
+    load_gold_labels,
+)
 from aviation_agentic_ai.evaluation.metrics import (
     aggregate_retrieval_metrics,
     retrieval_metrics as _retrieval_metrics,
@@ -33,6 +44,16 @@ from aviation_agentic_ai.retrieval.indexing import (
 
 Retriever = Callable[[str, str | Path, str, int], list[dict[str, Any]]]
 IndexBuilder = Callable[..., dict[str, Any]]
+
+FAILURE_TYPES = (
+    "missed_gold_evidence_at_5",
+    "chunk_too_small_lost_context",
+    "chunk_too_large_low_precision",
+    "section_boundary_split",
+    "semantic_boundary_error",
+    "cross_page_evidence_split",
+    "no_answer_retrieved_misleading_context",
+)
 
 
 def retrieval_metrics(
@@ -58,12 +79,31 @@ def _preserves_boundary(chunk: SourceChunk) -> bool:
     return bool(stripped.endswith((".", "!", "?", ";", ":")) or chunk.section)
 
 
+def _overlap_redundancy(chunks: list[SourceChunk]) -> float:
+    total_chars = sum(max(0, chunk.char_end - chunk.char_start) for chunk in chunks)
+    if not total_chars:
+        return 0.0
+    overlap_chars = 0
+    by_page: dict[tuple[str, int], list[SourceChunk]] = {}
+    for chunk in chunks:
+        by_page.setdefault((chunk.source_document, chunk.page), []).append(chunk)
+    for page_chunks in by_page.values():
+        ordered = sorted(page_chunks, key=lambda item: (item.char_start, item.char_end))
+        for left, right in zip(ordered, ordered[1:]):
+            overlap_chars += max(0, min(left.char_end, right.char_end) - max(left.char_start, right.char_start))
+    return round(overlap_chars / total_chars, 4)
+
+
 def chunk_stats(chunks: list[SourceChunk]) -> dict[str, Any]:
     lengths = [len(chunk.text) for chunk in chunks]
+    token_lengths = [len(chunk.text.split()) for chunk in chunks]
     return {
         "chunk_count": len(chunks),
+        "chunks_total": len(chunks),
         "avg_chars": round(mean(lengths), 2) if lengths else 0.0,
         "p95_chars": _percentile(lengths, 0.95),
+        "avg_tokens": round(mean(token_lengths), 2) if token_lengths else 0.0,
+        "overlap_redundancy": _overlap_redundancy(chunks),
         "boundary_preservation_rate": round(
             sum(1 for chunk in chunks if _preserves_boundary(chunk)) / len(chunks), 4
         )
@@ -135,7 +175,7 @@ def build_chunking_comparison(
     base_chunks_path: str | Path,
     index_dir: str | Path,
     collection_name: str = DEFAULT_COLLECTION_NAME,
-    strategies: tuple[str, ...] = CHUNKING_STRATEGIES,
+    strategies: tuple[str, ...] = PILOT_CHUNKING_STRATEGIES,
     max_chars: int = 1200,
     overlap_chars: int = 150,
     vector_top_k: int = 5,
@@ -373,7 +413,7 @@ def write_chunking_comparison(
     index_dir: str | Path,
     output_dir: str | Path,
     collection_name: str = DEFAULT_COLLECTION_NAME,
-    strategies: tuple[str, ...] = CHUNKING_STRATEGIES,
+    strategies: tuple[str, ...] = PILOT_CHUNKING_STRATEGIES,
     max_chars: int = 1200,
     overlap_chars: int = 150,
     vector_top_k: int = 5,
@@ -407,3 +447,739 @@ def write_chunking_comparison(
     json_path = write_chunking_comparison_json(result, output / "chunking_comparison.json")
     md_path = write_chunking_comparison_markdown(result, output / "chunking_comparison.md")
     return json_path, md_path, result
+
+
+def _percentile_float(values: list[float], percentile: float) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    index = min(len(ordered) - 1, int(round((len(ordered) - 1) * percentile)))
+    return round(ordered[index], 4)
+
+
+def _safe_mean(values: list[float]) -> float:
+    return round(mean(values), 4) if values else 0.0
+
+
+def _label_breakdown(labels: list[GoldLabel]) -> dict[str, Any]:
+    no_answer_total = sum(int(label.expected_abstention) for label in labels)
+    return {
+        "labels_total": len(labels),
+        "supported_total": len(labels) - no_answer_total,
+        "no_answer_total": no_answer_total,
+        "question_type_counts": dict(
+            sorted(Counter(label.question_type or "<missing>" for label in labels).items())
+        ),
+    }
+
+
+def _retrieval_confidence_intervals(metric_items: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "recall_at_5": bootstrap_metric_ci(
+            metric_items,
+            lambda metric: bool(metric.get("recall_at_5", False)),
+        ),
+        "recall_at_10": bootstrap_metric_ci(
+            metric_items,
+            lambda metric: bool(metric.get("recall_at_10", False)),
+        ),
+        "mrr_at_5": bootstrap_metric_ci(
+            metric_items,
+            lambda metric: float(metric.get("mrr_at_5", 0.0)),
+        ),
+        "ndcg_at_10": bootstrap_metric_ci(
+            metric_items,
+            lambda metric: float(metric.get("ndcg_at_10", 0.0)),
+        ),
+        "context_recall": bootstrap_metric_ci(
+            metric_items,
+            lambda metric: float(metric.get("context_recall", 0.0)),
+        ),
+    }
+
+
+def _aggregate_retrieval_records(records: list[dict[str, Any]]) -> dict[str, Any]:
+    return aggregate_retrieval_metrics([record["metrics"]["retrieval"] for record in records])
+
+
+def _supported_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        record
+        for record in records
+        if not bool(record.get("gold", {}).get("expected_abstention", False))
+    ]
+
+
+def _no_answer_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        record
+        for record in records
+        if bool(record.get("gold", {}).get("expected_abstention", False))
+    ]
+
+
+def _normalize_for_match(text: str) -> str:
+    return " ".join(text.lower().split())
+
+
+def _key_entity_overlap(
+    hits: list[dict[str, Any]],
+    key_entities: tuple[str, ...],
+    *,
+    top_k: int = 5,
+) -> tuple[bool, list[str]]:
+    haystack = _normalize_for_match(" ".join(str(hit.get("text", "")) for hit in hits[:top_k]))
+    matched = [
+        entity
+        for entity in key_entities
+        if entity and _normalize_for_match(entity) in haystack
+    ]
+    return bool(matched), matched
+
+
+def _no_answer_diagnostics(records: list[dict[str, Any]]) -> dict[str, Any]:
+    no_answer = _no_answer_records(records)
+    denominator = len(no_answer) or 1
+    return {
+        "records_total": len(no_answer),
+        "retrieved_context_rate_at_5": round(
+            sum(int(bool(record.get("hits"))) for record in no_answer) / denominator,
+            4,
+        ),
+        "key_entity_overlap_rate_at_5": round(
+            sum(int(record.get("no_answer_diagnostics", {}).get("key_entity_overlap", False))
+                for record in no_answer)
+            / denominator,
+            4,
+        ),
+        "interpretation": (
+            "Insufficient-evidence labels have no gold retrieval target; overlap means retrieved "
+            "context may look misleading and is not counted as recall."
+        ),
+    }
+
+
+def _category_breakdown(records: list[dict[str, Any]]) -> dict[str, Any]:
+    categories = (
+        "supported_factual",
+        "concept_definition",
+        "relation_causal",
+        "cross_page",
+        "paraphrase",
+        "terminology_variation",
+        "insufficient_evidence",
+    )
+    grouped: dict[str, list[dict[str, Any]]] = {category: [] for category in categories}
+    for record in records:
+        question_type = str(record.get("gold", {}).get("question_type") or "<missing>")
+        grouped.setdefault(question_type, []).append(record)
+    return {
+        category: {
+            "labels": len(items),
+            "retrieval": _aggregate_retrieval_records(items),
+        }
+        for category, items in grouped.items()
+        if items or category in categories
+    }
+
+
+def _strategy_metadata(chunks: list[SourceChunk]) -> dict[str, Any]:
+    metadata_values: dict[str, set[str]] = {}
+    for chunk in chunks:
+        for key, value in chunk.metadata.items():
+            if value in ("", None):
+                continue
+            metadata_values.setdefault(key, set()).add(str(value))
+    return {key: sorted(values) for key, values in sorted(metadata_values.items())}
+
+
+def _strategy_cost_notes(strategy: str, chunks: list[SourceChunk]) -> str:
+    stats = chunk_stats(chunks)
+    if strategy == "hierarchical_parent_child":
+        return (
+            "Child chunks are indexed with parent metadata; full parent-return retrieval is "
+            "not claimed in this report."
+        )
+    if strategy == "proposition_like":
+        return "Heuristic proposition-like segmentation may increase chunk count and review cost."
+    if strategy == "contextual_prefix":
+        return "Deterministic prefixes add metadata tokens to every indexed chunk."
+    if strategy.endswith("_small") or stats["avg_chars"] < 600:
+        return "Small chunks may improve localization while increasing index size and KG extraction units."
+    if strategy.endswith("_large") or stats["p95_chars"] > 1500:
+        return "Large chunks may preserve broad context while diluting top-k precision."
+    return "Cost impact is interpreted from chunk count, chunk size, index size, and latency."
+
+
+def _hit_summary_v2(hits: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "chunk_id": str(hit.get("chunk_id", "")),
+            "page": hit.get("page"),
+            "rank": hit.get("rank"),
+            "score": hit.get("score"),
+            "source": hit.get("source"),
+            "text_excerpt": str(hit.get("text", ""))[:240],
+            "metadata": hit.get("metadata", {}),
+        }
+        for hit in hits
+    ]
+
+
+def _chunk_path_for_v2(chunks_dir: str | Path, pdf_path: str | Path, strategy: str) -> Path:
+    return Path(chunks_dir) / f"{Path(pdf_path).stem}.{strategy}.benchmark_v2.jsonl"
+
+
+def _aggregate_strategy_v2(
+    records: list[dict[str, Any]],
+    chunks: list[SourceChunk],
+    *,
+    index_build_seconds: float,
+    query_latencies: list[float],
+    index_size_bytes: int | None,
+) -> dict[str, Any]:
+    supported = _supported_records(records)
+    supported_metrics = [record["metrics"]["retrieval"] for record in supported]
+    return {
+        "label_counts": {
+            "labels_total": len(records),
+            "supported_total": len(supported),
+            "no_answer_total": len(records) - len(supported),
+        },
+        "chunking": chunk_stats(chunks),
+        "retrieval_supported_only": _aggregate_retrieval_records(supported),
+        "retrieval_all_labels_diagnostic": _aggregate_retrieval_records(records),
+        "retrieval_confidence_intervals_supported_only": _retrieval_confidence_intervals(
+            supported_metrics
+        ),
+        "no_answer_diagnostics": _no_answer_diagnostics(records),
+        "category_breakdown": _category_breakdown(records),
+        "cost_latency": {
+            "index_build_seconds": round(index_build_seconds, 4),
+            "query_latency_mean_seconds": _safe_mean(query_latencies),
+            "query_latency_p95_seconds": _percentile_float(query_latencies, 0.95),
+            "index_size_bytes": index_size_bytes,
+        },
+    }
+
+
+def build_chunk_size_sensitivity(strategy_results: dict[str, Any]) -> dict[str, Any]:
+    families = {
+        "fixed": ("fixed_small", "fixed_medium", "fixed_large"),
+        "recursive": ("recursive_small", "recursive_medium", "recursive_large"),
+    }
+    sensitivity: dict[str, Any] = {}
+    for family, strategies in families.items():
+        rows = []
+        for strategy in strategies:
+            result = strategy_results.get(strategy)
+            if not result:
+                continue
+            aggregate = result["aggregate"]
+            rows.append(
+                {
+                    "strategy": strategy,
+                    "chunks_total": aggregate["chunking"]["chunks_total"],
+                    "avg_chars": aggregate["chunking"]["avg_chars"],
+                    "p95_chars": aggregate["chunking"]["p95_chars"],
+                    "recall_at_5_supported": aggregate["retrieval_supported_only"]["recall_at_5"],
+                    "mrr_at_5_supported": aggregate["retrieval_supported_only"]["mrr_at_5"],
+                    "context_recall_supported": aggregate["retrieval_supported_only"][
+                        "context_recall"
+                    ],
+                }
+            )
+        sensitivity[family] = {
+            "rows": rows,
+            "interpretation": (
+                "Small chunks can improve entity/fact localization; large chunks can preserve "
+                "broader context but may reduce precision. Definition, causal, and cross-page "
+                "questions may prefer different chunk sizes."
+            ),
+        }
+    return sensitivity
+
+
+def build_chunking_comparison_v2(
+    pdf_path: str | Path,
+    gold_labels_path: str | Path,
+    chunks_dir: str | Path,
+    index_dir: str | Path,
+    *,
+    output_dir: str | Path | None = None,
+    collection_prefix: str = "phak_ch4_chunking_v2",
+    strategies: tuple[str, ...] = BENCHMARK_V2_CHUNKING_STRATEGIES,
+    max_labels: int | None = None,
+    rebuild_chunks: bool = True,
+    rebuild_indexes: bool = True,
+    embedding_model: str = DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    semantic_download: bool = True,
+    vector_top_k: int = 10,
+    command: str = "aviation-ai report chunking-comparison-v2",
+    index_builder: IndexBuilder = build_chroma_index,
+    retriever: Retriever = query_chroma_index,
+) -> dict[str, Any]:
+    started = perf_counter()
+    labels = list(load_gold_labels(gold_labels_path).values())
+    if max_labels is not None:
+        labels = labels[:max_labels]
+    label_breakdown = _label_breakdown(labels)
+    chunks_root = Path(chunks_dir)
+    index_root = Path(index_dir)
+    strategy_results: dict[str, Any] = {}
+    strategy_collections: list[str] = []
+
+    for strategy in strategies:
+        chunks_path = _chunk_path_for_v2(chunks_root, pdf_path, strategy)
+        if rebuild_chunks or not chunks_path.exists():
+            _, chunks = build_chunk_file(
+                pdf_path,
+                chunks_path,
+                strategy=strategy,
+                embedding_model=embedding_model,
+                semantic_download=semantic_download,
+            )
+        else:
+            chunks = read_chunks_jsonl(chunks_path)
+
+        strategy_index_dir = index_root / strategy
+        collection_name = collection_name_for_strategy(collection_prefix, strategy)
+        strategy_collections.append(collection_name)
+        index_build_started = perf_counter()
+        if rebuild_indexes:
+            index_builder(
+                chunks_path,
+                strategy_index_dir,
+                collection_name=collection_name,
+                reset=True,
+            )
+        index_build_seconds = perf_counter() - index_build_started
+
+        records: list[dict[str, Any]] = []
+        query_latencies: list[float] = []
+        for label in labels:
+            query_started = perf_counter()
+            hits = retriever(
+                label.question,
+                strategy_index_dir,
+                collection_name,
+                vector_top_k,
+            )
+            query_latencies.append(perf_counter() - query_started)
+            metrics = retrieval_metrics(hits, label, top_k=vector_top_k)
+            key_overlap, overlap_entities = _key_entity_overlap(hits, label.key_entities, top_k=5)
+            records.append(
+                {
+                    "cq_id": label.cq_id,
+                    "question": label.question,
+                    "gold": label.to_dict(),
+                    "metrics": {"retrieval": metrics},
+                    "hits": _hit_summary_v2(hits[:vector_top_k]),
+                    "no_answer_diagnostics": {
+                        "retrieved_context_at_5": bool(hits[:5]),
+                        "key_entity_overlap": key_overlap,
+                        "overlap_entities": overlap_entities,
+                    }
+                    if label.expected_abstention
+                    else {},
+                }
+            )
+
+        aggregate = _aggregate_strategy_v2(
+            records,
+            chunks,
+            index_build_seconds=index_build_seconds,
+            query_latencies=query_latencies,
+            index_size_bytes=artifact_size_bytes(strategy_index_dir),
+        )
+        strategy_results[strategy] = {
+            "chunks_path": project_relative_path(chunks_path),
+            "index_dir": project_relative_path(strategy_index_dir),
+            "collection_name": collection_name,
+            "implementation_metadata": _strategy_metadata(chunks),
+            "cost_notes": _strategy_cost_notes(strategy, chunks),
+            "aggregate": aggregate,
+            "records": records,
+        }
+
+    ranking = sorted(
+        (
+            {
+                "strategy": strategy,
+                "recall_at_5_supported": result["aggregate"]["retrieval_supported_only"][
+                    "recall_at_5"
+                ],
+                "mrr_at_5_supported": result["aggregate"]["retrieval_supported_only"][
+                    "mrr_at_5"
+                ],
+                "context_precision_at_5_supported": result["aggregate"][
+                    "retrieval_supported_only"
+                ]["context_precision_at_5"],
+                "context_recall_supported": result["aggregate"]["retrieval_supported_only"][
+                    "context_recall"
+                ],
+            }
+            for strategy, result in strategy_results.items()
+        ),
+        key=lambda item: (
+            -item["recall_at_5_supported"],
+            -item["mrr_at_5_supported"],
+            -item["context_recall_supported"],
+            item["strategy"],
+        ),
+    )
+    run_manifest = build_run_manifest(
+        "chunking_comparison_benchmark_v2",
+        parameters={
+            "strategies": list(strategies),
+            "max_labels": max_labels,
+            "vector_top_k": vector_top_k,
+            "gold_labels_path": project_relative_path(gold_labels_path),
+            "embedding_model": embedding_model,
+            "semantic_download": semantic_download,
+        },
+        artifacts={
+            "pdf_path": pdf_path,
+            "chunks_dir": chunks_root,
+            "index_dir": index_root,
+            "output_dir": output_dir,
+        },
+        rebuild_policy={"chunks": rebuild_chunks, "indexes": rebuild_indexes, "kg": False},
+        collection_name=collection_prefix,
+        chunking_strategy="benchmark_v2_multiple",
+        command=command,
+        document=document_metadata_from_pdf(pdf_path).to_dict(),
+        llm={"provider": "none", "model": "not_used"},
+        embedding=embedding_metadata(index_root, collection_prefix, collections=strategy_collections),
+    )
+    return {
+        "metadata": {
+            "run_manifest": run_manifest,
+            "pdf_path": project_relative_path(pdf_path),
+            "gold_labels_path": project_relative_path(gold_labels_path),
+            "chunks_dir": project_relative_path(chunks_root),
+            "index_dir": project_relative_path(index_root),
+            "collection_prefix": collection_prefix,
+            "strategy_collections": strategy_collections,
+            "strategies": list(strategies),
+            "label_breakdown": label_breakdown,
+            "scoring_policy": "layered_metrics_no_mixed_overall_score",
+            "primary_retrieval_metrics": "supported_only",
+            "all_label_metrics_policy": "diagnostic_only_no_answer_labels_have_no_gold_evidence",
+            "claim_limitations": [
+                "Do not claim one chunker is universally best.",
+                "Insufficient-evidence labels are analyzed separately from supported retrieval.",
+                "Proposition-like and hierarchical methods are deterministic scaffolds, not LLM extraction.",
+            ],
+            "elapsed_seconds": round(perf_counter() - started, 4),
+        },
+        "ranking": ranking,
+        "chunk_size_sensitivity": build_chunk_size_sensitivity(strategy_results),
+        "strategies": strategy_results,
+    }
+
+
+def _sample_failure_record(
+    records: list[dict[str, Any]],
+    predicate: Callable[[dict[str, Any]], bool],
+) -> list[dict[str, Any]]:
+    for record in records:
+        if predicate(record):
+            return [
+                {
+                    "cq_id": record["cq_id"],
+                    "question_type": record.get("gold", {}).get("question_type", ""),
+                    "question": record["question"],
+                    "expected_abstention": record.get("gold", {}).get("expected_abstention", False),
+                    "metrics": record["metrics"]["retrieval"],
+                    "top_hits": record["hits"][:3],
+                    "no_answer_diagnostics": record.get("no_answer_diagnostics", {}),
+                }
+            ]
+    return []
+
+
+def _failure_samples_for_strategy(strategy: str, strategy_result: dict[str, Any]) -> dict[str, Any]:
+    records = strategy_result["records"]
+    chunking = strategy_result["aggregate"]["chunking"]
+
+    def supported(record: dict[str, Any]) -> bool:
+        return not bool(record.get("gold", {}).get("expected_abstention", False))
+
+    def missed_at_5(record: dict[str, Any]) -> bool:
+        return supported(record) and not bool(record["metrics"]["retrieval"].get("recall_at_5"))
+
+    def low_context(record: dict[str, Any]) -> bool:
+        return supported(record) and float(record["metrics"]["retrieval"].get("context_recall", 0.0)) < 1.0
+
+    cards = {
+        "missed_gold_evidence_at_5": _sample_failure_record(records, missed_at_5),
+        "chunk_too_small_lost_context": _sample_failure_record(
+            records,
+            lambda record: chunking["avg_chars"] < 650 and low_context(record),
+        ),
+        "chunk_too_large_low_precision": _sample_failure_record(
+            records,
+            lambda record: chunking["p95_chars"] > 1200
+            and supported(record)
+            and float(record["metrics"]["retrieval"].get("precision_at_5", 0.0)) <= 0.2,
+        ),
+        "section_boundary_split": _sample_failure_record(
+            records,
+            lambda record: missed_at_5(record)
+            and strategy
+            in {
+                "fixed_small",
+                "fixed_medium",
+                "fixed_large",
+                "recursive_small",
+                "recursive_medium",
+                "recursive_large",
+            },
+        ),
+        "semantic_boundary_error": _sample_failure_record(
+            records,
+            lambda record: strategy in {"semantic_meta_like", "embedding_semantic"}
+            and missed_at_5(record),
+        ),
+        "cross_page_evidence_split": _sample_failure_record(
+            records,
+            lambda record: record.get("gold", {}).get("question_type") == "cross_page"
+            and low_context(record),
+        ),
+        "no_answer_retrieved_misleading_context": _sample_failure_record(
+            records,
+            lambda record: bool(record.get("gold", {}).get("expected_abstention", False))
+            and bool(record.get("no_answer_diagnostics", {}).get("key_entity_overlap", False)),
+        ),
+    }
+    return {
+        failure_type: {
+            "samples_total": len(samples),
+            "samples": samples,
+        }
+        for failure_type, samples in cards.items()
+    }
+
+
+def build_chunking_failure_cards_v2(result: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "metadata": {
+            "source_report": "reports/stages/chunking_comparison_benchmark_v2.json",
+            "failure_types": list(FAILURE_TYPES),
+            "selection_policy": "first deterministic matching sample per strategy and failure type",
+            "claim_policy": "qualitative diagnostics only; not a manual error taxonomy",
+        },
+        "strategies": {
+            strategy: _failure_samples_for_strategy(strategy, strategy_result)
+            for strategy, strategy_result in result["strategies"].items()
+        },
+    }
+
+
+def write_chunking_comparison_v2_json(result: dict[str, Any], output_path: str | Path) -> Path:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
+
+
+def write_chunking_failure_cards_v2_json(result: dict[str, Any], output_path: str | Path) -> Path:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
+
+
+def write_chunking_comparison_v2_markdown(
+    result: dict[str, Any],
+    output_path: str | Path,
+) -> Path:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    metadata = result["metadata"]
+    lines = [
+        "# Chunking Comparison Benchmark V2",
+        "",
+        f"- Run ID: `{metadata['run_manifest']['run_id']}`",
+        f"- Labels: {metadata['label_breakdown']['labels_total']}",
+        f"- Supported labels: {metadata['label_breakdown']['supported_total']}",
+        f"- Insufficient-evidence labels: {metadata['label_breakdown']['no_answer_total']}",
+        "- Scoring: layered metrics only; no single mixed overall score.",
+        "- Claim boundary: rankings are benchmark-specific and do not identify a universal best chunker.",
+        "- Supported-only retrieval metrics are primary; all-label metrics are diagnostic.",
+        "",
+        "## Supported-Only Ranking",
+        "",
+        "| Rank | Strategy | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall |",
+        "| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for rank, item in enumerate(result["ranking"], start=1):
+        retrieval = result["strategies"][item["strategy"]]["aggregate"]["retrieval_supported_only"]
+        lines.append(
+            f"| {rank} | {item['strategy']} | {retrieval['recall_at_5']} | "
+            f"{retrieval['recall_at_10']} | {retrieval['precision_at_5']} | "
+            f"{retrieval['mrr_at_5']} | {retrieval['mrr_at_10']} | "
+            f"{retrieval['ndcg_at_10']} | {retrieval['context_precision_at_5']} | "
+            f"{retrieval['context_recall']} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Strategy Cost And Chunking Diagnostics",
+            "",
+            "| Strategy | Chunks | Avg chars | P95 chars | Avg tokens | Boundary preservation | Overlap redundancy | Index build s | Mean query s | P95 query s | Index bytes | Cost notes |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for strategy, strategy_result in result["strategies"].items():
+        aggregate = strategy_result["aggregate"]
+        chunking = aggregate["chunking"]
+        latency = aggregate["cost_latency"]
+        lines.append(
+            f"| {strategy} | {chunking['chunks_total']} | {chunking['avg_chars']} | "
+            f"{chunking['p95_chars']} | {chunking['avg_tokens']} | "
+            f"{chunking['boundary_preservation_rate']} | {chunking['overlap_redundancy']} | "
+            f"{latency['index_build_seconds']} | {latency['query_latency_mean_seconds']} | "
+            f"{latency['query_latency_p95_seconds']} | {latency['index_size_bytes']} | "
+            f"{strategy_result['cost_notes']} |"
+        )
+
+    lines.extend(["", "## Confidence Intervals", ""])
+    lines.append("| Strategy | Metric | Mean | 95% CI | n |")
+    lines.append("| --- | --- | ---: | --- | ---: |")
+    for strategy, strategy_result in result["strategies"].items():
+        ci = strategy_result["aggregate"]["retrieval_confidence_intervals_supported_only"]
+        for metric in ("recall_at_5", "recall_at_10", "mrr_at_5", "ndcg_at_10", "context_recall"):
+            values = ci[metric]
+            lines.append(
+                f"| {strategy} | {metric} | {values['mean']} | "
+                f"{values['lower']} - {values['upper']} | {values['n']} |"
+            )
+
+    lines.extend(["", "## Supported Vs No-Answer Diagnostics", ""])
+    lines.append("| Strategy | Supported Recall@5 | All-label Recall@5 diagnostic | No-answer context rate@5 | No-answer key-entity overlap@5 |")
+    lines.append("| --- | ---: | ---: | ---: | ---: |")
+    for strategy, strategy_result in result["strategies"].items():
+        aggregate = strategy_result["aggregate"]
+        lines.append(
+            f"| {strategy} | {aggregate['retrieval_supported_only']['recall_at_5']} | "
+            f"{aggregate['retrieval_all_labels_diagnostic']['recall_at_5']} | "
+            f"{aggregate['no_answer_diagnostics']['retrieved_context_rate_at_5']} | "
+            f"{aggregate['no_answer_diagnostics']['key_entity_overlap_rate_at_5']} |"
+        )
+
+    lines.extend(["", "## Chunk Size Sensitivity", ""])
+    for family, family_result in result["chunk_size_sensitivity"].items():
+        lines.extend([f"### {family}", "", family_result["interpretation"], ""])
+        lines.append("| Strategy | Chunks | Avg chars | P95 chars | Recall@5 | MRR@5 | Context Recall |")
+        lines.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
+        for row in family_result["rows"]:
+            lines.append(
+                f"| {row['strategy']} | {row['chunks_total']} | {row['avg_chars']} | "
+                f"{row['p95_chars']} | {row['recall_at_5_supported']} | "
+                f"{row['mrr_at_5_supported']} | {row['context_recall_supported']} |"
+            )
+        lines.append("")
+
+    lines.extend(["", "## Category-Level Analysis", ""])
+    lines.append("| Strategy | Question type | Labels | Recall@5 | Recall@10 | MRR@5 | Context Recall |")
+    lines.append("| --- | --- | ---: | ---: | ---: | ---: | ---: |")
+    for strategy, strategy_result in result["strategies"].items():
+        for category, category_result in strategy_result["aggregate"]["category_breakdown"].items():
+            retrieval = category_result["retrieval"]
+            lines.append(
+                f"| {strategy} | {category} | {category_result['labels']} | "
+                f"{retrieval['recall_at_5']} | {retrieval['recall_at_10']} | "
+                f"{retrieval['mrr_at_5']} | {retrieval['context_recall']} |"
+            )
+    lines.extend(["", "## Implementation Metadata", ""])
+    for strategy, strategy_result in result["strategies"].items():
+        metadata_values = strategy_result.get("implementation_metadata", {})
+        lines.append(f"- `{strategy}`: `{json.dumps(metadata_values, sort_keys=True)}`")
+    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    return path
+
+
+def write_chunking_failure_cards_v2_markdown(
+    result: dict[str, Any],
+    output_path: str | Path,
+) -> Path:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [
+        "# Chunking Failure Cards Benchmark V2",
+        "",
+        "- These cards are deterministic qualitative diagnostics, not manual review results.",
+        "- Each card stores the first matching sample per strategy and failure type when one exists.",
+        "",
+        "| Strategy | Failure type | Samples | Example CQ | Notes |",
+        "| --- | --- | ---: | --- | --- |",
+    ]
+    for strategy, failures in result["strategies"].items():
+        for failure_type, failure in failures.items():
+            samples = failure["samples"]
+            example = samples[0]["cq_id"] if samples else ""
+            notes = "sample found" if samples else "no matching sample in this run"
+            lines.append(
+                f"| {strategy} | {failure_type} | {failure['samples_total']} | {example} | {notes} |"
+            )
+    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    return path
+
+
+def write_chunking_comparison_v2(
+    pdf_path: str | Path,
+    gold_labels_path: str | Path,
+    chunks_dir: str | Path,
+    index_dir: str | Path,
+    output_dir: str | Path,
+    *,
+    collection_prefix: str = "phak_ch4_chunking_v2",
+    strategies: tuple[str, ...] = BENCHMARK_V2_CHUNKING_STRATEGIES,
+    max_labels: int | None = None,
+    rebuild_chunks: bool = True,
+    rebuild_indexes: bool = True,
+    embedding_model: str = DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    semantic_download: bool = True,
+    command: str = "aviation-ai report chunking-comparison-v2",
+    index_builder: IndexBuilder = build_chroma_index,
+    retriever: Retriever = query_chroma_index,
+) -> tuple[Path, Path, Path, Path, dict[str, Any], dict[str, Any]]:
+    output = Path(output_dir)
+    result = build_chunking_comparison_v2(
+        pdf_path,
+        gold_labels_path,
+        chunks_dir,
+        index_dir,
+        output_dir=output,
+        collection_prefix=collection_prefix,
+        strategies=strategies,
+        max_labels=max_labels,
+        rebuild_chunks=rebuild_chunks,
+        rebuild_indexes=rebuild_indexes,
+        embedding_model=embedding_model,
+        semantic_download=semantic_download,
+        command=command,
+        index_builder=index_builder,
+        retriever=retriever,
+    )
+    failure_cards = build_chunking_failure_cards_v2(result)
+    json_path = write_chunking_comparison_v2_json(
+        result,
+        output / "chunking_comparison_benchmark_v2.json",
+    )
+    md_path = write_chunking_comparison_v2_markdown(
+        result,
+        output / "chunking_comparison_benchmark_v2.md",
+    )
+    failure_json_path = write_chunking_failure_cards_v2_json(
+        failure_cards,
+        output / "chunking_failure_cards_benchmark_v2.json",
+    )
+    failure_md_path = write_chunking_failure_cards_v2_markdown(
+        failure_cards,
+        output / "chunking_failure_cards_benchmark_v2.md",
+    )
+    return json_path, md_path, failure_json_path, failure_md_path, result, failure_cards

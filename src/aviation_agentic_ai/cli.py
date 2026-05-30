@@ -7,6 +7,7 @@ import click
 
 from aviation_agentic_ai.chunking.chunks import (
     CHUNKING_STRATEGIES,
+    DEFAULT_SEMANTIC_EMBEDDING_MODEL,
     build_chunk_file,
     chunk_output_path_for_strategy,
 )
@@ -40,7 +41,10 @@ from aviation_agentic_ai.reporting.benchmark_review_pack import (
     write_benchmark_reviewed_subset,
 )
 from aviation_agentic_ai.reporting.benchmark_v2 import write_benchmark_v2_summary
-from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
+from aviation_agentic_ai.reporting.chunking_comparison import (
+    write_chunking_comparison,
+    write_chunking_comparison_v2,
+)
 from aviation_agentic_ai.reporting.evidence_cards import write_evidence_cards
 from aviation_agentic_ai.reporting.evidence_eval import write_evidence_level_evaluation
 from aviation_agentic_ai.reporting.evaluation_protocol import write_evaluation_protocol_review
@@ -1817,3 +1821,57 @@ def report_chunking_comparison(
     click.echo(f"Wrote {project_relative_path(json_path)}")
     click.echo(f"Wrote {project_relative_path(md_path)}")
     click.echo(f"Compared {len(result['strategies'])} chunking strategies; best: {best}.")
+
+
+@report.command("chunking-comparison-v2")
+@click.option("--pdf", "pdf_path", type=click.Path(path_type=Path), default=None)
+@click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
+@click.option("--chunks-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--index-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--collection-prefix", default="phak_ch4_chunking_v2", show_default=True)
+@click.option("--max-labels", type=int, default=None)
+@click.option("--rebuild-chunks/--reuse-chunks", default=True, show_default=True)
+@click.option("--rebuild-indexes/--reuse-indexes", default=True, show_default=True)
+@click.option("--embedding-model", default=DEFAULT_SEMANTIC_EMBEDDING_MODEL, show_default=True)
+@click.option("--semantic-download/--no-semantic-download", default=True, show_default=True)
+def report_chunking_comparison_v2(
+    pdf_path: Path | None,
+    gold_labels: Path | None,
+    chunks_dir: Path | None,
+    index_dir: Path | None,
+    output_dir: Path | None,
+    collection_prefix: str,
+    max_labels: int | None,
+    rebuild_chunks: bool,
+    rebuild_indexes: bool,
+    embedding_model: str,
+    semantic_download: bool,
+) -> None:
+    """Compare mainstream chunking strategies on benchmark v2."""
+    config = load_default_config()
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    json_path, md_path, failure_json, failure_md, result, _failures = write_chunking_comparison_v2(
+        pdf_path or resolve_project_path(config["paths"]["raw_pdf"]),
+        gold_labels or resolve_project_path("data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"),
+        chunks_dir or resolve_project_path("data/chunks"),
+        index_dir or resolve_project_path("data/indexes") / "chunking_benchmark_v2",
+        report_dir,
+        collection_prefix=collection_prefix,
+        max_labels=max_labels,
+        rebuild_chunks=rebuild_chunks,
+        rebuild_indexes=rebuild_indexes,
+        embedding_model=embedding_model,
+        semantic_download=semantic_download,
+        command=" ".join(["aviation-ai", *sys.argv[1:]]),
+    )
+    best = result["ranking"][0]["strategy"] if result["ranking"] else "none"
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Wrote {project_relative_path(failure_json)}")
+    click.echo(f"Wrote {project_relative_path(failure_md)}")
+    click.echo(
+        "Compared "
+        f"{len(result['strategies'])} benchmark-v2 chunking strategies; "
+        f"top supported-only Recall@5 strategy: {best}."
+    )

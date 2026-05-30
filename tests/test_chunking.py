@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from aviation_agentic_ai.chunking.chunks import (
+    BENCHMARK_V2_CHUNKING_STRATEGIES,
     CHUNKING_STRATEGIES,
     SourceChunk,
     build_chunks,
@@ -73,11 +74,38 @@ def test_all_chunking_strategies_generate_non_empty_stable_chunks(monkeypatch) -
             strategy=strategy,
             max_chars=70,
             overlap_chars=10,
+            similarity_fn=lambda _left, _right: 0.5,
         )
         assert chunks
         assert all(chunk.text for chunk in chunks)
         assert chunks[0].chunk_id.startswith(f"source-{strategy}-p00-c")
         assert all(chunk.strategy == strategy for chunk in chunks)
+
+
+def test_benchmark_v2_chunking_strategies_are_registered() -> None:
+    assert set(BENCHMARK_V2_CHUNKING_STRATEGIES).issubset(set(CHUNKING_STRATEGIES))
+    assert "late_chunking_stub" not in CHUNKING_STRATEGIES
+
+
+def test_fixed_and_recursive_size_tiers_apply_relative_sizes(monkeypatch) -> None:
+    from aviation_agentic_ai.chunking import chunks as chunk_module
+
+    text = " ".join([f"Sentence {index} affects lift." for index in range(80)])
+    monkeypatch.setattr(
+        chunk_module,
+        "extract_pages",
+        lambda *_args, **_kwargs: [PdfPage(page_number=0, text=text)],
+    )
+
+    fixed_small = build_chunks("data/raw/source.pdf", strategy="fixed_small")
+    fixed_large = build_chunks("data/raw/source.pdf", strategy="fixed_large")
+    recursive_small = build_chunks("data/raw/source.pdf", strategy="recursive_small")
+    recursive_large = build_chunks("data/raw/source.pdf", strategy="recursive_large")
+
+    assert len(fixed_small) > len(fixed_large)
+    assert len(recursive_small) > len(recursive_large)
+    assert fixed_small[0].metadata["configured_max_chars"] == 400
+    assert fixed_large[0].metadata["configured_max_chars"] == 1600
 
 
 def test_sentence_recursive_preserves_sentence_endings(monkeypatch) -> None:
@@ -152,3 +180,127 @@ def test_semantic_meta_like_splits_on_mock_similarity_drop(monkeypatch) -> None:
 
     assert len(chunks) == 2
     assert "Weather" in chunks[1].text
+
+
+def test_embedding_semantic_falls_back_to_lexical_when_backend_fails(monkeypatch) -> None:
+    from aviation_agentic_ai.chunking import chunks as chunk_module
+
+    monkeypatch.setattr(
+        chunk_module,
+        "extract_pages",
+        lambda *_args, **_kwargs: [
+            PdfPage(
+                page_number=0,
+                text="Air affects lift. Lift affects climb. Weather changes visibility.",
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        chunk_module,
+        "_embedding_similarity_fn",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("backend missing")),
+    )
+
+    chunks = build_chunks("data/raw/source.pdf", strategy="embedding_semantic")
+
+    assert chunks
+    assert chunks[0].metadata["semantic_backend"] == "fallback_lexical"
+    assert "backend missing" in chunks[0].metadata["semantic_backend_error"]
+
+
+def test_embedding_semantic_uses_mock_embedding_backend(monkeypatch) -> None:
+    from aviation_agentic_ai.chunking import chunks as chunk_module
+
+    monkeypatch.setattr(
+        chunk_module,
+        "extract_pages",
+        lambda *_args, **_kwargs: [
+            PdfPage(
+                page_number=0,
+                text=(
+                    ("Air affects lift. Lift affects climb. " * 20)
+                    + "Weather changes visibility."
+                ),
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        chunk_module,
+        "_embedding_similarity_fn",
+        lambda *_args, **_kwargs: (lambda left, right: 0.0 if "Weather" in right else 0.9),
+    )
+
+    chunks = build_chunks("data/raw/source.pdf", strategy="embedding_semantic")
+
+    assert len(chunks) == 2
+    assert chunks[0].metadata["semantic_backend"] == "sentence_transformers"
+
+
+def test_proposition_like_marks_heuristic_proposition_chunks(monkeypatch) -> None:
+    from aviation_agentic_ai.chunking import chunks as chunk_module
+
+    monkeypatch.setattr(
+        chunk_module,
+        "extract_pages",
+        lambda *_args, **_kwargs: [
+            PdfPage(
+                page_number=0,
+                text=(
+                    "Lift is the upward force. Angle of attack affects lift. "
+                    "This handbook includes examples for pilots."
+                ),
+            )
+        ],
+    )
+
+    chunks = build_chunks("data/raw/source.pdf", strategy="proposition_like")
+
+    assert chunks
+    assert chunks[0].metadata["proposition_extraction"] == "heuristic_sentence_cue"
+    assert chunks[0].metadata["llm_proposition_extraction"] is False
+    assert any("affects lift" in chunk.text for chunk in chunks)
+
+
+def test_hierarchical_parent_child_emits_parent_metadata(monkeypatch) -> None:
+    from aviation_agentic_ai.chunking import chunks as chunk_module
+
+    monkeypatch.setattr(
+        chunk_module,
+        "extract_pages",
+        lambda *_args, **_kwargs: [
+            PdfPage(
+                page_number=0,
+                text=(
+                    "Lift Section\n"
+                    "Air flows over a wing. Lift changes with angle of attack. "
+                    "Pressure affects performance."
+                ),
+            )
+        ],
+    )
+
+    chunks = build_chunks("data/raw/source.pdf", strategy="hierarchical_parent_child")
+
+    assert chunks
+    assert chunks[0].parent_chunk_id.startswith("source-hierarchical_parent_child-p00-parent")
+    assert chunks[0].parent_text
+    assert chunks[0].metadata["retrieval_integration"] == "partial_child_index_parent_metadata"
+
+
+def test_contextual_prefix_adds_deterministic_source_prefix(monkeypatch) -> None:
+    from aviation_agentic_ai.chunking import chunks as chunk_module
+
+    monkeypatch.setattr(
+        chunk_module,
+        "extract_pages",
+        lambda *_args, **_kwargs: [
+            PdfPage(page_number=3, text="Lift Section\nAir flows over a wing.")
+        ],
+    )
+
+    chunks = build_chunks("data/raw/source.pdf", strategy="contextual_prefix")
+
+    assert chunks
+    assert chunks[0].text.startswith("Source: PHAK Chapter 4")
+    assert "page=3" in chunks[0].context_prefix
+    assert chunks[0].metadata["llm_contextualization"] is False

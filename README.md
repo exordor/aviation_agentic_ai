@@ -194,7 +194,8 @@ The retrieval layer will combine:
 ## Chunking Comparison
 
 The chunking comparison experiment evaluates how document splitting affects
-vector retrieval quality for the same PHAK Chapter 4 boundary CQs. It compares:
+vector retrieval quality. The original report is a 10-CQ pilot over PHAK
+Chapter 4 boundary CQs. It compares:
 
 - `fixed_window`: character window baseline with overlap
 - `sentence_recursive`: paragraph/sentence-aware merging
@@ -213,6 +214,21 @@ run manifest, rebuild policy, collection names, chunking strategy metadata,
 page/chunk/span gold-label level, Recall@5, MRR@5, Context Precision@5,
 chunk-size statistics, boundary preservation rates, and per-strategy
 explanations.
+
+The thesis-scale chunking comparison is intentionally separate so it does not
+overwrite the pilot report or slow the default thesis workflow:
+
+```bash
+uv run aviation-ai report chunking-comparison-v2
+```
+
+This command evaluates mainstream chunking families on benchmark v2 and writes
+`reports/stages/chunking_comparison_benchmark_v2.json`, `.md`,
+`reports/stages/chunking_failure_cards_benchmark_v2.json`, and `.md`. It reports
+supported-only retrieval metrics, insufficient-evidence diagnostics, chunk-size
+sensitivity, category-level results, confidence intervals, and qualitative
+failure cards. It is not included in `thesis-all` by default. The protocol is
+documented in `docs/chunking_experiment_protocol.md`.
 
 ## Hybrid RAG Experiment
 

@@ -10,8 +10,8 @@ from aviation_agentic_ai.paths import project_relative_path
 DEFAULT_COLLECTION_NAME = "phak_ch4_chunks"
 
 
-def _metadata_for_chunk(chunk: SourceChunk) -> dict[str, str | int]:
-    return {
+def _metadata_for_chunk(chunk: SourceChunk) -> dict[str, str | int | float | bool]:
+    metadata: dict[str, str | int | float | bool] = {
         "chunk_id": chunk.chunk_id,
         "source_document": chunk.source_document,
         "source_path": chunk.source_path,
@@ -20,6 +20,16 @@ def _metadata_for_chunk(chunk: SourceChunk) -> dict[str, str | int]:
         "strategy": chunk.strategy,
         "section": chunk.section,
     }
+    if chunk.parent_chunk_id:
+        metadata["parent_chunk_id"] = chunk.parent_chunk_id
+        metadata["parent_section"] = chunk.parent_section
+        metadata["parent_page"] = int(chunk.parent_page) if chunk.parent_page is not None else -1
+    if chunk.context_prefix:
+        metadata["context_prefix"] = chunk.context_prefix
+    for key, value in chunk.metadata.items():
+        if isinstance(value, str | int | float | bool):
+            metadata[f"chunk_{key}"] = value
+    return metadata
 
 
 def build_chroma_index(

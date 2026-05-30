@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
+from math import sqrt
 from pathlib import Path
 from typing import Any, Callable
 
@@ -10,15 +11,57 @@ from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.utils.pdf import extract_pages
 
 
-CHUNKING_STRATEGIES = (
+PILOT_CHUNKING_STRATEGIES = (
     "fixed_window",
     "sentence_recursive",
     "structure_aware",
     "semantic_meta_like",
 )
 
+BENCHMARK_V2_CHUNKING_STRATEGIES = (
+    "fixed_small",
+    "fixed_medium",
+    "fixed_large",
+    "recursive_small",
+    "recursive_medium",
+    "recursive_large",
+    "structure_aware",
+    "semantic_meta_like",
+    "embedding_semantic",
+    "proposition_like",
+    "hierarchical_parent_child",
+    "contextual_prefix",
+)
+
+CHUNKING_STRATEGIES = tuple(
+    dict.fromkeys((*PILOT_CHUNKING_STRATEGIES, *BENCHMARK_V2_CHUNKING_STRATEGIES))
+)
+
+CHUNK_SIZE_TIERS: dict[str, tuple[int, int]] = {
+    "fixed_small": (400, 80),
+    "fixed_medium": (900, 150),
+    "fixed_large": (1600, 250),
+    "recursive_small": (400, 80),
+    "recursive_medium": (900, 150),
+    "recursive_large": (1600, 250),
+    "embedding_semantic": (900, 150),
+    "proposition_like": (900, 80),
+    "hierarchical_parent_child": (400, 80),
+    "contextual_prefix": (900, 150),
+}
+
 SimilarityFn = Callable[[str, str], float]
 Segment = tuple[int, int, str, str]
+ChunkWindow = dict[str, Any]
+
+DEFAULT_SEMANTIC_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+PROPOSITION_CUE_RE = re.compile(
+    r"\b("
+    r"is|means|refers to|causes|affects|increases|decreases|produces|results|"
+    r"consists|composed|part|component"
+    r")\b",
+    flags=re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -33,6 +76,12 @@ class SourceChunk:
     text: str
     strategy: str = "fixed_window"
     section: str = ""
+    parent_chunk_id: str = ""
+    parent_section: str = ""
+    parent_page: int | None = None
+    parent_text: str = ""
+    context_prefix: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -94,6 +143,41 @@ def _lexical_similarity(left: str, right: str) -> float:
     if not left_tokens or not right_tokens:
         return 0.0
     return len(left_tokens & right_tokens) / len(left_tokens | right_tokens)
+
+
+def _cosine_similarity(left: list[float], right: list[float]) -> float:
+    left_norm = sqrt(sum(value * value for value in left))
+    right_norm = sqrt(sum(value * value for value in right))
+    if not left_norm or not right_norm:
+        return 0.0
+    return sum(a * b for a, b in zip(left, right)) / (left_norm * right_norm)
+
+
+def _embedding_similarity_fn(
+    model_name: str,
+    *,
+    allow_download: bool,
+) -> SimilarityFn:
+    from sentence_transformers import SentenceTransformer
+
+    try:
+        model = SentenceTransformer(model_name, local_files_only=not allow_download)
+    except TypeError:
+        if not allow_download:
+            raise
+        model = SentenceTransformer(model_name)
+    cache: dict[str, list[float]] = {}
+
+    def encode(text: str) -> list[float]:
+        if text not in cache:
+            vector = model.encode(text)
+            cache[text] = [float(value) for value in vector]
+        return cache[text]
+
+    def similarity(left: str, right: str) -> float:
+        return _cosine_similarity(encode(left), encode(right))
+
+    return similarity
 
 
 def _is_sentence_boundary(text: str) -> bool:
@@ -231,6 +315,148 @@ def _semantic_segments(
     return merged
 
 
+def _strategy_size_settings(
+    strategy: str,
+    max_chars: int,
+    overlap_chars: int,
+) -> tuple[int, int]:
+    return CHUNK_SIZE_TIERS.get(strategy, (max_chars, overlap_chars))
+
+
+def _proposition_segments(
+    text: str,
+    max_chars: int,
+    overlap_chars: int,
+    min_chars: int = 80,
+) -> list[Segment]:
+    sentences = _sentence_segments(text)
+    if not sentences:
+        return []
+
+    raw: list[Segment] = []
+    buffer: list[Segment] = []
+
+    def flush_buffer() -> None:
+        nonlocal buffer
+        if not buffer:
+            return
+        raw.extend(_merge_segments(buffer, max_chars=max_chars, overlap_chars=overlap_chars))
+        buffer = []
+
+    for sentence in sentences:
+        cue_rich = bool(PROPOSITION_CUE_RE.search(sentence[2]))
+        if cue_rich:
+            flush_buffer()
+            raw.append((sentence[0], sentence[1], sentence[2], "proposition_like"))
+            continue
+        buffer.append(sentence)
+        if sum(len(item[2]) + 1 for item in buffer) >= max_chars:
+            flush_buffer()
+    flush_buffer()
+
+    merged: list[Segment] = []
+    for segment in raw:
+        if len(segment[2]) < min_chars and merged:
+            previous = merged.pop()
+            merged.append(
+                (
+                    previous[0],
+                    segment[1],
+                    f"{previous[2]} {segment[2]}".strip(),
+                    previous[3] or segment[3],
+                )
+            )
+        else:
+            merged.append(segment)
+    return merged
+
+
+def _contextual_prefix_windows(
+    text: str,
+    max_chars: int,
+    overlap_chars: int,
+    *,
+    source_document: str,
+    page_number: int,
+) -> list[ChunkWindow]:
+    segments = _merge_segments(
+        _structure_segments(text),
+        max_chars=max_chars,
+        overlap_chars=overlap_chars,
+        force_section_boundaries=True,
+    )
+    windows: list[ChunkWindow] = []
+    for start, end, chunk_text, section in segments:
+        prefix_parts = [
+            "Source: PHAK Chapter 4",
+            f"document={source_document}",
+            f"page={page_number}",
+        ]
+        if section:
+            prefix_parts.append(f"section={section}")
+        prefix = "; ".join(prefix_parts)
+        windows.append(
+            {
+                "start": start,
+                "end": end,
+                "text": f"{prefix}\n{chunk_text}",
+                "section": section,
+                "context_prefix": prefix,
+                "metadata": {
+                    "contextualization": "deterministic_prefix",
+                    "llm_contextualization": False,
+                },
+            }
+        )
+    return windows
+
+
+def _hierarchical_parent_child_windows(
+    text: str,
+    child_max_chars: int,
+    child_overlap_chars: int,
+) -> list[ChunkWindow]:
+    parent_segments = _merge_segments(
+        _structure_segments(text),
+        max_chars=1600,
+        overlap_chars=0,
+        force_section_boundaries=True,
+    )
+    if not parent_segments:
+        parent_segments = [(0, len(text), text.strip(), "page")]
+    child_segments = _merge_segments(
+        _sentence_segments(text),
+        max_chars=child_max_chars,
+        overlap_chars=child_overlap_chars,
+    )
+    windows: list[ChunkWindow] = []
+    for start, end, child_text, section in child_segments:
+        parent_index = 0
+        parent = parent_segments[0]
+        for candidate_index, candidate in enumerate(parent_segments):
+            overlaps = start < candidate[1] and end > candidate[0]
+            if overlaps:
+                parent_index = candidate_index
+                parent = candidate
+                break
+        windows.append(
+            {
+                "start": start,
+                "end": end,
+                "text": child_text,
+                "section": section or parent[3],
+                "parent_index": parent_index,
+                "parent_section": parent[3],
+                "parent_text": parent[2],
+                "metadata": {
+                    "retrieval_integration": "partial_child_index_parent_metadata",
+                    "parent_context_available": True,
+                },
+            }
+        )
+    return windows
+
+
 def _chunk_windows_for_strategy(
     text: str,
     strategy: str,
@@ -240,10 +466,36 @@ def _chunk_windows_for_strategy(
 ) -> list[Segment]:
     if strategy not in CHUNKING_STRATEGIES:
         raise ValueError(f"Unsupported chunking strategy: {strategy}")
+    effective_max_chars, effective_overlap_chars = _strategy_size_settings(
+        strategy,
+        max_chars,
+        overlap_chars,
+    )
     if strategy == "fixed_window":
-        return [(start, end, chunk_text, "") for start, end, chunk_text in _window_text(text, max_chars, overlap_chars)]
-    if strategy == "sentence_recursive":
-        return _merge_segments(_sentence_segments(text), max_chars, overlap_chars)
+        return [
+            (start, end, chunk_text, "")
+            for start, end, chunk_text in _window_text(text, max_chars, overlap_chars)
+        ]
+    if strategy.startswith("fixed_"):
+        return [
+            (start, end, chunk_text, "")
+            for start, end, chunk_text in _window_text(
+                text,
+                effective_max_chars,
+                effective_overlap_chars,
+            )
+        ]
+    if strategy in {
+        "sentence_recursive",
+        "recursive_small",
+        "recursive_medium",
+        "recursive_large",
+    }:
+        return _merge_segments(
+            _sentence_segments(text),
+            effective_max_chars,
+            effective_overlap_chars,
+        )
     if strategy == "structure_aware":
         return _merge_segments(
             _structure_segments(text),
@@ -251,12 +503,157 @@ def _chunk_windows_for_strategy(
             overlap_chars,
             force_section_boundaries=True,
         )
+    if strategy == "proposition_like":
+        return _proposition_segments(text, effective_max_chars, effective_overlap_chars)
     return _semantic_segments(
         text,
-        max_chars,
-        overlap_chars,
+        effective_max_chars,
+        effective_overlap_chars,
         similarity_fn=similarity_fn or _lexical_similarity,
     )
+
+
+def _window_from_segment(segment: Segment) -> ChunkWindow:
+    return {
+        "start": segment[0],
+        "end": segment[1],
+        "text": segment[2],
+        "section": segment[3],
+        "metadata": {},
+    }
+
+
+def _chunk_windows_with_metadata_for_strategy(
+    text: str,
+    strategy: str,
+    max_chars: int,
+    overlap_chars: int,
+    similarity_fn: SimilarityFn | None,
+    *,
+    source_document: str,
+    page_number: int,
+    embedding_model: str,
+    semantic_download: bool,
+    semantic_metadata_override: dict[str, Any] | None = None,
+) -> tuple[list[ChunkWindow], dict[str, Any]]:
+    effective_max_chars, effective_overlap_chars = _strategy_size_settings(
+        strategy,
+        max_chars,
+        overlap_chars,
+    )
+    strategy_metadata: dict[str, Any] = {
+        "configured_max_chars": effective_max_chars,
+        "configured_overlap_chars": effective_overlap_chars,
+    }
+    if strategy == "embedding_semantic":
+        if semantic_metadata_override is not None:
+            similarity = similarity_fn or _lexical_similarity
+            strategy_metadata.update(semantic_metadata_override)
+        else:
+            backend = "sentence_transformers"
+            backend_error = ""
+            similarity = similarity_fn
+            if similarity is None:
+                try:
+                    similarity = _embedding_similarity_fn(
+                        embedding_model,
+                        allow_download=semantic_download,
+                    )
+                except Exception as exc:
+                    backend = "fallback_lexical"
+                    backend_error = f"{type(exc).__name__}: {exc}"
+                    similarity = _lexical_similarity
+            else:
+                backend = "provided_similarity_fn"
+            strategy_metadata.update(
+                {
+                    "semantic_backend": backend,
+                    "semantic_embedding_model": embedding_model
+                    if backend == "sentence_transformers"
+                    else "",
+                    "semantic_backend_error": backend_error,
+                }
+            )
+        segments = _semantic_segments(
+            text,
+            effective_max_chars,
+            effective_overlap_chars,
+            similarity_fn=similarity,
+        )
+        return [_window_from_segment(segment) for segment in segments], strategy_metadata
+    if strategy == "hierarchical_parent_child":
+        strategy_metadata["retrieval_integration"] = "partial_child_index_parent_metadata"
+        return (
+            _hierarchical_parent_child_windows(
+                text,
+                effective_max_chars,
+                effective_overlap_chars,
+            ),
+            strategy_metadata,
+        )
+    if strategy == "contextual_prefix":
+        strategy_metadata.update(
+            {
+                "contextualization": "deterministic_prefix",
+                "llm_contextualization": False,
+            }
+        )
+        return (
+            _contextual_prefix_windows(
+                text,
+                effective_max_chars,
+                effective_overlap_chars,
+                source_document=source_document,
+                page_number=page_number,
+            ),
+            strategy_metadata,
+        )
+    if strategy == "proposition_like":
+        strategy_metadata.update(
+            {
+                "proposition_extraction": "heuristic_sentence_cue",
+                "llm_proposition_extraction": False,
+            }
+        )
+    if strategy == "semantic_meta_like":
+        strategy_metadata["semantic_backend"] = "lexical_similarity"
+    segments = _chunk_windows_for_strategy(
+        text,
+        strategy=strategy,
+        max_chars=max_chars,
+        overlap_chars=overlap_chars,
+        similarity_fn=similarity_fn,
+    )
+    return [_window_from_segment(segment) for segment in segments], strategy_metadata
+
+
+def _resolve_semantic_similarity(
+    strategy: str,
+    similarity_fn: SimilarityFn | None,
+    *,
+    embedding_model: str,
+    semantic_download: bool,
+) -> tuple[SimilarityFn | None, dict[str, Any] | None]:
+    if strategy != "embedding_semantic":
+        return similarity_fn, None
+    if similarity_fn is not None:
+        return similarity_fn, {
+            "semantic_backend": "provided_similarity_fn",
+            "semantic_embedding_model": "",
+            "semantic_backend_error": "",
+        }
+    try:
+        return _embedding_similarity_fn(embedding_model, allow_download=semantic_download), {
+            "semantic_backend": "sentence_transformers",
+            "semantic_embedding_model": embedding_model,
+            "semantic_backend_error": "",
+        }
+    except Exception as exc:
+        return _lexical_similarity, {
+            "semantic_backend": "fallback_lexical",
+            "semantic_embedding_model": "",
+            "semantic_backend_error": f"{type(exc).__name__}: {exc}",
+        }
 
 
 def build_chunks(
@@ -266,36 +663,63 @@ def build_chunks(
     max_pages: int | None = None,
     strategy: str = "fixed_window",
     similarity_fn: SimilarityFn | None = None,
+    embedding_model: str = DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    semantic_download: bool = True,
 ) -> list[SourceChunk]:
     """Build stable page-aware chunks from a PDF."""
     pdf = Path(pdf_path)
     source_document = pdf.stem
     chunks: list[SourceChunk] = []
+    resolved_similarity_fn, semantic_metadata = _resolve_semantic_similarity(
+        strategy,
+        similarity_fn,
+        embedding_model=embedding_model,
+        semantic_download=semantic_download,
+    )
     for page in extract_pages(pdf, max_pages=max_pages):
         text = _normalize_text(page.text)
-        for chunk_index, (start, end, chunk_text, section) in enumerate(
-            _chunk_windows_for_strategy(
-                text,
-                strategy=strategy,
-                max_chars=max_chars,
-                overlap_chars=overlap_chars,
-                similarity_fn=similarity_fn,
+        windows, strategy_metadata = _chunk_windows_with_metadata_for_strategy(
+            text,
+            strategy=strategy,
+            max_chars=max_chars,
+            overlap_chars=overlap_chars,
+            similarity_fn=resolved_similarity_fn,
+            source_document=source_document,
+            page_number=page.page_number,
+            embedding_model=embedding_model,
+            semantic_download=semantic_download,
+            semantic_metadata_override=semantic_metadata,
+        )
+        for chunk_index, window in enumerate(windows):
+            chunk_id = f"{source_document}-{strategy}-p{page.page_number:02d}-c{chunk_index:02d}"
+            parent_index = window.get("parent_index")
+            parent_chunk_id = (
+                f"{source_document}-{strategy}-p{page.page_number:02d}-parent{int(parent_index):02d}"
+                if parent_index is not None
+                else ""
             )
-        ):
+            metadata = {
+                **strategy_metadata,
+                **dict(window.get("metadata", {})),
+            }
             chunks.append(
                 SourceChunk(
-                    chunk_id=(
-                        f"{source_document}-{strategy}-p{page.page_number:02d}-c{chunk_index:02d}"
-                    ),
+                    chunk_id=chunk_id,
                     source_document=source_document,
                     source_path=project_relative_path(pdf),
                     page=page.page_number,
                     chunk_index=chunk_index,
-                    char_start=start,
-                    char_end=end,
-                    text=chunk_text,
+                    char_start=int(window["start"]),
+                    char_end=int(window["end"]),
+                    text=str(window["text"]),
                     strategy=strategy,
-                    section=section,
+                    section=str(window.get("section", "")),
+                    parent_chunk_id=parent_chunk_id,
+                    parent_section=str(window.get("parent_section", "")),
+                    parent_page=page.page_number if parent_chunk_id else None,
+                    parent_text=str(window.get("parent_text", "")),
+                    context_prefix=str(window.get("context_prefix", "")),
+                    metadata=metadata,
                 )
             )
     return chunks
@@ -327,6 +751,8 @@ def build_chunk_file(
     max_pages: int | None = None,
     strategy: str = "fixed_window",
     similarity_fn: SimilarityFn | None = None,
+    embedding_model: str = DEFAULT_SEMANTIC_EMBEDDING_MODEL,
+    semantic_download: bool = True,
 ) -> tuple[Path, list[SourceChunk]]:
     chunks = build_chunks(
         pdf_path,
@@ -335,6 +761,8 @@ def build_chunk_file(
         max_pages=max_pages,
         strategy=strategy,
         similarity_fn=similarity_fn,
+        embedding_model=embedding_model,
+        semantic_download=semantic_download,
     )
     path = write_chunks_jsonl(chunks, output_path)
     return path, chunks

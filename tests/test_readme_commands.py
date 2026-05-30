@@ -13,5 +13,6 @@ def test_readme_lists_thesis_ready_report_commands() -> None:
         "aviation-ai report graph-traversal-ablation",
         "aviation-ai report sufficiency-eval",
         "aviation-ai report triple-semantic-review",
+        "aviation-ai report chunking-comparison-v2",
     ]:
         assert command in readme

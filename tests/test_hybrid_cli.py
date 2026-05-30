@@ -262,6 +262,52 @@ def test_cli_report_chunking_comparison_uses_mocked_writer(tmp_path: Path, monke
     assert "Compared 1 chunking strategies" in result.output
 
 
+def test_cli_report_chunking_comparison_v2_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli
+
+    calls = {}
+
+    def fake_writer(*_args, **kwargs):
+        calls["max_labels"] = kwargs["max_labels"]
+        calls["semantic_download"] = kwargs["semantic_download"]
+        json_path = tmp_path / "chunking_comparison_benchmark_v2.json"
+        md_path = tmp_path / "chunking_comparison_benchmark_v2.md"
+        failure_json = tmp_path / "chunking_failure_cards_benchmark_v2.json"
+        failure_md = tmp_path / "chunking_failure_cards_benchmark_v2.md"
+        for path in (json_path, md_path, failure_json, failure_md):
+            path.write_text("{}\n", encoding="utf-8")
+        return (
+            json_path,
+            md_path,
+            failure_json,
+            failure_md,
+            {"ranking": [{"strategy": "fixed_small"}], "strategies": {"fixed_small": {}}},
+            {"strategies": {}},
+        )
+
+    monkeypatch.setattr(cli, "write_chunking_comparison_v2", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "chunking-comparison-v2",
+            "--output-dir",
+            str(tmp_path),
+            "--max-labels",
+            "3",
+            "--no-semantic-download",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls == {"max_labels": 3, "semantic_download": False}
+    assert "benchmark-v2 chunking strategies" in result.output
+
+
 def test_cli_report_hybrid_rag_passes_report_name(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai import cli
 
