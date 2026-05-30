@@ -1,0 +1,2968 @@
+{
+  "label_distribution": {
+    "concept_definition": 15,
+    "cross_page": 10,
+    "insufficient_evidence": 20,
+    "relation_causal": 15
+  },
+  "label_set": "06_phak_ch4_0.benchmark_v2.reviewed_subset",
+  "labels": [
+    {
+      "answer_key": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface.",
+      "cq_id": "bv2-cd-001",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "The atmosphere is an envelope of air that surrounds the Earth and rests upon its surface."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "Earth",
+        "air",
+        "surface"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere envelope surrounds?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases.",
+      "cq_id": "bv2-cd-002",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "It is as much a part of the Earth as the seas or the land, but air differs from land and water as it is a mixture of gases."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "gases",
+        "Earth",
+        "air",
+        "water"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe gases in the evidence mentioning earth differs water?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium.",
+      "cq_id": "bv2-cd-003",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "The atmosphere is composed of 78 percent nitrogen, 21 percent oxygen, and 1 percent other gases, such as argon or helium."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "oxygen",
+        "nitrogen",
+        "gases"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere composed percent?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The heavier elements, such as oxygen, settle to the surface of the Earth, while the lighter elements are lifted up to the region of higher altitude.",
+      "cq_id": "bv2-cd-004",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "The heavier elements, such as oxygen, settle to the surface of the Earth, while the lighter elements are lifted up to the region of higher altitude."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "oxygen",
+        "Earth",
+        "altitude",
+        "lift"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe oxygen in the evidence mentioning heavier elements oxygen?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Most of the atmosphere\u2019s oxygen is contained below 35,000 feet altitude.",
+      "cq_id": "bv2-cd-005",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "Most of the atmosphere\u2019s oxygen is contained below 35,000 feet altitude."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c04",
+        "06_phak_ch4_0-structure_aware-p00-c05",
+        "06_phak_ch4_0-structure_aware-p00-c06",
+        "06_phak_ch4_0-structure_aware-p00-c07"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmosphere",
+        "oxygen",
+        "altitude"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe atmosphere in the evidence mentioning atmosphere\u2019s oxygen contained?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Fluids generally do not resist deformation when even the smallest stress is applied, or they resist it only slightly.",
+      "cq_id": "bv2-cd-006",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Fluids generally do not resist deformation when even the smallest stress is applied, or they resist it only slightly."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning fluids generally resist?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Understanding the fluid properties of air is essential to understanding the principles of flight.",
+      "cq_id": "bv2-cd-007",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Understanding the fluid properties of air is essential to understanding the principles of flight."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-structure_aware-p01-c03",
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid properties",
+        "fluid",
+        "air"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid properties in the evidence mentioning understanding fluid properties?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Motor oil is less viscous than grease and flows much more easily, but it is more viscous and flows more slowly than gasoline.",
+      "cq_id": "bv2-cd-008",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Motor oil is less viscous than grease and flows much more easily, but it is more viscous and flows more slowly than gasoline."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "oil"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe oil in the evidence mentioning motor viscous grease?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "All fluids are viscous and have a resistance to flow, whether or not we observe this resistance.",
+      "cq_id": "bv2-cd-009",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "All fluids are viscous and have a resistance to flow, whether or not we observe this resistance."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-structure_aware-p01-c05",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning fluids viscous resistance?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "However, since air is a fluid and has viscosity properties, it resists flow around any object to some extent.",
+      "cq_id": "bv2-cd-010",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "However, since air is a fluid and has viscosity properties, it resists flow around any object to some extent."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c05",
+        "06_phak_ch4_0-structure_aware-p01-c06",
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "viscosity",
+        "fluid",
+        "air"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe viscosity in the evidence mentioning since fluid viscosity?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Another factor at work when a fluid flows over or around an object is called friction.",
+      "cq_id": "bv2-cd-011",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Another factor at work when a fluid flows over or around an object is called friction."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "friction",
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe friction in the evidence mentioning another factor fluid?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "If identical fluids are poured down two identical ramps, they flow in the same manner and at the same speed.",
+      "cq_id": "bv2-cd-012",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "If identical fluids are poured down two identical ramps, they flow in the same manner and at the same speed."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning identical fluids poured?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "If the surface of one ramp is rough, and the other smooth, the flow down the two ramps differs significantly.",
+      "cq_id": "bv2-cd-013",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "If the surface of one ramp is rough, and the other smooth, the flow down the two ramps differs significantly."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "surface"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe surface in the evidence mentioning surface rough other?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "It is important to remember that all surfaces, no matter how smooth they appear, are not smooth on a microscopic level and impede the flow of a fluid.",
+      "cq_id": "bv2-cd-014",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "It is important to remember that all surfaces, no matter how smooth they appear, are not smooth on a microscopic level and impede the flow of a fluid."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid",
+        "surface"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe fluid in the evidence mentioning important remember surfaces?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer.",
+      "cq_id": "bv2-cd-015",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The layer of molecules that adhere to the wing surface is referred to as the boundary layer."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c08",
+        "06_phak_ch4_0-fixed_window-p01-c03"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer",
+        "wing",
+        "surface",
+        "molecules"
+      ],
+      "question": "How does PHAK Chapter 4 define or describe boundary layer in the evidence mentioning layer molecules adhere?",
+      "question_type": "concept_definition",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "concept_definition",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "definition",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft.",
+      "cq_id": "bv2-rc-001",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c02",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "forces",
+        "aircraft",
+        "performance"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning examines fundamental physical?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "To control an aircraft, be it an airplane, helicopter, glider, or balloon, the pilot must understand the principles involved and learn to use or counteract these natural forces.",
+      "cq_id": "bv2-rc-002",
+      "evidence_spans": [
+        {
+          "page": 0,
+          "text": "To control an aircraft, be it an airplane, helicopter, glider, or balloon, the pilot must understand the principles involved and learn to use or counteract these natural forces."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p00-c02",
+        "06_phak_ch4_0-fixed_window-p00-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "forces",
+        "aircraft"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and forces in the evidence mentioning control airplane helicopter?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 0,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_00",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "When most people hear the word \u201cfluid,\u201d they usually think of liquid.",
+      "cq_id": "bv2-rc-003",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "When most people hear the word \u201cfluid,\u201d they usually think of liquid."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between fluid and the cited evidence in the evidence mentioning people fluid usually?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Just as a liquid flows and fills a container, air will expand to fill the available volume of its container.",
+      "cq_id": "bv2-rc-004",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Just as a liquid flows and fills a container, air will expand to fill the available volume of its container."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-fixed_window-p01-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and the cited evidence in the evidence mentioning liquid flows fills?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Using two liquids as an example, similar amounts of oil and water poured down two identical ramps will flow at different rates due to their different viscosity.",
+      "cq_id": "bv2-rc-005",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Using two liquids as an example, similar amounts of oil and water poured down two identical ramps will flow at different rates due to their different viscosity."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "viscosity",
+        "oil",
+        "water"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between viscosity and oil in the evidence mentioning using liquids example?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "As another example, different types of similar liquids will display different behaviors because of different viscosities.",
+      "cq_id": "bv2-rc-006",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "As another example, different types of similar liquids will display different behaviors because of different viscosities."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-fixed_window-p01-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "another",
+        "example",
+        "similar"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between another and example in the evidence mentioning another example types?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The effects of friction can be demonstrated using a similar example as before.",
+      "cq_id": "bv2-rc-007",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The effects of friction can be demonstrated using a similar example as before."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "friction"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between friction and the cited evidence in the evidence mentioning effects friction demonstrated?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The rough surface ramp impedes the flow of the fluid due to resistance from the surface (friction).",
+      "cq_id": "bv2-rc-008",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The rough surface ramp impedes the flow of the fluid due to resistance from the surface (friction)."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "friction",
+        "fluid",
+        "surface"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between friction and fluid in the evidence mentioning rough surface impedes?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The surface of a wing, like any other surface, has a certain roughness at the microscopic level.",
+      "cq_id": "bv2-rc-009",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The surface of a wing, like any other surface, has a certain roughness at the microscopic level."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "wing",
+        "surface"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between wing and surface in the evidence mentioning surface other surface?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The surface roughness causes resistance and slows the velocity of the air flowing over the wing.",
+      "cq_id": "bv2-rc-010",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The surface roughness causes resistance and slows the velocity of the air flowing over the wing."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c07",
+        "06_phak_ch4_0-structure_aware-p01-c08",
+        "06_phak_ch4_0-fixed_window-p01-c02"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "surface roughness",
+        "air",
+        "wing",
+        "surface"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between surface roughness and air in the evidence mentioning surface roughness causes?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Once the boundary layer of the air adheres to the wing by friction, further resistance to the airflow is caused by the viscosity, the tendency of the air to stick to itself.",
+      "cq_id": "bv2-rc-011",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Once the boundary layer of the air adheres to the wing by friction, further resistance to the airflow is caused by the viscosity, the tendency of the air to stick to itself."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c101",
+        "06_phak_ch4_0-fixed_window-p02-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "boundary layer",
+        "friction",
+        "viscosity",
+        "air"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between boundary layer and friction in the evidence mentioning boundary layer adheres?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "When these two forces act together to resist airflow over a wing, it is called drag.",
+      "cq_id": "bv2-rc-012",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "When these two forces act together to resist airflow over a wing, it is called drag."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c101",
+        "06_phak_ch4_0-structure_aware-p02-c102",
+        "06_phak_ch4_0-structure_aware-p02-c103",
+        "06_phak_ch4_0-fixed_window-p02-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "drag",
+        "forces",
+        "wing"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and drag in the evidence mentioning these forces together?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "If the pressure on one surface of the object becomes less than the pressure exerted on the other surfaces, the object will move in the direction of the lower pressure.",
+      "cq_id": "bv2-rc-013",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "If the pressure on one surface of the object becomes less than the pressure exerted on the other surfaces, the object will move in the direction of the lower pressure."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c103",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure",
+        "surface"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between pressure and surface in the evidence mentioning surface object becomes?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Air is very light, but it has mass and is affected by the attraction of gravity.",
+      "cq_id": "bv2-rc-014",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Air is very light, but it has mass and is affected by the attraction of gravity."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "gravity"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between air and gravity in the evidence mentioning light affected attraction?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Therefore, like any other substance, it has weight, and because of its weight, it has force.",
+      "cq_id": "bv2-rc-015",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "Therefore, like any other substance, it has weight, and because of its weight, it has force."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "therefore",
+        "substance",
+        "weight"
+      ],
+      "question": "What relationship does PHAK Chapter 4 describe between therefore and substance in the evidence mentioning therefore other substance?",
+      "question_type": "relation_causal",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "relation_causal",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "causal_or_relation",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Both liquids and gasses display these unique fluid properties, even though they differ greatly in density. Often, pressure is measured in pounds of force exerted per square inch of an object, or PSI.",
+      "cq_id": "bv2-xp-001",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "Both liquids and gasses display these unique fluid properties, even though they differ greatly in density."
+        },
+        {
+          "page": 2,
+          "text": "Often, pressure is measured in pounds of force exerted per square inch of an object, or PSI."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c02",
+        "06_phak_ch4_0-structure_aware-p02-c103",
+        "06_phak_ch4_0-fixed_window-p01-c00",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "fluid properties",
+        "fluid",
+        "pressure",
+        "density"
+      ],
+      "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "page_02",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object. Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere.",
+      "cq_id": "bv2-xp-002",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object."
+        },
+        {
+          "page": 3,
+          "text": "Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c103",
+        "06_phak_ch4_0-structure_aware-p03-c00",
+        "06_phak_ch4_0-fixed_window-p02-c01",
+        "06_phak_ch4_0-fixed_window-p03-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "aircraft performance",
+        "fluid",
+        "atmosphere"
+      ],
+      "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "page_03",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "In order to properly account for the nonstandard atmosphere, certain related terms must be defined. The preceding paragraphs refer to air that is perfectly dry.",
+      "cq_id": "bv2-xp-003",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "In order to properly account for the nonstandard atmosphere, certain related terms must be defined."
+        },
+        {
+          "page": 4,
+          "text": "The preceding paragraphs refer to air that is perfectly dry."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c00",
+        "06_phak_ch4_0-structure_aware-p03-c01",
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p03-c00",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "atmosphere",
+        "air"
+      ],
+      "question": "Across PHAK Chapter 4 pages 3 and 4, what evidence connects standard atmosphere with atmosphere?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03",
+        "page_04",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The small amount of water vapor suspended in the atmosphere may be almost negligible under certain conditions, but in other conditions humidity may become an important factor in the performance of an aircraft. When a body is acted upon by a constant force, its resulting acceleration is inversely proportional to the mass of the body and is directly proportional to the applied force.",
+      "cq_id": "bv2-xp-004",
+      "evidence_spans": [
+        {
+          "page": 4,
+          "text": "The small amount of water vapor suspended in the atmosphere may be almost negligible under certain conditions, but in other conditions humidity may become an important factor in the performance of an aircraft."
+        },
+        {
+          "page": 5,
+          "text": "When a body is acted upon by a constant force, its resulting acceleration is inversely proportional to the mass of the body and is directly proportional to the applied force."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-fixed_window-p04-c00",
+        "06_phak_ch4_0-fixed_window-p05-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "water vapor",
+        "atmosphere",
+        "air",
+        "humidity"
+      ],
+      "question": "Across PHAK Chapter 4 pages 4 and 5, what evidence connects water vapor with atmosphere?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 4,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_04",
+        "page_05",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "This takes into account the factors involved in overcoming Newton\u2019s First Law. This mean line is equidistant at all points from the upper and lower surfaces.",
+      "cq_id": "bv2-xp-005",
+      "evidence_spans": [
+        {
+          "page": 5,
+          "text": "This takes into account the factors involved in overcoming Newton\u2019s First Law."
+        },
+        {
+          "page": 6,
+          "text": "This mean line is equidistant at all points from the upper and lower surfaces."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p05-c43",
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-fixed_window-p05-c00",
+        "06_phak_ch4_0-fixed_window-p06-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "Newton\u2019s First Law",
+        "lower surface",
+        "Newton",
+        "surface"
+      ],
+      "question": "Across PHAK Chapter 4 pages 5 and 6, what evidence connects Newton\u2019s First Law with lower surface?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 5,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_05",
+        "page_06",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "An airfoil is constructed in such a way that its shape takes advantage of the air\u2019s response to certain physical laws. The pressure difference between the upper and lower surface of a wing alone does not account for the total lift force produced.",
+      "cq_id": "bv2-xp-006",
+      "evidence_spans": [
+        {
+          "page": 6,
+          "text": "An airfoil is constructed in such a way that its shape takes advantage of the air\u2019s response to certain physical laws."
+        },
+        {
+          "page": 7,
+          "text": "The pressure difference between the upper and lower surface of a wing alone does not account for the total lift force produced."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p06-c19",
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-fixed_window-p06-c00",
+        "06_phak_ch4_0-fixed_window-p07-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "lower surface",
+        "air",
+        "pressure",
+        "lift"
+      ],
+      "question": "Across PHAK Chapter 4 pages 6 and 7, what evidence connects lower surface with air?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 6,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_06",
+        "page_07",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The downward backward flow from the top surface of an airfoil creates a downwash. In both examples, the only difference is the relationship of the airfoil with the oncoming airstream (angle).",
+      "cq_id": "bv2-xp-007",
+      "evidence_spans": [
+        {
+          "page": 7,
+          "text": "The downward backward flow from the top surface of an airfoil creates a downwash."
+        },
+        {
+          "page": 8,
+          "text": "In both examples, the only difference is the relationship of the airfoil with the oncoming airstream (angle)."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p07-c19",
+        "06_phak_ch4_0-structure_aware-p08-c02",
+        "06_phak_ch4_0-fixed_window-p07-c00",
+        "06_phak_ch4_0-fixed_window-p08-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "air",
+        "airfoil",
+        "downwash",
+        "oil"
+      ],
+      "question": "Across PHAK Chapter 4 pages 7 and 8, what evidence connects air with airfoil?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 7,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_07",
+        "page_08",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "The way individual molecules of the fluid tend to adhere, or stick, to each other determines how much a fluid resists flow. Although there are various kinds of pressure, pilots are mainly concerned with atmospheric pressure.",
+      "cq_id": "bv2-xp-008",
+      "evidence_spans": [
+        {
+          "page": 1,
+          "text": "The way individual molecules of the fluid tend to adhere, or stick, to each other determines how much a fluid resists flow."
+        },
+        {
+          "page": 2,
+          "text": "Although there are various kinds of pressure, pilots are mainly concerned with atmospheric pressure."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p01-c04",
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-fixed_window-p01-c00",
+        "06_phak_ch4_0-fixed_window-p02-c01"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "atmospheric pressure",
+        "fluid",
+        "pressure",
+        "molecules"
+      ],
+      "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects atmospheric pressure with fluid?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 1,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_01",
+        "page_02",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "It is one of the basic factors in weather changes, helps to lift an aircraft, and actuates some of the important flight instruments. An altimeter is essentially a sensitive barometer calibrated to indicate altitude in the standard atmosphere.",
+      "cq_id": "bv2-xp-009",
+      "evidence_spans": [
+        {
+          "page": 2,
+          "text": "It is one of the basic factors in weather changes, helps to lift an aircraft, and actuates some of the important flight instruments."
+        },
+        {
+          "page": 3,
+          "text": "An altimeter is essentially a sensitive barometer calibrated to indicate altitude in the standard atmosphere."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p02-c105",
+        "06_phak_ch4_0-structure_aware-p03-c02",
+        "06_phak_ch4_0-fixed_window-p02-c01",
+        "06_phak_ch4_0-fixed_window-p03-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "standard atmosphere",
+        "atmosphere",
+        "air",
+        "altitude"
+      ],
+      "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with atmosphere?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 2,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_02",
+        "page_03",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "92 \"Hg SDP, the altitude indicated is the pressure altitude. Therefore, as the water content of the air increases, the air becomes less dense, increasing density altitude and decreasing performance.",
+      "cq_id": "bv2-xp-010",
+      "evidence_spans": [
+        {
+          "page": 3,
+          "text": "92 \"Hg SDP, the altitude indicated is the pressure altitude."
+        },
+        {
+          "page": 4,
+          "text": "Therefore, as the water content of the air increases, the air becomes less dense, increasing density altitude and decreasing performance."
+        }
+      ],
+      "expected_abstention": false,
+      "expected_chunk_ids": [
+        "06_phak_ch4_0-structure_aware-p03-c02",
+        "06_phak_ch4_0-structure_aware-p04-c02",
+        "06_phak_ch4_0-fixed_window-p03-c00",
+        "06_phak_ch4_0-fixed_window-p04-c00"
+      ],
+      "gold_level": "span",
+      "key_entities": [
+        "pressure altitude",
+        "density altitude",
+        "air",
+        "pressure"
+      ],
+      "question": "Across PHAK Chapter 4 pages 3 and 4, what evidence connects pressure altitude with density altitude?",
+      "question_type": "cross_page",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": 3,
+      "tags": [
+        "cross_page",
+        "supported",
+        "machine_seeded",
+        "requires_manual_review",
+        "page_03",
+        "page_04",
+        "cross_page",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-001-live-metar",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "live METAR",
+        "current weather",
+        "departure safety"
+      ],
+      "question": "What is the current METAR for KJFK right now, and is it safe for departure?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-002-taf-now",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "current TAF",
+        "thunderstorms",
+        "destination weather"
+      ],
+      "question": "What does the current TAF predict for thunderstorms at my destination tonight?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-003-notams-current",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "current NOTAMs",
+        "runway closure"
+      ],
+      "question": "Are there any current NOTAMs closing the runway at my departure airport?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-004-atc-clearance",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "ATC clearance",
+        "route clearance"
+      ],
+      "question": "Can I accept this ATC clearance and proceed through the assigned route?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-005-go-no-go",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "go/no-go decision",
+        "current weather",
+        "aircraft status"
+      ],
+      "question": "Given today\u2019s weather and my aircraft, should I make a go/no-go decision to fly?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-006-vspeeds-c172",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "aircraft-specific V-speeds",
+        "Cessna 172S"
+      ],
+      "question": "What are the exact V-speeds for the specific Cessna 172S I am flying today?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-007-poh-checklist",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "POH checklist",
+        "takeoff procedure"
+      ],
+      "question": "Can PHAK Chapter 4 replace the POH checklist for my aircraft\u2019s takeoff procedure?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-008-engine-fire",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "emergency procedure",
+        "engine fire checklist"
+      ],
+      "question": "What immediate emergency checklist steps should I follow for an engine fire after start?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-009-weight-balance",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "aircraft-specific weight and balance",
+        "load planning"
+      ],
+      "question": "Is my aircraft within weight and balance limits for this passenger and baggage load?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-010-legal-vfr",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "legal clearance",
+        "VFR weather minimums"
+      ],
+      "question": "Am I legally cleared to depart VFR in the current visibility and cloud conditions?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-011-runway-performance",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "runway performance",
+        "current wind",
+        "temperature",
+        "loading"
+      ],
+      "question": "How much runway will my aircraft need today with current wind, temperature, and loading?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-012-maintenance-release",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "maintenance release",
+        "airworthiness"
+      ],
+      "question": "Does this aircraft maintenance logbook entry make the aircraft airworthy for flight?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-013-fuel-route",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "fuel planning",
+        "route winds"
+      ],
+      "question": "How much fuel must I carry for my planned route under today\u2019s winds?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-014-icing-forecast",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "current icing forecast",
+        "planned route"
+      ],
+      "question": "Is there current icing along my planned route at my cruising altitude?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-015-pireps-live",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "live PIREPs",
+        "turbulence"
+      ],
+      "question": "What live PIREPs report turbulence near my destination in the last hour?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-016-odps-airport",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "obstacle departure procedure",
+        "airport-specific departure"
+      ],
+      "question": "Which obstacle departure procedure applies to the runway I will use today?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-017-density-current",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "current density altitude",
+        "airport weather"
+      ],
+      "question": "What is the current density altitude at my airport right now?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-018-continue-flight",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "pilot decision",
+        "worsening weather"
+      ],
+      "question": "Should I continue the flight after encountering worsening weather ahead?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-019-clearance-altitude",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "ATC altitude clearance",
+        "controlled airspace"
+      ],
+      "question": "Can I climb to a new altitude without an ATC clearance in controlled airspace?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    },
+    {
+      "answer_key": "Insufficient evidence in PHAK Chapter 4. Use current official sources, the aircraft POH/AFM, approved checklists, ATC instructions, regulations, instructor guidance, and pilot judgment as applicable.",
+      "cq_id": "bv2-ie-020-aircraft-limit",
+      "evidence_spans": [],
+      "expected_abstention": true,
+      "expected_chunk_ids": [],
+      "gold_level": "no_answer",
+      "key_entities": [
+        "aircraft limitation",
+        "takeoff weight"
+      ],
+      "question": "Does my aircraft\u2019s actual takeoff weight exceed its approved limitation today?",
+      "question_type": "insufficient_evidence",
+      "review": {
+        "external_aviation_expert_certified": false,
+        "manual_review_fields": {
+          "answer_span_complete": "needs_review",
+          "cross_page_synthesis_ok": "needs_review",
+          "evidence_supports_answer": "needs_review",
+          "natural_question_ok": "needs_review",
+          "safety_boundary_ok": "needs_review"
+        },
+        "notes": "Evidence span copied from source chunks; question wording and aviation-domain adequacy require manual review before strong claims.",
+        "project_author_review_status": "needs_project_author_review",
+        "review_decision": "pending",
+        "reviewed_at": null,
+        "reviewer_notes": "",
+        "status": "project_review_pending_external_review"
+      },
+      "source_document": "06_phak_ch4_0",
+      "source_page": -1,
+      "tags": [
+        "insufficient_evidence",
+        "no_answer",
+        "safety_boundary",
+        "machine_seeded",
+        "requires_manual_review",
+        "reviewed_subset",
+        "project_review_pending_external_review"
+      ]
+    }
+  ],
+  "notes": "Deterministic 60-label reviewed-subset scaffold. Original questions, answer keys, and evidence spans are preserved; no project-author or external aviation expert review is claimed.",
+  "review_status": "project_review_pending_external_review",
+  "subset_policy": {
+    "counts_by_question_type": {
+      "concept_definition": 15,
+      "cross_page": 10,
+      "insufficient_evidence": 20,
+      "relation_causal": 15
+    },
+    "external_aviation_expert_certified": false,
+    "labels_total": 60,
+    "manual_review_completed": false,
+    "selection": "all concept_definition, relation_causal, cross_page, and insufficient_evidence labels"
+  }
+}

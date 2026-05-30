@@ -37,7 +37,7 @@
     "web_demo_final_smoke": "reports/stages/web_demo_final_smoke.md",
     "web_demo_readiness": "reports/stages/web_demo_readiness.md"
   },
-  "generated_at": "2026-05-30T00:20:57.159293+00:00",
+  "generated_at": "2026-05-30T01:38:49.279749+00:00",
   "graphrag_interpretations": [
     {
       "claim": "GraphRAG value is evidence structure, not current page-level Recall lift.",
@@ -124,7 +124,7 @@
       "labels_total": 120,
       "no_answer_total": 20,
       "review_pack_finding_counts": {
-        "insufficient_evidence_label_needs_aviation_safety_review": 15,
+        "insufficient_evidence_label_needs_aviation_safety_review": 20,
         "unnatural_machine_generated_wording": 90,
         "weak_or_generic_question": 49
       },
@@ -181,7 +181,7 @@
       "tbox_only": true
     },
     "thesis_dashboard": {
-      "consistency_passed": true,
+      "consistency_passed": false,
       "false_abstention_rate": 0.29,
       "hybrid_context_recall": 0.7375,
       "traversal_path_recall_at_5": 0.6583,
@@ -303,8 +303,12 @@
     "reports/final/project_defense_notes.md",
     "reports/stages/answer_evaluation.json",
     "reports/stages/answer_evaluation.md",
+    "reports/stages/answer_evaluation_benchmark_subset.json",
+    "reports/stages/answer_evaluation_benchmark_subset.md",
     "reports/stages/benchmark_review_pack.json",
     "reports/stages/benchmark_review_pack.md",
+    "reports/stages/benchmark_reviewed_subset_summary.json",
+    "reports/stages/benchmark_reviewed_subset_summary.md",
     "reports/stages/benchmark_v2_summary.json",
     "reports/stages/benchmark_v2_summary.md",
     "reports/stages/chunking_comparison.json",

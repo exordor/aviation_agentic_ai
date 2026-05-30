@@ -319,6 +319,22 @@ def _read_thesis_ready_artifacts(root: Path) -> dict[str, Any]:
         / "reports"
         / "stages"
         / "sufficiency_evaluation.json",
+        "benchmark_reviewed_subset_summary": root
+        / "reports"
+        / "stages"
+        / "benchmark_reviewed_subset_summary.md",
+        "benchmark_reviewed_subset_summary_json": root
+        / "reports"
+        / "stages"
+        / "benchmark_reviewed_subset_summary.json",
+        "answer_evaluation_benchmark_subset": root
+        / "reports"
+        / "stages"
+        / "answer_evaluation_benchmark_subset.md",
+        "answer_evaluation_benchmark_subset_json": root
+        / "reports"
+        / "stages"
+        / "answer_evaluation_benchmark_subset.json",
         "triple_semantic_review": root / "reports" / "stages" / "triple_semantic_review.md",
         "triple_semantic_review_json": root
         / "reports"
@@ -667,6 +683,9 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
     hybrid = primary.get("best_lexical_hybrid", {})
     traversal = primary.get("traversal_hybrid", {})
     sufficiency = primary.get("sufficiency", {})
+    robustness = primary.get("robustness", {})
+    reviewed_subset = primary.get("benchmark_reviewed_subset", {})
+    answer_subset = primary.get("answer_evaluation_benchmark_subset", {})
     kg = primary.get("kg", {})
     triple = primary.get("triple_semantic_review", {})
     lines = [
@@ -748,9 +767,24 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"{sufficiency.get('abstention_accuracy')}, False Answer Rate="
             f"{sufficiency.get('false_answer_rate')}, False Abstention Rate="
             f"{sufficiency.get('false_abstention_rate')}, Risk Category Accuracy="
-            f"{sufficiency.get('risk_category_accuracy')}. Sufficiency improves safety "
-            "against unsupported questions but false abstentions on supported questions "
-            "remain a visible limitation.",
+            f"{sufficiency.get('risk_category_accuracy')}. Sufficiency diagnostics show "
+            "strong abstention on benchmark v2 no-answer labels, while "
+            "robustness must also remain visible: false answer rate="
+            f"{robustness.get('false_answer_rate')}, boundary violations="
+            f"{robustness.get('advisory_boundary_violation_count')}.",
+            "",
+            "## Review-dependent evidence status",
+            "",
+            "Benchmark reviewed subset: labels="
+            f"{reviewed_subset.get('labels_total')}, status="
+            f"{reviewed_subset.get('review_status')}, external aviation expert review "
+            f"completed={reviewed_subset.get('external_aviation_expert_certified')}. "
+            "Answer-evaluation benchmark subset: answers="
+            f"{answer_subset.get('answers_total')}, status="
+            f"{answer_subset.get('evaluation_status')}, unmatched gold labels="
+            f"{answer_subset.get('unmatched_gold_labels')}, hybrid faithfulness="
+            f"{answer_subset.get('hybrid_faithfulness')}, score method="
+            f"{answer_subset.get('score_method')}. These are not manual review results.",
             "",
             "## Failure analysis",
             "",

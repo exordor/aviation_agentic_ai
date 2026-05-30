@@ -50,32 +50,69 @@ def _scenario_name(mode: str, graph_hops: int, vector_top_k: int, hybrid_top_k: 
     return f"{mode}_hops{graph_hops}_v{vector_top_k}_h{hybrid_top_k}"
 
 
+def _retrieval_confidence_intervals(retrieval_records: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "recall_at_5": bootstrap_metric_ci(
+            retrieval_records,
+            lambda metric: bool(metric.get("recall_at_5", False)),
+        ),
+        "recall_at_10": bootstrap_metric_ci(
+            retrieval_records,
+            lambda metric: bool(metric.get("recall_at_10", False)),
+        ),
+        "mrr_at_5": bootstrap_metric_ci(
+            retrieval_records,
+            lambda metric: float(metric.get("mrr_at_5", 0.0)),
+        ),
+        "mrr_at_10": bootstrap_metric_ci(
+            retrieval_records,
+            lambda metric: float(metric.get("mrr_at_10", 0.0)),
+        ),
+        "ndcg_at_10": bootstrap_metric_ci(
+            retrieval_records,
+            lambda metric: float(metric.get("ndcg_at_10", 0.0)),
+        ),
+        "context_precision_at_5": bootstrap_metric_ci(
+            retrieval_records,
+            lambda metric: float(metric.get("context_precision_at_5", 0.0)),
+        ),
+        "context_recall": bootstrap_metric_ci(
+            retrieval_records,
+            lambda metric: float(metric.get("context_recall", 0.0)),
+        ),
+    }
+
+
+def _retrieval_breakdown(records: list[dict[str, Any]]) -> dict[str, Any]:
+    groups = {
+        "supported": [
+            record
+            for record in records
+            if not bool(record.get("gold", {}).get("expected_abstention", False))
+        ],
+        "insufficient_evidence": [
+            record
+            for record in records
+            if bool(record.get("gold", {}).get("expected_abstention", False))
+        ],
+    }
+    return {
+        name: {
+            "records_total": len(items),
+            "retrieval": aggregate_retrieval_metrics(
+                [item["metrics"]["retrieval"] for item in items]
+            ),
+        }
+        for name, items in groups.items()
+    }
+
+
 def _aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
     retrieval_records = [record["metrics"]["retrieval"] for record in records]
     return {
         "retrieval": aggregate_retrieval_metrics(retrieval_records),
-        "retrieval_confidence_intervals": {
-            "recall_at_5": bootstrap_metric_ci(
-                retrieval_records,
-                lambda metric: bool(metric.get("recall_at_5", False)),
-            ),
-            "recall_at_10": bootstrap_metric_ci(
-                retrieval_records,
-                lambda metric: bool(metric.get("recall_at_10", False)),
-            ),
-            "mrr_at_5": bootstrap_metric_ci(
-                retrieval_records,
-                lambda metric: float(metric.get("mrr_at_5", 0.0)),
-            ),
-            "ndcg_at_10": bootstrap_metric_ci(
-                retrieval_records,
-                lambda metric: float(metric.get("ndcg_at_10", 0.0)),
-            ),
-            "context_recall": bootstrap_metric_ci(
-                retrieval_records,
-                lambda metric: float(metric.get("context_recall", 0.0)),
-            ),
-        },
+        "retrieval_confidence_intervals": _retrieval_confidence_intervals(retrieval_records),
+        "retrieval_by_answerability": _retrieval_breakdown(records),
         "kg_evidence": aggregate_kg_evidence_metrics(
             [record["metrics"]["kg_evidence"] for record in records]
         ),
@@ -326,12 +363,17 @@ def write_retrieval_ablation_markdown(result: dict[str, Any], output_path: str |
         "- Scoring: layered retrieval and KG evidence metrics; no mixed overall score.",
         "- Confidence intervals: deterministic bootstrap 95% CIs over per-question metrics.",
         "",
-        "| Scenario | Mode | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall | KG coverage | Avg triples |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Scenario | Mode | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall | Supported Recall@5 | KG coverage | Avg triples |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for name, scenario in result["scenarios"].items():
         retrieval = scenario["aggregate"]["retrieval"]
-        ci = scenario["aggregate"].get("retrieval_confidence_intervals", {})
+        supported = (
+            scenario["aggregate"]
+            .get("retrieval_by_answerability", {})
+            .get("supported", {})
+            .get("retrieval", {})
+        )
         kg = scenario["aggregate"]["kg_evidence"]
         lines.append(
             f"| {name} | {scenario['mode']} | {retrieval['recall_at_5']} | "
@@ -339,13 +381,39 @@ def write_retrieval_ablation_markdown(result: dict[str, Any], output_path: str |
             f"{retrieval['mrr_at_5']} | {retrieval['mrr_at_10']} | "
             f"{retrieval['ndcg_at_10']} | {retrieval['context_precision_at_5']} | "
             f"{retrieval['context_recall']} | "
+            f"{supported.get('recall_at_5', 0.0)} | "
             f"{kg['evidence_coverage']} | {kg['avg_related_triple_count']} |"
         )
-        if ci:
-            recall_ci = ci.get("recall_at_5", {})
+    lines.extend(["", "## Confidence Intervals", ""])
+    lines.append("| Scenario | Metric | Mean | 95% CI | n |")
+    lines.append("| --- | --- | ---: | --- | ---: |")
+    for name, scenario in result["scenarios"].items():
+        ci = scenario["aggregate"].get("retrieval_confidence_intervals", {})
+        for metric in (
+            "recall_at_5",
+            "recall_at_10",
+            "mrr_at_5",
+            "mrr_at_10",
+            "ndcg_at_10",
+            "context_precision_at_5",
+            "context_recall",
+        ):
+            values = ci.get(metric, {})
             lines.append(
-                f"<!-- {name} Recall@5 95% CI: "
-                f"{recall_ci.get('lower')} - {recall_ci.get('upper')} -->"
+                f"| {name} | {metric} | {values.get('mean')} | "
+                f"{values.get('lower')} - {values.get('upper')} | {values.get('n')} |"
+            )
+    lines.extend(["", "## Supported Vs Insufficient-Evidence Breakdown", ""])
+    lines.append("| Scenario | Group | Records | Recall@5 | MRR@5 | Context Recall |")
+    lines.append("| --- | --- | ---: | ---: | ---: | ---: |")
+    for name, scenario in result["scenarios"].items():
+        breakdown = scenario["aggregate"].get("retrieval_by_answerability", {})
+        for group, group_data in breakdown.items():
+            retrieval = group_data.get("retrieval", {})
+            lines.append(
+                f"| {name} | {group} | {group_data.get('records_total', 0)} | "
+                f"{retrieval.get('recall_at_5', 0.0)} | {retrieval.get('mrr_at_5', 0.0)} | "
+                f"{retrieval.get('context_recall', 0.0)} |"
             )
     lines.extend(["", "## Interpretation", ""])
     for name, scenario in result["scenarios"].items():

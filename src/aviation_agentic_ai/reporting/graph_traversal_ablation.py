@@ -5,6 +5,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, Callable
 
+from aviation_agentic_ai.evaluation.bootstrap_ci import bootstrap_metric_ci
 from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
 from aviation_agentic_ai.evaluation.gold import GoldLabel
 from aviation_agentic_ai.evaluation.metrics import (
@@ -271,14 +272,50 @@ def _aggregate_path_metrics(records: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def _aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
+    retrieval_records = [record["metrics"]["retrieval"] for record in records]
+    path_records = [record["metrics"]["graph_paths"] for record in records]
     return {
-        "retrieval": aggregate_retrieval_metrics(
-            [record["metrics"]["retrieval"] for record in records]
-        ),
+        "retrieval": aggregate_retrieval_metrics(retrieval_records),
+        "retrieval_confidence_intervals": {
+            "recall_at_5": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: bool(metric.get("recall_at_5", False)),
+            ),
+            "recall_at_10": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: bool(metric.get("recall_at_10", False)),
+            ),
+            "mrr_at_5": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: float(metric.get("mrr_at_5", 0.0)),
+            ),
+            "ndcg_at_10": bootstrap_metric_ci(
+                retrieval_records,
+                lambda metric: float(metric.get("ndcg_at_10", 0.0)),
+            ),
+        },
         "kg_evidence": aggregate_kg_evidence_metrics(
             [record["metrics"]["kg_evidence"] for record in records]
         ),
         "graph_paths": _aggregate_path_metrics(records),
+        "graph_path_confidence_intervals": {
+            "path_coverage": bootstrap_metric_ci(
+                path_records,
+                lambda metric: bool(metric.get("path_coverage", False)),
+            ),
+            "path_recall_at_5": bootstrap_metric_ci(
+                path_records,
+                lambda metric: float(metric.get("path_recall_at_5", 0.0)),
+            ),
+            "path_precision_at_5": bootstrap_metric_ci(
+                path_records,
+                lambda metric: float(metric.get("path_precision_at_5", 0.0)),
+            ),
+            "supporting_path_rate": bootstrap_metric_ci(
+                path_records,
+                lambda metric: float(metric.get("supporting_path_rate", 0.0)),
+            ),
+        },
     }
 
 
@@ -547,11 +584,35 @@ def write_graph_traversal_ablation_markdown(
     lines.extend(
         [
             "",
+            "## Confidence Intervals",
+            "",
+            "| Scenario | Metric | Mean | 95% CI | n |",
+            "| --- | --- | ---: | --- | ---: |",
+        ]
+    )
+    for scenario_name, scenario in result["scenarios"].items():
+        ci_groups = {
+            "retrieval": scenario["aggregate"].get("retrieval_confidence_intervals", {}),
+            "heuristic_path": scenario["aggregate"].get("graph_path_confidence_intervals", {}),
+        }
+        for group_name, ci in ci_groups.items():
+            for metric, values in ci.items():
+                lines.append(
+                    f"| {scenario_name} | {group_name}.{metric} | {values.get('mean')} | "
+                    f"{values.get('lower')} - {values.get('upper')} | {values.get('n')} |"
+                )
+
+    lines.extend(
+        [
+            "",
             "## Notes",
             "",
             "Lexical graph search remains the baseline. Traversal metrics describe whether "
             "bounded KG paths were returned and whether they cover named entities or relation "
             "intent; they do not imply better retrieval unless Recall@5/MRR@5 support that.",
+            "",
+            "Traversal is interpreted as diagnostic path evidence and explainability support, "
+            "not as current proof of retrieval superiority over lexical or vector retrieval.",
             "",
             "High path coverage with low standalone Recall@5 usually means traversal can find "
             "connected KG paths, but the chunks attached to those paths are not necessarily "

@@ -1,0 +1,138 @@
+{
+  "aggregate": {
+    "graph": {
+      "abstention_correctness": 0.0,
+      "advisory_boundary_violation_count": 0,
+      "answer_correctness": 0.0,
+      "answer_faithfulness": 0.0,
+      "answer_relevance": 0.0,
+      "answers_total": 0,
+      "citation_completeness": 0.0,
+      "citation_correctness": 0.0,
+      "citation_precision": 0.0,
+      "citation_recall": 0.0,
+      "faithfulness": 0.0
+    },
+    "hybrid": {
+      "abstention_correctness": 0.0,
+      "advisory_boundary_violation_count": 0,
+      "answer_correctness": 0.0,
+      "answer_faithfulness": 0.0,
+      "answer_relevance": 0.0,
+      "answers_total": 0,
+      "citation_completeness": 0.0,
+      "citation_correctness": 0.0,
+      "citation_precision": 0.0,
+      "citation_recall": 0.0,
+      "faithfulness": 0.0
+    },
+    "vector": {
+      "abstention_correctness": 0.0,
+      "advisory_boundary_violation_count": 0,
+      "answer_correctness": 0.0,
+      "answer_faithfulness": 0.0,
+      "answer_relevance": 0.0,
+      "answers_total": 0,
+      "citation_completeness": 0.0,
+      "citation_correctness": 0.0,
+      "citation_precision": 0.0,
+      "citation_recall": 0.0,
+      "faithfulness": 0.0
+    }
+  },
+  "metadata": {
+    "advisory_boundary": "This system is for aviation learning and decision-support only. Do not claim to replace the aircraft POH, approved checklists, ATC instructions, instructor guidance, or pilot judgment.",
+    "answers_total": 0,
+    "cost_latency": {
+      "cases_total": null,
+      "chunks_path": null,
+      "chunks_size_bytes": null,
+      "elapsed_seconds": 0.0027,
+      "index_dir": null,
+      "index_size_bytes": null,
+      "kg_path": null,
+      "kg_size_bytes": null,
+      "llm_token_usage": null,
+      "questions_total": 35
+    },
+    "evaluation_status": "pending_answer_generation",
+    "gold_labels_path": "data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json",
+    "hybrid_report_path": "reports/stages/hybrid_rag_structure_aware.json",
+    "llm_as_judge_enabled": false,
+    "manual_review_completed": false,
+    "matched_gold_labels": 0,
+    "run_manifest": {
+      "artifacts": {
+        "hybrid_report_path": "reports/stages/hybrid_rag_structure_aware.json"
+      },
+      "chunking_strategy": "report_artifact",
+      "collection_name": "not_used",
+      "command": "aviation-ai report answer-eval --gold-labels data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json --report-name answer_evaluation_benchmark_subset",
+      "created_at": "2026-05-30T01:38:48.436451+00:00",
+      "document": {},
+      "embedding": {
+        "backend": "not_used",
+        "collection_name": "not_used"
+      },
+      "experiment_name": "answer_evaluation",
+      "llm": {
+        "model": "not_used",
+        "provider": "none"
+      },
+      "parameters": {
+        "gold_labels_path": "data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json"
+      },
+      "rebuild_policy": {
+        "chunks": false,
+        "indexes": false,
+        "kg": false
+      },
+      "run_id": "answer-evaluation-20260530T013848Z"
+    },
+    "score_method": "deterministic_heuristic",
+    "scoring_policy": "answer_metrics_no_mixed_overall_score",
+    "unmatched_gold_label_ids": [
+      "bv2-cd-001",
+      "bv2-cd-002",
+      "bv2-cd-003",
+      "bv2-cd-004",
+      "bv2-cd-005",
+      "bv2-ie-001-live-metar",
+      "bv2-ie-002-taf-now",
+      "bv2-ie-003-notams-current",
+      "bv2-ie-004-atc-clearance",
+      "bv2-ie-005-go-no-go",
+      "bv2-ie-006-vspeeds-c172",
+      "bv2-ie-007-poh-checklist",
+      "bv2-ie-008-engine-fire",
+      "bv2-ie-009-weight-balance",
+      "bv2-ie-010-legal-vfr",
+      "bv2-pp-001",
+      "bv2-pp-002",
+      "bv2-pp-003",
+      "bv2-rc-001",
+      "bv2-rc-002",
+      "bv2-rc-003",
+      "bv2-rc-004",
+      "bv2-rc-005",
+      "bv2-sf-001",
+      "bv2-sf-002",
+      "bv2-sf-003",
+      "bv2-sf-004",
+      "bv2-sf-005",
+      "bv2-tv-001",
+      "bv2-tv-002",
+      "bv2-xp-001",
+      "bv2-xp-002",
+      "bv2-xp-003",
+      "bv2-xp-004",
+      "bv2-xp-005"
+    ],
+    "unmatched_gold_labels": 35
+  },
+  "records": {
+    "graph": [],
+    "hybrid": [],
+    "vector": []
+  }
+}

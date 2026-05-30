@@ -378,6 +378,38 @@ def test_live_query_does_not_call_runner_when_not_ready(tmp_path: Path, monkeypa
     assert response.json()["detail"]
 
 
+def test_live_query_abstains_on_operational_boundary_before_runner(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from aviation_agentic_ai.web import app as web_app
+
+    _write_web_fixture(tmp_path)
+
+    def ready(*_args, **_kwargs):
+        return {"enabled": True, "reason": "ready"}
+
+    def fail_runner(*_args, **_kwargs):
+        raise AssertionError("run_query should not be called for operational boundary prompts")
+
+    monkeypatch.setattr(web_app, "build_live_query_readiness", ready)
+    monkeypatch.setattr(web_app, "run_query", fail_runner)
+    client = TestClient(web_app.create_app(project_root=tmp_path, enable_live_query=True))
+    response = client.post(
+        "/api/query",
+        json={"question": "Should I take off now based on current weather?", "mode": "hybrid"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["sufficiency_decision"]["decision"] == "abstain"
+    assert payload["sufficiency_decision"]["risk_category"] != "training_question"
+    assert payload["evidence_summary"]["chunk_count"] == 0
+
+
 def test_live_query_calls_runner_with_selected_mode_and_evidence_summary(
     tmp_path: Path,
     monkeypatch,

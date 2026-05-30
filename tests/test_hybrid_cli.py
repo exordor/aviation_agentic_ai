@@ -526,6 +526,66 @@ def test_cli_report_answer_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) 
     assert "Evaluated 4 answers" in result.output
 
 
+def test_cli_report_benchmark_reviewed_subset_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "benchmark_reviewed_subset_summary.json"
+        md_path = tmp_path / "benchmark_reviewed_subset_summary.md"
+        subset_path = tmp_path / "reviewed_subset.json"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        subset_path.write_text("{}\n", encoding="utf-8")
+        return json_path, md_path, subset_path, {"metadata": {"labels_total": 60}}
+
+    monkeypatch.setattr(cli, "write_benchmark_reviewed_subset", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "benchmark-reviewed-subset",
+            "--output-dir",
+            str(tmp_path),
+            "--subset-output",
+            str(tmp_path / "reviewed_subset.json"),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Prepared reviewed subset scaffold with 60 labels" in result.output
+
+
+def test_cli_report_answer_eval_subset_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli
+
+    def fake_writer(*_args, **_kwargs):
+        subset_path = tmp_path / "answer_eval_subset.json"
+        subset_path.write_text("{}\n", encoding="utf-8")
+        return subset_path, {"labels": [{} for _ in range(35)]}
+
+    monkeypatch.setattr(cli, "write_answer_eval_subset", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "answer-eval-subset",
+            "--subset-output",
+            str(tmp_path / "answer_eval_subset.json"),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Prepared answer-eval subset with 35 labels" in result.output
+
+
 def test_cli_report_evaluation_protocol_uses_mocked_writer(
     tmp_path: Path,
     monkeypatch,

@@ -19,6 +19,43 @@ REQUIRED_FINDING_FIELDS = {
 REQUIRED_ACTION_FIELDS = {"id", "finding_ids", "priority", "title", "target", "status"}
 VALID_SEVERITIES = {"high", "medium", "low"}
 VALID_PRIORITIES = {"P0", "P1", "P2"}
+ADVERSARIAL_REQUIRED_FIELDS = {
+    "round",
+    "subagent_findings",
+    "must_fix",
+    "should_fix",
+    "nice_to_have",
+    "unsafe_claims",
+    "manual_review_dependencies",
+    "recommended_iterations",
+    "acceptance_criteria",
+}
+
+
+def validate_adversarial_review_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Validate the thesis adversarial-review schema without mixing it into action progress."""
+    missing = ADVERSARIAL_REQUIRED_FIELDS - report.keys()
+    if missing:
+        raise ValueError(f"Adversarial review missing required fields: {sorted(missing)}")
+    if not isinstance(report["subagent_findings"], list):
+        raise ValueError("Adversarial review `subagent_findings` must be a list.")
+    if not report["subagent_findings"]:
+        raise ValueError("Adversarial review must contain at least one subagent finding.")
+    for index, finding in enumerate(report["subagent_findings"], start=1):
+        if not isinstance(finding, dict):
+            raise ValueError(f"Subagent finding {index} must be an object.")
+        for key in ("subagent", "role", "must_fix", "should_fix", "nice_to_have"):
+            if key not in finding:
+                raise ValueError(f"Subagent finding {index} missing `{key}`.")
+    return report
+
+
+def load_adversarial_review_report(path: str | Path) -> dict[str, Any]:
+    report_path = Path(path)
+    data = json.loads(report_path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"Expected adversarial review object: {report_path}")
+    return validate_adversarial_review_report(data)
 
 
 def load_review_report(path: str | Path) -> dict[str, Any]:
@@ -58,11 +95,16 @@ def load_review_reports(reviews_dir: str | Path) -> list[dict[str, Any]]:
     directory = Path(reviews_dir)
     if not directory.exists():
         return []
-    return [
-        load_review_report(path)
-        for path in sorted(directory.glob("*.json"))
-        if path.name != "review_progress.json"
-    ]
+    reports: list[dict[str, Any]] = []
+    for path in sorted(directory.glob("*.json")):
+        if path.name == "review_progress.json":
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and ADVERSARIAL_REQUIRED_FIELDS <= data.keys():
+            validate_adversarial_review_report(data)
+            continue
+        reports.append(load_review_report(path))
+    return reports
 
 
 def aggregate_review_reports(reports: list[dict[str, Any]]) -> dict[str, Any]:

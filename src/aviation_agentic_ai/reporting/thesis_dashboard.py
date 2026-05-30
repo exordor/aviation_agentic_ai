@@ -16,6 +16,8 @@ REPORT_SOURCES: dict[str, str] = {
     "retrieval_ablation_benchmark_v2": "reports/stages/retrieval_ablation_benchmark_v2.json",
     "graph_traversal_ablation_benchmark_v2": "reports/stages/graph_traversal_ablation_benchmark_v2.json",
     "sufficiency_evaluation": "reports/stages/sufficiency_evaluation.json",
+    "benchmark_reviewed_subset_summary": "reports/stages/benchmark_reviewed_subset_summary.json",
+    "answer_evaluation_benchmark_subset": "reports/stages/answer_evaluation_benchmark_subset.json",
     "kg_extraction_comparison": "reports/stages/kg_extraction_comparison.json",
     "curated_ontology_evaluation": "reports/stages/curated_ontology_evaluation.json",
     "triple_semantic_review_sample": "reports/stages/triple_semantic_review_sample.json",
@@ -83,6 +85,8 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "retrieval_ablation_benchmark_v2": ("retrieval", "kg_evidence"),
         "graph_traversal_ablation_benchmark_v2": ("retrieval", "graph_paths"),
         "sufficiency_evaluation": ("safety_abstention",),
+        "benchmark_reviewed_subset_summary": ("benchmark_manual_review",),
+        "answer_evaluation_benchmark_subset": ("answer_generation", "safety_abstention"),
         "kg_extraction_comparison": ("ontology_kg",),
         "curated_ontology_evaluation": ("ontology_kg",),
         "triple_semantic_review_sample": ("ontology_kg", "manual_review"),
@@ -95,6 +99,8 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "retrieval_ablation_benchmark_v2": "benchmark_v2_120",
         "graph_traversal_ablation_benchmark_v2": "benchmark_v2_120",
         "sufficiency_evaluation": "benchmark_v2_120",
+        "benchmark_reviewed_subset_summary": "benchmark_v2_reviewed_subset_60",
+        "answer_evaluation_benchmark_subset": "answer_eval_subset",
         "answer_evaluation": "10_cq_answer_subset",
         "robustness_evaluation": "robustness_10_cases",
         "kg_extraction_comparison": "35_question_expanded",
@@ -103,6 +109,7 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
     manual_review = {
         "benchmark_v2_summary",
         "benchmark_review_pack",
+        "benchmark_reviewed_subset_summary",
         "graph_traversal_ablation_benchmark_v2",
         "triple_semantic_review_sample",
     }
@@ -137,6 +144,9 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     retrieval = reports["retrieval_ablation_benchmark_v2"]
     traversal = reports["graph_traversal_ablation_benchmark_v2"]
     sufficiency = reports["sufficiency_evaluation"]
+    robustness = reports["robustness_evaluation"]
+    reviewed_subset = reports.get("benchmark_reviewed_subset_summary", {})
+    answer_subset = reports.get("answer_evaluation_benchmark_subset", {})
     kg = reports["kg_extraction_comparison"]
     triple = reports["triple_semantic_review_sample"]
 
@@ -185,6 +195,49 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "false_abstention_rate": suff_metrics.get("false_abstention_rate"),
             "risk_category_accuracy": suff_metrics.get("risk_category_accuracy"),
             "confidence_intervals": sufficiency.get("confidence_intervals", {}),
+        },
+        "robustness": {
+            "abstention_correctness": _metric(
+                robustness,
+                "aggregate",
+                "abstention_correctness",
+            ),
+            "false_answer_rate": _metric(robustness, "aggregate", "false_answer_rate"),
+            "advisory_boundary_violation_count": _metric(
+                robustness,
+                "aggregate",
+                "advisory_boundary_violation_count",
+            ),
+        },
+        "benchmark_reviewed_subset": {
+            "labels_total": _metric(reviewed_subset, "metadata", "labels_total"),
+            "review_status": _metric(reviewed_subset, "metadata", "review_status"),
+            "external_aviation_expert_certified": _metric(
+                reviewed_subset,
+                "metadata",
+                "external_aviation_expert_certified",
+            ),
+            "manual_review_completed": _metric(
+                reviewed_subset,
+                "metadata",
+                "manual_review_completed",
+            ),
+        },
+        "answer_evaluation_benchmark_subset": {
+            "answers_total": _metric(answer_subset, "metadata", "answers_total"),
+            "evaluation_status": _metric(answer_subset, "metadata", "evaluation_status"),
+            "unmatched_gold_labels": _metric(
+                answer_subset,
+                "metadata",
+                "unmatched_gold_labels",
+            ),
+            "hybrid_faithfulness": _metric(
+                answer_subset,
+                "aggregate",
+                "hybrid",
+                "faithfulness",
+            ),
+            "score_method": "deterministic_heuristic",
         },
         "kg": {
             "provenance_completeness": structure_kg.get("provenance_complete_rate"),
@@ -264,14 +317,22 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
                 "sufficiency_evaluation",
             ],
             "limitations": "machine-seeded and requires manual naturalness review",
-            "can_support_thesis_main_claim": "yes",
+            "can_support_thesis_main_claim": "provisional_internal_pending_manual_review",
             "evidence_role": "main_thesis_benchmark",
+        },
+        {
+            "dataset": "benchmark reviewed subset 60",
+            "purpose": "project-author review scaffold for high-value labels",
+            "used_in_reports": ["benchmark_reviewed_subset_summary"],
+            "limitations": "review scaffold only; no external aviation expert certification",
+            "can_support_thesis_main_claim": "pending_manual_review",
+            "evidence_role": "manual_review_scaffold",
         },
         {
             "dataset": "answer-eval subset",
             "purpose": "answer citation and faithfulness heuristics",
-            "used_in_reports": ["answer_evaluation"],
-            "limitations": "small subset; deterministic heuristic scores",
+            "used_in_reports": ["answer_evaluation", "answer_evaluation_benchmark_subset"],
+            "limitations": "stratified subset; deterministic heuristic scores unless annotated",
             "can_support_thesis_main_claim": "partial",
             "evidence_role": "pilot",
         },
@@ -455,6 +516,31 @@ def _consistency_checks(
     )
     suff_gold = _metric(reports["sufficiency_evaluation"], "metadata", "gold_labels_path")
     triple = reports["triple_semantic_review_sample"]
+    sufficiency_boundary = _metric(
+        reports["sufficiency_evaluation"],
+        "metrics",
+        "advisory_boundary_violation_count",
+        default=0,
+    )
+    robustness_boundary = _metric(
+        reports["robustness_evaluation"],
+        "aggregate",
+        "advisory_boundary_violation_count",
+        default=0,
+    )
+    robustness_false_answer = _metric(
+        reports["robustness_evaluation"],
+        "aggregate",
+        "false_answer_rate",
+        default=0,
+    )
+    reviewed_subset = reports.get("benchmark_reviewed_subset_summary", {})
+    reviewed_subset_pending = _metric(
+        reviewed_subset,
+        "metadata",
+        "manual_review_completed",
+        default=False,
+    ) is not True
     scanned_paths = [
         root / "docs" / "thesis_positioning.md",
         root / "docs" / "experiment_workflow.md",
@@ -468,6 +554,11 @@ def _consistency_checks(
             continue
         unsafe_hits.extend(_unsafe_claim_hits(path))
     primary_metric_gaps = _primary_metric_report_gaps(root)
+    manual_pending = (
+        _metric(triple, "summary", "reviewed_total", default=0) == 0
+        and _metric(triple, "metadata", "semantic_correctness_claimed", default=True)
+        is False
+    )
     checks = {
         "every_rq_has_evidence_report": all(row["evidence_reports"] for row in rq_matrix),
         "primary_thesis_metrics_have_report_evidence": not primary_metric_gaps,
@@ -479,19 +570,31 @@ def _consistency_checks(
             for row in dataset_matrix
             if row["dataset"] in {"10-CQ pilot", "35-question expanded", "answer-eval subset"}
         ),
-        "manual_review_dependent_metrics_not_completed": (
-            _metric(triple, "summary", "reviewed", default=0) == 0
-            and _metric(triple, "metadata", "semantic_correctness_claimed", default=True)
-            is False
+        "manual_review_dependent_metrics_not_completed": manual_pending,
+        "reviewed_subset_manual_review_pending": reviewed_subset_pending,
+        "safety_reports_have_no_boundary_violations": (
+            sufficiency_boundary == 0 and robustness_boundary == 0
         ),
+        "robustness_false_answer_rate_zero": robustness_false_answer == 0,
         "no_unsafe_claim_patterns": not unsafe_hits,
         "unsafe_hits": unsafe_hits,
     }
-    checks["all_passed"] = all(
+    checks["automated_consistency_passed"] = all(
         value
         for key, value in checks.items()
         if key not in {"primary_thesis_metric_gaps", "unsafe_hits"}
+        and key
+        not in {
+            "manual_review_dependent_metrics_not_completed",
+            "reviewed_subset_manual_review_pending",
+        }
     )
+    checks["claim_readiness_passed"] = (
+        checks["automated_consistency_passed"]
+        and not checks["manual_review_dependent_metrics_not_completed"]
+        and not checks["reviewed_subset_manual_review_pending"]
+    )
+    checks["all_passed"] = checks["claim_readiness_passed"]
     return checks
 
 
@@ -636,6 +739,30 @@ def write_thesis_experiment_dashboard_markdown(
                 f"False Abstention Rate={primary['sufficiency']['false_abstention_rate']} |"
             ),
             (
+                "| robustness | "
+                f"Abstention Correctness={primary['robustness']['abstention_correctness']}, "
+                f"False Answer Rate={primary['robustness']['false_answer_rate']}, "
+                "Boundary Violations="
+                f"{primary['robustness']['advisory_boundary_violation_count']} |"
+            ),
+            (
+                "| benchmark reviewed subset | "
+                f"Labels={primary['benchmark_reviewed_subset']['labels_total']}, "
+                f"Review Status={primary['benchmark_reviewed_subset']['review_status']}, "
+                "External Expert Certified="
+                f"{primary['benchmark_reviewed_subset']['external_aviation_expert_certified']} |"
+            ),
+            (
+                "| answer-eval benchmark subset | "
+                f"Answers={primary['answer_evaluation_benchmark_subset']['answers_total']}, "
+                f"Status={primary['answer_evaluation_benchmark_subset']['evaluation_status']}, "
+                "Unmatched Gold Labels="
+                f"{primary['answer_evaluation_benchmark_subset']['unmatched_gold_labels']}, "
+                "Hybrid Faithfulness="
+                f"{primary['answer_evaluation_benchmark_subset']['hybrid_faithfulness']}, "
+                "Score Method=deterministic_heuristic |"
+            ),
+            (
                 "| KG | "
                 f"Provenance Completeness={primary['kg']['provenance_completeness']}, "
                 f"Evidence-in-source Rate={primary['kg']['evidence_in_source_rate']}, "
@@ -649,6 +776,19 @@ def write_thesis_experiment_dashboard_markdown(
             ),
         ]
     )
+
+    ci = primary["sufficiency"].get("confidence_intervals", {})
+    if ci:
+        lines.extend(["", "## Safety Confidence Intervals", ""])
+        lines.append("| Metric | Mean | 95% CI | n |")
+        lines.append("| --- | ---: | --- | ---: |")
+        for metric, values in ci.items():
+            if metric == "ci_policy" or not isinstance(values, dict):
+                continue
+            lines.append(
+                f"| {metric} | {values.get('mean')} | "
+                f"{values.get('lower')} - {values.get('upper')} | {values.get('n')} |"
+            )
 
     failure = result["failure_mode_summary"]
     lines.extend(["", "## Failure-Mode Summary", ""])

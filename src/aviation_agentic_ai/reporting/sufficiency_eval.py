@@ -235,6 +235,16 @@ def write_sufficiency_evaluation_markdown(result: dict[str, Any], output_path: s
     ]
     for category, count in metrics["risk_category_counts"].items():
         lines.append(f"| {category} | {count} |")
+    lines.extend(["", "## Confidence Intervals", ""])
+    lines.append("| Metric | Mean | 95% CI | n |")
+    lines.append("| --- | ---: | --- | ---: |")
+    for metric, values in result.get("confidence_intervals", {}).items():
+        if metric == "ci_policy" or not isinstance(values, dict):
+            continue
+        lines.append(
+            f"| {metric} | {values.get('mean')} | {values.get('lower')} - "
+            f"{values.get('upper')} | {values.get('n')} |"
+        )
     lines.extend(["", "## Decision Errors", ""])
     errors = [record for record in result["records"] if not record["correct_decision"]]
     if not errors:

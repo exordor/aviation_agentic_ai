@@ -1,14 +1,19 @@
 {
   "consistency_checks": {
-    "all_passed": true,
+    "all_passed": false,
+    "automated_consistency_passed": true,
     "benchmark_v2_used_in_main_retrieval": true,
     "benchmark_v2_used_in_safety": true,
+    "claim_readiness_passed": false,
     "every_rq_has_evidence_report": true,
     "manual_review_dependent_metrics_not_completed": true,
     "no_unsafe_claim_patterns": true,
     "pilot_reports_not_marked_main": true,
     "primary_thesis_metric_gaps": [],
     "primary_thesis_metrics_have_report_evidence": true,
+    "reviewed_subset_manual_review_pending": true,
+    "robustness_false_answer_rate_zero": true,
+    "safety_reports_have_no_boundary_violations": true,
     "unsafe_hits": []
   },
   "dataset_usage_matrix": [
@@ -35,7 +40,7 @@
       ]
     },
     {
-      "can_support_thesis_main_claim": "yes",
+      "can_support_thesis_main_claim": "provisional_internal_pending_manual_review",
       "dataset": "benchmark v2 120",
       "evidence_role": "main_thesis_benchmark",
       "limitations": "machine-seeded and requires manual naturalness review",
@@ -48,13 +53,24 @@
       ]
     },
     {
+      "can_support_thesis_main_claim": "pending_manual_review",
+      "dataset": "benchmark reviewed subset 60",
+      "evidence_role": "manual_review_scaffold",
+      "limitations": "review scaffold only; no external aviation expert certification",
+      "purpose": "project-author review scaffold for high-value labels",
+      "used_in_reports": [
+        "benchmark_reviewed_subset_summary"
+      ]
+    },
+    {
       "can_support_thesis_main_claim": "partial",
       "dataset": "answer-eval subset",
       "evidence_role": "pilot",
-      "limitations": "small subset; deterministic heuristic scores",
+      "limitations": "stratified subset; deterministic heuristic scores unless annotated",
       "purpose": "answer citation and faithfulness heuristics",
       "used_in_reports": [
-        "answer_evaluation"
+        "answer_evaluation",
+        "answer_evaluation_benchmark_subset"
       ]
     },
     {
@@ -136,6 +152,29 @@
       "present": true,
       "questions_count": 120,
       "report_name": "sufficiency_evaluation"
+    },
+    {
+      "dataset_used": "benchmark_v2_reviewed_subset_60",
+      "manual_review_required": true,
+      "metric_layers_covered": [
+        "benchmark_manual_review"
+      ],
+      "path": "reports/stages/benchmark_reviewed_subset_summary.json",
+      "present": true,
+      "questions_count": 60,
+      "report_name": "benchmark_reviewed_subset_summary"
+    },
+    {
+      "dataset_used": "answer_eval_subset",
+      "manual_review_required": false,
+      "metric_layers_covered": [
+        "answer_generation",
+        "safety_abstention"
+      ],
+      "path": "reports/stages/answer_evaluation_benchmark_subset.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "answer_evaluation_benchmark_subset"
     },
     {
       "dataset_used": "35_question_expanded",
@@ -231,36 +270,82 @@
     "source_policy": "aggregate_existing_reports_no_recompute"
   },
   "primary_results": {
+    "answer_evaluation_benchmark_subset": {
+      "answers_total": 0,
+      "evaluation_status": "pending_answer_generation",
+      "hybrid_faithfulness": 0.0,
+      "score_method": "deterministic_heuristic",
+      "unmatched_gold_labels": 35
+    },
+    "benchmark_reviewed_subset": {
+      "external_aviation_expert_certified": false,
+      "labels_total": 60,
+      "manual_review_completed": false,
+      "review_status": "project_review_pending_external_review"
+    },
     "best_lexical_hybrid": {
       "confidence_intervals": {
+        "context_precision_at_5": {
+          "confidence": 0.95,
+          "lower": 0.0917,
+          "mean": 0.1167,
+          "n": 120,
+          "samples": 1000,
+          "seed": 17,
+          "upper": 0.14
+        },
         "context_recall": {
+          "confidence": 0.95,
           "lower": 0.6625,
           "mean": 0.7375,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.8125
         },
+        "mrr_at_10": {
+          "confidence": 0.95,
+          "lower": 0.2843,
+          "mean": 0.3529,
+          "n": 120,
+          "samples": 1000,
+          "seed": 17,
+          "upper": 0.4276
+        },
         "mrr_at_5": {
+          "confidence": 0.95,
           "lower": 0.2697,
           "mean": 0.34,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.4174
         },
         "ndcg_at_10": {
+          "confidence": 0.95,
           "lower": 0.3559,
           "mean": 0.4425,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.5322
         },
         "recall_at_10": {
+          "confidence": 0.95,
           "lower": 0.5,
           "mean": 0.5917,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.6833
         },
         "recall_at_5": {
+          "confidence": 0.95,
           "lower": 0.4167,
           "mean": 0.5083,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.6
         }
       },
@@ -278,6 +363,11 @@
       "unsupported_triple_count": 0,
       "valid_triples": 448
     },
+    "robustness": {
+      "abstention_correctness": 1.0,
+      "advisory_boundary_violation_count": 0,
+      "false_answer_rate": 0.0
+    },
     "standalone_traversal": {
       "path_coverage": 0.75,
       "recall_at_5": 0.1333
@@ -286,9 +376,12 @@
       "abstention_accuracy": 1.0,
       "confidence_intervals": {
         "abstention_accuracy": {
+          "confidence": 0.95,
           "lower": 1.0,
           "mean": 1.0,
+          "n": 20,
           "samples": 1000,
+          "seed": 17,
           "upper": 1.0
         },
         "ci_policy": {
@@ -299,21 +392,30 @@
           "supported_records": 100
         },
         "false_abstention_rate": {
+          "confidence": 0.95,
           "lower": 0.21,
           "mean": 0.29,
+          "n": 100,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.38
         },
         "false_answer_rate": {
+          "confidence": 0.95,
           "lower": 0.0,
           "mean": 0.0,
+          "n": 20,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.0
         },
         "risk_category_accuracy": {
+          "confidence": 0.95,
           "lower": 1.0,
           "mean": 1.0,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 1.0
         }
       },
@@ -336,34 +438,67 @@
     },
     "vector_only": {
       "confidence_intervals": {
+        "context_precision_at_5": {
+          "confidence": 0.95,
+          "lower": 0.0867,
+          "mean": 0.11,
+          "n": 120,
+          "samples": 1000,
+          "seed": 17,
+          "upper": 0.1367
+        },
         "context_recall": {
+          "confidence": 0.95,
           "lower": 0.5375,
           "mean": 0.6208,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.7083
         },
-        "mrr_at_5": {
+        "mrr_at_10": {
+          "confidence": 0.95,
           "lower": 0.2547,
           "mean": 0.3261,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
+          "upper": 0.4017
+        },
+        "mrr_at_5": {
+          "confidence": 0.95,
+          "lower": 0.2547,
+          "mean": 0.3261,
+          "n": 120,
+          "samples": 1000,
+          "seed": 17,
           "upper": 0.4017
         },
         "ndcg_at_10": {
+          "confidence": 0.95,
           "lower": 0.3023,
           "mean": 0.3863,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.4754
         },
         "recall_at_10": {
+          "confidence": 0.95,
           "lower": 0.3917,
           "mean": 0.475,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.5667
         },
         "recall_at_5": {
+          "confidence": 0.95,
           "lower": 0.3917,
           "mean": 0.475,
+          "n": 120,
           "samples": 1000,
+          "seed": 17,
           "upper": 0.5667
         }
       },

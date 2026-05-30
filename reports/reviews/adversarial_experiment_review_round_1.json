@@ -1,0 +1,303 @@
+{
+  "acceptance_criteria": [
+    "Final thesis-facing reports separate automated consistency from thesis claim readiness.",
+    "Manual-review-dependent metrics remain pending unless annotation fields are completed.",
+    "Benchmark v2 is described as the main internal thesis benchmark, not external aviation validation.",
+    "Graph/path metrics are labelled heuristic unless manually reviewed.",
+    "Robustness and sufficiency results are both visible in RQ4 safety interpretation.",
+    "No report claims operational flight readiness, external certification, or POH/ATC/checklist replacement."
+  ],
+  "manual_review_dependencies": [
+    "Benchmark v2 wording, evidence sufficiency, answer-key correctness, and risk categories.",
+    "All 20 insufficient-evidence labels need aviation safety review.",
+    "Triple semantic review sample: subject/object/predicate/direction/evidence/genericness/duplicate fields.",
+    "Graph path relevance labels for traversal path metrics.",
+    "Answer faithfulness, answer correctness, and answer relevance if used as thesis evidence."
+  ],
+  "must_fix": [
+    "Dashboard `all_passed` currently conflates artifact consistency with claim readiness while benchmark, path, and triple semantic review remain pending.",
+    "RQ4 safety interpretation underplays robustness failures relative to sufficiency evaluation.",
+    "Live query and robustness paths need sufficiency/advisory-boundary gating before answers are treated as safe evidence.",
+    "Benchmark v2 remains machine-seeded; structural validation must not be described as semantic or expert review.",
+    "KG claims must distinguish schema/provenance validity from semantic correctness.",
+    "Path metrics must remain diagnostic heuristics, not semantic path correctness or retrieval superiority."
+  ],
+  "nice_to_have": [
+    "Add paired bootstrap deltas for vector-vs-hybrid and lexical-vs-traversal comparisons.",
+    "Add inter-annotator agreement if multiple reviewers annotate benchmark/triple/path samples.",
+    "Add an externally authored natural-question set before broader domain-correctness claims.",
+    "Add preflight checks for ignored chunks/indexes and optional GraphRAG dependencies."
+  ],
+  "recommended_iterations": [
+    {
+      "artifacts": [
+        "reports/reviews/adversarial_experiment_review_round_1.md",
+        "reports/reviews/adversarial_experiment_review_round_1.json",
+        "reports/reviews/iteration_plan_thesis_hardening.md"
+      ],
+      "priority": "P0",
+      "title": "Claim and workflow consistency"
+    },
+    {
+      "artifacts": [
+        "data/cqs/06_phak_ch4_0.benchmark_v2.reviewed_subset.gold.json",
+        "reports/stages/benchmark_reviewed_subset_summary.md",
+        "reports/stages/benchmark_reviewed_subset_summary.json"
+      ],
+      "priority": "P1",
+      "title": "Benchmark reviewed-subset scaffold"
+    },
+    {
+      "artifacts": [
+        "reports/stages/triple_semantic_review.md",
+        "reports/stages/triple_semantic_review_sample.json",
+        "data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json",
+        "reports/stages/answer_evaluation_benchmark_subset.md",
+        "reports/stages/answer_evaluation_benchmark_subset.json"
+      ],
+      "priority": "P2",
+      "title": "Manual-review and answer-evaluation subset hardening"
+    },
+    {
+      "artifacts": [
+        "reports/stages/retrieval_ablation_benchmark_v2.md",
+        "reports/stages/graph_traversal_ablation_benchmark_v2.md",
+        "reports/stages/sufficiency_evaluation.md"
+      ],
+      "priority": "P3",
+      "title": "Confidence intervals and graph interpretation"
+    },
+    {
+      "artifacts": [
+        "reports/stages/thesis_experiment_dashboard.md",
+        "reports/final/project_report.md"
+      ],
+      "priority": "P4",
+      "title": "Dashboard and final report synchronization"
+    }
+  ],
+  "round": 1,
+  "should_fix": [
+    "Show supported-only and insufficient-evidence retrieval breakdowns to avoid distorted mixed aggregates.",
+    "Expose bootstrap CI metadata visibly in Markdown/dashboard rather than only JSON or comments.",
+    "Mark answer metrics as deterministic heuristics in table labels.",
+    "Keep `reports-review` from rewriting data artifacts unless explicitly requested.",
+    "Document clean-checkout prerequisites for chunks, Chroma indexes, and GraphRAG optional dependencies."
+  ],
+  "subagent_findings": [
+    {
+      "acceptance_criteria": [
+        "Every RQ has comparator, metric, result, limitation, and supported wording.",
+        "Dashboard distinguishes automated consistency from claim readiness."
+      ],
+      "manual_review_dependencies": [
+        "Benchmark naturalness/safety review",
+        "Triple semantic review",
+        "Path relevance review",
+        "Answer quality review"
+      ],
+      "must_fix": [
+        "RQ4 cites sufficiency and robustness but surfaces the favorable sufficiency result more prominently.",
+        "RQ2 evidence traceability is not yet proven as an improvement over vector-only citation metrics.",
+        "Benchmark v2 is still machine-seeded and should be provisional internal evidence."
+      ],
+      "nice_to_have": [
+        "Add claim/evidence/limitation table to final report.",
+        "Report paired deltas rather than only separate CIs."
+      ],
+      "role": "Thesis Methodologist",
+      "should_fix": [
+        "Add question-type breakdowns for RQ3/H5.",
+        "Do not imply hybrid clearly outperforms vector when CIs overlap."
+      ],
+      "subagent": "A",
+      "unsafe_claims": [
+        "GraphRAG can improve traceability should be narrowed to adds inspectable KG/path evidence.",
+        "Sufficiency improves safety is too strong without robustness reconciliation."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "Retrieval reports show answerability breakdowns.",
+        "Path metrics are labelled heuristic in tables and notes."
+      ],
+      "manual_review_dependencies": [
+        "Benchmark quality review",
+        "Path relevance labels",
+        "Answer faithfulness/correctness review"
+      ],
+      "must_fix": [
+        "Vector and hybrid budgets are not equal for every @k comparison.",
+        "Mixed supported/no-answer retrieval aggregates distort Recall/MRR and Context Recall.",
+        "Path support heuristic is too lenient for semantic path correctness."
+      ],
+      "nice_to_have": [
+        "Add BM25/sparse baseline.",
+        "Add reverse traversal ablation."
+      ],
+      "role": "RAG / GraphRAG Evaluation Reviewer",
+      "should_fix": [
+        "Qualify KG evidence coverage as entity-overlap evidence.",
+        "Make answer metric labels visibly heuristic."
+      ],
+      "subagent": "B",
+      "unsafe_claims": [
+        "Path Recall@5 must not be presented as retrieval superiority.",
+        "Sufficiency safety should be framed as diagnostic unless non-gold-aware baselines are added."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "KG claims say schema/provenance-valid unless manual annotations are complete.",
+        "Triple review summary only reports rates when reviewed_total > 0."
+      ],
+      "manual_review_dependencies": [
+        "Complete the 100-triple semantic sample.",
+        "Review class-token, supportedByEvidence, duplicate, and generic KG patterns."
+      ],
+      "must_fix": [
+        "Evidence-in-source rate must not be read as semantic evidence support.",
+        "Dashboard `all_passed` is misleading while semantic review is unfinished.",
+        "KG semantic correctness is not established."
+      ],
+      "nice_to_have": [
+        "Add warnings for subject/object labels beginning with `Cl_`.",
+        "Add task-ontology wording directly to ontology comments."
+      ],
+      "role": "Ontology / KG Reviewer",
+      "should_fix": [
+        "Keep schema validity, provenance validity, and semantic correctness separate.",
+        "Resolve publication-readiness ambiguity in ontology evaluation."
+      ],
+      "subagent": "C",
+      "unsafe_claims": [
+        "Valid triples or all_passed must not imply correct triples."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "Reviewed subset contains explicit pending review statuses.",
+        "No accepted reviewed label claims external expert certification."
+      ],
+      "manual_review_dependencies": [
+        "All 20 no-answer labels need safety review.",
+        "Cross-page labels need source-page and synthesis review."
+      ],
+      "must_fix": [
+        "Benchmark v2 is explicitly machine-seeded.",
+        "Machine wording is systemic.",
+        "Cross-page labels are under-flagged.",
+        "Some answer spans are truncated."
+      ],
+      "nice_to_have": [
+        "Add manual fields for naturalness, span completeness, evidence support, synthesis, and safety.",
+        "Add near-duplicate/chunk-reuse warnings."
+      ],
+      "recommended_subset": "Reviewer proposed an alternate 60-label subset emphasizing safety, cross-page, supported factual, and mixed terminology/paraphrase labels. Implementation follows the user-specified core subset: all concept_definition, relation_causal, cross_page, and insufficient_evidence labels.",
+      "role": "Benchmark Curator",
+      "should_fix": [
+        "Improve review rules for cross-page synthesis and filler entities.",
+        "Separate structural validation from human-reviewed subset status."
+      ],
+      "subagent": "D",
+      "unsafe_claims": [
+        "All insufficient-evidence labels need safety review, not only automatically flagged labels."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "Operational/live query prompts abstain before generation.",
+        "Robustness unsupported cases have zero boundary violations or are reported as unresolved."
+      ],
+      "manual_review_dependencies": [
+        "Independent risk-category labels",
+        "Manual answer boundary review"
+      ],
+      "must_fix": [
+        "Live query lacked a sufficiency/advisory boundary gate.",
+        "Robustness reported false_answer_rate=1.0 and four boundary violations.",
+        "Risk-category accuracy is circular when expected risk is derived by the same detector."
+      ],
+      "nice_to_have": [
+        "Add numerator/denominator displays beside safety rates.",
+        "Add a no-answer risk-category table."
+      ],
+      "role": "Aviation Safety Reviewer",
+      "should_fix": [
+        "Add independent expected risk categories to no-answer labels.",
+        "Broaden boundary-violation phrase detection."
+      ],
+      "subagent": "E",
+      "unsafe_claims": [
+        "Generated robustness artifacts contained unsafe answer behavior for operational prompts."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "No thesis-all path requires API keys.",
+        "Reports expose CI metadata with n, seed, samples, and confidence.",
+        "Report-only targets do not rewrite data artifacts by default."
+      ],
+      "manual_review_dependencies": [
+        "Benchmark, path, triple, and answer reviews remain pending."
+      ],
+      "must_fix": [
+        "Clean checkout reproducibility depends on ignored chunks/indexes.",
+        "CI reporting is incomplete or hidden in Markdown.",
+        "Run IDs and timings prevent byte-identical report reruns."
+      ],
+      "nice_to_have": [
+        "Add thesis-preflight target.",
+        "Emit artifact hashes."
+      ],
+      "role": "Statistics / Reproducibility Reviewer",
+      "should_fix": [
+        "Do not let reports-review rewrite reviewed gold files by default.",
+        "Include n, confidence, and seed in bootstrap CI results."
+      ],
+      "subagent": "F",
+      "unsafe_claims": [
+        "Makefile determinism should mention prepared local artifacts and optional dependencies."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "Final report surfaces benchmark, safety, KG, path, and answer limitations consistently.",
+        "No manual-pending artifact is treated as validated evidence."
+      ],
+      "manual_review_dependencies": [
+        "Review all 120 benchmark labels or clearly limit claims to reviewed subsets.",
+        "Complete triple and path review before semantic/path correctness claims."
+      ],
+      "must_fix": [
+        "A strict examiner could reject the methodology if machine-seeded pending artifacts are treated as validated.",
+        "Safety claim is inconsistent across sufficiency and robustness.",
+        "KG semantic correctness is not established.",
+        "Path metrics are heuristic but used as RQ3 evidence."
+      ],
+      "nice_to_have": [
+        "Add external human-written question set.",
+        "Add direct LLM/no-retrieval answer baseline."
+      ],
+      "role": "Skeptical External Examiner",
+      "should_fix": [
+        "Downgrade main benchmark support until review statuses are completed.",
+        "Expand answer evaluation beyond heuristic pilot evidence before strong answer-quality claims."
+      ],
+      "subagent": "G",
+      "unsafe_claims": [
+        "Avoid benchmark proves aviation-domain correctness.",
+        "Avoid KG validation proves triples are correct.",
+        "Avoid safety-aware abstention works without qualification."
+      ]
+    }
+  ],
+  "unsafe_claims": [
+    "GraphRAG improves evidence traceability compared with vector-only RAG.",
+    "Sufficiency improves safety without robustness qualification.",
+    "Benchmark v2 supports thesis main claims without manual-review caveats.",
+    "KG validation proves triple semantic correctness.",
+    "Path Recall@5 proves graph reasoning or retrieval superiority.",
+    "Risk-category accuracy proves safety when labels are derived by the same detector."
+  ]
+}

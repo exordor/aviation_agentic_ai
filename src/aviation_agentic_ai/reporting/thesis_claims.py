@@ -14,8 +14,9 @@ REVISED_THESIS_CLAIM = (
     "This thesis does not assume that GraphRAG universally improves retrieval "
     "Recall@k over vector-only RAG. Instead, it investigates a narrower and more "
     "safety-relevant claim: in aviation training question answering, an "
-    "ontology-constrained GraphRAG pipeline can improve evidence traceability, "
-    "structured KG evidence coverage, and insufficient-evidence abstention. The "
+    "ontology-constrained GraphRAG pipeline can add inspectable KG/path "
+    "evidence, expose structured evidence coverage, and support "
+    "insufficient-evidence abstention checks. The "
     "system is therefore evaluated with layered metrics: retrieval quality, KG "
     "evidence quality, answer citation quality, and safety-aware abstention are "
     "measured separately rather than collapsed into a single overall score."
@@ -28,7 +29,7 @@ RESEARCH_QUESTIONS = [
     },
     {
         "id": "RQ2",
-        "question": "Does ontology-constrained KG extraction improve evidence traceability compared with vector-only RAG?",
+        "question": "Does ontology-constrained KG extraction add inspectable evidence-traceability signals compared with vector-only RAG?",
     },
     {
         "id": "RQ3",
@@ -47,7 +48,7 @@ HYPOTHESES = [
     },
     {
         "id": "H2",
-        "hypothesis": "GraphRAG improves evidence traceability compared with vector-only RAG.",
+        "hypothesis": "GraphRAG adds inspectable evidence-traceability signals compared with vector-only RAG.",
     },
     {
         "id": "H3",

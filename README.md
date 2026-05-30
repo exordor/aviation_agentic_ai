@@ -13,9 +13,9 @@ answering?
 
 The current thesis framing does not assume that GraphRAG universally improves
 Recall@k over vector-only RAG. It evaluates a narrower claim:
-ontology-constrained GraphRAG can improve evidence traceability, KG evidence
-coverage, and safety-aware abstention for aviation training QA, with each metric
-layer reported separately.
+ontology-constrained GraphRAG can add inspectable evidence-traceability signals,
+KG evidence coverage, and safety-aware abstention checks for aviation training
+QA, with each metric layer reported separately.
 
 ## What This Project Demonstrates
 
@@ -142,9 +142,11 @@ aviation-ai query "How does angle of attack affect lift?"
 aviation-ai report hybrid-rag --max-questions 1
 aviation-ai report chunking-comparison --max-questions 1
 aviation-ai report benchmark-v2
+aviation-ai report benchmark-reviewed-subset
 aviation-ai report graph-traversal-ablation
 aviation-ai report sufficiency-eval
 aviation-ai report triple-semantic-review
+aviation-ai report answer-eval-subset
 aviation-ai report web-demo-readiness
 aviation-ai report web-demo-smoke
 aviation-ai report final-evaluation
@@ -252,11 +254,14 @@ uv run aviation-ai report final-evaluation
 uv run aviation-ai report thesis-claims
 uv run aviation-ai report evaluation-protocol
 uv run aviation-ai report benchmark-v2
-uv run aviation-ai report benchmark-review-pack
+uv run aviation-ai report benchmark-review-pack --no-write-reviewed
+uv run aviation-ai report benchmark-reviewed-subset
+uv run aviation-ai report answer-eval-subset
 uv run aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2
 uv run aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2
 uv run aviation-ai report sufficiency-eval --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json
 uv run aviation-ai report triple-semantic-review --sample-size 100
+uv run aviation-ai report answer-eval --gold-labels data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json --report-name answer_evaluation_benchmark_subset
 ```
 
 The evaluation protocol is documented in `docs/evaluation_protocol.md`. It maps
@@ -269,7 +274,9 @@ claim or compute a single mixed overall score.
 The canonical thesis workflow is documented in `docs/experiment_workflow.md`.
 It connects research questions, datasets, baselines, metrics, reports,
 limitations, and final thesis claims. Use the Makefile targets for the
-deterministic workflow; they do not require API keys.
+deterministic workflow; they do not require API keys. The main experiment
+targets do require a prepared local GraphRAG workspace with the ignored
+`data/chunks/` and `data/indexes/chroma/` artifacts present.
 
 ```bash
 uv sync --extra dev --extra graphrag
@@ -288,6 +295,8 @@ and `.md`. It aggregates existing reports into an experiment inventory,
 RQ-to-evidence matrix, dataset usage matrix, primary results table,
 failure-mode summary, and thesis-ready claim summary. It does not recompute
 experiments, fabricate manual review results, or produce a mixed overall score.
+`all_passed=false` can be expected while manual benchmark, triple, answer, or
+path review remains pending; automated consistency is reported separately.
 
 ## Thesis Positioning And Claim Safety
 

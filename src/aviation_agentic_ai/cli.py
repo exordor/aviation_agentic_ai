@@ -34,7 +34,11 @@ from aviation_agentic_ai.reporting.academic_outputs import (
     write_visual_assets,
 )
 from aviation_agentic_ai.reporting.answer_eval import write_answer_evaluation
-from aviation_agentic_ai.reporting.benchmark_review_pack import write_benchmark_review_pack
+from aviation_agentic_ai.reporting.benchmark_review_pack import (
+    write_answer_eval_subset,
+    write_benchmark_review_pack,
+    write_benchmark_reviewed_subset,
+)
 from aviation_agentic_ai.reporting.benchmark_v2 import write_benchmark_v2_summary
 from aviation_agentic_ai.reporting.chunking_comparison import write_chunking_comparison
 from aviation_agentic_ai.reporting.evidence_cards import write_evidence_cards
@@ -1450,6 +1454,82 @@ def report_benchmark_review_pack(
     )
 
 
+@report.command("benchmark-reviewed-subset")
+@click.option(
+    "--gold-labels",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Benchmark v2 gold label JSON file.",
+)
+@click.option("--output-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--report-name", default="benchmark_reviewed_subset_summary", show_default=True)
+@click.option(
+    "--subset-output",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Reviewed-subset gold label output path.",
+)
+def report_benchmark_reviewed_subset(
+    gold_labels: Path | None,
+    output_dir: Path | None,
+    report_name: str,
+    subset_output: Path | None,
+) -> None:
+    """Create the deterministic 60-label reviewed-subset scaffold and summary."""
+    config = load_default_config()
+    label_path = gold_labels or resolve_project_path(
+        "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"
+    )
+    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+    subset_path = subset_output or resolve_project_path(
+        "data/cqs/06_phak_ch4_0.benchmark_v2.reviewed_subset.gold.json"
+    )
+    json_path, md_path, created_subset, result = write_benchmark_reviewed_subset(
+        label_path,
+        report_dir,
+        subset_output_path=subset_path,
+        report_name=report_name,
+    )
+    click.echo(f"Wrote {project_relative_path(json_path)}")
+    click.echo(f"Wrote {project_relative_path(md_path)}")
+    click.echo(f"Wrote {project_relative_path(created_subset)}")
+    click.echo(
+        f"Prepared reviewed subset scaffold with {result['metadata']['labels_total']} labels."
+    )
+
+
+@report.command("answer-eval-subset")
+@click.option(
+    "--gold-labels",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Benchmark v2 gold label JSON file.",
+)
+@click.option(
+    "--subset-output",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Answer-evaluation subset gold label output path.",
+)
+def report_answer_eval_subset(
+    gold_labels: Path | None,
+    subset_output: Path | None,
+) -> None:
+    """Create the deterministic answer-evaluation subset gold labels."""
+    label_path = gold_labels or resolve_project_path(
+        "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"
+    )
+    subset_path = subset_output or resolve_project_path(
+        "data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json"
+    )
+    created_subset, result = write_answer_eval_subset(label_path, subset_path)
+    click.echo(f"Wrote {project_relative_path(created_subset)}")
+    click.echo(
+        f"Prepared answer-eval subset with {len(result['labels'])} labels "
+        "for deterministic heuristic scoring."
+    )
+
+
 @report.command("kg-extraction-comparison")
 @click.option("--fixed-kg", type=click.Path(path_type=Path), default=None)
 @click.option("--structure-aware-kg", type=click.Path(path_type=Path), default=None)
@@ -1543,10 +1623,18 @@ def report_sufficiency_eval(
 @report.command("triple-semantic-review")
 @click.option("--kg-file", "kg_path", type=click.Path(path_type=Path), default=None)
 @click.option("--sample-size", type=int, default=100, show_default=True)
+@click.option(
+    "--annotations",
+    "annotations_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional existing review JSON with manual annotations to merge.",
+)
 @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
 def report_triple_semantic_review(
     kg_path: Path | None,
     sample_size: int,
+    annotations_path: Path | None,
     output_dir: Path | None,
 ) -> None:
     """Prepare a KG triple semantic review sample with empty manual annotations."""
@@ -1556,6 +1644,7 @@ def report_triple_semantic_review(
         kg_path or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
         report_dir,
         sample_size=sample_size,
+        annotations_path=annotations_path,
     )
     click.echo(f"Wrote {project_relative_path(json_path)}")
     click.echo(f"Wrote {project_relative_path(md_path)}")

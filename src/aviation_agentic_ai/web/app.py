@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from aviation_agentic_ai.paths import PROJECT_ROOT
 from aviation_agentic_ai.retrieval.hybrid import run_query
+from aviation_agentic_ai.retrieval.sufficiency import evaluate_evidence_sufficiency
 from aviation_agentic_ai.web.data import (
     STRUCTURE_AWARE_CHUNKS,
     STRUCTURE_AWARE_COLLECTION,
@@ -204,6 +205,22 @@ def create_app(
         question = request.question.strip()
         if not question:
             raise HTTPException(status_code=400, detail="Question is required.")
+        boundary_decision = evaluate_evidence_sufficiency(question, {})
+        if boundary_decision["risk_category"] != "training_question":
+            result = {
+                "question": question,
+                "mode": request.mode,
+                "answer": (
+                    "The retrieved evidence is insufficient for a grounded answer. "
+                    f"Reason: {boundary_decision['reason']}"
+                ),
+                "fused_chunks": [],
+                "graph_triples": [],
+                "graph_paths": [],
+                "sufficiency_decision": boundary_decision,
+            }
+            result["evidence_summary"] = build_evidence_summary(result)
+            return result
         try:
             result = run_query(
                 question,

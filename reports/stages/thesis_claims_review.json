@@ -280,7 +280,7 @@
       "id": "H1"
     },
     {
-      "hypothesis": "GraphRAG improves evidence traceability compared with vector-only RAG.",
+      "hypothesis": "GraphRAG adds inspectable evidence-traceability signals compared with vector-only RAG.",
       "id": "H2"
     },
     {
@@ -297,7 +297,7 @@
     }
   ],
   "metadata": {
-    "created_at": "2026-05-30T00:18:10.790981+00:00",
+    "created_at": "2026-05-30T01:37:21.256677+00:00",
     "project_root": ".",
     "scanned_files": [
       {
@@ -343,7 +343,7 @@
     },
     {
       "id": "RQ2",
-      "question": "Does ontology-constrained KG extraction improve evidence traceability compared with vector-only RAG?"
+      "question": "Does ontology-constrained KG extraction add inspectable evidence-traceability signals compared with vector-only RAG?"
     },
     {
       "id": "RQ3",
@@ -354,7 +354,7 @@
       "question": "Can evidence-aware GraphRAG better identify unsupported or unsafe aviation questions?"
     }
   ],
-  "revised_thesis_claim": "This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can improve evidence traceability, structured KG evidence coverage, and insufficient-evidence abstention. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.",
+  "revised_thesis_claim": "This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can add inspectable KG/path evidence, expose structured evidence coverage, and support insufficient-evidence abstention checks. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.",
   "unsafe_claims": [],
   "unsafe_claims_status": "not_found"
 }

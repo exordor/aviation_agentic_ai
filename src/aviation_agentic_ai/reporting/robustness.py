@@ -9,7 +9,10 @@ from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
 from aviation_agentic_ai.evaluation.metrics import answer_metrics
 from aviation_agentic_ai.evaluation.protocol import build_run_manifest, embedding_metadata
 from aviation_agentic_ai.paths import project_relative_path
-from aviation_agentic_ai.retrieval.sufficiency import detect_risk_category
+from aviation_agentic_ai.retrieval.sufficiency import (
+    detect_risk_category,
+    evaluate_evidence_sufficiency,
+)
 from aviation_agentic_ai.retrieval.hybrid import run_retrieval
 from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME
 
@@ -19,6 +22,15 @@ QueryRunner = Callable[..., dict[str, Any]]
 
 def _run_retrieval_with_deterministic_answer(*args: Any, **kwargs: Any) -> dict[str, Any]:
     result = run_retrieval(*args, **kwargs)
+    question = str(args[0]) if args else str(kwargs.get("question", ""))
+    decision = evaluate_evidence_sufficiency(question, result)
+    result["sufficiency_decision"] = decision
+    if decision["decision"] == "abstain":
+        result["answer"] = (
+            "The retrieved evidence is insufficient for a grounded answer. "
+            f"Reason: {decision['reason']}"
+        )
+        return result
     chunk_ids = [str(item.get("chunk_id", "")) for item in result.get("fused_chunks", [])[:3]]
     triple_ids = [str(item.get("triple_id", "")) for item in result.get("graph_triples", [])[:3]]
     if chunk_ids or triple_ids:
@@ -188,6 +200,7 @@ def build_robustness_evaluation(
         collection_name=collection_name,
         chunking_strategy="structure_aware",
         command=command,
+        llm={"provider": "none", "model": "not_used"},
         embedding=embedding_metadata(index_dir, collection_name),
     )
     return {

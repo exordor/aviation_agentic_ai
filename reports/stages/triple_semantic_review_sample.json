@@ -1,5 +1,6 @@
 {
   "metadata": {
+    "annotations_path": null,
     "kg_path": "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
     "sample_size": 100,
     "sample_size_requested": 100,
@@ -2921,6 +2922,8 @@
       "reviewer_notes"
     ],
     "needs_review": 100,
-    "reviewed": 0
+    "needs_review_total": 100,
+    "reviewed": 0,
+    "reviewed_total": 0
   }
 }

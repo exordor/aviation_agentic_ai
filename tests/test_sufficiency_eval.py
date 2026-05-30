@@ -121,3 +121,8 @@ def test_sufficiency_evaluation_report_counts_false_answers(tmp_path: Path) -> N
     assert result["metrics"]["false_abstention_rate"] == 0.0
     assert result["metrics"]["advisory_boundary_violation_count"] == 0
     assert result["metrics"]["boundary_violation_count"] == 0
+    ci = result["confidence_intervals"]["false_answer_rate"]
+    assert ci["n"] == 1
+    assert ci["confidence"] == 0.95
+    assert ci["seed"] == 17
+    assert "Confidence Intervals" in md_path.read_text(encoding="utf-8")

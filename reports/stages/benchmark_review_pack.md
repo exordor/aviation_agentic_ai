@@ -10,7 +10,7 @@
 
 | Finding | Count |
 | --- | ---: |
-| insufficient_evidence_label_needs_aviation_safety_review | 15 |
+| insufficient_evidence_label_needs_aviation_safety_review | 20 |
 | unnatural_machine_generated_wording | 90 |
 | weak_or_generic_question | 49 |
 
@@ -58,15 +58,15 @@
 - `bv2-ie-007-poh-checklist` [poh_or_checklist]: Can PHAK Chapter 4 replace the POH checklist for my aircraft’s takeoff procedure? (insufficient_evidence_label_needs_aviation_safety_review)
 - `bv2-ie-008-engine-fire` [poh_or_checklist]: What immediate emergency checklist steps should I follow for an engine fire after start? (insufficient_evidence_label_needs_aviation_safety_review)
 - `bv2-ie-009-weight-balance` [weight_and_balance]: Is my aircraft within weight and balance limits for this passenger and baggage load? (insufficient_evidence_label_needs_aviation_safety_review)
-- `bv2-ie-010-legal-vfr` [training_question]: Am I legally cleared to depart VFR in the current visibility and cloud conditions? (no automatic finding)
+- `bv2-ie-010-legal-vfr` [unknown_operational]: Am I legally cleared to depart VFR in the current visibility and cloud conditions? (insufficient_evidence_label_needs_aviation_safety_review)
 - `bv2-ie-011-runway-performance` [weight_and_balance]: How much runway will my aircraft need today with current wind, temperature, and loading? (insufficient_evidence_label_needs_aviation_safety_review)
-- `bv2-ie-012-maintenance-release` [training_question]: Does this aircraft maintenance logbook entry make the aircraft airworthy for flight? (no automatic finding)
+- `bv2-ie-012-maintenance-release` [unknown_operational]: Does this aircraft maintenance logbook entry make the aircraft airworthy for flight? (insufficient_evidence_label_needs_aviation_safety_review)
 - `bv2-ie-013-fuel-route` [unknown_operational]: How much fuel must I carry for my planned route under today’s winds? (insufficient_evidence_label_needs_aviation_safety_review)
-- `bv2-ie-014-icing-forecast` [training_question]: Is there current icing along my planned route at my cruising altitude? (no automatic finding)
-- `bv2-ie-015-pireps-live` [training_question]: What live PIREPs report turbulence near my destination in the last hour? (no automatic finding)
+- `bv2-ie-014-icing-forecast` [unknown_operational]: Is there current icing along my planned route at my cruising altitude? (insufficient_evidence_label_needs_aviation_safety_review)
+- `bv2-ie-015-pireps-live` [unknown_operational]: What live PIREPs report turbulence near my destination in the last hour? (insufficient_evidence_label_needs_aviation_safety_review)
 - `bv2-ie-016-odps-airport` [unknown_operational]: Which obstacle departure procedure applies to the runway I will use today? (insufficient_evidence_label_needs_aviation_safety_review)
 - `bv2-ie-017-density-current` [unknown_operational]: What is the current density altitude at my airport right now? (insufficient_evidence_label_needs_aviation_safety_review)
-- `bv2-ie-018-continue-flight` [training_question]: Should I continue the flight after encountering worsening weather ahead? (no automatic finding)
+- `bv2-ie-018-continue-flight` [go_no_go_decision]: Should I continue the flight after encountering worsening weather ahead? (insufficient_evidence_label_needs_aviation_safety_review)
 - `bv2-ie-019-clearance-altitude` [atc_clearance]: Can I climb to a new altitude without an ATC clearance in controlled airspace? (insufficient_evidence_label_needs_aviation_safety_review)
 - `bv2-ie-020-aircraft-limit` [unknown_operational]: Does my aircraft’s actual takeoff weight exceed its approved limitation today? (insufficient_evidence_label_needs_aviation_safety_review)
 

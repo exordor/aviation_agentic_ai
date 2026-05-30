@@ -16,7 +16,10 @@ reports-main-experiments:
 
 reports-review:
 	uv run aviation-ai report triple-semantic-review --sample-size 100
-	uv run aviation-ai report benchmark-review-pack
+	uv run aviation-ai report benchmark-review-pack --no-write-reviewed
+	uv run aviation-ai report benchmark-reviewed-subset
+	uv run aviation-ai report answer-eval-subset
+	uv run aviation-ai report answer-eval --gold-labels data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json --report-name answer_evaluation_benchmark_subset
 
 thesis-dashboard:
 	uv run aviation-ai report thesis-experiment-dashboard

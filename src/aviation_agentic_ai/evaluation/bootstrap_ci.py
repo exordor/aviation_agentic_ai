@@ -18,7 +18,15 @@ def bootstrap_ci(
     """Return a deterministic bootstrap confidence interval for a mean."""
     numeric = [float(value) for value in values]
     if not numeric:
-        return {"mean": 0.0, "lower": 0.0, "upper": 0.0, "samples": samples}
+        return {
+            "mean": 0.0,
+            "lower": 0.0,
+            "upper": 0.0,
+            "samples": samples,
+            "n": 0,
+            "confidence": confidence,
+            "seed": seed,
+        }
     rng = random.Random(seed)
     n = len(numeric)
     means: list[float] = []
@@ -33,6 +41,9 @@ def bootstrap_ci(
         "lower": round(means[lower_index], 4),
         "upper": round(means[upper_index], 4),
         "samples": samples,
+        "n": n,
+        "confidence": confidence,
+        "seed": seed,
     }
 
 

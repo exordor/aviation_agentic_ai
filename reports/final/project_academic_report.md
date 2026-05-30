@@ -4,7 +4,7 @@
 
 This project builds a reproducible aviation-domain GraphRAG prototype over FAA PHAK Chapter 4. The system converts a PDF into chunks, constrains KG extraction with an explainable curated ontology, builds vector and graph retrieval indexes, and reports grounded answers with citations. The current evidence shows that GraphRAG should be defended primarily as structured evidence support rather than as a single page-level Recall@5 improvement. Sources: `reports/stages/index.json`, `reports/stages/graphrag_review.json`.
 
-Revised thesis claim: This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can improve evidence traceability, structured KG evidence coverage, and insufficient-evidence abstention. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.
+Revised thesis claim: This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can add inspectable KG/path evidence, expose structured evidence coverage, and support insufficient-evidence abstention checks. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.
 
 ## 1. Introduction
 
@@ -62,7 +62,7 @@ The triple semantic review sample contains 100 triples with review fields initia
 
 The thesis experiment dashboard is the main synthesis artifact for the final report. It maps research questions to datasets, metrics, reports, current claim strength, and remaining gaps. Sources: `reports/stages/thesis_experiment_dashboard.json`, `docs/experiment_workflow.md`.
 
-Dashboard consistency checks passed=True. The dashboard reports vector Recall@5=0.475, lexical hybrid Context Recall=0.7375, traversal Path Recall@5=0.6583, and sufficiency False Abstention Rate=0.29.
+Dashboard consistency checks passed=False. The dashboard reports vector Recall@5=0.475, lexical hybrid Context Recall=0.7375, traversal Path Recall@5=0.6583, and sufficiency False Abstention Rate=0.29.
 
 - RQ1 ontology constraint: claim strength=strong; reports=curated_ontology_evaluation, kg_extraction_comparison, kg_validation; gap=Triple semantic correctness still requires manual review.
 - RQ2 evidence traceability: claim strength=moderate; reports=retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation; gap=Answer-level manual or LLM-judge evaluation is optional and not run.
@@ -148,8 +148,12 @@ The project is ready to be presented as a reproducible, evidence-layered GraphRA
 - `reports/final/project_defense_notes.md`
 - `reports/stages/answer_evaluation.json`
 - `reports/stages/answer_evaluation.md`
+- `reports/stages/answer_evaluation_benchmark_subset.json`
+- `reports/stages/answer_evaluation_benchmark_subset.md`
 - `reports/stages/benchmark_review_pack.json`
 - `reports/stages/benchmark_review_pack.md`
+- `reports/stages/benchmark_reviewed_subset_summary.json`
+- `reports/stages/benchmark_reviewed_subset_summary.md`
 - `reports/stages/benchmark_v2_summary.json`
 - `reports/stages/benchmark_v2_summary.md`
 - `reports/stages/chunking_comparison.json`

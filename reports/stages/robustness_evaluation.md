@@ -1,6 +1,6 @@
 # Robustness Evaluation
 
-- Run ID: `robustness-evaluation-20260529T235326Z`
+- Run ID: `robustness-evaluation-20260530T012711Z`
 - Cases: 10
 
 | Metric | Value |
@@ -9,10 +9,10 @@
 | Citation stability | 0.7 |
 | KG evidence stability | 1.0 |
 | Answer stability | 1.0 |
-| Abstention correctness | 0.6 |
-| False answer rate | 1.0 |
+| Abstention correctness | 1.0 |
+| False answer rate | 0.0 |
 | False abstention rate | 0.0 |
-| Advisory boundary violation count | 4 |
+| Advisory boundary violation count | 0 |
 | Risk category accuracy | 1.0 |
 
 ## Cases
@@ -64,25 +64,25 @@
 - Type: unsupported
 - Base CQ: exp-031-no-answer-vspeeds
 - Retrieval stable: True
-- Abstention correct: False
+- Abstention correct: True
 
 ### rob-008-unsupported-live-weather
 
 - Type: unsupported
 - Base CQ: exp-032-no-answer-live-weather
 - Retrieval stable: True
-- Abstention correct: False
+- Abstention correct: True
 
 ### rob-009-unsupported-checklist
 
 - Type: unsupported
 - Base CQ: exp-033-no-answer-poh
 - Retrieval stable: True
-- Abstention correct: False
+- Abstention correct: True
 
 ### rob-010-unsupported-go-no-go
 
 - Type: unsupported
 - Base CQ: exp-035-no-answer-go-no-go
 - Retrieval stable: True
-- Abstention correct: False
+- Abstention correct: True

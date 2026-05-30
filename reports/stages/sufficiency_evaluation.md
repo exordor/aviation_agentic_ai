@@ -30,12 +30,21 @@
 | aircraft_specific_vspeeds | 1 |
 | atc_clearance | 2 |
 | current_notam | 1 |
-| go_no_go_decision | 1 |
+| go_no_go_decision | 2 |
 | live_weather | 2 |
 | poh_or_checklist | 2 |
-| training_question | 105 |
-| unknown_operational | 4 |
+| training_question | 100 |
+| unknown_operational | 8 |
 | weight_and_balance | 2 |
+
+## Confidence Intervals
+
+| Metric | Mean | 95% CI | n |
+| --- | ---: | --- | ---: |
+| abstention_accuracy | 1.0 | 1.0 - 1.0 | 20 |
+| false_answer_rate | 0.0 | 0.0 - 0.0 | 20 |
+| false_abstention_rate | 0.29 | 0.21 - 0.38 | 100 |
+| risk_category_accuracy | 1.0 | 1.0 - 1.0 | 120 |
 
 ## Decision Errors
 

@@ -292,6 +292,8 @@ def test_answer_and_robustness_reports_handle_abstention(tmp_path: Path) -> None
     assert answer_result["aggregate"]["hybrid"]["citation_recall"] == 1.0
     assert answer_result["aggregate"]["hybrid"]["answer_correctness"] == 1.0
     assert answer_result["aggregate"]["hybrid"]["advisory_boundary_violation_count"] == 0
+    assert answer_result["metadata"]["score_method"] == "deterministic_heuristic"
+    assert answer_result["metadata"]["llm_as_judge_enabled"] is False
 
     def fake_runner(question, *_args, **_kwargs):
         if "Vx" in question:

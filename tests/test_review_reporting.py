@@ -8,6 +8,7 @@ from click.testing import CliRunner
 from aviation_agentic_ai.cli import main
 from aviation_agentic_ai.reporting.reviews import (
     aggregate_review_reports,
+    load_adversarial_review_report,
     load_review_report,
     write_review_progress,
 )
@@ -81,6 +82,49 @@ def test_aggregate_review_reports_tracks_open_items(tmp_path: Path) -> None:
     assert progress["area_counts"]["cqs"]["total"] == 1
     assert len(progress["open_findings"]) == 1
     assert progress["open_actions"][0]["priority"] == "P0"
+
+
+def test_adversarial_review_schema_is_validated_and_skipped_by_progress(
+    tmp_path: Path,
+) -> None:
+    reviews_dir = tmp_path / "reviews"
+    reviews_dir.mkdir()
+    write_review(reviews_dir / "legacy-review.json")
+    adversarial_path = reviews_dir / "adversarial_experiment_review_round_1.json"
+    adversarial_path.write_text(
+        json.dumps(
+            {
+                "round": 1,
+                "subagent_findings": [
+                    {
+                        "subagent": "A",
+                        "role": "Thesis Methodologist",
+                        "must_fix": ["Keep manual review pending."],
+                        "should_fix": [],
+                        "nice_to_have": [],
+                        "unsafe_claims": [],
+                        "manual_review_dependencies": [],
+                        "acceptance_criteria": [],
+                    }
+                ],
+                "must_fix": ["Do not overclaim."],
+                "should_fix": [],
+                "nice_to_have": [],
+                "unsafe_claims": [],
+                "manual_review_dependencies": [],
+                "recommended_iterations": [],
+                "acceptance_criteria": ["Schema validates."],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    adversarial = load_adversarial_review_report(adversarial_path)
+    _, _, progress = write_review_progress(reviews_dir, tmp_path / "stages")
+
+    assert adversarial["round"] == 1
+    assert progress["reviews_total"] == 1
 
 
 def test_write_review_progress_handles_empty_directory(tmp_path: Path) -> None:

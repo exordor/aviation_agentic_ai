@@ -5,7 +5,9 @@
 - Sample size: 100
 - Semantic correctness claimed: no
 - Default review status: `needs_manual_review`
-- All annotation fields are initialized as `needs_review` for manual review.
+- Reviewed triples: 0
+- Needs review: 100
+- Unreviewed annotation fields stay `needs_review`; rates are shown only after review.
 
 ## Annotation Fields
 
@@ -18,6 +20,20 @@
 - `duplicate_or_near_duplicate`
 - `status`
 - `reviewer_notes`
+
+## Human Review Instructions
+
+- Mark each correctness field as `true` or `false`; leave uncertain fields as `needs_review`.
+- Set `status` to `reviewed`, `accepted`, or `rejected` after required fields are decided.
+- Use `reviewer_notes` for uncertainty, generic triples, duplicates, or source mismatch.
+- Do not treat this report as semantic correctness evidence until `reviewed_total > 0`.
+
+## Summary
+
+| Metric | Value |
+| --- | ---: |
+| Reviewed total | 0 |
+| Needs review total | 100 |
 
 ## Sample Preview
 

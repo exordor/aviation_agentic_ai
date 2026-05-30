@@ -26,8 +26,9 @@ abstention behavior rather than defended as a universal retrieval winner.
 This thesis does not assume that GraphRAG universally improves retrieval Recall@k
 over vector-only RAG. Instead, it investigates a narrower and more safety-relevant
 claim: in aviation training question answering, an ontology-constrained GraphRAG
-pipeline can improve evidence traceability, structured KG evidence coverage, and
-insufficient-evidence abstention. The system is therefore evaluated with layered
+pipeline can add inspectable evidence-traceability signals, structured KG
+evidence coverage, and insufficient-evidence abstention checks. The system is
+therefore evaluated with layered
 metrics: retrieval quality, KG evidence quality, answer citation quality, and
 safety-aware abstention are measured separately rather than collapsed into a
 single overall score.
@@ -36,8 +37,8 @@ single overall score.
 
 - **RQ1**: How can a lightweight aviation ontology constrain KG extraction from
   aviation training text?
-- **RQ2**: Does ontology-constrained KG extraction improve evidence traceability
-  compared with vector-only RAG?
+- **RQ2**: Does ontology-constrained KG extraction add inspectable
+  evidence-traceability signals compared with vector-only RAG?
 - **RQ3**: When does graph evidence help aviation QA, and when is vector
   retrieval sufficient?
 - **RQ4**: Can evidence-aware GraphRAG better identify unsupported or unsafe
@@ -47,7 +48,8 @@ single overall score.
 
 - **H1**: Ontology constraints reduce unsupported KG triples and preserve
   provenance.
-- **H2**: GraphRAG improves evidence traceability compared with vector-only RAG.
+- **H2**: GraphRAG adds inspectable evidence-traceability signals compared with
+  vector-only RAG.
 - **H3**: GraphRAG does not always improve Recall@k but can improve structured
   evidence coverage.
 - **H4**: Evidence sufficiency checking improves abstention on unsupported

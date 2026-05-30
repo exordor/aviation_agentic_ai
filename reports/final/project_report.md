@@ -2,7 +2,7 @@
 
 ## Research claim and scope
 
-This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can improve evidence traceability, structured KG evidence coverage, and insufficient-evidence abstention. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.
+This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can add inspectable KG/path evidence, expose structured evidence coverage, and support insufficient-evidence abstention checks. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.
 
 This deterministic report is organized by research questions and uses `reports/stages/thesis_experiment_dashboard.json` as the main evidence source. The dashboard aggregates existing reports without recomputing experiments. It keeps retrieval, graph evidence, answer quality, ontology/KG quality, and safety-abstention metrics separate; no mixed overall score is created.
 
@@ -12,8 +12,9 @@ Scope boundary: This system is for aviation learning and decision-support only. 
 
 - **10-CQ pilot**: demo and qualitative answer inspection; evidence role=`pilot`; thesis main claim support=partial; limitations: too small for main thesis retrieval claims.
 - **35-question expanded**: pilot ablation and KG extraction comparison; evidence role=`pilot`; thesis main claim support=partial; limitations: pilot-sized and not the main benchmark.
-- **benchmark v2 120**: main thesis retrieval and safety benchmark; evidence role=`main_thesis_benchmark`; thesis main claim support=yes; limitations: machine-seeded and requires manual naturalness review.
-- **answer-eval subset**: answer citation and faithfulness heuristics; evidence role=`pilot`; thesis main claim support=partial; limitations: small subset; deterministic heuristic scores.
+- **benchmark v2 120**: main thesis retrieval and safety benchmark; evidence role=`main_thesis_benchmark`; thesis main claim support=provisional_internal_pending_manual_review; limitations: machine-seeded and requires manual naturalness review.
+- **benchmark reviewed subset 60**: project-author review scaffold for high-value labels; evidence role=`manual_review_scaffold`; thesis main claim support=pending_manual_review; limitations: review scaffold only; no external aviation expert certification.
+- **answer-eval subset**: answer citation and faithfulness heuristics; evidence role=`pilot`; thesis main claim support=partial; limitations: stratified subset; deterministic heuristic scores unless annotated.
 - **triple semantic review sample**: manual KG semantic correctness review template; evidence role=`manual_review_pending`; thesis main claim support=partial; limitations: review fields pending; no correctness results claimed.
 
 Benchmark v2 is the main thesis retrieval and safety benchmark. The 10-CQ and 35-question sets remain pilot/demo evidence and must not be presented as the main thesis benchmark.
@@ -38,7 +39,11 @@ Traversal hybrid: Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522
 
 ## RQ4: safety-aware abstention
 
-Benchmark v2 safety metrics: Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29, Risk Category Accuracy=1.0. Sufficiency improves safety against unsupported questions but false abstentions on supported questions remain a visible limitation.
+Benchmark v2 safety metrics: Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29, Risk Category Accuracy=1.0. Sufficiency diagnostics show strong abstention on benchmark v2 no-answer labels, while robustness must also remain visible: false answer rate=0.0, boundary violations=0.
+
+## Review-dependent evidence status
+
+Benchmark reviewed subset: labels=60, status=project_review_pending_external_review, external aviation expert review completed=False. Answer-evaluation benchmark subset: answers=0, status=pending_answer_generation, unmatched gold labels=35, hybrid faithfulness=0.0, score method=deterministic_heuristic. These are not manual review results.
 
 ## Failure analysis
 
@@ -63,15 +68,20 @@ Benchmark v2 is thesis/course-project evidence, not external aviation expert cer
 
 ## Dashboard consistency checks
 
-- `all_passed`: True
+- `all_passed`: False
+- `automated_consistency_passed`: True
 - `benchmark_v2_used_in_main_retrieval`: True
 - `benchmark_v2_used_in_safety`: True
+- `claim_readiness_passed`: False
 - `every_rq_has_evidence_report`: True
 - `manual_review_dependent_metrics_not_completed`: True
 - `no_unsafe_claim_patterns`: True
 - `pilot_reports_not_marked_main`: True
 - `primary_thesis_metric_gaps`: []
 - `primary_thesis_metrics_have_report_evidence`: True
+- `reviewed_subset_manual_review_pending`: True
+- `robustness_false_answer_rate_zero`: True
+- `safety_reports_have_no_boundary_violations`: True
 
 ## RQ evidence matrix
 

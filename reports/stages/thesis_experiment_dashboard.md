@@ -14,6 +14,8 @@
 | `retrieval_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, kg_evidence | False |
 | `graph_traversal_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, graph_paths | True |
 | `sufficiency_evaluation` | True | benchmark_v2_120 | 120 | safety_abstention | False |
+| `benchmark_reviewed_subset_summary` | True | benchmark_v2_reviewed_subset_60 | 60 | benchmark_manual_review | True |
+| `answer_evaluation_benchmark_subset` | True | answer_eval_subset | n/a | answer_generation, safety_abstention | False |
 | `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False |
 | `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False |
 | `triple_semantic_review_sample` | True | triple_semantic_review_sample | n/a | ontology_kg, manual_review | True |
@@ -36,8 +38,9 @@
 | --- | --- | --- | --- | --- |
 | 10-CQ pilot | demo and qualitative answer inspection | pilot | partial | too small for main thesis retrieval claims |
 | 35-question expanded | pilot ablation and KG extraction comparison | pilot | partial | pilot-sized and not the main benchmark |
-| benchmark v2 120 | main thesis retrieval and safety benchmark | main_thesis_benchmark | yes | machine-seeded and requires manual naturalness review |
-| answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | small subset; deterministic heuristic scores |
+| benchmark v2 120 | main thesis retrieval and safety benchmark | main_thesis_benchmark | provisional_internal_pending_manual_review | machine-seeded and requires manual naturalness review |
+| benchmark reviewed subset 60 | project-author review scaffold for high-value labels | manual_review_scaffold | pending_manual_review | review scaffold only; no external aviation expert certification |
+| answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | stratified subset; deterministic heuristic scores unless annotated |
 | triple semantic review sample | manual KG semantic correctness review template | manual_review_pending | partial | review fields pending; no correctness results claimed |
 
 ## Primary Results
@@ -48,8 +51,20 @@
 | lexical hybrid benchmark v2 | Recall@5=0.5083, Recall@10=0.5917, MRR@5=0.34, NDCG@10=0.4425, Context Recall=0.7375 |
 | traversal hybrid | Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522 (heuristic, requires manual review) |
 | sufficiency | Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29 |
+| robustness | Abstention Correctness=1.0, False Answer Rate=0.0, Boundary Violations=0 |
+| benchmark reviewed subset | Labels=60, Review Status=project_review_pending_external_review, External Expert Certified=False |
+| answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=35, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |
 | KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |
 | triple semantic review | Sample=100, reviewed=0, needs_review=100 |
+
+## Safety Confidence Intervals
+
+| Metric | Mean | 95% CI | n |
+| --- | ---: | --- | ---: |
+| abstention_accuracy | 1.0 | 1.0 - 1.0 | 20 |
+| false_abstention_rate | 0.29 | 0.21 - 0.38 | 100 |
+| false_answer_rate | 0.0 | 0.0 - 0.0 | 20 |
+| risk_category_accuracy | 1.0 | 1.0 - 1.0 | 120 |
 
 ## Failure-Mode Summary
 
@@ -80,5 +95,10 @@
 - `benchmark_v2_used_in_safety`: True
 - `pilot_reports_not_marked_main`: True
 - `manual_review_dependent_metrics_not_completed`: True
+- `reviewed_subset_manual_review_pending`: True
+- `safety_reports_have_no_boundary_violations`: True
+- `robustness_false_answer_rate_zero`: True
 - `no_unsafe_claim_patterns`: True
-- `all_passed`: True
+- `automated_consistency_passed`: True
+- `claim_readiness_passed`: False
+- `all_passed`: False
