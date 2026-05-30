@@ -569,7 +569,7 @@ def test_cli_report_retrieval_ablation_uses_mocked_writer(tmp_path: Path, monkey
 
 
 def test_cli_report_benchmark_v2_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_benchmark
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "benchmark_v2_summary.json"
@@ -585,7 +585,7 @@ def test_cli_report_benchmark_v2_uses_mocked_writer(tmp_path: Path, monkeypatch)
             },
         )
 
-    monkeypatch.setattr(cli, "write_benchmark_v2_summary", fake_writer)
+    monkeypatch.setattr(cli_report_benchmark, "write_benchmark_v2_summary", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -599,6 +599,43 @@ def test_cli_report_benchmark_v2_uses_mocked_writer(tmp_path: Path, monkeypatch)
 
     assert result.exit_code == 0, result.output
     assert "Summarized 120 benchmark labels" in result.output
+
+
+def test_cli_report_benchmark_review_pack_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli_report_benchmark
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "benchmark_review_pack.json"
+        md_path = tmp_path / "benchmark_review_pack.md"
+        reviewed_path = tmp_path / "benchmark_reviewed.json"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        reviewed_path.write_text("{}\n", encoding="utf-8")
+        return json_path, md_path, reviewed_path, {"metadata": {"labels_total": 120}}
+
+    monkeypatch.setattr(
+        cli_report_benchmark,
+        "write_benchmark_review_pack",
+        fake_writer,
+    )
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "benchmark-review-pack",
+            "--output-dir",
+            str(tmp_path),
+            "--reviewed-output",
+            str(tmp_path / "benchmark_reviewed.json"),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Prepared 120 benchmark labels for model review" in result.output
 
 
 def test_cli_report_kg_extraction_comparison_uses_mocked_writer(
@@ -659,7 +696,7 @@ def test_cli_report_benchmark_reviewed_subset_uses_mocked_writer(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_benchmark
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "benchmark_reviewed_subset_summary.json"
@@ -670,7 +707,7 @@ def test_cli_report_benchmark_reviewed_subset_uses_mocked_writer(
         subset_path.write_text("{}\n", encoding="utf-8")
         return json_path, md_path, subset_path, {"metadata": {"labels_total": 60}}
 
-    monkeypatch.setattr(cli, "write_benchmark_reviewed_subset", fake_writer)
+    monkeypatch.setattr(cli_report_benchmark, "write_benchmark_reviewed_subset", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -692,14 +729,14 @@ def test_cli_report_answer_eval_subset_uses_mocked_writer(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_benchmark
 
     def fake_writer(*_args, **_kwargs):
         subset_path = tmp_path / "answer_eval_subset.json"
         subset_path.write_text("{}\n", encoding="utf-8")
         return subset_path, {"labels": [{} for _ in range(45)]}
 
-    monkeypatch.setattr(cli, "write_answer_eval_subset", fake_writer)
+    monkeypatch.setattr(cli_report_benchmark, "write_answer_eval_subset", fake_writer)
 
     result = CliRunner().invoke(
         main,
