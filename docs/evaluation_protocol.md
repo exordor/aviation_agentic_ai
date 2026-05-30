@@ -59,6 +59,18 @@ NDCG@k measure ranked retrieval quality. Context Precision@5 and Context Recall
 map the RAGAS-style context layer to the project gold labels by checking whether
 retrieved chunks, pages, or spans match expected evidence.
 
+Precision@5 and Context Precision@5 use intentionally different denominators.
+Precision@5 is strict IR precision over a fixed cutoff and divides by 5 even
+when fewer than five hits are returned. Context Precision@5 describes the
+precision of the retrieved context actually returned in the top-five window and
+therefore divides by the number of returned hits when fewer than five contexts
+exist. These fields must not be treated as interchangeable.
+
+Bootstrap confidence intervals are deterministic mean intervals over the
+available per-label records. If a CI block has `n=0`, the statistic is undefined
+for that subset; the placeholder numeric fields are compatibility values and
+must not be interpreted as evidence that the metric is truly zero.
+
 ### Graph Evidence And Paths
 
 Primary graph evidence metrics are:

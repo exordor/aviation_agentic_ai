@@ -560,6 +560,16 @@
       "status": "implemented"
     }
   ],
+  "metric_interpretation_notes": [
+    {
+      "note": "Precision@5 divides by the fixed cutoff of 5, while Context Precision@5 divides by the number of returned top-five contexts when fewer than five contexts exist. They are related diagnostics, not interchangeable fields.",
+      "topic": "precision_denominators"
+    },
+    {
+      "note": "Bootstrap CI blocks with n=0 are undefined for that subset. Numeric mean/lower/upper placeholders are retained for compatibility and must not be interpreted as measured zero performance.",
+      "topic": "empty_bootstrap_ci"
+    }
+  ],
   "missing_or_pending_metrics": [
     {
       "field": "faithfulness",

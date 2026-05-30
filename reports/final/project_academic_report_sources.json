@@ -37,7 +37,7 @@
     "web_demo_final_smoke": "reports/stages/web_demo_final_smoke.md",
     "web_demo_readiness": "reports/stages/web_demo_readiness.md"
   },
-  "generated_at": "2026-05-30T10:01:33.695798+00:00",
+  "generated_at": "2026-05-30T10:10:04.662269+00:00",
   "graphrag_interpretations": [
     {
       "claim": "GraphRAG value is evidence structure, not current page-level Recall lift.",

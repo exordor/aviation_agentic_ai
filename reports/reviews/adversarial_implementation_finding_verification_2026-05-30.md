@@ -19,16 +19,16 @@ verified backlog.
 | I3 | Valid. Page-level matching could treat `source_page=-1` as a real page and match malformed hits with `page=-1`. | Page fallback matching now requires `source_page >= 0`; regression tests cover NDCG/recall for unset pages. |
 | I4 | Valid. Ontology generation failure paths could leave only page-level checkpoints and no main output when a later page failed. | Failure paths now write a clearly labelled partial ontology to the configured output path and record `output_complete=false`, `partial_output_written=true`, and a failure stage in the manifest. |
 | I5 | Valid as observability gap. LLM-returned KG triples rejected by deterministic filters were silently absent from reports. | KG extraction now reports candidate triples, filtered triples, and filter reasons. |
+| M1 | Partly valid. Empty bootstrap intervals returned `n=0` with zero-valued compatibility fields, which could be overread as a measured zero. | Evaluation protocol review now states that `n=0` CI statistics are undefined and that numeric fields are placeholders, not measured zero performance. The bootstrap API is left compatible. |
 | M2 | Valid. `_cosine_similarity` silently truncated mismatched vectors with `zip`. | Mismatched vector lengths now raise `ValueError`. |
+| M4 | Valid documentation nuance. Context Precision@k and Precision@k intentionally use different denominators when fewer than k hits are returned. | Evaluation protocol review now documents the fixed-cutoff denominator for Precision@5 and returned-context denominator for Context Precision@5. |
 
 ## Verified Backlog
 
 | ID | Current assessment | Reason deferred |
 | --- | --- | --- |
 | I6 | Valid as a recall/observability concern. Strict quote containment can drop near-valid LLM evidence. | Fuzzy acceptance changes KG semantics and should be evaluated separately; this iteration only adds filter counters. |
-| M1 | Partly valid. Empty bootstrap intervals return `n=0` plus zero values. | Changing to `None` would require report-consumer audit; current reports already expose `n=0`. |
 | M3 | Valid low-severity edge case. Leading short proposition segments can remain below `min_chars`. | Could alter chunking experiment artifacts; defer to chunking-specific iteration. |
-| M4 | Valid documentation nuance. Context Precision@k and Precision@k intentionally use different denominators when fewer than k hits are returned. | Needs metric protocol wording rather than code change. |
 | Duplication | Still partly valid. JSON extraction and tokenizer duplication are reduced; broader normalization/report I/O duplication remains. | Broader utility extraction would be cross-cutting and should be split into a separate refactor. |
 | Original I7/I8 | Still valid. `cli.py` and report helpers remain large/duplicated. | Architectural refactors are high churn and not necessary for this correctness batch. |
 
@@ -37,6 +37,7 @@ verified backlog.
 - `uv run ruff check .`
 - `uv run pytest tests/test_json_utils.py tests/test_chunking.py tests/test_metric_edge_cases.py tests/test_hybrid_retrieval.py tests/test_kg_extraction.py tests/test_llm_review_reports.py tests/test_ontology_evaluation.py tests/test_ontology_generation.py`
 - `uv run pytest tests/test_ontology_generation.py`
+- `uv run pytest tests/test_evaluation_protocol_metrics.py tests/test_bootstrap_ci.py`
 - `uv run aviation-ai kg validate --output-dir reports/stages`
 - `uv run aviation-ai kg validate --kg-file data/kg/06_phak_ch4_0.structure_aware.kg.jsonl --chunks data/chunks/06_phak_ch4_0.structure_aware.jsonl --output-dir reports/stages --report-name structure_aware_kg_validation`
 - `make reports-main-experiments`

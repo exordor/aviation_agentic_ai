@@ -7,6 +7,7 @@ from aviation_agentic_ai.evaluation.gold import GoldLabel
 from aviation_agentic_ai.evaluation.metrics import answer_metrics, retrieval_metrics
 from aviation_agentic_ai.reporting.evaluation_protocol import (
     EVIDENCE_GAPS,
+    METRIC_INTERPRETATION_NOTES,
     write_evaluation_protocol_review,
 )
 
@@ -66,7 +67,12 @@ def test_evaluation_protocol_report_generation(tmp_path: Path) -> None:
     assert payload["metadata"]["scoring_policy"] == "layered_metrics_no_mixed_overall_score"
     assert any(group["layer"] == "retrieval" for group in result["primary_thesis_metrics"])
     assert any(metric["metric"] == "NDCG@10" for metric in result["metric_catalog"])
+    assert any(
+        note["topic"] == "precision_denominators"
+        for note in payload["metric_interpretation_notes"]
+    )
     assert "single mixed overall score" in md_path.read_text(encoding="utf-8")
+    assert "Precision@5 divides by the fixed cutoff" in md_path.read_text(encoding="utf-8")
 
 
 def test_evaluation_protocol_declares_review_and_certification_limits() -> None:
@@ -75,3 +81,12 @@ def test_evaluation_protocol_declares_review_and_certification_limits() -> None:
     assert "no human expert verification" in gaps
     assert "not external aviation-expert certification" in gaps
     assert "LLM-estimated" in gaps
+
+
+def test_metric_interpretation_notes_prevent_ci_and_precision_overclaims() -> None:
+    notes = "\n".join(note["note"] for note in METRIC_INTERPRETATION_NOTES)
+
+    assert "not interchangeable" in notes
+    assert "n=0" in notes
+    assert "undefined" in notes
+    assert "measured zero performance" in notes

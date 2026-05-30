@@ -47,6 +47,11 @@
 | Advisory Boundary Violation Count | implemented | safety_sensitive | `advisory_boundary_violation_count` | sufficiency_evaluation, robustness_evaluation, answer_evaluation |
 | Risk Category Accuracy | implemented | safety_sensitive | `risk_category_accuracy` | sufficiency_evaluation, robustness_evaluation |
 
+## Metric Interpretation Notes
+
+- **precision_denominators**: Precision@5 divides by the fixed cutoff of 5, while Context Precision@5 divides by the number of returned top-five contexts when fewer than five contexts exist. They are related diagnostics, not interchangeable fields.
+- **empty_bootstrap_ci**: Bootstrap CI blocks with n=0 are undefined for that subset. Numeric mean/lower/upper placeholders are retained for compatibility and must not be interpreted as measured zero performance.
+
 ## Report Presence
 
 | Report | Present |

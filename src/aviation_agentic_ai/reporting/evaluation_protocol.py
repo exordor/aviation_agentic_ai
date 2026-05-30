@@ -311,6 +311,25 @@ EVIDENCE_GAPS = (
     "Benchmark labels are thesis/course-project evidence, not external aviation-expert certification.",
 )
 
+METRIC_INTERPRETATION_NOTES = (
+    {
+        "topic": "precision_denominators",
+        "note": (
+            "Precision@5 divides by the fixed cutoff of 5, while Context Precision@5 "
+            "divides by the number of returned top-five contexts when fewer than five "
+            "contexts exist. They are related diagnostics, not interchangeable fields."
+        ),
+    },
+    {
+        "topic": "empty_bootstrap_ci",
+        "note": (
+            "Bootstrap CI blocks with n=0 are undefined for that subset. Numeric "
+            "mean/lower/upper placeholders are retained for compatibility and must not "
+            "be interpreted as measured zero performance."
+        ),
+    },
+)
+
 
 def _report_presence(root: Path) -> dict[str, dict[str, Any]]:
     paths = sorted(
@@ -354,6 +373,7 @@ def build_evaluation_protocol_review(
         "implemented_metrics": implemented,
         "missing_or_pending_metrics": missing,
         "metric_catalog": list(METRIC_IMPLEMENTATION_STATUS),
+        "metric_interpretation_notes": list(METRIC_INTERPRETATION_NOTES),
         "report_presence": _report_presence(root),
         "evidence_gaps_before_thesis_submission": list(EVIDENCE_GAPS),
     }
@@ -407,6 +427,9 @@ def write_evaluation_protocol_review_markdown(
             f"| {metric['metric']} | {metric['status']} | {metric['kind']} | "
             f"`{metric['field']}` | {', '.join(metric['reports'])} |"
         )
+
+    lines.extend(["", "## Metric Interpretation Notes", ""])
+    lines.extend(f"- **{note['topic']}**: {note['note']}" for note in result["metric_interpretation_notes"])
 
     lines.extend(["", "## Report Presence", "", "| Report | Present |", "| --- | ---: |"])
     for report in result["report_presence"].values():
