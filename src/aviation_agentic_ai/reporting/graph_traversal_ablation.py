@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 from aviation_agentic_ai.evaluation.bootstrap_ci import bootstrap_metric_ci
 from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
-from aviation_agentic_ai.evaluation.gold import GoldLabel
+from aviation_agentic_ai.evaluation.gold import GoldLabel, load_questions_and_gold_labels
 from aviation_agentic_ai.evaluation.metrics import (
     aggregate_kg_evidence_metrics,
     aggregate_retrieval_metrics,
@@ -18,7 +18,6 @@ from aviation_agentic_ai.evaluation.protocol import build_run_manifest, embeddin
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.retrieval_ablation import (
     _hit_summary,
-    _questions_and_labels,
     _triple_summary,
 )
 from aviation_agentic_ai.reporting.io import write_json_report
@@ -407,7 +406,7 @@ def build_graph_traversal_ablation(
     command: str = "aviation-ai report graph-traversal-ablation",
 ) -> dict[str, Any]:
     started = perf_counter()
-    questions, gold_labels = _questions_and_labels(boundary_cq_path, gold_labels_path)
+    questions, gold_labels = load_questions_and_gold_labels(boundary_cq_path, gold_labels_path)
     scenario_results: dict[str, Any] = {}
 
     for scenario in scenarios:

@@ -5,12 +5,7 @@ from typing import Any, Callable
 
 from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.chunking.chunks import CHUNKING_STRATEGIES, read_chunks_jsonl
-from aviation_agentic_ai.evaluation.gold import (
-    GoldLabel,
-    gold_labels_for_questions,
-    load_boundary_questions,
-    load_gold_labels,
-)
+from aviation_agentic_ai.evaluation.gold import load_questions_and_gold_labels
 from aviation_agentic_ai.evaluation.metrics import (
     aggregate_answer_metrics,
     aggregate_kg_evidence_metrics,
@@ -67,30 +62,6 @@ def _aggregate_mode_metrics(mode_metrics: list[dict[str, dict[str, Any]]]) -> di
     return aggregate
 
 
-def _questions_and_labels(
-    boundary_cq_path: str | Path,
-    gold_labels_path: str | Path | None,
-) -> tuple[list[dict[str, Any]], dict[str, GoldLabel]]:
-    if gold_labels_path is not None:
-        labels = load_gold_labels(gold_labels_path)
-        if labels and all(label.question for label in labels.values()):
-            questions = [
-                {
-                    "id": label.cq_id,
-                    "competency_question": label.question,
-                    "source_document": label.source_document,
-                    "source_page": label.source_page,
-                    "key_entities": list(label.key_entities),
-                    "expected_answer": label.answer_key,
-                    "cq_type": label.question_type,
-                }
-                for label in labels.values()
-            ]
-            return questions, labels
-    questions = load_boundary_questions(boundary_cq_path)
-    return questions, gold_labels_for_questions(questions, gold_labels_path)
-
-
 def build_hybrid_rag_experiment(
     boundary_cq_path: str | Path,
     chunks_path: str | Path,
@@ -109,7 +80,7 @@ def build_hybrid_rag_experiment(
     command: str = "aviation-ai report hybrid-rag",
     query_runner: QueryRunner = run_query,
 ) -> dict[str, Any]:
-    questions, gold_labels = _questions_and_labels(boundary_cq_path, gold_labels_path)
+    questions, gold_labels = load_questions_and_gold_labels(boundary_cq_path, gold_labels_path)
     if max_questions is not None:
         questions = questions[:max_questions]
     records: list[dict[str, Any]] = []

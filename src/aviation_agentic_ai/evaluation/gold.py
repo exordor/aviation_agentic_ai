@@ -164,3 +164,33 @@ def gold_labels_for_questions(
         raise FileNotFoundError(f"Gold label file not found: {project_relative_path(path)}")
     labels.update(load_gold_labels(path))
     return labels
+
+
+def load_questions_and_gold_labels(
+    boundary_cq_path: str | Path,
+    gold_labels_path: str | Path | None,
+) -> tuple[list[dict[str, Any]], dict[str, GoldLabel]]:
+    """Load report questions and matching gold labels from benchmark or CQ artifacts.
+
+    When a gold-label artifact includes full question text, it is the source of
+    truth for report question ordering and metadata. Otherwise, fall back to the
+    boundary CQ artifact and overlay any available gold labels by CQ id.
+    """
+    if gold_labels_path is not None:
+        labels = load_gold_labels(gold_labels_path)
+        if labels and all(label.question for label in labels.values()):
+            questions = [
+                {
+                    "id": label.cq_id,
+                    "competency_question": label.question,
+                    "source_document": label.source_document,
+                    "source_page": label.source_page,
+                    "key_entities": list(label.key_entities),
+                    "expected_answer": label.answer_key,
+                    "cq_type": label.question_type,
+                }
+                for label in labels.values()
+            ]
+            return questions, labels
+    questions = load_boundary_questions(boundary_cq_path)
+    return questions, gold_labels_for_questions(questions, gold_labels_path)

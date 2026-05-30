@@ -10,6 +10,7 @@ from aviation_agentic_ai.evaluation.gold import (
     GoldLabel,
     GoldLabelReadError,
     gold_labels_for_questions,
+    load_questions_and_gold_labels,
     load_gold_labels,
 )
 from aviation_agentic_ai.evaluation.metrics import (
@@ -56,6 +57,49 @@ def test_safe_llm_metadata_uses_central_environment_loader(monkeypatch) -> None:
 
     assert safe_llm_metadata() == {"provider": "deepseek", "model": "deepseek-test"}
     assert calls == ["loaded"]
+
+
+def test_load_questions_and_gold_labels_uses_full_gold_label_questions(
+    tmp_path: Path,
+) -> None:
+    gold_path = tmp_path / "gold.json"
+    gold_path.write_text(
+        json.dumps(
+            {
+                "labels": [
+                    {
+                        "cq_id": "q1",
+                        "question": "What is lift?",
+                        "question_type": "concept_definition",
+                        "answer_key": "Lift is an upward force.",
+                        "source_document": "doc",
+                        "source_page": 1,
+                        "key_entities": ["lift"],
+                    }
+                ]
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    questions, labels = load_questions_and_gold_labels(
+        tmp_path / "missing_boundary_cqs.json",
+        gold_path,
+    )
+
+    assert list(labels) == ["q1"]
+    assert questions == [
+        {
+            "id": "q1",
+            "competency_question": "What is lift?",
+            "source_document": "doc",
+            "source_page": 1,
+            "key_entities": ["lift"],
+            "expected_answer": "Lift is an upward force.",
+            "cq_type": "concept_definition",
+        }
+    ]
 
 
 def test_document_and_section_metadata_schema() -> None:

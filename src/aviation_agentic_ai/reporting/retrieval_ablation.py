@@ -9,9 +9,7 @@ from aviation_agentic_ai.evaluation.bootstrap_ci import bootstrap_metric_ci
 from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
 from aviation_agentic_ai.evaluation.gold import (
     GoldLabel,
-    gold_labels_for_questions,
-    load_boundary_questions,
-    load_gold_labels,
+    load_questions_and_gold_labels,
 )
 from aviation_agentic_ai.evaluation.metrics import (
     aggregate_kg_evidence_metrics,
@@ -158,28 +156,6 @@ def _triple_summary(triples: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
-def _questions_and_labels(
-    boundary_cq_path: str | Path,
-    gold_labels_path: str | Path | None,
-) -> tuple[list[dict[str, Any]], dict[str, GoldLabel]]:
-    if gold_labels_path is not None:
-        labels = load_gold_labels(gold_labels_path)
-        if labels and all(label.question for label in labels.values()):
-            questions = [
-                {
-                    "id": label.cq_id,
-                    "competency_question": label.question,
-                    "source_document": label.source_document,
-                    "source_page": label.source_page,
-                    "key_entities": list(label.key_entities),
-                }
-                for label in labels.values()
-            ]
-            return questions, labels
-    questions = load_boundary_questions(boundary_cq_path)
-    return questions, gold_labels_for_questions(questions, gold_labels_path)
-
-
 def _explain_scenario(mode: str, aggregate: dict[str, Any]) -> str:
     retrieval = aggregate["retrieval"]
     kg = aggregate["kg_evidence"]
@@ -220,7 +196,7 @@ def build_retrieval_ablation(
     command: str = "aviation-ai report retrieval-ablation",
 ) -> dict[str, Any]:
     started = perf_counter()
-    questions, gold_labels = _questions_and_labels(boundary_cq_path, gold_labels_path)
+    questions, gold_labels = load_questions_and_gold_labels(boundary_cq_path, gold_labels_path)
     label_breakdown = _label_breakdown(gold_labels)
     scenario_results: dict[str, Any] = {}
 
