@@ -24647,7 +24647,7 @@
       "present": true
     }
   },
-  "generated_at": "2026-05-30T10:10:05.029581+00:00",
+  "generated_at": "2026-05-30T10:28:35.555322+00:00",
   "goals": {
     "excerpt": "# Project Goals\n\nLast updated: 2026-05-30\n\nThis file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.\n\n## Goal vs Task\n\n- A goal describes an outcome the project must achieve.\n- A task describes a concrete action that can be completed and checked off.\n- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.\n- Reports under `reports/` provide evidence that a goal has been met.\n\n## G1 - Course Objective And Project Rationale\n\nBuild a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.\n\nSuccess criteria:\n\n- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.\n- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.\n- The project can explain where GraphRAG adds evidence traceability beyond plain LLM prompting or vector-only RAG, and where vector retrieval is sufficient.\n- The project uses FAA aviation handbook material as the starting source corpus.\n- The report clearly connects implementation choices to the course objective.\n\nCurrent status: in progress.\n\n## G2 - Ontology-Grounded KG Deliverable\n\nDeliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.\n\nRationale:\n\n- The KG is a project deliverable, not only an intermediate cache.\n- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.\n- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.\n\nSuccess criteria:\n\n- A baseline or generated TBox ontology exists and can be validated.\n- The extraction profile maps focused aviation classes/properties back to the ontology design.\n- Focused ABox/KG triples are extracted only when supported by source chunks.\n- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.\n- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.\n\nCurrent status: active curated ontology is available; focused KG was extracted and validated against the curated schema.\n\n## G3 - GraphRAG Core Pipeline\n\nImplement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.\n\nTarget pipeline:\n\n```text\nPDF -> chunks -> ontology-constrained KG/ABox\n    -> Chroma vector index\n    -> graph retrieval + vector retrieval\n    -> reciprocal-rank hybrid fusion\n    -> grounded LLM answer with citations\n```\n\nSuccess criteria:\n\n- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.\n- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.\n- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.\n- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.\n- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.\n\nCurrent status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 in the 10-question run while preserving KG evidence coverage. The expanded 35-question ablation shows vector Recall@5 can be higher than default hybrid Recall@5, so GraphRAG is defended as structured evidence support rather than a universal Recall winner.\n\n## G4 - Evaluation An",
     "path": "GOALS.md",
@@ -33235,7 +33235,7 @@
       "present": true
     },
     "chunking_category_analysis_benchmark_v2": {
-      "excerpt": "# Chunking Category Analysis Benchmark V2\n\n- Supported question categories use retrieval metrics.\n- Insufficient-evidence labels are diagnostic only and are not recall failures.\n\n## Best By Category\n\n| Category | Strategy | Recall@5 | MRR@5 | Context Recall | Interpretation |\n| --- | --- | ---: | ---: | ---: | --- |\n| supported_factual | structure_aware_large | 0.825 | 0.6442 | 0.975 | benchmark-specific |\n| concept_definition | recursive_large | 1.0 | 0.8222 | 1.0 | benchmark-specific |\n| relation_causal | hierarchical_parent_child | 1.0 | 0.6911 | 1.0 | benchmark-specific |\n| cross_page | fixed_large | 1.0 | 0.6 | 0.85 | benchmark-specific |\n| paraphrase | embedding_semantic | 0.7 | 0.5083 | 0.7 | benchmark-specific |\n| terminology_variation | recursive_medium | 0.9 | 0.485 | 0.9 | benchmark-specific |\n| insufficient_evidence | diagnostic_only | n/a | n/a | n/a | No-answer labels have no gold evidence target. |\n\n## Full Category Table\n\n| Category | Strategy | Labels | Recall@5 | Recall@10 | MRR@5 | Context Recall | Diagnostic only |\n| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |\n| supported_factual | fixed_small | 40 | 0.575 | 0.725 | 0.3412 | 0.725 | False |\n| supported_factual | fixed_medium | 40 | 0.7 | 0.825 | 0.4192 | 0.825 | False |\n| supported_factual | fixed_large | 40 | 0.825 | 0.975 | 0.6038 | 0.975 | False |\n| supported_factual | recursive_small | 40 | 0.75 | 0.8 | 0.4537 | 0.8 | False |\n| supported_factual | recursive_medium | 40 | 0.75 | 0.875 | 0.4425 | 0.875 | False |\n| supported_factual | recursive_large | 40 | 0.775 | 0.975 | 0.6008 | 0.975 | False |\n| supported_factual | structure_aware | 40 | 0.425 | 0.525 | 0.2683 | 0.525 | False |\n| supported_factual | structure_aware_medium | 40 | 0.75 | 0.825 | 0.4212 | 0.825 | False |\n| supported_factual | structure_aware_large | 40 | 0.825 | 0.975 | 0.6442 | 0.975 | False |\n| supported_factual | semantic_meta_like | 40 | 0.625 | 0.775 | 0.4029 | 0.775 | False |\n| supported_factual | embedding_semantic | 40 | 0.7 | 0.825 | 0.4279 | 0.825 | False |\n| supported_factual | proposition_like | 40 | 0.575 | 0.6 | 0.3137 | 0.6 | False |\n| supported_factual | hierarchical_parent_child | 40 | 0.75 | 0.8 | 0.4537 | 0.8 | False |\n| supported_factual | contextual_prefix | 40 | 0.3 | 0.4 | 0.1537 | 0.4 | False |\n| concept_definition | fixed_small | 15 | 0.8 | 1.0 | 0.5189 | 1.0 | False |\n| concept_definition | fixed_medium | 15 | 1.0 | 1.0 | 0.76 | 1.0 | False |\n| concept_definition | fixed_large | 15 | 1.0 | 1.0 | 0.8167 | 1.0 | False |\n| concept_definition | recursive_small | 15 | 0.6667 | 0.9333 | 0.5189 | 0.9333 | False |\n| concept_definition | recursive_medium | 15 | 1.0 | 1.0 | 0.6967 | 1.0 | False |\n| concept_definition | recursive_large | 15 | 1.0 | 1.0 | 0.8222 | 1.0 | False |\n| concept_definition | structure_aware | 15 | 0.8667 | 0.9333 | 0.6167 | 0.9333 | False |\n| concept_definition | structure_aware_medium | 15 | 1.0 | 1.0 | 0.7267 | 1.0 | False |\n| concept_definition | structure_aware_large | 15 | 1.0 | 1.0 | 0.8056 | 1.0 | False |\n| concept_definition | semantic_meta_like | 15 | 0.8 | 0.8667 | 0.6 | 0.8667 | False |\n| concept_definition | embedding_semantic | 15 | 0.9333 | 0.9333 | 0.7944 | 0.9333 | False |\n| concept_definition | proposition_like | 15 | 0.5333 | 0.6 | 0.3967 | 0.6 | False |\n| concept_definition | hierarchical_parent_child | 15 | 0.6667 | 0.9333 | 0.5189 | 0.9333 | False |\n| concept_definition | contextual_prefix | 15 | 0.7333 | 0.8 | 0.4778 | 0.8 | False |\n| relation_causal | fixed_small | 15 | 0.9333 | 1.0 | 0.68 | 1.0 | False |\n| relation_causal | fixed_medium | 15 | 0.9333 | 1.0 | 0.7167 | 1.0 | False |\n| relation_causal | fixed_large | 15 | 0.8 | 0.8667 | 0.68 | 0.8667 | False |\n| relation_causal | recursive_small | 15 | 1.0 | 1.0 | 0.6911 | 1.0 | False |\n| relation_causal | recursive_medium | 15 | 0.9333 | 1.0 | 0.75 | 1.0 | False |\n| relation_causal | recursive_large | 15 | 0.8667 | 0.8667 | 0.75 | 0.8667 | False |\n| relation_causal | structure_aware | 15 | 0.9333 | 0.9333 | 0.5967 | 0.9333 | False |\n| relation_causal | structure_aware_medium | 15 | 0.9333 | 1.0 | 0.75 | 1.0 | False |\n| relation_causal | structure_aware_large | 15 | 0.8 | 0.8667 | 0.6467 | 0.8667 | False |\n| relation_causal | semantic_meta_like | 15 | 0.9333 | 0.9333 | 0.5944 | 0.9333 | False |\n| relation_causal | embedding_semantic | 15 | 0.7333 | 0.8667 | 0.6556 | 0.8667 | False |\n| relation_causal | proposition_like | 15 | 0.7333 | 0.7333 | 0.5611 | 0.7333 | False |\n| relation_causal | hierarchical_parent_child | 15 | 1.0 | 1.0 | 0.6911 | 1.0 | False |\n| relation_causal | contextual_prefix | 15 | 0.8 | 0.8 | 0.5 | 0.8 | False |\n| cross_page | fixed_small | 10 | 0.6 | 0.8 | 0.345 | 0.4 | False |\n| cross_page | fixed_medium | 10 | 0.9 | 1.0 | 0.45 | 0.75 | False |\n| cross_page | fixed_large | 10 | 1.0 | 1.0 | 0.6 | 0.85 | False |\n| cross_page | recursive_small | 10 | 0.6 | 0.7 | 0.325 | 0.4 | False |\n| cross_page | recursive_medium | 10 | 0.9 | 1.0 | 0.4333 | 0.75 | False |\n| cross_page | recursive_large | 10 | 1.0 | 1.0 | 0.5833 | 0.85 | False |\n| cross_page | structure_aware | 10 | 0.5 | 0.6 | 0.4333 | 0.35 | False |\n| cross_page | structure_aware_medium | 10 | 0.8 | 1.0 | 0.4533 | 0.7 | False |\n| cross_page | structure_aware_large | 10 | 1.0 | 1.0 | 0.5833 | 0.85 | False |\n| cross_page | semantic_meta_like | 10 | 0.6 | 0.8 | 0.3367 | 0.45 | False |\n| cross_page | embedding_semantic | 10 | 0.7 | 0.9 | 0.5333 | 0.55 | False |\n| cross_page | proposition_like | 10 | 0.6 | 0.7 | 0.34 | 0.35 | False |\n| cross_page | hierarchical_parent_child | 10 | 0.6 | 0.7 | 0.325 | 0.4 | False |\n| cross_page | contextual_prefix | 10 | 0.6 | 0.6 | 0.3117 | 0.3 | False |\n| paraphrase | fixed_small | 10 | 0.6 | 0.8 | 0.4033 | 0.8 | False |\n| paraphrase | fixed_medium | 10 | 0.6 | 0.8 | 0.4583 | 0.8 | False |\n| paraphrase | fixed_large | 10 | 0.7 | 0.9 | 0.4667 | 0.9 | False |\n| paraphrase | recursive_small | 10 | 0.6 | 0.7 | 0.39 | 0.7 | False |\n| paraphrase | recursive_medium | 10 | 0.6 | 0.7 | 0.3867 | 0.7 | False |\n| paraphrase | recursive_large | 10 | 0.7 | 0.9 | 0.4167 | 0.9 | False |\n| paraphrase | structure_aware | 10 | 0.4 | 0.7 | 0.3333 | 0.7 | False |\n| paraphrase | structure_aware_medium | 10 | 0.5 | 0.8 | 0.4333 | 0.8 | False |\n| paraphrase | structure_aware_large | 10 | 0.7 | 0.9 | 0.4833 | 0.9 | False |\n| paraphrase | semantic_meta_like | 10 | 0.6 | 0.6 | 0.4033 | 0.6 | False |\n| paraphrase | embedding_semantic | 10 | 0.7 | 0.7 | 0.5083 | 0.7 | False |\n| paraphrase | proposition_like | 10 | 0.7 | 0.8 | 0.4783 | 0.8 | False |\n| paraphrase | hierarchical_parent_child | 10 | 0.6 | 0.7 | 0.39 | 0.7 | False |\n| paraphrase | contextual_prefix | 10 | 0.3 | 0.3 | 0.25 | 0.3 | False |\n| terminology_variation | fixed_small | 10 | 0.3 | 0.5 | 0.225 | 0.5 | False |\n| terminology_variation | fixed_medium | 10 | 0.7 | 0.9 | 0.4867 | 0.9 | False |\n| terminology_variation | fixed_large | 10 | 0.9 | 1.0 | 0.4433 | 1.0 | False |\n| terminology_variation | recursive_small | 10 | 0.4 | 0.6 | 0.2833 | 0.6 | False |\n| terminology_variation | recursive_medium | 10 | 0.9 | 0.9 | 0.485 | 0.9 | False |\n| terminology_variation | recursive_large | 10 | 0.8 | 1.0 | 0.4367 | 1.0 | False |\n| terminology_variation | structure_aware | 10 | 0.4 | 0.6 | 0.2533 | 0.6 | False |\n| terminology_variation | structure_aware_medium | 10 | 0.7 | 0.8 | 0.3267 | 0.8 | False |\n| terminology_variation | structure_aware_large | 10 | 0.8 | 1.0 | 0.44 | 1.0 | False |\n| terminology_variation | semantic_meta_like | 10 | 0.5 | 0.7 | 0.3583 | 0.7 | False |\n| terminology_variation | embedding_semantic | 10 | 0.6 | 0.9 | 0.4083 | 0.9 | False |\n| terminology_variation | proposition_like | 10 | 0.1 | 0.3 | 0.05 | 0.3 | False |\n| terminology_variation | hierarchical_parent_child | 10 | 0.4 | 0.6 | 0.2833 | 0.6 | False |\n| terminology_variation | contextual_prefix | 10 | 0.1 | 0.2 | 0.05 | 0.2 | False |\n| insufficient_evidence | fixed_small | 20 | 0.0 | 0.",
+      "excerpt": "# Chunking Category Analysis Benchmark V2\n\n- Supported question categories use retrieval metrics.\n- Insufficient-evidence labels are diagnostic only and are not recall failures.\n\n## Best By Category\n\n| Category | Strategy | Recall@5 | MRR@5 | Context Recall | Interpretation |\n| --- | --- | ---: | ---: | ---: | --- |\n| supported_factual | structure_aware_large | 0.825 | 0.6442 | 0.975 | benchmark-specific |\n| concept_definition | fixed_large | 1.0 | 0.8222 | 1.0 | benchmark-specific |\n| relation_causal | hierarchical_parent_child | 1.0 | 0.6911 | 1.0 | benchmark-specific |\n| cross_page | recursive_large | 1.0 | 0.5833 | 0.85 | benchmark-specific |\n| paraphrase | embedding_semantic | 0.7 | 0.5083 | 0.7 | benchmark-specific |\n| terminology_variation | recursive_medium | 0.9 | 0.485 | 0.9 | benchmark-specific |\n| insufficient_evidence | diagnostic_only | n/a | n/a | n/a | No-answer labels have no gold evidence target. |\n\n## Full Category Table\n\n| Category | Strategy | Labels | Recall@5 | Recall@10 | MRR@5 | Context Recall | Diagnostic only |\n| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |\n| supported_factual | fixed_small | 40 | 0.625 | 0.725 | 0.3642 | 0.725 | False |\n| supported_factual | fixed_medium | 40 | 0.7 | 0.8 | 0.4558 | 0.8 | False |\n| supported_factual | fixed_large | 40 | 0.825 | 0.95 | 0.5987 | 0.95 | False |\n| supported_factual | recursive_small | 40 | 0.75 | 0.8 | 0.4537 | 0.8 | False |\n| supported_factual | recursive_medium | 40 | 0.75 | 0.875 | 0.4425 | 0.875 | False |\n| supported_factual | recursive_large | 40 | 0.775 | 0.975 | 0.6008 | 0.975 | False |\n| supported_factual | structure_aware | 40 | 0.425 | 0.525 | 0.2683 | 0.525 | False |\n| supported_factual | structure_aware_medium | 40 | 0.75 | 0.825 | 0.4212 | 0.825 | False |\n| supported_factual | structure_aware_large | 40 | 0.825 | 0.975 | 0.6442 | 0.975 | False |\n| supported_factual | semantic_meta_like | 40 | 0.625 | 0.775 | 0.4029 | 0.775 | False |\n| supported_factual | embedding_semantic | 40 | 0.7 | 0.825 | 0.4279 | 0.825 | False |\n| supported_factual | proposition_like | 40 | 0.575 | 0.6 | 0.3137 | 0.6 | False |\n| supported_factual | hierarchical_parent_child | 40 | 0.75 | 0.8 | 0.4537 | 0.8 | False |\n| supported_factual | contextual_prefix | 40 | 0.3 | 0.4 | 0.1537 | 0.4 | False |\n| concept_definition | fixed_small | 15 | 0.6667 | 0.9333 | 0.5267 | 0.9333 | False |\n| concept_definition | fixed_medium | 15 | 1.0 | 1.0 | 0.7333 | 1.0 | False |\n| concept_definition | fixed_large | 15 | 1.0 | 1.0 | 0.8222 | 1.0 | False |\n| concept_definition | recursive_small | 15 | 0.6667 | 0.9333 | 0.5189 | 0.9333 | False |\n| concept_definition | recursive_medium | 15 | 1.0 | 1.0 | 0.6967 | 1.0 | False |\n| concept_definition | recursive_large | 15 | 1.0 | 1.0 | 0.8222 | 1.0 | False |\n| concept_definition | structure_aware | 15 | 0.8667 | 0.9333 | 0.6167 | 0.9333 | False |\n| concept_definition | structure_aware_medium | 15 | 1.0 | 1.0 | 0.7267 | 1.0 | False |\n| concept_definition | structure_aware_large | 15 | 1.0 | 1.0 | 0.8056 | 1.0 | False |\n| concept_definition | semantic_meta_like | 15 | 0.8 | 0.8667 | 0.6 | 0.8667 | False |\n| concept_definition | embedding_semantic | 15 | 0.9333 | 0.9333 | 0.7944 | 0.9333 | False |\n| concept_definition | proposition_like | 15 | 0.5333 | 0.6 | 0.3967 | 0.6 | False |\n| concept_definition | hierarchical_parent_child | 15 | 0.6667 | 0.9333 | 0.5189 | 0.9333 | False |\n| concept_definition | contextual_prefix | 15 | 0.7333 | 0.8 | 0.4778 | 0.8 | False |\n| relation_causal | fixed_small | 15 | 0.9333 | 0.9333 | 0.6244 | 0.9333 | False |\n| relation_causal | fixed_medium | 15 | 0.9333 | 1.0 | 0.7 | 1.0 | False |\n| relation_causal | fixed_large | 15 | 0.8 | 0.8667 | 0.5889 | 0.8667 | False |\n| relation_causal | recursive_small | 15 | 1.0 | 1.0 | 0.6911 | 1.0 | False |\n| relation_causal | recursive_medium | 15 | 0.9333 | 1.0 | 0.75 | 1.0 | False |\n| relation_causal | recursive_large | 15 | 0.8667 | 0.8667 | 0.75 | 0.8667 | False |\n| relation_causal | structure_aware | 15 | 0.9333 | 0.9333 | 0.5967 | 0.9333 | False |\n| relation_causal | structure_aware_medium | 15 | 0.9333 | 1.0 | 0.75 | 1.0 | False |\n| relation_causal | structure_aware_large | 15 | 0.8 | 0.8667 | 0.6467 | 0.8667 | False |\n| relation_causal | semantic_meta_like | 15 | 0.9333 | 0.9333 | 0.5944 | 0.9333 | False |\n| relation_causal | embedding_semantic | 15 | 0.7333 | 0.8667 | 0.6556 | 0.8667 | False |\n| relation_causal | proposition_like | 15 | 0.7333 | 0.7333 | 0.5611 | 0.7333 | False |\n| relation_causal | hierarchical_parent_child | 15 | 1.0 | 1.0 | 0.6911 | 1.0 | False |\n| relation_causal | contextual_prefix | 15 | 0.8 | 0.8 | 0.5 | 0.8 | False |\n| cross_page | fixed_small | 10 | 0.5 | 0.8 | 0.425 | 0.4 | False |\n| cross_page | fixed_medium | 10 | 0.9 | 1.0 | 0.44 | 0.75 | False |\n| cross_page | fixed_large | 10 | 1.0 | 1.0 | 0.5666 | 0.85 | False |\n| cross_page | recursive_small | 10 | 0.6 | 0.7 | 0.325 | 0.4 | False |\n| cross_page | recursive_medium | 10 | 0.9 | 1.0 | 0.4333 | 0.75 | False |\n| cross_page | recursive_large | 10 | 1.0 | 1.0 | 0.5833 | 0.85 | False |\n| cross_page | structure_aware | 10 | 0.5 | 0.6 | 0.4333 | 0.35 | False |\n| cross_page | structure_aware_medium | 10 | 0.8 | 1.0 | 0.4533 | 0.7 | False |\n| cross_page | structure_aware_large | 10 | 1.0 | 1.0 | 0.5833 | 0.85 | False |\n| cross_page | semantic_meta_like | 10 | 0.6 | 0.8 | 0.3367 | 0.45 | False |\n| cross_page | embedding_semantic | 10 | 0.7 | 0.9 | 0.5333 | 0.55 | False |\n| cross_page | proposition_like | 10 | 0.6 | 0.8 | 0.345 | 0.4 | False |\n| cross_page | hierarchical_parent_child | 10 | 0.6 | 0.7 | 0.325 | 0.4 | False |\n| cross_page | contextual_prefix | 10 | 0.6 | 0.6 | 0.3117 | 0.3 | False |\n| paraphrase | fixed_small | 10 | 0.5 | 0.6 | 0.3833 | 0.6 | False |\n| paraphrase | fixed_medium | 10 | 0.6 | 0.8 | 0.425 | 0.8 | False |\n| paraphrase | fixed_large | 10 | 0.7 | 0.9 | 0.4333 | 0.9 | False |\n| paraphrase | recursive_small | 10 | 0.6 | 0.7 | 0.39 | 0.7 | False |\n| paraphrase | recursive_medium | 10 | 0.6 | 0.7 | 0.3867 | 0.7 | False |\n| paraphrase | recursive_large | 10 | 0.7 | 0.9 | 0.4167 | 0.9 | False |\n| paraphrase | structure_aware | 10 | 0.4 | 0.7 | 0.3333 | 0.7 | False |\n| paraphrase | structure_aware_medium | 10 | 0.5 | 0.8 | 0.4333 | 0.8 | False |\n| paraphrase | structure_aware_large | 10 | 0.7 | 0.9 | 0.4833 | 0.9 | False |\n| paraphrase | semantic_meta_like | 10 | 0.6 | 0.6 | 0.4033 | 0.6 | False |\n| paraphrase | embedding_semantic | 10 | 0.7 | 0.7 | 0.5083 | 0.7 | False |\n| paraphrase | proposition_like | 10 | 0.7 | 0.8 | 0.4783 | 0.8 | False |\n| paraphrase | hierarchical_parent_child | 10 | 0.6 | 0.7 | 0.39 | 0.7 | False |\n| paraphrase | contextual_prefix | 10 | 0.3 | 0.3 | 0.25 | 0.3 | False |\n| terminology_variation | fixed_small | 10 | 0.5 | 0.6 | 0.295 | 0.6 | False |\n| terminology_variation | fixed_medium | 10 | 0.7 | 0.8 | 0.36 | 0.8 | False |\n| terminology_variation | fixed_large | 10 | 0.8 | 1.0 | 0.4233 | 1.0 | False |\n| terminology_variation | recursive_small | 10 | 0.4 | 0.6 | 0.2833 | 0.6 | False |\n| terminology_variation | recursive_medium | 10 | 0.9 | 0.9 | 0.485 | 0.9 | False |\n| terminology_variation | recursive_large | 10 | 0.8 | 1.0 | 0.4367 | 1.0 | False |\n| terminology_variation | structure_aware | 10 | 0.4 | 0.6 | 0.2533 | 0.6 | False |\n| terminology_variation | structure_aware_medium | 10 | 0.7 | 0.8 | 0.3267 | 0.8 | False |\n| terminology_variation | structure_aware_large | 10 | 0.8 | 1.0 | 0.44 | 1.0 | False |\n| terminology_variation | semantic_meta_like | 10 | 0.5 | 0.7 | 0.3583 | 0.7 | False |\n| terminology_variation | embedding_semantic | 10 | 0.6 | 0.9 | 0.4083 | 0.9 | False |\n| terminology_variation | proposition_like | 10 | 0.1 | 0.3 | 0.05 | 0.3 | False |\n| terminology_variation | hierarchical_parent_child | 10 | 0.4 | 0.6 | 0.2833 | 0.6 | False |\n| terminology_variation | contextual_prefix | 10 | 0.1 | 0.2 | 0.05 | 0.2 | False |\n| insufficient_evidence | fixed_small ",
       "path": "reports/stages/chunking_category_analysis_benchmark_v2.md",
       "present": true,
       "truncated": true
@@ -33258,7 +33258,7 @@
               "recall_at_10": 1.0,
               "recall_at_5": 1.0
             },
-            "strategy": "recursive_large"
+            "strategy": "fixed_large"
           },
           "cross_page": {
             "diagnostic_only": false,
@@ -33266,15 +33266,15 @@
             "retrieval": {
               "context_precision_at_5": 0.28,
               "context_recall": 0.85,
-              "mrr_at_10": 0.6,
-              "mrr_at_5": 0.6,
-              "ndcg_at_10": 0.596,
-              "precision_at_10": 0.17,
+              "mrr_at_10": 0.5833,
+              "mrr_at_5": 0.5833,
+              "ndcg_at_10": 0.6049,
+              "precision_at_10": 0.18,
               "precision_at_5": 0.28,
               "recall_at_10": 1.0,
               "recall_at_5": 1.0
             },
-            "strategy": "fixed_large"
+            "strategy": "recursive_large"
           },
           "insufficient_evidence": {
             "interpretation": "No-answer labels have no gold evidence target.",
@@ -33351,15 +33351,15 @@
               "diagnostic_only": false,
               "labels": 15,
               "retrieval": {
-                "context_precision_at_5": 0.16,
-                "context_recall": 1.0,
-                "mrr_at_10": 0.5478,
-                "mrr_at_5": 0.5189,
-                "ndcg_at_10": 0.6562,
-                "precision_at_10": 0.1,
-                "precision_at_5": 0.16,
-                "recall_at_10": 1.0,
-                "recall_at_5": 0.8
+                "context_precision_at_5": 0.1333,
+                "context_recall": 0.9333,
+                "mrr_at_10": 0.5635,
+                "mrr_at_5": 0.5267,
+                "ndcg_at_10": 0.6478,
+                "precision_at_10": 0.0933,
+                "precision_at_5": 0.1333,
+                "recall_at_10": 0.9333,
+                "recall_at_5": 0.6667
               },
               "strategy": "fixed_small"
             },
@@ -33367,13 +33367,13 @@
               "diagnostic_only": false,
               "labels": 15,
               "retrieval": {
-                "context_precision_at_5": 0.2,
+                "context_precision_at_5": 0.2133,
                 "context_recall": 1.0,
-                "mrr_at_10": 0.76,
-                "mrr_at_5": 0.76,
-                "ndcg_at_10": 0.8183,
-                "precision_at_10": 0.1,
-                "precision_at_5": 0.2,
+                "mrr_at_10": 0.7333,
+                "mrr_at_5": 0.7333,
+                "ndcg_at_10": 0.8282,
+                "precision_at_10": 0.1067,
+                "precision_at_5": 0.2133,
                 "recall_at_10": 1.0,
                 "recall_at_5": 1.0
               },
@@ -33385,9 +33385,9 @@
               "retrieval": {
                 "context_precision_at_5": 0.2,
                 "context_recall": 1.0,
-                "mrr_at_10": 0.8167,
-                "mrr_at_5": 0.8167,
-                "ndcg_at_10": 0.8636,
+                "mrr_at_10": 0.8222,
+                "mrr_at_5": 0.8222,
+                "ndcg_at_10": 0.8682,
                 "precision_at_10": 0.1,
                 "precision_at_5": 0.2,
                 "recall_at_10": 1.0,
@@ -33577,15 +33577,15 @@
               "diagnostic_only": false,
               "labels": 10,
               "retrieval": {
-                "context_precision_at_5": 0.12,
+                "context_precision_at_5": 0.1,
                 "context_recall": 0.4,
-                "mrr_at_10": 0.3675,
-                "mrr_at_5": 0.345,
-                "ndcg_at_10": 0.2872,
+                "mrr_at_10": 0.4628,
+                "mrr_at_5": 0.425,
+                "ndcg_at_10": 0.3297,
                 "precision_at_10": 0.08,
-                "precision_at_5": 0.12,
+                "precision_at_5": 0.1,
                 "recall_at_10": 0.8,
-                "recall_at_5": 0.6
+                "recall_at_5": 0.5
               },
               "strategy": "fixed_small"
             },
@@ -33593,13 +33593,13 @@
               "diagnostic_only": false,
               "labels": 10,
               "retrieval": {
-                "context_precision_at_5": 0.2,
+                "context_precision_at_5": 0.18,
                 "context_recall": 0.75,
-                "mrr_at_10": 0.4643,
-                "mrr_at_5": 0.45,
-                "ndcg_at_10": 0.4641,
+                "mrr_at_10": 0.4567,
+                "mrr_at_5": 0.44,
+                "ndcg_at_10": 0.462,
                 "precision_at_10": 0.15,
-                "precision_at_5": 0.2,
+                "precision_at_5": 0.18,
                 "recall_at_10": 1.0,
                 "recall_at_5": 0.9
               },
@@ -33611,9 +33611,9 @@
               "retrieval": {
                 "context_precision_at_5": 0.28,
                 "context_recall": 0.85,
-                "mrr_at_10": 0.6,
-                "mrr_at_5": 0.6,
-                "ndcg_at_10": 0.596,
+                "mrr_at_10": 0.5666,
+                "mrr_at_5": 0.5666,
+                "ndcg_at_10": 0.5784,
                 "precision_at_10": 0.17,
                 "precision_at_5": 0.28,
                 "recall_at_10": 1.0,
@@ -33754,13 +33754,13 @@
               "labels": 10,
               "retrieval": {
                 "context_precision_at_5": 0.12,
-                "context_recall": 0.35,
-                "mrr_at_10": 0.3543,
-                "mrr_at_5": 0.34,
-                "ndcg_at_10": 0.2679,
-                "precision_at_10": 0.07,
+                "context_recall": 0.4,
+                "mrr_at_10": 0.3704,
+                "mrr_at_5": 0.345,
+                "ndcg_at_10": 0.289,
+                "precision_at_10": 0.08,
                 "precision_at_5": 0.12,
-                "recall_at_10": 0.7,
+                "recall_at_10": 0.8,
                 "recall_at_5": 0.6
               },
               "strategy": "proposition_like"
@@ -34085,15 +34085,15 @@
               "diagnostic_only": false,
               "labels": 10,
               "retrieval": {
-                "context_precision_at_5": 0.12,
-                "context_recall": 0.8,
-                "mrr_at_10": 0.4276,
-                "mrr_at_5": 0.4033,
-                "ndcg_at_10": 0.514,
-                "precision_at_10": 0.08,
-                "precision_at_5": 0.12,
-                "recall_at_10": 0.8,
-                "recall_at_5": 0.6
+                "context_precision_at_5": 0.1,
+                "context_recall": 0.6,
+                "mrr_at_10": 0.3976,
+                "mrr_at_5": 0.3833,
+                "ndcg_at_10": 0.4464,
+                "precision_at_10": 0.06,
+                "precision_at_5": 0.1,
+                "recall_at_10": 0.6,
+                "recall_at_5": 0.5
               },
               "strategy": "fixed_small"
             },
@@ -34103,9 +34103,9 @@
               "retrieval": {
                 "context_precision_at_5": 0.14,
                 "context_recall": 0.8,
-                "mrr_at_10": 0.4917,
-                "mrr_at_5": 0.4583,
-                "ndcg_at_10": 0.6274,
+                "mrr_at_10": 0.4528,
+                "mrr_at_5": 0.425,
+                "ndcg_at_10": 0.5981,
                 "precision_at_10": 0.09,
                 "precision_at_5": 0.14,
                 "recall_at_10": 0.8,
@@ -34119,9 +34119,9 @@
               "retrieval": {
                 "context_precision_at_5": 0.16,
                 "context_recall": 0.9,
-                "mrr_at_10": 0.4909,
-                "mrr_at_5": 0.4667,
-                "ndcg_at_10": 0.6271,
+                "mrr_at_10": 0.46,
+                "mrr_at_5": 0.4333,
+                "ndcg_at_10": 0.61,
                 "precision_at_10": 0.1,
                 "precision_at_5": 0.16,
                 "recall_at_10": 0.9,
@@ -34312,13 +34312,13 @@
               "labels": 15,
               "retrieval": {
                 "context_precision_at_5": 0.1867,
-                "context_recall": 1.0,
-                "mrr_at_10": 0.6874,
-                "mrr_at_5": 0.68,
-                "ndcg_at_10": 0.7628,
-                "precision_at_10": 0.1,
+                "context_recall": 0.9333,
+                "mrr_at_10": 0.6244,
+                "mrr_at_5": 0.6244,
+                "ndcg_at_10": 0.7007,
+                "precision_at_10": 0.0933,
                 "precision_at_5": 0.1867,
-                "recall_at_10": 1.0,
+                "recall_at_10": 0.9333,
                 "recall_at_5": 0.9333
               },
               "strategy": "fixed_small"
@@ -34327,13 +34327,13 @@
               "diagnostic_only": false,
               "labels": 15,
               "retrieval": {
-                "context_precision_at_5": 0.2,
+                "context_precision_at_5": 0.1867,
                 "context_recall": 1.0,
-                "mrr_at_10": 0.7262,
-                "mrr_at_5": 0.7167,
-                "ndcg_at_10": 0.8366,
-                "precision_at_10": 0.1067,
-                "precision_at_5": 0.2,
+                "mrr_at_10": 0.7083,
+                "mrr_at_5": 0.7,
+                "ndcg_at_10": 0.78,
+                "precision_at_10": 0.1,
+                "precision_at_5": 0.1867,
                 "recall_at_10": 1.0,
                 "recall_at_5": 0.9333
               },
@@ -34345,9 +34345,9 @@
               "retrieval": {
                 "context_precision_at_5": 0.16,
                 "context_recall": 0.8667,
-                "mrr_at_10": 0.6895,
-                "mrr_at_5": 0.68,
-                "ndcg_at_10": 0.7321,
+                "mrr_at_10": 0.6,
+                "mrr_at_5": 0.5889,
+                "ndcg_at_10": 0.6653,
                 "precision_at_10": 0.0867,
                 "precision_at_5": 0.16,
                 "recall_at_10": 0.8667,
@@ -34537,15 +34537,15 @@
               "diagnostic_only": false,
               "labels": 40,
               "retrieval": {
-                "context_precision_at_5": 0.12,
+                "context_precision_at_5": 0.125,
                 "context_recall": 0.725,
-                "mrr_at_10": 0.3582,
-                "mrr_at_5": 0.3412,
-                "ndcg_at_10": 0.4634,
-                "precision_at_10": 0.0775,
-                "precision_at_5": 0.12,
+                "mrr_at_10": 0.379,
+                "mrr_at_5": 0.3642,
+                "ndcg_at_10": 0.4629,
+                "precision_at_10": 0.0725,
+                "precision_at_5": 0.125,
                 "recall_at_10": 0.725,
-                "recall_at_5": 0.575
+                "recall_at_5": 0.625
               },
               "strategy": "fixed_small"
             },
@@ -34553,14 +34553,14 @@
               "diagnostic_only": false,
               "labels": 40,
               "retrieval": {
-                "context_precision_at_5": 0.145,
-                "context_recall": 0.825,
-                "mrr_at_10": 0.4363,
-                "mrr_at_5": 0.4192,
-                "ndcg_at_10": 0.5449,
-                "precision_at_10": 0.085,
-                "precision_at_5": 0.145,
-                "recall_at_10": 0.825,
+                "context_precision_at_5": 0.14,
+                "context_recall": 0.8,
+                "mrr_at_10": 0.4702,
+                "mrr_at_5": 0.4558,
+                "ndcg_at_10": 0.5588,
+                "precision_at_10": 0.0825,
+                "precision_at_5": 0.14,
+                "recall_at_10": 0.8,
                 "recall_at_5": 0.7
               },
               "strategy": "fixed_medium"
@@ -34569,14 +34569,14 @@
               "diagnostic_only": false,
               "labels": 40,
               "retrieval": {
-                "context_precision_at_5": 0.19,
-                "context_recall": 0.975,
-                "mrr_at_10": 0.6243,
-                "mrr_at_5": 0.6038,
-                "ndcg_at_10": 0.7758,
-                "precision_at_10": 0.11,
-                "precision_at_5": 0.19,
-                "recall_at_10": 0.975,
+                "context_precision_at_5": 0.18,
+                "context_recall": 0.95,
+                "mrr_at_10": 0.6182,
+                "mrr_at_5": 0.5987,
+                "ndcg_at_10": 0.7378,
+                "precision_at_10": 0.1025,
+                "precision_at_5": 0.18,
+                "recall_at_10": 0.95,
                 "recall_at_5": 0.825
               },
               "strategy": "fixed_large"
@@ -34763,15 +34763,15 @@
               "diagnostic_only": false,
               "labels": 10,
               "retrieval": {
-                "context_precision_at_5": 0.06,
-                "context_recall": 0.5,
-                "mrr_at_10": 0.2472,
-                "mrr_at_5": 0.225,
-                "ndcg_at_10": 0.3033,
-                "precision_at_10": 0.05,
-                "precision_at_5": 0.06,
-                "recall_at_10": 0.5,
-                "recall_at_5": 0.3
+                "context_precision_at_5": 0.1,
+                "context_recall": 0.6,
+                "mrr_at_10": 0.305,
+                "mrr_at_5": 0.295,
+                "ndcg_at_10": 0.3738,
+                "precision_at_10": 0.06,
+                "precision_at_5": 0.1,
+                "recall_at_10": 0.6,
+                "recall_at_5": 0.5
               },
               "strategy": "fixed_small"
             },
@@ -34780,13 +34780,13 @@
               "labels": 10,
               "retrieval": {
                 "context_precision_at_5": 0.14,
-                "context_recall": 0.9,
-                "mrr_at_10": 0.5176,
-                "mrr_at_5": 0.4867,
-                "ndcg_at_10": 0.6076,
-                "precision_at_10": 0.09,
+                "context_recall": 0.8,
+                "mrr_at_10": 0.3711,
+                "mrr_at_5": 0.36,
+                "ndcg_at_10": 0.4724,
+                "precision_at_10": 0.08,
                 "precision_at_5": 0.14,
-                "recall_at_10": 0.9,
+                "recall_at_10": 0.8,
                 "recall_at_5": 0.7
               },
               "strategy": "fixed_medium"
@@ -34795,15 +34795,15 @@
               "diagnostic_only": false,
               "labels": 10,
               "retrieval": {
-                "context_precision_at_5": 0.2,
+                "context_precision_at_5": 0.18,
                 "context_recall": 1.0,
-                "mrr_at_10": 0.4558,
-                "mrr_at_5": 0.4433,
-                "ndcg_at_10": 0.6369,
+                "mrr_at_10": 0.4483,
+                "mrr_at_5": 0.4233,
+                "ndcg_at_10": 0.6298,
                 "precision_at_10": 0.11,
-                "precision_at_5": 0.2,
+                "precision_at_5": 0.18,
                 "recall_at_10": 1.0,
-                "recall_at_5": 0.9
+                "recall_at_5": 0.8
               },
               "strategy": "fixed_large"
             },
@@ -35004,13 +35004,13 @@
       "present": true
     },
     "chunking_comparison_benchmark_v2": {
-      "excerpt": "# Chunking Comparison Benchmark V2\n\n- Run ID: `chunking-comparison-benchmark-v2-20260530T033902Z`\n- Labels: 120\n- Supported labels: 100\n- Insufficient-evidence labels: 20\n- Evaluation mode: `top_k`\n- Context budget chars: None\n- Scoring: layered metrics only; no single mixed overall score.\n- Claim boundary: rankings are benchmark-specific and do not identify a universal best chunker.\n- Supported-only retrieval metrics are primary; all-label metrics are diagnostic.\n- Top-k rankings can privilege larger chunks by exposing more context; fixed-budget results are the fairer comparison when available.\n\n## Supported-Only Ranking\n\n| Rank | Strategy | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall |\n| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| 1 | fixed_large | 0.86 | 0.96 | 0.194 | 0.617 | 0.6303 | 0.7357 | 0.194 | 0.945 |\n| 2 | structure_aware_large | 0.85 | 0.96 | 0.188 | 0.6262 | 0.6412 | 0.7355 | 0.188 | 0.945 |\n| 3 | recursive_large | 0.84 | 0.96 | 0.19 | 0.6198 | 0.6372 | 0.7475 | 0.19 | 0.945 |\n| 4 | recursive_medium | 0.83 | 0.91 | 0.176 | 0.5245 | 0.5353 | 0.6403 | 0.176 | 0.885 |\n| 5 | fixed_medium | 0.79 | 0.9 | 0.166 | 0.5287 | 0.5448 | 0.6361 | 0.166 | 0.875 |\n| 6 | structure_aware_medium | 0.79 | 0.89 | 0.164 | 0.5113 | 0.5269 | 0.6178 | 0.164 | 0.86 |\n| 7 | embedding_semantic | 0.73 | 0.85 | 0.146 | 0.5337 | 0.5517 | 0.6023 | 0.146 | 0.815 |\n| 8 | hierarchical_parent_child | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |\n| 9 | recursive_small | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |\n| 10 | semantic_meta_like | 0.68 | 0.79 | 0.136 | 0.4502 | 0.4658 | 0.5277 | 0.136 | 0.755 |\n| 11 | fixed_small | 0.64 | 0.8 | 0.13 | 0.4137 | 0.4328 | 0.5087 | 0.13 | 0.76 |\n| 12 | structure_aware | 0.57 | 0.68 | 0.132 | 0.3922 | 0.4073 | 0.5106 | 0.132 | 0.655 |\n| 13 | proposition_like | 0.56 | 0.62 | 0.112 | 0.356 | 0.3638 | 0.4085 | 0.112 | 0.585 |\n| 14 | contextual_prefix | 0.45 | 0.51 | 0.106 | 0.2693 | 0.2773 | 0.362 | 0.106 | 0.48 |\n\n## Strategy Cost And Chunking Diagnostics\n\n| Strategy | Chunks | Avg chars | P95 chars | Avg tokens | Boundary preservation | Overlap redundancy | Index build s | Mean query s | P95 query s | Index bytes | Cost notes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |\n| fixed_small | 112 | 361.75 | 398 | 60.49 | 0.2679 | 0.2009 | 0.0 | 0.0925 | 0.1029 | 2216756 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| fixed_medium | 48 | 794.21 | 896 | 132.25 | 0.25 | 0.1493 | 0.0 | 0.0881 | 0.0939 | 1819444 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| fixed_large | 27 | 1359.19 | 1594 | 225.96 | 0.3704 | 0.1158 | 0.0 | 0.088 | 0.0939 | 1676084 | Large chunks may preserve broad context while diluting top-k precision. |\n| recursive_small | 107 | 358.78 | 399 | 60.58 | 0.3084 | 0.152 | 0.0 | 0.09 | 0.1057 | 2257716 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| recursive_medium | 48 | 782.17 | 898 | 132.4 | 0.25 | 0.1327 | 0.0 | 0.0883 | 0.0976 | 1606452 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| recursive_large | 27 | 1355.26 | 1593 | 228 | 0.3704 | 0.1105 | 0.0 | 0.0885 | 0.0937 | 1643316 | Large chunks may preserve broad context while diluting top-k precision. |\n| structure_aware | 267 | 233.36 | 1080 | 42.07 | 1.0 | 0.4789 | 0.0 | 0.0884 | 0.0949 | 3068724 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| structure_aware_medium | 48 | 775.02 | 896 | 129.04 | 1.0 | 0.1273 | 0.0 | 0.088 | 0.0929 | 2580808 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| structure_aware_large | 27 | 1349.63 | 1591 | 224.26 | 1.0 | 0.1091 | 0.0 | 0.0947 | 0.1182 | 2589000 | Large chunks may preserve broad context while diluting top-k precision. |\n| semantic_meta_like | 56 | 580.55 | 712 | 98.09 | 1.0 | 0.0 | 0.0 | 0.0911 | 0.1021 | 1868596 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| embedding_semantic | 53 | 613.47 | 890 | 103.64 | 1.0 | 0.0 | 0.0 | 0.0913 | 0.1011 | 1889076 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| proposition_like | 85 | 383.33 | 809 | 64.92 | 0.9529 | 0.0028 | 0.0 | 0.0889 | 0.0949 | 2126644 | Heuristic proposition-like segmentation may increase chunk count and review cost. |\n| hierarchical_parent_child | 107 | 358.78 | 399 | 60.58 | 1.0 | 0.152 | 0.0 | 0.0895 | 0.0963 | 2315060 | Child chunks are indexed with parent metadata; full parent-return retrieval is not claimed in this report. |\n| contextual_prefix | 279 | 303.71 | 944 | 48.94 | 1.0 | 0.49 | 0.0 | 0.0896 | 0.099 | 4002612 | Deterministic prefixes add metadata tokens to every indexed chunk. |\n\n## Confidence Intervals\n\n| Strategy | Metric | Mean | 95% CI | n |\n| --- | --- | ---: | --- | ---: |\n| fixed_small | recall_at_5 | 0.64 | 0.55 - 0.73 | 100 |\n| fixed_small | recall_at_10 | 0.8 | 0.73 - 0.88 | 100 |\n| fixed_small | mrr_at_5 | 0.4137 | 0.3392 - 0.4948 | 100 |\n| fixed_small | ndcg_at_10 | 0.5087 | 0.4407 - 0.5823 | 100 |\n| fixed_small | context_recall | 0.76 | 0.685 - 0.84 | 100 |\n| fixed_medium | recall_at_5 | 0.79 | 0.71 - 0.87 | 100 |\n| fixed_medium | recall_at_10 | 0.9 | 0.84 - 0.96 | 100 |\n| fixed_medium | mrr_at_5 | 0.5287 | 0.4483 - 0.6103 | 100 |\n| fixed_medium | ndcg_at_10 | 0.6361 | 0.565 - 0.7111 | 100 |\n| fixed_medium | context_recall | 0.875 | 0.815 - 0.935 | 100 |\n| fixed_large | recall_at_5 | 0.86 | 0.79 - 0.92 | 100 |\n| fixed_large | recall_at_10 | 0.96 | 0.92 - 0.99 | 100 |\n| fixed_large | mrr_at_5 | 0.617 | 0.5457 - 0.6885 | 100 |\n| fixed_large | ndcg_at_10 | 0.7357 | 0.6753 - 0.8035 | 100 |\n| fixed_large | context_recall | 0.945 | 0.9 - 0.98 | 100 |\n| recursive_small | recall_at_5 | 0.71 | 0.62 - 0.8 | 100 |\n| recursive_small | recall_at_10 | 0.81 | 0.73 - 0.88 | 100 |\n| recursive_small | mrr_at_5 | 0.4628 | 0.3862 - 0.547 | 100 |\n| recursive_small | ndcg_at_10 | 0.5662 | 0.4872 - 0.6436 | 100 |\n| recursive_small | context_recall | 0.78 | 0.705 - 0.855 | 100 |\n| recursive_medium | recall_at_5 | 0.83 | 0.75 - 0.9 | 100 |\n| recursive_medium | recall_at_10 | 0.91 | 0.85 - 0.96 | 100 |\n| recursive_medium | mrr_at_5 | 0.5245 | 0.4507 - 0.5977 | 100 |\n| recursive_medium | ndcg_at_10 | 0.6403 | 0.5716 - 0.7145 | 100 |\n| recursive_medium | context_recall | 0.885 | 0.82 - 0.94 | 100 |\n| recursive_large | recall_at_5 | 0.84 | 0.77 - 0.91 | 100 |\n| recursive_large | recall_at_10 | 0.96 | 0.92 - 0.99 | 100 |\n| recursive_large | mrr_at_5 | 0.6198 | 0.5455 - 0.6943 | 100 |\n| recursive_large | ndcg_at_10 | 0.7475 | 0.6869 - 0.8154 | 100 |\n| recursive_large | context_recall | 0.945 | 0.9 - 0.98 | 100 |\n| structure_aware | recall_at_5 | 0.57 | 0.47 - 0.67 | 100 |\n| structure_aware | recall_at_10 | 0.68 | 0.59 - 0.77 | 100 |\n| structure_aware | mrr_at_5 | 0.3922 | 0.3097 - 0.4787 | 100 |\n| structure_aware | ndcg_at_10 | 0.5106 | 0.4099 - 0.6167 | 100 |\n| structure_aware | context_recall | 0.655 | 0.565 - 0.75 | 100 |\n| structure_aware_medium | recall_at_5 | 0.79 | 0.7 - 0.87 | 100 |\n| structure_aware_medium | recall_at_10 | 0.89 | 0.83 - 0.95 | 100 |\n| structure_aware_medium | mrr_at_5 | 0.5113 | 0.4327 - 0.5935 | 100 |\n| structure_aware_medium | ndcg_at_10 | 0.6178 | 0.5456 - 0.6935 | 100 |\n| structure_aware_medium | context_recall | 0.86 | 0.795 - 0.92 | 100 |\n| structure_aware_large | recall_at_5 | 0.85 | 0.79 - 0.91 | 100 |\n| structure_aware_large | recall_at_10 | 0.96 | 0.92 - 0.99 | 100 |\n| structure_aware_large | mrr_at_5 | 0.6262 | 0.5508 - 0.6955 | 100 |\n| structure_aware_large | ndcg_at_10 | 0.7355 | 0.6753 - 0.7997 | 100 |\n| structure_aware_large | context_recall | 0.945 | 0.9 - 0.98 | 100 |\n| semantic_meta_like | recall_at_5 | 0.68 | 0.58 - 0.77",
+      "excerpt": "# Chunking Comparison Benchmark V2\n\n- Run ID: `chunking-comparison-benchmark-v2-20260530T101838Z`\n- Labels: 120\n- Supported labels: 100\n- Insufficient-evidence labels: 20\n- Evaluation mode: `top_k`\n- Context budget chars: None\n- Scoring: layered metrics only; no single mixed overall score.\n- Claim boundary: rankings are benchmark-specific and do not identify a universal best chunker.\n- Supported-only retrieval metrics are primary; all-label metrics are diagnostic.\n- Top-k rankings can privilege larger chunks by exposing more context; fixed-budget results are the fairer comparison when available.\n\n## Supported-Only Ranking\n\n| Rank | Strategy | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall |\n| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| 1 | structure_aware_large | 0.85 | 0.96 | 0.188 | 0.6262 | 0.6412 | 0.7355 | 0.188 | 0.945 |\n| 2 | fixed_large | 0.85 | 0.95 | 0.188 | 0.5935 | 0.6081 | 0.707 | 0.188 | 0.935 |\n| 3 | recursive_large | 0.84 | 0.96 | 0.19 | 0.6198 | 0.6372 | 0.7475 | 0.19 | 0.945 |\n| 4 | recursive_medium | 0.83 | 0.91 | 0.176 | 0.5245 | 0.5353 | 0.6403 | 0.176 | 0.885 |\n| 5 | fixed_medium | 0.79 | 0.88 | 0.162 | 0.5198 | 0.5324 | 0.618 | 0.162 | 0.855 |\n| 6 | structure_aware_medium | 0.79 | 0.89 | 0.164 | 0.5113 | 0.5269 | 0.6178 | 0.164 | 0.86 |\n| 7 | embedding_semantic | 0.73 | 0.85 | 0.146 | 0.5337 | 0.5517 | 0.6023 | 0.146 | 0.815 |\n| 8 | hierarchical_parent_child | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |\n| 9 | recursive_small | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |\n| 10 | semantic_meta_like | 0.68 | 0.79 | 0.136 | 0.4502 | 0.4658 | 0.5277 | 0.136 | 0.755 |\n| 11 | fixed_small | 0.64 | 0.77 | 0.128 | 0.4287 | 0.4463 | 0.5024 | 0.128 | 0.73 |\n| 12 | structure_aware | 0.57 | 0.68 | 0.132 | 0.3913 | 0.4065 | 0.5099 | 0.132 | 0.655 |\n| 13 | proposition_like | 0.56 | 0.63 | 0.112 | 0.3565 | 0.3654 | 0.4106 | 0.112 | 0.59 |\n| 14 | contextual_prefix | 0.45 | 0.51 | 0.106 | 0.2693 | 0.2773 | 0.362 | 0.106 | 0.48 |\n\n## Strategy Cost And Chunking Diagnostics\n\n| Strategy | Chunks | Avg chars | P95 chars | Avg tokens | Boundary preservation | Overlap redundancy | Index build s | Mean query s | P95 query s | Index bytes | Cost notes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |\n| fixed_small | 106 | 377.68 | 399 | 63.14 | 0.1038 | 0.1913 | 2.5824 | 0.0871 | 0.0977 | 2384856 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| fixed_medium | 48 | 794.21 | 899 | 132.46 | 0.1042 | 0.1493 | 0.9131 | 0.0858 | 0.089 | 2081752 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| fixed_large | 27 | 1359.22 | 1598 | 226.15 | 0.1481 | 0.1158 | 0.5562 | 0.0863 | 0.0913 | 1844184 | Large chunks may preserve broad context while diluting top-k precision. |\n| recursive_small | 107 | 358.78 | 399 | 60.58 | 0.3084 | 0.152 | 2.0605 | 0.0864 | 0.0897 | 2425816 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| recursive_medium | 48 | 782.17 | 898 | 132.4 | 0.25 | 0.1327 | 0.9363 | 0.0861 | 0.0909 | 1774552 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| recursive_large | 27 | 1355.26 | 1593 | 228 | 0.3704 | 0.1105 | 0.5794 | 0.0867 | 0.093 | 1819608 | Large chunks may preserve broad context while diluting top-k precision. |\n| structure_aware | 267 | 233.36 | 1080 | 42.07 | 1.0 | 0.4789 | 4.9164 | 0.0855 | 0.0891 | 3249112 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| structure_aware_medium | 48 | 775.02 | 896 | 129.04 | 1.0 | 0.1273 | 0.9163 | 0.0859 | 0.0894 | 2748908 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| structure_aware_large | 27 | 1349.63 | 1591 | 224.26 | 1.0 | 0.1091 | 0.5624 | 0.0862 | 0.0957 | 2757100 | Large chunks may preserve broad context while diluting top-k precision. |\n| semantic_meta_like | 56 | 580.55 | 712 | 98.09 | 1.0 | 0.0 | 1.0573 | 0.0864 | 0.0975 | 2110424 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| embedding_semantic | 53 | 613.47 | 890 | 103.64 | 1.0 | 0.0 | 1.0521 | 0.0862 | 0.0911 | 2147288 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| proposition_like | 84 | 387.9 | 809 | 65.69 | 0.9524 | 0.0028 | 1.553 | 0.0864 | 0.0927 | 2294744 | Heuristic proposition-like segmentation may increase chunk count and review cost. |\n| hierarchical_parent_child | 107 | 358.78 | 399 | 60.58 | 1.0 | 0.152 | 1.9194 | 0.0858 | 0.0884 | 2483160 | Child chunks are indexed with parent metadata; full parent-return retrieval is not claimed in this report. |\n| contextual_prefix | 279 | 303.71 | 944 | 48.94 | 1.0 | 0.49 | 5.0676 | 0.0855 | 0.0899 | 4359128 | Deterministic prefixes add metadata tokens to every indexed chunk. |\n\n## Confidence Intervals\n\n| Strategy | Metric | Mean | 95% CI | n |\n| --- | --- | ---: | --- | ---: |\n| fixed_small | recall_at_5 | 0.64 | 0.54 - 0.74 | 100 |\n| fixed_small | recall_at_10 | 0.77 | 0.69 - 0.85 | 100 |\n| fixed_small | mrr_at_5 | 0.4287 | 0.3462 - 0.514 | 100 |\n| fixed_small | ndcg_at_10 | 0.5024 | 0.4322 - 0.5734 | 100 |\n| fixed_small | context_recall | 0.73 | 0.65 - 0.815 | 100 |\n| fixed_medium | recall_at_5 | 0.79 | 0.7 - 0.87 | 100 |\n| fixed_medium | recall_at_10 | 0.88 | 0.82 - 0.94 | 100 |\n| fixed_medium | mrr_at_5 | 0.5198 | 0.4408 - 0.6007 | 100 |\n| fixed_medium | ndcg_at_10 | 0.618 | 0.5483 - 0.6874 | 100 |\n| fixed_medium | context_recall | 0.855 | 0.785 - 0.915 | 100 |\n| fixed_large | recall_at_5 | 0.85 | 0.78 - 0.91 | 100 |\n| fixed_large | recall_at_10 | 0.95 | 0.91 - 0.99 | 100 |\n| fixed_large | mrr_at_5 | 0.5935 | 0.5265 - 0.6668 | 100 |\n| fixed_large | ndcg_at_10 | 0.707 | 0.6484 - 0.7709 | 100 |\n| fixed_large | context_recall | 0.935 | 0.89 - 0.975 | 100 |\n| recursive_small | recall_at_5 | 0.71 | 0.62 - 0.8 | 100 |\n| recursive_small | recall_at_10 | 0.81 | 0.73 - 0.88 | 100 |\n| recursive_small | mrr_at_5 | 0.4628 | 0.3862 - 0.547 | 100 |\n| recursive_small | ndcg_at_10 | 0.5662 | 0.4872 - 0.6436 | 100 |\n| recursive_small | context_recall | 0.78 | 0.705 - 0.855 | 100 |\n| recursive_medium | recall_at_5 | 0.83 | 0.75 - 0.9 | 100 |\n| recursive_medium | recall_at_10 | 0.91 | 0.85 - 0.96 | 100 |\n| recursive_medium | mrr_at_5 | 0.5245 | 0.4507 - 0.5977 | 100 |\n| recursive_medium | ndcg_at_10 | 0.6403 | 0.5716 - 0.7145 | 100 |\n| recursive_medium | context_recall | 0.885 | 0.82 - 0.94 | 100 |\n| recursive_large | recall_at_5 | 0.84 | 0.77 - 0.91 | 100 |\n| recursive_large | recall_at_10 | 0.96 | 0.92 - 0.99 | 100 |\n| recursive_large | mrr_at_5 | 0.6198 | 0.5455 - 0.6943 | 100 |\n| recursive_large | ndcg_at_10 | 0.7475 | 0.6869 - 0.8154 | 100 |\n| recursive_large | context_recall | 0.945 | 0.9 - 0.98 | 100 |\n| structure_aware | recall_at_5 | 0.57 | 0.47 - 0.67 | 100 |\n| structure_aware | recall_at_10 | 0.68 | 0.59 - 0.77 | 100 |\n| structure_aware | mrr_at_5 | 0.3913 | 0.3083 - 0.4778 | 100 |\n| structure_aware | ndcg_at_10 | 0.5099 | 0.4099 - 0.6153 | 100 |\n| structure_aware | context_recall | 0.655 | 0.565 - 0.75 | 100 |\n| structure_aware_medium | recall_at_5 | 0.79 | 0.7 - 0.87 | 100 |\n| structure_aware_medium | recall_at_10 | 0.89 | 0.83 - 0.95 | 100 |\n| structure_aware_medium | mrr_at_5 | 0.5113 | 0.4327 - 0.5935 | 100 |\n| structure_aware_medium | ndcg_at_10 | 0.6178 | 0.5456 - 0.6935 | 100 |\n| structure_aware_medium | context_recall | 0.86 | 0.795 - 0.92 | 100 |\n| structure_aware_large | recall_at_5 | 0.85 | 0.79 - 0.91 | 100 |\n| structure_aware_large | recall_at_10 | 0.96 | 0.92 - 0.99 | 100 |\n| structure_aware_large | mrr_at_5 | 0.6262 | 0.5508 - 0.6955 | 100 |\n| structure_aware_large | ndcg_at_10 | 0.7355 | 0.6753 - 0.7997 | 100 |\n| structure_aware_large | context_recall | 0.945 | 0.9 - 0.98 | 100 |\n| sem",
       "path": "reports/stages/chunking_comparison_benchmark_v2.md",
       "present": true,
       "truncated": true
     },
     "chunking_comparison_benchmark_v2_budget": {
-      "excerpt": "# Chunking Comparison Benchmark V2\n\n- Run ID: `chunking-comparison-benchmark-v2-20260530T033622Z`\n- Labels: 120\n- Supported labels: 100\n- Insufficient-evidence labels: 20\n- Evaluation mode: `fixed_context_budget`\n- Context budget chars: 4000\n- Scoring: layered metrics only; no single mixed overall score.\n- Claim boundary: rankings are benchmark-specific and do not identify a universal best chunker.\n- Supported-only retrieval metrics are primary; all-label metrics are diagnostic.\n- Top-k rankings can privilege larger chunks by exposing more context; fixed-budget results are the fairer comparison when available.\n\n## Supported-Only Ranking\n\n| Rank | Strategy | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall |\n| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| 1 | recursive_medium | 0.79 | 0.79 | 0.166 | 0.5165 | 0.5165 | 0.5869 | 0.191 | 0.745 |\n| 2 | structure_aware_large | 0.75 | 0.75 | 0.154 | 0.6017 | 0.6017 | 0.6299 | 0.3533 | 0.71 |\n| 3 | recursive_large | 0.75 | 0.75 | 0.156 | 0.595 | 0.595 | 0.6312 | 0.35 | 0.71 |\n| 4 | fixed_medium | 0.75 | 0.75 | 0.156 | 0.5207 | 0.5207 | 0.575 | 0.178 | 0.705 |\n| 5 | structure_aware_medium | 0.74 | 0.74 | 0.154 | 0.5013 | 0.5013 | 0.5605 | 0.1755 | 0.705 |\n| 6 | fixed_large | 0.73 | 0.73 | 0.15 | 0.585 | 0.585 | 0.6101 | 0.3483 | 0.685 |\n| 7 | embedding_semantic | 0.73 | 0.8 | 0.146 | 0.5337 | 0.5451 | 0.5836 | 0.1465 | 0.76 |\n| 8 | hierarchical_parent_child | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |\n| 9 | recursive_small | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |\n| 10 | semantic_meta_like | 0.68 | 0.73 | 0.136 | 0.4502 | 0.4585 | 0.5085 | 0.136 | 0.695 |\n| 11 | fixed_small | 0.64 | 0.8 | 0.13 | 0.4137 | 0.4328 | 0.5087 | 0.13 | 0.76 |\n| 12 | structure_aware | 0.57 | 0.63 | 0.132 | 0.3913 | 0.3998 | 0.489 | 0.133 | 0.61 |\n| 13 | proposition_like | 0.56 | 0.6 | 0.112 | 0.356 | 0.3615 | 0.4024 | 0.112 | 0.565 |\n| 14 | contextual_prefix | 0.45 | 0.5 | 0.106 | 0.2693 | 0.276 | 0.3588 | 0.106 | 0.47 |\n\n## Strategy Cost And Chunking Diagnostics\n\n| Strategy | Chunks | Avg chars | P95 chars | Avg tokens | Boundary preservation | Overlap redundancy | Index build s | Mean query s | P95 query s | Index bytes | Cost notes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |\n| fixed_small | 112 | 361.75 | 398 | 60.49 | 0.2679 | 0.2009 | 0.0 | 0.0918 | 0.0952 | 2216756 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| fixed_medium | 48 | 794.21 | 896 | 132.25 | 0.25 | 0.1493 | 0.0 | 0.0895 | 0.0977 | 1819444 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| fixed_large | 27 | 1359.19 | 1594 | 225.96 | 0.3704 | 0.1158 | 0.0 | 0.0899 | 0.1009 | 1676084 | Large chunks may preserve broad context while diluting top-k precision. |\n| recursive_small | 107 | 358.78 | 399 | 60.58 | 0.3084 | 0.152 | 0.0 | 0.088 | 0.0941 | 2257716 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| recursive_medium | 48 | 782.17 | 898 | 132.4 | 0.25 | 0.1327 | 0.0 | 0.0887 | 0.0951 | 1606452 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| recursive_large | 27 | 1355.26 | 1593 | 228 | 0.3704 | 0.1105 | 0.0 | 0.0882 | 0.0947 | 1643316 | Large chunks may preserve broad context while diluting top-k precision. |\n| structure_aware | 267 | 233.36 | 1080 | 42.07 | 1.0 | 0.4789 | 0.0 | 0.0903 | 0.0976 | 3068724 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| structure_aware_medium | 48 | 775.02 | 896 | 129.04 | 1.0 | 0.1273 | 0.0 | 0.0886 | 0.0967 | 2580808 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| structure_aware_large | 27 | 1349.63 | 1591 | 224.26 | 1.0 | 0.1091 | 0.0 | 0.0889 | 0.0995 | 2589000 | Large chunks may preserve broad context while diluting top-k precision. |\n| semantic_meta_like | 56 | 580.55 | 712 | 98.09 | 1.0 | 0.0 | 0.0 | 0.0885 | 0.0943 | 1868596 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| embedding_semantic | 53 | 613.47 | 890 | 103.64 | 1.0 | 0.0 | 0.0 | 0.0891 | 0.0951 | 1889076 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| proposition_like | 85 | 383.33 | 809 | 64.92 | 0.9529 | 0.0028 | 0.0 | 0.0887 | 0.0939 | 2126644 | Heuristic proposition-like segmentation may increase chunk count and review cost. |\n| hierarchical_parent_child | 107 | 358.78 | 399 | 60.58 | 1.0 | 0.152 | 0.0 | 0.0899 | 0.1007 | 2315060 | Child chunks are indexed with parent metadata; full parent-return retrieval is not claimed in this report. |\n| contextual_prefix | 279 | 303.71 | 944 | 48.94 | 1.0 | 0.49 | 0.0 | 0.0889 | 0.0971 | 4002612 | Deterministic prefixes add metadata tokens to every indexed chunk. |\n\n## Confidence Intervals\n\n| Strategy | Metric | Mean | 95% CI | n |\n| --- | --- | ---: | --- | ---: |\n| fixed_small | recall_at_5 | 0.64 | 0.55 - 0.73 | 100 |\n| fixed_small | recall_at_10 | 0.8 | 0.73 - 0.88 | 100 |\n| fixed_small | mrr_at_5 | 0.4137 | 0.3392 - 0.4948 | 100 |\n| fixed_small | ndcg_at_10 | 0.5087 | 0.4407 - 0.5823 | 100 |\n| fixed_small | context_recall | 0.76 | 0.685 - 0.84 | 100 |\n| fixed_medium | recall_at_5 | 0.75 | 0.67 - 0.83 | 100 |\n| fixed_medium | recall_at_10 | 0.75 | 0.67 - 0.83 | 100 |\n| fixed_medium | mrr_at_5 | 0.5207 | 0.4392 - 0.6015 | 100 |\n| fixed_medium | ndcg_at_10 | 0.575 | 0.4934 - 0.6622 | 100 |\n| fixed_medium | context_recall | 0.705 | 0.62 - 0.785 | 100 |\n| fixed_large | recall_at_5 | 0.73 | 0.65 - 0.81 | 100 |\n| fixed_large | recall_at_10 | 0.73 | 0.65 - 0.81 | 100 |\n| fixed_large | mrr_at_5 | 0.585 | 0.5033 - 0.6633 | 100 |\n| fixed_large | ndcg_at_10 | 0.6101 | 0.5301 - 0.6918 | 100 |\n| fixed_large | context_recall | 0.685 | 0.6 - 0.765 | 100 |\n| recursive_small | recall_at_5 | 0.71 | 0.62 - 0.8 | 100 |\n| recursive_small | recall_at_10 | 0.81 | 0.73 - 0.88 | 100 |\n| recursive_small | mrr_at_5 | 0.4628 | 0.3862 - 0.547 | 100 |\n| recursive_small | ndcg_at_10 | 0.5662 | 0.4872 - 0.6436 | 100 |\n| recursive_small | context_recall | 0.78 | 0.705 - 0.855 | 100 |\n| recursive_medium | recall_at_5 | 0.79 | 0.71 - 0.87 | 100 |\n| recursive_medium | recall_at_10 | 0.79 | 0.71 - 0.87 | 100 |\n| recursive_medium | mrr_at_5 | 0.5165 | 0.4418 - 0.5927 | 100 |\n| recursive_medium | ndcg_at_10 | 0.5869 | 0.5055 - 0.6652 | 100 |\n| recursive_medium | context_recall | 0.745 | 0.665 - 0.825 | 100 |\n| recursive_large | recall_at_5 | 0.75 | 0.67 - 0.83 | 100 |\n| recursive_large | recall_at_10 | 0.75 | 0.67 - 0.83 | 100 |\n| recursive_large | mrr_at_5 | 0.595 | 0.515 - 0.6767 | 100 |\n| recursive_large | ndcg_at_10 | 0.6312 | 0.5514 - 0.7118 | 100 |\n| recursive_large | context_recall | 0.71 | 0.625 - 0.79 | 100 |\n| structure_aware | recall_at_5 | 0.57 | 0.47 - 0.67 | 100 |\n| structure_aware | recall_at_10 | 0.63 | 0.54 - 0.73 | 100 |\n| structure_aware | mrr_at_5 | 0.3913 | 0.3083 - 0.4778 | 100 |\n| structure_aware | ndcg_at_10 | 0.489 | 0.393 - 0.5977 | 100 |\n| structure_aware | context_recall | 0.61 | 0.52 - 0.71 | 100 |\n| structure_aware_medium | recall_at_5 | 0.74 | 0.66 - 0.82 | 100 |\n| structure_aware_medium | recall_at_10 | 0.74 | 0.66 - 0.82 | 100 |\n| structure_aware_medium | mrr_at_5 | 0.5013 | 0.4202 - 0.5837 | 100 |\n| structure_aware_medium | ndcg_at_10 | 0.5605 | 0.4776 - 0.6421 | 100 |\n| structure_aware_medium | context_recall | 0.705 | 0.625 - 0.79 | 100 |\n| structure_aware_large | recall_at_5 | 0.75 | 0.67 - 0.83 | 100 |\n| structure_aware_large | recall_at_10 | 0.75 | 0.67 - 0.83 | 100 |\n| structure_aware_large | mrr_at_5 | 0.6017 | 0.52 - 0.675 | 100 |\n| structure_aware_large | ndcg_at_10 | 0.6299 | 0.5514 - 0.7062 | 100 |\n| structure_aware_large | context_recall | 0.71 | 0.63 - 0.79 | 100 |\n| semantic_meta_like | recall_at_5 | 0.68 | ",
+      "excerpt": "# Chunking Comparison Benchmark V2\n\n- Run ID: `chunking-comparison-benchmark-v2-20260530T102154Z`\n- Labels: 120\n- Supported labels: 100\n- Insufficient-evidence labels: 20\n- Evaluation mode: `fixed_context_budget`\n- Context budget chars: 4000\n- Scoring: layered metrics only; no single mixed overall score.\n- Claim boundary: rankings are benchmark-specific and do not identify a universal best chunker.\n- Supported-only retrieval metrics are primary; all-label metrics are diagnostic.\n- Top-k rankings can privilege larger chunks by exposing more context; fixed-budget results are the fairer comparison when available.\n\n## Supported-Only Ranking\n\n| Rank | Strategy | Recall@5 | Recall@10 | Precision@5 | MRR@5 | MRR@10 | NDCG@10 | Context Precision@5 | Context Recall |\n| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| 1 | recursive_medium | 0.79 | 0.79 | 0.166 | 0.5165 | 0.5165 | 0.5869 | 0.191 | 0.745 |\n| 2 | structure_aware_large | 0.75 | 0.75 | 0.154 | 0.6017 | 0.6017 | 0.6299 | 0.3533 | 0.71 |\n| 3 | recursive_large | 0.75 | 0.75 | 0.156 | 0.595 | 0.595 | 0.6312 | 0.35 | 0.71 |\n| 4 | fixed_medium | 0.74 | 0.74 | 0.152 | 0.5098 | 0.5098 | 0.5569 | 0.174 | 0.695 |\n| 5 | structure_aware_medium | 0.74 | 0.74 | 0.154 | 0.5013 | 0.5013 | 0.5605 | 0.1755 | 0.705 |\n| 6 | embedding_semantic | 0.73 | 0.8 | 0.146 | 0.5337 | 0.5451 | 0.5836 | 0.1465 | 0.76 |\n| 7 | fixed_large | 0.71 | 0.71 | 0.144 | 0.555 | 0.555 | 0.5811 | 0.33 | 0.675 |\n| 8 | hierarchical_parent_child | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |\n| 9 | recursive_small | 0.71 | 0.81 | 0.15 | 0.4628 | 0.4782 | 0.5662 | 0.15 | 0.78 |\n| 10 | semantic_meta_like | 0.68 | 0.73 | 0.136 | 0.4502 | 0.4585 | 0.5085 | 0.136 | 0.695 |\n| 11 | fixed_small | 0.64 | 0.77 | 0.128 | 0.4287 | 0.4463 | 0.5024 | 0.128 | 0.73 |\n| 12 | structure_aware | 0.57 | 0.63 | 0.132 | 0.3913 | 0.3998 | 0.489 | 0.133 | 0.61 |\n| 13 | proposition_like | 0.56 | 0.6 | 0.112 | 0.3565 | 0.362 | 0.4027 | 0.112 | 0.565 |\n| 14 | contextual_prefix | 0.45 | 0.5 | 0.106 | 0.2693 | 0.276 | 0.3588 | 0.106 | 0.47 |\n\n## Strategy Cost And Chunking Diagnostics\n\n| Strategy | Chunks | Avg chars | P95 chars | Avg tokens | Boundary preservation | Overlap redundancy | Index build s | Mean query s | P95 query s | Index bytes | Cost notes |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |\n| fixed_small | 106 | 377.68 | 399 | 63.14 | 0.1038 | 0.1913 | 2.4591 | 0.0852 | 0.0873 | 2557052 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| fixed_medium | 48 | 794.21 | 899 | 132.46 | 0.1042 | 0.1493 | 0.9148 | 0.0863 | 0.0908 | 2253948 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| fixed_large | 27 | 1359.22 | 1598 | 226.15 | 0.1481 | 0.1158 | 0.5725 | 0.0862 | 0.0917 | 2012284 | Large chunks may preserve broad context while diluting top-k precision. |\n| recursive_small | 107 | 358.78 | 399 | 60.58 | 0.3084 | 0.152 | 1.9726 | 0.0861 | 0.0899 | 2684028 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| recursive_medium | 48 | 782.17 | 898 | 132.4 | 0.25 | 0.1327 | 0.9185 | 0.0864 | 0.0899 | 1942652 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| recursive_large | 27 | 1355.26 | 1593 | 228 | 0.3704 | 0.1105 | 0.5912 | 0.0862 | 0.0919 | 1987708 | Large chunks may preserve broad context while diluting top-k precision. |\n| structure_aware | 267 | 233.36 | 1080 | 42.07 | 1.0 | 0.4789 | 5.0192 | 0.0879 | 0.0933 | 3445884 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| structure_aware_medium | 48 | 775.02 | 896 | 129.04 | 1.0 | 0.1273 | 0.9203 | 0.0879 | 0.0947 | 2917008 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| structure_aware_large | 27 | 1349.63 | 1591 | 224.26 | 1.0 | 0.1091 | 0.5605 | 0.0883 | 0.1071 | 2925200 | Large chunks may preserve broad context while diluting top-k precision. |\n| semantic_meta_like | 56 | 580.55 | 712 | 98.09 | 1.0 | 0.0 | 1.0798 | 0.0887 | 0.1008 | 2278524 | Small chunks may improve localization while increasing index size and KG extraction units. |\n| embedding_semantic | 53 | 613.47 | 890 | 103.64 | 1.0 | 0.0 | 1.1137 | 0.0874 | 0.0975 | 2348156 | Cost impact is interpreted from chunk count, chunk size, index size, and latency. |\n| proposition_like | 84 | 387.9 | 809 | 65.69 | 0.9524 | 0.0028 | 1.6113 | 0.0878 | 0.1073 | 2462844 | Heuristic proposition-like segmentation may increase chunk count and review cost. |\n| hierarchical_parent_child | 107 | 358.78 | 399 | 60.58 | 1.0 | 0.152 | 1.8836 | 0.0826 | 0.0867 | 2774140 | Child chunks are indexed with parent metadata; full parent-return retrieval is not claimed in this report. |\n| contextual_prefix | 279 | 303.71 | 944 | 48.94 | 1.0 | 0.49 | 5.6397 | 0.0875 | 0.0926 | 4781180 | Deterministic prefixes add metadata tokens to every indexed chunk. |\n\n## Confidence Intervals\n\n| Strategy | Metric | Mean | 95% CI | n |\n| --- | --- | ---: | --- | ---: |\n| fixed_small | recall_at_5 | 0.64 | 0.54 - 0.74 | 100 |\n| fixed_small | recall_at_10 | 0.77 | 0.69 - 0.85 | 100 |\n| fixed_small | mrr_at_5 | 0.4287 | 0.3462 - 0.514 | 100 |\n| fixed_small | ndcg_at_10 | 0.5024 | 0.4322 - 0.5734 | 100 |\n| fixed_small | context_recall | 0.73 | 0.65 - 0.815 | 100 |\n| fixed_medium | recall_at_5 | 0.74 | 0.66 - 0.83 | 100 |\n| fixed_medium | recall_at_10 | 0.74 | 0.66 - 0.83 | 100 |\n| fixed_medium | mrr_at_5 | 0.5098 | 0.4312 - 0.5903 | 100 |\n| fixed_medium | ndcg_at_10 | 0.5569 | 0.478 - 0.6347 | 100 |\n| fixed_medium | context_recall | 0.695 | 0.61 - 0.78 | 100 |\n| fixed_large | recall_at_5 | 0.71 | 0.63 - 0.8 | 100 |\n| fixed_large | recall_at_10 | 0.71 | 0.63 - 0.8 | 100 |\n| fixed_large | mrr_at_5 | 0.555 | 0.4817 - 0.6367 | 100 |\n| fixed_large | ndcg_at_10 | 0.5811 | 0.5043 - 0.6644 | 100 |\n| fixed_large | context_recall | 0.675 | 0.59 - 0.76 | 100 |\n| recursive_small | recall_at_5 | 0.71 | 0.62 - 0.8 | 100 |\n| recursive_small | recall_at_10 | 0.81 | 0.73 - 0.88 | 100 |\n| recursive_small | mrr_at_5 | 0.4628 | 0.3862 - 0.547 | 100 |\n| recursive_small | ndcg_at_10 | 0.5662 | 0.4872 - 0.6436 | 100 |\n| recursive_small | context_recall | 0.78 | 0.705 - 0.855 | 100 |\n| recursive_medium | recall_at_5 | 0.79 | 0.71 - 0.87 | 100 |\n| recursive_medium | recall_at_10 | 0.79 | 0.71 - 0.87 | 100 |\n| recursive_medium | mrr_at_5 | 0.5165 | 0.4418 - 0.5927 | 100 |\n| recursive_medium | ndcg_at_10 | 0.5869 | 0.5055 - 0.6652 | 100 |\n| recursive_medium | context_recall | 0.745 | 0.665 - 0.825 | 100 |\n| recursive_large | recall_at_5 | 0.75 | 0.67 - 0.83 | 100 |\n| recursive_large | recall_at_10 | 0.75 | 0.67 - 0.83 | 100 |\n| recursive_large | mrr_at_5 | 0.595 | 0.515 - 0.6767 | 100 |\n| recursive_large | ndcg_at_10 | 0.6312 | 0.5514 - 0.7118 | 100 |\n| recursive_large | context_recall | 0.71 | 0.625 - 0.79 | 100 |\n| structure_aware | recall_at_5 | 0.57 | 0.47 - 0.67 | 100 |\n| structure_aware | recall_at_10 | 0.63 | 0.54 - 0.73 | 100 |\n| structure_aware | mrr_at_5 | 0.3913 | 0.3083 - 0.4778 | 100 |\n| structure_aware | ndcg_at_10 | 0.489 | 0.393 - 0.5977 | 100 |\n| structure_aware | context_recall | 0.61 | 0.52 - 0.71 | 100 |\n| structure_aware_medium | recall_at_5 | 0.74 | 0.66 - 0.82 | 100 |\n| structure_aware_medium | recall_at_10 | 0.74 | 0.66 - 0.82 | 100 |\n| structure_aware_medium | mrr_at_5 | 0.5013 | 0.4202 - 0.5837 | 100 |\n| structure_aware_medium | ndcg_at_10 | 0.5605 | 0.4776 - 0.6421 | 100 |\n| structure_aware_medium | context_recall | 0.705 | 0.625 - 0.79 | 100 |\n| structure_aware_large | recall_at_5 | 0.75 | 0.67 - 0.83 | 100 |\n| structure_aware_large | recall_at_10 | 0.75 | 0.67 - 0.83 | 100 |\n| structure_aware_large | mrr_at_5 | 0.6017 | 0.52 - 0.675 | 100 |\n| structure_aware_large | ndcg_at_10 | 0.6299 | 0.5514 - 0.7062 | 100 |\n| structure_aware_large | context_recall | 0.71 | 0.63 - 0.79 | 100 |\n",
       "path": "reports/stages/chunking_comparison_benchmark_v2_budget.md",
       "present": true,
       "truncated": true
@@ -35029,7 +35029,7 @@
           ],
           "collection_prefix": "phak_ch4_chunking_v2",
           "context_budget_chars": 4000,
-          "elapsed_seconds": 152.4813,
+          "elapsed_seconds": 187.3854,
           "evaluation_mode": "fixed_context_budget",
           "gold_labels_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
           "index_dir": "data/indexes/chunking_benchmark_v2",
@@ -35058,8 +35058,8 @@
             },
             "chunking_strategy": "benchmark_v2_multiple",
             "collection_name": "phak_ch4_chunking_v2",
-            "command": "aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context_budget --reuse-chunks --reuse-indexes",
-            "created_at": "2026-05-30T03:36:22.191124+00:00",
+            "command": "aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context_budget --no-semantic-download",
+            "created_at": "2026-05-30T10:21:54.319295+00:00",
             "document": {
               "chapter": "4",
               "document_id": "06_phak_ch4_0",
@@ -35102,7 +35102,7 @@
               "evaluation_mode": "fixed_context_budget",
               "gold_labels_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
               "max_labels": null,
-              "semantic_download": true,
+              "semantic_download": false,
               "strategies": [
                 "fixed_small",
                 "fixed_medium",
@@ -35122,11 +35122,11 @@
               "vector_top_k": 10
             },
             "rebuild_policy": {
-              "chunks": false,
-              "indexes": false,
+              "chunks": true,
+              "indexes": true,
               "kg": false
             },
-            "run_id": "chunking-comparison-benchmark-v2-20260530T033622Z"
+            "run_id": "chunking-comparison-benchmark-v2-20260530T102154Z"
           },
           "scoring_policy": "layered_metrics_no_mixed_overall_score",
           "strategies": [
@@ -35185,10 +35185,10 @@
             "strategy": "recursive_large"
           },
           {
-            "context_precision_at_5_supported": 0.178,
-            "context_recall_supported": 0.705,
-            "mrr_at_5_supported": 0.5207,
-            "recall_at_5_supported": 0.75,
+            "context_precision_at_5_supported": 0.174,
+            "context_recall_supported": 0.695,
+            "mrr_at_5_supported": 0.5098,
+            "recall_at_5_supported": 0.74,
             "strategy": "fixed_medium"
           },
           {
@@ -35199,18 +35199,18 @@
             "strategy": "structure_aware_medium"
           },
           {
-            "context_precision_at_5_supported": 0.3483,
-            "context_recall_supported": 0.685,
-            "mrr_at_5_supported": 0.585,
-            "recall_at_5_supported": 0.73,
-            "strategy": "fixed_large"
-          },
-          {
             "context_precision_at_5_supported": 0.1465,
             "context_recall_supported": 0.76,
             "mrr_at_5_supported": 0.5337,
             "recall_at_5_supported": 0.73,
             "strategy": "embedding_semantic"
+          },
+          {
+            "context_precision_at_5_supported": 0.33,
+            "context_recall_supported": 0.675,
+            "mrr_at_5_supported": 0.555,
+            "recall_at_5_supported": 0.71,
+            "strategy": "fixed_large"
           },
           {
             "context_precision_at_5_supported": 0.15,
@@ -35234,9 +35234,9 @@
             "strategy": "semantic_meta_like"
           },
           {
-            "context_precision_at_5_supported": 0.13,
-            "context_recall_supported": 0.76,
-            "mrr_at_5_supported": 0.4137,
+            "context_precision_at_5_supported": 0.128,
+            "context_recall_supported": 0.73,
+            "mrr_at_5_supported": 0.4287,
             "recall_at_5_supported": 0.64,
             "strategy": "fixed_small"
           },
@@ -35250,7 +35250,7 @@
           {
             "context_precision_at_5_supported": 0.112,
             "context_recall_supported": 0.565,
-            "mrr_at_5_supported": 0.356,
+            "mrr_at_5_supported": 0.3565,
             "recall_at_5_supported": 0.56,
             "strategy": "proposition_like"
           },
@@ -35376,10 +35376,10 @@
                 "p95_chars": 944
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 4002612,
-                "query_latency_mean_seconds": 0.0889,
-                "query_latency_p95_seconds": 0.0971
+                "index_build_seconds": 5.6397,
+                "index_size_bytes": 4781180,
+                "query_latency_mean_seconds": 0.0875,
+                "query_latency_p95_seconds": 0.0926
               },
               "label_counts": {
                 "labels_total": 120,
@@ -35581,10 +35581,10 @@
                 "p95_chars": 890
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1889076,
-                "query_latency_mean_seconds": 0.0891,
-                "query_latency_p95_seconds": 0.0951
+                "index_build_seconds": 1.1137,
+                "index_size_bytes": 2348156,
+                "query_latency_mean_seconds": 0.0874,
+                "query_latency_p95_seconds": 0.0975
               },
               "label_counts": {
                 "labels_total": 120,
@@ -35680,29 +35680,29 @@
                 "concept_definition": {
                   "labels": 15,
                   "retrieval": {
-                    "context_precision_at_5": 0.4,
-                    "context_recall": 0.9333,
-                    "mrr_at_10": 0.8,
-                    "mrr_at_5": 0.8,
-                    "ndcg_at_10": 0.8349,
-                    "precision_at_10": 0.0933,
-                    "precision_at_5": 0.1867,
-                    "recall_at_10": 0.9333,
-                    "recall_at_5": 0.9333
+                    "context_precision_at_5": 0.4222,
+                    "context_recall": 1.0,
+                    "mrr_at_10": 0.8222,
+                    "mrr_at_5": 0.8222,
+                    "ndcg_at_10": 0.8682,
+                    "precision_at_10": 0.1,
+                    "precision_at_5": 0.2,
+                    "recall_at_10": 1.0,
+                    "recall_at_5": 1.0
                   }
                 },
                 "cross_page": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.4167,
-                    "context_recall": 0.45,
-                    "mrr_at_10": 0.5667,
-                    "mrr_at_5": 0.5667,
-                    "ndcg_at_10": 0.4,
-                    "precision_at_10": 0.09,
-                    "precision_at_5": 0.18,
-                    "recall_at_10": 0.9,
-                    "recall_at_5": 0.9
+                    "context_precision_at_5": 0.3167,
+                    "context_recall": 0.35,
+                    "mrr_at_10": 0.4667,
+                    "mrr_at_5": 0.4667,
+                    "ndcg_at_10": 0.3226,
+                    "precision_at_10": 0.07,
+                    "precision_at_5": 0.14,
+                    "recall_at_10": 0.7,
+                    "recall_at_5": 0.7
                   }
                 },
                 "insufficient_evidence": {
@@ -35722,43 +35722,43 @@
                 "paraphrase": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.25,
-                    "context_recall": 0.5,
+                    "context_precision_at_5": 0.2833,
+                    "context_recall": 0.6,
                     "mrr_at_10": 0.4,
                     "mrr_at_5": 0.4,
-                    "ndcg_at_10": 0.4262,
-                    "precision_at_10": 0.05,
-                    "precision_at_5": 0.1,
-                    "recall_at_10": 0.5,
-                    "recall_at_5": 0.5
+                    "ndcg_at_10": 0.4524,
+                    "precision_at_10": 0.06,
+                    "precision_at_5": 0.12,
+                    "recall_at_10": 0.6,
+                    "recall_at_5": 0.6
                   }
                 },
                 "relation_causal": {
                   "labels": 15,
                   "retrieval": {
-                    "context_precision_at_5": 0.3222,
-                    "context_recall": 0.7333,
-                    "mrr_at_10": 0.6667,
-                    "mrr_at_5": 0.6667,
-                    "ndcg_at_10": 0.6841,
-                    "precision_at_10": 0.0733,
-                    "precision_at_5": 0.1467,
-                    "recall_at_10": 0.7333,
-                    "recall_at_5": 0.7333
+                    "context_precision_at_5": 0.3,
+                    "context_recall": 0.6667,
+                    "mrr_at_10": 0.5556,
+                    "mrr_at_5": 0.5556,
+                    "ndcg_at_10": 0.5841,
+                    "precision_at_10": 0.0667,
+                    "precision_at_5": 0.1333,
+                    "recall_at_10": 0.6667,
+                    "recall_at_5": 0.6667
                   }
                 },
                 "supported_factual": {
                   "labels": 40,
                   "retrieval": {
-                    "context_precision_at_5": 0.3625,
-                    "context_recall": 0.7,
-                    "mrr_at_10": 0.575,
-                    "mrr_at_5": 0.575,
-                    "ndcg_at_10": 0.6393,
-                    "precision_at_10": 0.075,
-                    "precision_at_5": 0.15,
-                    "recall_at_10": 0.7,
-                    "recall_at_5": 0.7
+                    "context_precision_at_5": 0.3333,
+                    "context_recall": 0.675,
+                    "mrr_at_10": 0.5583,
+                    "mrr_at_5": 0.5583,
+                    "ndcg_at_10": 0.6045,
+                    "precision_at_10": 0.07,
+                    "precision_at_5": 0.14,
+                    "recall_at_10": 0.675,
+                    "recall_at_5": 0.675
                   }
                 },
                 "terminology_variation": {
@@ -35777,19 +35777,19 @@
                 }
               },
               "chunking": {
-                "avg_chars": 1359.19,
-                "avg_tokens": 225.96,
-                "boundary_preservation_rate": 0.3704,
+                "avg_chars": 1359.22,
+                "avg_tokens": 226.15,
+                "boundary_preservation_rate": 0.1481,
                 "chunk_count": 27,
                 "chunks_total": 27,
                 "overlap_redundancy": 0.1158,
-                "p95_chars": 1594
+                "p95_chars": 1598
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1676084,
-                "query_latency_mean_seconds": 0.0899,
-                "query_latency_p95_seconds": 0.1009
+                "index_build_seconds": 0.5725,
+                "index_size_bytes": 2012284,
+                "query_latency_mean_seconds": 0.0862,
+                "query_latency_p95_seconds": 0.0917
               },
               "label_counts": {
                 "labels_total": 120,
@@ -35803,73 +35803,73 @@
                 "retrieved_context_rate_at_5": 1.0
               },
               "retrieval_all_labels_diagnostic": {
-                "context_precision_at_5": 0.2903,
-                "context_recall": 0.7375,
-                "mrr_at_10": 0.4875,
-                "mrr_at_5": 0.4875,
-                "ndcg_at_10": 0.5084,
-                "precision_at_10": 0.0625,
-                "precision_at_5": 0.125,
-                "recall_at_10": 0.6083,
-                "recall_at_5": 0.6083
+                "context_precision_at_5": 0.275,
+                "context_recall": 0.7292,
+                "mrr_at_10": 0.4625,
+                "mrr_at_5": 0.4625,
+                "ndcg_at_10": 0.4842,
+                "precision_at_10": 0.06,
+                "precision_at_5": 0.12,
+                "recall_at_10": 0.5917,
+                "recall_at_5": 0.5917
               },
               "retrieval_confidence_intervals_supported_only": {
                 "context_recall": {
                   "confidence": 0.95,
-                  "lower": 0.6,
-                  "mean": 0.685,
+                  "lower": 0.59,
+                  "mean": 0.675,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.765
+                  "upper": 0.76
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.5033,
-                  "mean": 0.585,
+                  "lower": 0.4817,
+                  "mean": 0.555,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.6633
+                  "upper": 0.6367
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.5301,
-                  "mean": 0.6101,
+                  "lower": 0.5043,
+                  "mean": 0.5811,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.6918
+                  "upper": 0.6644
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.65,
-                  "mean": 0.73,
+                  "lower": 0.63,
+                  "mean": 0.71,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.81
+                  "upper": 0.8
                 },
                 "recall_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.65,
-                  "mean": 0.73,
+                  "lower": 0.63,
+                  "mean": 0.71,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.81
+                  "upper": 0.8
                 }
               },
               "retrieval_supported_only": {
-                "context_precision_at_5": 0.3483,
-                "context_recall": 0.685,
-                "mrr_at_10": 0.585,
-                "mrr_at_5": 0.585,
-                "ndcg_at_10": 0.6101,
-                "precision_at_10": 0.075,
-                "precision_at_5": 0.15,
-                "recall_at_10": 0.73,
-                "recall_at_5": 0.73
+                "context_precision_at_5": 0.33,
+                "context_recall": 0.675,
+                "mrr_at_10": 0.555,
+                "mrr_at_5": 0.555,
+                "ndcg_at_10": 0.5811,
+                "precision_at_10": 0.072,
+                "precision_at_5": 0.144,
+                "recall_at_10": 0.71,
+                "recall_at_5": 0.71
               }
             },
             "chunks_path": "data/chunks/06_phak_ch4_0.fixed_large.benchmark_v2.jsonl",
@@ -35885,25 +35885,25 @@
                 "concept_definition": {
                   "labels": 15,
                   "retrieval": {
-                    "context_precision_at_5": 0.2033,
-                    "context_recall": 0.9333,
-                    "mrr_at_10": 0.7467,
-                    "mrr_at_5": 0.7467,
-                    "ndcg_at_10": 0.7925,
-                    "precision_at_10": 0.0933,
-                    "precision_at_5": 0.1867,
-                    "recall_at_10": 0.9333,
-                    "recall_at_5": 0.9333
+                    "context_precision_at_5": 0.24,
+                    "context_recall": 1.0,
+                    "mrr_at_10": 0.7333,
+                    "mrr_at_5": 0.7333,
+                    "ndcg_at_10": 0.8282,
+                    "precision_at_10": 0.1067,
+                    "precision_at_5": 0.2133,
+                    "recall_at_10": 1.0,
+                    "recall_at_5": 1.0
                   }
                 },
                 "cross_page": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.2,
+                    "context_precision_at_5": 0.205,
                     "context_recall": 0.45,
-                    "mrr_at_10": 0.45,
-                    "mrr_at_5": 0.45,
-                    "ndcg_at_10": 0.3443,
+                    "mrr_at_10": 0.44,
+                    "mrr_at_5": 0.44,
+                    "ndcg_at_10": 0.3389,
                     "precision_at_10": 0.09,
                     "precision_at_5": 0.18,
                     "recall_at_10": 0.9,
@@ -35929,9 +35929,9 @@
                   "retrieval": {
                     "context_precision_at_5": 0.155,
                     "context_recall": 0.6,
-                    "mrr_at_10": 0.4583,
-                    "mrr_at_5": 0.4583,
-                    "ndcg_at_10": 0.5562,
+                    "mrr_at_10": 0.425,
+                    "mrr_at_5": 0.425,
+                    "ndcg_at_10": 0.5323,
                     "precision_at_10": 0.07,
                     "precision_at_5": 0.14,
                     "recall_at_10": 0.6,
@@ -35941,13 +35941,13 @@
                 "relation_causal": {
                   "labels": 15,
                   "retrieval": {
-                    "context_precision_at_5": 0.2333,
+                    "context_precision_at_5": 0.22,
                     "context_recall": 0.9333,
-                    "mrr_at_10": 0.7167,
-                    "mrr_at_5": 0.7167,
-                    "ndcg_at_10": 0.8144,
-                    "precision_at_10": 0.1,
-                    "precision_at_5": 0.2,
+                    "mrr_at_10": 0.7,
+                    "mrr_at_5": 0.7,
+                    "ndcg_at_10": 0.759,
+                    "precision_at_10": 0.0933,
+                    "precision_at_5": 0.1867,
                     "recall_at_10": 0.9333,
                     "recall_at_5": 0.9333
                   }
@@ -35955,13 +35955,13 @@
                 "supported_factual": {
                   "labels": 40,
                   "retrieval": {
-                    "context_precision_at_5": 0.1562,
+                    "context_precision_at_5": 0.1487,
                     "context_recall": 0.65,
-                    "mrr_at_10": 0.4092,
-                    "mrr_at_5": 0.4092,
-                    "ndcg_at_10": 0.4847,
-                    "precision_at_10": 0.0675,
-                    "precision_at_5": 0.135,
+                    "mrr_at_10": 0.4458,
+                    "mrr_at_5": 0.4458,
+                    "ndcg_at_10": 0.4977,
+                    "precision_at_10": 0.065,
+                    "precision_at_5": 0.13,
                     "recall_at_10": 0.65,
                     "recall_at_5": 0.65
                   }
@@ -35969,32 +35969,32 @@
                 "terminology_variation": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.145,
-                    "context_recall": 0.6,
-                    "mrr_at_10": 0.4667,
-                    "mrr_at_5": 0.4667,
-                    "ndcg_at_10": 0.5,
-                    "precision_at_10": 0.06,
-                    "precision_at_5": 0.12,
-                    "recall_at_10": 0.6,
-                    "recall_at_5": 0.6
+                    "context_precision_at_5": 0.095,
+                    "context_recall": 0.4,
+                    "mrr_at_10": 0.3,
+                    "mrr_at_5": 0.3,
+                    "ndcg_at_10": 0.3262,
+                    "precision_at_10": 0.04,
+                    "precision_at_5": 0.08,
+                    "recall_at_10": 0.4,
+                    "recall_at_5": 0.4
                   }
                 }
               },
               "chunking": {
                 "avg_chars": 794.21,
-                "avg_tokens": 132.25,
-                "boundary_preservation_rate": 0.25,
+                "avg_tokens": 132.46,
+                "boundary_preservation_rate": 0.1042,
                 "chunk_count": 48,
                 "chunks_total": 48,
                 "overlap_redundancy": 0.1493,
-                "p95_chars": 896
+                "p95_chars": 899
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1819444,
-                "query_latency_mean_seconds": 0.0895,
-                "query_latency_p95_seconds": 0.0977
+                "index_build_seconds": 0.9148,
+                "index_size_bytes": 2253948,
+                "query_latency_mean_seconds": 0.0863,
+                "query_latency_p95_seconds": 0.0908
               },
               "label_counts": {
                 "labels_total": 120,
@@ -36008,48 +36008,48 @@
                 "retrieved_context_rate_at_5": 1.0
               },
               "retrieval_all_labels_diagnostic": {
-                "context_precision_at_5": 0.1483,
-                "context_recall": 0.7542,
-                "mrr_at_10": 0.4339,
-                "mrr_at_5": 0.4339,
-                "ndcg_at_10": 0.4791,
-                "precision_at_10": 0.065,
-                "precision_at_5": 0.13,
-                "recall_at_10": 0.625,
-                "recall_at_5": 0.625
+                "context_precision_at_5": 0.145,
+                "context_recall": 0.7458,
+                "mrr_at_10": 0.4249,
+                "mrr_at_5": 0.4249,
+                "ndcg_at_10": 0.4641,
+                "precision_at_10": 0.0633,
+                "precision_at_5": 0.1267,
+                "recall_at_10": 0.6167,
+                "recall_at_5": 0.6167
               },
               "retrieval_confidence_intervals_supported_only": {
                 "context_recall": {
                   "confidence": 0.95,
-                  "lower": 0.62,
-                  "mean": 0.705,
+                  "lower": 0.61,
+                  "mean": 0.695,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.785
+                  "upper": 0.78
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.4392,
-                  "mean": 0.5207,
+                  "lower": 0.4312,
+                  "mean": 0.5098,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.6015
+                  "upper": 0.5903
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.4934,
-                  "mean": 0.575,
+                  "lower": 0.478,
+                  "mean": 0.5569,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.6622
+                  "upper": 0.6347
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.67,
-                  "mean": 0.75,
+                  "lower": 0.66,
+                  "mean": 0.74,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
@@ -36057,8 +36057,8 @@
                 },
                 "recall_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.67,
-                  "mean": 0.75,
+                  "lower": 0.66,
+                  "mean": 0.74,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
@@ -36066,15 +36066,15 @@
                 }
               },
               "retrieval_supported_only": {
-                "context_precision_at_5": 0.178,
-                "context_recall": 0.705,
-                "mrr_at_10": 0.5207,
-                "mrr_at_5": 0.5207,
-                "ndcg_at_10": 0.575,
-                "precision_at_10": 0.078,
-                "precision_at_5": 0.156,
-                "recall_at_10": 0.75,
-                "recall_at_5": 0.75
+                "context_precision_at_5": 0.174,
+                "context_recall": 0.695,
+                "mrr_at_10": 0.5098,
+                "mrr_at_5": 0.5098,
+                "ndcg_at_10": 0.5569,
+                "precision_at_10": 0.076,
+                "precision_at_5": 0.152,
+                "recall_at_10": 0.74,
+                "recall_at_5": 0.74
               }
             },
             "chunks_path": "data/chunks/06_phak_ch4_0.fixed_medium.benchmark_v2.jsonl",
@@ -36090,29 +36090,29 @@
                 "concept_definition": {
                   "labels": 15,
                   "retrieval": {
-                    "context_precision_at_5": 0.16,
-                    "context_recall": 1.0,
-                    "mrr_at_10": 0.5478,
-                    "mrr_at_5": 0.5189,
-                    "ndcg_at_10": 0.6562,
-                    "precision_at_10": 0.1,
-                    "precision_at_5": 0.16,
-                    "recall_at_10": 1.0,
-                    "recall_at_5": 0.8
+                    "context_precision_at_5": 0.1333,
+                    "context_recall": 0.9333,
+                    "mrr_at_10": 0.5635,
+                    "mrr_at_5": 0.5267,
+                    "ndcg_at_10": 0.6478,
+                    "precision_at_10": 0.0933,
+                    "precision_at_5": 0.1333,
+                    "recall_at_10": 0.9333,
+                    "recall_at_5": 0.6667
                   }
                 },
                 "cross_page": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.12,
+                    "context_precision_at_5": 0.1,
                     "context_recall": 0.4,
-                    "mrr_at_10": 0.3675,
-                    "mrr_at_5": 0.345,
-                    "ndcg_at_10": 0.2872,
+                    "mrr_at_10": 0.4628,
+                    "mrr_at_5": 0.425,
+                    "ndcg_at_10": 0.3297,
                     "precision_at_10": 0.08,
-                    "precision_at_5": 0.12,
+                    "precision_at_5": 0.1,
                     "recall_at_10": 0.8,
-                    "recall_at_5": 0.6
+                    "recall_at_5": 0.5
                   }
                 },
                 "insufficient_evidence": {
@@ -36132,74 +36132,74 @@
                 "paraphrase": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.12,
-                    "context_recall": 0.8,
-                    "mrr_at_10": 0.4276,
-                    "mrr_at_5": 0.4033,
-                    "ndcg_at_10": 0.514,
-                    "precision_at_10": 0.08,
-                    "precision_at_5": 0.12,
-                    "recall_at_10": 0.8,
-                    "recall_at_5": 0.6
+                    "context_precision_at_5": 0.1,
+                    "context_recall": 0.6,
+                    "mrr_at_10": 0.3976,
+                    "mrr_at_5": 0.3833,
+                    "ndcg_at_10": 0.4464,
+                    "precision_at_10": 0.06,
+                    "precision_at_5": 0.1,
+                    "recall_at_10": 0.6,
+                    "recall_at_5": 0.5
                   }
                 },
                 "relation_causal": {
                   "labels": 15,
                   "retrieval": {
                     "context_precision_at_5": 0.1867,
-                    "context_recall": 1.0,
-                    "mrr_at_10": 0.6874,
-                    "mrr_at_5": 0.68,
-                    "ndcg_at_10": 0.7628,
-                    "precision_at_10": 0.1,
+                    "context_recall": 0.9333,
+                    "mrr_at_10": 0.6244,
+                    "mrr_at_5": 0.6244,
+                    "ndcg_at_10": 0.7007,
+                    "precision_at_10": 0.0933,
                     "precision_at_5": 0.1867,
-                    "recall_at_10": 1.0,
+                    "recall_at_10": 0.9333,
                     "recall_at_5": 0.9333
                   }
                 },
                 "supported_factual": {
                   "labels": 40,
                   "retrieval": {
-                    "context_precision_at_5": 0.12,
+                    "context_precision_at_5": 0.125,
                     "context_recall": 0.725,
-                    "mrr_at_10": 0.3582,
-                    "mrr_at_5": 0.3412,
-                    "ndcg_at_10": 0.4634,
-                    "precision_at_10": 0.0775,
-                    "precision_at_5": 0.12,
+                    "mrr_at_10": 0.379,
+                    "mrr_at_5": 0.3642,
+                    "ndcg_at_10": 0.4629,
+                    "precision_at_10": 0.0725,
+                    "precision_at_5": 0.125,
                     "recall_at_10": 0.725,
-                    "recall_at_5": 0.575
+                    "recall_at_5": 0.625
                   }
                 },
                 "terminology_variation": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.06,
-                    "context_recall": 0.5,
-                    "mrr_at_10": 0.2472,
-                    "mrr_at_5": 0.225,
-                    "ndcg_at_10": 0.3033,
-                    "precision_at_10": 0.05,
-                    "precision_at_5": 0.06,
-                    "recall_at_10": 0.5,
-                    "recall_at_5": 0.3
+                    "context_precision_at_5": 0.1,
+                    "context_recall": 0.6,
+                    "mrr_at_10": 0.305,
+                    "mrr_at_5": 0.295,
+                    "ndcg_at_10": 0.3738,
+                    "precision_at_10": 0.06,
+                    "precision_at_5": 0.1,
+                    "recall_at_10": 0.6,
+                    "recall_at_5": 0.5
                   }
                 }
               },
               "chunking": {
-                "avg_chars": 361.75,
-                "avg_tokens": 60.49,
-                "boundary_preservation_rate": 0.2679,
-                "chunk_count": 112,
-                "chunks_total": 112,
-                "overlap_redundancy": 0.2009,
-                "p95_chars": 398
+                "avg_chars": 377.68,
+                "avg_tokens": 63.14,
+                "boundary_preservation_rate": 0.1038,
+                "chunk_count": 106,
+                "chunks_total": 106,
+                "overlap_redundancy": 0.1913,
+                "p95_chars": 399
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2216756,
-                "query_latency_mean_seconds": 0.0918,
-                "query_latency_p95_seconds": 0.0952
+                "index_build_seconds": 2.4591,
+                "index_size_bytes": 2557052,
+                "query_latency_mean_seconds": 0.0852,
+                "query_latency_p95_seconds": 0.0873
               },
               "label_counts": {
                 "labels_total": 120,
@@ -36213,72 +36213,72 @@
                 "retrieved_context_rate_at_5": 1.0
               },
               "retrieval_all_labels_diagnostic": {
-                "context_precision_at_5": 0.1083,
-                "context_recall": 0.8,
-                "mrr_at_10": 0.3606,
-                "mrr_at_5": 0.3447,
-                "ndcg_at_10": 0.4239,
-                "precision_at_10": 0.0683,
-                "precision_at_5": 0.1083,
-                "recall_at_10": 0.6667,
+                "context_precision_at_5": 0.1067,
+                "context_recall": 0.775,
+                "mrr_at_10": 0.372,
+                "mrr_at_5": 0.3572,
+                "ndcg_at_10": 0.4187,
+                "precision_at_10": 0.0642,
+                "precision_at_5": 0.1067,
+                "recall_at_10": 0.6417,
                 "recall_at_5": 0.5333
               },
               "retrieval_confidence_intervals_supported_only": {
                 "context_recall": {
                   "confidence": 0.95,
-                  "lower": 0.685,
-                  "mean": 0.76,
+                  "lower": 0.65,
+                  "mean": 0.73,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.84
+                  "upper": 0.815
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.3392,
-                  "mean": 0.4137,
+                  "lower": 0.3462,
+                  "mean": 0.4287,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.4948
+                  "upper": 0.514
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.4407,
-                  "mean": 0.5087,
+                  "lower": 0.4322,
+                  "mean": 0.5024,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.5823
+                  "upper": 0.5734
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.73,
-                  "mean": 0.8,
+                  "lower": 0.69,
+                  "mean": 0.77,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.88
+                  "upper": 0.85
                 },
                 "recall_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.55,
+                  "lower": 0.54,
                   "mean": 0.64,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.73
+                  "upper": 0.74
                 }
               },
               "retrieval_supported_only": {
-                "context_precision_at_5": 0.13,
-                "context_recall": 0.76,
-                "mrr_at_10": 0.4328,
-                "mrr_at_5": 0.4137,
-                "ndcg_at_10": 0.5087,
-                "precision_at_10": 0.082,
-                "precision_at_5": 0.13,
-                "recall_at_10": 0.8,
+                "context_precision_at_5": 0.128,
+                "context_recall": 0.73,
+                "mrr_at_10": 0.4463,
+                "mrr_at_5": 0.4287,
+                "ndcg_at_10": 0.5024,
+                "precision_at_10": 0.077,
+                "precision_at_5": 0.128,
+                "recall_at_10": 0.77,
                 "recall_at_5": 0.64
               }
             },
@@ -36401,10 +36401,10 @@
                 "p95_chars": 399
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2315060,
-                "query_latency_mean_seconds": 0.0899,
-                "query_latency_p95_seconds": 0.1007
+                "index_build_seconds": 1.8836,
+                "index_size_bytes": 2774140,
+                "query_latency_mean_seconds": 0.0826,
+                "query_latency_p95_seconds": 0.0867
               },
               "label_counts": {
                 "labels_total": 120,
@@ -36516,9 +36516,9 @@
                   "retrieval": {
                     "context_precision_at_5": 0.12,
                     "context_recall": 0.35,
-                    "mrr_at_10": 0.3543,
-                    "mrr_at_5": 0.34,
-                    "ndcg_at_10": 0.2679,
+                    "mrr_at_10": 0.3593,
+                    "mrr_at_5": 0.345,
+                    "ndcg_at_10": 0.2706,
                     "precision_at_10": 0.07,
                     "precision_at_5": 0.12,
                     "recall_at_10": 0.7,
@@ -36597,19 +36597,19 @@
                 }
               },
               "chunking": {
-                "avg_chars": 383.33,
-                "avg_tokens": 64.92,
-                "boundary_preservation_rate": 0.9529,
-                "chunk_count": 85,
-                "chunks_total": 85,
+                "avg_chars": 387.9,
+                "avg_tokens": 65.69,
+                "boundary_preservation_rate": 0.9524,
+                "chunk_count": 84,
+                "chunks_total": 84,
                 "overlap_redundancy": 0.0028,
                 "p95_chars": 809
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2126644,
-                "query_latency_mean_seconds": 0.0887,
-                "query_latency_p95_seconds": 0.0939
+                "index_build_seconds": 1.6113,
+                "index_size_bytes": 2462844,
+                "query_latency_mean_seconds": 0.0878,
+                "query_latency_p95_seconds": 0.1073
               },
               "label_counts": {
                 "labels_total": 120,
@@ -36625,9 +36625,9 @@
               "retrieval_all_labels_diagnostic": {
                 "context_precision_at_5": 0.0933,
                 "context_recall": 0.6375,
-                "mrr_at_10": 0.3013,
-                "mrr_at_5": 0.2967,
-                "ndcg_at_10": 0.3353,
+                "mrr_at_10": 0.3017,
+                "mrr_at_5": 0.2971,
+                "ndcg_at_10": 0.3356,
                 "precision_at_10": 0.05,
                 "precision_at_5": 0.0933,
                 "recall_at_10": 0.5,
@@ -36636,7 +36636,7 @@
               "retrieval_confidence_intervals_supported_only": {
                 "context_recall": {
                   "confidence": 0.95,
-                  "lower": 0.465,
+                  "lower": 0.47,
                   "mean": 0.565,
                   "n": 100,
                   "samples": 1000,
@@ -36645,21 +36645,21 @@
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.2747,
-                  "mean": 0.356,
+                  "lower": 0.275,
+                  "mean": 0.3565,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.4392
+                  "upper": 0.44
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.3268,
-                  "mean": 0.4024,
+                  "lower": 0.3256,
+                  "mean": 0.4027,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.484
+                  "upper": 0.4862
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
@@ -36683,9 +36683,9 @@
               "retrieval_supported_only": {
                 "context_precision_at_5": 0.112,
                 "context_recall": 0.565,
-                "mrr_at_10": 0.3615,
-                "mrr_at_5": 0.356,
-                "ndcg_at_10": 0.4024,
+                "mrr_at_10": 0.362,
+                "mrr_at_5": 0.3565,
+                "ndcg_at_10": 0.4027,
                 "precision_at_10": 0.06,
                 "precision_at_5": 0.112,
                 "recall_at_10": 0.6,
@@ -36811,10 +36811,10 @@
                 "p95_chars": 1593
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1643316,
-                "query_latency_mean_seconds": 0.0882,
-                "query_latency_p95_seconds": 0.0947
+                "index_build_seconds": 0.5912,
+                "index_size_bytes": 1987708,
+                "query_latency_mean_seconds": 0.0862,
+                "query_latency_p95_seconds": 0.0919
               },
               "label_counts": {
                 "labels_total": 120,
@@ -37016,10 +37016,10 @@
                 "p95_chars": 898
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1606452,
-                "query_latency_mean_seconds": 0.0887,
-                "query_latency_p95_seconds": 0.0951
+                "index_build_seconds": 0.9185,
+                "index_size_bytes": 1942652,
+                "query_latency_mean_seconds": 0.0864,
+                "query_latency_p95_seconds": 0.0899
               },
               "label_counts": {
                 "labels_total": 120,
@@ -37221,10 +37221,10 @@
                 "p95_chars": 399
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2257716,
-                "query_latency_mean_seconds": 0.088,
-                "query_latency_p95_seconds": 0.0941
+                "index_build_seconds": 1.9726,
+                "index_size_bytes": 2684028,
+                "query_latency_mean_seconds": 0.0861,
+                "query_latency_p95_seconds": 0.0899
               },
               "label_counts": {
                 "labels_total": 120,
@@ -37426,10 +37426,10 @@
                 "p95_chars": 712
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1868596,
-                "query_latency_mean_seconds": 0.0885,
-                "query_latency_p95_seconds": 0.0943
+                "index_build_seconds": 1.0798,
+                "index_size_bytes": 2278524,
+                "query_latency_mean_seconds": 0.0887,
+                "query_latency_p95_seconds": 0.1008
               },
               "label_counts": {
                 "labels_total": 120,
@@ -37631,10 +37631,10 @@
                 "p95_chars": 1080
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 3068724,
-                "query_latency_mean_seconds": 0.0903,
-                "query_latency_p95_seconds": 0.0976
+                "index_build_seconds": 5.0192,
+                "index_size_bytes": 3445884,
+                "query_latency_mean_seconds": 0.0879,
+                "query_latency_p95_seconds": 0.0933
               },
               "label_counts": {
                 "labels_total": 120,
@@ -37836,10 +37836,10 @@
                 "p95_chars": 1591
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2589000,
-                "query_latency_mean_seconds": 0.0889,
-                "query_latency_p95_seconds": 0.0995
+                "index_build_seconds": 0.5605,
+                "index_size_bytes": 2925200,
+                "query_latency_mean_seconds": 0.0883,
+                "query_latency_p95_seconds": 0.1071
               },
               "label_counts": {
                 "labels_total": 120,
@@ -38041,10 +38041,10 @@
                 "p95_chars": 896
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2580808,
-                "query_latency_mean_seconds": 0.0886,
-                "query_latency_p95_seconds": 0.0967
+                "index_build_seconds": 0.9203,
+                "index_size_bytes": 2917008,
+                "query_latency_mean_seconds": 0.0879,
+                "query_latency_p95_seconds": 0.0947
               },
               "label_counts": {
                 "labels_total": 120,
@@ -38153,7 +38153,7 @@
           ],
           "collection_prefix": "phak_ch4_chunking_v2",
           "context_budget_chars": null,
-          "elapsed_seconds": 153.447,
+          "elapsed_seconds": 185.8764,
           "evaluation_mode": "top_k",
           "gold_labels_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
           "index_dir": "data/indexes/chunking_benchmark_v2",
@@ -38182,8 +38182,8 @@
             },
             "chunking_strategy": "benchmark_v2_multiple",
             "collection_name": "phak_ch4_chunking_v2",
-            "command": "aviation-ai report chunking-comparison-v2 --reuse-chunks --reuse-indexes",
-            "created_at": "2026-05-30T03:39:02.801613+00:00",
+            "command": "aviation-ai report chunking-comparison-v2 --no-semantic-download",
+            "created_at": "2026-05-30T10:18:38.203393+00:00",
             "document": {
               "chapter": "4",
               "document_id": "06_phak_ch4_0",
@@ -38226,7 +38226,7 @@
               "evaluation_mode": "top_k",
               "gold_labels_path": "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json",
               "max_labels": null,
-              "semantic_download": true,
+              "semantic_download": false,
               "strategies": [
                 "fixed_small",
                 "fixed_medium",
@@ -38246,11 +38246,11 @@
               "vector_top_k": 10
             },
             "rebuild_policy": {
-              "chunks": false,
-              "indexes": false,
+              "chunks": true,
+              "indexes": true,
               "kg": false
             },
-            "run_id": "chunking-comparison-benchmark-v2-20260530T033902Z"
+            "run_id": "chunking-comparison-benchmark-v2-20260530T101838Z"
           },
           "scoring_policy": "layered_metrics_no_mixed_overall_score",
           "strategies": [
@@ -38288,18 +38288,18 @@
         },
         "ranking": [
           {
-            "context_precision_at_5_supported": 0.194,
-            "context_recall_supported": 0.945,
-            "mrr_at_5_supported": 0.617,
-            "recall_at_5_supported": 0.86,
-            "strategy": "fixed_large"
-          },
-          {
             "context_precision_at_5_supported": 0.188,
             "context_recall_supported": 0.945,
             "mrr_at_5_supported": 0.6262,
             "recall_at_5_supported": 0.85,
             "strategy": "structure_aware_large"
+          },
+          {
+            "context_precision_at_5_supported": 0.188,
+            "context_recall_supported": 0.935,
+            "mrr_at_5_supported": 0.5935,
+            "recall_at_5_supported": 0.85,
+            "strategy": "fixed_large"
           },
           {
             "context_precision_at_5_supported": 0.19,
@@ -38316,9 +38316,9 @@
             "strategy": "recursive_medium"
           },
           {
-            "context_precision_at_5_supported": 0.166,
-            "context_recall_supported": 0.875,
-            "mrr_at_5_supported": 0.5287,
+            "context_precision_at_5_supported": 0.162,
+            "context_recall_supported": 0.855,
+            "mrr_at_5_supported": 0.5198,
             "recall_at_5_supported": 0.79,
             "strategy": "fixed_medium"
           },
@@ -38358,23 +38358,23 @@
             "strategy": "semantic_meta_like"
           },
           {
-            "context_precision_at_5_supported": 0.13,
-            "context_recall_supported": 0.76,
-            "mrr_at_5_supported": 0.4137,
+            "context_precision_at_5_supported": 0.128,
+            "context_recall_supported": 0.73,
+            "mrr_at_5_supported": 0.4287,
             "recall_at_5_supported": 0.64,
             "strategy": "fixed_small"
           },
           {
             "context_precision_at_5_supported": 0.132,
             "context_recall_supported": 0.655,
-            "mrr_at_5_supported": 0.3922,
+            "mrr_at_5_supported": 0.3913,
             "recall_at_5_supported": 0.57,
             "strategy": "structure_aware"
           },
           {
             "context_precision_at_5_supported": 0.112,
-            "context_recall_supported": 0.585,
-            "mrr_at_5_supported": 0.356,
+            "context_recall_supported": 0.59,
+            "mrr_at_5_supported": 0.3565,
             "recall_at_5_supported": 0.56,
             "strategy": "proposition_like"
           },
@@ -38500,10 +38500,10 @@
                 "p95_chars": 944
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 4002612,
-                "query_latency_mean_seconds": 0.0896,
-                "query_latency_p95_seconds": 0.099
+                "index_build_seconds": 5.0676,
+                "index_size_bytes": 4359128,
+                "query_latency_mean_seconds": 0.0855,
+                "query_latency_p95_seconds": 0.0899
               },
               "label_counts": {
                 "labels_total": 120,
@@ -38705,10 +38705,10 @@
                 "p95_chars": 890
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1889076,
-                "query_latency_mean_seconds": 0.0913,
-                "query_latency_p95_seconds": 0.1011
+                "index_build_seconds": 1.0521,
+                "index_size_bytes": 2147288,
+                "query_latency_mean_seconds": 0.0862,
+                "query_latency_p95_seconds": 0.0911
               },
               "label_counts": {
                 "labels_total": 120,
@@ -38806,9 +38806,9 @@
                   "retrieval": {
                     "context_precision_at_5": 0.2,
                     "context_recall": 1.0,
-                    "mrr_at_10": 0.8167,
-                    "mrr_at_5": 0.8167,
-                    "ndcg_at_10": 0.8636,
+                    "mrr_at_10": 0.8222,
+                    "mrr_at_5": 0.8222,
+                    "ndcg_at_10": 0.8682,
                     "precision_at_10": 0.1,
                     "precision_at_5": 0.2,
                     "recall_at_10": 1.0,
@@ -38820,9 +38820,9 @@
                   "retrieval": {
                     "context_precision_at_5": 0.28,
                     "context_recall": 0.85,
-                    "mrr_at_10": 0.6,
-                    "mrr_at_5": 0.6,
-                    "ndcg_at_10": 0.596,
+                    "mrr_at_10": 0.5666,
+                    "mrr_at_5": 0.5666,
+                    "ndcg_at_10": 0.5784,
                     "precision_at_10": 0.17,
                     "precision_at_5": 0.28,
                     "recall_at_10": 1.0,
@@ -38848,9 +38848,9 @@
                   "retrieval": {
                     "context_precision_at_5": 0.16,
                     "context_recall": 0.9,
-                    "mrr_at_10": 0.4909,
-                    "mrr_at_5": 0.4667,
-                    "ndcg_at_10": 0.6271,
+                    "mrr_at_10": 0.46,
+                    "mrr_at_5": 0.4333,
+                    "ndcg_at_10": 0.61,
                     "precision_at_10": 0.1,
                     "precision_at_5": 0.16,
                     "recall_at_10": 0.9,
@@ -38862,9 +38862,9 @@
                   "retrieval": {
                     "context_precision_at_5": 0.16,
                     "context_recall": 0.8667,
-                    "mrr_at_10": 0.6895,
-                    "mrr_at_5": 0.68,
-                    "ndcg_at_10": 0.7321,
+                    "mrr_at_10": 0.6,
+                    "mrr_at_5": 0.5889,
+                    "ndcg_at_10": 0.6653,
                     "precision_at_10": 0.0867,
                     "precision_at_5": 0.16,
                     "recall_at_10": 0.8667,
@@ -38874,46 +38874,46 @@
                 "supported_factual": {
                   "labels": 40,
                   "retrieval": {
-                    "context_precision_at_5": 0.19,
-                    "context_recall": 0.975,
-                    "mrr_at_10": 0.6243,
-                    "mrr_at_5": 0.6038,
-                    "ndcg_at_10": 0.7758,
-                    "precision_at_10": 0.11,
-                    "precision_at_5": 0.19,
-                    "recall_at_10": 0.975,
+                    "context_precision_at_5": 0.18,
+                    "context_recall": 0.95,
+                    "mrr_at_10": 0.6182,
+                    "mrr_at_5": 0.5987,
+                    "ndcg_at_10": 0.7378,
+                    "precision_at_10": 0.1025,
+                    "precision_at_5": 0.18,
+                    "recall_at_10": 0.95,
                     "recall_at_5": 0.825
                   }
                 },
                 "terminology_variation": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.2,
+                    "context_precision_at_5": 0.18,
                     "context_recall": 1.0,
-                    "mrr_at_10": 0.4558,
-                    "mrr_at_5": 0.4433,
-                    "ndcg_at_10": 0.6369,
+                    "mrr_at_10": 0.4483,
+                    "mrr_at_5": 0.4233,
+                    "ndcg_at_10": 0.6298,
                     "precision_at_10": 0.11,
-                    "precision_at_5": 0.2,
+                    "precision_at_5": 0.18,
                     "recall_at_10": 1.0,
-                    "recall_at_5": 0.9
+                    "recall_at_5": 0.8
                   }
                 }
               },
               "chunking": {
-                "avg_chars": 1359.19,
-                "avg_tokens": 225.96,
-                "boundary_preservation_rate": 0.3704,
+                "avg_chars": 1359.22,
+                "avg_tokens": 226.15,
+                "boundary_preservation_rate": 0.1481,
                 "chunk_count": 27,
                 "chunks_total": 27,
                 "overlap_redundancy": 0.1158,
-                "p95_chars": 1594
+                "p95_chars": 1598
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1676084,
-                "query_latency_mean_seconds": 0.088,
-                "query_latency_p95_seconds": 0.0939
+                "index_build_seconds": 0.5562,
+                "index_size_bytes": 1844184,
+                "query_latency_mean_seconds": 0.0863,
+                "query_latency_p95_seconds": 0.0913
               },
               "label_counts": {
                 "labels_total": 120,
@@ -38927,48 +38927,48 @@
                 "retrieved_context_rate_at_5": 1.0
               },
               "retrieval_all_labels_diagnostic": {
-                "context_precision_at_5": 0.1617,
-                "context_recall": 0.9542,
-                "mrr_at_10": 0.5253,
-                "mrr_at_5": 0.5142,
-                "ndcg_at_10": 0.6131,
-                "precision_at_10": 0.0917,
-                "precision_at_5": 0.1617,
-                "recall_at_10": 0.8,
-                "recall_at_5": 0.7167
+                "context_precision_at_5": 0.1567,
+                "context_recall": 0.9458,
+                "mrr_at_10": 0.5068,
+                "mrr_at_5": 0.4946,
+                "ndcg_at_10": 0.5891,
+                "precision_at_10": 0.0892,
+                "precision_at_5": 0.1567,
+                "recall_at_10": 0.7917,
+                "recall_at_5": 0.7083
               },
               "retrieval_confidence_intervals_supported_only": {
                 "context_recall": {
                   "confidence": 0.95,
-                  "lower": 0.9,
-                  "mean": 0.945,
+                  "lower": 0.89,
+                  "mean": 0.935,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.98
+                  "upper": 0.975
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.5457,
-                  "mean": 0.617,
+                  "lower": 0.5265,
+                  "mean": 0.5935,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.6885
+                  "upper": 0.6668
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.6753,
-                  "mean": 0.7357,
+                  "lower": 0.6484,
+                  "mean": 0.707,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.8035
+                  "upper": 0.7709
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.92,
-                  "mean": 0.96,
+                  "lower": 0.91,
+                  "mean": 0.95,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
@@ -38976,24 +38976,24 @@
                 },
                 "recall_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.79,
-                  "mean": 0.86,
+                  "lower": 0.78,
+                  "mean": 0.85,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.92
+                  "upper": 0.91
                 }
               },
               "retrieval_supported_only": {
-                "context_precision_at_5": 0.194,
-                "context_recall": 0.945,
-                "mrr_at_10": 0.6303,
-                "mrr_at_5": 0.617,
-                "ndcg_at_10": 0.7357,
-                "precision_at_10": 0.11,
-                "precision_at_5": 0.194,
-                "recall_at_10": 0.96,
-                "recall_at_5": 0.86
+                "context_precision_at_5": 0.188,
+                "context_recall": 0.935,
+                "mrr_at_10": 0.6081,
+                "mrr_at_5": 0.5935,
+                "ndcg_at_10": 0.707,
+                "precision_at_10": 0.107,
+                "precision_at_5": 0.188,
+                "recall_at_10": 0.95,
+                "recall_at_5": 0.85
               }
             },
             "chunks_path": "data/chunks/06_phak_ch4_0.fixed_large.benchmark_v2.jsonl",
@@ -39009,13 +39009,13 @@
                 "concept_definition": {
                   "labels": 15,
                   "retrieval": {
-                    "context_precision_at_5": 0.2,
+                    "context_precision_at_5": 0.2133,
                     "context_recall": 1.0,
-                    "mrr_at_10": 0.76,
-                    "mrr_at_5": 0.76,
-                    "ndcg_at_10": 0.8183,
-                    "precision_at_10": 0.1,
-                    "precision_at_5": 0.2,
+                    "mrr_at_10": 0.7333,
+                    "mrr_at_5": 0.7333,
+                    "ndcg_at_10": 0.8282,
+                    "precision_at_10": 0.1067,
+                    "precision_at_5": 0.2133,
                     "recall_at_10": 1.0,
                     "recall_at_5": 1.0
                   }
@@ -39023,13 +39023,13 @@
                 "cross_page": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.2,
+                    "context_precision_at_5": 0.18,
                     "context_recall": 0.75,
-                    "mrr_at_10": 0.4643,
-                    "mrr_at_5": 0.45,
-                    "ndcg_at_10": 0.4641,
+                    "mrr_at_10": 0.4567,
+                    "mrr_at_5": 0.44,
+                    "ndcg_at_10": 0.462,
                     "precision_at_10": 0.15,
-                    "precision_at_5": 0.2,
+                    "precision_at_5": 0.18,
                     "recall_at_10": 1.0,
                     "recall_at_5": 0.9
                   }
@@ -39053,9 +39053,9 @@
                   "retrieval": {
                     "context_precision_at_5": 0.14,
                     "context_recall": 0.8,
-                    "mrr_at_10": 0.4917,
-                    "mrr_at_5": 0.4583,
-                    "ndcg_at_10": 0.6274,
+                    "mrr_at_10": 0.4528,
+                    "mrr_at_5": 0.425,
+                    "ndcg_at_10": 0.5981,
                     "precision_at_10": 0.09,
                     "precision_at_5": 0.14,
                     "recall_at_10": 0.8,
@@ -39065,13 +39065,13 @@
                 "relation_causal": {
                   "labels": 15,
                   "retrieval": {
-                    "context_precision_at_5": 0.2,
+                    "context_precision_at_5": 0.1867,
                     "context_recall": 1.0,
-                    "mrr_at_10": 0.7262,
-                    "mrr_at_5": 0.7167,
-                    "ndcg_at_10": 0.8366,
-                    "precision_at_10": 0.1067,
-                    "precision_at_5": 0.2,
+                    "mrr_at_10": 0.7083,
+                    "mrr_at_5": 0.7,
+                    "ndcg_at_10": 0.78,
+                    "precision_at_10": 0.1,
+                    "precision_at_5": 0.1867,
                     "recall_at_10": 1.0,
                     "recall_at_5": 0.9333
                   }
@@ -39079,14 +39079,14 @@
                 "supported_factual": {
                   "labels": 40,
                   "retrieval": {
-                    "context_precision_at_5": 0.145,
-                    "context_recall": 0.825,
-                    "mrr_at_10": 0.4363,
-                    "mrr_at_5": 0.4192,
-                    "ndcg_at_10": 0.5449,
-                    "precision_at_10": 0.085,
-                    "precision_at_5": 0.145,
-                    "recall_at_10": 0.825,
+                    "context_precision_at_5": 0.14,
+                    "context_recall": 0.8,
+                    "mrr_at_10": 0.4702,
+                    "mrr_at_5": 0.4558,
+                    "ndcg_at_10": 0.5588,
+                    "precision_at_10": 0.0825,
+                    "precision_at_5": 0.14,
+                    "recall_at_10": 0.8,
                     "recall_at_5": 0.7
                   }
                 },
@@ -39094,31 +39094,31 @@
                   "labels": 10,
                   "retrieval": {
                     "context_precision_at_5": 0.14,
-                    "context_recall": 0.9,
-                    "mrr_at_10": 0.5176,
-                    "mrr_at_5": 0.4867,
-                    "ndcg_at_10": 0.6076,
-                    "precision_at_10": 0.09,
+                    "context_recall": 0.8,
+                    "mrr_at_10": 0.3711,
+                    "mrr_at_5": 0.36,
+                    "ndcg_at_10": 0.4724,
+                    "precision_at_10": 0.08,
                     "precision_at_5": 0.14,
-                    "recall_at_10": 0.9,
+                    "recall_at_10": 0.8,
                     "recall_at_5": 0.7
                   }
                 }
               },
               "chunking": {
                 "avg_chars": 794.21,
-                "avg_tokens": 132.25,
-                "boundary_preservation_rate": 0.25,
+                "avg_tokens": 132.46,
+                "boundary_preservation_rate": 0.1042,
                 "chunk_count": 48,
                 "chunks_total": 48,
                 "overlap_redundancy": 0.1493,
-                "p95_chars": 896
+                "p95_chars": 899
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1819444,
-                "query_latency_mean_seconds": 0.0881,
-                "query_latency_p95_seconds": 0.0939
+                "index_build_seconds": 0.9131,
+                "index_size_bytes": 2081752,
+                "query_latency_mean_seconds": 0.0858,
+                "query_latency_p95_seconds": 0.089
               },
               "label_counts": {
                 "labels_total": 120,
@@ -39132,56 +39132,56 @@
                 "retrieved_context_rate_at_5": 1.0
               },
               "retrieval_all_labels_diagnostic": {
-                "context_precision_at_5": 0.1383,
-                "context_recall": 0.8958,
-                "mrr_at_10": 0.454,
-                "mrr_at_5": 0.4406,
-                "ndcg_at_10": 0.5301,
-                "precision_at_10": 0.0817,
-                "precision_at_5": 0.1383,
-                "recall_at_10": 0.75,
+                "context_precision_at_5": 0.135,
+                "context_recall": 0.8792,
+                "mrr_at_10": 0.4437,
+                "mrr_at_5": 0.4332,
+                "ndcg_at_10": 0.515,
+                "precision_at_10": 0.08,
+                "precision_at_5": 0.135,
+                "recall_at_10": 0.7333,
                 "recall_at_5": 0.6583
               },
               "retrieval_confidence_intervals_supported_only": {
                 "context_recall": {
                   "confidence": 0.95,
-                  "lower": 0.815,
-                  "mean": 0.875,
+                  "lower": 0.785,
+                  "mean": 0.855,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.935
+                  "upper": 0.915
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.4483,
-                  "mean": 0.5287,
+                  "lower": 0.4408,
+                  "mean": 0.5198,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.6103
+                  "upper": 0.6007
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.565,
-                  "mean": 0.6361,
+                  "lower": 0.5483,
+                  "mean": 0.618,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.7111
+                  "upper": 0.6874
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.84,
-                  "mean": 0.9,
+                  "lower": 0.82,
+                  "mean": 0.88,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.96
+                  "upper": 0.94
                 },
                 "recall_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.71,
+                  "lower": 0.7,
                   "mean": 0.79,
                   "n": 100,
                   "samples": 1000,
@@ -39190,14 +39190,14 @@
                 }
               },
               "retrieval_supported_only": {
-                "context_precision_at_5": 0.166,
-                "context_recall": 0.875,
-                "mrr_at_10": 0.5448,
-                "mrr_at_5": 0.5287,
-                "ndcg_at_10": 0.6361,
-                "precision_at_10": 0.098,
-                "precision_at_5": 0.166,
-                "recall_at_10": 0.9,
+                "context_precision_at_5": 0.162,
+                "context_recall": 0.855,
+                "mrr_at_10": 0.5324,
+                "mrr_at_5": 0.5198,
+                "ndcg_at_10": 0.618,
+                "precision_at_10": 0.096,
+                "precision_at_5": 0.162,
+                "recall_at_10": 0.88,
                 "recall_at_5": 0.79
               }
             },
@@ -39214,29 +39214,29 @@
                 "concept_definition": {
                   "labels": 15,
                   "retrieval": {
-                    "context_precision_at_5": 0.16,
-                    "context_recall": 1.0,
-                    "mrr_at_10": 0.5478,
-                    "mrr_at_5": 0.5189,
-                    "ndcg_at_10": 0.6562,
-                    "precision_at_10": 0.1,
-                    "precision_at_5": 0.16,
-                    "recall_at_10": 1.0,
-                    "recall_at_5": 0.8
+                    "context_precision_at_5": 0.1333,
+                    "context_recall": 0.9333,
+                    "mrr_at_10": 0.5635,
+                    "mrr_at_5": 0.5267,
+                    "ndcg_at_10": 0.6478,
+                    "precision_at_10": 0.0933,
+                    "precision_at_5": 0.1333,
+                    "recall_at_10": 0.9333,
+                    "recall_at_5": 0.6667
                   }
                 },
                 "cross_page": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.12,
+                    "context_precision_at_5": 0.1,
                     "context_recall": 0.4,
-                    "mrr_at_10": 0.3675,
-                    "mrr_at_5": 0.345,
-                    "ndcg_at_10": 0.2872,
+                    "mrr_at_10": 0.4628,
+                    "mrr_at_5": 0.425,
+                    "ndcg_at_10": 0.3297,
                     "precision_at_10": 0.08,
-                    "precision_at_5": 0.12,
+                    "precision_at_5": 0.1,
                     "recall_at_10": 0.8,
-                    "recall_at_5": 0.6
+                    "recall_at_5": 0.5
                   }
                 },
                 "insufficient_evidence": {
@@ -39256,74 +39256,74 @@
                 "paraphrase": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.12,
-                    "context_recall": 0.8,
-                    "mrr_at_10": 0.4276,
-                    "mrr_at_5": 0.4033,
-                    "ndcg_at_10": 0.514,
-                    "precision_at_10": 0.08,
-                    "precision_at_5": 0.12,
-                    "recall_at_10": 0.8,
-                    "recall_at_5": 0.6
+                    "context_precision_at_5": 0.1,
+                    "context_recall": 0.6,
+                    "mrr_at_10": 0.3976,
+                    "mrr_at_5": 0.3833,
+                    "ndcg_at_10": 0.4464,
+                    "precision_at_10": 0.06,
+                    "precision_at_5": 0.1,
+                    "recall_at_10": 0.6,
+                    "recall_at_5": 0.5
                   }
                 },
                 "relation_causal": {
                   "labels": 15,
                   "retrieval": {
                     "context_precision_at_5": 0.1867,
-                    "context_recall": 1.0,
-                    "mrr_at_10": 0.6874,
-                    "mrr_at_5": 0.68,
-                    "ndcg_at_10": 0.7628,
-                    "precision_at_10": 0.1,
+                    "context_recall": 0.9333,
+                    "mrr_at_10": 0.6244,
+                    "mrr_at_5": 0.6244,
+                    "ndcg_at_10": 0.7007,
+                    "precision_at_10": 0.0933,
                     "precision_at_5": 0.1867,
-                    "recall_at_10": 1.0,
+                    "recall_at_10": 0.9333,
                     "recall_at_5": 0.9333
                   }
                 },
                 "supported_factual": {
                   "labels": 40,
                   "retrieval": {
-                    "context_precision_at_5": 0.12,
+                    "context_precision_at_5": 0.125,
                     "context_recall": 0.725,
-                    "mrr_at_10": 0.3582,
-                    "mrr_at_5": 0.3412,
-                    "ndcg_at_10": 0.4634,
-                    "precision_at_10": 0.0775,
-                    "precision_at_5": 0.12,
+                    "mrr_at_10": 0.379,
+                    "mrr_at_5": 0.3642,
+                    "ndcg_at_10": 0.4629,
+                    "precision_at_10": 0.0725,
+                    "precision_at_5": 0.125,
                     "recall_at_10": 0.725,
-                    "recall_at_5": 0.575
+                    "recall_at_5": 0.625
                   }
                 },
                 "terminology_variation": {
                   "labels": 10,
                   "retrieval": {
-                    "context_precision_at_5": 0.06,
-                    "context_recall": 0.5,
-                    "mrr_at_10": 0.2472,
-                    "mrr_at_5": 0.225,
-                    "ndcg_at_10": 0.3033,
-                    "precision_at_10": 0.05,
-                    "precision_at_5": 0.06,
-                    "recall_at_10": 0.5,
-                    "recall_at_5": 0.3
+                    "context_precision_at_5": 0.1,
+                    "context_recall": 0.6,
+                    "mrr_at_10": 0.305,
+                    "mrr_at_5": 0.295,
+                    "ndcg_at_10": 0.3738,
+                    "precision_at_10": 0.06,
+                    "precision_at_5": 0.1,
+                    "recall_at_10": 0.6,
+                    "recall_at_5": 0.5
                   }
                 }
               },
               "chunking": {
-                "avg_chars": 361.75,
-                "avg_tokens": 60.49,
-                "boundary_preservation_rate": 0.2679,
-                "chunk_count": 112,
-                "chunks_total": 112,
-                "overlap_redundancy": 0.2009,
-                "p95_chars": 398
+                "avg_chars": 377.68,
+                "avg_tokens": 63.14,
+                "boundary_preservation_rate": 0.1038,
+                "chunk_count": 106,
+                "chunks_total": 106,
+                "overlap_redundancy": 0.1913,
+                "p95_chars": 399
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2216756,
-                "query_latency_mean_seconds": 0.0925,
-                "query_latency_p95_seconds": 0.1029
+                "index_build_seconds": 2.5824,
+                "index_size_bytes": 2384856,
+                "query_latency_mean_seconds": 0.0871,
+                "query_latency_p95_seconds": 0.0977
               },
               "label_counts": {
                 "labels_total": 120,
@@ -39337,72 +39337,72 @@
                 "retrieved_context_rate_at_5": 1.0
               },
               "retrieval_all_labels_diagnostic": {
-                "context_precision_at_5": 0.1083,
-                "context_recall": 0.8,
-                "mrr_at_10": 0.3606,
-                "mrr_at_5": 0.3447,
-                "ndcg_at_10": 0.4239,
-                "precision_at_10": 0.0683,
-                "precision_at_5": 0.1083,
-                "recall_at_10": 0.6667,
+                "context_precision_at_5": 0.1067,
+                "context_recall": 0.775,
+                "mrr_at_10": 0.372,
+                "mrr_at_5": 0.3572,
+                "ndcg_at_10": 0.4187,
+                "precision_at_10": 0.0642,
+                "precision_at_5": 0.1067,
+                "recall_at_10": 0.6417,
                 "recall_at_5": 0.5333
               },
               "retrieval_confidence_intervals_supported_only": {
                 "context_recall": {
                   "confidence": 0.95,
-                  "lower": 0.685,
-                  "mean": 0.76,
+                  "lower": 0.65,
+                  "mean": 0.73,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.84
+                  "upper": 0.815
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.3392,
-                  "mean": 0.4137,
+                  "lower": 0.3462,
+                  "mean": 0.4287,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.4948
+                  "upper": 0.514
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.4407,
-                  "mean": 0.5087,
+                  "lower": 0.4322,
+                  "mean": 0.5024,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.5823
+                  "upper": 0.5734
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.73,
-                  "mean": 0.8,
+                  "lower": 0.69,
+                  "mean": 0.77,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.88
+                  "upper": 0.85
                 },
                 "recall_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.55,
+                  "lower": 0.54,
                   "mean": 0.64,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.73
+                  "upper": 0.74
                 }
               },
               "retrieval_supported_only": {
-                "context_precision_at_5": 0.13,
-                "context_recall": 0.76,
-                "mrr_at_10": 0.4328,
-                "mrr_at_5": 0.4137,
-                "ndcg_at_10": 0.5087,
-                "precision_at_10": 0.082,
-                "precision_at_5": 0.13,
-                "recall_at_10": 0.8,
+                "context_precision_at_5": 0.128,
+                "context_recall": 0.73,
+                "mrr_at_10": 0.4463,
+                "mrr_at_5": 0.4287,
+                "ndcg_at_10": 0.5024,
+                "precision_at_10": 0.077,
+                "precision_at_5": 0.128,
+                "recall_at_10": 0.77,
                 "recall_at_5": 0.64
               }
             },
@@ -39525,10 +39525,10 @@
                 "p95_chars": 399
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2315060,
-                "query_latency_mean_seconds": 0.0895,
-                "query_latency_p95_seconds": 0.0963
+                "index_build_seconds": 1.9194,
+                "index_size_bytes": 2483160,
+                "query_latency_mean_seconds": 0.0858,
+                "query_latency_p95_seconds": 0.0884
               },
               "label_counts": {
                 "labels_total": 120,
@@ -39639,13 +39639,13 @@
                   "labels": 10,
                   "retrieval": {
                     "context_precision_at_5": 0.12,
-                    "context_recall": 0.35,
-                    "mrr_at_10": 0.3543,
-                    "mrr_at_5": 0.34,
-                    "ndcg_at_10": 0.2679,
-                    "precision_at_10": 0.07,
+                    "context_recall": 0.4,
+                    "mrr_at_10": 0.3704,
+                    "mrr_at_5": 0.345,
+                    "ndcg_at_10": 0.289,
+                    "precision_at_10": 0.08,
                     "precision_at_5": 0.12,
-                    "recall_at_10": 0.7,
+                    "recall_at_10": 0.8,
                     "recall_at_5": 0.6
                   }
                 },
@@ -39721,19 +39721,19 @@
                 }
               },
               "chunking": {
-                "avg_chars": 383.33,
-                "avg_tokens": 64.92,
-                "boundary_preservation_rate": 0.9529,
-                "chunk_count": 85,
-                "chunks_total": 85,
+                "avg_chars": 387.9,
+                "avg_tokens": 65.69,
+                "boundary_preservation_rate": 0.9524,
+                "chunk_count": 84,
+                "chunks_total": 84,
                 "overlap_redundancy": 0.0028,
                 "p95_chars": 809
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2126644,
-                "query_latency_mean_seconds": 0.0889,
-                "query_latency_p95_seconds": 0.0949
+                "index_build_seconds": 1.553,
+                "index_size_bytes": 2294744,
+                "query_latency_mean_seconds": 0.0864,
+                "query_latency_p95_seconds": 0.0927
               },
               "label_counts": {
                 "labels_total": 120,
@@ -39748,51 +39748,51 @@
               },
               "retrieval_all_labels_diagnostic": {
                 "context_precision_at_5": 0.0933,
-                "context_recall": 0.6542,
-                "mrr_at_10": 0.3031,
-                "mrr_at_5": 0.2967,
-                "ndcg_at_10": 0.3404,
-                "precision_at_10": 0.0517,
+                "context_recall": 0.6583,
+                "mrr_at_10": 0.3045,
+                "mrr_at_5": 0.2971,
+                "ndcg_at_10": 0.3421,
+                "precision_at_10": 0.0525,
                 "precision_at_5": 0.0933,
-                "recall_at_10": 0.5167,
+                "recall_at_10": 0.525,
                 "recall_at_5": 0.4667
               },
               "retrieval_confidence_intervals_supported_only": {
                 "context_recall": {
                   "confidence": 0.95,
-                  "lower": 0.49,
-                  "mean": 0.585,
+                  "lower": 0.495,
+                  "mean": 0.59,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.68
+                  "upper": 0.69
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.2747,
-                  "mean": 0.356,
+                  "lower": 0.275,
+                  "mean": 0.3565,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.4392
+                  "upper": 0.44
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.3324,
-                  "mean": 0.4085,
+                  "lower": 0.3338,
+                  "mean": 0.4106,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.4893
+                  "upper": 0.4933
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
-                  "lower": 0.52,
-                  "mean": 0.62,
+                  "lower": 0.53,
+                  "mean": 0.63,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.72
+                  "upper": 0.73
                 },
                 "recall_at_5": {
                   "confidence": 0.95,
@@ -39806,13 +39806,13 @@
               },
               "retrieval_supported_only": {
                 "context_precision_at_5": 0.112,
-                "context_recall": 0.585,
-                "mrr_at_10": 0.3638,
-                "mrr_at_5": 0.356,
-                "ndcg_at_10": 0.4085,
-                "precision_at_10": 0.062,
+                "context_recall": 0.59,
+                "mrr_at_10": 0.3654,
+                "mrr_at_5": 0.3565,
+                "ndcg_at_10": 0.4106,
+                "precision_at_10": 0.063,
                 "precision_at_5": 0.112,
-                "recall_at_10": 0.62,
+                "recall_at_10": 0.63,
                 "recall_at_5": 0.56
               }
             },
@@ -39935,10 +39935,10 @@
                 "p95_chars": 1593
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1643316,
-                "query_latency_mean_seconds": 0.0885,
-                "query_latency_p95_seconds": 0.0937
+                "index_build_seconds": 0.5794,
+                "index_size_bytes": 1819608,
+                "query_latency_mean_seconds": 0.0867,
+                "query_latency_p95_seconds": 0.093
               },
               "label_counts": {
                 "labels_total": 120,
@@ -40140,10 +40140,10 @@
                 "p95_chars": 898
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1606452,
-                "query_latency_mean_seconds": 0.0883,
-                "query_latency_p95_seconds": 0.0976
+                "index_build_seconds": 0.9363,
+                "index_size_bytes": 1774552,
+                "query_latency_mean_seconds": 0.0861,
+                "query_latency_p95_seconds": 0.0909
               },
               "label_counts": {
                 "labels_total": 120,
@@ -40345,10 +40345,10 @@
                 "p95_chars": 399
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2257716,
-                "query_latency_mean_seconds": 0.09,
-                "query_latency_p95_seconds": 0.1057
+                "index_build_seconds": 2.0605,
+                "index_size_bytes": 2425816,
+                "query_latency_mean_seconds": 0.0864,
+                "query_latency_p95_seconds": 0.0897
               },
               "label_counts": {
                 "labels_total": 120,
@@ -40550,10 +40550,10 @@
                 "p95_chars": 712
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 1868596,
-                "query_latency_mean_seconds": 0.0911,
-                "query_latency_p95_seconds": 0.1021
+                "index_build_seconds": 1.0573,
+                "index_size_bytes": 2110424,
+                "query_latency_mean_seconds": 0.0864,
+                "query_latency_p95_seconds": 0.0975
               },
               "label_counts": {
                 "labels_total": 120,
@@ -40707,9 +40707,9 @@
                   "retrieval": {
                     "context_precision_at_5": 0.2133,
                     "context_recall": 0.9333,
-                    "mrr_at_10": 0.6022,
-                    "mrr_at_5": 0.6022,
-                    "ndcg_at_10": 0.7674,
+                    "mrr_at_10": 0.5967,
+                    "mrr_at_5": 0.5967,
+                    "ndcg_at_10": 0.7628,
                     "precision_at_10": 0.1133,
                     "precision_at_5": 0.2133,
                     "recall_at_10": 0.9333,
@@ -40755,10 +40755,10 @@
                 "p95_chars": 1080
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 3068724,
-                "query_latency_mean_seconds": 0.0884,
-                "query_latency_p95_seconds": 0.0949
+                "index_build_seconds": 4.9164,
+                "index_size_bytes": 3249112,
+                "query_latency_mean_seconds": 0.0855,
+                "query_latency_p95_seconds": 0.0891
               },
               "label_counts": {
                 "labels_total": 120,
@@ -40774,9 +40774,9 @@
               "retrieval_all_labels_diagnostic": {
                 "context_precision_at_5": 0.11,
                 "context_recall": 0.7125,
-                "mrr_at_10": 0.3394,
-                "mrr_at_5": 0.3268,
-                "ndcg_at_10": 0.4255,
+                "mrr_at_10": 0.3387,
+                "mrr_at_5": 0.3261,
+                "ndcg_at_10": 0.4249,
                 "precision_at_10": 0.0675,
                 "precision_at_5": 0.11,
                 "recall_at_10": 0.5667,
@@ -40794,21 +40794,21 @@
                 },
                 "mrr_at_5": {
                   "confidence": 0.95,
-                  "lower": 0.3097,
-                  "mean": 0.3922,
+                  "lower": 0.3083,
+                  "mean": 0.3913,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.4787
+                  "upper": 0.4778
                 },
                 "ndcg_at_10": {
                   "confidence": 0.95,
                   "lower": 0.4099,
-                  "mean": 0.5106,
+                  "mean": 0.5099,
                   "n": 100,
                   "samples": 1000,
                   "seed": 17,
-                  "upper": 0.6167
+                  "upper": 0.6153
                 },
                 "recall_at_10": {
                   "confidence": 0.95,
@@ -40832,9 +40832,9 @@
               "retrieval_supported_only": {
                 "context_precision_at_5": 0.132,
                 "context_recall": 0.655,
-                "mrr_at_10": 0.4073,
-                "mrr_at_5": 0.3922,
-                "ndcg_at_10": 0.5106,
+                "mrr_at_10": 0.4065,
+                "mrr_at_5": 0.3913,
+                "ndcg_at_10": 0.5099,
                 "precision_at_10": 0.081,
                 "precision_at_5": 0.132,
                 "recall_at_10": 0.68,
@@ -40960,10 +40960,10 @@
                 "p95_chars": 1591
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2589000,
-                "query_latency_mean_seconds": 0.0947,
-                "query_latency_p95_seconds": 0.1182
+                "index_build_seconds": 0.5624,
+                "index_size_bytes": 2757100,
+                "query_latency_mean_seconds": 0.0862,
+                "query_latency_p95_seconds": 0.0957
               },
               "label_counts": {
                 "labels_total": 120,
@@ -41165,10 +41165,10 @@
                 "p95_chars": 896
               },
               "cost_latency": {
-                "index_build_seconds": 0.0,
-                "index_size_bytes": 2580808,
-                "query_latency_mean_seconds": 0.088,
-                "query_latency_p95_seconds": 0.0929
+                "index_build_seconds": 0.9163,
+                "index_size_bytes": 2748908,
+                "query_latency_mean_seconds": 0.0859,
+                "query_latency_p95_seconds": 0.0894
               },
               "label_counts": {
                 "labels_total": 120,
@@ -43112,7 +43112,7 @@
       "present": true
     },
     "chunking_topk_sensitivity_benchmark_v2": {
-      "excerpt": "# Chunking Top-K Sensitivity Benchmark V2\n\n- Supported-label retrieval only; insufficient-evidence labels are not recall targets.\n- Top-k comparisons also change context volume and must not be read as a universal chunking ranking.\n\n## Top-3\n\n| Rank | Strategy | Recall | MRR | Context Recall | Mean Context Chars |\n| ---: | --- | ---: | ---: | ---: | ---: |\n| 1 | recursive_large | 0.79 | 0.6083 | 0.745 | 4252.35 |\n| 2 | structure_aware_large | 0.78 | 0.6117 | 0.735 | 4297.31 |\n| 3 | fixed_large | 0.76 | 0.595 | 0.72 | 4325.55 |\n| 4 | recursive_medium | 0.64 | 0.48 | 0.615 | 2389.99 |\n| 5 | embedding_semantic | 0.63 | 0.5117 | 0.595 | 1937.73 |\n| 6 | structure_aware_medium | 0.62 | 0.4733 | 0.595 | 2390.62 |\n| 7 | fixed_medium | 0.61 | 0.4867 | 0.585 | 2424.65 |\n| 8 | hierarchical_parent_child | 0.6 | 0.4383 | 0.575 | 1063.86 |\n| 9 | recursive_small | 0.6 | 0.4383 | 0.575 | 1063.86 |\n| 10 | semantic_meta_like | 0.56 | 0.4217 | 0.535 | 1845.11 |\n| 11 | fixed_small | 0.52 | 0.3867 | 0.5 | 1102.22 |\n| 12 | structure_aware | 0.49 | 0.3733 | 0.465 | 1415.27 |\n| 13 | proposition_like | 0.42 | 0.325 | 0.4 | 1198.03 |\n| 14 | contextual_prefix | 0.34 | 0.2433 | 0.32 | 1079.49 |\n\n## Top-5\n\n| Rank | Strategy | Recall | MRR | Context Recall | Mean Context Chars |\n| ---: | --- | ---: | ---: | ---: | ---: |\n| 1 | fixed_large | 0.86 | 0.617 | 0.83 | 7183.1 |\n| 2 | structure_aware_large | 0.85 | 0.6262 | 0.82 | 7180.47 |\n| 3 | recursive_large | 0.84 | 0.6198 | 0.81 | 7128.77 |\n| 4 | recursive_medium | 0.83 | 0.5245 | 0.79 | 4045.84 |\n| 5 | fixed_medium | 0.79 | 0.5287 | 0.75 | 4074.47 |\n| 6 | structure_aware_medium | 0.79 | 0.5113 | 0.75 | 4034.42 |\n| 7 | embedding_semantic | 0.73 | 0.5337 | 0.695 | 3203.35 |\n| 8 | hierarchical_parent_child | 0.71 | 0.4628 | 0.68 | 1775.77 |\n| 9 | recursive_small | 0.71 | 0.4628 | 0.68 | 1775.77 |\n| 10 | semantic_meta_like | 0.68 | 0.4502 | 0.65 | 3059.09 |\n| 11 | fixed_small | 0.64 | 0.4137 | 0.61 | 1828.28 |\n| 12 | structure_aware | 0.57 | 0.3913 | 0.545 | 2191.64 |\n| 13 | proposition_like | 0.56 | 0.356 | 0.53 | 2046.77 |\n| 14 | contextual_prefix | 0.45 | 0.2693 | 0.42 | 1732.8 |\n\n## Top-10\n\n| Rank | Strategy | Recall | MRR | Context Recall | Mean Context Chars |\n| ---: | --- | ---: | ---: | ---: | ---: |\n| 1 | structure_aware_large | 0.96 | 0.6412 | 0.945 | 14261.21 |\n| 2 | recursive_large | 0.96 | 0.6372 | 0.945 | 14272.6 |\n| 3 | fixed_large | 0.96 | 0.6303 | 0.945 | 14284.33 |\n| 4 | recursive_medium | 0.91 | 0.5353 | 0.885 | 8084.29 |\n| 5 | fixed_medium | 0.9 | 0.5448 | 0.875 | 8219.7 |\n| 6 | structure_aware_medium | 0.89 | 0.5269 | 0.86 | 8050.6 |\n| 7 | embedding_semantic | 0.85 | 0.5517 | 0.815 | 6415.1 |\n| 8 | hierarchical_parent_child | 0.81 | 0.4782 | 0.78 | 3577.26 |\n| 9 | recursive_small | 0.81 | 0.4782 | 0.78 | 3577.26 |\n| 10 | fixed_small | 0.8 | 0.4328 | 0.76 | 3661.93 |\n| 11 | semantic_meta_like | 0.79 | 0.4658 | 0.755 | 6041.71 |\n| 12 | structure_aware | 0.68 | 0.4065 | 0.655 | 4191.55 |\n| 13 | proposition_like | 0.62 | 0.3638 | 0.585 | 4081.91 |\n| 14 | contextual_prefix | 0.51 | 0.2773 | 0.48 | 3125.98 |\n\n## Top-20\n\n| Rank | Strategy | Recall | MRR | Context Recall | Mean Context Chars |\n| ---: | --- | ---: | ---: | ---: | ---: |\n| 1 | structure_aware_large | 0.99 | 0.6434 | 0.945 | 28457.46 |\n| 2 | recursive_large | 0.99 | 0.6392 | 0.945 | 28489.87 |\n| 3 | fixed_large | 0.99 | 0.6323 | 0.945 | 28596.46 |\n| 4 | recursive_medium | 0.96 | 0.5389 | 0.885 | 16243.71 |\n| 5 | embedding_semantic | 0.95 | 0.5593 | 0.815 | 12563.05 |\n| 6 | fixed_medium | 0.95 | 0.5485 | 0.875 | 16429.13 |\n| 7 | structure_aware_medium | 0.95 | 0.5312 | 0.86 | 16146.36 |\n| 8 | hierarchical_parent_child | 0.92 | 0.4862 | 0.78 | 7192.65 |\n| 9 | recursive_small | 0.92 | 0.4862 | 0.78 | 7192.65 |\n| 10 | semantic_meta_like | 0.89 | 0.473 | 0.755 | 11985.3 |\n| 11 | fixed_small | 0.86 | 0.4373 | 0.76 | 7316.71 |\n| 12 | structure_aware | 0.82 | 0.4169 | 0.655 | 7968.81 |\n| 13 | proposition_like | 0.71 | 0.3703 | 0.585 | 8159.64 |\n| 14 | contextual_prefix | 0.57 | 0.2814 | 0.48 | 5471.75 |\n",
+      "excerpt": "# Chunking Top-K Sensitivity Benchmark V2\n\n- Supported-label retrieval only; insufficient-evidence labels are not recall targets.\n- Top-k comparisons also change context volume and must not be read as a universal chunking ranking.\n\n## Top-3\n\n| Rank | Strategy | Recall | MRR | Context Recall | Mean Context Chars |\n| ---: | --- | ---: | ---: | ---: | ---: |\n| 1 | recursive_large | 0.79 | 0.6083 | 0.745 | 4252.35 |\n| 2 | structure_aware_large | 0.78 | 0.6117 | 0.735 | 4297.31 |\n| 3 | fixed_large | 0.77 | 0.575 | 0.725 | 4360.78 |\n| 4 | recursive_medium | 0.64 | 0.48 | 0.615 | 2389.99 |\n| 5 | embedding_semantic | 0.63 | 0.5117 | 0.595 | 1937.73 |\n| 6 | fixed_medium | 0.63 | 0.4833 | 0.605 | 2452.77 |\n| 7 | structure_aware_medium | 0.62 | 0.4733 | 0.595 | 2390.62 |\n| 8 | hierarchical_parent_child | 0.6 | 0.4383 | 0.575 | 1063.86 |\n| 9 | recursive_small | 0.6 | 0.4383 | 0.575 | 1063.86 |\n| 10 | semantic_meta_like | 0.56 | 0.4217 | 0.535 | 1845.11 |\n| 11 | fixed_small | 0.52 | 0.4017 | 0.5 | 1133.25 |\n| 12 | structure_aware | 0.49 | 0.3733 | 0.465 | 1415.27 |\n| 13 | proposition_like | 0.42 | 0.325 | 0.4 | 1205.33 |\n| 14 | contextual_prefix | 0.34 | 0.2433 | 0.32 | 1079.49 |\n\n## Top-5\n\n| Rank | Strategy | Recall | MRR | Context Recall | Mean Context Chars |\n| ---: | --- | ---: | ---: | ---: | ---: |\n| 1 | structure_aware_large | 0.85 | 0.6262 | 0.82 | 7180.47 |\n| 2 | fixed_large | 0.85 | 0.5935 | 0.82 | 7229.34 |\n| 3 | recursive_large | 0.84 | 0.6198 | 0.81 | 7128.77 |\n| 4 | recursive_medium | 0.83 | 0.5245 | 0.79 | 4045.84 |\n| 5 | fixed_medium | 0.79 | 0.5198 | 0.745 | 4136.11 |\n| 6 | structure_aware_medium | 0.79 | 0.5113 | 0.75 | 4034.42 |\n| 7 | embedding_semantic | 0.73 | 0.5337 | 0.695 | 3203.35 |\n| 8 | hierarchical_parent_child | 0.71 | 0.4628 | 0.68 | 1775.77 |\n| 9 | recursive_small | 0.71 | 0.4628 | 0.68 | 1775.77 |\n| 10 | semantic_meta_like | 0.68 | 0.4502 | 0.65 | 3059.09 |\n| 11 | fixed_small | 0.64 | 0.4287 | 0.615 | 1898.66 |\n| 12 | structure_aware | 0.57 | 0.3913 | 0.545 | 2191.64 |\n| 13 | proposition_like | 0.56 | 0.3565 | 0.53 | 2052.41 |\n| 14 | contextual_prefix | 0.45 | 0.2693 | 0.42 | 1732.8 |\n\n## Top-10\n\n| Rank | Strategy | Recall | MRR | Context Recall | Mean Context Chars |\n| ---: | --- | ---: | ---: | ---: | ---: |\n| 1 | structure_aware_large | 0.96 | 0.6412 | 0.945 | 14261.21 |\n| 2 | recursive_large | 0.96 | 0.6372 | 0.945 | 14272.6 |\n| 3 | fixed_large | 0.95 | 0.6081 | 0.935 | 14404.66 |\n| 4 | recursive_medium | 0.91 | 0.5353 | 0.885 | 8084.29 |\n| 5 | structure_aware_medium | 0.89 | 0.5269 | 0.86 | 8050.6 |\n| 6 | fixed_medium | 0.88 | 0.5324 | 0.855 | 8292.89 |\n| 7 | embedding_semantic | 0.85 | 0.5517 | 0.815 | 6415.1 |\n| 8 | hierarchical_parent_child | 0.81 | 0.4782 | 0.78 | 3577.26 |\n| 9 | recursive_small | 0.81 | 0.4782 | 0.78 | 3577.26 |\n| 10 | semantic_meta_like | 0.79 | 0.4658 | 0.755 | 6041.71 |\n| 11 | fixed_small | 0.77 | 0.4463 | 0.73 | 3810.04 |\n| 12 | structure_aware | 0.68 | 0.4065 | 0.655 | 4191.55 |\n| 13 | proposition_like | 0.63 | 0.3654 | 0.59 | 4108.77 |\n| 14 | contextual_prefix | 0.51 | 0.2773 | 0.48 | 3125.98 |\n\n## Top-20\n\n| Rank | Strategy | Recall | MRR | Context Recall | Mean Context Chars |\n| ---: | --- | ---: | ---: | ---: | ---: |\n| 1 | structure_aware_large | 0.99 | 0.6434 | 0.945 | 28457.46 |\n| 2 | recursive_large | 0.99 | 0.6392 | 0.945 | 28489.87 |\n| 3 | fixed_large | 0.99 | 0.611 | 0.935 | 28766.86 |\n| 4 | recursive_medium | 0.96 | 0.5389 | 0.885 | 16243.71 |\n| 5 | fixed_medium | 0.96 | 0.5377 | 0.855 | 16508.74 |\n| 6 | embedding_semantic | 0.95 | 0.5593 | 0.815 | 12563.05 |\n| 7 | structure_aware_medium | 0.95 | 0.5312 | 0.86 | 16146.36 |\n| 8 | hierarchical_parent_child | 0.92 | 0.4862 | 0.78 | 7192.65 |\n| 9 | recursive_small | 0.92 | 0.4862 | 0.78 | 7192.65 |\n| 10 | semantic_meta_like | 0.89 | 0.473 | 0.755 | 11985.3 |\n| 11 | fixed_small | 0.88 | 0.454 | 0.73 | 7624.41 |\n| 12 | structure_aware | 0.82 | 0.4169 | 0.655 | 7968.81 |\n| 13 | proposition_like | 0.72 | 0.3719 | 0.59 | 8205.56 |\n| 14 | contextual_prefix | 0.57 | 0.2814 | 0.48 | 5471.75 |\n",
       "path": "reports/stages/chunking_topk_sensitivity_benchmark_v2.md",
       "present": true,
       "truncated": false
@@ -43162,10 +43162,10 @@
               "strategy": "recursive_large"
             },
             {
-              "context_recall": 0.945,
-              "mean_context_chars": 14284.33,
-              "mrr": 0.6303,
-              "recall": 0.96,
+              "context_recall": 0.935,
+              "mean_context_chars": 14404.66,
+              "mrr": 0.6081,
+              "recall": 0.95,
               "strategy": "fixed_large"
             },
             {
@@ -43176,18 +43176,18 @@
               "strategy": "recursive_medium"
             },
             {
-              "context_recall": 0.875,
-              "mean_context_chars": 8219.7,
-              "mrr": 0.5448,
-              "recall": 0.9,
-              "strategy": "fixed_medium"
-            },
-            {
               "context_recall": 0.86,
               "mean_context_chars": 8050.6,
               "mrr": 0.5269,
               "recall": 0.89,
               "strategy": "structure_aware_medium"
+            },
+            {
+              "context_recall": 0.855,
+              "mean_context_chars": 8292.89,
+              "mrr": 0.5324,
+              "recall": 0.88,
+              "strategy": "fixed_medium"
             },
             {
               "context_recall": 0.815,
@@ -43211,18 +43211,18 @@
               "strategy": "recursive_small"
             },
             {
-              "context_recall": 0.76,
-              "mean_context_chars": 3661.93,
-              "mrr": 0.4328,
-              "recall": 0.8,
-              "strategy": "fixed_small"
-            },
-            {
               "context_recall": 0.755,
               "mean_context_chars": 6041.71,
               "mrr": 0.4658,
               "recall": 0.79,
               "strategy": "semantic_meta_like"
+            },
+            {
+              "context_recall": 0.73,
+              "mean_context_chars": 3810.04,
+              "mrr": 0.4463,
+              "recall": 0.77,
+              "strategy": "fixed_small"
             },
             {
               "context_recall": 0.655,
@@ -43232,10 +43232,10 @@
               "strategy": "structure_aware"
             },
             {
-              "context_recall": 0.585,
-              "mean_context_chars": 4081.91,
-              "mrr": 0.3638,
-              "recall": 0.62,
+              "context_recall": 0.59,
+              "mean_context_chars": 4108.77,
+              "mrr": 0.3654,
+              "recall": 0.63,
               "strategy": "proposition_like"
             },
             {
@@ -43262,9 +43262,9 @@
               "strategy": "recursive_large"
             },
             {
-              "context_recall": 0.945,
-              "mean_context_chars": 28596.46,
-              "mrr": 0.6323,
+              "context_recall": 0.935,
+              "mean_context_chars": 28766.86,
+              "mrr": 0.611,
               "recall": 0.99,
               "strategy": "fixed_large"
             },
@@ -43276,18 +43276,18 @@
               "strategy": "recursive_medium"
             },
             {
+              "context_recall": 0.855,
+              "mean_context_chars": 16508.74,
+              "mrr": 0.5377,
+              "recall": 0.96,
+              "strategy": "fixed_medium"
+            },
+            {
               "context_recall": 0.815,
               "mean_context_chars": 12563.05,
               "mrr": 0.5593,
               "recall": 0.95,
               "strategy": "embedding_semantic"
-            },
-            {
-              "context_recall": 0.875,
-              "mean_context_chars": 16429.13,
-              "mrr": 0.5485,
-              "recall": 0.95,
-              "strategy": "fixed_medium"
             },
             {
               "context_recall": 0.86,
@@ -43318,10 +43318,10 @@
               "strategy": "semantic_meta_like"
             },
             {
-              "context_recall": 0.76,
-              "mean_context_chars": 7316.71,
-              "mrr": 0.4373,
-              "recall": 0.86,
+              "context_recall": 0.73,
+              "mean_context_chars": 7624.41,
+              "mrr": 0.454,
+              "recall": 0.88,
               "strategy": "fixed_small"
             },
             {
@@ -43332,10 +43332,10 @@
               "strategy": "structure_aware"
             },
             {
-              "context_recall": 0.585,
-              "mean_context_chars": 8159.64,
-              "mrr": 0.3703,
-              "recall": 0.71,
+              "context_recall": 0.59,
+              "mean_context_chars": 8205.56,
+              "mrr": 0.3719,
+              "recall": 0.72,
               "strategy": "proposition_like"
             },
             {
@@ -43362,10 +43362,10 @@
               "strategy": "structure_aware_large"
             },
             {
-              "context_recall": 0.72,
-              "mean_context_chars": 4325.55,
-              "mrr": 0.595,
-              "recall": 0.76,
+              "context_recall": 0.725,
+              "mean_context_chars": 4360.78,
+              "mrr": 0.575,
+              "recall": 0.77,
               "strategy": "fixed_large"
             },
             {
@@ -43383,18 +43383,18 @@
               "strategy": "embedding_semantic"
             },
             {
+              "context_recall": 0.605,
+              "mean_context_chars": 2452.77,
+              "mrr": 0.4833,
+              "recall": 0.63,
+              "strategy": "fixed_medium"
+            },
+            {
               "context_recall": 0.595,
               "mean_context_chars": 2390.62,
               "mrr": 0.4733,
               "recall": 0.62,
               "strategy": "structure_aware_medium"
-            },
-            {
-              "context_recall": 0.585,
-              "mean_context_chars": 2424.65,
-              "mrr": 0.4867,
-              "recall": 0.61,
-              "strategy": "fixed_medium"
             },
             {
               "context_recall": 0.575,
@@ -43419,8 +43419,8 @@
             },
             {
               "context_recall": 0.5,
-              "mean_context_chars": 1102.22,
-              "mrr": 0.3867,
+              "mean_context_chars": 1133.25,
+              "mrr": 0.4017,
               "recall": 0.52,
               "strategy": "fixed_small"
             },
@@ -43433,7 +43433,7 @@
             },
             {
               "context_recall": 0.4,
-              "mean_context_chars": 1198.03,
+              "mean_context_chars": 1205.33,
               "mrr": 0.325,
               "recall": 0.42,
               "strategy": "proposition_like"
@@ -43448,18 +43448,18 @@
           ],
           "5": [
             {
-              "context_recall": 0.83,
-              "mean_context_chars": 7183.1,
-              "mrr": 0.617,
-              "recall": 0.86,
-              "strategy": "fixed_large"
-            },
-            {
               "context_recall": 0.82,
               "mean_context_chars": 7180.47,
               "mrr": 0.6262,
               "recall": 0.85,
               "strategy": "structure_aware_large"
+            },
+            {
+              "context_recall": 0.82,
+              "mean_context_chars": 7229.34,
+              "mrr": 0.5935,
+              "recall": 0.85,
+              "strategy": "fixed_large"
             },
             {
               "context_recall": 0.81,
@@ -43476,9 +43476,9 @@
               "strategy": "recursive_medium"
             },
             {
-              "context_recall": 0.75,
-              "mean_context_chars": 4074.47,
-              "mrr": 0.5287,
+              "context_recall": 0.745,
+              "mean_context_chars": 4136.11,
+              "mrr": 0.5198,
               "recall": 0.79,
               "strategy": "fixed_medium"
             },
@@ -43518,9 +43518,9 @@
               "strategy": "semantic_meta_like"
             },
             {
-              "context_recall": 0.61,
-              "mean_context_chars": 1828.28,
-              "mrr": 0.4137,
+              "context_recall": 0.615,
+              "mean_context_chars": 1898.66,
+              "mrr": 0.4287,
               "recall": 0.64,
               "strategy": "fixed_small"
             },
@@ -43533,8 +43533,8 @@
             },
             {
               "context_recall": 0.53,
-              "mean_context_chars": 2046.77,
-              "mrr": 0.356,
+              "mean_context_chars": 2052.41,
+              "mrr": 0.3565,
               "recall": 0.56,
               "strategy": "proposition_like"
             },
@@ -43820,13 +43820,13 @@
           },
           "fixed_large": {
             "chunking": {
-              "avg_chars": 1359.19,
-              "avg_tokens": 225.96,
-              "boundary_preservation_rate": 0.3704,
+              "avg_chars": 1359.22,
+              "avg_tokens": 226.15,
+              "boundary_preservation_rate": 0.1481,
               "chunk_count": 27,
               "chunks_total": 27,
               "overlap_redundancy": 0.1158,
-              "p95_chars": 1594
+              "p95_chars": 1598
             },
             "implementation_metadata": {
               "configured_max_chars": [
@@ -43840,79 +43840,78 @@
               ],
               "token_count": [
                 "1",
-                "120",
-                "123",
-                "165",
-                "179",
-                "182",
+                "112",
+                "116",
+                "158",
+                "169",
+                "174",
                 "188",
-                "224",
-                "235",
+                "206",
+                "223",
                 "240",
-                "243",
-                "246",
-                "248",
-                "254",
-                "259",
-                "260",
-                "261",
-                "265",
+                "247",
+                "249",
+                "250",
+                "251",
+                "262",
+                "263",
+                "264",
                 "266",
-                "271",
+                "273",
                 "275",
-                "280",
                 "281",
-                "286"
+                "282",
+                "291"
               ]
             },
             "top_k": {
               "10": {
-                "context_recall": 0.945,
-                "mean_context_chars": 14284.33,
+                "context_recall": 0.935,
+                "mean_context_chars": 14404.66,
                 "mean_hits_returned": 10.0,
-                "mrr": 0.6303,
+                "mrr": 0.6081,
                 "n": 100,
-                "precision": 0.11,
-                "recall": 0.96
+                "precision": 0.107,
+                "recall": 0.95
               },
               "20": {
-                "context_recall": 0.945,
-                "mean_context_chars": 28596.46,
+                "context_recall": 0.935,
+                "mean_context_chars": 28766.86,
                 "mean_hits_returned": 20.0,
-                "mrr": 0.6323,
+                "mrr": 0.611,
                 "n": 100,
-                "precision": 0.0595,
+                "precision": 0.0585,
                 "recall": 0.99
               },
               "3": {
-                "context_recall": 0.72,
-                "mean_context_chars": 4325.55,
+                "context_recall": 0.725,
+                "mean_context_chars": 4360.78,
                 "mean_hits_returned": 3.0,
-                "mrr": 0.595,
+                "mrr": 0.575,
                 "n": 100,
-                "precision": 0.2766,
-                "recall": 0.76
+                "precision": 0.27,
+                "recall": 0.77
               },
               "5": {
-                "context_recall": 0.83,
-                "mean_context_chars": 7183.1,
+                "context_recall": 0.82,
+                "mean_context_chars": 7229.34,
                 "mean_hits_returned": 5.0,
-                "mrr": 0.617,
+                "mrr": 0.5935,
                 "n": 100,
-                "precision": 0.194,
-                "recall": 0.86
+                "precision": 0.188,
+                "recall": 0.85
               }
             }
           },
           "fixed_medium": {
             "chunking": {
               "avg_chars": 794.21,
-              "avg_tokens": 132.25,
-              "boundary_preservation_rate": 0.25,
+              "avg_tokens": 132.46,
+              "boundary_preservation_rate": 0.1042,
               "chunk_count": 48,
               "chunks_total": 48,
               "overlap_redundancy": 0.1493,
-              "p95_chars": 896
+              "p95_chars": 899
             },
             "implementation_metadata": {
               "configured_max_chars": [
@@ -43926,17 +43925,16 @@
               ],
               "token_count": [
                 "1",
-                "125",
-                "127",
-                "132",
-                "134",
-                "136",
-                "137",
+                "110",
+                "129",
+                "135",
                 "138",
                 "139",
                 "140",
                 "141",
                 "142",
+                "143",
+                "144",
                 "145",
                 "146",
                 "147",
@@ -43948,66 +43946,71 @@
                 "154",
                 "155",
                 "156",
+                "159",
                 "160",
-                "167",
-                "168",
-                "46",
+                "161",
+                "163",
+                "164",
+                "165",
+                "169",
+                "174",
+                "28",
+                "45",
+                "58",
+                "61",
                 "66",
-                "68",
-                "79",
-                "83",
-                "88",
-                "99"
+                "69",
+                "90"
               ]
             },
             "top_k": {
               "10": {
-                "context_recall": 0.875,
-                "mean_context_chars": 8219.7,
+                "context_recall": 0.855,
+                "mean_context_chars": 8292.89,
                 "mean_hits_returned": 10.0,
-                "mrr": 0.5448,
+                "mrr": 0.5324,
                 "n": 100,
-                "precision": 0.098,
-                "recall": 0.9
+                "precision": 0.096,
+                "recall": 0.88
               },
               "20": {
-                "context_recall": 0.875,
-                "mean_context_chars": 16429.13,
+                "context_recall": 0.855,
+                "mean_context_chars": 16508.74,
                 "mean_hits_returned": 20.0,
-                "mrr": 0.5485,
+                "mrr": 0.5377,
                 "n": 100,
-                "precision": 0.053,
-                "recall": 0.95
+                "precision": 0.0535,
+                "recall": 0.96
               },
               "3": {
-                "context_recall": 0.585,
-                "mean_context_chars": 2424.65,
+                "context_recall": 0.605,
+                "mean_context_chars": 2452.77,
                 "mean_hits_returned": 3.0,
-                "mrr": 0.4867,
+                "mrr": 0.4833,
                 "n": 100,
                 "precision": 0.2133,
-                "recall": 0.61
+                "recall": 0.63
               },
               "5": {
-                "context_recall": 0.75,
-                "mean_context_chars": 4074.47,
+                "context_recall": 0.745,
+                "mean_context_chars": 4136.11,
                 "mean_hits_returned": 5.0,
-                "mrr": 0.5287,
+                "mrr": 0.5198,
                 "n": 100,
-                "precision": 0.166,
+                "precision": 0.162,
                 "recall": 0.79
               }
             }
           },
           "fixed_small": {
             "chunking": {
-              "avg_chars": 361.75,
-              "avg_tokens": 60.49,
-              "boundary_preservation_rate": 0.2679,
-              "chunk_count": 112,
-              "chunks_total": 112,
-              "overlap_redundancy": 0.2009,
-              "p95_chars": 398
+              "avg_chars": 377.68,
+              "avg_tokens": 63.14,
+              "boundary_preservation_rate": 0.1038,
+              "chunk_count": 106,
+              "chunks_total": 106,
+              "overlap_redundancy": 0.1913,
+              "p95_chars": 399
             },
             "implementation_metadata": {
               "configured_max_chars": [
@@ -44021,20 +44024,13 @@
               ],
               "token_count": [
                 "1",
-                "16",
-                "17",
                 "24",
-                "30",
-                "39",
-                "43",
-                "46",
-                "49",
-                "50",
-                "51",
-                "52",
-                "54",
+                "25",
+                "28",
+                "34",
+                "35",
+                "53",
                 "55",
-                "56",
                 "57",
                 "58",
                 "59",
@@ -44052,46 +44048,48 @@
                 "71",
                 "72",
                 "73",
-                "74",
+                "75",
+                "76",
                 "81",
-                "84"
+                "87",
+                "91"
               ]
             },
             "top_k": {
               "10": {
-                "context_recall": 0.76,
-                "mean_context_chars": 3661.93,
+                "context_recall": 0.73,
+                "mean_context_chars": 3810.04,
                 "mean_hits_returned": 10.0,
-                "mrr": 0.4328,
+                "mrr": 0.4463,
                 "n": 100,
-                "precision": 0.082,
-                "recall": 0.8
+                "precision": 0.077,
+                "recall": 0.77
               },
               "20": {
-                "context_recall": 0.76,
-                "mean_context_chars": 7316.71,
+                "context_recall": 0.73,
+                "mean_context_chars": 7624.41,
                 "mean_hits_returned": 20.0,
-                "mrr": 0.4373,
+                "mrr": 0.454,
                 "n": 100,
-                "precision": 0.0465,
-                "recall": 0.86
+                "precision": 0.046,
+                "recall": 0.88
               },
               "3": {
                 "context_recall": 0.5,
-                "mean_context_chars": 1102.22,
+                "mean_context_chars": 1133.25,
                 "mean_hits_returned": 3.0,
-                "mrr": 0.3867,
+                "mrr": 0.4017,
                 "n": 100,
                 "precision": 0.1733,
                 "recall": 0.52
               },
               "5": {
-                "context_recall": 0.61,
-                "mean_context_chars": 1828.28,
+                "context_recall": 0.615,
+                "mean_context_chars": 1898.66,
                 "mean_hits_returned": 5.0,
-                "mrr": 0.4137,
+                "mrr": 0.4287,
                 "n": 100,
-                "precision": 0.13,
+                "precision": 0.128,
                 "recall": 0.64
               }
             }
@@ -44204,11 +44202,11 @@
           },
           "proposition_like": {
             "chunking": {
-              "avg_chars": 383.33,
-              "avg_tokens": 64.92,
-              "boundary_preservation_rate": 0.9529,
-              "chunk_count": 85,
-              "chunks_total": 85,
+              "avg_chars": 387.9,
+              "avg_tokens": 65.69,
+              "boundary_preservation_rate": 0.9524,
+              "chunk_count": 84,
+              "chunks_total": 84,
               "overlap_redundancy": 0.0028,
               "p95_chars": 809
             },
@@ -44230,6 +44228,7 @@
               ],
               "token_count": [
                 "1",
+                "106",
                 "107",
                 "112",
                 "113",
@@ -44286,35 +44285,33 @@
                 "83",
                 "84",
                 "85",
-                "9",
                 "93",
                 "95",
-                "97",
                 "99"
               ]
             },
             "top_k": {
               "10": {
-                "context_recall": 0.585,
-                "mean_context_chars": 4081.91,
+                "context_recall": 0.59,
+                "mean_context_chars": 4108.77,
                 "mean_hits_returned": 10.0,
-                "mrr": 0.3638,
+                "mrr": 0.3654,
                 "n": 100,
-                "precision": 0.062,
-                "recall": 0.62
+                "precision": 0.063,
+                "recall": 0.63
               },
               "20": {
-                "context_recall": 0.585,
-                "mean_context_chars": 8159.64,
+                "context_recall": 0.59,
+                "mean_context_chars": 8205.56,
                 "mean_hits_returned": 20.0,
-                "mrr": 0.3703,
+                "mrr": 0.3719,
                 "n": 100,
-                "precision": 0.037,
-                "recall": 0.71
+                "precision": 0.0375,
+                "recall": 0.72
               },
               "3": {
                 "context_recall": 0.4,
-                "mean_context_chars": 1198.03,
+                "mean_context_chars": 1205.33,
                 "mean_hits_returned": 3.0,
                 "mrr": 0.325,
                 "n": 100,
@@ -44323,9 +44320,9 @@
               },
               "5": {
                 "context_recall": 0.53,
-                "mean_context_chars": 2046.77,
+                "mean_context_chars": 2052.41,
                 "mean_hits_returned": 5.0,
-                "mrr": 0.356,
+                "mrr": 0.3565,
                 "n": 100,
                 "precision": 0.112,
                 "recall": 0.56

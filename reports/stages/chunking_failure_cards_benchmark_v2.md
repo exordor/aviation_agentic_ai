@@ -6,7 +6,7 @@
 | Strategy | Failure type | Samples | Example CQ | Notes |
 | --- | --- | ---: | --- | --- |
 | fixed_small | missed_gold_evidence_at_5 | 1 | bv2-sf-002 | sample found |
-| fixed_small | chunk_too_small_lost_context | 1 | bv2-sf-006 | sample found |
+| fixed_small | chunk_too_small_lost_context | 1 | bv2-sf-002 | sample found |
 | fixed_small | chunk_too_large_low_precision | 0 |  | no matching sample in this run |
 | fixed_small | section_boundary_split | 1 | bv2-sf-002 | sample found |
 | fixed_small | semantic_boundary_error | 0 |  | no matching sample in this run |
@@ -19,14 +19,14 @@
 | fixed_medium | chunk_too_large_low_precision | 0 |  | no matching sample in this run |
 | fixed_medium | section_boundary_split | 1 | bv2-sf-006 | sample found |
 | fixed_medium | semantic_boundary_error | 0 |  | no matching sample in this run |
-| fixed_medium | cross_page_evidence_split | 1 | bv2-xp-002 | sample found |
+| fixed_medium | cross_page_evidence_split | 1 | bv2-xp-001 | sample found |
 | fixed_medium | no_answer_retrieved_misleading_context | 1 | bv2-ie-011-runway-performance | sample found |
 | fixed_medium | proposition_context_loss | 0 |  | no matching sample in this run |
 | fixed_medium | parent_child_not_used | 0 |  | no matching sample in this run |
-| fixed_large | missed_gold_evidence_at_5 | 1 | bv2-sf-006 | sample found |
+| fixed_large | missed_gold_evidence_at_5 | 1 | bv2-sf-004 | sample found |
 | fixed_large | chunk_too_small_lost_context | 0 |  | no matching sample in this run |
 | fixed_large | chunk_too_large_low_precision | 1 | bv2-sf-001 | sample found |
-| fixed_large | section_boundary_split | 1 | bv2-sf-006 | sample found |
+| fixed_large | section_boundary_split | 1 | bv2-sf-004 | sample found |
 | fixed_large | semantic_boundary_error | 0 |  | no matching sample in this run |
 | fixed_large | cross_page_evidence_split | 1 | bv2-xp-001 | sample found |
 | fixed_large | no_answer_retrieved_misleading_context | 1 | bv2-ie-011-runway-performance | sample found |
@@ -46,14 +46,14 @@
 | recursive_medium | chunk_too_large_low_precision | 0 |  | no matching sample in this run |
 | recursive_medium | section_boundary_split | 1 | bv2-sf-006 | sample found |
 | recursive_medium | semantic_boundary_error | 0 |  | no matching sample in this run |
-| recursive_medium | cross_page_evidence_split | 1 | bv2-xp-002 | sample found |
+| recursive_medium | cross_page_evidence_split | 1 | bv2-xp-001 | sample found |
 | recursive_medium | no_answer_retrieved_misleading_context | 1 | bv2-ie-011-runway-performance | sample found |
 | recursive_medium | proposition_context_loss | 0 |  | no matching sample in this run |
 | recursive_medium | parent_child_not_used | 0 |  | no matching sample in this run |
-| recursive_large | missed_gold_evidence_at_5 | 1 | bv2-sf-004 | sample found |
+| recursive_large | missed_gold_evidence_at_5 | 1 | bv2-sf-001 | sample found |
 | recursive_large | chunk_too_small_lost_context | 0 |  | no matching sample in this run |
 | recursive_large | chunk_too_large_low_precision | 1 | bv2-sf-001 | sample found |
-| recursive_large | section_boundary_split | 1 | bv2-sf-004 | sample found |
+| recursive_large | section_boundary_split | 1 | bv2-sf-001 | sample found |
 | recursive_large | semantic_boundary_error | 0 |  | no matching sample in this run |
 | recursive_large | cross_page_evidence_split | 1 | bv2-xp-001 | sample found |
 | recursive_large | no_answer_retrieved_misleading_context | 1 | bv2-ie-011-runway-performance | sample found |
@@ -73,7 +73,7 @@
 | structure_aware_medium | chunk_too_large_low_precision | 0 |  | no matching sample in this run |
 | structure_aware_medium | section_boundary_split | 0 |  | no matching sample in this run |
 | structure_aware_medium | semantic_boundary_error | 0 |  | no matching sample in this run |
-| structure_aware_medium | cross_page_evidence_split | 1 | bv2-xp-002 | sample found |
+| structure_aware_medium | cross_page_evidence_split | 1 | bv2-xp-001 | sample found |
 | structure_aware_medium | no_answer_retrieved_misleading_context | 1 | bv2-ie-011-runway-performance | sample found |
 | structure_aware_medium | proposition_context_loss | 0 |  | no matching sample in this run |
 | structure_aware_medium | parent_child_not_used | 0 |  | no matching sample in this run |
@@ -100,7 +100,7 @@
 | embedding_semantic | chunk_too_large_low_precision | 0 |  | no matching sample in this run |
 | embedding_semantic | section_boundary_split | 0 |  | no matching sample in this run |
 | embedding_semantic | semantic_boundary_error | 1 | bv2-sf-006 | sample found |
-| embedding_semantic | cross_page_evidence_split | 1 | bv2-xp-002 | sample found |
+| embedding_semantic | cross_page_evidence_split | 1 | bv2-xp-001 | sample found |
 | embedding_semantic | no_answer_retrieved_misleading_context | 1 | bv2-ie-011-runway-performance | sample found |
 | embedding_semantic | proposition_context_loss | 0 |  | no matching sample in this run |
 | embedding_semantic | parent_child_not_used | 0 |  | no matching sample in this run |

@@ -441,8 +441,7 @@
                 "06_phak_ch4_0-contextual_prefix-p02-c57",
                 "06_phak_ch4_0-contextual_prefix-p02-c53",
                 "06_phak_ch4_0-contextual_prefix-p04-c07",
-                "06_phak_ch4_0-contextual_prefix-p02-c52",
-                "06_phak_ch4_0-contextual_prefix-p02-c39"
+                "06_phak_ch4_0-contextual_prefix-p02-c52"
               ],
               "retrieved_source_pages": [
                 2,
@@ -453,7 +452,6 @@
                 2,
                 2,
                 4,
-                2,
                 2
               ]
             },
@@ -594,24 +592,14 @@
                 "06_phak_ch4_0-embedding_semantic-p02-c01",
                 "06_phak_ch4_0-embedding_semantic-p03-c06",
                 "06_phak_ch4_0-embedding_semantic-p05-c02",
-                "06_phak_ch4_0-embedding_semantic-p02-c02",
-                "06_phak_ch4_0-embedding_semantic-p05-c00",
-                "06_phak_ch4_0-embedding_semantic-p03-c00",
-                "06_phak_ch4_0-embedding_semantic-p02-c04",
-                "06_phak_ch4_0-embedding_semantic-p04-c02",
-                "06_phak_ch4_0-embedding_semantic-p03-c02"
+                "06_phak_ch4_0-embedding_semantic-p02-c02"
               ],
               "retrieved_source_pages": [
                 2,
                 2,
                 3,
                 5,
-                2,
-                5,
-                3,
-                2,
-                4,
-                3
+                2
               ]
             },
             "no_answer_diagnostics": {},
@@ -701,130 +689,120 @@
       "cross_page_evidence_split": {
         "samples": [
           {
-            "cq_id": "bv2-xp-002",
+            "cq_id": "bv2-xp-001",
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.2,
               "context_recall": 0.5,
               "expected_abstention": false,
-              "first_relevant_rank": 3,
+              "first_relevant_rank": 1,
               "gold_level": "span",
               "matched_chunk_ids": [
-                "06_phak_ch4_0-embedding_semantic-p03-c00"
+                "06_phak_ch4_0-embedding_semantic-p01-c00"
               ],
               "matched_source_pages": [
-                3
+                1
               ],
-              "mrr_at_10": 0.3333,
-              "mrr_at_5": 0.3333,
-              "ndcg_at_10": 0.3066,
+              "mrr_at_10": 1.0,
+              "mrr_at_5": 1.0,
+              "ndcg_at_10": 0.6131,
               "precision_at_10": 0.1,
               "precision_at_5": 0.2,
               "recall_at_10": true,
               "recall_at_5": true,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-embedding_semantic-p00-c00",
-                "06_phak_ch4_0-embedding_semantic-p03-c02",
-                "06_phak_ch4_0-embedding_semantic-p03-c00",
-                "06_phak_ch4_0-embedding_semantic-p03-c04",
-                "06_phak_ch4_0-embedding_semantic-p04-c01",
-                "06_phak_ch4_0-embedding_semantic-p02-c04",
-                "06_phak_ch4_0-embedding_semantic-p08-c04",
-                "06_phak_ch4_0-embedding_semantic-p00-c01",
-                "06_phak_ch4_0-embedding_semantic-p03-c05",
-                "06_phak_ch4_0-embedding_semantic-p03-c03"
+                "06_phak_ch4_0-embedding_semantic-p01-c00",
+                "06_phak_ch4_0-embedding_semantic-p01-c01",
+                "06_phak_ch4_0-embedding_semantic-p01-c03",
+                "06_phak_ch4_0-embedding_semantic-p05-c01",
+                "06_phak_ch4_0-embedding_semantic-p02-c02"
               ],
               "retrieved_source_pages": [
-                0,
-                3,
-                3,
-                3,
-                4,
-                2,
-                8,
-                0,
-                3,
-                3
+                1,
+                1,
+                1,
+                5,
+                2
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
+            "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
             "question_type": "cross_page",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-embedding_semantic-p00-c00",
+                "chunk_id": "06_phak_ch4_0-embedding_semantic-p01-c00",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-embedding_semantic-p00-c00",
+                  "chunk_id": "06_phak_ch4_0-embedding_semantic-p01-c00",
                   "chunk_index": 0,
                   "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
-                  "chunk_token_count": 146,
-                  "page": 0,
+                  "chunk_token_count": 142,
+                  "page": 1,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "embedding_semantic",
-                  "token_count": 146
+                  "token_count": 142
                 },
-                "page": 0,
+                "page": 1,
                 "rank": 1,
-                "score": 0.5216214710400433,
+                "score": 0.5011534116676284,
                 "source": "vector",
-                "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
+                "text_excerpt": "4-2 Leading edge of wing under 1,500x magnification Figure 4-1. Microscopic surface of a wing. Air is a Fluid When most people hear the word \u201cfluid,\u201d they usually think of liquid. However, gasses, like air, are also fluids. Fluids take on t"
               },
               {
-                "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c02",
+                "chunk_id": "06_phak_ch4_0-embedding_semantic-p01-c01",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c02",
-                  "chunk_index": 2,
+                  "chunk_id": "06_phak_ch4_0-embedding_semantic-p01-c01",
+                  "chunk_index": 1,
                   "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
-                  "chunk_token_count": 107,
-                  "page": 3,
+                  "chunk_token_count": 151,
+                  "page": 1,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "embedding_semantic",
-                  "token_count": 107
+                  "token_count": 151
                 },
-                "page": 3,
+                "page": 1,
                 "rank": 2,
-                "score": 0.5052644462301289,
+                "score": 0.46671419521727175,
                 "source": "vector",
-                "text_excerpt": "2. Applying a correction factor to the indicated altitude according to the reported altimeter setting Density Altitude SDP is a theoretical pressure altitude, but aircraft operate in a nonstandard atmosphere and the term density altitude is"
+                "text_excerpt": "The way individual molecules of the fluid tend to adhere, or stick, to each other determines how much a fluid resists flow. High-viscosity fluids are \u201cthick\u201d and resist flow; low-viscosity fluids are \u201cthin\u201d and flow easily. Air has a low vi"
               },
               {
-                "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c00",
+                "chunk_id": "06_phak_ch4_0-embedding_semantic-p01-c03",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-embedding_semantic-p03-c00",
-                  "chunk_index": 0,
+                  "chunk_id": "06_phak_ch4_0-embedding_semantic-p01-c03",
+                  "chunk_index": 3,
                   "chunk_profile_family": "semantic_boundary_embedding",
                   "chunk_semantic_backend": "sentence_transformers",
                   "chunk_semantic_backend_error": "",
                   "chunk_semantic_embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
-                  "chunk_token_count": 89,
-                  "page": 3,
+                  "chunk_token_count": 115,
+                  "page": 1,
                   "section": "semantic",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "embedding_semantic",
-                  "token_count": 89
+                  "token_count": 115
                 },
-                "page": 3,
+                "page": 1,
                 "rank": 3,
-                "score": 0.4942450665096761,
+                "score": 0.44374611161796845,
                 "source": "vector",
-                "text_excerpt": "4-4 Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere. In order to properly account for the nonstandard atmosphere, certain rela"
+                "text_excerpt": "If identical fluids are poured down two identical ramps, they flow in the same manner and at the same speed. If the surface of one ramp is rough, and the other smooth, the flow down the two ramps differs significantly. The rough surface ram"
               }
             ]
           }
@@ -856,24 +834,14 @@
                 "06_phak_ch4_0-embedding_semantic-p02-c01",
                 "06_phak_ch4_0-embedding_semantic-p03-c06",
                 "06_phak_ch4_0-embedding_semantic-p05-c02",
-                "06_phak_ch4_0-embedding_semantic-p02-c02",
-                "06_phak_ch4_0-embedding_semantic-p05-c00",
-                "06_phak_ch4_0-embedding_semantic-p03-c00",
-                "06_phak_ch4_0-embedding_semantic-p02-c04",
-                "06_phak_ch4_0-embedding_semantic-p04-c02",
-                "06_phak_ch4_0-embedding_semantic-p03-c02"
+                "06_phak_ch4_0-embedding_semantic-p02-c02"
               ],
               "retrieved_source_pages": [
                 2,
                 2,
                 3,
                 5,
-                2,
-                5,
-                3,
-                2,
-                4,
-                3
+                2
               ]
             },
             "no_answer_diagnostics": {},
@@ -986,11 +954,7 @@
                 "06_phak_ch4_0-embedding_semantic-p04-c03",
                 "06_phak_ch4_0-embedding_semantic-p04-c02",
                 "06_phak_ch4_0-embedding_semantic-p00-c00",
-                "06_phak_ch4_0-embedding_semantic-p02-c05",
-                "06_phak_ch4_0-embedding_semantic-p04-c01",
-                "06_phak_ch4_0-embedding_semantic-p03-c00",
-                "06_phak_ch4_0-embedding_semantic-p06-c02",
-                "06_phak_ch4_0-embedding_semantic-p03-c01"
+                "06_phak_ch4_0-embedding_semantic-p02-c05"
               ],
               "retrieved_source_pages": [
                 2,
@@ -998,11 +962,7 @@
                 4,
                 4,
                 0,
-                2,
-                4,
-                3,
-                6,
-                3
+                2
               ]
             },
             "no_answer_diagnostics": {
@@ -1132,24 +1092,14 @@
                 "06_phak_ch4_0-embedding_semantic-p02-c01",
                 "06_phak_ch4_0-embedding_semantic-p03-c06",
                 "06_phak_ch4_0-embedding_semantic-p05-c02",
-                "06_phak_ch4_0-embedding_semantic-p02-c02",
-                "06_phak_ch4_0-embedding_semantic-p05-c00",
-                "06_phak_ch4_0-embedding_semantic-p03-c00",
-                "06_phak_ch4_0-embedding_semantic-p02-c04",
-                "06_phak_ch4_0-embedding_semantic-p04-c02",
-                "06_phak_ch4_0-embedding_semantic-p03-c02"
+                "06_phak_ch4_0-embedding_semantic-p02-c02"
               ],
               "retrieved_source_pages": [
                 2,
                 2,
                 3,
                 5,
-                2,
-                5,
-                3,
-                2,
-                4,
-                3
+                2
               ]
             },
             "no_answer_diagnostics": {},
@@ -1244,10 +1194,10 @@
             "cq_id": "bv2-sf-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
+              "context_precision_at_5": 0.5,
               "context_recall": 1.0,
               "expected_abstention": false,
-              "first_relevant_rank": 4,
+              "first_relevant_rank": 2,
               "gold_level": "span",
               "matched_chunk_ids": [
                 "06_phak_ch4_0-fixed_large-p02-c01"
@@ -1255,36 +1205,20 @@
               "matched_source_pages": [
                 2
               ],
-              "mrr_at_10": 0.25,
-              "mrr_at_5": 0.25,
-              "ndcg_at_10": 0.4307,
+              "mrr_at_10": 0.5,
+              "mrr_at_5": 0.5,
+              "ndcg_at_10": 0.6309,
               "precision_at_10": 0.1,
               "precision_at_5": 0.2,
               "recall_at_10": true,
               "recall_at_5": true,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-fixed_large-p00-c00",
-                "06_phak_ch4_0-fixed_large-p03-c00",
-                "06_phak_ch4_0-fixed_large-p02-c00",
-                "06_phak_ch4_0-fixed_large-p02-c01",
-                "06_phak_ch4_0-fixed_large-p04-c01",
-                "06_phak_ch4_0-fixed_large-p03-c02",
-                "06_phak_ch4_0-fixed_large-p04-c02",
-                "06_phak_ch4_0-fixed_large-p03-c01",
-                "06_phak_ch4_0-fixed_large-p03-c03",
-                "06_phak_ch4_0-fixed_large-p04-c00"
+                "06_phak_ch4_0-fixed_large-p02-c01"
               ],
               "retrieved_source_pages": [
                 0,
-                3,
-                2,
-                2,
-                4,
-                3,
-                4,
-                3,
-                3,
-                4
+                2
               ]
             },
             "no_answer_diagnostics": {},
@@ -1314,48 +1248,26 @@
                 "text_excerpt": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an airc"
               },
               {
-                "chunk_id": "06_phak_ch4_0-fixed_large-p03-c00",
+                "chunk_id": "06_phak_ch4_0-fixed_large-p02-c01",
                 "metadata": {
                   "chunk_configured_max_chars": 1600,
                   "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-fixed_large-p03-c00",
-                  "chunk_index": 0,
+                  "chunk_id": "06_phak_ch4_0-fixed_large-p02-c01",
+                  "chunk_index": 1,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 246,
-                  "page": 3,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large",
-                  "token_count": 246
-                },
-                "page": 3,
-                "rank": 2,
-                "score": 0.4620350695993155,
-                "source": "vector",
-                "text_excerpt": "4-4\nSince aircraft performance is compared and evaluated with\nrespect to the standard atmosphere, all aircraft instruments are\ncalibrated for the standard atmosphere. In order to properly\naccount for the nonstandard atmosphere, certain rela"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_large-p02-c00",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-fixed_large-p02-c00",
-                  "chunk_index": 0,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 286,
+                  "chunk_token_count": 266,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_large",
-                  "token_count": 286
+                  "token_count": 266
                 },
                 "page": 2,
-                "rank": 3,
-                "score": 0.4549828016166014,
+                "rank": 2,
+                "score": 0.4624433674727196,
                 "source": "vector",
-                "text_excerpt": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude ("
+                "text_excerpt": "tire surface of the object. If the pressure on one\nsurface of the object becomes less than the pressure exerted\non the other surfaces, the object will move in the direction\nof the lower pressure.\nAtmospheric Pressure\nAlthough there are vari"
               }
             ]
           }
@@ -1372,7 +1284,7 @@
             "cq_id": "bv2-xp-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
+              "context_precision_at_5": 0.5,
               "context_recall": 0.5,
               "expected_abstention": false,
               "first_relevant_rank": 1,
@@ -1392,27 +1304,11 @@
               "recall_at_5": true,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-fixed_large-p01-c00",
-                "06_phak_ch4_0-fixed_large-p01-c01",
-                "06_phak_ch4_0-fixed_large-p05-c01",
-                "06_phak_ch4_0-fixed_large-p01-c02",
-                "06_phak_ch4_0-fixed_large-p08-c00",
-                "06_phak_ch4_0-fixed_large-p04-c02",
-                "06_phak_ch4_0-fixed_large-p04-c00",
-                "06_phak_ch4_0-fixed_large-p03-c03",
-                "06_phak_ch4_0-fixed_large-p07-c01",
-                "06_phak_ch4_0-fixed_large-p08-c01"
+                "06_phak_ch4_0-fixed_large-p01-c01"
               ],
               "retrieved_source_pages": [
                 1,
-                1,
-                5,
-                1,
-                8,
-                4,
-                4,
-                3,
-                7,
-                8
+                1
               ]
             },
             "no_answer_diagnostics": {},
@@ -1427,13 +1323,13 @@
                   "chunk_id": "06_phak_ch4_0-fixed_large-p01-c00",
                   "chunk_index": 0,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 259,
+                  "chunk_token_count": 263,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_large",
-                  "token_count": 259
+                  "token_count": 263
                 },
                 "page": 1,
                 "rank": 1,
@@ -1449,41 +1345,19 @@
                   "chunk_id": "06_phak_ch4_0-fixed_large-p01-c01",
                   "chunk_index": 1,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 266,
+                  "chunk_token_count": 273,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_large",
-                  "token_count": 266
+                  "token_count": 273
                 },
                 "page": 1,
                 "rank": 2,
-                "score": 0.4330002377508992,
+                "score": 0.44603400927649467,
                 "source": "vector",
-                "text_excerpt": "le the oil flows much more slowly.\nAs another example, different types of similar liquids will\ndisplay different behaviors because of different viscosities.\nGrease is very viscous. Given time, grease will flow, even\nthough the flow rate wil"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_large-p05-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-fixed_large-p05-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 271,
-                  "page": 5,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large",
-                  "token_count": 271
-                },
-                "page": 5,
-                "rank": 3,
-                "score": 0.42457011848332354,
-                "source": "vector",
-                "text_excerpt": "of a\nmoving fluid (liquid or gas) increases, the pressure within\nthe fluid decreases. This principle explains what happens to\nair passing over the curved top of the airplane wing.\nA practical application of Bernoulli\u2019s Principle is the vent"
+                "text_excerpt": "ch more slowly.\nAs another example, different types of similar liquids will\ndisplay different behaviors because of different viscosities.\nGrease is very viscous. Given time, grease will flow, even\nthough the flow rate will be slow. Motor oi"
               }
             ]
           }
@@ -1493,7 +1367,7 @@
       "missed_gold_evidence_at_5": {
         "samples": [
           {
-            "cq_id": "bv2-sf-006",
+            "cq_id": "bv2-sf-004",
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.0,
@@ -1511,78 +1385,18 @@
               "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-fixed_large-p02-c01",
-                "06_phak_ch4_0-fixed_large-p04-c01",
                 "06_phak_ch4_0-fixed_large-p00-c00",
-                "06_phak_ch4_0-fixed_large-p03-c03",
-                "06_phak_ch4_0-fixed_large-p04-c02",
-                "06_phak_ch4_0-fixed_large-p03-c00",
-                "06_phak_ch4_0-fixed_large-p03-c02",
-                "06_phak_ch4_0-fixed_large-p07-c01",
-                "06_phak_ch4_0-fixed_large-p05-c01",
-                "06_phak_ch4_0-fixed_large-p04-c00"
+                "06_phak_ch4_0-fixed_large-p04-c02"
               ],
               "retrieved_source_pages": [
-                2,
-                4,
                 0,
-                3,
-                4,
-                3,
-                3,
-                7,
-                5,
                 4
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
+            "question": "According to PHAK Chapter 4, what source-backed fact connects gases with air in the evidence mentioning airplane engine pushes?",
             "question_type": "supported_factual",
             "top_hits": [
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_large-p02-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-fixed_large-p02-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 265,
-                  "page": 2,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large",
-                  "token_count": 265
-                },
-                "page": 2,
-                "rank": 1,
-                "score": 0.45689138123918177,
-                "source": "vector",
-                "text_excerpt": "pressure uniformly\naround the entire surface of the object. If the pressure on one\nsurface of the object becomes less than the pressure exerted\non the other surfaces, the object will move in the direction\nof the lower pressure.\nAtmospheric "
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_large-p04-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-fixed_large-p04-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 240,
-                  "page": 4,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large",
-                  "token_count": 240
-                },
-                "page": 4,
-                "rank": 2,
-                "score": 0.4505949189060447,
-                "source": "vector",
-                "text_excerpt": "buting factor.\nAs temperature increases, the air can hold greater amounts\nof water vapor. When comparing two separate air masses,\nthe first warm and moist (both qualities tending to lighten\nthe air) and the second cold and dry (both qualiti"
-              },
               {
                 "chunk_id": "06_phak_ch4_0-fixed_large-p00-c00",
                 "metadata": {
@@ -1600,10 +1414,32 @@
                   "token_count": 188
                 },
                 "page": 0,
-                "rank": 3,
-                "score": 0.44026577991487026,
+                "rank": 1,
+                "score": 0.47609009664189544,
                 "source": "vector",
                 "text_excerpt": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an airc"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_large-p04-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-fixed_large-p04-c02",
+                  "chunk_index": 2,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 251,
+                  "page": 4,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_large",
+                  "token_count": 251
+                },
+                "page": 4,
+                "rank": 2,
+                "score": 0.45097201402148207,
+                "source": "vector",
+                "text_excerpt": "ve charts. In any case, the\neffects of humidity on density altitude include a decrease in\noverall performance in high humidity conditions.\nTheories in the Production of Lift\nIn order to achieve flight in a machine that is heavier than air,\n"
               }
             ]
           }
@@ -1632,27 +1468,11 @@
               "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-fixed_large-p04-c01",
-                "06_phak_ch4_0-fixed_large-p02-c02",
-                "06_phak_ch4_0-fixed_large-p02-c00",
-                "06_phak_ch4_0-fixed_large-p00-c00",
-                "06_phak_ch4_0-fixed_large-p03-c00",
-                "06_phak_ch4_0-fixed_large-p02-c01",
-                "06_phak_ch4_0-fixed_large-p04-c00",
-                "06_phak_ch4_0-fixed_large-p04-c03",
-                "06_phak_ch4_0-fixed_large-p04-c02",
-                "06_phak_ch4_0-fixed_large-p06-c01"
+                "06_phak_ch4_0-fixed_large-p02-c00"
               ],
               "retrieved_source_pages": [
                 4,
-                2,
-                2,
-                0,
-                3,
-                2,
-                4,
-                4,
-                4,
-                6
+                2
               ]
             },
             "no_answer_diagnostics": {
@@ -1673,41 +1493,19 @@
                   "chunk_id": "06_phak_ch4_0-fixed_large-p04-c01",
                   "chunk_index": 1,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 240,
+                  "chunk_token_count": 250,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_large",
-                  "token_count": 240
+                  "token_count": 250
                 },
                 "page": 4,
                 "rank": 1,
-                "score": 0.4400649809468507,
+                "score": 0.43175290865232807,
                 "source": "vector",
-                "text_excerpt": "buting factor.\nAs temperature increases, the air can hold greater amounts\nof water vapor. When comparing two separate air masses,\nthe first warm and moist (both qualities tending to lighten\nthe air) and the second cold and dry (both qualiti"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_large-p02-c02",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-fixed_large-p02-c02",
-                  "chunk_index": 2,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 165,
-                  "page": 2,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large",
-                  "token_count": 165
-                },
-                "page": 2,
-                "rank": 2,
-                "score": 0.42960569685105665,
-                "source": "vector",
-                "text_excerpt": "h time and location.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere at sea\nlevel is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface\npressure of 29.92 inches of mercury (\"Hg) or 1,"
+                "text_excerpt": "he air can hold greater amounts\nof water vapor. When comparing two separate air masses,\nthe first warm and moist (both qualities tending to lighten\nthe air) and the second cold and dry (both qualities making\nit heavier), the first must be l"
               },
               {
                 "chunk_id": "06_phak_ch4_0-fixed_large-p02-c00",
@@ -1717,16 +1515,16 @@
                   "chunk_id": "06_phak_ch4_0-fixed_large-p02-c00",
                   "chunk_index": 0,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 286,
+                  "chunk_token_count": 291,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_large",
-                  "token_count": 286
+                  "token_count": 291
                 },
                 "page": 2,
-                "rank": 3,
+                "rank": 2,
                 "score": 0.42655853435591484,
                 "source": "vector",
                 "text_excerpt": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude ("
@@ -1747,7 +1545,7 @@
       "section_boundary_split": {
         "samples": [
           {
-            "cq_id": "bv2-sf-006",
+            "cq_id": "bv2-sf-004",
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.0,
@@ -1765,78 +1563,18 @@
               "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-fixed_large-p02-c01",
-                "06_phak_ch4_0-fixed_large-p04-c01",
                 "06_phak_ch4_0-fixed_large-p00-c00",
-                "06_phak_ch4_0-fixed_large-p03-c03",
-                "06_phak_ch4_0-fixed_large-p04-c02",
-                "06_phak_ch4_0-fixed_large-p03-c00",
-                "06_phak_ch4_0-fixed_large-p03-c02",
-                "06_phak_ch4_0-fixed_large-p07-c01",
-                "06_phak_ch4_0-fixed_large-p05-c01",
-                "06_phak_ch4_0-fixed_large-p04-c00"
+                "06_phak_ch4_0-fixed_large-p04-c02"
               ],
               "retrieved_source_pages": [
-                2,
-                4,
                 0,
-                3,
-                4,
-                3,
-                3,
-                7,
-                5,
                 4
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
+            "question": "According to PHAK Chapter 4, what source-backed fact connects gases with air in the evidence mentioning airplane engine pushes?",
             "question_type": "supported_factual",
             "top_hits": [
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_large-p02-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-fixed_large-p02-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 265,
-                  "page": 2,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large",
-                  "token_count": 265
-                },
-                "page": 2,
-                "rank": 1,
-                "score": 0.45689138123918177,
-                "source": "vector",
-                "text_excerpt": "pressure uniformly\naround the entire surface of the object. If the pressure on one\nsurface of the object becomes less than the pressure exerted\non the other surfaces, the object will move in the direction\nof the lower pressure.\nAtmospheric "
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_large-p04-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-fixed_large-p04-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 240,
-                  "page": 4,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_large",
-                  "token_count": 240
-                },
-                "page": 4,
-                "rank": 2,
-                "score": 0.4505949189060447,
-                "source": "vector",
-                "text_excerpt": "buting factor.\nAs temperature increases, the air can hold greater amounts\nof water vapor. When comparing two separate air masses,\nthe first warm and moist (both qualities tending to lighten\nthe air) and the second cold and dry (both qualiti"
-              },
               {
                 "chunk_id": "06_phak_ch4_0-fixed_large-p00-c00",
                 "metadata": {
@@ -1854,10 +1592,32 @@
                   "token_count": 188
                 },
                 "page": 0,
-                "rank": 3,
-                "score": 0.44026577991487026,
+                "rank": 1,
+                "score": 0.47609009664189544,
                 "source": "vector",
                 "text_excerpt": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an airc"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_large-p04-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 1600,
+                  "chunk_configured_overlap_chars": 250,
+                  "chunk_id": "06_phak_ch4_0-fixed_large-p04-c02",
+                  "chunk_index": 2,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 251,
+                  "page": 4,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_large",
+                  "token_count": 251
+                },
+                "page": 4,
+                "rank": 2,
+                "score": 0.45097201402148207,
+                "source": "vector",
+                "text_excerpt": "ve charts. In any case, the\neffects of humidity on density altitude include a decrease in\noverall performance in high humidity conditions.\nTheories in the Production of Lift\nIn order to achieve flight in a machine that is heavier than air,\n"
               }
             ]
           }
@@ -1881,121 +1641,109 @@
       "cross_page_evidence_split": {
         "samples": [
           {
-            "cq_id": "bv2-xp-002",
+            "cq_id": "bv2-xp-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
+              "context_precision_at_5": 0.25,
               "context_recall": 0.5,
               "expected_abstention": false,
-              "first_relevant_rank": 2,
+              "first_relevant_rank": 1,
               "gold_level": "span",
               "matched_chunk_ids": [
-                "06_phak_ch4_0-fixed_medium-p03-c00"
+                "06_phak_ch4_0-fixed_medium-p01-c00"
               ],
               "matched_source_pages": [
-                3
+                1
               ],
-              "mrr_at_10": 0.5,
-              "mrr_at_5": 0.5,
-              "ndcg_at_10": 0.3869,
+              "mrr_at_10": 1.0,
+              "mrr_at_5": 1.0,
+              "ndcg_at_10": 0.6131,
               "precision_at_10": 0.1,
               "precision_at_5": 0.2,
               "recall_at_10": true,
               "recall_at_5": true,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-fixed_medium-p00-c00",
-                "06_phak_ch4_0-fixed_medium-p03-c00",
-                "06_phak_ch4_0-fixed_medium-p03-c01",
-                "06_phak_ch4_0-fixed_medium-p03-c02",
-                "06_phak_ch4_0-fixed_medium-p03-c03",
-                "06_phak_ch4_0-fixed_medium-p00-c01",
-                "06_phak_ch4_0-fixed_medium-p04-c01",
-                "06_phak_ch4_0-fixed_medium-p02-c03",
-                "06_phak_ch4_0-fixed_medium-p02-c04",
-                "06_phak_ch4_0-fixed_medium-p04-c02"
+                "06_phak_ch4_0-fixed_medium-p01-c00",
+                "06_phak_ch4_0-fixed_medium-p01-c01",
+                "06_phak_ch4_0-fixed_medium-p01-c03",
+                "06_phak_ch4_0-fixed_medium-p05-c01"
               ],
               "retrieved_source_pages": [
-                0,
-                3,
-                3,
-                3,
-                3,
-                0,
-                4,
-                2,
-                2,
-                4
+                1,
+                1,
+                1,
+                5
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
+            "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
             "question_type": "cross_page",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-fixed_medium-p00-c00",
+                "chunk_id": "06_phak_ch4_0-fixed_medium-p01-c00",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-fixed_medium-p00-c00",
+                  "chunk_id": "06_phak_ch4_0-fixed_medium-p01-c00",
                   "chunk_index": 0,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 146,
-                  "page": 0,
+                  "chunk_token_count": 148,
+                  "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 146
+                  "token_count": 148
                 },
-                "page": 0,
+                "page": 1,
                 "rank": 1,
-                "score": 0.5216214710400433,
+                "score": 0.5016500087040852,
                 "source": "vector",
-                "text_excerpt": "4-1\nIntroduction\nThis chapter examines the fundamental physical laws\ngoverning the forces acting on an aircraft in flight, and\nwhat effect these natural laws and forces have on the\nperformance characteristics of aircraft. To control an airc"
+                "text_excerpt": "4-2\nLeading edge of wing under 1,500x magnification\nFigure 4-1. Microscopic surface of a wing.\nAir is a Fluid\nWhen most people hear the word \u201cfluid,\u201d they usually think\nof liquid. However, gasses, like air, are also fluids. Fluids\ntake on t"
               },
               {
-                "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c00",
+                "chunk_id": "06_phak_ch4_0-fixed_medium-p01-c01",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c00",
-                  "chunk_index": 0,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 139,
-                  "page": 3,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium",
-                  "token_count": 139
-                },
-                "page": 3,
-                "rank": 2,
-                "score": 0.4890007863784561,
-                "source": "vector",
-                "text_excerpt": "4-4\nSince aircraft performance is compared and evaluated with\nrespect to the standard atmosphere, all aircraft instruments are\ncalibrated for the standard atmosphere. In order to properly\naccount for the nonstandard atmosphere, certain rela"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 900,
-                  "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c01",
+                  "chunk_id": "06_phak_ch4_0-fixed_medium-p01-c01",
                   "chunk_index": 1,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 138,
-                  "page": 3,
+                  "chunk_token_count": 150,
+                  "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 138
+                  "token_count": 150
                 },
-                "page": 3,
-                "rank": 3,
-                "score": 0.4863613024539869,
+                "page": 1,
+                "rank": 2,
+                "score": 0.4900368155243253,
                 "source": "vector",
-                "text_excerpt": "vel. Pressure altitude\nis important as a basis for determining airplane performance,\nas well as for assigning flight levels to airplanes operating at\nor above 18,000 feet.\nThe pressure altitude can be determined by one of the\nfollowing meth"
+                "text_excerpt": "anding the principles of flight.\nViscosity\nViscosity is the property of a fluid that causes it to resist\nflowing. The way individual molecules of the fluid tend to\nadhere, or stick, to each other determines how much a fluid\nresists flow. Hi"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_medium-p01-c03",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-fixed_medium-p01-c03",
+                  "chunk_index": 3,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 159,
+                  "page": 1,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_medium",
+                  "token_count": 159
+                },
+                "page": 1,
+                "rank": 3,
+                "score": 0.4351597721563166,
+                "source": "vector",
+                "text_excerpt": "rated using a similar\nexample as before. If identical fluids are poured down two\nidentical ramps, they flow in the same manner and at the\nsame speed. If the surface of one ramp is rough, and the other\nsmooth, the flow down the two ramps dif"
               }
             ]
           }
@@ -2024,25 +1772,15 @@
               "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-fixed_medium-p02-c02",
-                "06_phak_ch4_0-fixed_medium-p03-c06",
                 "06_phak_ch4_0-fixed_medium-p03-c05",
-                "06_phak_ch4_0-fixed_medium-p02-c03",
-                "06_phak_ch4_0-fixed_medium-p00-c01",
-                "06_phak_ch4_0-fixed_medium-p04-c02",
                 "06_phak_ch4_0-fixed_medium-p02-c01",
-                "06_phak_ch4_0-fixed_medium-p05-c03",
-                "06_phak_ch4_0-fixed_medium-p04-c01",
-                "06_phak_ch4_0-fixed_medium-p00-c00"
+                "06_phak_ch4_0-fixed_medium-p04-c02",
+                "06_phak_ch4_0-fixed_medium-p00-c01"
               ],
               "retrieved_source_pages": [
                 2,
                 3,
-                3,
                 2,
-                0,
-                4,
-                2,
-                5,
                 4,
                 0
               ]
@@ -2059,41 +1797,19 @@
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c02",
                   "chunk_index": 2,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 139,
+                  "chunk_token_count": 145,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 139
+                  "token_count": 145
                 },
                 "page": 2,
                 "rank": 1,
-                "score": 0.4741446006825198,
+                "score": 0.48019037699081674,
                 "source": "vector",
-                "text_excerpt": "surfaces, the object will move in the direction\nof the lower pressure.\nAtmospheric Pressure\nAlthough there are various kinds of pressure, pilots are\nmainly concerned with atmospheric pressure. It is one of\nthe basic factors in weather chang"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c06",
-                "metadata": {
-                  "chunk_configured_max_chars": 900,
-                  "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c06",
-                  "chunk_index": 6,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 99,
-                  "page": 3,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium",
-                  "token_count": 99
-                },
-                "page": 3,
-                "rank": 2,
-                "score": 0.45940270804510935,
-                "source": "vector",
-                "text_excerpt": "doubled; if the pressure is lowered, the density is\nlowered. This statement is true only at a constant temperature.\nEffect of Temperature on Density\nIncreasing the temperature of a substance decreases its\ndensity. Conversely, decreasing the"
+                "text_excerpt": "ject will move in the direction\nof the lower pressure.\nAtmospheric Pressure\nAlthough there are various kinds of pressure, pilots are\nmainly concerned with atmospheric pressure. It is one of\nthe basic factors in weather changes, helps to lif"
               },
               {
                 "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c05",
@@ -2103,19 +1819,41 @@
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c05",
                   "chunk_index": 5,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 146,
+                  "chunk_token_count": 145,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 146
+                  "token_count": 145
                 },
                 "page": 3,
-                "rank": 3,
-                "score": 0.45475119843301104,
+                "rank": 2,
+                "score": 0.4623965154101708,
                 "source": "vector",
-                "text_excerpt": "ult in a high density altitude are high elevations, low\natmospheric pressures, high temperatures, high humidity, or\nsome combination of these factors. Lower elevations, high\natmospheric pressure, low temperatures, and low humidity\nare more "
+                "text_excerpt": ", low\natmospheric pressures, high temperatures, high humidity, or\nsome combination of these factors. Lower elevations, high\natmospheric pressure, low temperatures, and low humidity\nare more indicative of low density altitude.\nEffect of Pres"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c01",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c01",
+                  "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 154,
+                  "page": 2,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_medium",
+                  "token_count": 154
+                },
+                "page": 2,
+                "rank": 3,
+                "score": 0.44996355441367075,
+                "source": "vector",
+                "text_excerpt": "5\n1.9\n-1.6\n-5.2\n-8.8\n-12.3\nFigure 4-3. Properties of standard atmosphere.\nOnce the boundary layer of the air adheres to the wing by\nfriction, further resistance to the airflow is caused by the\nviscosity, the tendency of the air to stick to "
               }
             ]
           }
@@ -2145,26 +1883,14 @@
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-fixed_medium-p04-c02",
                 "06_phak_ch4_0-fixed_medium-p02-c03",
-                "06_phak_ch4_0-fixed_medium-p02-c00",
                 "06_phak_ch4_0-fixed_medium-p04-c03",
-                "06_phak_ch4_0-fixed_medium-p02-c04",
-                "06_phak_ch4_0-fixed_medium-p00-c00",
-                "06_phak_ch4_0-fixed_medium-p03-c00",
-                "06_phak_ch4_0-fixed_medium-p04-c01",
-                "06_phak_ch4_0-fixed_medium-p03-c01",
-                "06_phak_ch4_0-fixed_medium-p00-c01"
+                "06_phak_ch4_0-fixed_medium-p02-c00"
               ],
               "retrieved_source_pages": [
                 4,
                 2,
-                2,
                 4,
-                2,
-                0,
-                3,
-                4,
-                3,
-                0
+                2
               ]
             },
             "no_answer_diagnostics": {
@@ -2185,19 +1911,19 @@
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p04-c02",
                   "chunk_index": 2,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 134,
+                  "chunk_token_count": 144,
                   "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 134
+                  "token_count": 144
                 },
                 "page": 4,
                 "rank": 1,
-                "score": 0.44571892445000766,
+                "score": 0.4649394137177559,
                 "source": "vector",
-                "text_excerpt": "h qualities tending to lighten\nthe air) and the second cold and dry (both qualities making\nit heavier), the first must be less dense than the second.\nPressure, temperature, and humidity have a great influence\non aircraft performance because"
+                "text_excerpt": "ten\nthe air) and the second cold and dry (both qualities making\nit heavier), the first must be less dense than the second.\nPressure, temperature, and humidity have a great influence\non aircraft performance because of their effect upon densi"
               },
               {
                 "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c03",
@@ -2207,41 +1933,41 @@
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c03",
                   "chunk_index": 3,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 146,
+                  "chunk_token_count": 156,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 146
+                  "token_count": 156
                 },
                 "page": 2,
                 "rank": 2,
-                "score": 0.4451155006393163,
+                "score": 0.4445529307682842,
                 "source": "vector",
-                "text_excerpt": "hin the air is called pressure.\nUnder standard conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is approximately\n14.70 pounds per square inch (psi) of surface, or 1,013.2\nmillibars (mb). The thickness of"
+                "text_excerpt": "conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is approximately\n14.70 pounds per square inch (psi) of surface, or 1,013.2\nmillibars (mb). The thickness of the atmosphere is limited;\ntherefore, the high"
               },
               {
-                "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c00",
+                "chunk_id": "06_phak_ch4_0-fixed_medium-p04-c03",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c00",
-                  "chunk_index": 0,
+                  "chunk_id": "06_phak_ch4_0-fixed_medium-p04-c03",
+                  "chunk_index": 3,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 167,
-                  "page": 2,
+                  "chunk_token_count": 140,
+                  "page": 4,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 167
+                  "token_count": 140
                 },
-                "page": 2,
+                "page": 4,
                 "rank": 3,
-                "score": 0.42655853435591484,
+                "score": 0.4319683682830904,
                 "source": "vector",
-                "text_excerpt": "4-3\n30\n25\n20\n15\n10\n5\n0\nInches of\nMercury\nMillibars\n1016\n847\n677\n508\n339\n170\n0\n29.92\nStandard\nSea Level\nPressure\nHg\n1013\nStandard\nSea Level\nPressure\nmb\nA t m o s p h e r i c P r e s s u r e\nFigure 4-2. Standard sea level pressure.\nAltitude ("
+                "text_excerpt": "r density altitude, enter\nthe 22.22 for 8,000 feet in the station pressure window. Enter\na temperature of 80\u00b0 and a dew point of 75\u00b0. The result is a\ndensity altitude of 11,564 feet. With no humidity, the density\naltitude would be almost 50"
               }
             ]
           }
@@ -2278,25 +2004,15 @@
               "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-fixed_medium-p02-c02",
-                "06_phak_ch4_0-fixed_medium-p03-c06",
                 "06_phak_ch4_0-fixed_medium-p03-c05",
-                "06_phak_ch4_0-fixed_medium-p02-c03",
-                "06_phak_ch4_0-fixed_medium-p00-c01",
-                "06_phak_ch4_0-fixed_medium-p04-c02",
                 "06_phak_ch4_0-fixed_medium-p02-c01",
-                "06_phak_ch4_0-fixed_medium-p05-c03",
-                "06_phak_ch4_0-fixed_medium-p04-c01",
-                "06_phak_ch4_0-fixed_medium-p00-c00"
+                "06_phak_ch4_0-fixed_medium-p04-c02",
+                "06_phak_ch4_0-fixed_medium-p00-c01"
               ],
               "retrieved_source_pages": [
                 2,
                 3,
-                3,
                 2,
-                0,
-                4,
-                2,
-                5,
                 4,
                 0
               ]
@@ -2313,41 +2029,19 @@
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c02",
                   "chunk_index": 2,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 139,
+                  "chunk_token_count": 145,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 139
+                  "token_count": 145
                 },
                 "page": 2,
                 "rank": 1,
-                "score": 0.4741446006825198,
+                "score": 0.48019037699081674,
                 "source": "vector",
-                "text_excerpt": "surfaces, the object will move in the direction\nof the lower pressure.\nAtmospheric Pressure\nAlthough there are various kinds of pressure, pilots are\nmainly concerned with atmospheric pressure. It is one of\nthe basic factors in weather chang"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c06",
-                "metadata": {
-                  "chunk_configured_max_chars": 900,
-                  "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c06",
-                  "chunk_index": 6,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 99,
-                  "page": 3,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_medium",
-                  "token_count": 99
-                },
-                "page": 3,
-                "rank": 2,
-                "score": 0.45940270804510935,
-                "source": "vector",
-                "text_excerpt": "doubled; if the pressure is lowered, the density is\nlowered. This statement is true only at a constant temperature.\nEffect of Temperature on Density\nIncreasing the temperature of a substance decreases its\ndensity. Conversely, decreasing the"
+                "text_excerpt": "ject will move in the direction\nof the lower pressure.\nAtmospheric Pressure\nAlthough there are various kinds of pressure, pilots are\nmainly concerned with atmospheric pressure. It is one of\nthe basic factors in weather changes, helps to lif"
               },
               {
                 "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c05",
@@ -2357,19 +2051,41 @@
                   "chunk_id": "06_phak_ch4_0-fixed_medium-p03-c05",
                   "chunk_index": 5,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 146,
+                  "chunk_token_count": 145,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_medium",
-                  "token_count": 146
+                  "token_count": 145
                 },
                 "page": 3,
-                "rank": 3,
-                "score": 0.45475119843301104,
+                "rank": 2,
+                "score": 0.4623965154101708,
                 "source": "vector",
-                "text_excerpt": "ult in a high density altitude are high elevations, low\natmospheric pressures, high temperatures, high humidity, or\nsome combination of these factors. Lower elevations, high\natmospheric pressure, low temperatures, and low humidity\nare more "
+                "text_excerpt": ", low\natmospheric pressures, high temperatures, high humidity, or\nsome combination of these factors. Lower elevations, high\natmospheric pressure, low temperatures, and low humidity\nare more indicative of low density altitude.\nEffect of Pres"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c01",
+                "metadata": {
+                  "chunk_configured_max_chars": 900,
+                  "chunk_configured_overlap_chars": 150,
+                  "chunk_id": "06_phak_ch4_0-fixed_medium-p02-c01",
+                  "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 154,
+                  "page": 2,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_medium",
+                  "token_count": 154
+                },
+                "page": 2,
+                "rank": 3,
+                "score": 0.44996355441367075,
+                "source": "vector",
+                "text_excerpt": "5\n1.9\n-1.6\n-5.2\n-8.8\n-12.3\nFigure 4-3. Properties of standard atmosphere.\nOnce the boundary layer of the air adheres to the wing by\nfriction, further resistance to the airflow is caused by the\nviscosity, the tendency of the air to stick to "
               }
             ]
           }
@@ -2389,7 +2105,7 @@
       "chunk_too_small_lost_context": {
         "samples": [
           {
-            "cq_id": "bv2-sf-006",
+            "cq_id": "bv2-sf-002",
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.0,
@@ -2407,63 +2123,85 @@
               "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-fixed_small-p02-c07",
-                "06_phak_ch4_0-fixed_small-p03-c13",
-                "06_phak_ch4_0-fixed_small-p03-c16",
+                "06_phak_ch4_0-fixed_small-p03-c04",
+                "06_phak_ch4_0-fixed_small-p03-c06",
+                "06_phak_ch4_0-fixed_small-p03-c10",
+                "06_phak_ch4_0-fixed_small-p03-c11",
                 "06_phak_ch4_0-fixed_small-p03-c15",
-                "06_phak_ch4_0-fixed_small-p05-c00",
-                "06_phak_ch4_0-fixed_small-p02-c03",
-                "06_phak_ch4_0-fixed_small-p05-c08",
-                "06_phak_ch4_0-fixed_small-p02-c06",
-                "06_phak_ch4_0-fixed_small-p04-c06",
-                "06_phak_ch4_0-fixed_small-p05-c06"
+                "06_phak_ch4_0-fixed_small-p04-c08",
+                "06_phak_ch4_0-fixed_small-p03-c12",
+                "06_phak_ch4_0-fixed_small-p03-c09",
+                "06_phak_ch4_0-fixed_small-p03-c07",
+                "06_phak_ch4_0-fixed_small-p03-c08"
               ],
               "retrieved_source_pages": [
-                2,
                 3,
                 3,
                 3,
-                5,
-                2,
-                5,
-                2,
+                3,
+                3,
                 4,
-                5
+                3,
+                3,
+                3,
+                3
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "According to PHAK Chapter 4, what source-backed fact connects air with pressure in the evidence mentioning certain amount generated?",
+            "question": "According to PHAK Chapter 4, what source-backed fact connects density altitude with aircraft performance in the evidence mentioning density lower density?",
             "question_type": "supported_factual",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p02-c07",
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c04",
                 "metadata": {
                   "chunk_configured_max_chars": 400,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p02-c07",
-                  "chunk_index": 7,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c04",
+                  "chunk_index": 4,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 61,
-                  "page": 2,
+                  "chunk_token_count": 62,
+                  "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_small",
-                  "token_count": 61
+                  "token_count": 62
                 },
-                "page": 2,
+                "page": 3,
                 "rank": 1,
-                "score": 0.4907962480796385,
+                "score": 0.5904021351470343,
                 "source": "vector",
-                "text_excerpt": "Since\nair is a fluid substance, this force is exerted equally in all\ndirections. Its effect on bodies within the air is called pressure.\nUnder standard conditions at sea level, the average pressure\nexerted by the weight of the atmosphere is"
+                "text_excerpt": "a\nnonstandard atmosphere and the term density altitude is used\nfor correlating aerodynamic performance in the nonstandard\natmosphere. Density altitude is the vertical distance above sea\nlevel in the standard atmosphere at which a given dens"
               },
               {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c13",
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c06",
                 "metadata": {
                   "chunk_configured_max_chars": 400,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c13",
-                  "chunk_index": 13,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c06",
+                  "chunk_index": 6,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 55,
+                  "page": 3,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_small",
+                  "token_count": 55
+                },
+                "page": 3,
+                "rank": 2,
+                "score": 0.576575942497248,
+                "source": "vector",
+                "text_excerpt": "the density of the air increases (lower\ndensity altitude), aircraft performance increases; conversely\nas air density decreases (higher density altitude), aircraft\nperformance decreases. A decrease in air density means\na high density altitud"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c10",
+                "metadata": {
+                  "chunk_configured_max_chars": 400,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c10",
+                  "chunk_index": 10,
                   "chunk_profile_family": "fixed_window",
                   "chunk_token_count": 65,
                   "page": 3,
@@ -2474,32 +2212,10 @@
                   "token_count": 65
                 },
                 "page": 3,
-                "rank": 2,
-                "score": 0.47542681170931944,
-                "source": "vector",
-                "text_excerpt": "es, high humidity, or\nsome combination of these factors. Lower elevations, high\natmospheric pressure, low temperatures, and low humidity\nare more indicative of low density altitude.\nEffect of Pressure on Density\nSince air is a gas, it can b"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c16",
-                "metadata": {
-                  "chunk_configured_max_chars": 400,
-                  "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c16",
-                  "chunk_index": 16,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 57,
-                  "page": 3,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small",
-                  "token_count": 57
-                },
-                "page": 3,
                 "rank": 3,
-                "score": 0.46840991719662356,
+                "score": 0.5717064982431079,
                 "source": "vector",
-                "text_excerpt": "creases\nthe density. Thus, the density of air varies inversely with\ntemperature. This statement is true only at a constant pressure.\nIn the atmosphere, both temperature and pressure decrease\nwith altitude and have conflicting effects upon d"
+                "text_excerpt": "ng the density to vary. However, a known density\noccurs for any one temperature and pressure altitude. The\ndensity of the air has a pronounced effect on aircraft and\nengine performance. Regardless of the actual altitude of the\naircraft, it "
               }
             ]
           }
@@ -2515,7 +2231,7 @@
               "context_precision_at_5": 0.2,
               "context_recall": 0.5,
               "expected_abstention": false,
-              "first_relevant_rank": 2,
+              "first_relevant_rank": 1,
               "gold_level": "span",
               "matched_chunk_ids": [
                 "06_phak_ch4_0-fixed_small-p01-c01"
@@ -2523,24 +2239,24 @@
               "matched_source_pages": [
                 1
               ],
-              "mrr_at_10": 0.5,
-              "mrr_at_5": 0.5,
-              "ndcg_at_10": 0.3869,
+              "mrr_at_10": 1.0,
+              "mrr_at_5": 1.0,
+              "ndcg_at_10": 0.6131,
               "precision_at_10": 0.1,
               "precision_at_5": 0.2,
               "recall_at_10": true,
               "recall_at_5": true,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-fixed_small-p01-c02",
                 "06_phak_ch4_0-fixed_small-p01-c01",
+                "06_phak_ch4_0-fixed_small-p01-c02",
                 "06_phak_ch4_0-fixed_small-p01-c03",
                 "06_phak_ch4_0-fixed_small-p01-c00",
                 "06_phak_ch4_0-fixed_small-p01-c04",
-                "06_phak_ch4_0-fixed_small-p05-c03",
-                "06_phak_ch4_0-fixed_small-p05-c04",
                 "06_phak_ch4_0-fixed_small-p01-c07",
-                "06_phak_ch4_0-fixed_small-p01-c09",
-                "06_phak_ch4_0-fixed_small-p04-c01"
+                "06_phak_ch4_0-fixed_small-p05-c04",
+                "06_phak_ch4_0-fixed_small-p05-c03",
+                "06_phak_ch4_0-fixed_small-p01-c08",
+                "06_phak_ch4_0-fixed_small-p01-c06"
               ],
               "retrieved_source_pages": [
                 1,
@@ -2548,11 +2264,11 @@
                 1,
                 1,
                 1,
+                1,
                 5,
                 5,
                 1,
-                1,
-                4
+                1
               ]
             },
             "no_answer_diagnostics": {},
@@ -2560,34 +2276,34 @@
             "question_type": "cross_page",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p01-c02",
-                "metadata": {
-                  "chunk_configured_max_chars": 400,
-                  "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p01-c02",
-                  "chunk_index": 2,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 62,
-                  "page": 1,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small",
-                  "token_count": 62
-                },
-                "page": 1,
-                "rank": 1,
-                "score": 0.5426409828748954,
-                "source": "vector",
-                "text_excerpt": "splay these\nunique fluid properties, even though they differ greatly in\ndensity. Understanding the fluid properties of air is essential\nto understanding the principles of flight.\nViscosity\nViscosity is the property of a fluid that causes it"
-              },
-              {
                 "chunk_id": "06_phak_ch4_0-fixed_small-p01-c01",
                 "metadata": {
                   "chunk_configured_max_chars": 400,
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p01-c01",
                   "chunk_index": 1,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 65,
+                  "page": 1,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_small",
+                  "token_count": 65
+                },
+                "page": 1,
+                "rank": 1,
+                "score": 0.5356546930211641,
+                "source": "vector",
+                "text_excerpt": "n even the smallest stress is applied,\nor they resist it only slightly. We call this slight resistance\nviscosity. Fluids also have the ability to flow. Just as a liquid\nflows and fills a container, air will expand to fill the available\nvolu"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_small-p01-c02",
+                "metadata": {
+                  "chunk_configured_max_chars": 400,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p01-c02",
+                  "chunk_index": 2,
                   "chunk_profile_family": "fixed_window",
                   "chunk_token_count": 63,
                   "page": 1,
@@ -2599,9 +2315,9 @@
                 },
                 "page": 1,
                 "rank": 2,
-                "score": 0.5172508506689166,
+                "score": 0.5329346481617231,
                 "source": "vector",
-                "text_excerpt": "ation when even the smallest stress is applied,\nor they resist it only slightly. We call this slight resistance\nviscosity. Fluids also have the ability to flow. Just as a liquid\nflows and fills a container, air will expand to fill the avail"
+                "text_excerpt": "properties, even though they differ greatly in\ndensity. Understanding the fluid properties of air is essential\nto understanding the principles of flight.\nViscosity\nViscosity is the property of a fluid that causes it to resist\nflowing. The w"
               },
               {
                 "chunk_id": "06_phak_ch4_0-fixed_small-p01-c03",
@@ -2611,19 +2327,19 @@
                   "chunk_id": "06_phak_ch4_0-fixed_small-p01-c03",
                   "chunk_index": 3,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 64,
+                  "chunk_token_count": 66,
                   "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_small",
-                  "token_count": 64
+                  "token_count": 66
                 },
                 "page": 1,
                 "rank": 3,
-                "score": 0.5044964922504088,
+                "score": 0.5036763063532588,
                 "source": "vector",
-                "text_excerpt": "end to\nadhere, or stick, to each other determines how much a fluid\nresists flow. High-viscosity fluids are \u201cthick\u201d and resist flow;\nlow-viscosity fluids are \u201cthin\u201d and flow easily. Air has a low\nviscosity and flows easily.\nUsing two liquids"
+                "text_excerpt": "determines how much a fluid\nresists flow. High-viscosity fluids are \u201cthick\u201d and resist flow;\nlow-viscosity fluids are \u201cthin\u201d and flow easily. Air has a low\nviscosity and flows easily.\nUsing two liquids as an example, similar amounts of oil "
               }
             ]
           }
@@ -2637,34 +2353,30 @@
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.0,
-              "context_recall": 1.0,
+              "context_recall": 0.0,
               "expected_abstention": false,
-              "first_relevant_rank": 10,
+              "first_relevant_rank": null,
               "gold_level": "span",
-              "matched_chunk_ids": [
-                "06_phak_ch4_0-fixed_small-p03-c06"
-              ],
-              "matched_source_pages": [
-                3
-              ],
-              "mrr_at_10": 0.1,
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
               "mrr_at_5": 0.0,
-              "ndcg_at_10": 0.2891,
-              "precision_at_10": 0.1,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
               "precision_at_5": 0.0,
-              "recall_at_10": true,
+              "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-fixed_small-p03-c07",
-                "06_phak_ch4_0-fixed_small-p03-c11",
-                "06_phak_ch4_0-fixed_small-p03-c08",
-                "06_phak_ch4_0-fixed_small-p03-c17",
-                "06_phak_ch4_0-fixed_small-p03-c05",
-                "06_phak_ch4_0-fixed_small-p04-c04",
                 "06_phak_ch4_0-fixed_small-p03-c04",
+                "06_phak_ch4_0-fixed_small-p03-c06",
+                "06_phak_ch4_0-fixed_small-p03-c10",
+                "06_phak_ch4_0-fixed_small-p03-c11",
+                "06_phak_ch4_0-fixed_small-p03-c15",
+                "06_phak_ch4_0-fixed_small-p04-c08",
                 "06_phak_ch4_0-fixed_small-p03-c12",
-                "06_phak_ch4_0-fixed_small-p04-c09",
-                "06_phak_ch4_0-fixed_small-p03-c06"
+                "06_phak_ch4_0-fixed_small-p03-c09",
+                "06_phak_ch4_0-fixed_small-p03-c07",
+                "06_phak_ch4_0-fixed_small-p03-c08"
               ],
               "retrieved_source_pages": [
                 3,
@@ -2675,7 +2387,7 @@
                 4,
                 3,
                 3,
-                4,
+                3,
                 3
               ]
             },
@@ -2684,34 +2396,12 @@
             "question_type": "supported_factual",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c07",
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c04",
                 "metadata": {
                   "chunk_configured_max_chars": 400,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c07",
-                  "chunk_index": 7,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 57,
-                  "page": 3,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small",
-                  "token_count": 57
-                },
-                "page": 3,
-                "rank": 1,
-                "score": 0.5872068466099802,
-                "source": "vector",
-                "text_excerpt": "sity altitude), aircraft\nperformance decreases. A decrease in air density means\na high density altitude; an increase in air density means a\nlower density altitude. Density altitude is used in calculating\naircraft performance because under s"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c11",
-                "metadata": {
-                  "chunk_configured_max_chars": 400,
-                  "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c11",
-                  "chunk_index": 11,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c04",
+                  "chunk_index": 4,
                   "chunk_profile_family": "fixed_window",
                   "chunk_token_count": 62,
                   "page": 3,
@@ -2722,32 +2412,54 @@
                   "token_count": 62
                 },
                 "page": 3,
-                "rank": 2,
-                "score": 0.5813970718646322,
+                "rank": 1,
+                "score": 0.5904021351470343,
                 "source": "vector",
-                "text_excerpt": "ever, a known density\noccurs for any one temperature and pressure altitude. The\ndensity of the air has a pronounced effect on aircraft and\nengine performance. Regardless of the actual altitude of the\naircraft, it will perform as though it w"
+                "text_excerpt": "a\nnonstandard atmosphere and the term density altitude is used\nfor correlating aerodynamic performance in the nonstandard\natmosphere. Density altitude is the vertical distance above sea\nlevel in the standard atmosphere at which a given dens"
               },
               {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c08",
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c06",
                 "metadata": {
                   "chunk_configured_max_chars": 400,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c08",
-                  "chunk_index": 8,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c06",
+                  "chunk_index": 6,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 51,
+                  "chunk_token_count": 55,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_small",
-                  "token_count": 51
+                  "token_count": 55
+                },
+                "page": 3,
+                "rank": 2,
+                "score": 0.576575942497248,
+                "source": "vector",
+                "text_excerpt": "the density of the air increases (lower\ndensity altitude), aircraft performance increases; conversely\nas air density decreases (higher density altitude), aircraft\nperformance decreases. A decrease in air density means\na high density altitud"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c10",
+                "metadata": {
+                  "chunk_configured_max_chars": 400,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c10",
+                  "chunk_index": 10,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 65,
+                  "page": 3,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_small",
+                  "token_count": 65
                 },
                 "page": 3,
                 "rank": 3,
-                "score": 0.5606378671534266,
+                "score": 0.5717064982431079,
                 "source": "vector",
-                "text_excerpt": "ere not only has\na specific density, its pressure altitude and density altitude\nidentify the same level.\nThe computation of density altitude involves consideration\nof pressure (pressure altitude) and temperature. Since aircraft\nperformance "
+                "text_excerpt": "ng the density to vary. However, a known density\noccurs for any one temperature and pressure altitude. The\ndensity of the air has a pronounced effect on aircraft and\nengine performance. Regardless of the actual altitude of the\naircraft, it "
               }
             ]
           }
@@ -2775,28 +2487,28 @@
               "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-fixed_small-p02-c09",
-                "06_phak_ch4_0-fixed_small-p04-c05",
+                "06_phak_ch4_0-fixed_small-p02-c08",
                 "06_phak_ch4_0-fixed_small-p04-c07",
-                "06_phak_ch4_0-fixed_small-p03-c03",
                 "06_phak_ch4_0-fixed_small-p04-c06",
                 "06_phak_ch4_0-fixed_small-p02-c00",
+                "06_phak_ch4_0-fixed_small-p02-c07",
                 "06_phak_ch4_0-fixed_small-p02-c02",
                 "06_phak_ch4_0-fixed_small-p02-c10",
-                "06_phak_ch4_0-fixed_small-p02-c11",
-                "06_phak_ch4_0-fixed_small-p02-c08"
+                "06_phak_ch4_0-fixed_small-p04-c05",
+                "06_phak_ch4_0-fixed_small-p02-c09",
+                "06_phak_ch4_0-fixed_small-p03-c00"
               ],
               "retrieved_source_pages": [
                 2,
                 4,
                 4,
-                3,
+                2,
+                2,
+                2,
+                2,
                 4,
                 2,
-                2,
-                2,
-                2,
-                2
+                3
               ]
             },
             "no_answer_diagnostics": {
@@ -2810,48 +2522,26 @@
             "question_type": "insufficient_evidence",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p02-c09",
+                "chunk_id": "06_phak_ch4_0-fixed_small-p02-c08",
                 "metadata": {
                   "chunk_configured_max_chars": 400,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p02-c09",
-                  "chunk_index": 9,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p02-c08",
+                  "chunk_index": 8,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 64,
+                  "chunk_token_count": 69,
                   "page": 2,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_small",
-                  "token_count": 64
+                  "token_count": 69
                 },
                 "page": 2,
                 "rank": 1,
-                "score": 0.4290136862732884,
+                "score": 0.42609365253839543,
                 "source": "vector",
-                "text_excerpt": "n.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere at sea\nlevel is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface\npressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb.\n[Figure "
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p04-c05",
-                "metadata": {
-                  "chunk_configured_max_chars": 400,
-                  "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p04-c05",
-                  "chunk_index": 5,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 65,
-                  "page": 4,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small",
-                  "token_count": 65
-                },
-                "page": 4,
-                "rank": 2,
-                "score": 0.42564766518631036,
-                "source": "vector",
-                "text_excerpt": "tending to lighten\nthe air) and the second cold and dry (both qualities making\nit heavier), the first must be less dense than the second.\nPressure, temperature, and humidity have a great influence\non aircraft performance because of their ef"
+                "text_excerpt": "eight of the atmosphere at 18,000 feet\nis one-half what it is at sea level.\nThe pressure of the atmosphere varies with time and location.\nDue to the changing atmospheric pressure, a standard\nreference was developed. The standard atmosphere "
               },
               {
                 "chunk_id": "06_phak_ch4_0-fixed_small-p04-c07",
@@ -2860,6 +2550,28 @@
                   "chunk_configured_overlap_chars": 80,
                   "chunk_id": "06_phak_ch4_0-fixed_small-p04-c07",
                   "chunk_index": 7,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 59,
+                  "page": 4,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_small",
+                  "token_count": 59
+                },
+                "page": 4,
+                "rank": 2,
+                "score": 0.4220967853933297,
+                "source": "vector",
+                "text_excerpt": "wxcalc_densityaltitude) for density altitude, enter\nthe 22.22 for 8,000 feet in the station pressure window. Enter\na temperature of 80\u00b0 and a dew point of 75\u00b0. The result is a\ndensity altitude of 11,564 feet. With no humidity, the density\na"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_small-p04-c06",
+                "metadata": {
+                  "chunk_configured_max_chars": 400,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p04-c06",
+                  "chunk_index": 6,
                   "chunk_profile_family": "fixed_window",
                   "chunk_token_count": 57,
                   "page": 4,
@@ -2871,9 +2583,9 @@
                 },
                 "page": 4,
                 "rank": 3,
-                "score": 0.42452190344901575,
+                "score": 0.4215007908094163,
                 "source": "vector",
-                "text_excerpt": "pressure at 8,000 feet\nis 22.22 \"Hg. Using the National Oceanic and Atmospheric\nAdministration (NOAA) website (www.srh.noaa.gov/\nepz/?n=wxcalc_densityaltitude) for density altitude, enter\nthe 22.22 for 8,000 feet in the station pressure win"
+                "text_excerpt": "pressure is needed at the\naltitude for which density altitude is being sought. Using\nFigure 4-2, select the barometric pressure closest to the\nassociated altitude. As an example, the pressure at 8,000 feet\nis 22.22 \"Hg. Using the National O"
               }
             ]
           }
@@ -2895,34 +2607,30 @@
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.0,
-              "context_recall": 1.0,
+              "context_recall": 0.0,
               "expected_abstention": false,
-              "first_relevant_rank": 10,
+              "first_relevant_rank": null,
               "gold_level": "span",
-              "matched_chunk_ids": [
-                "06_phak_ch4_0-fixed_small-p03-c06"
-              ],
-              "matched_source_pages": [
-                3
-              ],
-              "mrr_at_10": 0.1,
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
               "mrr_at_5": 0.0,
-              "ndcg_at_10": 0.2891,
-              "precision_at_10": 0.1,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
               "precision_at_5": 0.0,
-              "recall_at_10": true,
+              "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-fixed_small-p03-c07",
-                "06_phak_ch4_0-fixed_small-p03-c11",
-                "06_phak_ch4_0-fixed_small-p03-c08",
-                "06_phak_ch4_0-fixed_small-p03-c17",
-                "06_phak_ch4_0-fixed_small-p03-c05",
-                "06_phak_ch4_0-fixed_small-p04-c04",
                 "06_phak_ch4_0-fixed_small-p03-c04",
+                "06_phak_ch4_0-fixed_small-p03-c06",
+                "06_phak_ch4_0-fixed_small-p03-c10",
+                "06_phak_ch4_0-fixed_small-p03-c11",
+                "06_phak_ch4_0-fixed_small-p03-c15",
+                "06_phak_ch4_0-fixed_small-p04-c08",
                 "06_phak_ch4_0-fixed_small-p03-c12",
-                "06_phak_ch4_0-fixed_small-p04-c09",
-                "06_phak_ch4_0-fixed_small-p03-c06"
+                "06_phak_ch4_0-fixed_small-p03-c09",
+                "06_phak_ch4_0-fixed_small-p03-c07",
+                "06_phak_ch4_0-fixed_small-p03-c08"
               ],
               "retrieved_source_pages": [
                 3,
@@ -2933,7 +2641,7 @@
                 4,
                 3,
                 3,
-                4,
+                3,
                 3
               ]
             },
@@ -2942,34 +2650,12 @@
             "question_type": "supported_factual",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c07",
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c04",
                 "metadata": {
                   "chunk_configured_max_chars": 400,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c07",
-                  "chunk_index": 7,
-                  "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 57,
-                  "page": 3,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "fixed_small",
-                  "token_count": 57
-                },
-                "page": 3,
-                "rank": 1,
-                "score": 0.5872068466099802,
-                "source": "vector",
-                "text_excerpt": "sity altitude), aircraft\nperformance decreases. A decrease in air density means\na high density altitude; an increase in air density means a\nlower density altitude. Density altitude is used in calculating\naircraft performance because under s"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c11",
-                "metadata": {
-                  "chunk_configured_max_chars": 400,
-                  "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c11",
-                  "chunk_index": 11,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c04",
+                  "chunk_index": 4,
                   "chunk_profile_family": "fixed_window",
                   "chunk_token_count": 62,
                   "page": 3,
@@ -2980,32 +2666,54 @@
                   "token_count": 62
                 },
                 "page": 3,
-                "rank": 2,
-                "score": 0.5813970718646322,
+                "rank": 1,
+                "score": 0.5904021351470343,
                 "source": "vector",
-                "text_excerpt": "ever, a known density\noccurs for any one temperature and pressure altitude. The\ndensity of the air has a pronounced effect on aircraft and\nengine performance. Regardless of the actual altitude of the\naircraft, it will perform as though it w"
+                "text_excerpt": "a\nnonstandard atmosphere and the term density altitude is used\nfor correlating aerodynamic performance in the nonstandard\natmosphere. Density altitude is the vertical distance above sea\nlevel in the standard atmosphere at which a given dens"
               },
               {
-                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c08",
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c06",
                 "metadata": {
                   "chunk_configured_max_chars": 400,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c08",
-                  "chunk_index": 8,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c06",
+                  "chunk_index": 6,
                   "chunk_profile_family": "fixed_window",
-                  "chunk_token_count": 51,
+                  "chunk_token_count": 55,
                   "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "fixed_small",
-                  "token_count": 51
+                  "token_count": 55
+                },
+                "page": 3,
+                "rank": 2,
+                "score": 0.576575942497248,
+                "source": "vector",
+                "text_excerpt": "the density of the air increases (lower\ndensity altitude), aircraft performance increases; conversely\nas air density decreases (higher density altitude), aircraft\nperformance decreases. A decrease in air density means\na high density altitud"
+              },
+              {
+                "chunk_id": "06_phak_ch4_0-fixed_small-p03-c10",
+                "metadata": {
+                  "chunk_configured_max_chars": 400,
+                  "chunk_configured_overlap_chars": 80,
+                  "chunk_id": "06_phak_ch4_0-fixed_small-p03-c10",
+                  "chunk_index": 10,
+                  "chunk_profile_family": "fixed_window",
+                  "chunk_token_count": 65,
+                  "page": 3,
+                  "section": "",
+                  "source_document": "06_phak_ch4_0",
+                  "source_path": "data/raw/06_phak_ch4_0.pdf",
+                  "strategy": "fixed_small",
+                  "token_count": 65
                 },
                 "page": 3,
                 "rank": 3,
-                "score": 0.5606378671534266,
+                "score": 0.5717064982431079,
                 "source": "vector",
-                "text_excerpt": "ere not only has\na specific density, its pressure altitude and density altitude\nidentify the same level.\nThe computation of density altitude involves consideration\nof pressure (pressure altitude) and temperature. Since aircraft\nperformance "
+                "text_excerpt": "ng the density to vary. However, a known density\noccurs for any one temperature and pressure altitude. The\ndensity of the air has a pronounced effect on aircraft and\nengine performance. Regardless of the actual altitude of the\naircraft, it "
               }
             ]
           }
@@ -3748,14 +3456,11 @@
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-proposition_like-p05-c00",
                 "06_phak_ch4_0-proposition_like-p02-c03",
-                "06_phak_ch4_0-proposition_like-p03-c08",
+                "06_phak_ch4_0-proposition_like-p03-c07",
                 "06_phak_ch4_0-proposition_like-p04-c04",
                 "06_phak_ch4_0-proposition_like-p05-c04",
-                "06_phak_ch4_0-proposition_like-p03-c09",
-                "06_phak_ch4_0-proposition_like-p07-c04",
-                "06_phak_ch4_0-proposition_like-p02-c05",
-                "06_phak_ch4_0-proposition_like-p07-c03",
-                "06_phak_ch4_0-proposition_like-p00-c01"
+                "06_phak_ch4_0-proposition_like-p03-c08",
+                "06_phak_ch4_0-proposition_like-p07-c04"
               ],
               "retrieved_source_pages": [
                 5,
@@ -3764,10 +3469,7 @@
                 4,
                 5,
                 3,
-                7,
-                2,
-                7,
-                0
+                7
               ]
             },
             "no_answer_diagnostics": {},
@@ -3823,12 +3525,12 @@
                 "text_excerpt": "force exerted per square inch of an object, or PSI. An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object. If the pressure on one surface of the object becomes less than the pressure e"
               },
               {
-                "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
+                "chunk_id": "06_phak_ch4_0-proposition_like-p03-c07",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
-                  "chunk_index": 8,
+                  "chunk_id": "06_phak_ch4_0-proposition_like-p03-c07",
+                  "chunk_index": 7,
                   "chunk_llm_proposition_extraction": false,
                   "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
@@ -4004,14 +3706,11 @@
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-proposition_like-p05-c00",
                 "06_phak_ch4_0-proposition_like-p02-c03",
-                "06_phak_ch4_0-proposition_like-p03-c08",
+                "06_phak_ch4_0-proposition_like-p03-c07",
                 "06_phak_ch4_0-proposition_like-p04-c04",
                 "06_phak_ch4_0-proposition_like-p05-c04",
-                "06_phak_ch4_0-proposition_like-p03-c09",
-                "06_phak_ch4_0-proposition_like-p07-c04",
-                "06_phak_ch4_0-proposition_like-p02-c05",
-                "06_phak_ch4_0-proposition_like-p07-c03",
-                "06_phak_ch4_0-proposition_like-p00-c01"
+                "06_phak_ch4_0-proposition_like-p03-c08",
+                "06_phak_ch4_0-proposition_like-p07-c04"
               ],
               "retrieved_source_pages": [
                 5,
@@ -4020,10 +3719,7 @@
                 4,
                 5,
                 3,
-                7,
-                2,
-                7,
-                0
+                7
               ]
             },
             "no_answer_diagnostics": {},
@@ -4079,12 +3775,12 @@
                 "text_excerpt": "force exerted per square inch of an object, or PSI. An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object. If the pressure on one surface of the object becomes less than the pressure e"
               },
               {
-                "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
+                "chunk_id": "06_phak_ch4_0-proposition_like-p03-c07",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
-                  "chunk_index": 8,
+                  "chunk_id": "06_phak_ch4_0-proposition_like-p03-c07",
+                  "chunk_index": 7,
                   "chunk_llm_proposition_extraction": false,
                   "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
@@ -4132,23 +3828,19 @@
                 "06_phak_ch4_0-proposition_like-p06-c04",
                 "06_phak_ch4_0-proposition_like-p02-c00",
                 "06_phak_ch4_0-proposition_like-p02-c06",
-                "06_phak_ch4_0-proposition_like-p03-c00",
                 "06_phak_ch4_0-proposition_like-p02-c01",
                 "06_phak_ch4_0-proposition_like-p02-c07",
                 "06_phak_ch4_0-proposition_like-p00-c00",
-                "06_phak_ch4_0-proposition_like-p04-c05",
-                "06_phak_ch4_0-proposition_like-p04-c04"
+                "06_phak_ch4_0-proposition_like-p04-c05"
               ],
               "retrieved_source_pages": [
                 4,
                 6,
                 2,
                 2,
-                3,
                 2,
                 2,
                 0,
-                4,
                 4
               ]
             },
@@ -4266,14 +3958,11 @@
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-proposition_like-p05-c00",
                 "06_phak_ch4_0-proposition_like-p02-c03",
-                "06_phak_ch4_0-proposition_like-p03-c08",
+                "06_phak_ch4_0-proposition_like-p03-c07",
                 "06_phak_ch4_0-proposition_like-p04-c04",
                 "06_phak_ch4_0-proposition_like-p05-c04",
-                "06_phak_ch4_0-proposition_like-p03-c09",
-                "06_phak_ch4_0-proposition_like-p07-c04",
-                "06_phak_ch4_0-proposition_like-p02-c05",
-                "06_phak_ch4_0-proposition_like-p07-c03",
-                "06_phak_ch4_0-proposition_like-p00-c01"
+                "06_phak_ch4_0-proposition_like-p03-c08",
+                "06_phak_ch4_0-proposition_like-p07-c04"
               ],
               "retrieved_source_pages": [
                 5,
@@ -4282,10 +3971,7 @@
                 4,
                 5,
                 3,
-                7,
-                2,
-                7,
-                0
+                7
               ]
             },
             "no_answer_diagnostics": {},
@@ -4341,12 +4027,12 @@
                 "text_excerpt": "force exerted per square inch of an object, or PSI. An object completely immersed in a fluid will feel pressure uniformly around the entire surface of the object. If the pressure on one surface of the object becomes less than the pressure e"
               },
               {
-                "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
+                "chunk_id": "06_phak_ch4_0-proposition_like-p03-c07",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 80,
-                  "chunk_id": "06_phak_ch4_0-proposition_like-p03-c08",
-                  "chunk_index": 8,
+                  "chunk_id": "06_phak_ch4_0-proposition_like-p03-c07",
+                  "chunk_index": 7,
                   "chunk_llm_proposition_extraction": false,
                   "chunk_profile_family": "proposition_like_heuristic",
                   "chunk_proposition_extraction": "heuristic_sentence_cue",
@@ -4385,47 +4071,27 @@
             "cq_id": "bv2-sf-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
-              "context_recall": 1.0,
+              "context_precision_at_5": 0.0,
+              "context_recall": 0.0,
               "expected_abstention": false,
-              "first_relevant_rank": 4,
+              "first_relevant_rank": null,
               "gold_level": "span",
-              "matched_chunk_ids": [
-                "06_phak_ch4_0-recursive_large-p02-c01"
-              ],
-              "matched_source_pages": [
-                2
-              ],
-              "mrr_at_10": 0.25,
-              "mrr_at_5": 0.25,
-              "ndcg_at_10": 0.4307,
-              "precision_at_10": 0.1,
-              "precision_at_5": 0.2,
-              "recall_at_10": true,
-              "recall_at_5": true,
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
+              "mrr_at_5": 0.0,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
+              "precision_at_5": 0.0,
+              "recall_at_10": false,
+              "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-recursive_large-p00-c00",
-                "06_phak_ch4_0-recursive_large-p03-c00",
-                "06_phak_ch4_0-recursive_large-p02-c00",
-                "06_phak_ch4_0-recursive_large-p02-c01",
-                "06_phak_ch4_0-recursive_large-p04-c01",
-                "06_phak_ch4_0-recursive_large-p03-c02",
-                "06_phak_ch4_0-recursive_large-p03-c01",
-                "06_phak_ch4_0-recursive_large-p03-c03",
-                "06_phak_ch4_0-recursive_large-p04-c02",
-                "06_phak_ch4_0-recursive_large-p04-c00"
+                "06_phak_ch4_0-recursive_large-p03-c00"
               ],
               "retrieved_source_pages": [
                 0,
-                3,
-                2,
-                2,
-                4,
-                3,
-                3,
-                3,
-                4,
-                4
+                3
               ]
             },
             "no_answer_diagnostics": {},
@@ -4475,28 +4141,6 @@
                 "score": 0.4620350695993155,
                 "source": "vector",
                 "text_excerpt": "4-4 Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere. In order to properly account for the nonstandard atmosphere, certain rela"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-recursive_large-p02-c00",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-recursive_large-p02-c00",
-                  "chunk_index": 0,
-                  "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 344,
-                  "page": 2,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large",
-                  "token_count": 344
-                },
-                "page": 2,
-                "rank": 3,
-                "score": 0.4549828016166014,
-                "source": "vector",
-                "text_excerpt": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29. 92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude "
               }
             ]
           }
@@ -4513,7 +4157,7 @@
             "cq_id": "bv2-xp-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
+              "context_precision_at_5": 0.5,
               "context_recall": 0.5,
               "expected_abstention": false,
               "first_relevant_rank": 1,
@@ -4533,27 +4177,11 @@
               "recall_at_5": true,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-recursive_large-p01-c00",
-                "06_phak_ch4_0-recursive_large-p01-c01",
-                "06_phak_ch4_0-recursive_large-p05-c01",
-                "06_phak_ch4_0-recursive_large-p01-c02",
-                "06_phak_ch4_0-recursive_large-p08-c00",
-                "06_phak_ch4_0-recursive_large-p02-c01",
-                "06_phak_ch4_0-recursive_large-p04-c02",
-                "06_phak_ch4_0-recursive_large-p04-c00",
-                "06_phak_ch4_0-recursive_large-p03-c03",
-                "06_phak_ch4_0-recursive_large-p08-c01"
+                "06_phak_ch4_0-recursive_large-p01-c01"
               ],
               "retrieved_source_pages": [
                 1,
-                1,
-                5,
-                1,
-                8,
-                2,
-                4,
-                4,
-                3,
-                8
+                1
               ]
             },
             "no_answer_diagnostics": {},
@@ -4603,28 +4231,6 @@
                 "score": 0.45029494381947077,
                 "source": "vector",
                 "text_excerpt": "As another example, different types of similar liquids will display different behaviors because of different viscosities. Grease is very viscous. Given time, grease will flow, even though the flow rate will be slow. Motor oil is less viscou"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 274,
-                  "page": 5,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large",
-                  "token_count": 274
-                },
-                "page": 5,
-                "rank": 3,
-                "score": 0.4252365155985046,
-                "source": "vector",
-                "text_excerpt": "moving fluid (liquid or gas) increases, the pressure within the fluid decreases. This principle explains what happens to air passing over the curved top of the airplane wing. A practical application of Bernoulli\u2019s Principle is the venturi t"
               }
             ]
           }
@@ -4634,54 +4240,34 @@
       "missed_gold_evidence_at_5": {
         "samples": [
           {
-            "cq_id": "bv2-sf-004",
+            "cq_id": "bv2-sf-001",
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.0,
-              "context_recall": 1.0,
+              "context_recall": 0.0,
               "expected_abstention": false,
-              "first_relevant_rank": 6,
+              "first_relevant_rank": null,
               "gold_level": "span",
-              "matched_chunk_ids": [
-                "06_phak_ch4_0-recursive_large-p05-c00"
-              ],
-              "matched_source_pages": [
-                5
-              ],
-              "mrr_at_10": 0.1667,
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
               "mrr_at_5": 0.0,
-              "ndcg_at_10": 0.3562,
-              "precision_at_10": 0.1,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
               "precision_at_5": 0.0,
-              "recall_at_10": true,
+              "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-recursive_large-p00-c00",
-                "06_phak_ch4_0-recursive_large-p04-c02",
-                "06_phak_ch4_0-recursive_large-p05-c01",
-                "06_phak_ch4_0-recursive_large-p08-c00",
-                "06_phak_ch4_0-recursive_large-p03-c03",
-                "06_phak_ch4_0-recursive_large-p05-c00",
-                "06_phak_ch4_0-recursive_large-p02-c01",
-                "06_phak_ch4_0-recursive_large-p04-c03",
-                "06_phak_ch4_0-recursive_large-p01-c00",
-                "06_phak_ch4_0-recursive_large-p03-c01"
+                "06_phak_ch4_0-recursive_large-p03-c00"
               ],
               "retrieved_source_pages": [
                 0,
-                4,
-                5,
-                8,
-                3,
-                5,
-                2,
-                4,
-                1,
                 3
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "According to PHAK Chapter 4, what source-backed fact connects gases with air in the evidence mentioning airplane engine pushes?",
+            "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
             "question_type": "supported_factual",
             "top_hits": [
               {
@@ -4702,53 +4288,31 @@
                 },
                 "page": 0,
                 "rank": 1,
-                "score": 0.47609009664189544,
+                "score": 0.46314204748385734,
                 "source": "vector",
                 "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
               },
               {
-                "chunk_id": "06_phak_ch4_0-recursive_large-p04-c02",
+                "chunk_id": "06_phak_ch4_0-recursive_large-p03-c00",
                 "metadata": {
                   "chunk_configured_max_chars": 1600,
                   "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-recursive_large-p04-c02",
-                  "chunk_index": 2,
+                  "chunk_id": "06_phak_ch4_0-recursive_large-p03-c00",
+                  "chunk_index": 0,
                   "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 247,
-                  "page": 4,
+                  "chunk_token_count": 250,
+                  "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "recursive_large",
-                  "token_count": 247
+                  "token_count": 250
                 },
-                "page": 4,
+                "page": 3,
                 "rank": 2,
-                "score": 0.4510485662045116,
+                "score": 0.4620350695993155,
                 "source": "vector",
-                "text_excerpt": "without using additional interpretive charts. In any case, the effects of humidity on density altitude include a decrease in overall performance in high humidity conditions. Theories in the Production of Lift In order to achieve flight in a"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 274,
-                  "page": 5,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large",
-                  "token_count": 274
-                },
-                "page": 5,
-                "rank": 3,
-                "score": 0.43830545460549464,
-                "source": "vector",
-                "text_excerpt": "moving fluid (liquid or gas) increases, the pressure within the fluid decreases. This principle explains what happens to air passing over the curved top of the airplane wing. A practical application of Bernoulli\u2019s Principle is the venturi t"
+                "text_excerpt": "4-4 Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere. In order to properly account for the nonstandard atmosphere, certain rela"
               }
             ]
           }
@@ -4777,25 +4341,9 @@
               "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-recursive_large-p04-c01",
-                "06_phak_ch4_0-recursive_large-p02-c02",
-                "06_phak_ch4_0-recursive_large-p02-c00",
-                "06_phak_ch4_0-recursive_large-p00-c00",
-                "06_phak_ch4_0-recursive_large-p03-c00",
-                "06_phak_ch4_0-recursive_large-p04-c00",
-                "06_phak_ch4_0-recursive_large-p04-c02",
-                "06_phak_ch4_0-recursive_large-p06-c01",
-                "06_phak_ch4_0-recursive_large-p04-c03",
-                "06_phak_ch4_0-recursive_large-p02-c01"
+                "06_phak_ch4_0-recursive_large-p02-c02"
               ],
               "retrieved_source_pages": [
-                4,
-                2,
-                2,
-                0,
-                3,
-                4,
-                4,
-                6,
                 4,
                 2
               ]
@@ -4853,28 +4401,6 @@
                 "score": 0.42867768498326936,
                 "source": "vector",
                 "text_excerpt": "The pressure of the atmosphere varies with time and location. Due to the changing atmospheric pressure, a standard reference was developed. The standard atmosphere at sea level is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface pressu"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-recursive_large-p02-c00",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-recursive_large-p02-c00",
-                  "chunk_index": 0,
-                  "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 344,
-                  "page": 2,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large",
-                  "token_count": 344
-                },
-                "page": 2,
-                "rank": 3,
-                "score": 0.42655853435591484,
-                "source": "vector",
-                "text_excerpt": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29. 92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude "
               }
             ]
           }
@@ -4892,54 +4418,34 @@
       "section_boundary_split": {
         "samples": [
           {
-            "cq_id": "bv2-sf-004",
+            "cq_id": "bv2-sf-001",
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.0,
-              "context_recall": 1.0,
+              "context_recall": 0.0,
               "expected_abstention": false,
-              "first_relevant_rank": 6,
+              "first_relevant_rank": null,
               "gold_level": "span",
-              "matched_chunk_ids": [
-                "06_phak_ch4_0-recursive_large-p05-c00"
-              ],
-              "matched_source_pages": [
-                5
-              ],
-              "mrr_at_10": 0.1667,
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
               "mrr_at_5": 0.0,
-              "ndcg_at_10": 0.3562,
-              "precision_at_10": 0.1,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
               "precision_at_5": 0.0,
-              "recall_at_10": true,
+              "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-recursive_large-p00-c00",
-                "06_phak_ch4_0-recursive_large-p04-c02",
-                "06_phak_ch4_0-recursive_large-p05-c01",
-                "06_phak_ch4_0-recursive_large-p08-c00",
-                "06_phak_ch4_0-recursive_large-p03-c03",
-                "06_phak_ch4_0-recursive_large-p05-c00",
-                "06_phak_ch4_0-recursive_large-p02-c01",
-                "06_phak_ch4_0-recursive_large-p04-c03",
-                "06_phak_ch4_0-recursive_large-p01-c00",
-                "06_phak_ch4_0-recursive_large-p03-c01"
+                "06_phak_ch4_0-recursive_large-p03-c00"
               ],
               "retrieved_source_pages": [
                 0,
-                4,
-                5,
-                8,
-                3,
-                5,
-                2,
-                4,
-                1,
                 3
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "According to PHAK Chapter 4, what source-backed fact connects gases with air in the evidence mentioning airplane engine pushes?",
+            "question": "According to PHAK Chapter 4, what source-backed fact connects atmosphere with sea level in the evidence mentioning reason weight atmosphere?",
             "question_type": "supported_factual",
             "top_hits": [
               {
@@ -4960,53 +4466,31 @@
                 },
                 "page": 0,
                 "rank": 1,
-                "score": 0.47609009664189544,
+                "score": 0.46314204748385734,
                 "source": "vector",
                 "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
               },
               {
-                "chunk_id": "06_phak_ch4_0-recursive_large-p04-c02",
+                "chunk_id": "06_phak_ch4_0-recursive_large-p03-c00",
                 "metadata": {
                   "chunk_configured_max_chars": 1600,
                   "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-recursive_large-p04-c02",
-                  "chunk_index": 2,
+                  "chunk_id": "06_phak_ch4_0-recursive_large-p03-c00",
+                  "chunk_index": 0,
                   "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 247,
-                  "page": 4,
+                  "chunk_token_count": 250,
+                  "page": 3,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "recursive_large",
-                  "token_count": 247
+                  "token_count": 250
                 },
-                "page": 4,
+                "page": 3,
                 "rank": 2,
-                "score": 0.4510485662045116,
+                "score": 0.4620350695993155,
                 "source": "vector",
-                "text_excerpt": "without using additional interpretive charts. In any case, the effects of humidity on density altitude include a decrease in overall performance in high humidity conditions. Theories in the Production of Lift In order to achieve flight in a"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-recursive_large-p05-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 274,
-                  "page": 5,
-                  "section": "",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "recursive_large",
-                  "token_count": 274
-                },
-                "page": 5,
-                "rank": 3,
-                "score": 0.43830545460549464,
-                "source": "vector",
-                "text_excerpt": "moving fluid (liquid or gas) increases, the pressure within the fluid decreases. This principle explains what happens to air passing over the curved top of the airplane wing. A practical application of Bernoulli\u2019s Principle is the venturi t"
+                "text_excerpt": "4-4 Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere. In order to properly account for the nonstandard atmosphere, certain rela"
               }
             ]
           }
@@ -5030,121 +4514,109 @@
       "cross_page_evidence_split": {
         "samples": [
           {
-            "cq_id": "bv2-xp-002",
+            "cq_id": "bv2-xp-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
+              "context_precision_at_5": 0.25,
               "context_recall": 0.5,
               "expected_abstention": false,
-              "first_relevant_rank": 4,
+              "first_relevant_rank": 1,
               "gold_level": "span",
               "matched_chunk_ids": [
-                "06_phak_ch4_0-recursive_medium-p03-c00"
+                "06_phak_ch4_0-recursive_medium-p01-c00"
               ],
               "matched_source_pages": [
-                3
+                1
               ],
-              "mrr_at_10": 0.25,
-              "mrr_at_5": 0.25,
-              "ndcg_at_10": 0.2641,
+              "mrr_at_10": 1.0,
+              "mrr_at_5": 1.0,
+              "ndcg_at_10": 0.6131,
               "precision_at_10": 0.1,
               "precision_at_5": 0.2,
               "recall_at_10": true,
               "recall_at_5": true,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-recursive_medium-p00-c00",
-                "06_phak_ch4_0-recursive_medium-p03-c02",
-                "06_phak_ch4_0-recursive_medium-p03-c03",
-                "06_phak_ch4_0-recursive_medium-p03-c00",
-                "06_phak_ch4_0-recursive_medium-p03-c01",
-                "06_phak_ch4_0-recursive_medium-p00-c01",
-                "06_phak_ch4_0-recursive_medium-p04-c01",
-                "06_phak_ch4_0-recursive_medium-p02-c03",
-                "06_phak_ch4_0-recursive_medium-p03-c06",
-                "06_phak_ch4_0-recursive_medium-p08-c03"
+                "06_phak_ch4_0-recursive_medium-p01-c00",
+                "06_phak_ch4_0-recursive_medium-p01-c01",
+                "06_phak_ch4_0-recursive_medium-p05-c01",
+                "06_phak_ch4_0-recursive_medium-p01-c03"
               ],
               "retrieved_source_pages": [
-                0,
-                3,
-                3,
-                3,
-                3,
-                0,
-                4,
-                2,
-                3,
-                8
+                1,
+                1,
+                5,
+                1
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
+            "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
             "question_type": "cross_page",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-recursive_medium-p00-c00",
+                "chunk_id": "06_phak_ch4_0-recursive_medium-p01-c00",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-recursive_medium-p00-c00",
+                  "chunk_id": "06_phak_ch4_0-recursive_medium-p01-c00",
                   "chunk_index": 0,
                   "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 146,
-                  "page": 0,
+                  "chunk_token_count": 142,
+                  "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "recursive_medium",
-                  "token_count": 146
+                  "token_count": 142
                 },
-                "page": 0,
+                "page": 1,
                 "rank": 1,
-                "score": 0.5216214710400433,
+                "score": 0.5011534116676284,
                 "source": "vector",
-                "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
+                "text_excerpt": "4-2 Leading edge of wing under 1,500x magnification Figure 4-1. Microscopic surface of a wing. Air is a Fluid When most people hear the word \u201cfluid,\u201d they usually think of liquid. However, gasses, like air, are also fluids. Fluids take on t"
               },
               {
-                "chunk_id": "06_phak_ch4_0-recursive_medium-p03-c02",
+                "chunk_id": "06_phak_ch4_0-recursive_medium-p01-c01",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-recursive_medium-p03-c02",
-                  "chunk_index": 2,
+                  "chunk_id": "06_phak_ch4_0-recursive_medium-p01-c01",
+                  "chunk_index": 1,
                   "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 130,
-                  "page": 3,
+                  "chunk_token_count": 142,
+                  "page": 1,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "recursive_medium",
-                  "token_count": 130
+                  "token_count": 142
                 },
-                "page": 3,
+                "page": 1,
                 "rank": 2,
-                "score": 0.5026720945885051,
+                "score": 0.49265444269804015,
                 "source": "vector",
-                "text_excerpt": "to be found. The density of air has significant effects on the aircraft\u2019s performance because as air becomes less dense, it reduces: \u2022 Power because the engine takes in less air \u2022 Thrust because a propeller is less efficient in thin air \u2022 L"
+                "text_excerpt": "to understanding the principles of flight. Viscosity Viscosity is the property of a fluid that causes it to resist flowing. The way individual molecules of the fluid tend to adhere, or stick, to each other determines how much a fluid resist"
               },
               {
-                "chunk_id": "06_phak_ch4_0-recursive_medium-p03-c03",
+                "chunk_id": "06_phak_ch4_0-recursive_medium-p05-c01",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-recursive_medium-p03-c03",
-                  "chunk_index": 3,
+                  "chunk_id": "06_phak_ch4_0-recursive_medium-p05-c01",
+                  "chunk_index": 1,
                   "chunk_profile_family": "sentence_recursive",
-                  "chunk_token_count": 122,
-                  "page": 3,
+                  "chunk_token_count": 136,
+                  "page": 5,
                   "section": "",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "recursive_medium",
-                  "token_count": 122
+                  "token_count": 136
                 },
-                "page": 3,
+                "page": 5,
                 "rank": 3,
-                "score": 0.498986455177097,
+                "score": 0.42677841467685734,
                 "source": "vector",
-                "text_excerpt": "aircraft performance because under standard atmospheric conditions, air at each level in the atmosphere not only has a specific density, its pressure altitude and density altitude identify the same level. The computation of density altitude"
+                "text_excerpt": "air; consequently, the air pushes the propeller (and thus the airplane) in the opposite direction\u2014forward. In a jet airplane, the engine pushes a blast of hot gases backward; the force of equal and opposite reaction pushes against the engin"
               }
             ]
           }
@@ -5176,22 +4648,12 @@
                 "06_phak_ch4_0-recursive_medium-p02-c02",
                 "06_phak_ch4_0-recursive_medium-p02-c03",
                 "06_phak_ch4_0-recursive_medium-p04-c02",
-                "06_phak_ch4_0-recursive_medium-p00-c01",
-                "06_phak_ch4_0-recursive_medium-p03-c06",
-                "06_phak_ch4_0-recursive_medium-p02-c01",
-                "06_phak_ch4_0-recursive_medium-p05-c02",
-                "06_phak_ch4_0-recursive_medium-p04-c01",
-                "06_phak_ch4_0-recursive_medium-p00-c00"
+                "06_phak_ch4_0-recursive_medium-p00-c01"
               ],
               "retrieved_source_pages": [
                 3,
                 2,
                 2,
-                4,
-                0,
-                3,
-                2,
-                5,
                 4,
                 0
               ]
@@ -5295,25 +4757,13 @@
                 "06_phak_ch4_0-recursive_medium-p04-c02",
                 "06_phak_ch4_0-recursive_medium-p04-c03",
                 "06_phak_ch4_0-recursive_medium-p02-c03",
-                "06_phak_ch4_0-recursive_medium-p02-c04",
-                "06_phak_ch4_0-recursive_medium-p02-c00",
-                "06_phak_ch4_0-recursive_medium-p04-c06",
-                "06_phak_ch4_0-recursive_medium-p00-c00",
-                "06_phak_ch4_0-recursive_medium-p03-c00",
-                "06_phak_ch4_0-recursive_medium-p03-c01",
-                "06_phak_ch4_0-recursive_medium-p04-c01"
+                "06_phak_ch4_0-recursive_medium-p02-c04"
               ],
               "retrieved_source_pages": [
                 4,
                 4,
                 2,
-                2,
-                2,
-                4,
-                0,
-                3,
-                3,
-                4
+                2
               ]
             },
             "no_answer_diagnostics": {
@@ -5430,22 +4880,12 @@
                 "06_phak_ch4_0-recursive_medium-p02-c02",
                 "06_phak_ch4_0-recursive_medium-p02-c03",
                 "06_phak_ch4_0-recursive_medium-p04-c02",
-                "06_phak_ch4_0-recursive_medium-p00-c01",
-                "06_phak_ch4_0-recursive_medium-p03-c06",
-                "06_phak_ch4_0-recursive_medium-p02-c01",
-                "06_phak_ch4_0-recursive_medium-p05-c02",
-                "06_phak_ch4_0-recursive_medium-p04-c01",
-                "06_phak_ch4_0-recursive_medium-p00-c00"
+                "06_phak_ch4_0-recursive_medium-p00-c01"
               ],
               "retrieved_source_pages": [
                 3,
                 2,
                 2,
-                4,
-                0,
-                3,
-                2,
-                5,
                 4,
                 0
               ]
@@ -6190,10 +5630,7 @@
                 "06_phak_ch4_0-semantic_meta_like-p05-c00",
                 "06_phak_ch4_0-semantic_meta_like-p03-c06",
                 "06_phak_ch4_0-semantic_meta_like-p02-c06",
-                "06_phak_ch4_0-semantic_meta_like-p00-c01",
-                "06_phak_ch4_0-semantic_meta_like-p02-c01",
-                "06_phak_ch4_0-semantic_meta_like-p04-c02",
-                "06_phak_ch4_0-semantic_meta_like-p03-c04"
+                "06_phak_ch4_0-semantic_meta_like-p00-c01"
               ],
               "retrieved_source_pages": [
                 2,
@@ -6202,10 +5639,7 @@
                 5,
                 3,
                 2,
-                0,
-                2,
-                4,
-                3
+                0
               ]
             },
             "no_answer_diagnostics": {},
@@ -6312,11 +5746,7 @@
                 "06_phak_ch4_0-semantic_meta_like-p01-c02",
                 "06_phak_ch4_0-semantic_meta_like-p01-c03",
                 "06_phak_ch4_0-semantic_meta_like-p05-c03",
-                "06_phak_ch4_0-semantic_meta_like-p04-c00",
-                "06_phak_ch4_0-semantic_meta_like-p05-c02",
-                "06_phak_ch4_0-semantic_meta_like-p05-c01",
-                "06_phak_ch4_0-semantic_meta_like-p01-c04",
-                "06_phak_ch4_0-semantic_meta_like-p02-c06"
+                "06_phak_ch4_0-semantic_meta_like-p04-c00"
               ],
               "retrieved_source_pages": [
                 1,
@@ -6324,11 +5754,7 @@
                 1,
                 1,
                 5,
-                4,
-                5,
-                5,
-                1,
-                2
+                4
               ]
             },
             "no_answer_diagnostics": {},
@@ -6436,10 +5862,7 @@
                 "06_phak_ch4_0-semantic_meta_like-p05-c00",
                 "06_phak_ch4_0-semantic_meta_like-p03-c06",
                 "06_phak_ch4_0-semantic_meta_like-p02-c06",
-                "06_phak_ch4_0-semantic_meta_like-p00-c01",
-                "06_phak_ch4_0-semantic_meta_like-p02-c01",
-                "06_phak_ch4_0-semantic_meta_like-p04-c02",
-                "06_phak_ch4_0-semantic_meta_like-p03-c04"
+                "06_phak_ch4_0-semantic_meta_like-p00-c01"
               ],
               "retrieved_source_pages": [
                 2,
@@ -6448,10 +5871,7 @@
                 5,
                 3,
                 2,
-                0,
-                2,
-                4,
-                3
+                0
               ]
             },
             "no_answer_diagnostics": {},
@@ -6558,11 +5978,7 @@
                 "06_phak_ch4_0-semantic_meta_like-p02-c05",
                 "06_phak_ch4_0-semantic_meta_like-p02-c00",
                 "06_phak_ch4_0-semantic_meta_like-p00-c00",
-                "06_phak_ch4_0-semantic_meta_like-p04-c02",
-                "06_phak_ch4_0-semantic_meta_like-p03-c00",
-                "06_phak_ch4_0-semantic_meta_like-p02-c01",
-                "06_phak_ch4_0-semantic_meta_like-p04-c00",
-                "06_phak_ch4_0-semantic_meta_like-p08-c03"
+                "06_phak_ch4_0-semantic_meta_like-p04-c02"
               ],
               "retrieved_source_pages": [
                 4,
@@ -6570,11 +5986,7 @@
                 2,
                 2,
                 0,
-                4,
-                3,
-                2,
-                4,
-                8
+                4
               ]
             },
             "no_answer_diagnostics": {
@@ -6700,10 +6112,7 @@
                 "06_phak_ch4_0-semantic_meta_like-p05-c00",
                 "06_phak_ch4_0-semantic_meta_like-p03-c06",
                 "06_phak_ch4_0-semantic_meta_like-p02-c06",
-                "06_phak_ch4_0-semantic_meta_like-p00-c01",
-                "06_phak_ch4_0-semantic_meta_like-p02-c01",
-                "06_phak_ch4_0-semantic_meta_like-p04-c02",
-                "06_phak_ch4_0-semantic_meta_like-p03-c04"
+                "06_phak_ch4_0-semantic_meta_like-p00-c01"
               ],
               "retrieved_source_pages": [
                 2,
@@ -6712,10 +6121,7 @@
                 5,
                 3,
                 2,
-                0,
-                2,
-                4,
-                3
+                0
               ]
             },
             "no_answer_diagnostics": {},
@@ -7316,7 +6722,7 @@
             "cq_id": "bv2-sf-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
+              "context_precision_at_5": 0.5,
               "context_recall": 1.0,
               "expected_abstention": false,
               "first_relevant_rank": 1,
@@ -7336,27 +6742,11 @@
               "recall_at_5": true,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-structure_aware_large-p02-c01",
-                "06_phak_ch4_0-structure_aware_large-p00-c00",
-                "06_phak_ch4_0-structure_aware_large-p03-c00",
-                "06_phak_ch4_0-structure_aware_large-p02-c00",
-                "06_phak_ch4_0-structure_aware_large-p04-c01",
-                "06_phak_ch4_0-structure_aware_large-p03-c02",
-                "06_phak_ch4_0-structure_aware_large-p03-c01",
-                "06_phak_ch4_0-structure_aware_large-p03-c03",
-                "06_phak_ch4_0-structure_aware_large-p02-c02",
-                "06_phak_ch4_0-structure_aware_large-p04-c02"
+                "06_phak_ch4_0-structure_aware_large-p00-c00"
               ],
               "retrieved_source_pages": [
                 2,
-                0,
-                3,
-                2,
-                4,
-                3,
-                3,
-                3,
-                2,
-                4
+                0
               ]
             },
             "no_answer_diagnostics": {},
@@ -7406,28 +6796,6 @@
                 "score": 0.46314204748385734,
                 "source": "vector",
                 "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-structure_aware_large-p03-c00",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p03-c00",
-                  "chunk_index": 0,
-                  "chunk_profile_family": "structure_aware",
-                  "chunk_token_count": 246,
-                  "page": 3,
-                  "section": "4-4",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware_large",
-                  "token_count": 246
-                },
-                "page": 3,
-                "rank": 3,
-                "score": 0.4620350695993155,
-                "source": "vector",
-                "text_excerpt": "4-4 Since aircraft performance is compared and evaluated with respect to the standard atmosphere, all aircraft instruments are calibrated for the standard atmosphere. In order to properly account for the nonstandard atmosphere, certain rela"
               }
             ]
           }
@@ -7444,7 +6812,7 @@
             "cq_id": "bv2-xp-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
+              "context_precision_at_5": 0.5,
               "context_recall": 0.5,
               "expected_abstention": false,
               "first_relevant_rank": 1,
@@ -7464,27 +6832,11 @@
               "recall_at_5": true,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-structure_aware_large-p01-c00",
-                "06_phak_ch4_0-structure_aware_large-p05-c01",
-                "06_phak_ch4_0-structure_aware_large-p01-c01",
-                "06_phak_ch4_0-structure_aware_large-p08-c00",
-                "06_phak_ch4_0-structure_aware_large-p01-c02",
-                "06_phak_ch4_0-structure_aware_large-p04-c02",
-                "06_phak_ch4_0-structure_aware_large-p04-c00",
-                "06_phak_ch4_0-structure_aware_large-p03-c03",
-                "06_phak_ch4_0-structure_aware_large-p08-c01",
-                "06_phak_ch4_0-structure_aware_large-p07-c01"
+                "06_phak_ch4_0-structure_aware_large-p05-c01"
               ],
               "retrieved_source_pages": [
                 1,
-                5,
-                1,
-                8,
-                1,
-                4,
-                4,
-                3,
-                8,
-                7
+                5
               ]
             },
             "no_answer_diagnostics": {},
@@ -7534,28 +6886,6 @@
                 "score": 0.4252365155985046,
                 "source": "vector",
                 "text_excerpt": "moving fluid (liquid or gas) increases, the pressure within the fluid decreases. This principle explains what happens to air passing over the curved top of the airplane wing. A practical application of Bernoulli\u2019s Principle is the venturi t"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-structure_aware_large-p01-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p01-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "structure_aware",
-                  "chunk_token_count": 267,
-                  "page": 1,
-                  "section": "Viscosity",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware_large",
-                  "token_count": 267
-                },
-                "page": 1,
-                "rank": 3,
-                "score": 0.4244508900173027,
-                "source": "vector",
-                "text_excerpt": "freely while the oil flows much more slowly. As another example, different types of similar liquids will display different behaviors because of different viscosities. Grease is very viscous. Given time, grease will flow, even though the flo"
               }
             ]
           }
@@ -7569,46 +6899,26 @@
             "expected_abstention": false,
             "metrics": {
               "context_precision_at_5": 0.0,
-              "context_recall": 1.0,
+              "context_recall": 0.0,
               "expected_abstention": false,
-              "first_relevant_rank": 7,
+              "first_relevant_rank": null,
               "gold_level": "span",
-              "matched_chunk_ids": [
-                "06_phak_ch4_0-structure_aware_large-p05-c00"
-              ],
-              "matched_source_pages": [
-                5
-              ],
-              "mrr_at_10": 0.1429,
+              "matched_chunk_ids": [],
+              "matched_source_pages": [],
+              "mrr_at_10": 0.0,
               "mrr_at_5": 0.0,
-              "ndcg_at_10": 0.3333,
-              "precision_at_10": 0.1,
+              "ndcg_at_10": 0.0,
+              "precision_at_10": 0.0,
               "precision_at_5": 0.0,
-              "recall_at_10": true,
+              "recall_at_10": false,
               "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-structure_aware_large-p00-c00",
-                "06_phak_ch4_0-structure_aware_large-p04-c02",
-                "06_phak_ch4_0-structure_aware_large-p05-c01",
-                "06_phak_ch4_0-structure_aware_large-p08-c00",
-                "06_phak_ch4_0-structure_aware_large-p03-c03",
-                "06_phak_ch4_0-structure_aware_large-p02-c01",
-                "06_phak_ch4_0-structure_aware_large-p05-c00",
-                "06_phak_ch4_0-structure_aware_large-p04-c03",
-                "06_phak_ch4_0-structure_aware_large-p01-c00",
-                "06_phak_ch4_0-structure_aware_large-p03-c01"
+                "06_phak_ch4_0-structure_aware_large-p04-c02"
               ],
               "retrieved_source_pages": [
                 0,
-                4,
-                5,
-                8,
-                3,
-                2,
-                5,
-                4,
-                1,
-                3
+                4
               ]
             },
             "no_answer_diagnostics": {},
@@ -7658,28 +6968,6 @@
                 "score": 0.4510485662045116,
                 "source": "vector",
                 "text_excerpt": "without using additional interpretive charts. In any case, the effects of humidity on density altitude include a decrease in overall performance in high humidity conditions. Theories in the Production of Lift In order to achieve flight in a"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-structure_aware_large-p05-c01",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p05-c01",
-                  "chunk_index": 1,
-                  "chunk_profile_family": "structure_aware",
-                  "chunk_token_count": 269,
-                  "page": 5,
-                  "section": "Bernoulli\u2019s Principle of Differential Pressure",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware_large",
-                  "token_count": 269
-                },
-                "page": 5,
-                "rank": 3,
-                "score": 0.43830545460549464,
-                "source": "vector",
-                "text_excerpt": "moving fluid (liquid or gas) increases, the pressure within the fluid decreases. This principle explains what happens to air passing over the curved top of the airplane wing. A practical application of Bernoulli\u2019s Principle is the venturi t"
               }
             ]
           }
@@ -7708,27 +6996,11 @@
               "recall_at_5": false,
               "retrieved_chunk_ids": [
                 "06_phak_ch4_0-structure_aware_large-p04-c01",
-                "06_phak_ch4_0-structure_aware_large-p02-c02",
-                "06_phak_ch4_0-structure_aware_large-p02-c00",
-                "06_phak_ch4_0-structure_aware_large-p00-c00",
-                "06_phak_ch4_0-structure_aware_large-p03-c00",
-                "06_phak_ch4_0-structure_aware_large-p02-c01",
-                "06_phak_ch4_0-structure_aware_large-p04-c00",
-                "06_phak_ch4_0-structure_aware_large-p04-c02",
-                "06_phak_ch4_0-structure_aware_large-p06-c01",
-                "06_phak_ch4_0-structure_aware_large-p04-c03"
+                "06_phak_ch4_0-structure_aware_large-p02-c02"
               ],
               "retrieved_source_pages": [
                 4,
-                2,
-                2,
-                0,
-                3,
-                2,
-                4,
-                4,
-                6,
-                4
+                2
               ]
             },
             "no_answer_diagnostics": {
@@ -7784,28 +7056,6 @@
                 "score": 0.4382765777218135,
                 "source": "vector",
                 "text_excerpt": "Due to the changing atmospheric pressure, a standard reference was developed. The standard atmosphere at sea level is a surface temperature of 59 \u00b0F or 15 \u00b0C and a surface pressure of 29.92 inches of mercury (\"Hg) or 1,013.2 mb. [Figure 4-2"
-              },
-              {
-                "chunk_id": "06_phak_ch4_0-structure_aware_large-p02-c00",
-                "metadata": {
-                  "chunk_configured_max_chars": 1600,
-                  "chunk_configured_overlap_chars": 250,
-                  "chunk_id": "06_phak_ch4_0-structure_aware_large-p02-c00",
-                  "chunk_index": 0,
-                  "chunk_profile_family": "structure_aware",
-                  "chunk_token_count": 286,
-                  "page": 2,
-                  "section": "4-3",
-                  "source_document": "06_phak_ch4_0",
-                  "source_path": "data/raw/06_phak_ch4_0.pdf",
-                  "strategy": "structure_aware_large",
-                  "token_count": 286
-                },
-                "page": 2,
-                "rank": 3,
-                "score": 0.42655853435591484,
-                "source": "vector",
-                "text_excerpt": "4-3 30 25 20 15 10 5 0 Inches of Mercury Millibars 1016 847 677 508 339 170 0 29.92 Standard Sea Level Pressure Hg 1013 Standard Sea Level Pressure mb A t m o s p h e r i c P r e s s u r e Figure 4-2. Standard sea level pressure. Altitude ("
               }
             ]
           }
@@ -7841,121 +7091,109 @@
       "cross_page_evidence_split": {
         "samples": [
           {
-            "cq_id": "bv2-xp-002",
+            "cq_id": "bv2-xp-001",
             "expected_abstention": false,
             "metrics": {
-              "context_precision_at_5": 0.2,
+              "context_precision_at_5": 0.25,
               "context_recall": 0.5,
               "expected_abstention": false,
-              "first_relevant_rank": 5,
+              "first_relevant_rank": 1,
               "gold_level": "span",
               "matched_chunk_ids": [
-                "06_phak_ch4_0-structure_aware_medium-p03-c00"
+                "06_phak_ch4_0-structure_aware_medium-p01-c00"
               ],
               "matched_source_pages": [
-                3
+                1
               ],
-              "mrr_at_10": 0.2,
-              "mrr_at_5": 0.2,
-              "ndcg_at_10": 0.2372,
+              "mrr_at_10": 1.0,
+              "mrr_at_5": 1.0,
+              "ndcg_at_10": 0.6131,
               "precision_at_10": 0.1,
               "precision_at_5": 0.2,
               "recall_at_10": true,
               "recall_at_5": true,
               "retrieved_chunk_ids": [
-                "06_phak_ch4_0-structure_aware_medium-p00-c00",
-                "06_phak_ch4_0-structure_aware_medium-p03-c02",
-                "06_phak_ch4_0-structure_aware_medium-p03-c03",
-                "06_phak_ch4_0-structure_aware_medium-p03-c01",
-                "06_phak_ch4_0-structure_aware_medium-p03-c00",
-                "06_phak_ch4_0-structure_aware_medium-p00-c01",
-                "06_phak_ch4_0-structure_aware_medium-p04-c01",
-                "06_phak_ch4_0-structure_aware_medium-p02-c03",
-                "06_phak_ch4_0-structure_aware_medium-p02-c04",
-                "06_phak_ch4_0-structure_aware_medium-p03-c06"
+                "06_phak_ch4_0-structure_aware_medium-p01-c00",
+                "06_phak_ch4_0-structure_aware_medium-p01-c01",
+                "06_phak_ch4_0-structure_aware_medium-p05-c01",
+                "06_phak_ch4_0-structure_aware_medium-p01-c03"
               ],
               "retrieved_source_pages": [
-                0,
-                3,
-                3,
-                3,
-                3,
-                0,
-                4,
-                2,
-                2,
-                3
+                1,
+                1,
+                5,
+                1
               ]
             },
             "no_answer_diagnostics": {},
-            "question": "Across PHAK Chapter 4 pages 2 and 3, what evidence connects standard atmosphere with aircraft performance?",
+            "question": "Across PHAK Chapter 4 pages 1 and 2, what evidence connects fluid properties with fluid?",
             "question_type": "cross_page",
             "top_hits": [
               {
-                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p00-c00",
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p01-c00",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p00-c00",
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p01-c00",
                   "chunk_index": 0,
                   "chunk_profile_family": "structure_aware",
-                  "chunk_token_count": 146,
-                  "page": 0,
-                  "section": "4-1",
+                  "chunk_token_count": 141,
+                  "page": 1,
+                  "section": "4-2",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "structure_aware_medium",
-                  "token_count": 146
+                  "token_count": 141
                 },
-                "page": 0,
+                "page": 1,
                 "rank": 1,
-                "score": 0.5216214710400433,
+                "score": 0.5038509852792236,
                 "source": "vector",
-                "text_excerpt": "4-1 Introduction This chapter examines the fundamental physical laws governing the forces acting on an aircraft in flight, and what effect these natural laws and forces have on the performance characteristics of aircraft. To control an airc"
+                "text_excerpt": "4-2 Leading edge of wing under 1,500x magnification Figure 4-1. Microscopic surface of a wing. Air is a Fluid When most people hear the word \u201cfluid,\u201d they usually think of liquid. However, gasses, like air, are also fluids. Fluids take on t"
               },
               {
-                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c02",
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p01-c01",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c02",
-                  "chunk_index": 2,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p01-c01",
+                  "chunk_index": 1,
                   "chunk_profile_family": "structure_aware",
-                  "chunk_token_count": 130,
-                  "page": 3,
-                  "section": "Density Altitude",
+                  "chunk_token_count": 142,
+                  "page": 1,
+                  "section": "Viscosity",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "structure_aware_medium",
-                  "token_count": 130
+                  "token_count": 142
                 },
-                "page": 3,
+                "page": 1,
                 "rank": 2,
-                "score": 0.5026720945885051,
+                "score": 0.49265444269804015,
                 "source": "vector",
-                "text_excerpt": "to be found. The density of air has significant effects on the aircraft\u2019s performance because as air becomes less dense, it reduces: \u2022 Power because the engine takes in less air \u2022 Thrust because a propeller is less efficient in thin air \u2022 L"
+                "text_excerpt": "to understanding the principles of flight. Viscosity Viscosity is the property of a fluid that causes it to resist flowing. The way individual molecules of the fluid tend to adhere, or stick, to each other determines how much a fluid resist"
               },
               {
-                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c03",
+                "chunk_id": "06_phak_ch4_0-structure_aware_medium-p05-c01",
                 "metadata": {
                   "chunk_configured_max_chars": 900,
                   "chunk_configured_overlap_chars": 150,
-                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p03-c03",
-                  "chunk_index": 3,
+                  "chunk_id": "06_phak_ch4_0-structure_aware_medium-p05-c01",
+                  "chunk_index": 1,
                   "chunk_profile_family": "structure_aware",
-                  "chunk_token_count": 122,
-                  "page": 3,
-                  "section": "Density Altitude",
+                  "chunk_token_count": 136,
+                  "page": 5,
+                  "section": "PRESSURE",
                   "source_document": "06_phak_ch4_0",
                   "source_path": "data/raw/06_phak_ch4_0.pdf",
                   "strategy": "structure_aware_medium",
-                  "token_count": 122
+                  "token_count": 136
                 },
-                "page": 3,
+                "page": 5,
                 "rank": 3,
-                "score": 0.498986455177097,
+                "score": 0.42677841467685734,
                 "source": "vector",
-                "text_excerpt": "aircraft performance because under standard atmospheric conditions, air at each level in the atmosphere not only has a specific density, its pressure altitude and density altitude identify the same level. The computation of density altitude"
+                "text_excerpt": "air; consequently, the air pushes the propeller (and thus the airplane) in the opposite direction\u2014forward. In a jet airplane, the engine pushes a blast of hot gases backward; the force of equal and opposite reaction pushes against the engin"
               }
             ]
           }
@@ -7987,24 +7225,14 @@
                 "06_phak_ch4_0-structure_aware_medium-p03-c05",
                 "06_phak_ch4_0-structure_aware_medium-p04-c02",
                 "06_phak_ch4_0-structure_aware_medium-p00-c01",
-                "06_phak_ch4_0-structure_aware_medium-p03-c06",
-                "06_phak_ch4_0-structure_aware_medium-p02-c01",
-                "06_phak_ch4_0-structure_aware_medium-p02-c03",
-                "06_phak_ch4_0-structure_aware_medium-p05-c02",
-                "06_phak_ch4_0-structure_aware_medium-p04-c01",
-                "06_phak_ch4_0-structure_aware_medium-p00-c00"
+                "06_phak_ch4_0-structure_aware_medium-p03-c06"
               ],
               "retrieved_source_pages": [
                 2,
                 3,
                 4,
                 0,
-                3,
-                2,
-                2,
-                5,
-                4,
-                0
+                3
               ]
             },
             "no_answer_diagnostics": {},
@@ -8106,25 +7334,13 @@
                 "06_phak_ch4_0-structure_aware_medium-p04-c02",
                 "06_phak_ch4_0-structure_aware_medium-p02-c03",
                 "06_phak_ch4_0-structure_aware_medium-p04-c03",
-                "06_phak_ch4_0-structure_aware_medium-p02-c00",
-                "06_phak_ch4_0-structure_aware_medium-p02-c04",
-                "06_phak_ch4_0-structure_aware_medium-p00-c00",
-                "06_phak_ch4_0-structure_aware_medium-p03-c00",
-                "06_phak_ch4_0-structure_aware_medium-p03-c01",
-                "06_phak_ch4_0-structure_aware_medium-p04-c06",
-                "06_phak_ch4_0-structure_aware_medium-p04-c01"
+                "06_phak_ch4_0-structure_aware_medium-p02-c00"
               ],
               "retrieved_source_pages": [
                 4,
                 2,
                 4,
-                2,
-                2,
-                0,
-                3,
-                3,
-                4,
-                4
+                2
               ]
             },
             "no_answer_diagnostics": {

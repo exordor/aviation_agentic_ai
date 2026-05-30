@@ -5,6 +5,7 @@ from aviation_agentic_ai.chunking.chunks import (
     CHUNKING_STRATEGIES,
     SourceChunk,
     _cosine_similarity,
+    _proposition_segments,
     _window_text,
     build_chunks,
     chunking_profile,
@@ -119,6 +120,23 @@ def test_cosine_similarity_rejects_mismatched_dimensions() -> None:
         assert "same length" in str(exc)
     else:  # pragma: no cover - assertion guard.
         raise AssertionError("Expected ValueError")
+
+
+def test_proposition_like_merges_leading_short_fragment() -> None:
+    segments = _proposition_segments(
+        (
+            "Intro. Lift is the upward force created by pressure differences across the wing. "
+            "Pilots monitor aircraft performance carefully."
+        ),
+        max_chars=900,
+        overlap_chars=80,
+        min_chars=40,
+    )
+
+    assert segments
+    assert segments[0][2].startswith("Intro. Lift is")
+    assert len(segments[0][2]) >= 40
+    assert all(len(segment[2]) >= 40 for segment in segments[:-1])
 
 
 def test_fixed_and_recursive_size_tiers_apply_relative_sizes(monkeypatch) -> None:

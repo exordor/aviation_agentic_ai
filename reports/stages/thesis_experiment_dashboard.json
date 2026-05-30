@@ -591,8 +591,8 @@
       "budget_best_strategy": "recursive_medium",
       "budget_recall_at_5_supported": 0.79,
       "category_best": {
-        "concept_definition": "recursive_large",
-        "cross_page": "fixed_large",
+        "concept_definition": "fixed_large",
+        "cross_page": "recursive_large",
         "insufficient_evidence": "diagnostic_only",
         "paraphrase": "embedding_semantic",
         "relation_causal": "hierarchical_parent_child",
@@ -606,13 +606,13 @@
       "semantic_backend": [
         "sentence_transformers"
       ],
-      "topk_best_strategy": "fixed_large",
-      "topk_recall_at_5_supported": 0.86,
+      "topk_best_strategy": "structure_aware_large",
+      "topk_recall_at_5_supported": 0.85,
       "topk_sensitivity_best_by_k": {
         "10": "structure_aware_large",
         "20": "structure_aware_large",
         "3": "recursive_large",
-        "5": "fixed_large"
+        "5": "structure_aware_large"
       }
     },
     "kg": {

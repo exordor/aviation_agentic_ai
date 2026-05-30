@@ -69,7 +69,7 @@
 | robustness | Abstention Correctness=1.0, False Answer Rate=0.0, Boundary Violations=0 |
 | benchmark reviewed subset | Labels=60, Review Status=llm_review_pending_not_human_certified, External Expert Certified=False |
 | answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=45, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |
-| chunking benchmark v2 | Top-k best=fixed_large (Recall@5=0.86), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |
+| chunking benchmark v2 | Top-k best=structure_aware_large (Recall@5=0.85), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |
 | KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |
 | triple semantic review | Sample=100, reviewed=0, needs_review=100 |
 | LLM review status | Benchmark reviewed=6, triple evidence support=0.1667, graph path relevance=0.3333, answer judge correctness=None, human review=false |

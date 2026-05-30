@@ -552,6 +552,16 @@ def _proposition_segments(
             )
         else:
             merged.append(segment)
+    while len(merged) > 1 and len(merged[0][2]) < min_chars:
+        first, second = merged[0], merged[1]
+        merged[:2] = [
+            (
+                first[0],
+                second[1],
+                f"{first[2]} {second[2]}".strip(),
+                first[3] or second[3],
+            )
+        ]
     return merged
 
 
