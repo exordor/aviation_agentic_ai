@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
+from aviation_agentic_ai.reporting.accessors import nested_value as _metric
 from aviation_agentic_ai.reporting.io import write_json_report
 from aviation_agentic_ai.reporting.project_report import build_project_evidence_pack
 from aviation_agentic_ai.reporting.thesis_claims import REVISED_THESIS_CLAIM
@@ -56,15 +57,6 @@ def _artifact_data(evidence: dict[str, Any], key: str) -> dict[str, Any]:
     if not data:
         data = evidence.get("thesis_ready_artifacts", {}).get(f"{key}_json", {}).get("data", {})
     return data if isinstance(data, dict) else {}
-
-
-def _metric(data: dict[str, Any], *keys: str, default: Any = "TBD") -> Any:
-    current: Any = data
-    for key in keys:
-        if not isinstance(current, dict) or key not in current:
-            return default
-        current = current[key]
-    return current
 
 
 def _source_paths(evidence: dict[str, Any]) -> list[str]:

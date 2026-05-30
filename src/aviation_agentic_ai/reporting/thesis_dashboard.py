@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
+from aviation_agentic_ai.reporting.accessors import nested_value as _metric
 from aviation_agentic_ai.reporting.evaluation_protocol import PRIMARY_THESIS_METRICS
 from aviation_agentic_ai.reporting.io import read_json_object_or_empty, write_json_report
 
@@ -90,15 +91,6 @@ SAFE_UNSUPPORTED_CONTEXT_SECTIONS = (
 
 def _load_json(path: Path) -> dict[str, Any]:
     return read_json_object_or_empty(path, wrap_non_object=True)
-
-
-def _metric(data: dict[str, Any], *keys: str, default: Any = "TBD") -> Any:
-    current: Any = data
-    for key in keys:
-        if not isinstance(current, dict) or key not in current:
-            return default
-        current = current[key]
-    return current
 
 
 def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[dict[str, Any]]:

@@ -5,20 +5,12 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.accessors import nested_value as _metric
 from aviation_agentic_ai.reporting.io import read_json_object_or_none, write_json_report
 
 
 def _load_json(path: str | Path) -> dict[str, Any] | None:
     return read_json_object_or_none(path, wrap_non_object=True)
-
-
-def _metric(data: dict[str, Any], *keys: str, default: Any = "TBD") -> Any:
-    current: Any = data
-    for key in keys:
-        if not isinstance(current, dict) or key not in current:
-            return default
-        current = current[key]
-    return current
 
 
 def _mode_summary(experiment: dict[str, Any], mode: str) -> dict[str, Any]:

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.accessors import nested_value as _metric
 from aviation_agentic_ai.reporting.io import (
     normalize_report_text,
     read_json_object,
@@ -29,15 +30,6 @@ def _load_json(path: str | Path) -> dict[str, Any]:
 
 def _normalize(text: Any) -> str:
     return normalize_report_text(text)
-
-
-def _metric(data: dict[str, Any], *keys: str, default: Any = None) -> Any:
-    current: Any = data
-    for key in keys:
-        if not isinstance(current, dict) or key not in current:
-            return default
-        current = current[key]
-    return current
 
 
 def _truthy(value: Any) -> bool:
