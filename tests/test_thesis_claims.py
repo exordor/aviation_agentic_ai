@@ -78,7 +78,7 @@ def test_unsafe_wording_detector_ignores_boundary_negation() -> None:
 
 
 def test_cli_report_thesis_claims_uses_mocked_writer(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_thesis
 
     def fake_write_thesis_claims_review(output_dir, **kwargs):
         output = Path(output_dir)
@@ -90,7 +90,11 @@ def test_cli_report_thesis_claims_uses_mocked_writer(tmp_path: Path, monkeypatch
         assert kwargs["report_name"] == "thesis_claims_review"
         return json_path, md_path, {"metadata": {"unsafe_claims_total": 0}}
 
-    monkeypatch.setattr(cli, "write_thesis_claims_review", fake_write_thesis_claims_review)
+    monkeypatch.setattr(
+        cli_report_thesis,
+        "write_thesis_claims_review",
+        fake_write_thesis_claims_review,
+    )
 
     result = CliRunner().invoke(
         main,

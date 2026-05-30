@@ -338,7 +338,7 @@ def test_project_report_compacts_expansion_reports(tmp_path: Path) -> None:
 
 
 def test_cli_report_project_no_ai_writes_outputs(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_thesis
 
     def fake_writer(output_dir, **kwargs):
         output = Path(output_dir)
@@ -349,7 +349,7 @@ def test_cli_report_project_no_ai_writes_outputs(tmp_path: Path, monkeypatch) ->
         sources_path.write_text("{}\n", encoding="utf-8")
         return md_path, sources_path, {"used_ai": kwargs.get("use_ai", False)}
 
-    monkeypatch.setattr(cli, "write_project_report", fake_writer)
+    monkeypatch.setattr(cli_report_thesis, "write_project_report", fake_writer)
     result = CliRunner().invoke(
         main,
         [
@@ -367,7 +367,7 @@ def test_cli_report_project_no_ai_writes_outputs(tmp_path: Path, monkeypatch) ->
 
 
 def test_cli_report_project_ai_uses_writer_flag(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_thesis
 
     calls = {}
 
@@ -381,7 +381,7 @@ def test_cli_report_project_ai_uses_writer_flag(tmp_path: Path, monkeypatch) -> 
         sources_path.write_text("{}\n", encoding="utf-8")
         return md_path, sources_path, {"used_ai": kwargs.get("use_ai", False)}
 
-    monkeypatch.setattr(cli, "write_project_report", fake_writer)
+    monkeypatch.setattr(cli_report_thesis, "write_project_report", fake_writer)
     result = CliRunner().invoke(
         main,
         [

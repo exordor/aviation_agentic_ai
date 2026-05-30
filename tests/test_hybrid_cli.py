@@ -756,7 +756,7 @@ def test_cli_report_evaluation_protocol_uses_mocked_writer(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_thesis
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "evaluation_protocol_review.json"
@@ -765,7 +765,7 @@ def test_cli_report_evaluation_protocol_uses_mocked_writer(
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"missing_or_pending_metrics": [{}, {}]}
 
-    monkeypatch.setattr(cli, "write_evaluation_protocol_review", fake_writer)
+    monkeypatch.setattr(cli_report_thesis, "write_evaluation_protocol_review", fake_writer)
 
     result = CliRunner().invoke(
         main,
@@ -785,7 +785,7 @@ def test_cli_report_thesis_dashboard_uses_mocked_writer(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    from aviation_agentic_ai import cli
+    from aviation_agentic_ai import cli_report_thesis
 
     def fake_writer(*_args, **_kwargs):
         json_path = tmp_path / "thesis_experiment_dashboard.json"
@@ -794,7 +794,7 @@ def test_cli_report_thesis_dashboard_uses_mocked_writer(
         md_path.write_text("# report\n", encoding="utf-8")
         return json_path, md_path, {"consistency_checks": {"all_passed": True}}
 
-    monkeypatch.setattr(cli, "write_thesis_experiment_dashboard", fake_writer)
+    monkeypatch.setattr(cli_report_thesis, "write_thesis_experiment_dashboard", fake_writer)
 
     result = CliRunner().invoke(
         main,
