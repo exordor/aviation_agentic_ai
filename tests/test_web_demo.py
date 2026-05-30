@@ -10,6 +10,7 @@ from aviation_agentic_ai.cli import main
 from aviation_agentic_ai.reporting.web_demo import build_web_demo_readiness
 from aviation_agentic_ai.reporting.web_demo_smoke import build_web_demo_smoke
 from aviation_agentic_ai.web.data import (
+    WebDataReadError,
     build_demo_explanation,
     build_demo_status,
     build_question_detail,
@@ -230,6 +231,21 @@ def test_web_data_loads_questions_and_detail(tmp_path: Path) -> None:
     assert detail is not None
     assert detail["experiments"]["structure_aware"]["modes"]["hybrid"]["present"]
     assert detail["experiments"]["structure_aware"]["modes"]["hybrid"]["graph_triples"]
+
+
+def test_web_data_reports_malformed_json_artifact_path(tmp_path: Path) -> None:
+    _write_web_fixture(tmp_path)
+    broken = tmp_path / "reports" / "stages" / "hybrid_rag_structure_aware.json"
+    broken.write_text('{"metadata": ', encoding="utf-8")
+
+    try:
+        build_questions(tmp_path)
+    except WebDataReadError as exc:
+        message = str(exc)
+        assert "Invalid web demo JSON artifact" in message
+        assert "hybrid_rag_structure_aware.json" in message
+    else:
+        raise AssertionError("Malformed web demo JSON artifact should fail with WebDataReadError")
 
 
 def test_question_kg_graph_builds_question_scoped_nodes_and_edges(tmp_path: Path) -> None:

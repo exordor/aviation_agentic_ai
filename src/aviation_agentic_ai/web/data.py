@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-import json
+from json import JSONDecodeError
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.advisory import ADVISORY_BOUNDARY
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
+from aviation_agentic_ai.utils.io import read_json_document_or_none
 
 
 STRUCTURE_AWARE_CHUNKS = "data/chunks/06_phak_ch4_0.structure_aware.jsonl"
@@ -29,6 +30,10 @@ ARTIFACTS = {
 }
 
 
+class WebDataReadError(ValueError):
+    """Raised when a web-demo JSON artifact cannot be parsed with useful context."""
+
+
 def _root(project_root: str | Path = PROJECT_ROOT) -> Path:
     return Path(project_root)
 
@@ -39,9 +44,14 @@ def _artifact_path(project_root: str | Path, key: str) -> Path:
 
 def _read_json(path: str | Path) -> dict[str, Any] | None:
     source = Path(path)
-    if not source.exists():
+    try:
+        data = read_json_document_or_none(source)
+    except JSONDecodeError as exc:
+        raise WebDataReadError(
+            f"Invalid web demo JSON artifact in {project_relative_path(source)}: {exc}"
+        ) from exc
+    if data is None:
         return None
-    data = json.loads(source.read_text(encoding="utf-8"))
     return data if isinstance(data, dict) else {"value": data}
 
 
