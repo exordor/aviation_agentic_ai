@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.io import read_json_object_or_none, write_json_report
 
 
 PATH_FIELDS = {"manifest_path", "output_path", "runs_dir", "pdf_path", "cq_path"}
@@ -30,8 +30,8 @@ def load_generation_manifests(runs_dir: str | Path) -> list[dict[str, Any]]:
         return []
     manifests: list[dict[str, Any]] = []
     for path in sorted(directory.glob("**/manifest.json")):
-        data = json.loads(path.read_text(encoding="utf-8"))
-        if isinstance(data, dict):
+        data = read_json_object_or_none(path, wrap_non_object=False)
+        if data is not None:
             manifests.append(_relative_path_fields({**data, "manifest_path": str(path)}))
     return manifests
 
@@ -78,10 +78,7 @@ def build_generation_run_summary(runs_dir: str | Path) -> dict[str, Any]:
 
 
 def write_generation_run_summary_json(summary: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(summary, output_path, sort_keys=False)
 
 
 def write_generation_run_summary_markdown(summary: dict[str, Any], output_path: str | Path) -> Path:

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import json
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
+
+from aviation_agentic_ai.reporting.io import read_json_object, write_json_report
 
 
 REQUIRED_FINDING_FIELDS = {
@@ -52,17 +53,19 @@ def validate_adversarial_review_report(report: dict[str, Any]) -> dict[str, Any]
 
 def load_adversarial_review_report(path: str | Path) -> dict[str, Any]:
     report_path = Path(path)
-    data = json.loads(report_path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise ValueError(f"Expected adversarial review object: {report_path}")
+    try:
+        data = read_json_object(report_path)
+    except ValueError as exc:
+        raise ValueError(f"Expected adversarial review object: {report_path}") from exc
     return validate_adversarial_review_report(data)
 
 
 def load_review_report(path: str | Path) -> dict[str, Any]:
     report_path = Path(path)
-    data = json.loads(report_path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise ValueError(f"Expected review report object: {report_path}")
+    try:
+        data = read_json_object(report_path)
+    except ValueError as exc:
+        raise ValueError(f"Expected review report object: {report_path}") from exc
     for key in ("review_id", "title", "findings", "actions"):
         if key not in data:
             raise ValueError(f"Missing required review report field '{key}': {report_path}")
@@ -99,8 +102,8 @@ def load_review_reports(reviews_dir: str | Path) -> list[dict[str, Any]]:
     for path in sorted(directory.glob("*.json")):
         if path.name == "review_progress.json":
             continue
-        data = json.loads(path.read_text(encoding="utf-8"))
-        if isinstance(data, dict) and ADVERSARIAL_REQUIRED_FIELDS <= data.keys():
+        data = read_json_object(path)
+        if ADVERSARIAL_REQUIRED_FIELDS <= data.keys():
             validate_adversarial_review_report(data)
             continue
         reports.append(load_review_report(path))
@@ -146,10 +149,7 @@ def aggregate_review_reports(reports: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def write_review_progress_json(progress: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(progress, indent=2) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(progress, output_path, sort_keys=False)
 
 
 def write_review_progress_markdown(progress: dict[str, Any], output_path: str | Path) -> Path:

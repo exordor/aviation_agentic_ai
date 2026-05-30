@@ -48,5 +48,15 @@ def test_write_json_report_uses_stable_format(tmp_path: Path) -> None:
     assert path.read_text(encoding="utf-8") == '{\n  "a": 1,\n  "b": 2\n}\n'
 
 
+def test_write_json_report_can_preserve_insertion_order(tmp_path: Path) -> None:
+    path = write_json_report(
+        {"b": 2, "a": 1},
+        tmp_path / "report.json",
+        sort_keys=False,
+    )
+
+    assert path.read_text(encoding="utf-8") == '{\n  "b": 2,\n  "a": 1\n}\n'
+
+
 def test_normalize_report_text_matches_existing_report_wrappers() -> None:
     assert normalize_report_text("  Lift\nAFFECTS   Drag  ") == "lift affects drag"

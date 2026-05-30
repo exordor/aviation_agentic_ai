@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
+
+from aviation_agentic_ai.reporting.io import read_json_object_or_none, write_json_report
 
 
 STAGE_INPUTS = {
@@ -17,10 +18,7 @@ STAGE_INPUTS = {
 
 
 def _read_json_if_exists(path: Path) -> dict[str, Any] | None:
-    if not path.exists():
-        return None
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return data if isinstance(data, dict) else {"value": data}
+    return read_json_object_or_none(path, wrap_non_object=True)
 
 
 def _summarize_evaluation(report_name: str, data: dict[str, Any]) -> dict[str, Any]:
@@ -177,10 +175,7 @@ def build_overnight_summary(stage_dir: str | Path) -> dict[str, Any]:
 
 
 def write_overnight_summary_json(summary: dict[str, Any], output_path: str | Path) -> Path:
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-    return path
+    return write_json_report(summary, output_path, sort_keys=False)
 
 
 def write_overnight_summary_markdown(summary: dict[str, Any], output_path: str | Path) -> Path:
