@@ -29,7 +29,7 @@ verified backlog rather than silently mixed into this iteration.
 | M2 | Still valid. `_extract_json_payload` had no direct tests. | Added direct tests for fenced JSON, bare JSON, embedded JSON, and empty input. |
 | M4 | Still valid. Lexical graph no-result behavior was not tested. | Added a no-overlap `graph_search` test. |
 | M5 | Still valid. Retrieval and answer metrics had missing empty-input tests. | Added explicit empty-input retrieval and answer metric tests. |
-| M6 | Still valid. Evaluation protocol tests were mostly structural. | Added value-level assertions for the review/certification limitation language in `EVIDENCE_GAPS`. |
+| M6 | Still valid. Evaluation protocol tests were mostly structural. | Added value-level assertions for the metric catalog, implemented/pending metric sets, report-presence coverage, precision/CI interpretation notes, and review/certification limitation language in `EVIDENCE_GAPS`. |
 | M7 | Still valid. Empty KG JSONL round-trip was not tested. | Added `write_kg_jsonl([])` / `read_kg_jsonl` round-trip coverage. |
 
 ## Verified Backlog

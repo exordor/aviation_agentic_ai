@@ -67,6 +67,29 @@ def test_evaluation_protocol_report_generation(tmp_path: Path) -> None:
     assert payload["metadata"]["scoring_policy"] == "layered_metrics_no_mixed_overall_score"
     assert any(group["layer"] == "retrieval" for group in result["primary_thesis_metrics"])
     assert any(metric["metric"] == "NDCG@10" for metric in result["metric_catalog"])
+    catalog = {metric["metric"]: metric for metric in result["metric_catalog"]}
+    implemented = {metric["metric"] for metric in result["implemented_metrics"]}
+    pending = {metric["metric"] for metric in result["missing_or_pending_metrics"]}
+
+    assert len(catalog) == 29
+    assert catalog["Recall@5"]["field"] == "recall_at_5"
+    assert catalog["Recall@5"]["kind"] == "mainstream_ir"
+    assert catalog["Context Precision@5"]["field"] == "context_precision_at_5"
+    assert catalog["Citation Precision"]["kind"] == "deterministic_answer_heuristic"
+    assert catalog["Abstention Accuracy"]["reports"] == (
+        "sufficiency_evaluation",
+        "robustness_evaluation",
+    )
+    assert {
+        "Recall@5",
+        "MRR@10",
+        "Context Recall",
+        "Citation Precision",
+        "Abstention Accuracy",
+    } <= implemented
+    assert pending == {"Faithfulness", "Answer Correctness", "Answer Relevance"}
+    assert len(result["primary_thesis_metrics"]) == 5
+    assert len(result["report_presence"]) == 14
     assert any(
         note["topic"] == "precision_denominators"
         for note in payload["metric_interpretation_notes"]
