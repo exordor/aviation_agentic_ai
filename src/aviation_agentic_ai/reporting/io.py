@@ -5,10 +5,22 @@ from typing import Any
 
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.utils.io import (
+    JSONDocumentReadError,
     read_json_document,
     read_json_document_or_none,
     write_json_document,
 )
+
+__all__ = [
+    "JSONDocumentReadError",
+    "normalize_report_text",
+    "read_json_document",
+    "read_json_document_or_none",
+    "read_json_object",
+    "read_json_object_or_empty",
+    "read_json_object_or_none",
+    "write_json_report",
+]
 
 
 def normalize_report_text(value: Any) -> str:

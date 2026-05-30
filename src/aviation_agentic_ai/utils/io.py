@@ -4,11 +4,24 @@ import json
 from pathlib import Path
 from typing import Any
 
+from aviation_agentic_ai.paths import project_relative_path
+
+
+class JSONDocumentReadError(json.JSONDecodeError):
+    """Raised when a JSON document cannot be parsed with file context."""
+
 
 def read_json_document(path: str | Path) -> Any:
     """Read a JSON document that must exist."""
     source = Path(path)
-    return json.loads(source.read_text(encoding="utf-8"))
+    try:
+        return json.loads(source.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise JSONDocumentReadError(
+            f"Invalid JSON document in {project_relative_path(source)}: {exc.msg}",
+            exc.doc,
+            exc.pos,
+        ) from exc
 
 
 def read_json_document_or_none(path: str | Path) -> Any | None:

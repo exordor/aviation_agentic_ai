@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from aviation_agentic_ai.reporting.io import (
+    JSONDocumentReadError,
     normalize_report_text,
     read_json_document,
     read_json_document_or_none,
@@ -35,6 +36,20 @@ def test_reporting_json_helpers_preserve_non_object_policies(tmp_path: Path) -> 
     assert read_json_object_or_empty(path, wrap_non_object=True) == {"value": [1, 2]}
     assert read_json_object_or_none(path, wrap_non_object=True) == {"value": [1, 2]}
     assert read_json_object_or_none(path, wrap_non_object=False) is None
+
+
+def test_reporting_json_helpers_report_decode_errors_with_path(tmp_path: Path) -> None:
+    path = tmp_path / "broken-report.json"
+    path.write_text('{"records": ', encoding="utf-8")
+
+    try:
+        read_json_object_or_empty(path)
+    except JSONDocumentReadError as exc:
+        message = str(exc)
+        assert "Invalid JSON document" in message
+        assert "broken-report.json" in message
+    else:
+        raise AssertionError("Malformed report JSON should fail with JSONDocumentReadError")
 
 
 def test_reporting_json_helpers_raise_for_required_object(tmp_path: Path) -> None:
