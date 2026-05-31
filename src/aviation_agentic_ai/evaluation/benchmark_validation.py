@@ -179,7 +179,11 @@ def validate_benchmark(
                 )
             if bool(label.get("expected_abstention", False)) is not True:
                 errors.append(f"{cq_id}: no-answer labels must set expected_abstention=true.")
-            if int(label.get("source_page", 0)) != -1:
+            try:
+                source_page = int(label.get("source_page", 0))
+            except (TypeError, ValueError):
+                source_page = None
+            if source_page != -1:
                 errors.append(f"{cq_id}: no-answer labels must set source_page=-1.")
             if label.get("expected_chunk_ids", []) != []:
                 errors.append(f"{cq_id}: no-answer labels must have empty expected_chunk_ids.")

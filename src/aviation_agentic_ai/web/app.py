@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from aviation_agentic_ai.config import load_environment
 from aviation_agentic_ai.llm.providers import (
@@ -31,10 +31,10 @@ from aviation_agentic_ai.web.data import (
 
 
 class QueryRequest(BaseModel):
-    question: str
+    question: str = Field(..., max_length=2000)
     mode: Literal["vector", "graph", "hybrid"] = "hybrid"
-    max_tokens: int = 1200
-    temperature: float = 0.0
+    max_tokens: int = Field(1200, ge=1, le=8192)
+    temperature: float = Field(0.0, ge=0.0, le=2.0)
 
 
 def _llm_metadata() -> dict[str, str]:
@@ -265,7 +265,12 @@ def create_app(
         except (RuntimeError, ValueError) as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except Exception as exc:
-            raise HTTPException(status_code=502, detail=f"Live query failed: {exc}") from exc
+            import logging
+
+            logging.getLogger(__name__).exception("Live query failed")
+            raise HTTPException(
+                status_code=502, detail="Live query failed due to an internal error."
+            ) from exc
         result["evidence_summary"] = build_evidence_summary(result)
         return result
 

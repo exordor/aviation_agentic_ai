@@ -40,8 +40,17 @@ def _required_env(name: str, provider: str) -> str:
     )
 
 
-def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel":
+def get_llm(
+    temperature: float = 0.3,
+    max_tokens: int = 4096,
+    timeout: float | None = 60.0,
+) -> "BaseChatModel":
     """Return a LangChain-compatible chat model from environment configuration."""
+    if not (0.0 <= temperature <= 2.0):
+        raise ValueError(f"temperature must be in [0.0, 2.0], got {temperature}")
+    if max_tokens < 1:
+        raise ValueError(f"max_tokens must be >= 1, got {max_tokens}")
+
     try:
         from langchain_openai import ChatOpenAI
     except ImportError as exc:
@@ -61,6 +70,7 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel"
             api_key=_required_env("OPENAI_API_KEY", provider),
             temperature=temperature,
             max_tokens=max_tokens,
+            timeout=timeout,
         )
 
     if provider == "deepseek":
@@ -70,15 +80,24 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel"
             api_key=_required_env("DEEPSEEK_API_KEY", provider),
             temperature=temperature,
             max_tokens=max_tokens,
+            timeout=timeout,
         )
 
     if provider == "vllm":
+        vllm_port_str = os.getenv("VLLM_PORT", "8000")
+        try:
+            vllm_port = int(vllm_port_str)
+        except ValueError as exc:
+            raise ValueError(f"VLLM_PORT must be an integer, got {vllm_port_str!r}") from exc
+        if not (1 <= vllm_port <= 65535):
+            raise ValueError(f"VLLM_PORT must be in [1, 65535], got {vllm_port}")
         return ChatOpenAI(
             model=model,
-            base_url=f"http://localhost:{os.getenv('VLLM_PORT', '8000')}/v1",
+            base_url=f"http://localhost:{vllm_port}/v1",
             api_key=os.getenv("VLLM_API_KEY", "not-needed"),
             temperature=temperature,
             max_tokens=max_tokens,
+            timeout=timeout,
         )
 
     raise ValueError(f"Unsupported LLM_PROVIDER: {provider}")

@@ -195,6 +195,20 @@ def apply_hygiene_plan(plan: dict[str, Any], *, base: str | Path = PROJECT_ROOT)
         target.parent.mkdir(parents=True, exist_ok=True)
         try:
             shutil.move(str(source), str(target))
+        except FileExistsError:
+            # Race: target appeared between _unique_destination and move.
+            target = _unique_destination(destination)
+            try:
+                shutil.move(str(source), str(target))
+            except OSError as exc:
+                import logging
+                logging.getLogger(__name__).warning(
+                    "Failed to move %s to %s: %s",
+                    project_relative_path(source, base=base_path),
+                    project_relative_path(target, base=base_path),
+                    exc,
+                )
+                continue
         except OSError as exc:
             import logging
             logging.getLogger(__name__).warning(

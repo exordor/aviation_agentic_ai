@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
-from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.paths import project_relative_path, resolve_output_path
 from aviation_agentic_ai.reporting.generation_runs import write_generation_run_summary
 from aviation_agentic_ai.reporting.hygiene import run_report_hygiene
 from aviation_agentic_ai.reporting.overnight import write_overnight_summary
@@ -164,6 +164,10 @@ def register_stage_report_commands(report: click.Group) -> None:
             config = load_default_config()
             stages = stage_dir or resolve_project_path(config["paths"]["stage_report_dir"])
             archive = archive_root or resolve_project_path("reports/archive")
+            if apply_changes and archive_root is not None:
+                archive = resolve_output_path(archive_root)
+            if apply_changes and stage_dir is not None:
+                stages = resolve_output_path(stage_dir)
             reviews = reviews_dir or resolve_project_path("reports/reviews")
             json_path, md_path, plan = run_report_hygiene(
                 stages,

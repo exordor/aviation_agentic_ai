@@ -1,4 +1,5 @@
 import os
+import warnings
 from pathlib import Path
 
 _ENV_ROOT = os.getenv("AVIATION_AI_PROJECT_ROOT")
@@ -25,3 +26,19 @@ def project_relative_path(path: str | Path, base: str | Path = PROJECT_ROOT) -> 
             )
         )
     return relative.as_posix()
+
+
+def resolve_output_path(path: str | Path) -> Path:
+    """Resolve an output path, warning when it falls outside the project root."""
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = PROJECT_ROOT / candidate
+    try:
+        candidate.resolve(strict=False).relative_to(PROJECT_ROOT.resolve(strict=False))
+    except ValueError:
+        warnings.warn(
+            f"Output path {candidate} is outside the project root ({PROJECT_ROOT}). "
+            "This may be a path traversal risk.",
+            stacklevel=2,
+        )
+    return candidate

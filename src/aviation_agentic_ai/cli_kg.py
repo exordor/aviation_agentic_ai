@@ -12,7 +12,7 @@ from aviation_agentic_ai.kg.extraction import (
     write_kg_ttl,
     write_kg_validation_reports,
 )
-from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.paths import project_relative_path, resolve_output_path
 
 
 @click.group()
@@ -56,6 +56,8 @@ def kg_extract(
     kg_config = config.get("kg_extraction", {})
     chunks = chunks_path or resolve_project_path(config["paths"]["chunks_file"])
     output = output_path or resolve_project_path(config["paths"]["kg_file"])
+    if output_path is not None:
+        output = resolve_output_path(output_path)
     profile = profile_path or resolve_project_path("configs/extraction_profile.yaml")
     ontology_path = ontology_file or default_ontology_path()
 
@@ -98,7 +100,7 @@ def kg_extract(
         f"{report.get('extraction_errors_total', 0)} extraction errors).{partial_info}"
     )
     if ttl_output is not None:
-        ttl_path = write_kg_ttl(triples, ttl_output)
+        ttl_path = write_kg_ttl(triples, resolve_output_path(ttl_output))
         click.echo(f"Wrote {project_relative_path(ttl_path)}")
 
 

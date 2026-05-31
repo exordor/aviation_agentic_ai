@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -8,6 +9,7 @@ import yaml
 from aviation_agentic_ai.paths import PROJECT_ROOT
 
 _ENVIRONMENT_LOADED = False
+_ENV_LOCK = threading.Lock()
 
 
 def resolve_project_path(path: str | Path) -> Path:
@@ -37,16 +39,17 @@ def load_environment(*, force: bool = False) -> bool:
     variables. Callers should still read `os.environ` directly so tests can use
     monkeypatching without resetting this loader.
     """
-    global _ENVIRONMENT_LOADED
-    if _ENVIRONMENT_LOADED and not force:
-        return False
+    with _ENV_LOCK:
+        global _ENVIRONMENT_LOADED
+        if _ENVIRONMENT_LOADED and not force:
+            return False
 
-    try:
-        from dotenv import load_dotenv
-    except ImportError:
+        try:
+            from dotenv import load_dotenv
+        except ImportError:
+            _ENVIRONMENT_LOADED = True
+            return False
+
+        load_dotenv(PROJECT_ROOT / ".env")
         _ENVIRONMENT_LOADED = True
-        return False
-
-    load_dotenv(PROJECT_ROOT / ".env")
-    _ENVIRONMENT_LOADED = True
-    return True
+        return True

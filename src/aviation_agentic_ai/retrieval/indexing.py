@@ -89,7 +89,17 @@ def query_chroma_index(
         ) from exc
 
     client = chromadb.PersistentClient(path=str(index_dir))
-    collection = client.get_collection(collection_name)
+    try:
+        collection = client.get_collection(collection_name)
+    except Exception as exc:
+        message = str(exc).lower()
+        if any(phrase in message for phrase in ("not found", "does not exist", "no collection", "nonexistent")):
+            raise RuntimeError(
+                f"ChromaDB collection '{collection_name}' does not exist in "
+                f"{index_dir}. Build the index first with: "
+                "aviation-ai index build"
+            ) from exc
+        raise
     results = collection.query(
         query_texts=[question],
         n_results=top_k,
