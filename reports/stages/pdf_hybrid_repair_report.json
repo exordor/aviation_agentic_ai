@@ -1,0 +1,385 @@
+{
+  "metadata": {
+    "docling_available": true,
+    "docling_runtime_s": 13.5591,
+    "docling_status": "ConversionStatus.SUCCESS",
+    "document_id": "06_phak_ch4_0",
+    "hybrid_repair_applied": true,
+    "items_total": 143,
+    "lists_total": 5,
+    "merged_word_artifacts_detected": 1,
+    "pdf_backend": "hybrid_docling_pymupdf",
+    "pymupdf_runtime_s": 0.4057,
+    "repair_count": 14,
+    "repaired_items": 8,
+    "report_name": "pdf_hybrid_repair_report",
+    "section_headers_total": 23,
+    "source_path": "data/raw/06_phak_ch4_0.pdf",
+    "status": "hybrid_docling_pymupdf_ready",
+    "structure_authority": true,
+    "structure_backend": "docling_layout_labels",
+    "table_label_ambiguities": 8,
+    "tables_total": 1,
+    "text_artifact_warnings": 62,
+    "text_backend": "pymupdf_text_reference",
+    "text_fidelity_authority": true,
+    "total_docling_items": 143,
+    "unrepaired_suspicious_items": 52
+  },
+  "page_level_repair_counts": {
+    "0": {
+      "items": 40,
+      "repairs": 4,
+      "warnings": 28
+    },
+    "1": {
+      "items": 14,
+      "repairs": 0,
+      "warnings": 3
+    },
+    "2": {
+      "items": 13,
+      "repairs": 0,
+      "warnings": 4
+    },
+    "3": {
+      "items": 20,
+      "repairs": 0,
+      "warnings": 1
+    },
+    "4": {
+      "items": 13,
+      "repairs": 0,
+      "warnings": 2
+    },
+    "5": {
+      "items": 14,
+      "repairs": 1,
+      "warnings": 9
+    },
+    "6": {
+      "items": 13,
+      "repairs": 3,
+      "warnings": 5
+    },
+    "7": {
+      "items": 9,
+      "repairs": 5,
+      "warnings": 6
+    },
+    "8": {
+      "items": 7,
+      "repairs": 1,
+      "warnings": 4
+    }
+  },
+  "repair_examples": [
+    {
+      "item_id": "docling_item_00000",
+      "label": "TEXT",
+      "original_text": "Angleof attack Lowangleofattack Normal angleofattack High angleof attack Standard Pressure Inchesof Sea Level",
+      "page": 0,
+      "repaired_text": "Angleof attack Low angle of attack Normal angle of attack High angleof attack Standard Pressure Inches of Sea Level",
+      "repairs": [
+        {
+          "confidence": "high",
+          "original_text": "Lowangleofattack",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 27163,
+            "char_start": 27144
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "Low angle of attack"
+        },
+        {
+          "confidence": "high",
+          "original_text": "angleofattack",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 27120,
+            "char_start": 27105
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "angle of attack"
+        },
+        {
+          "confidence": "high",
+          "original_text": "Inchesof",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 4544,
+            "char_start": 4535
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "Inches of"
+        }
+      ]
+    },
+    {
+      "item_id": "docling_item_00031",
+      "label": "TEXT",
+      "original_text": "ORESSURE",
+      "page": 0,
+      "repaired_text": "PRESSURE",
+      "repairs": [
+        {
+          "confidence": "medium",
+          "original_text": "ORESSURE",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 4628,
+            "char_start": 4620
+          },
+          "repair_reason": "pymupdf_exact_reference_word_present",
+          "repaired_text": "PRESSURE"
+        }
+      ]
+    },
+    {
+      "item_id": "docling_item_00109",
+      "label": "TEXT",
+      "original_text": "An airfoil is a structure designed to obtain reaction upon its surface from the air through which it moves or that moves past such a structure. Air acts in various ways when submitted to  different  pressures  and  velocities;  but  this  discussion is  confined  to  the  parts  of  an  aircraft  that  a  pilot  is  most concerned with in flight-namely, the airfoils designed to produce lift. By looking at a typical airfoil profile, such as the  cross  section  of  a  wing,  one  can  see  several  obvious characteristics of design. [Figure 4-5] Notice that there is a difference in the curvatures (called cambers) of the upper and lower surfaces of the airfoil. The camber of the upper surface is more pronounced than that of the lower surface, which is usually somewhat flat.",
+      "page": 5,
+      "repaired_text": "An airfoil is a structure designed to obtain reaction upon its surface from the air through which it moves or that moves past such a structure. Air acts in various ways when submitted to  different  pressures  and  velocities;  but  this  discussion is  confined  to  the  parts  of  an  aircraft  that  a  pilot  is  most concerned with in flight-namely, the airfoil s designed to produce lift. By looking at a typical airfoil profile, such as the  cross  section  of  a  wing,  one  can  see  several  obvious characteristics of design. [Figure 4-5] Notice that there is a difference in the curvatures (called cambers) of the upper and lower surfaces of the airfoil. The camber of the upper surface is more pronounced than that of the lower surface, which is usually somewhat flat.",
+      "repairs": [
+        {
+          "confidence": "high",
+          "original_text": "airfoils",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 23226,
+            "char_start": 23217
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "airfoil s"
+        }
+      ]
+    },
+    {
+      "item_id": "docling_item_00120",
+      "label": "TEXT",
+      "original_text": "Different airfoils have different flight characteristics. Many thousands of airfoils have been tested in wind tunnels and in actual flight, but no one airfoil has been found that satisfies every flight requirement. The weight, speed, and purpose of  each  aircraft  dictate  the  shape  of  its  airfoil.  The  most efficient airfoil for producing the greatest lift is one that has a concave or 'scooped out' lower surface. As a fixed design, this type of airfoil sacrifices too much speed while producing lift and is not suitable for high-speed flight. Advancements in engineering have made it possible for today's high-speed jets  to  take  advantage  of  the  concave  airfoil's  high  lift characteristics.  Leading  edge  (Kreuger)  flaps  and  trailing edge (Fowler) flaps, when extended from the basic wing structure, literally change the airfoil shape into the classic concave form, thereby generating much greater lift during slow flight conditions.",
+      "page": 6,
+      "repaired_text": "Different airfoil s have different flight characteristics. Many thousands of airfoil s have been tested in wind tunnels and in actual flight, but no one airfoil has been found that satisfies every flight requirement. The weight, speed, and purpose of  each  aircraft  dictate  the  shape  of  its  airfoil.  The  most efficient airfoil for producing the greatest lift is one that has a concave or 'scooped out' lower surface. As a fixed design, this type of airfoil sacrifices too much speed while producing lift and is not suitable for high-speed flight. Advancements in engineering have made it possible for today's high-speed jets  to  take  advantage  of  the  concave  airfoil's  high  lift characteristics.  Leading  edge  (Kreuger)  flaps  and  trailing edge (Fowler) flaps, when extended from the basic wing structure, literally change the airfoil shape into the classic concave form, thereby generating much greater lift during slow flight conditions.",
+      "repairs": [
+        {
+          "confidence": "high",
+          "original_text": "airfoils",
+          "pymupdf_reference_span": {
+            "char_end": 329,
+            "char_start": 320
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "airfoil s"
+        },
+        {
+          "confidence": "high",
+          "original_text": "airfoils",
+          "pymupdf_reference_span": {
+            "char_end": 329,
+            "char_start": 320
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "airfoil s"
+        }
+      ]
+    },
+    {
+      "item_id": "docling_item_00121",
+      "label": "TEXT",
+      "original_text": "On the other hand, an airfoil that is perfectly streamlined and offers little wind resistance sometimes does not have enough lifting power to take the airplane off the ground. Thus, modern airplanes have airfoils that strike a medium between extremes in design. The shape varies according to the needs of the airplane for which it is designed. Figure 4-6 shows some of the more common airfoil designs.",
+      "page": 6,
+      "repaired_text": "On the other hand, an airfoil that is perfectly streamlined and offers little wind resistance sometimes does not have enough lifting power to take the airplane off the ground. Thus, modern airplanes have airfoil s that strike a medium between extremes in design. The shape varies according to the needs of the airplane for which it is designed. Figure 4-6 shows some of the more common airfoil designs.",
+      "repairs": [
+        {
+          "confidence": "high",
+          "original_text": "airfoils",
+          "pymupdf_reference_span": {
+            "char_end": 329,
+            "char_start": 320
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "airfoil s"
+        }
+      ]
+    },
+    {
+      "item_id": "docling_item_00131",
+      "label": "TEXT",
+      "original_text": "From experiments conducted on wind tunnel models and on full size airplanes, it has been determined that as air flows along the surface of a wing at different angles of attack (AOA), there are regions along the surface where the pressure is negative, or less than atmospheric, and regions where the pressure is positive, or greater than atmospheric. This negative pressure on the upper surface creates a relatively larger force on the wing than is caused by the positive pressure resulting from the air striking the lower wing surface. Figure 4-7 shows the pressure distribution along an airfoil at three different angles of attack. The average of the pressure variation for any given AOA is referred to as the center of pressure (CP). Aerodynamic force acts through this CP. At high angles of attack, the CP moves forward, while at low angles of attack the CP moves aft. In the design of wing structures, this CP travel is very important, since it affects the position of the air loads imposed on the wing structure in both low and high AOA conditions. An airplane's aerodynamic balance and controllability are governed by changes in the CP.",
+      "page": 7,
+      "repaired_text": "From experiments conducted on wind tunnel models and on full size airplane s, it has been determined that as air flows along the surface of a wing at different angles of attack (AOA), there are regions along the surface where the pressure is negative, or less than atmospheric, and regions where the pressure is positive, or greater than atmospheric. This negative pressure on the upper surface creates a relatively larger force on the wing than is caused by the positive pressure resulting from the air striking the lower wing surface. Figure 4-7 shows the pressure distribution along an airfoil at three different angles of attack. The average of the pressure variation for any given AOA is referred to as the center of pressure (CP). Aerodynamic force acts through this CP. At high angles of attack, the CP moves forward, while at low angles of attack the CP moves aft. In the design of wing structures, this CP travel is very important, since it affects the position of the air loads imposed on the wing structure in both low and high AOA conditions. An airplane's aerodynamic balance and controllability are governed by changes in the CP.",
+      "repairs": [
+        {
+          "confidence": "high",
+          "original_text": "airplanes",
+          "pymupdf_reference_span": null,
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "airplane s"
+        }
+      ]
+    },
+    {
+      "item_id": "docling_item_00133",
+      "label": "TEXT",
+      "original_text": "Although specific examples can be cited in which each of the principles predict and contribute to the formation of lift, lift is a complex subject. The production of lift is much more complex than a simple differential pressure between upper and lower airfoil surfaces. In fact, many lifting airfoils do not have an upper surface longer than the bottom, as in the case of symmetrical airfoils. These are seen in high-speed aircraft having symmetrical wings, or on symmetrical rotor blades for many helicopters whose upper and lower surfaces are identical. In both examples, the only difference is the relationship  of  the  airfoil  with  the  oncoming  airstream (angle). A paper airplane, which is simply a flat plate, has a bottom and top exactly the same shape and length. Yet, these airfoils do produce lift, and 'flow turning' is partly (or fully) responsible for creating lift.",
+      "page": 7,
+      "repaired_text": "Although specific examples can be cited in which each of the principles predict and contribute to the formation of lift, lift is a complex subject. The production of lift is much more complex than a simple differential pressure between upper and lower airfoil surfaces. In fact, many lifting airfoil s do not have an upper surface longer than the bottom, as in the case of symmetrical airfoil s. These are seen in high-speed aircraft having symmetrical wings, or on symmetrical rotor blades for many helicopters whose upper and lower surfaces are identical. In both examples, the only difference is the relationship  of  the  airfoil  with  the  oncoming  air stream (angle). A paper airplane, which is simply a flat plate, has a bottom and top exactly the same shape and length. Yet, these airfoil s do produce lift, and 'flow turning' is partly (or fully) responsible for creating lift.",
+      "repairs": [
+        {
+          "confidence": "high",
+          "original_text": "airfoils",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 23226,
+            "char_start": 23217
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "airfoil s"
+        },
+        {
+          "confidence": "high",
+          "original_text": "airfoils",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 23226,
+            "char_start": 23217
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "airfoil s"
+        },
+        {
+          "confidence": "high",
+          "original_text": "airstream",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 23715,
+            "char_start": 23705
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "air stream"
+        },
+        {
+          "confidence": "high",
+          "original_text": "airfoils",
+          "pymupdf_reference_scope": "document",
+          "pymupdf_reference_span": {
+            "char_end": 23226,
+            "char_start": 23217
+          },
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "airfoil s"
+        }
+      ]
+    },
+    {
+      "item_id": "docling_item_00138",
+      "label": "TEXT",
+      "original_text": "To this point, the discussion has centered on the flow across the upper and lower surfaces of an airfoil. While most of the lift is produced by these two dimensions, a third dimension, the tip of the airfoil also has an aerodynamic effect. The highpressure area on the bottom of an airfoil pushes around the tip to the low-pressure area on the top. [Figure 4-8] This action creates a rotating flow called a tip vortex. The vortex flows behind the airfoil creating a downwash that extends back to the trailing edge of the airfoil. This downwash results in an overall reduction in lift for the affected portion of the airfoil. Manufacturers  have  developed  different  methods  to counteract this action. Winglets can be added to the tip of an airfoil  to  reduce  this  flow.  The  winglets  act  as  a  dam preventing the vortex from forming. Winglets can be on the top or bottom of the airfoil. Another method of countering the  flow  is  to  taper  the  airfoil  tip,  reducing  the  pressure differential and smoothing the airflow around the tip.",
+      "page": 8,
+      "repaired_text": "To this point, the discussion has centered on the flow across the upper and lower surfaces of an airfoil. While most of the lift is produced by these two dimensions, a third dimension, the tip of the airfoil also has an aerodynamic effect. The high pressure area on the bottom of an airfoil pushes around the tip to the low-pressure area on the top. [Figure 4-8] This action creates a rotating flow called a tip vortex. The vortex flows behind the airfoil creating a downwash that extends back to the trailing edge of the airfoil. This downwash results in an overall reduction in lift for the affected portion of the airfoil. Manufacturers  have  developed  different  methods  to counteract this action. Winglets can be added to the tip of an airfoil  to  reduce  this  flow.  The  winglets  act  as  a  dam preventing the vortex from forming. Winglets can be on the top or bottom of the airfoil. Another method of countering the  flow  is  to  taper  the  airfoil  tip,  reducing  the  pressure differential and smoothing the airflow around the tip.",
+      "repairs": [
+        {
+          "confidence": "high",
+          "original_text": "highpressure",
+          "pymupdf_reference_span": null,
+          "repair_reason": "pymupdf_spaced_word_sequence_match",
+          "repaired_text": "high pressure"
+        }
+      ]
+    }
+  ],
+  "unrepaired_suspicious_examples": [
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00001",
+      "label": "TEXT",
+      "page": 0,
+      "text": "29.92 Hg Mercury"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00002",
+      "label": "TEXT",
+      "page": 0,
+      "text": "30"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00003",
+      "label": "TEXT",
+      "page": 0,
+      "text": "10"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00004",
+      "label": "TEXT",
+      "page": 0,
+      "text": "Millibars"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00005",
+      "label": "TEXT",
+      "page": 0,
+      "text": "1016"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00006",
+      "label": "TEXT",
+      "page": 0,
+      "text": "847"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00007",
+      "label": "TEXT",
+      "page": 0,
+      "text": "677"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00008",
+      "label": "TEXT",
+      "page": 0,
+      "text": "508"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00009",
+      "label": "TEXT",
+      "page": 0,
+      "text": "339"
+    },
+    {
+      "artifact_warnings": [
+        "docling_text_not_aligned_to_pymupdf_page"
+      ],
+      "item_id": "docling_item_00010",
+      "label": "TEXT",
+      "page": 0,
+      "text": "170"
+    }
+  ]
+}

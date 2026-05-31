@@ -1,0 +1,529 @@
+{
+  "backend_roles": {
+    "docling_structure": {
+      "limitations": [
+        "Docling may introduce merged words or OCR-like boundary artifacts.",
+        "Runtime and model availability are heavier than PyMuPDF."
+      ],
+      "name": "docling_structure",
+      "role": "section/table/list/hierarchy extraction",
+      "status": "primary_structure_extractor",
+      "structure_authority": true,
+      "structure_backend": "docling_layout_labels",
+      "text_backend": "docling_text",
+      "text_fidelity_authority": false
+    },
+    "hybrid_docling_pymupdf": {
+      "limitations": [
+        "Repairs are conservative and only applied when PyMuPDF supports them.",
+        "Downstream retrieval impact must be reported separately from structure quality."
+      ],
+      "name": "hybrid_docling_pymupdf",
+      "role": "Docling structure with PyMuPDF text-fidelity validation and repair",
+      "status": "candidate_default_not_final",
+      "structure_authority": true,
+      "structure_backend": "docling_layout_labels",
+      "text_backend": "pymupdf_text_reference",
+      "text_fidelity_authority": true
+    },
+    "pymupdf_blocks": {
+      "limitations": [
+        "Block boundaries are layout hints, not semantic headings."
+      ],
+      "name": "pymupdf_blocks",
+      "role": "block-level diagnostic baseline",
+      "status": "block_signal_not_heading_authority",
+      "structure_authority": false,
+      "structure_backend": "pymupdf_blocks",
+      "text_backend": "pymupdf_blocks",
+      "text_fidelity_authority": true
+    },
+    "pymupdf_text_legacy": {
+      "limitations": [
+        "Plain text line breaks create false heading candidates.",
+        "Heuristic heading detection is not a structural authority."
+      ],
+      "name": "pymupdf_text_legacy",
+      "role": "fast baseline and historical comparability",
+      "status": "legacy_structure_unreliable",
+      "structure_authority": false,
+      "structure_backend": "pymupdf_plain_text_heading_heuristic",
+      "text_backend": "pymupdf_text",
+      "text_fidelity_authority": true
+    },
+    "pymupdf_text_sort": {
+      "limitations": [
+        "Sorted text can improve reading order but does not label sections."
+      ],
+      "name": "pymupdf_text_sort",
+      "role": "fast fallback and text comparison",
+      "status": "fast_fallback_not_structural_authority",
+      "structure_authority": false,
+      "structure_backend": "pymupdf_sorted_text",
+      "text_backend": "pymupdf_sorted_text",
+      "text_fidelity_authority": true
+    }
+  },
+  "backends": {
+    "docling_structure": {
+      "backend": "docling_structure",
+      "false_heading_count": 3,
+      "gt_headings_found_as_text": 12,
+      "gt_headings_labeled_as_section_header": 12,
+      "heading_candidates": 15,
+      "heading_f1": 0.8889,
+      "heading_precision": 0.8,
+      "heading_recall": 1.0,
+      "line_wrapped_heading_fragment_count": 1,
+      "matched_gold_headings": [
+        "Air is a Fluid",
+        "Density Altitude",
+        "Effect of Humidity (Moisture) on Density",
+        "Effect of Pressure on Density",
+        "Effect of Temperature on Density",
+        "Friction",
+        "Introduction",
+        "Newton's Basic Laws of Motion",
+        "Pressure Altitude",
+        "Structure of the Atmosphere",
+        "Theories in the Production of Lift",
+        "Viscosity"
+      ],
+      "missing_gold_headings": [],
+      "page_number_false_heading_count": 0,
+      "repaired_artifact_count": 0,
+      "runtime_s": 13.5591,
+      "sample_false_headings": [
+        {
+          "item_id": "docling_item_00018",
+          "label": "SECTION_HEADER",
+          "level": 1,
+          "page": 0,
+          "text": "Principles of Flight Chapter 4"
+        },
+        {
+          "item_id": "docling_item_00055",
+          "label": "SECTION_HEADER",
+          "level": 1,
+          "page": 2,
+          "text": "Pressure"
+        },
+        {
+          "item_id": "docling_item_00057",
+          "label": "SECTION_HEADER",
+          "level": 1,
+          "page": 2,
+          "text": "Atmospheric Pressure"
+        }
+      ],
+      "section_hierarchy_validity": 1.0,
+      "table_detection_count": 1,
+      "table_false_heading_count": 2,
+      "text_artifact_count": 3
+    },
+    "hybrid_docling_pymupdf": {
+      "backend": "hybrid_docling_pymupdf",
+      "false_heading_count": 3,
+      "gt_headings_found_as_text": 12,
+      "gt_headings_labeled_as_section_header": 12,
+      "heading_candidates": 15,
+      "heading_f1": 0.8889,
+      "heading_precision": 0.8,
+      "heading_recall": 1.0,
+      "line_wrapped_heading_fragment_count": 1,
+      "matched_gold_headings": [
+        "Air is a Fluid",
+        "Density Altitude",
+        "Effect of Humidity (Moisture) on Density",
+        "Effect of Pressure on Density",
+        "Effect of Temperature on Density",
+        "Friction",
+        "Introduction",
+        "Newton's Basic Laws of Motion",
+        "Pressure Altitude",
+        "Structure of the Atmosphere",
+        "Theories in the Production of Lift",
+        "Viscosity"
+      ],
+      "missing_gold_headings": [],
+      "page_number_false_heading_count": 0,
+      "repaired_artifact_count": 14,
+      "runtime_s": 13.9648,
+      "sample_false_headings": [
+        {
+          "item_id": "docling_item_00018",
+          "label": "SECTION_HEADER",
+          "level": 1,
+          "page": 0,
+          "text": "Principles of Flight Chapter 4"
+        },
+        {
+          "item_id": "docling_item_00055",
+          "label": "SECTION_HEADER",
+          "level": 1,
+          "page": 2,
+          "text": "Pressure"
+        },
+        {
+          "item_id": "docling_item_00057",
+          "label": "SECTION_HEADER",
+          "level": 1,
+          "page": 2,
+          "text": "Atmospheric Pressure"
+        }
+      ],
+      "section_hierarchy_validity": 1.0,
+      "table_detection_count": 1,
+      "table_false_heading_count": 2,
+      "text_artifact_count": 38
+    },
+    "pymupdf_blocks": {
+      "backend": "pymupdf_blocks",
+      "false_heading_count": 28,
+      "gt_headings_found_as_text": 12,
+      "gt_headings_labeled_as_section_header": 0,
+      "heading_candidates": 31,
+      "heading_f1": 0.1396,
+      "heading_precision": 0.0968,
+      "heading_recall": 0.25,
+      "line_wrapped_heading_fragment_count": 0,
+      "matched_gold_headings": [
+        "Introduction",
+        "Structure of the Atmosphere",
+        "Theories in the Production of Lift"
+      ],
+      "missing_gold_headings": [
+        "Air is a Fluid",
+        "Viscosity",
+        "Friction",
+        "Pressure Altitude",
+        "Density Altitude",
+        "Effect of Pressure on Density",
+        "Effect of Temperature on Density",
+        "Effect of Humidity (Moisture) on Density",
+        "Newton's Basic Laws of Motion"
+      ],
+      "page_number_false_heading_count": 14,
+      "repaired_artifact_count": 0,
+      "runtime_s": 0.4057,
+      "sample_false_headings": [
+        {
+          "block_no": 0,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 0,
+          "text": "4-1"
+        },
+        {
+          "block_no": 6,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 0,
+          "text": "Principles of Flight"
+        },
+        {
+          "block_no": 7,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 0,
+          "text": "Chapter 4"
+        },
+        {
+          "block_no": 0,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 1,
+          "text": "4-2"
+        },
+        {
+          "block_no": 0,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 2,
+          "text": "4-3"
+        },
+        {
+          "block_no": 1,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 2,
+          "text": "30"
+        },
+        {
+          "block_no": 2,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 2,
+          "text": "25"
+        },
+        {
+          "block_no": 3,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 2,
+          "text": "20"
+        },
+        {
+          "block_no": 4,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 2,
+          "text": "15"
+        },
+        {
+          "block_no": 5,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 2,
+          "text": "10"
+        },
+        {
+          "block_no": 6,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 2,
+          "text": "5"
+        },
+        {
+          "block_no": 7,
+          "label": "PYMUPDF_BLOCK_HEADING_CANDIDATE",
+          "page": 2,
+          "text": "0"
+        }
+      ],
+      "section_hierarchy_validity": 1.0,
+      "table_detection_count": 0,
+      "table_false_heading_count": 23,
+      "text_artifact_count": 0
+    },
+    "pymupdf_text_legacy": {
+      "backend": "pymupdf_text_legacy",
+      "false_heading_count": 113,
+      "gt_headings_found_as_text": 12,
+      "gt_headings_labeled_as_section_header": 0,
+      "heading_candidates": 124,
+      "heading_f1": 0.1617,
+      "heading_precision": 0.0887,
+      "heading_recall": 0.9167,
+      "line_wrapped_heading_fragment_count": 3,
+      "matched_gold_headings": [
+        "Air is a Fluid",
+        "Density Altitude",
+        "Effect of Humidity (Moisture) on Density",
+        "Effect of Pressure on Density",
+        "Effect of Temperature on Density",
+        "Friction",
+        "Introduction",
+        "Pressure Altitude",
+        "Structure of the Atmosphere",
+        "Theories in the Production of Lift",
+        "Viscosity"
+      ],
+      "missing_gold_headings": [
+        "Newton's Basic Laws of Motion"
+      ],
+      "page_number_false_heading_count": 16,
+      "repaired_artifact_count": 0,
+      "runtime_s": 0.4057,
+      "sample_false_headings": [
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 0,
+          "page": 0,
+          "text": "4-1"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 21,
+          "page": 0,
+          "text": "Principles of"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 22,
+          "page": 0,
+          "text": "Flight"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 23,
+          "page": 0,
+          "text": "Chapter 4"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 0,
+          "page": 1,
+          "text": "4-2"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 0,
+          "page": 2,
+          "text": "4-3"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 1,
+          "page": 2,
+          "text": "30"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 2,
+          "page": 2,
+          "text": "25"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 3,
+          "page": 2,
+          "text": "20"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 4,
+          "page": 2,
+          "text": "15"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 5,
+          "page": 2,
+          "text": "10"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 6,
+          "page": 2,
+          "text": "5"
+        }
+      ],
+      "section_hierarchy_validity": 1.0,
+      "table_detection_count": 0,
+      "table_false_heading_count": 104,
+      "text_artifact_count": 0
+    },
+    "pymupdf_text_sort": {
+      "backend": "pymupdf_text_sort",
+      "false_heading_count": 25,
+      "gt_headings_found_as_text": 12,
+      "gt_headings_labeled_as_section_header": 0,
+      "heading_candidates": 28,
+      "heading_f1": 0.15,
+      "heading_precision": 0.1071,
+      "heading_recall": 0.25,
+      "line_wrapped_heading_fragment_count": 0,
+      "matched_gold_headings": [
+        "Effect of Temperature on Density",
+        "Introduction",
+        "Structure of the Atmosphere"
+      ],
+      "missing_gold_headings": [
+        "Air is a Fluid",
+        "Viscosity",
+        "Friction",
+        "Pressure Altitude",
+        "Density Altitude",
+        "Effect of Pressure on Density",
+        "Effect of Humidity (Moisture) on Density",
+        "Theories in the Production of Lift",
+        "Newton's Basic Laws of Motion"
+      ],
+      "page_number_false_heading_count": 0,
+      "repaired_artifact_count": 0,
+      "runtime_s": 0.4057,
+      "sample_false_headings": [
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 0,
+          "page": 0,
+          "text": "Chapter 4"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 1,
+          "page": 0,
+          "text": "Principles of"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 2,
+          "page": 0,
+          "text": "Flight"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 31,
+          "page": 0,
+          "text": "4-1"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 46,
+          "page": 1,
+          "text": "4-2"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 5,
+          "page": 2,
+          "text": "29.92 Hg 25 847 1013 mb"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 6,
+          "page": 2,
+          "text": "Pressure 20 677"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 8,
+          "page": 2,
+          "text": "15 508"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 17,
+          "page": 2,
+          "text": "Atmospheric Pressure"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 24,
+          "page": 2,
+          "text": "Standard Atmosphere"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 25,
+          "page": 2,
+          "text": "Temperature"
+        },
+        {
+          "label": "HEURISTIC_HEADING",
+          "line_index": 29,
+          "page": 2,
+          "text": "1,000 28.86 13.0 55.4air is a fluid substance, this force is exerted equally in all"
+        }
+      ],
+      "section_hierarchy_validity": 1.0,
+      "table_detection_count": 0,
+      "table_false_heading_count": 16,
+      "text_artifact_count": 0
+    }
+  },
+  "gold_heading_sample": [
+    "Introduction",
+    "Structure of the Atmosphere",
+    "Air is a Fluid",
+    "Viscosity",
+    "Friction",
+    "Pressure Altitude",
+    "Density Altitude",
+    "Effect of Pressure on Density",
+    "Effect of Temperature on Density",
+    "Effect of Humidity (Moisture) on Density",
+    "Theories in the Production of Lift",
+    "Newton's Basic Laws of Motion"
+  ],
+  "metadata": {
+    "claim_policy": "Docling is treated as structure authority for this document; PyMuPDF heuristic headings are legacy baseline only. No human/expert review is claimed.",
+    "command": "aviation-ai report pdf-extraction-comparison",
+    "gold_heading_sample_total": 12,
+    "hybrid_repair_report_json": "reports/stages/pdf_hybrid_repair_report.json",
+    "hybrid_repair_report_md": "reports/stages/pdf_hybrid_repair_report.md",
+    "normalized_hybrid_document": "data/normalized/06_phak_ch4_0.hybrid_docling_pymupdf.json",
+    "pdf_path": "data/raw/06_phak_ch4_0.pdf",
+    "report_name": "pdf_extraction_comparison"
+  }
+}

@@ -14,6 +14,7 @@ Scope boundary: This system is for aviation learning and decision-support only. 
 - **35-question expanded**: pilot ablation and KG extraction comparison; evidence role=`pilot`; thesis main claim support=partial; limitations: pilot-sized and not the main benchmark.
 - **benchmark v2 120**: main thesis retrieval and safety benchmark; evidence role=`main_thesis_benchmark`; thesis main claim support=provisional_internal_pending_llm_review; limitations: machine-seeded and requires model-based naturalness review.
 - **benchmark v2 chunking experiment**: chunking strategy comparison under top-k, fixed-budget, and category views; evidence role=`retrieval_design_diagnostic`; thesis main claim support=partial_benchmark_specific; limitations: implementation-maturity labels required; top-k context volume differs by chunk size.
+- **PHAK PDF extraction backend comparison**: compare PDF structure extraction and hybrid text repair; evidence role=`pdf_extraction_diagnostic`; thesis main claim support=partial_backend_evidence; limitations: Docling structure is document-specific and text repairs are conservative.
 - **benchmark reviewed subset 60**: model-based review scaffold for high-value labels; evidence role=`llm_review_scaffold`; thesis main claim support=pending_llm_review; limitations: review scaffold only; no human review or external aviation expert certification.
 - **LLM review artifacts**: model-based benchmark, triple, graph-path, answer, and consistency review; evidence role=`llm_judge`; thesis main claim support=internal_llm_review_only; limitations: model-based internal review; no human or external expert certification.
 - **NASA BGA full landing-page corpus**: second authoritative educational source collection from NASA Glenn BGA; evidence role=`source_collection`; thesis main claim support=source_collection_only; limitations: collected as educational web evidence; interactive pages may expose limited text.
@@ -42,6 +43,8 @@ Benchmark v2 vector-only: Recall@5=0.475, Recall@10=0.475, MRR@5=0.3268, NDCG@10
 Traversal hybrid: Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522. Path metrics are heuristic and may be model-reviewed, but they are not human-validated. High path coverage is not treated as evidence of high retrieval quality unless Recall/MRR/NDCG also support that claim.
 
 Chunking-v2 evidence is interpreted as retrieval-design evidence, not as a universal best-chunker claim. Top-k best strategy=structure_aware_large with supported Recall@5=0.85; fixed-budget best strategy=recursive_medium with supported Recall@5=0.79. Partial methods=['hierarchical_parent_child']; semantic backend=['sentence_transformers']. Top-k chunking rankings expose unequal context budgets; fixed-budget and category diagnostics are stronger evidence but still benchmark-specific.
+
+PDF extraction backend evidence: recommended candidate backend=hybrid_docling_pymupdf with status=candidate_default_not_final. Legacy PyMuPDF heuristic false headings=113, heading precision=0.0887; Docling heading recall=1.0, section-header hits=12; hybrid repair count=14, hybrid Recall@5=0.77. PDF structure reliability is now tied to Docling labels; PyMuPDF heuristic headings are legacy baseline evidence only.
 
 ## RQ4: safety-aware abstention
 
@@ -101,6 +104,8 @@ Benchmark v2 is thesis/course-project evidence, not external aviation expert cer
 - `uv run aviation-ai report nasa-benchmark-summary`
 - `uv run aviation-ai report cross-source-ontology-validation`
 - `uv run aviation-ai report multisource-retrieval-smoke`
+- `uv run aviation-ai report pdf-extraction-comparison`
+- `uv run aviation-ai report pdf-backend-chunking-comparison`
 - `make thesis-dashboard`
 - `uv run aviation-ai report project --no-ai`
 - `uv run aviation-ai report academic-paper --no-ai`

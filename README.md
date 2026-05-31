@@ -161,6 +161,8 @@ aviation-ai report nasa-kg-validation
 aviation-ai report nasa-benchmark-summary
 aviation-ai report cross-source-ontology-validation
 aviation-ai report multisource-retrieval-smoke
+aviation-ai report pdf-extraction-comparison
+aviation-ai report pdf-backend-chunking-comparison
 aviation-ai report retrieval-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name retrieval_ablation_benchmark_v2
 aviation-ai report graph-traversal-ablation --gold-labels data/cqs/06_phak_ch4_0.benchmark_v2.gold.json --report-name graph_traversal_ablation_benchmark_v2
 aviation-ai report thesis-experiment-dashboard
@@ -233,6 +235,8 @@ uv run aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context
 uv run aviation-ai report chunking-implementation-audit
 uv run aviation-ai report chunking-topk-sensitivity-v2
 uv run aviation-ai report chunking-category-analysis-v2
+uv run aviation-ai report pdf-extraction-comparison
+uv run aviation-ai report pdf-backend-chunking-comparison
 ```
 
 This command evaluates mainstream chunking families on benchmark v2 and writes
@@ -246,6 +250,16 @@ independent hardening commands write implementation-audit, top-k sensitivity, an
 category-analysis reports. These commands are not included in `thesis-all` or
 the default thesis report generation targets by design. The protocol is
 documented in `docs/chunking_experiment_protocol.md`.
+
+PDF extraction is evaluated separately from chunking. The recommended candidate
+backend for structure-aware PDF chunking is `hybrid_docling_pymupdf`: Docling
+supplies section/table/list structure while PyMuPDF supplies fast text-fidelity
+comparison and conservative text repair. The legacy PyMuPDF heading heuristic
+remains available only as a baseline. This policy is documented in
+`docs/pdf_extraction_backend_policy.md`; the commands above write
+`reports/stages/pdf_extraction_comparison.*`,
+`reports/stages/pdf_hybrid_repair_report.*`, and
+`reports/stages/pdf_backend_chunking_comparison.*`.
 
 ## Hybrid RAG Experiment
 

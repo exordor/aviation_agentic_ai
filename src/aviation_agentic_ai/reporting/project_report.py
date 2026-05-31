@@ -413,6 +413,30 @@ def _read_thesis_ready_artifacts(root: Path) -> dict[str, Any]:
         / "reports"
         / "stages"
         / "chunking_category_analysis_benchmark_v2.json",
+        "pdf_extraction_comparison": root
+        / "reports"
+        / "stages"
+        / "pdf_extraction_comparison.md",
+        "pdf_extraction_comparison_json": root
+        / "reports"
+        / "stages"
+        / "pdf_extraction_comparison.json",
+        "pdf_hybrid_repair_report": root
+        / "reports"
+        / "stages"
+        / "pdf_hybrid_repair_report.md",
+        "pdf_hybrid_repair_report_json": root
+        / "reports"
+        / "stages"
+        / "pdf_hybrid_repair_report.json",
+        "pdf_backend_chunking_comparison": root
+        / "reports"
+        / "stages"
+        / "pdf_backend_chunking_comparison.md",
+        "pdf_backend_chunking_comparison_json": root
+        / "reports"
+        / "stages"
+        / "pdf_backend_chunking_comparison.json",
         "nasa_source_discovery": root / "reports" / "stages" / "nasa_source_discovery.md",
         "nasa_source_discovery_json": root / "reports" / "stages" / "nasa_source_discovery.json",
         "nasa_source_ingestion": root / "reports" / "stages" / "nasa_source_ingestion.md",
@@ -803,6 +827,7 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
     reviewed_subset = primary.get("benchmark_reviewed_subset", {})
     answer_subset = primary.get("answer_evaluation_benchmark_subset", {})
     chunking = primary.get("chunking_benchmark_v2", {})
+    pdf_backend = primary.get("pdf_extraction_backend", {})
     kg = primary.get("kg", {})
     nasa = primary.get("nasa_source_expansion", {})
     triple = primary.get("triple_semantic_review", {})
@@ -890,6 +915,17 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"{chunking.get('budget_recall_at_5_supported')}. Partial methods="
             f"{chunking.get('partial_methods')}; semantic backend="
             f"{chunking.get('semantic_backend')}. {chunking.get('claim_warning')}",
+            "",
+            "PDF extraction backend evidence: recommended candidate backend="
+            f"{pdf_backend.get('recommended_backend')} with status="
+            f"{pdf_backend.get('recommended_status')}. Legacy PyMuPDF heuristic false "
+            f"headings={pdf_backend.get('legacy_false_heading_count')}, heading precision="
+            f"{pdf_backend.get('legacy_heading_precision')}; Docling heading recall="
+            f"{pdf_backend.get('docling_heading_recall')}, section-header hits="
+            f"{pdf_backend.get('docling_section_header_hits')}; hybrid repair count="
+            f"{pdf_backend.get('hybrid_repair_count')}, hybrid Recall@5="
+            f"{pdf_backend.get('hybrid_retrieval_recall_at_5')}. "
+            f"{pdf_backend.get('claim_warning')}",
             "",
             "## RQ4: safety-aware abstention",
             "",
@@ -1024,6 +1060,8 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             "- `uv run aviation-ai report nasa-benchmark-summary`",
             "- `uv run aviation-ai report cross-source-ontology-validation`",
             "- `uv run aviation-ai report multisource-retrieval-smoke`",
+            "- `uv run aviation-ai report pdf-extraction-comparison`",
+            "- `uv run aviation-ai report pdf-backend-chunking-comparison`",
             "- `make thesis-dashboard`",
             "- `uv run aviation-ai report project --no-ai`",
             "- `uv run aviation-ai report academic-paper --no-ai`",

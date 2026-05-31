@@ -32,6 +32,9 @@ REPORT_SOURCES: dict[str, str] = {
     "chunking_topk_sensitivity_benchmark_v2": "reports/stages/chunking_topk_sensitivity_benchmark_v2.json",
     "chunking_category_analysis_benchmark_v2": "reports/stages/chunking_category_analysis_benchmark_v2.json",
     "chunking_failure_cards_benchmark_v2": "reports/stages/chunking_failure_cards_benchmark_v2.json",
+    "pdf_extraction_comparison": "reports/stages/pdf_extraction_comparison.json",
+    "pdf_hybrid_repair_report": "reports/stages/pdf_hybrid_repair_report.json",
+    "pdf_backend_chunking_comparison": "reports/stages/pdf_backend_chunking_comparison.json",
     "nasa_source_discovery": "reports/stages/nasa_source_discovery.json",
     "nasa_source_ingestion": "reports/stages/nasa_source_ingestion.json",
     "nasa_source_validation": "reports/stages/nasa_source_validation.json",
@@ -128,6 +131,9 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "chunking_topk_sensitivity_benchmark_v2": ("retrieval",),
         "chunking_category_analysis_benchmark_v2": ("retrieval",),
         "chunking_failure_cards_benchmark_v2": ("retrieval", "failure_analysis"),
+        "pdf_extraction_comparison": ("pdf_extraction", "claim_safety"),
+        "pdf_hybrid_repair_report": ("pdf_extraction", "text_fidelity"),
+        "pdf_backend_chunking_comparison": ("pdf_extraction", "retrieval"),
         "nasa_source_discovery": ("source_expansion", "claim_safety"),
         "nasa_source_ingestion": ("source_expansion",),
         "nasa_source_validation": ("source_expansion", "claim_safety"),
@@ -168,6 +174,9 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "chunking_topk_sensitivity_benchmark_v2": "benchmark_v2_120",
         "chunking_category_analysis_benchmark_v2": "benchmark_v2_120",
         "chunking_failure_cards_benchmark_v2": "benchmark_v2_120",
+        "pdf_extraction_comparison": "phak_ch4_pdf_first_pages_heading_sample",
+        "pdf_hybrid_repair_report": "phak_ch4_pdf_docling_items",
+        "pdf_backend_chunking_comparison": "benchmark_v2_120",
         "nasa_source_discovery": "nasa_bga_aerodynamics_full_landing_page_manifest",
         "nasa_source_ingestion": "nasa_bga_aerodynamics_full_corpus",
         "nasa_source_validation": "nasa_bga_aerodynamics_full_corpus",
@@ -223,6 +232,9 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     chunking_budget = reports.get("chunking_comparison_benchmark_v2_budget", {})
     chunking_sensitivity = reports.get("chunking_topk_sensitivity_benchmark_v2", {})
     chunking_category = reports.get("chunking_category_analysis_benchmark_v2", {})
+    pdf_extraction = reports.get("pdf_extraction_comparison", {})
+    pdf_repair = reports.get("pdf_hybrid_repair_report", {})
+    pdf_backend_chunking = reports.get("pdf_backend_chunking_comparison", {})
     kg = reports["kg_extraction_comparison"]
     triple = reports["triple_semantic_review_sample"]
     benchmark_llm = reports.get("benchmark_llm_review", {})
@@ -402,6 +414,61 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "claim_warning": (
                 "Top-k chunking rankings expose unequal context budgets; fixed-budget "
                 "and category diagnostics are stronger evidence but still benchmark-specific."
+            ),
+        },
+        "pdf_extraction_backend": {
+            "recommended_backend": _metric(
+                pdf_backend_chunking,
+                "metadata",
+                "recommended_default_backend",
+                default="hybrid_docling_pymupdf",
+            ),
+            "recommended_status": _metric(
+                pdf_backend_chunking,
+                "metadata",
+                "recommended_default_status",
+                default="candidate_default_not_final",
+            ),
+            "legacy_false_heading_count": _metric(
+                pdf_extraction,
+                "backends",
+                "pymupdf_text_legacy",
+                "false_heading_count",
+            ),
+            "legacy_heading_precision": _metric(
+                pdf_extraction,
+                "backends",
+                "pymupdf_text_legacy",
+                "heading_precision",
+            ),
+            "docling_heading_recall": _metric(
+                pdf_extraction,
+                "backends",
+                "docling_structure",
+                "heading_recall",
+            ),
+            "docling_section_header_hits": _metric(
+                pdf_extraction,
+                "backends",
+                "docling_structure",
+                "gt_headings_labeled_as_section_header",
+            ),
+            "hybrid_repair_count": _metric(
+                pdf_backend_chunking,
+                "metadata",
+                "hybrid_repair_count",
+                default=_metric(pdf_repair, "metadata", "repaired_items"),
+            ),
+            "hybrid_retrieval_recall_at_5": _metric(
+                pdf_backend_chunking,
+                "strategies",
+                "hybrid_docling_pymupdf_structure_aware_large",
+                "retrieval",
+                "recall_at_5",
+            ),
+            "claim_warning": (
+                "PDF structure reliability is now tied to Docling labels; PyMuPDF "
+                "heuristic headings are legacy baseline evidence only."
             ),
         },
         "kg": {
@@ -714,12 +781,25 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
                 "chunking_comparison_benchmark_v2_budget",
                 "chunking_topk_sensitivity_benchmark_v2",
                 "chunking_category_analysis_benchmark_v2",
+                "pdf_backend_chunking_comparison",
             ],
             "limitations": (
                 "implementation-maturity labels required; top-k context volume differs by chunk size"
             ),
             "can_support_thesis_main_claim": "partial_benchmark_specific",
             "evidence_role": "retrieval_design_diagnostic",
+        },
+        {
+            "dataset": "PHAK PDF extraction backend comparison",
+            "purpose": "compare PDF structure extraction and hybrid text repair",
+            "used_in_reports": [
+                "pdf_extraction_comparison",
+                "pdf_hybrid_repair_report",
+                "pdf_backend_chunking_comparison",
+            ],
+            "limitations": "Docling structure is document-specific and text repairs are conservative",
+            "can_support_thesis_main_claim": "partial_backend_evidence",
+            "evidence_role": "pdf_extraction_diagnostic",
         },
         {
             "dataset": "benchmark reviewed subset 60",
@@ -1272,6 +1352,19 @@ def write_thesis_experiment_dashboard_markdown(
                 f"Fixed-budget best={primary['chunking_benchmark_v2']['budget_best_strategy']} "
                 f"(Recall@5={primary['chunking_benchmark_v2']['budget_recall_at_5_supported']}), "
                 f"Partial methods={primary['chunking_benchmark_v2']['partial_methods']} |"
+            ),
+            (
+                "| PDF extraction backend | "
+                f"Recommended={primary['pdf_extraction_backend']['recommended_backend']} "
+                f"({primary['pdf_extraction_backend']['recommended_status']}), "
+                "legacy false headings="
+                f"{primary['pdf_extraction_backend']['legacy_false_heading_count']}, "
+                "Docling heading recall="
+                f"{primary['pdf_extraction_backend']['docling_heading_recall']}, "
+                "hybrid repairs="
+                f"{primary['pdf_extraction_backend']['hybrid_repair_count']}, "
+                "hybrid Recall@5="
+                f"{primary['pdf_extraction_backend']['hybrid_retrieval_recall_at_5']} |"
             ),
             (
                 "| KG | "

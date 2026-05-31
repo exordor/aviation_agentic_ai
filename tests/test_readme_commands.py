@@ -33,5 +33,7 @@ def test_readme_lists_thesis_ready_report_commands() -> None:
         "aviation-ai report nasa-benchmark-summary",
         "aviation-ai report cross-source-ontology-validation",
         "aviation-ai report multisource-retrieval-smoke",
+        "aviation-ai report pdf-extraction-comparison",
+        "aviation-ai report pdf-backend-chunking-comparison",
     ]:
         assert command in readme

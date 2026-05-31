@@ -10,6 +10,7 @@ authors = [
 ]
 dependencies = [
   "click>=8.1",
+  "docling>=2.96.0",
   "pydantic>=2.7",
   "pymupdf>=1.24",
   "python-dotenv>=1.0",

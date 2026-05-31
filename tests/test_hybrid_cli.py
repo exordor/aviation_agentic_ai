@@ -349,6 +349,83 @@ def test_cli_report_chunking_implementation_audit_uses_mocked_writer(
     assert "Audited 3 chunking strategies" in result.output
 
 
+def test_cli_report_pdf_extraction_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli_report_pdf
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "pdf_extraction_comparison.json"
+        md_path = tmp_path / "pdf_extraction_comparison.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return (
+            json_path,
+            md_path,
+            {
+                "backends": {
+                    "pymupdf_text_legacy": {"false_heading_count": 10},
+                    "docling_structure": {"heading_recall": 1.0},
+                    "hybrid_docling_pymupdf": {"repaired_artifact_count": 2},
+                }
+            },
+        )
+
+    monkeypatch.setattr(cli_report_pdf, "write_pdf_extraction_comparison", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "pdf-extraction-comparison",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "legacy false headings=10" in result.output
+
+
+def test_cli_report_pdf_backend_chunking_uses_mocked_writer(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    from aviation_agentic_ai import cli_report_pdf
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "pdf_backend_chunking_comparison.json"
+        md_path = tmp_path / "pdf_backend_chunking_comparison.md"
+        json_path.write_text("{}\n", encoding="utf-8")
+        md_path.write_text("# report\n", encoding="utf-8")
+        return (
+            json_path,
+            md_path,
+            {
+                "ranking": [{"strategy": "hybrid_docling_pymupdf_structure_aware_large"}],
+                "metadata": {"recommended_default_backend": "hybrid_docling_pymupdf"},
+            },
+        )
+
+    monkeypatch.setattr(cli_report_pdf, "write_pdf_backend_chunking_comparison", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "pdf-backend-chunking-comparison",
+            "--output-dir",
+            str(tmp_path),
+            "--max-labels",
+            "3",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "recommended backend=hybrid_docling_pymupdf" in result.output
+
+
 def test_cli_report_chunking_topk_and_category_use_mocked_writers(
     tmp_path: Path,
     monkeypatch,

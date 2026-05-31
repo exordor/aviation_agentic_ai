@@ -8,6 +8,13 @@ from pathlib import Path
 from typing import Any, Callable
 
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.sources.docling_backend import normalize_docling_document, timed_docling_conversion
+from aviation_agentic_ai.sources.pdf_backends import (
+    DOCLING_STRUCTURE,
+    HYBRID_DOCLING_PYMUPDF,
+    PYMUPDF_TEXT_LEGACY,
+)
+from aviation_agentic_ai.sources.pdf_hybrid import build_hybrid_pdf_document
 from aviation_agentic_ai.utils.io import read_json_document
 from aviation_agentic_ai.utils.text import tokenize_terms
 from aviation_agentic_ai.utils.pdf import extract_pages
@@ -198,7 +205,12 @@ def chunking_profile(
             family="structure_aware",
             retrieval_unit="section_line_merged_chunk",
             returned_context_unit="section_line_merged_chunk",
-            limitations=("Heading/list detection is heuristic and page-local.",),
+            implementation_status="legacy_pymupdf_heuristic_for_pdf_inputs",
+            limitations=(
+                "For plain PDF inputs this uses legacy PyMuPDF line heuristics.",
+                "Docling-backed normalized PDF chunks should be used when structural labels exist.",
+            ),
+            name_accuracy="legacy_structure_aware_not_structural_authority_for_pdf",
         )
     if strategy == "semantic_meta_like":
         return make_profile(
@@ -925,6 +937,17 @@ def build_chunks(
                 **strategy_metadata,
                 **dict(window.get("metadata", {})),
             }
+            metadata.setdefault("source_backend", PYMUPDF_TEXT_LEGACY)
+            metadata.setdefault("text_backend", "pymupdf_text")
+            if strategy in {"structure_aware", "structure_aware_medium", "structure_aware_large"}:
+                metadata.setdefault("structure_backend", "pymupdf_heading_heuristic_legacy")
+                metadata.setdefault("structure_authority", False)
+                metadata.setdefault("backend_status", "legacy_structure_unreliable")
+            else:
+                metadata.setdefault("structure_backend", "none")
+                metadata.setdefault("structure_authority", False)
+                metadata.setdefault("backend_status", "non_structural_baseline")
+            metadata.setdefault("text_fidelity_authority", True)
             token_count = approximate_token_count(str(window["text"]))
             metadata["token_count"] = token_count
             chunks.append(
@@ -949,6 +972,268 @@ def build_chunks(
                 )
             )
     return chunks
+
+
+def _safe_backend_id(value: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9_]+", "_", value).strip("_") or "pdf_backend"
+
+
+def _normalized_item_text(item: dict[str, Any]) -> str:
+    return str(item.get("repaired_text") or item.get("text") or "").strip()
+
+
+def _item_page(item: dict[str, Any]) -> int:
+    page = item.get("page")
+    return int(page) if isinstance(page, int) and page >= 0 else 0
+
+
+def _make_normalized_chunk(
+    *,
+    document_id: str,
+    source_path: str,
+    strategy: str,
+    source_backend: str,
+    structure_backend: str,
+    text_backend: str,
+    text_fidelity_authority: bool,
+    chunk_index: int,
+    items: list[dict[str, Any]],
+    section_header: str,
+    section_level: int | None,
+) -> SourceChunk | None:
+    texts = [_normalized_item_text(item) for item in items if _normalized_item_text(item)]
+    if not texts:
+        return None
+    text = "\n".join(texts).strip()
+    page = _item_page(items[0])
+    item_ids = [str(item.get("item_id", "")) for item in items if item.get("item_id")]
+    table_item_ids = [
+        str(item.get("item_id", "")) for item in items if item.get("label") == "TABLE"
+    ]
+    list_item_ids = [
+        str(item.get("item_id", ""))
+        for item in items
+        if item.get("label") in {"LIST_ITEM", "ENUMERATION"}
+    ]
+    repair_count = sum(len(item.get("repairs", [])) for item in items)
+    warning_count = sum(len(item.get("artifact_warnings", [])) for item in items)
+    token_count = approximate_token_count(text)
+    backend_id = _safe_backend_id(source_backend)
+    metadata = {
+        "source_backend": source_backend,
+        "structure_backend": structure_backend,
+        "text_backend": text_backend,
+        "structure_authority": structure_backend == "docling_layout_labels",
+        "text_fidelity_authority": text_fidelity_authority,
+        "configured_max_chars": CHUNK_SIZE_TIERS.get(strategy, (1200, 150))[0],
+        "configured_overlap_chars": CHUNK_SIZE_TIERS.get(strategy, (1200, 150))[1],
+        "profile_family": "docling_label_structure_aware",
+        "docling_item_ids": item_ids,
+        "section_header": section_header,
+        "section_level": section_level,
+        "table_item_ids": table_item_ids,
+        "list_item_ids": list_item_ids,
+        "repair_count": repair_count,
+        "artifact_warning_count": warning_count,
+        "source_text_trace": [
+            item.get(
+                "source_text_trace",
+                {
+                    "docling_item_id": item.get("item_id"),
+                    "pymupdf_page": item.get("page"),
+                    "pymupdf_reference_available": False,
+                },
+            )
+            for item in items
+        ],
+        "char_offsets_reliable": False,
+        "token_count": token_count,
+    }
+    return SourceChunk(
+        chunk_id=f"{document_id}-{backend_id}-{strategy}-p{page:02d}-c{chunk_index:02d}",
+        source_document=document_id,
+        source_path=source_path,
+        page=page,
+        chunk_index=chunk_index,
+        char_start=0,
+        char_end=len(text),
+        text=text,
+        token_count=token_count,
+        strategy=strategy,
+        section=section_header,
+        metadata=metadata,
+    )
+
+
+def build_chunks_from_normalized_pdf_document(
+    document: dict[str, Any],
+    *,
+    source_path: str | Path | None = None,
+    strategy: str = "structure_aware_large",
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+) -> list[SourceChunk]:
+    """Build structure-aware chunks from Docling-style normalized PDF items."""
+    if strategy not in {"structure_aware", "structure_aware_medium", "structure_aware_large"}:
+        raise ValueError("Normalized PDF structure chunks require a structure-aware strategy.")
+    effective_max_chars, _effective_overlap_chars = _strategy_size_settings(
+        strategy,
+        max_chars,
+        overlap_chars,
+    )
+    metadata = document.get("metadata", {})
+    document_id = str(metadata.get("document_id", "normalized_pdf"))
+    source = project_relative_path(source_path or metadata.get("source_path", document_id))
+    source_backend = str(metadata.get("pdf_backend", DOCLING_STRUCTURE))
+    structure_backend = str(metadata.get("structure_backend", "docling_layout_labels"))
+    text_backend = str(metadata.get("text_backend", "docling_text"))
+    text_fidelity_authority = bool(metadata.get("text_fidelity_authority", False))
+
+    chunks: list[SourceChunk] = []
+    current: list[dict[str, Any]] = []
+    current_len = 0
+    current_section = ""
+    current_level: int | None = None
+
+    def flush() -> None:
+        nonlocal current, current_len
+        if not current:
+            return
+        chunk = _make_normalized_chunk(
+            document_id=document_id,
+            source_path=source,
+            strategy=strategy,
+            source_backend=source_backend,
+            structure_backend=structure_backend,
+            text_backend=text_backend,
+            text_fidelity_authority=text_fidelity_authority,
+            chunk_index=len(chunks),
+            items=current,
+            section_header=current_section,
+            section_level=current_level,
+        )
+        if chunk is not None:
+            chunks.append(chunk)
+        current = []
+        current_len = 0
+
+    for item in document.get("items", []):
+        if not isinstance(item, dict):
+            continue
+        text = _normalized_item_text(item)
+        if not text:
+            continue
+        label = str(item.get("label", "")).upper()
+        if label == "SECTION_HEADER":
+            flush()
+            current_section = text
+            current_level = int(item["level"]) if item.get("level") is not None else None
+            current = [item]
+            current_len = len(text)
+            continue
+        if label == "TABLE":
+            flush()
+            table_chunk = _make_normalized_chunk(
+                document_id=document_id,
+                source_path=source,
+                strategy=strategy,
+                source_backend=source_backend,
+                structure_backend=structure_backend,
+                text_backend=text_backend,
+                text_fidelity_authority=text_fidelity_authority,
+                chunk_index=len(chunks),
+                items=[item],
+                section_header=current_section,
+                section_level=current_level,
+            )
+            if table_chunk is not None:
+                chunks.append(table_chunk)
+            continue
+        if current and current_len + len(text) + 1 > effective_max_chars:
+            flush()
+        current.append(item)
+        current_len += len(text) + 1
+    flush()
+    return chunks
+
+
+def build_docling_structure_chunks(
+    pdf_path: str | Path,
+    *,
+    strategy: str = "structure_aware_large",
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+) -> list[SourceChunk]:
+    pdf = Path(pdf_path)
+    result, runtime_s, error = timed_docling_conversion(pdf)
+    if result is None:
+        return []
+    document = normalize_docling_document(
+        result,
+        document_id=pdf.stem,
+        source_path=pdf,
+        runtime_s=runtime_s,
+    )
+    if error:
+        document.setdefault("metadata", {})["docling_error"] = error
+    return build_chunks_from_normalized_pdf_document(
+        document,
+        source_path=pdf,
+        strategy=strategy,
+        max_chars=max_chars,
+        overlap_chars=overlap_chars,
+    )
+
+
+def build_hybrid_structure_chunks(
+    pdf_path: str | Path,
+    *,
+    strategy: str = "structure_aware_large",
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+) -> list[SourceChunk]:
+    document = build_hybrid_pdf_document(pdf_path)
+    if not document.get("items"):
+        return []
+    return build_chunks_from_normalized_pdf_document(
+        document,
+        source_path=pdf_path,
+        strategy=strategy,
+        max_chars=max_chars,
+        overlap_chars=overlap_chars,
+    )
+
+
+def build_chunks_for_pdf_backend(
+    pdf_path: str | Path,
+    *,
+    pdf_backend: str,
+    strategy: str = "structure_aware_large",
+    max_chars: int = 1200,
+    overlap_chars: int = 150,
+) -> list[SourceChunk]:
+    if pdf_backend == DOCLING_STRUCTURE:
+        return build_docling_structure_chunks(
+            pdf_path,
+            strategy=strategy,
+            max_chars=max_chars,
+            overlap_chars=overlap_chars,
+        )
+    if pdf_backend == HYBRID_DOCLING_PYMUPDF:
+        return build_hybrid_structure_chunks(
+            pdf_path,
+            strategy=strategy,
+            max_chars=max_chars,
+            overlap_chars=overlap_chars,
+        )
+    if pdf_backend == PYMUPDF_TEXT_LEGACY:
+        return build_chunks(
+            pdf_path,
+            strategy=strategy,
+            max_chars=max_chars,
+            overlap_chars=overlap_chars,
+        )
+    raise ValueError(f"Unsupported PDF chunk backend: {pdf_backend}")
 
 
 def _source_section_text(source: dict[str, Any], section: dict[str, Any]) -> str:

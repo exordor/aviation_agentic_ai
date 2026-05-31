@@ -14,6 +14,7 @@ from aviation_agentic_ai.cli_report_chunking import register_chunking_report_com
 from aviation_agentic_ai.cli_report_evaluation import register_evaluation_report_commands
 from aviation_agentic_ai.cli_report_llm import register_llm_report_commands
 from aviation_agentic_ai.cli_report_nasa import register_nasa_report_commands
+from aviation_agentic_ai.cli_report_pdf import register_pdf_report_commands
 from aviation_agentic_ai.cli_report_stage import register_stage_report_commands
 from aviation_agentic_ai.cli_report_thesis import register_thesis_report_commands
 from aviation_agentic_ai.cli_report_web import register_web_report_commands
@@ -46,6 +47,7 @@ register_evaluation_report_commands(report)
 register_benchmark_report_commands(report)
 register_llm_report_commands(report)
 register_nasa_report_commands(report)
+register_pdf_report_commands(report)
 
 
 register_web_report_commands(report)

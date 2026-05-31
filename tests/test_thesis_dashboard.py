@@ -201,6 +201,40 @@ def _write_dashboard_fixture(root: Path) -> None:
             ],
         },
     )
+    _write_json(
+        stages / "pdf_extraction_comparison.json",
+        {
+            "backends": {
+                "pymupdf_text_legacy": {
+                    "false_heading_count": 113,
+                    "heading_precision": 0.0887,
+                },
+                "docling_structure": {
+                    "heading_recall": 1.0,
+                    "gt_headings_labeled_as_section_header": 12,
+                },
+            }
+        },
+    )
+    _write_json(
+        stages / "pdf_hybrid_repair_report.json",
+        {"metadata": {"repaired_items": 14}},
+    )
+    _write_json(
+        stages / "pdf_backend_chunking_comparison.json",
+        {
+            "metadata": {
+                "recommended_default_backend": "hybrid_docling_pymupdf",
+                "recommended_default_status": "candidate_default_not_final",
+                "hybrid_repair_count": 14,
+            },
+            "strategies": {
+                "hybrid_docling_pymupdf_structure_aware_large": {
+                    "retrieval": {"recall_at_5": 0.77}
+                }
+            },
+        },
+    )
 
 
 def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None:
@@ -240,6 +274,11 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     assert remediation["verified_already_fixed_items"] == 1
     assert remediation["deferred_items"] == ["I6", "NF3"]
     assert remediation["scientific_metrics_changed"] is False
+    pdf_backend = result["primary_results"]["pdf_extraction_backend"]
+    assert pdf_backend["recommended_backend"] == "hybrid_docling_pymupdf"
+    assert pdf_backend["legacy_false_heading_count"] == 113
+    assert pdf_backend["docling_section_header_hits"] == 12
+    assert pdf_backend["hybrid_repair_count"] == 14
     assert result["consistency_checks"]["no_unsafe_claim_patterns"]
 
 

@@ -72,7 +72,20 @@
         "chunking_comparison_benchmark_v2",
         "chunking_comparison_benchmark_v2_budget",
         "chunking_topk_sensitivity_benchmark_v2",
-        "chunking_category_analysis_benchmark_v2"
+        "chunking_category_analysis_benchmark_v2",
+        "pdf_backend_chunking_comparison"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "partial_backend_evidence",
+      "dataset": "PHAK PDF extraction backend comparison",
+      "evidence_role": "pdf_extraction_diagnostic",
+      "limitations": "Docling structure is document-specific and text repairs are conservative",
+      "purpose": "compare PDF structure extraction and hybrid text repair",
+      "used_in_reports": [
+        "pdf_extraction_comparison",
+        "pdf_hybrid_repair_report",
+        "pdf_backend_chunking_comparison"
       ]
     },
     {
@@ -410,6 +423,45 @@
       "present": true,
       "questions_count": "n/a",
       "report_name": "chunking_failure_cards_benchmark_v2"
+    },
+    {
+      "dataset_used": "phak_ch4_pdf_first_pages_heading_sample",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "pdf_extraction",
+        "claim_safety"
+      ],
+      "path": "reports/stages/pdf_extraction_comparison.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "pdf_extraction_comparison"
+    },
+    {
+      "dataset_used": "phak_ch4_pdf_docling_items",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "pdf_extraction",
+        "text_fidelity"
+      ],
+      "path": "reports/stages/pdf_hybrid_repair_report.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "pdf_hybrid_repair_report"
+    },
+    {
+      "dataset_used": "benchmark_v2_120",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "pdf_extraction",
+        "retrieval"
+      ],
+      "path": "reports/stages/pdf_backend_chunking_comparison.json",
+      "present": true,
+      "questions_count": 120,
+      "report_name": "pdf_backend_chunking_comparison"
     },
     {
       "dataset_used": "nasa_bga_aerodynamics_full_landing_page_manifest",
@@ -892,6 +944,17 @@
       "source_type": "nasa_web_educational_page",
       "status": "full_corpus_collected_aerodynamics_subset_experiment_ready",
       "valid_pages": 89
+    },
+    "pdf_extraction_backend": {
+      "claim_warning": "PDF structure reliability is now tied to Docling labels; PyMuPDF heuristic headings are legacy baseline evidence only.",
+      "docling_heading_recall": 1.0,
+      "docling_section_header_hits": 12,
+      "hybrid_repair_count": 14,
+      "hybrid_retrieval_recall_at_5": 0.77,
+      "legacy_false_heading_count": 113,
+      "legacy_heading_precision": 0.0887,
+      "recommended_backend": "hybrid_docling_pymupdf",
+      "recommended_status": "candidate_default_not_final"
     },
     "robustness": {
       "abstention_correctness": 1.0,

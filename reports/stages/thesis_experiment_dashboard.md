@@ -29,6 +29,9 @@
 | `chunking_topk_sensitivity_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |
 | `chunking_category_analysis_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |
 | `chunking_failure_cards_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval, failure_analysis | False | False |
+| `pdf_extraction_comparison` | True | phak_ch4_pdf_first_pages_heading_sample | n/a | pdf_extraction, claim_safety | False | False |
+| `pdf_hybrid_repair_report` | True | phak_ch4_pdf_docling_items | n/a | pdf_extraction, text_fidelity | False | False |
+| `pdf_backend_chunking_comparison` | True | benchmark_v2_120 | 120 | pdf_extraction, retrieval | False | False |
 | `nasa_source_discovery` | True | nasa_bga_aerodynamics_full_landing_page_manifest | n/a | source_expansion, claim_safety | False | False |
 | `nasa_source_ingestion` | True | nasa_bga_aerodynamics_full_corpus | n/a | source_expansion | False | False |
 | `nasa_source_validation` | True | nasa_bga_aerodynamics_full_corpus | n/a | source_expansion, claim_safety | False | False |
@@ -64,6 +67,7 @@
 | 35-question expanded | pilot ablation and KG extraction comparison | pilot | partial | pilot-sized and not the main benchmark |
 | benchmark v2 120 | main thesis retrieval and safety benchmark | main_thesis_benchmark | provisional_internal_pending_llm_review | machine-seeded and requires model-based naturalness review |
 | benchmark v2 chunking experiment | chunking strategy comparison under top-k, fixed-budget, and category views | retrieval_design_diagnostic | partial_benchmark_specific | implementation-maturity labels required; top-k context volume differs by chunk size |
+| PHAK PDF extraction backend comparison | compare PDF structure extraction and hybrid text repair | pdf_extraction_diagnostic | partial_backend_evidence | Docling structure is document-specific and text repairs are conservative |
 | benchmark reviewed subset 60 | model-based review scaffold for high-value labels | llm_review_scaffold | pending_llm_review | review scaffold only; no human review or external aviation expert certification |
 | LLM review artifacts | model-based benchmark, triple, graph-path, answer, and consistency review | llm_judge | internal_llm_review_only | model-based internal review; no human or external expert certification |
 | NASA BGA full landing-page corpus | second authoritative educational source collection from NASA Glenn BGA | source_collection | source_collection_only | collected as educational web evidence; interactive pages may expose limited text |
@@ -83,6 +87,7 @@
 | benchmark reviewed subset | Labels=60, Review Status=llm_review_pending_not_human_certified, External Expert Certified=False |
 | answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=45, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |
 | chunking benchmark v2 | Top-k best=structure_aware_large (Recall@5=0.85), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |
+| PDF extraction backend | Recommended=hybrid_docling_pymupdf (candidate_default_not_final), legacy false headings=113, Docling heading recall=1.0, hybrid repairs=14, hybrid Recall@5=0.77 |
 | KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |
 | NASA source expansion | Status=full_corpus_collected_aerodynamics_subset_experiment_ready, discovered URLs=90, covered URLs=90, corpus pages=90, valid pages=89, experiment valid pages=8/8, KG triples=134, FAA+NASA smoke Recall@5=0.64 |
 | triple semantic review | Sample=100, reviewed=0, needs_review=100 |
