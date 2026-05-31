@@ -80,7 +80,7 @@ def _normalize_text(value: str) -> str:
 
 def _slug(value: str) -> str:
     chars = [char.lower() if char.isalnum() else "-" for char in value.replace("’", "'")]
-    return "-".join(part for part in "".join(chars).split("-") if part)
+    return "-".join(part for part in "".join(chars).split("-") if part) or "unknown"
 
 
 def normalize_entity(entity: str) -> str:

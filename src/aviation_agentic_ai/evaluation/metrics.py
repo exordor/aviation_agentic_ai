@@ -245,6 +245,19 @@ def kg_evidence_metrics(
     }
 
 
+def _normalize_citation_ref(text: str) -> str:
+    """Normalize a citation reference string for comparison against known IDs.
+
+    Strips the leading ``t`` prefix from triple-style references (e.g. ``t123``
+    becomes ``123``) so that regex-extracted patterns can be matched against
+    actual triple IDs.  Also normalises whitespace and lowercases.
+    """
+    normalized = " ".join(text.lower().split())
+    if re.match(r"^t\d+$", normalized):
+        normalized = normalized[1:]
+    return normalized
+
+
 def answer_metrics(result: dict[str, Any]) -> dict[str, Any]:
     answer = str(result.get("answer", ""))
     answer_lower = answer.lower()
@@ -287,11 +300,23 @@ def answer_metrics(result: dict[str, Any]) -> dict[str, Any]:
     available_citation_units = set(chunk_ids) | set(triple_ids) | {
         f"page {page}" for page in pages
     }
-    citation_precision = (
-        round(len(set(valid_citations) & all_detected_citations) / len(all_detected_citations), 4)
-        if all_detected_citations
-        else (1.0 if is_abstention else 0.0)
-    )
+
+    # Precision: of all regex-extracted citation-like patterns in the answer,
+    # what fraction normalise to a known chunk/triple/page id?
+    regex_detected = cited_chunk_like | cited_triple_like | cited_page_like
+    if regex_detected:
+        normalized_valid: set[str] = (
+            {_normalize_citation_ref(cid) for cid in chunk_ids}
+            | {_normalize_citation_ref(tid) for tid in triple_ids}
+            | {f"page {page}" for page in pages}
+        )
+        true_positives = sum(
+            1 for ref in regex_detected if _normalize_citation_ref(ref) in normalized_valid
+        )
+        citation_precision = round(true_positives / len(regex_detected), 4)
+    else:
+        citation_precision = 1.0 if is_abstention else 0.0
+
     citation_recall = (
         round(len(set(valid_citations)) / len(available_citation_units), 4)
         if available_citation_units

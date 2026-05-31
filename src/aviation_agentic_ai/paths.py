@@ -1,8 +1,11 @@
 import os
 from pathlib import Path
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+_ENV_ROOT = os.getenv("AVIATION_AI_PROJECT_ROOT")
+if _ENV_ROOT:
+    PROJECT_ROOT = Path(_ENV_ROOT).resolve()
+else:
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def project_relative_path(path: str | Path, base: str | Path = PROJECT_ROOT) -> str:

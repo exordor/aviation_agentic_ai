@@ -35,7 +35,7 @@ def bootstrap_ci(
     means.sort()
     alpha = 1.0 - confidence
     lower_index = max(0, int((alpha / 2.0) * samples))
-    upper_index = min(samples - 1, int((1.0 - alpha / 2.0) * samples) - 1)
+    upper_index = max(0, min(samples - 1, int((1.0 - alpha / 2.0) * samples) - 1))
     return {
         "mean": round(sum(numeric) / n, 4),
         "lower": round(means[lower_index], 4),

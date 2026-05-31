@@ -19,7 +19,11 @@ def _load_json(path: str | Path) -> dict[str, Any] | None:
 
 def _span_hit(span: EvidenceSpan, chunks: list[dict[str, Any]]) -> bool:
     for chunk in chunks:
-        if int(chunk.get("page", -1)) != span.page:
+        try:
+            page = int(chunk.get("page", -1))
+        except (ValueError, TypeError):
+            page = -1
+        if page != span.page:
             continue
         if not span.text or _normalize(span.text) in _normalize(chunk.get("text", "")):
             return True

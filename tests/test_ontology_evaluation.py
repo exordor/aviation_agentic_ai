@@ -13,6 +13,7 @@ from aviation_agentic_ai.ontology.cq import (
     load_cq_artifact,
     normalize_cq_artifact,
     normalize_odp_hint,
+    stable_cq_id,
 )
 from aviation_agentic_ai.ontology.evaluation import (
     analyze_cq_coverage,
@@ -24,6 +25,12 @@ from aviation_agentic_ai.ontology.evaluation import (
     parse_ai_review_response,
     stratified_sample_cqs,
 )
+
+
+def test_stable_cq_id_uses_unknown_slug_for_punctuation_only_document() -> None:
+    cq_id = stable_cq_id("---", 1, "What affects lift?", "Angle of attack.")
+
+    assert cq_id.startswith("unknown-p01-")
 
 
 TTL = """@prefix : <http://www.example.org/aviation/phak#> .

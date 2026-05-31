@@ -59,7 +59,7 @@ def write_benchmark_v2_summary_markdown(result: dict[str, Any], output_path: str
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     metadata = result["metadata"]
-    evidence = metadata["evidence_span_validation"]
+    evidence = metadata.get("evidence_span_validation", {})
     validation = result["validation"]
     lines = [
         "# Benchmark V2 Summary",

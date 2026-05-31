@@ -207,10 +207,16 @@ def build_demo_status(
     live_query_enabled: bool = False,
 ) -> dict[str, Any]:
     status = artifact_status(project_root)
+    artifacts = _load_artifacts(project_root)
     fixed_present = status["fixed_hybrid"]["present"]
     structure_present = status["structure_aware_hybrid"]["present"]
-    evidence_present = status["evidence_level_evaluation"]["present"]
-    selected_default = "structure_aware" if structure_present and evidence_present else "fixed_window"
+    # Use parsed content truthiness (matching build_experiment_summary) so that
+    # an empty JSON object {} does not count as present for strategy selection.
+    selected_default = (
+        "structure_aware"
+        if artifacts.get("structure_aware_hybrid") and artifacts.get("evidence_level_evaluation")
+        else "fixed_window"
+    )
     return {
         "project": "aviation_agentic_ai",
         "ready": all(item["present"] for item in status.values()),

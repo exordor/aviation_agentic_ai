@@ -85,7 +85,8 @@ def build_sufficiency_evaluation(
             label.expected_abstention
             and decision["decision"] == "answer"
         ) or (
-            decision["risk_category"] != "training_question"
+            expected_risk != "training_question"
+            and decision["risk_category"] == expected_risk
             and decision["decision"] == "answer"
         )
         records.append(

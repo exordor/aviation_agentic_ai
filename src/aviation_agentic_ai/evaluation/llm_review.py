@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 from datetime import UTC, datetime
 from typing import Any, Callable
@@ -376,7 +377,21 @@ def review_item(
             metadata=metadata,
             raw_response=raw_response,
         )
+    except (json.JSONDecodeError, ValueError, KeyError) as exc:
+        return not_run_result(
+            item_id=item_id,
+            item_type=item_type,
+            review_kind=review_kind,
+            prompt_version=prompt_version,
+            input_payload=input_payload,
+            reviewer_role=reviewer_role,
+            reason=f"LLM response parsing failed: {exc}",
+            temperature=temperature,
+        )
     except Exception as exc:  # pragma: no cover - exercised through integration smoke.
+        logging.getLogger(__name__).error(
+            "Unexpected error during LLM review", exc_info=True
+        )
         return not_run_result(
             item_id=item_id,
             item_type=item_type,

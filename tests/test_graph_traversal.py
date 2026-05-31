@@ -6,6 +6,7 @@ from click.testing import CliRunner
 
 from aviation_agentic_ai.chunking.chunks import SourceChunk, write_chunks_jsonl
 from aviation_agentic_ai.cli import main
+from aviation_agentic_ai.evaluation.gold import GoldLabel
 from aviation_agentic_ai.kg.extraction import KGTriple, read_kg_jsonl, write_kg_jsonl
 from aviation_agentic_ai.retrieval.graph_traversal import (
     build_kg_graph,
@@ -19,6 +20,7 @@ from aviation_agentic_ai.retrieval.hybrid import (
     vector_first_guarded_fusion,
 )
 from aviation_agentic_ai.reporting.graph_traversal_ablation import (
+    _record_path_metrics,
     write_graph_traversal_ablation,
 )
 
@@ -274,6 +276,39 @@ def test_graph_traversal_ablation_reports_heuristic_path_metrics(tmp_path: Path)
     assert paths["irrelevant_path_rate"] == 0.0
     assert paths["requires_model_review"] is True
     assert paths["human_review"] is False
+
+
+def test_graph_path_metrics_handles_missing_source_page() -> None:
+    gold = GoldLabel(
+        cq_id="q1",
+        source_document="doc",
+        source_page=None,
+        question="How does lift affect drag?",
+        expected_chunk_ids=(),
+        key_entities=("lift",),
+        gold_level="chunk",
+    )
+
+    metrics = _record_path_metrics(
+        "How does lift affect drag?",
+        {
+            "graph_paths": [
+                {
+                    "path_id": "p1",
+                    "hops": 1,
+                    "pages": [1],
+                    "chunk_ids": [],
+                    "nodes": [{"label": "lift"}],
+                    "edges": [],
+                }
+            ],
+            "graph_triples": [],
+        },
+        gold,
+    )
+
+    assert metrics["path_count"] == 1
+    assert metrics["path_recall_at_5"] == 1.0
 
 
 def test_cli_report_graph_traversal_ablation_uses_mocked_writer(

@@ -168,6 +168,27 @@ def test_benchmark_validation_fails_on_bad_no_answer_format(tmp_path: Path) -> N
     assert any("empty evidence_spans" in error for error in result["errors"])
 
 
+def test_benchmark_validation_accepts_supported_no_answer_levels(tmp_path: Path) -> None:
+    chunks = tmp_path / "chunks.jsonl"
+    gold = tmp_path / "gold.json"
+    _write_chunks(chunks)
+    _write_benchmark(
+        gold,
+        [
+            _no_answer_label(cq_id=f"q{index}", gold_level=level)
+            for index, level in enumerate(
+                ("no_answer", "none", "unsupported", "insufficient_evidence"),
+                start=1,
+            )
+        ],
+    )
+
+    result = validate_benchmark(gold, [chunks], min_labels=1)
+
+    assert result["valid"] is True
+    assert result["metadata"]["no_answer_total"] == 4
+
+
 def test_benchmark_validation_reports_chunk_jsonl_line_number(tmp_path: Path) -> None:
     chunks = tmp_path / "chunks.jsonl"
     gold = tmp_path / "gold.json"

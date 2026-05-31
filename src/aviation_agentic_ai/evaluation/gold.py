@@ -131,9 +131,25 @@ def _read_gold_payload(path: Path) -> list[dict[str, Any]]:
             raise GoldLabelReadError(
                 f"Gold label file has non-list labels: {project_relative_path(path)}"
             )
-        return [item for item in labels if isinstance(item, dict)]
+        dict_items = [item for item in labels if isinstance(item, dict)]
+        if len(dict_items) != len(labels):
+            import logging
+            logging.getLogger(__name__).warning(
+                "Discarded %d non-dict entries from gold label file: %s",
+                len(labels) - len(dict_items),
+                project_relative_path(path),
+            )
+        return dict_items
     if isinstance(payload, list):
-        return [item for item in payload if isinstance(item, dict)]
+        dict_items = [item for item in payload if isinstance(item, dict)]
+        if len(dict_items) != len(payload):
+            import logging
+            logging.getLogger(__name__).warning(
+                "Discarded %d non-dict entries from gold label file: %s",
+                len(payload) - len(dict_items),
+                project_relative_path(path),
+            )
+        return dict_items
     raise GoldLabelReadError(f"Unsupported gold label payload: {project_relative_path(path)}")
 
 

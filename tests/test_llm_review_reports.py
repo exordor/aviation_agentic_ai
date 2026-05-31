@@ -252,6 +252,43 @@ def test_triple_graph_answer_llm_reports_are_not_expert_certified(tmp_path: Path
     assert answer["summary"]["llm_answer_correctness_rate"] == 1.0
 
 
+def test_graph_path_llm_review_selects_zero_path_recall_records(tmp_path: Path) -> None:
+    graph_report = tmp_path / "graph_zero.json"
+    graph_report.write_text(
+        json.dumps(
+            {
+                "scenarios": {
+                    "s1": {
+                        "records": [
+                            {
+                                "cq_id": "q0",
+                                "question": "How does graph traversal fail here?",
+                                "gold": {"question_type": "supported_factual"},
+                                "graph_paths": [{"path_id": "p0"}],
+                                "hits": [],
+                                "metrics": {"graph_paths": {"path_recall_at_5": 0.0}},
+                            }
+                        ],
+                        "failure_cases": [],
+                    }
+                }
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    _json_path, _md_path, result = write_graph_path_llm_review(
+        graph_report,
+        tmp_path,
+        max_items=1,
+        run_llm=False,
+    )
+
+    assert result["metadata"]["items_total"] == 1
+    assert result["records"][0]["graph_path_item"]["cq_id"] == "q0"
+
+
 def test_answer_generation_not_run_when_llm_unavailable(tmp_path: Path) -> None:
     gold = tmp_path / "gold.json"
     gold.write_text(json.dumps(_gold_payload()) + "\n", encoding="utf-8")

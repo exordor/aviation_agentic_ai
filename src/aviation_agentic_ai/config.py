@@ -47,6 +47,6 @@ def load_environment(*, force: bool = False) -> bool:
         _ENVIRONMENT_LOADED = True
         return False
 
-    load_dotenv()
+    load_dotenv(PROJECT_ROOT / ".env")
     _ENVIRONMENT_LOADED = True
     return True

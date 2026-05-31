@@ -57,7 +57,7 @@ def build_chroma_index(
             client.delete_collection(collection_name)
         except Exception as exc:
             message = str(exc).lower()
-            if "not found" not in message and "does not exist" not in message:
+            if not any(phrase in message for phrase in ("not found", "does not exist", "no collection", "nonexistent")):
                 raise
     collection = client.get_or_create_collection(collection_name)
     if chunks:

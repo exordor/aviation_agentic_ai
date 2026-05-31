@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from hashlib import sha1
 from pathlib import Path
 from typing import Any, Callable
+from urllib.parse import quote
 
 from rdflib import DCTERMS, Graph, Literal, Namespace, OWL, RDF, RDFS, URIRef
 
@@ -135,6 +136,23 @@ def _predicate_for_text(text: str) -> str:
     return "hasCondition"
 
 
+def _relation_context(text: str, labels: list[str]) -> str:
+    sentences = [sentence.strip() for sentence in re.split(r"(?<=[.!?])\s+", text) if sentence.strip()]
+    normalized_labels = [_normalize_for_contains(label) for label in labels if label.strip()]
+    for sentence in sentences:
+        normalized = _normalize_for_contains(sentence)
+        if all(label in normalized for label in normalized_labels):
+            return sentence
+    related_sentences = [
+        sentence
+        for sentence in sentences
+        if any(label in _normalize_for_contains(sentence) for label in normalized_labels)
+    ]
+    if related_sentences:
+        return " ".join(related_sentences[:2])
+    return text[:350].strip()
+
+
 def _deterministic_triples_for_chunk(
     chunk: SourceChunk,
     profile: ExtractionProfile,
@@ -151,7 +169,8 @@ def _deterministic_triples_for_chunk(
     for index, ((subject_class, subject_label), (object_class, object_label)) in enumerate(
         zip(matches, matches[1:])
     ):
-        predicate = _predicate_for_text(chunk.text)
+        relation_context = _relation_context(chunk.text, [subject_label, object_label])
+        predicate = _predicate_for_text(relation_context)
         evidence = _evidence_sentence(chunk, [subject_label, object_label])
         raw = {
             "subject": subject_label,
@@ -179,6 +198,10 @@ def _deterministic_triples_for_chunk(
             )
         )
     return triples
+
+
+def _safe_iri_local(value: str) -> str:
+    return quote(value.replace("-", "_"), safe="_")
 
 
 def _build_extraction_prompt(chunk: SourceChunk, profile: ExtractionProfile) -> str:
@@ -386,10 +409,11 @@ def write_kg_ttl(
     graph.bind("rdfs", RDFS)
 
     for triple in triples:
-        statement = ns[f"KGTriple_{triple.triple_id.replace('-', '_')}"]
+        safe_triple_id = _safe_iri_local(triple.triple_id)
+        statement = ns[f"KGTriple_{safe_triple_id}"]
         subject = _entity_iri(ns, triple.subject, triple.subject_class)
         obj = _entity_iri(ns, triple.object, triple.object_class)
-        evidence = ns[f"Evidence_{triple.triple_id.replace('-', '_')}"]
+        evidence = ns[f"Evidence_{safe_triple_id}"]
         predicate = ns[triple.predicate]
 
         graph.add((subject, RDF.type, ns[triple.subject_class]))
@@ -713,6 +737,18 @@ def extract_kg_file(
         }
     )
     if not report["valid"]:
-        raise KGValidationError(json.dumps(report["errors"][:10], indent=2))
+        # Write the valid subset and report the invalid triples instead of
+        # discarding all triples via KGValidationError.
+        invalid_ids = {error["triple_id"] for error in report["errors"] if "triple_id" in error}
+        valid_triples = [t for t in triples if t.triple_id not in invalid_ids]
+        invalid_triples = [t for t in triples if t.triple_id in invalid_ids]
+        report["valid_triples_written"] = len(valid_triples)
+        report["invalid_triples_discarded"] = len(invalid_triples)
+        report["partial_success"] = len(valid_triples) > 0
+        if valid_triples:
+            path = write_kg_jsonl(valid_triples, output_path)
+        else:
+            path = write_kg_jsonl([], output_path)
+        return path, valid_triples, report
     path = write_kg_jsonl(triples, output_path)
     return path, triples, report

@@ -34,26 +34,29 @@ def query(
     max_tokens: int,
 ) -> None:
     """Query the GraphRAG prototype."""
-    if not question:
-        raise click.ClickException("Question is required.")
-    config = load_default_config()
-    retrieval_config = config.get("retrieval", {})
-    result = run_query(
-        question,
-        mode,
-        chunks_path or resolve_project_path(config["paths"]["chunks_file"]),
-        kg_path or resolve_project_path(config["paths"]["kg_file"]),
-        index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
-        collection_name=collection_name
-        or retrieval_config.get("collection_name", DEFAULT_COLLECTION_NAME),
-        graph_hops=int(retrieval_config.get("graph_hops", 2)),
-        graph_method=graph_method or retrieval_config.get("graph_method", "lexical"),
-        vector_top_k=int(retrieval_config.get("vector_top_k", 5)),
-        hybrid_top_k=int(retrieval_config.get("hybrid_top_k", 8)),
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
-    if output_path is not None:
-        path = write_query_result(result, output_path)
-        click.echo(f"Wrote {project_relative_path(path)}")
-    click.echo(result["answer"])
+    try:
+        if not question:
+            raise click.ClickException("Question is required.")
+        config = load_default_config()
+        retrieval_config = config.get("retrieval", {})
+        result = run_query(
+            question,
+            mode,
+            chunks_path or resolve_project_path(config["paths"]["chunks_file"]),
+            kg_path or resolve_project_path(config["paths"]["kg_file"]),
+            index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
+            collection_name=collection_name
+            or retrieval_config.get("collection_name", DEFAULT_COLLECTION_NAME),
+            graph_hops=int(retrieval_config.get("graph_hops") or 2),
+            graph_method=graph_method or retrieval_config.get("graph_method", "lexical"),
+            vector_top_k=int(retrieval_config.get("vector_top_k") or 5),
+            hybrid_top_k=int(retrieval_config.get("hybrid_top_k") or 8),
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        if output_path is not None:
+            path = write_query_result(result, output_path)
+            click.echo(f"Wrote {project_relative_path(path)}")
+        click.echo(result["answer"])
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc

@@ -255,7 +255,7 @@ def ontology_generate(
         output_path=output_path or resolve_project_path(config["ontology_output"]),
         domain_profile=domain_profile or config["domain_profile"],
         max_page_chars=max_page_chars or config["max_page_chars"],
-        max_pages=max_pages if max_pages is not None else config.get("max_pages"),
+        max_pages=max_pages if max_pages is not None else (config.get("max_pages") or None),
         max_qa_cycles=max_qa_cycles if max_qa_cycles is not None else config["max_qa_cycles"],
         dry_run=dry_run,
         temperature=config["temperature"],

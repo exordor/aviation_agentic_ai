@@ -362,6 +362,9 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             )[0].get("strategy", "TBD")
             if isinstance(_metric(chunking_topk, "ranking", default=[]), list)
             and _metric(chunking_topk, "ranking", default=[])
+            and isinstance(
+                _metric(chunking_topk, "ranking", default=[None])[0], dict
+            )
             else "TBD",
             "topk_recall_at_5_supported": _metric(
                 chunking_topk,
@@ -370,6 +373,9 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             )[0].get("recall_at_5_supported", "TBD")
             if isinstance(_metric(chunking_topk, "ranking", default=[]), list)
             and _metric(chunking_topk, "ranking", default=[])
+            and isinstance(
+                _metric(chunking_topk, "ranking", default=[None])[0], dict
+            )
             else "TBD",
             "budget_best_strategy": _metric(
                 chunking_budget,
@@ -378,6 +384,9 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             )[0].get("strategy", "TBD")
             if isinstance(_metric(chunking_budget, "ranking", default=[]), list)
             and _metric(chunking_budget, "ranking", default=[])
+            and isinstance(
+                _metric(chunking_budget, "ranking", default=[None])[0], dict
+            )
             else "TBD",
             "budget_recall_at_5_supported": _metric(
                 chunking_budget,
@@ -386,6 +395,9 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             )[0].get("recall_at_5_supported", "TBD")
             if isinstance(_metric(chunking_budget, "ranking", default=[]), list)
             and _metric(chunking_budget, "ranking", default=[])
+            and isinstance(
+                _metric(chunking_budget, "ranking", default=[None])[0], dict
+            )
             else "TBD",
             "topk_sensitivity_best_by_k": {
                 key: rows[0].get("strategy", "TBD")

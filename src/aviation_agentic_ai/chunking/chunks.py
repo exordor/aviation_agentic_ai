@@ -383,9 +383,15 @@ def _embedding_similarity_fn(
     try:
         model = SentenceTransformer(model_name, local_files_only=not allow_download)
     except TypeError:
-        if not allow_download:
+        if allow_download:
+            # local_files_only parameter not supported by this version
+            import logging
+            logging.getLogger(__name__).warning(
+                "SentenceTransformer does not support local_files_only; downloading may occur"
+            )
+            model = SentenceTransformer(model_name)
+        else:
             raise
-        model = SentenceTransformer(model_name)
     cache: dict[str, list[float]] = {}
 
     def encode(text: str) -> list[float]:

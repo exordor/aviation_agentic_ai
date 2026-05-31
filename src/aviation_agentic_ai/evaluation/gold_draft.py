@@ -96,13 +96,14 @@ def _evidence_spans(
                 return spans
     if not spans and chunks:
         chunk = chunks[0]
-        excerpt = " ".join(chunk.text.split())[:240]
+        excerpt = chunk.text[:240]
+        display_excerpt = " ".join(excerpt.split())
         spans.append(
             {
                 "page": chunk.page,
-                "text": excerpt,
+                "text": display_excerpt,
                 "char_start": chunk.char_start,
-                "char_end": chunk.char_start + min(len(chunk.text), len(excerpt)),
+                "char_end": chunk.char_start + len(excerpt),
             }
         )
     return spans[:max_spans]

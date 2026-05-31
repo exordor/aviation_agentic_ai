@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import re
 from collections import deque
 from dataclasses import asdict, dataclass
@@ -12,6 +13,10 @@ from aviation_agentic_ai.chunking.chunks import read_chunks_jsonl
 from aviation_agentic_ai.config import load_yaml, resolve_project_path
 from aviation_agentic_ai.kg.extraction import KGTriple, read_kg_jsonl
 from aviation_agentic_ai.utils.text import GRAPH_TRAVERSAL_STOPWORDS, tokenize_terms
+
+logger = logging.getLogger(__name__)
+
+DEFAULT_ENTITY_ALIASES_PATH = "configs/entity_aliases.yaml"
 
 RELATION_KEYWORDS: dict[str, tuple[str, ...]] = {
     "affects": ("affect", "influence", "change", "impact"),
@@ -200,10 +205,17 @@ def _normalize_aliases(aliases: dict[str, Any] | None) -> dict[str, str]:
 
 
 def load_entity_aliases(path: str | Path | None = None) -> dict[str, Any]:
-    alias_path = resolve_project_path(path or "configs/entity_aliases.yaml")
+    alias_path = resolve_project_path(path or DEFAULT_ENTITY_ALIASES_PATH)
     if not alias_path.exists():
         return {}
-    return load_yaml(alias_path)
+    try:
+        return load_yaml(alias_path)
+    except Exception:
+        logger.warning(
+            "Failed to load entity aliases from %s, continuing with empty aliases",
+            alias_path, exc_info=True
+        )
+        return {}
 
 
 def link_question_entities(

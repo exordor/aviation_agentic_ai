@@ -65,7 +65,7 @@ class MainContentParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
-        if tag in {"script", "style", "nav", "header", "footer", "form", "button", "select"}:
+        if tag in {"script", "style", "nav", "header", "footer", "form", "button", "select", "aside", "noscript", "template", "iframe", "object"}:
             self._skip_depth += 1
             return
         self._tag_stack.append(tag)
@@ -93,6 +93,11 @@ class MainContentParser(HTMLParser):
             "form",
             "button",
             "select",
+            "aside",
+            "noscript",
+            "template",
+            "iframe",
+            "object",
         }:
             self._skip_depth -= 1
             return
@@ -250,6 +255,11 @@ def fetch_nasa_page(url: str) -> str:
 
         context = ssl.create_default_context(cafile=certifi.where())
     except ImportError:
+        import logging
+        logging.getLogger(__name__).warning(
+            "certifi not available; using system default SSL context which may lack "
+            "necessary root certificates for NASA website access"
+        )
         context = ssl.create_default_context()
     with urllib.request.urlopen(request, timeout=30, context=context) as response:
         return response.read().decode("utf-8", errors="replace")
@@ -902,6 +912,7 @@ def _write_ingestion_report(
 
 def _failed_nasa_page(record: dict[str, Any], error: Exception) -> dict[str, Any]:
     cleaned_text = ""
+    failure_identity = f"{record.get('document_id', '')}\n{record.get('url', '')}"
     return {
         "document_id": record["document_id"],
         "title": record.get("title", record["document_id"]),
@@ -916,7 +927,7 @@ def _failed_nasa_page(record: dict[str, Any], error: Exception) -> dict[str, Any
         "experiment_scope": record.get("experiment_scope", ""),
         "page_last_updated": "",
         "crawl_timestamp": datetime.now(UTC).isoformat(),
-        "content_hash": hashlib.sha256(cleaned_text.encode("utf-8")).hexdigest(),
+        "content_hash": hashlib.sha256(failure_identity.encode("utf-8")).hexdigest(),
         "headings": [],
         "cleaned_text": cleaned_text,
         "sections": [],

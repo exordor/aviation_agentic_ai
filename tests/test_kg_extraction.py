@@ -1,9 +1,13 @@
 from pathlib import Path
 
+from rdflib import Graph
+
 from aviation_agentic_ai.chunking.chunks import SourceChunk, write_chunks_jsonl
 from aviation_agentic_ai.kg.extraction import (
+    ExtractionProfile,
     KGReadError,
     KGTriple,
+    _deterministic_triples_for_chunk,
     _extract_json_payload,
     extract_kg_file,
     read_kg_jsonl,
@@ -321,6 +325,45 @@ def test_write_kg_ttl_exports_reified_evidence(tmp_path: Path) -> None:
     assert "KGTriple_t1" in text
     assert "Air flows over the wing and affects lift." in text
     assert "supportedByEvidence" in text
+
+
+def test_deterministic_triples_use_pair_local_relation_context() -> None:
+    profile = ExtractionProfile(
+        name="test",
+        namespace="http://www.example.org/aviation/phak#",
+        instantiable_classes=("Cl_Airfoil", "Cl_Wing", "Cl_Lift"),
+        relation_properties=("causes", "hasComponent", "affects", "hasCondition"),
+        provenance_fields=(),
+    )
+    chunk = SourceChunk(
+        chunk_id="doc-p00-c00",
+        source_document="doc",
+        source_path="data/raw/doc.pdf",
+        page=0,
+        chunk_index=0,
+        char_start=0,
+        char_end=80,
+        text="The airfoil is part of the wing. The wing produces lift.",
+    )
+
+    triples = _deterministic_triples_for_chunk(
+        chunk,
+        profile,
+        "2026-05-31T00:00:00+00:00",
+    )
+
+    assert [triple.predicate for triple in triples] == ["hasComponent", "causes"]
+
+
+def test_write_kg_ttl_encodes_unsafe_triple_ids(tmp_path: Path) -> None:
+    ttl_path = tmp_path / "kg.ttl"
+
+    path = write_kg_ttl([make_triple(triple_id="t1 bad/slash:colon")], ttl_path)
+
+    Graph().parse(path)
+    text = path.read_text(encoding="utf-8")
+    assert "KGTriple_t1%20bad%2Fslash%3Acolon" in text
+    assert "Evidence_t1%20bad%2Fslash%3Acolon" in text
 
 
 def test_write_kg_validation_reports(tmp_path: Path) -> None:

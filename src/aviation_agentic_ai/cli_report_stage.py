@@ -28,26 +28,29 @@ def register_stage_report_commands(report: click.Group) -> None:
     )
     def report_stages(reviews_dir: Path | None, output_dir: Path | None) -> None:
         """Build stage reports."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        review_source_dir = reviews_dir or resolve_project_path("reports/reviews")
-        review_json, review_md, progress = write_review_progress(
-            review_source_dir, report_dir
-        )
-        generation_json, generation_md, _ = write_generation_run_summary(
-            report_dir / "generation_runs", report_dir
-        )
-        overnight_json, overnight_md, _ = write_overnight_summary(report_dir)
-        click.echo(f"Wrote {project_relative_path(review_json)}")
-        click.echo(f"Wrote {project_relative_path(review_md)}")
-        click.echo(f"Wrote {project_relative_path(generation_json)}")
-        click.echo(f"Wrote {project_relative_path(generation_md)}")
-        click.echo(f"Wrote {project_relative_path(overnight_json)}")
-        click.echo(f"Wrote {project_relative_path(overnight_md)}")
-        click.echo(
-            f"Built stage reports from {progress['reviews_total']} review reports "
-            f"with {len(progress['open_actions'])} open actions."
-        )
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            review_source_dir = reviews_dir or resolve_project_path("reports/reviews")
+            review_json, review_md, progress = write_review_progress(
+                review_source_dir, report_dir
+            )
+            generation_json, generation_md, _ = write_generation_run_summary(
+                report_dir / "generation_runs", report_dir
+            )
+            overnight_json, overnight_md, _ = write_overnight_summary(report_dir)
+            click.echo(f"Wrote {project_relative_path(review_json)}")
+            click.echo(f"Wrote {project_relative_path(review_md)}")
+            click.echo(f"Wrote {project_relative_path(generation_json)}")
+            click.echo(f"Wrote {project_relative_path(generation_md)}")
+            click.echo(f"Wrote {project_relative_path(overnight_json)}")
+            click.echo(f"Wrote {project_relative_path(overnight_md)}")
+            click.echo(
+                f"Built stage reports from {progress['reviews_total']} review reports "
+                f"with {len(progress['open_actions'])} open actions."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("reviews")
     @click.option(
@@ -64,16 +67,19 @@ def register_stage_report_commands(report: click.Group) -> None:
     )
     def report_reviews(reviews_dir: Path | None, output_dir: Path | None) -> None:
         """Aggregate review reports into progress tracking outputs."""
-        config = load_default_config()
-        review_source_dir = reviews_dir or resolve_project_path("reports/reviews")
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, progress = write_review_progress(review_source_dir, report_dir)
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            f"Aggregated {progress['reviews_total']} review reports, "
-            f"{progress['findings_total']} findings, and {progress['actions_total']} actions."
-        )
+        try:
+            config = load_default_config()
+            review_source_dir = reviews_dir or resolve_project_path("reports/reviews")
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, progress = write_review_progress(review_source_dir, report_dir)
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"Aggregated {progress['reviews_total']} review reports, "
+                f"{progress['findings_total']} findings, and {progress['actions_total']} actions."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("generation-runs")
     @click.option(
@@ -90,13 +96,16 @@ def register_stage_report_commands(report: click.Group) -> None:
     )
     def report_generation_runs(runs_dir: Path | None, output_dir: Path | None) -> None:
         """Aggregate ontology generation run manifests."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        source_dir = runs_dir or report_dir / "generation_runs"
-        json_path, md_path, summary = write_generation_run_summary(source_dir, report_dir)
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Aggregated {summary['runs_total']} generation runs.")
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            source_dir = runs_dir or report_dir / "generation_runs"
+            json_path, md_path, summary = write_generation_run_summary(source_dir, report_dir)
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Aggregated {summary['runs_total']} generation runs.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("overnight")
     @click.option(
@@ -107,15 +116,18 @@ def register_stage_report_commands(report: click.Group) -> None:
     )
     def report_overnight(stage_dir: Path | None) -> None:
         """Write the overnight ontology optimization summary report."""
-        config = load_default_config()
-        report_dir = stage_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, summary = write_overnight_summary(report_dir)
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Overnight summary completed with "
-            f"{len(summary['ontology_evaluation']['failed_quality_gates'])} failed quality gates."
-        )
+        try:
+            config = load_default_config()
+            report_dir = stage_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, summary = write_overnight_summary(report_dir)
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Overnight summary completed with "
+                f"{len(summary['ontology_evaluation']['failed_quality_gates'])} failed quality gates."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("hygiene")
     @click.option(
@@ -146,28 +158,31 @@ def register_stage_report_commands(report: click.Group) -> None:
         dry_run: bool,
     ) -> None:
         """Plan or apply report hygiene for stage artifacts."""
-        if dry_run and apply_changes:
-            raise click.ClickException("Use either --dry-run or --apply, not both.")
-        config = load_default_config()
-        stages = stage_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        archive = archive_root or resolve_project_path("reports/archive")
-        reviews = reviews_dir or resolve_project_path("reports/reviews")
-        json_path, md_path, plan = run_report_hygiene(
-            stages,
-            archive,
-            reviews,
-            apply=apply_changes,
-        )
-        if apply_changes:
-            click.echo(f"Wrote {project_relative_path(json_path)}")
-            click.echo(f"Wrote {project_relative_path(md_path)}")
-            click.echo(
-                f"Archived {len(plan.get('moved_items', []))} stage artifacts into "
-                f"{plan['archive_dir']}."
+        try:
+            if dry_run and apply_changes:
+                raise click.ClickException("Use either --dry-run or --apply, not both.")
+            config = load_default_config()
+            stages = stage_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            archive = archive_root or resolve_project_path("reports/archive")
+            reviews = reviews_dir or resolve_project_path("reports/reviews")
+            json_path, md_path, plan = run_report_hygiene(
+                stages,
+                archive,
+                reviews,
+                apply=apply_changes,
             )
-        else:
-            click.echo(
-                f"Dry run: {plan['archive_items_total']} stage artifacts would be archived "
-                f"into {plan['archive_dir']}."
-            )
-            click.echo(f"Review artifacts indexed in place: {plan['review_items_total']}.")
+            if apply_changes:
+                click.echo(f"Wrote {project_relative_path(json_path)}")
+                click.echo(f"Wrote {project_relative_path(md_path)}")
+                click.echo(
+                    f"Archived {len(plan.get('moved_items', []))} stage artifacts into "
+                    f"{plan['archive_dir']}."
+                )
+            else:
+                click.echo(
+                    f"Dry run: {plan['archive_items_total']} stage artifacts would be archived "
+                    f"into {plan['archive_dir']}."
+                )
+                click.echo(f"Review artifacts indexed in place: {plan['review_items_total']}.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc

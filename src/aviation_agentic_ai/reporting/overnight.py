@@ -44,9 +44,15 @@ def _summarize_evaluation(report_name: str, data: dict[str, Any]) -> dict[str, A
 
 def _load_live_evaluations(stage_path: Path, pattern: str) -> list[dict[str, Any]]:
     reports: list[dict[str, Any]] = []
+    def _safe_sort_key(item: Path) -> tuple[float, str]:
+        try:
+            return (item.stat().st_mtime, item.name)
+        except FileNotFoundError:
+            return (0.0, item.name)
+
     for path in sorted(
         stage_path.glob(pattern),
-        key=lambda item: (item.stat().st_mtime, item.name),
+        key=_safe_sort_key,
     ):
         data = _read_json_if_exists(path)
         if data is None:

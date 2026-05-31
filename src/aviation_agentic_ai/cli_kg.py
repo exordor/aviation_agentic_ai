@@ -7,7 +7,6 @@ import click
 from aviation_agentic_ai.cli_common import default_ontology_path
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.kg.extraction import (
-    KGValidationError,
     extract_kg_file,
     validate_kg_file,
     write_kg_ttl,
@@ -66,28 +65,37 @@ def kg_extract(
             f"({triples_count} triples)."
         )
 
-    try:
-        path, triples, report = extract_kg_file(
-            chunks,
-            output,
-            profile,
-            ontology_path=ontology_path,
-            max_chunks=max_chunks,
-            dry_run=dry_run,
-            temperature=temperature
-            if temperature is not None
-            else float(kg_config.get("temperature", 0.0)),
-            max_tokens=max_tokens
-            if max_tokens is not None
-            else int(kg_config.get("max_tokens", 4096)),
-            progress_callback=progress,
+    path, triples, report = extract_kg_file(
+        chunks,
+        output,
+        profile,
+        ontology_path=ontology_path,
+        max_chunks=max_chunks,
+        dry_run=dry_run,
+        temperature=temperature
+        if temperature is not None
+        else float(kg_config.get("temperature") or 0.0),
+        max_tokens=max_tokens
+        if max_tokens is not None
+        else int(kg_config.get("max_tokens") or 4096),
+        progress_callback=progress,
+    )
+    partial_info = ""
+    if report.get("partial_success"):
+        partial_info = (
+            f" (partial: {report.get('valid_triples_written', 0)} valid written, "
+            f"{report.get('invalid_triples_discarded', 0)} invalid discarded)"
         )
-    except KGValidationError as exc:
-        raise click.ClickException(str(exc)) from exc
+    elif not report.get("valid", True) and not report.get("partial_success"):
+        click.echo(
+            f"Warning: all {report.get('triples_total', len(triples))} triples failed validation "
+            f"({report.get('errors_total', 0)} errors); wrote empty KG file.",
+            err=True,
+        )
     click.echo(
         f"Wrote {project_relative_path(path)} with {len(triples)} triples "
         f"({report['errors_total']} validation errors, "
-        f"{report.get('extraction_errors_total', 0)} extraction errors)."
+        f"{report.get('extraction_errors_total', 0)} extraction errors).{partial_info}"
     )
     if ttl_output is not None:
         ttl_path = write_kg_ttl(triples, ttl_output)

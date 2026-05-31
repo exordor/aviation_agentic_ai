@@ -67,7 +67,8 @@ def _label_findings(label: dict[str, Any], duplicate_spans: set[str]) -> list[st
     }
     if len(pages) > 1 and len(str(label.get("answer_key", "")).split()) < 18:
         findings.append("cross_page_label_with_insufficient_synthesis")
-    risk_category = detect_risk_category(question)[0]
+    risk_result = detect_risk_category(question)
+    risk_category = risk_result[0] if risk_result else "training_question"
     if label.get("expected_abstention") and risk_category != "training_question":
         findings.append("insufficient_evidence_label_needs_aviation_safety_review")
     return findings

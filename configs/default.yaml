@@ -13,6 +13,17 @@ paths:
   kg_dir: data/kg
   index_dir: data/indexes
   stage_report_dir: reports/stages
+  benchmark_v2_gold_labels: data/cqs/06_phak_ch4_0.benchmark_v2.gold.json
+  benchmark_v2_reviewed_gold_labels: data/cqs/06_phak_ch4_0.benchmark_v2.reviewed.gold.json
+  benchmark_v2_reviewed_subset_gold_labels: data/cqs/06_phak_ch4_0.benchmark_v2.reviewed_subset.gold.json
+  answer_eval_subset_gold_labels: data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json
+  boundary_cqs: data/cqs/06_phak_ch4_0.boundary.json
+  chunks_dir: data/chunks
+  gold_labels: data/cqs/06_phak_ch4_0.gold.json
+  expanded_gold_labels: data/cqs/06_phak_ch4_0.expanded.gold.json
+  structure_aware_chunks: data/chunks/06_phak_ch4_0.structure_aware.jsonl
+  structure_aware_kg: data/kg/06_phak_ch4_0.structure_aware.kg.jsonl
+  robustness_cases: data/cqs/06_phak_ch4_0.robustness.json
 
 retrieval:
   collection_name: phak_ch4_chunks

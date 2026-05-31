@@ -5,6 +5,11 @@ from pathlib import Path
 
 import click
 
+from aviation_agentic_ai.cli_common import (
+    default_answer_eval_subset_gold_labels,
+    default_benchmark_v2_gold_labels,
+    default_benchmark_v2_reviewed_subset_gold_labels,
+)
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.benchmark_review_pack import write_answer_eval_subset
@@ -47,31 +52,30 @@ def register_llm_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Run model-based benchmark label review without claiming human certification."""
-        config = load_default_config()
-        label_path = gold_labels or resolve_project_path(
-            "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"
-        )
-        default_subset = resolve_project_path(
-            "data/cqs/06_phak_ch4_0.benchmark_v2.reviewed_subset.gold.json"
-        )
-        subset_path = subset_labels or (default_subset if default_subset.exists() else None)
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_benchmark_llm_review(
-            label_path,
-            report_dir,
-            subset_labels_path=subset_path,
-            max_items=max_items,
-            run_llm=run_llm,
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Benchmark LLM review records="
-            f"{result['summary']['items_total']}; reviewed="
-            f"{result['summary']['llm_reviewed_total']}."
-        )
+        try:
+            config = load_default_config()
+            label_path = gold_labels or default_benchmark_v2_gold_labels()
+            default_subset = default_benchmark_v2_reviewed_subset_gold_labels()
+            subset_path = subset_labels or (default_subset if default_subset.exists() else None)
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, result = write_benchmark_llm_review(
+                label_path,
+                report_dir,
+                subset_labels_path=subset_path,
+                max_items=max_items,
+                run_llm=run_llm,
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Benchmark LLM review records="
+                f"{result['summary']['items_total']}; reviewed="
+                f"{result['summary']['llm_reviewed_total']}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("benchmark-llm-rewrite-proposals")
     @click.option("--review-report", type=click.Path(path_type=Path), default=None)
@@ -89,25 +93,26 @@ def register_llm_report_commands(report: click.Group) -> None:
         candidate_output: Path | None,
     ) -> None:
         """Create proposal-only benchmark rewrites from model-based review output."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        review_path = review_report or report_dir / "benchmark_llm_review.json"
-        label_path = gold_labels or resolve_project_path(
-            "data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"
-        )
-        json_path, md_path, candidate_path, result = write_benchmark_llm_rewrite_proposals(
-            review_path,
-            report_dir,
-            source_gold_path=label_path,
-            write_candidate=write_candidate,
-            candidate_output_path=candidate_output,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        if candidate_path is not None:
-            click.echo(f"Wrote {project_relative_path(candidate_path)}")
-        click.echo(f"Prepared {result['metadata']['proposals_total']} rewrite proposals.")
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            review_path = review_report or report_dir / "benchmark_llm_review.json"
+            label_path = gold_labels or default_benchmark_v2_gold_labels()
+            json_path, md_path, candidate_path, result = write_benchmark_llm_rewrite_proposals(
+                review_path,
+                report_dir,
+                source_gold_path=label_path,
+                write_candidate=write_candidate,
+                candidate_output_path=candidate_output,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            if candidate_path is not None:
+                click.echo(f"Wrote {project_relative_path(candidate_path)}")
+            click.echo(f"Prepared {result['metadata']['proposals_total']} rewrite proposals.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("triple-semantic-llm-review")
     @click.option("--review-sample", type=click.Path(path_type=Path), default=None)
@@ -123,24 +128,27 @@ def register_llm_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Run model-based KG triple semantic review without expert certification."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        sample_path = review_sample or report_dir / "triple_semantic_review_sample.json"
-        json_path, md_path, result = write_triple_semantic_llm_review(
-            sample_path,
-            report_dir,
-            max_items=max_items,
-            run_llm=run_llm,
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Triple LLM review records="
-            f"{result['summary']['items_total']}; reviewed="
-            f"{result['summary']['llm_reviewed_total']}."
-        )
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            sample_path = review_sample or report_dir / "triple_semantic_review_sample.json"
+            json_path, md_path, result = write_triple_semantic_llm_review(
+                sample_path,
+                report_dir,
+                max_items=max_items,
+                run_llm=run_llm,
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Triple LLM review records="
+                f"{result['summary']['items_total']}; reviewed="
+                f"{result['summary']['llm_reviewed_total']}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("graph-path-llm-review")
     @click.option("--graph-report", type=click.Path(path_type=Path), default=None)
@@ -156,24 +164,27 @@ def register_llm_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Run model-based graph path relevance review without treating it as final truth."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        source = graph_report or report_dir / "graph_traversal_ablation_benchmark_v2.json"
-        json_path, md_path, result = write_graph_path_llm_review(
-            source,
-            report_dir,
-            max_items=max_items,
-            run_llm=run_llm,
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Graph path LLM review records="
-            f"{result['summary']['items_total']}; reviewed="
-            f"{result['summary']['llm_reviewed_total']}."
-        )
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            source = graph_report or report_dir / "graph_traversal_ablation_benchmark_v2.json"
+            json_path, md_path, result = write_graph_path_llm_review(
+                source,
+                report_dir,
+                max_items=max_items,
+                run_llm=run_llm,
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Graph path LLM review records="
+                f"{result['summary']['items_total']}; reviewed="
+                f"{result['summary']['llm_reviewed_total']}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("answer-generation-benchmark-subset")
     @click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
@@ -197,31 +208,32 @@ def register_llm_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Generate benchmark-subset answers for later model-based judging."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        label_path = gold_labels or resolve_project_path(
-            "data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json"
-        )
-        if not label_path.exists():
-            label_path, _subset = write_answer_eval_subset(
-                resolve_project_path("data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"),
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            label_path = gold_labels or default_answer_eval_subset_gold_labels()
+            if not label_path.exists():
+                label_path, _subset = write_answer_eval_subset(
+                    default_benchmark_v2_gold_labels(),
+                    label_path,
+                )
+            json_path, md_path, result = write_answer_generation_benchmark_subset(
                 label_path,
+                chunks_path or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
+                kg_path or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
+                index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
+                report_dir,
+                collection_name=collection_name,
+                max_questions=max_questions,
+                run_llm=run_llm,
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
             )
-        json_path, md_path, result = write_answer_generation_benchmark_subset(
-            label_path,
-            chunks_path or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
-            kg_path or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
-            index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
-            report_dir,
-            collection_name=collection_name,
-            max_questions=max_questions,
-            run_llm=run_llm,
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Generated {result['metadata']['answers_total']} benchmark-subset answers.")
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Generated {result['metadata']['answers_total']} benchmark-subset answers.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("answer-llm-judge")
     @click.option("--answer-report", type=click.Path(path_type=Path), default=None)
@@ -237,24 +249,27 @@ def register_llm_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Judge generated answers with a model-based rubric."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        source = answer_report or report_dir / "answer_generation_benchmark_subset.json"
-        json_path, md_path, result = write_answer_llm_judge(
-            source,
-            report_dir,
-            max_items=max_items,
-            run_llm=run_llm,
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Answer LLM judge records="
-            f"{result['summary']['items_total']}; reviewed="
-            f"{result['summary']['llm_reviewed_total']}."
-        )
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            source = answer_report or report_dir / "answer_generation_benchmark_subset.json"
+            json_path, md_path, result = write_answer_llm_judge(
+                source,
+                report_dir,
+                max_items=max_items,
+                run_llm=run_llm,
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Answer LLM judge records="
+                f"{result['summary']['items_total']}; reviewed="
+                f"{result['summary']['llm_reviewed_total']}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("llm-review-consistency")
     @click.option("--benchmark-review", type=click.Path(path_type=Path), default=None)
@@ -272,19 +287,22 @@ def register_llm_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Compare role-based LLM review decisions across review artifacts."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_llm_review_consistency(
-            report_dir,
-            benchmark_review_path=benchmark_review or report_dir / "benchmark_llm_review.json",
-            triple_review_path=triple_review or report_dir / "triple_semantic_llm_review.json",
-            graph_path_review_path=graph_path_review or report_dir / "graph_path_llm_review.json",
-            answer_judge_path=answer_judge or report_dir / "answer_llm_judge.json",
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "LLM review consistency measured="
-            f"{not result['summary']['consistency_not_measured']}."
-        )
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, result = write_llm_review_consistency(
+                report_dir,
+                benchmark_review_path=benchmark_review or report_dir / "benchmark_llm_review.json",
+                triple_review_path=triple_review or report_dir / "triple_semantic_llm_review.json",
+                graph_path_review_path=graph_path_review or report_dir / "graph_path_llm_review.json",
+                answer_judge_path=answer_judge or report_dir / "answer_llm_judge.json",
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "LLM review consistency measured="
+                f"{not result['summary']['consistency_not_measured']}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc

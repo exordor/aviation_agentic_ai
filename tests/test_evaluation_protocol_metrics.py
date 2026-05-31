@@ -49,7 +49,7 @@ def test_answer_metrics_include_citation_precision_and_recall() -> None:
         }
     )
 
-    assert metrics["citation_precision"] == 0.75
+    assert metrics["citation_precision"] == 0.6667
     assert metrics["citation_recall"] == 1.0
     assert "t999" in metrics["detected_citations"]
     assert metrics["citation_scoring_method"] == "deterministic_heuristic"

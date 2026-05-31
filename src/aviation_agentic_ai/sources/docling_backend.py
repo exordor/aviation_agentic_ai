@@ -56,18 +56,28 @@ def _label_name(item: Any) -> str:
     return str(getattr(label, "name", getattr(label, "value", label))).upper()
 
 
-def _item_text(item: Any, document: Any) -> str:
+def _item_text_and_diagnostic(item: Any, document: Any) -> tuple[str, str]:
     text = getattr(item, "text", None)
     if text:
-        return str(text)
+        return str(text), ""
     if hasattr(item, "export_to_markdown"):
         try:
-            return str(item.export_to_markdown(doc=document))
-        except TypeError:
-            return str(item.export_to_markdown())
-        except Exception:
-            return ""
-    return ""
+            return str(item.export_to_markdown(doc=document)), ""
+        except TypeError as first_error:
+            try:
+                return str(item.export_to_markdown()), (
+                    "export_to_markdown_doc_argument_unsupported"
+                )
+            except TypeError as second_error:
+                return "", (
+                    "export_to_markdown_type_error: "
+                    f"{first_error}; fallback_type_error: {second_error}"
+                )
+    return "", ""
+
+
+def _item_text(item: Any, document: Any) -> str:
+    return _item_text_and_diagnostic(item, document)[0]
 
 
 def _bbox_to_dict(bbox: Any) -> dict[str, float] | None:
@@ -120,7 +130,8 @@ def extract_docling_items(result: Any) -> list[DoclingItem]:
     last_headers: dict[int, str] = {}
     for order, (item, level) in enumerate(document.iterate_items()):
         label = _label_name(item)
-        text = _item_text(item, document).strip()
+        text, text_diagnostic = _item_text_and_diagnostic(item, document)
+        text = text.strip()
         if not text and label not in {"TABLE", "PICTURE"}:
             continue
         item_id = f"docling_item_{order:05d}"
@@ -136,7 +147,10 @@ def extract_docling_items(result: Any) -> list[DoclingItem]:
             parent_id=parent_id,
             bbox=bbox,
             order=order,
-            raw=_raw_item(item),
+            raw={
+                **_raw_item(item),
+                **({"text_export_diagnostic": text_diagnostic} if text_diagnostic else {}),
+            },
         )
         items.append(normalized)
         if label == "SECTION_HEADER" and level_value is not None:

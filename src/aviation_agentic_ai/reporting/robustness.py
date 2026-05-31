@@ -21,7 +21,15 @@ QueryRunner = Callable[..., dict[str, Any]]
 
 
 def _run_retrieval_with_deterministic_answer(*args: Any, **kwargs: Any) -> dict[str, Any]:
-    result = run_retrieval(*args, **kwargs)
+    try:
+        result = run_retrieval(*args, **kwargs)
+    except Exception as exc:
+        return {
+            "answer": f"Retrieval failed: {exc}",
+            "fused_chunks": [],
+            "graph_triples": [],
+            "error": str(exc),
+        }
     question = str(args[0]) if args else str(kwargs.get("question", ""))
     decision = evaluate_evidence_sufficiency(question, result)
     result["sufficiency_decision"] = decision

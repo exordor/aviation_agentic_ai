@@ -139,7 +139,11 @@ def _record_path_metrics(
             for edge in path.get("edges", [])
         )
         chunk_match = bool(expected_chunk_ids & path_chunk_ids)
-        page_match = gold.source_page >= 0 and int(gold.source_page) in path_pages
+        try:
+            source_page = int(gold.source_page)
+        except (TypeError, ValueError):
+            source_page = -1
+        page_match = source_page >= 0 and source_page in path_pages
         return entity_match or relation_match or chunk_match or page_match
 
     path_relevance = [path_supports_question(path) for path in paths]

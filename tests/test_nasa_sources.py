@@ -16,6 +16,7 @@ from aviation_agentic_ai.reporting.nasa_sources import (
     write_ontology_boundary_nasa_report,
 )
 from aviation_agentic_ai.sources.nasa_web import (
+    _failed_nasa_page,
     build_nasa_source_discovery,
     discover_nasa_aerodynamics_links,
     extract_main_content,
@@ -165,6 +166,17 @@ def test_nasa_normalized_page_schema(tmp_path: Path) -> None:
     assert page["sections"]
     assert page["equations"]
     assert page["validation_status"] == "valid"
+
+
+def test_failed_nasa_pages_have_url_specific_content_hash(tmp_path: Path) -> None:
+    records = read_nasa_source_manifest(_manifest(tmp_path / "manifest.yaml"))["sources"]
+
+    first = _failed_nasa_page(records[0], RuntimeError("offline"))
+    second = _failed_nasa_page(records[1], RuntimeError("offline"))
+
+    assert first["content_hash"]
+    assert second["content_hash"]
+    assert first["content_hash"] != second["content_hash"]
 
 
 def test_nasa_ingestion_and_source_validation_reports(tmp_path: Path) -> None:

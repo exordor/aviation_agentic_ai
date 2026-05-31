@@ -20,6 +20,7 @@ from aviation_agentic_ai.web.data import (
     STRUCTURE_AWARE_CHUNKS,
     STRUCTURE_AWARE_COLLECTION,
     STRUCTURE_AWARE_KG,
+    WebDataReadError,
     build_demo_explanation,
     build_demo_status,
     build_experiment_summary,
@@ -156,22 +157,42 @@ def create_app(
 
     @app.get("/api/status")
     def status():
-        readiness = build_live_query_readiness(root, enable_live_query=enable_live_query)
-        payload = build_demo_status(root, live_query_enabled=readiness["enabled"])
-        payload["live_query_readiness"] = readiness
-        return payload
+        try:
+            readiness = build_live_query_readiness(root, enable_live_query=enable_live_query)
+            payload = build_demo_status(root, live_query_enabled=readiness["enabled"])
+            payload["live_query_readiness"] = readiness
+            return payload
+        except WebDataReadError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     @app.get("/api/demo/explanation")
     def demo_explanation():
-        return build_demo_explanation(root)
+        try:
+            return build_demo_explanation(root)
+        except WebDataReadError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     @app.get("/api/questions")
     def questions():
-        return {"questions": build_questions(root)}
+        try:
+            return {"questions": build_questions(root)}
+        except WebDataReadError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     @app.get("/api/questions/{cq_id}")
     def question_detail(cq_id: str):
-        detail = build_question_detail(cq_id, root)
+        try:
+            detail = build_question_detail(cq_id, root)
+        except WebDataReadError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
         if detail is None:
             raise HTTPException(status_code=404, detail=f"Unknown CQ id: {cq_id}")
         return detail
@@ -184,15 +205,24 @@ def create_app(
     ):
         try:
             graph = build_question_kg_graph(cq_id, root, experiment=experiment, mode=mode)
+        except WebDataReadError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
         if graph is None:
             raise HTTPException(status_code=404, detail=f"Unknown CQ id: {cq_id}")
         return graph
 
     @app.get("/api/experiments/summary")
     def experiments_summary():
-        return build_experiment_summary(root)
+        try:
+            return build_experiment_summary(root)
+        except WebDataReadError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     @app.post("/api/query")
     def live_query(request: QueryRequest):

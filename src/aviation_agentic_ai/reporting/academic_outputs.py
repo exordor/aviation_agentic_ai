@@ -109,7 +109,7 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
     sufficiency = _artifact_data(evidence, "sufficiency_evaluation")
     triple_review = _artifact_data(evidence, "triple_semantic_review")
     dashboard = _artifact_data(evidence, "thesis_experiment_dashboard")
-    ranking = chunking.get("ranking", []) if isinstance(chunking.get("ranking"), list) else []
+    ranking = chunking.get("ranking", []) if isinstance(chunking, dict) and isinstance(chunking.get("ranking"), list) else []
     best_chunking = ranking[0] if ranking else {}
     fixed_hybrid_agg = fixed_hybrid.get("aggregate", {})
     structure_hybrid_agg = structure_hybrid.get("aggregate", {})

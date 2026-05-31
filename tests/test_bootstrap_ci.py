@@ -24,6 +24,14 @@ def test_bootstrap_ci_empty_input_reports_n_zero() -> None:
     assert ci["upper"] == 0.0
 
 
+def test_bootstrap_ci_single_sample_has_valid_bounds() -> None:
+    ci = bootstrap_ci([1.0], seed=42, samples=1)
+
+    assert ci["n"] == 1
+    assert ci["lower"] == 1.0
+    assert ci["upper"] == 1.0
+
+
 def test_bootstrap_metric_ci_maps_records_before_sampling() -> None:
     ci = bootstrap_metric_ci(
         [{"hit": True}, {"hit": False}, {"hit": True}],

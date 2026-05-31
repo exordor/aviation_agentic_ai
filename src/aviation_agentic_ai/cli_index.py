@@ -25,16 +25,19 @@ def index_build(
     reset: bool,
 ) -> None:
     """Build retrieval indexes."""
-    config = load_default_config()
-    index_root = index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma"
-    report = build_chroma_index(
-        chunks_path or resolve_project_path(config["paths"]["chunks_file"]),
-        index_root,
-        collection_name=collection_name
-        or config.get("retrieval", {}).get("collection_name", DEFAULT_COLLECTION_NAME),
-        reset=reset,
-    )
-    click.echo(
-        f"Indexed {report['chunks_indexed']} chunks into "
-        f"{report['collection_name']} at {report['index_dir']}."
-    )
+    try:
+        config = load_default_config()
+        index_root = index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma"
+        report = build_chroma_index(
+            chunks_path or resolve_project_path(config["paths"]["chunks_file"]),
+            index_root,
+            collection_name=collection_name
+            or config.get("retrieval", {}).get("collection_name", DEFAULT_COLLECTION_NAME),
+            reset=reset,
+        )
+        click.echo(
+            f"Indexed {report['chunks_indexed']} chunks into "
+            f"{report['collection_name']} at {report['index_dir']}."
+        )
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc

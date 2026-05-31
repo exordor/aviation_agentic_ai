@@ -18,6 +18,8 @@ from aviation_agentic_ai.sources.pymupdf_backend import (
     timed_pymupdf_extraction,
 )
 
+EXPLICIT_DOCLING_REPAIR_REPLACEMENTS: dict[str, str] = {"ORESSURE": "PRESSURE"}
+
 
 def _compact(text: str) -> str:
     return re.sub(r"\s+", "", text).lower()
@@ -96,8 +98,7 @@ def repair_docling_text_with_pymupdf(
             }
         )
 
-    explicit_replacements = {"ORESSURE": "PRESSURE"}
-    for bad, good in explicit_replacements.items():
+    for bad, good in EXPLICIT_DOCLING_REPAIR_REPLACEMENTS.items():
         if bad in repaired and re.search(rf"\b{re.escape(good)}\b", pymupdf_page_text):
             repaired = repaired.replace(bad, good)
             repairs.append(

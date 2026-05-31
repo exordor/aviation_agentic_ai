@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 from rdflib import Graph, OWL, RDF, RDFS, URIRef
 
-from aviation_agentic_ai.config import load_environment
+from aviation_agentic_ai.config import load_default_config, load_environment
 from aviation_agentic_ai.llm.providers import configured_llm_model, configured_llm_provider
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.ontology.evaluation import (
@@ -184,15 +184,18 @@ def _host_only(url: str) -> str:
 
 def _llm_manifest_metadata() -> dict[str, str]:
     load_environment()
+    config = load_default_config()
+    llm_cfg = config.get("llm", {})
 
     provider = configured_llm_provider()
     model = configured_llm_model(provider)
     if provider == "deepseek":
-        base_url = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
+        base_url = llm_cfg.get("deepseek_base_url") or os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
     elif provider == "vllm":
-        base_url = f"http://localhost:{os.getenv('VLLM_PORT', '8000')}/v1"
+        port = llm_cfg.get("vllm_port") or os.getenv("VLLM_PORT", "8000")
+        base_url = f"http://localhost:{port}/v1"
     elif provider == "openai":
-        base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+        base_url = llm_cfg.get("openai_base_url") or os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
     else:
         base_url = ""
     return {"provider": provider, "model": model, "base_url_host": _host_only(base_url)}

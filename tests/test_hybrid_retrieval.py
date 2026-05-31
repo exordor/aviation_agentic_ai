@@ -464,9 +464,10 @@ def test_vector_first_guarded_fusion_preserves_vector_when_graph_overlap_is_weak
 
     assert [item["chunk_id"] for item in fused] == ["v1", "v2", "g1"]
     assert [item["rank"] for item in fused] == [1, 2, 3]
+    assert fused[2]["score"] < 1.0
 
 
-def test_vector_first_guarded_fusion_merges_duplicate_weak_graph_hit() -> None:
+def test_vector_first_guarded_fusion_merges_duplicate_weak_graph_hit_with_rrf_score() -> None:
     fused = vector_first_guarded_fusion(
         "What affects thrust?",
         vector_hits=[
@@ -483,7 +484,7 @@ def test_vector_first_guarded_fusion_merges_duplicate_weak_graph_hit() -> None:
     )
 
     assert [item["chunk_id"] for item in fused] == ["v1", "shared"]
-    assert fused[1]["score"] == 5.0
+    assert fused[1]["score"] < 1.0
     assert fused[1]["source"] == "graph+vector"
 
 

@@ -541,7 +541,7 @@ def _select_graph_path_items(report: dict[str, Any], max_items: int | None) -> l
             path_metrics = record.get("metrics", {}).get("graph_paths", {})
             if (
                 question_type == "relation_causal"
-                or path_metrics.get("path_recall_at_5")
+                or "path_recall_at_5" in path_metrics
                 or "path_found_but_wrong_chunk" in categories
                 or "graph_fusion_dilution" in categories
             ):

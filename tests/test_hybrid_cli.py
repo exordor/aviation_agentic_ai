@@ -1,8 +1,34 @@
+import importlib
+import sys
 from pathlib import Path
 
 from click.testing import CliRunner
 
 from aviation_agentic_ai.cli import main
+
+
+def test_cli_help_survives_optional_command_import_failure(monkeypatch) -> None:
+    real_import_module = importlib.import_module
+
+    def fake_import_module(name: str, *args, **kwargs):
+        if name == "aviation_agentic_ai.cli_index":
+            raise ImportError("chromadb unavailable")
+        return real_import_module(name, *args, **kwargs)
+
+    monkeypatch.setattr(importlib, "import_module", fake_import_module)
+    sys.modules.pop("aviation_agentic_ai.cli", None)
+    try:
+        cli_module = real_import_module("aviation_agentic_ai.cli")
+        help_result = CliRunner().invoke(cli_module.main, ["--help"])
+        unavailable_result = CliRunner().invoke(cli_module.main, ["index", "build"])
+    finally:
+        sys.modules.pop("aviation_agentic_ai.cli", None)
+        monkeypatch.setattr(importlib, "import_module", real_import_module)
+        real_import_module("aviation_agentic_ai.cli")
+
+    assert help_result.exit_code == 0
+    assert unavailable_result.exit_code != 0
+    assert "unavailable because an import failed" in unavailable_result.output
 
 
 def test_cli_chunk_build_uses_default_command_shape(tmp_path: Path, monkeypatch) -> None:

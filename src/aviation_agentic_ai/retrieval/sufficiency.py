@@ -54,7 +54,9 @@ RISK_TRIGGERS: dict[str, tuple[str, ...]] = {
         "go-nogo",
         "safe to fly",
         "safe to depart",
-        "should i fly",
+        "should i fly today",
+        "should i fly now",
+        "should i fly this flight",
         "depart today",
         "take off now",
         "continue the flight",
@@ -93,6 +95,13 @@ BOUNDARY_ORDER = (
 )
 
 
+# Confidence thresholds for evidence sufficiency decisions.
+# TODO: Calibrate these values against empirical evaluation data.
+BOUNDARY_ABSTENTION_CONFIDENCE = 0.9
+EVIDENCE_MATCH_ANSWER_CONFIDENCE = 0.85
+EVIDENCE_MISMATCH_ABSTENTION_CONFIDENCE = 0.7
+
+
 def _normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text.lower()).strip()
 
@@ -100,7 +109,11 @@ def _normalize(text: str) -> str:
 def detect_risk_category(question: str) -> tuple[str, list[str]]:
     normalized = _normalize(question)
     for category in BOUNDARY_ORDER:
-        matches = [trigger for trigger in RISK_TRIGGERS[category] if trigger in normalized]
+        matches = [
+            trigger
+            for trigger in RISK_TRIGGERS[category]
+            if re.search(r"\b" + re.escape(trigger) + r"\b", normalized)
+        ]
         if matches:
             return category, matches
     return "training_question", []
@@ -170,7 +183,7 @@ def evaluate_evidence_sufficiency(
             "decision": "abstain",
             "reason": f"Question matches aviation boundary risk category `{risk_category}`.",
             "risk_category": risk_category,
-            "confidence": 0.9,
+            "confidence": BOUNDARY_ABSTENTION_CONFIDENCE,
             "matched_boundary_terms": matched_terms,
             "evidence_signals": signals,
             "evaluation_mode": evaluation_mode,
@@ -181,11 +194,11 @@ def evaluate_evidence_sufficiency(
         if signals["expected_evidence_match"]:
             decision = "answer"
             reason = "Retrieved evidence matches expected benchmark chunks or spans."
-            confidence = 0.85
+            confidence = EVIDENCE_MATCH_ANSWER_CONFIDENCE
         else:
             decision = "abstain"
             reason = "Retrieved evidence does not match expected benchmark evidence."
-            confidence = 0.7
+            confidence = EVIDENCE_MISMATCH_ABSTENTION_CONFIDENCE
     elif signals["has_any_evidence"] and signals["question_evidence_token_overlap_count"] >= 2:
         decision = "answer"
         reason = "Retrieved evidence has lexical overlap with the training question."

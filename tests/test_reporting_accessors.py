@@ -14,4 +14,4 @@ def test_nested_value_returns_default_for_non_object_intermediate() -> None:
 
 
 def test_nested_value_uses_report_default() -> None:
-    assert nested_value({}, "missing") == "TBD"
+    assert nested_value({}, "missing") is None

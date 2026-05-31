@@ -32,23 +32,26 @@ def register_nasa_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Compare the NASA BGA landing-page links with the tracked manifest."""
-        config = load_default_config()
-        manifest_path = manifest or resolve_project_path(
-            "data/sources/nasa_bga_aerodynamics_sources.yaml"
-        )
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_nasa_source_discovery_report(
-            manifest_path,
-            report_dir,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "NASA source discovery coverage: "
-            f"{result['metadata']['covered_unique_urls_total']} of "
-            f"{result['metadata']['discovered_unique_urls_total']} discovered unique URLs."
-        )
+        try:
+            config = load_default_config()
+            manifest_path = manifest or resolve_project_path(
+                "data/sources/nasa_bga_aerodynamics_sources.yaml"
+            )
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, result = write_nasa_source_discovery_report(
+                manifest_path,
+                report_dir,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "NASA source discovery coverage: "
+                f"{result['metadata']['covered_unique_urls_total']} of "
+                f"{result['metadata']['discovered_unique_urls_total']} discovered unique URLs."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("nasa-source-validation")
     @click.option("--raw-dir", type=click.Path(path_type=Path), default=None)
@@ -64,28 +67,31 @@ def register_nasa_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Validate normalized NASA BGA source pages and write metadata artifacts."""
-        config = load_default_config()
-        source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        metadata_output = metadata_path or resolve_project_path(
-            "data/sources/nasa_bga_aerodynamics_metadata.json"
-        )
-        sections_output = sections_path or resolve_project_path(
-            "data/sources/nasa_bga_aerodynamics_sections.json"
-        )
-        json_path, md_path, result = write_nasa_source_validation_report(
-            source_dir,
-            report_dir,
-            metadata_path=metadata_output,
-            sections_path=sections_output,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            f"Validated {result['metadata']['valid_pages']} of "
-            f"{result['metadata']['pages_total']} NASA pages."
-        )
+        try:
+            config = load_default_config()
+            source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            metadata_output = metadata_path or resolve_project_path(
+                "data/sources/nasa_bga_aerodynamics_metadata.json"
+            )
+            sections_output = sections_path or resolve_project_path(
+                "data/sources/nasa_bga_aerodynamics_sections.json"
+            )
+            json_path, md_path, result = write_nasa_source_validation_report(
+                source_dir,
+                report_dir,
+                metadata_path=metadata_output,
+                sections_path=sections_output,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"Validated {result['metadata']['valid_pages']} of "
+                f"{result['metadata']['pages_total']} NASA pages."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("nasa-chunking-summary")
     @click.option("--raw-dir", type=click.Path(path_type=Path), default=None)
@@ -107,21 +113,24 @@ def register_nasa_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Build deterministic chunks from normalized NASA BGA pages."""
-        config = load_default_config()
-        source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
-        chunk_output = chunks_dir or resolve_project_path("data/chunks")
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_nasa_chunking_summary(
-            source_dir,
-            chunk_output,
-            report_dir,
-            embedding_model=embedding_model,
-            semantic_download=semantic_download,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Built NASA chunks for {len(result['strategies'])} strategies.")
+        try:
+            config = load_default_config()
+            source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
+            chunk_output = chunks_dir or resolve_project_path("data/chunks")
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, result = write_nasa_chunking_summary(
+                source_dir,
+                chunk_output,
+                report_dir,
+                embedding_model=embedding_model,
+                semantic_download=semantic_download,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Built NASA chunks for {len(result['strategies'])} strategies.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("ontology-boundary-nasa")
     @click.option("--raw-dir", type=click.Path(path_type=Path), default=None)
@@ -141,33 +150,36 @@ def register_nasa_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Validate current ontology boundary against NASA BGA aerodynamics pages."""
-        config = load_default_config()
-        source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
-        manifest_path = manifest or resolve_project_path(
-            "data/sources/nasa_bga_aerodynamics_sources.yaml"
-        )
-        ontology_path = ontology_file or resolve_project_path(config["paths"]["curated_ontology"])
-        extraction_profile = profile_path or resolve_project_path("configs/extraction_profile.yaml")
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        proposal_output = proposal_path or resolve_project_path(
-            "data/ontology/proposals/nasa_aerodynamics_extension.proposal.ttl"
-        )
-        json_path, md_path, result = write_ontology_boundary_nasa_report(
-            ontology_path,
-            source_dir,
-            manifest_path,
-            extraction_profile,
-            report_dir,
-            proposal_path=proposal_output,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Class candidates: "
-            f"{len(result['recommended_class_additions'])}; "
-            f"alias candidates: {len(result['alias_candidates'])}."
-        )
+        try:
+            config = load_default_config()
+            source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
+            manifest_path = manifest or resolve_project_path(
+                "data/sources/nasa_bga_aerodynamics_sources.yaml"
+            )
+            ontology_path = ontology_file or resolve_project_path(config["paths"]["curated_ontology"])
+            extraction_profile = profile_path or resolve_project_path("configs/extraction_profile.yaml")
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            proposal_output = proposal_path or resolve_project_path(
+                "data/ontology/proposals/nasa_aerodynamics_extension.proposal.ttl"
+            )
+            json_path, md_path, result = write_ontology_boundary_nasa_report(
+                ontology_path,
+                source_dir,
+                manifest_path,
+                extraction_profile,
+                report_dir,
+                proposal_path=proposal_output,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Class candidates: "
+                f"{len(result['recommended_class_additions'])}; "
+                f"alias candidates: {len(result['alias_candidates'])}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("nasa-benchmark-summary")
     @click.option("--raw-dir", type=click.Path(path_type=Path), default=None)
@@ -181,19 +193,22 @@ def register_nasa_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Generate and summarize the NASA BGA seed benchmark."""
-        config = load_default_config()
-        source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
-        seed_output = seed_path or resolve_project_path("data/cqs/nasa_bga_aerodynamics.seed.gold.json")
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_nasa_benchmark_summary(
-            source_dir,
-            seed_output,
-            report_dir,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Generated {result['metadata']['labels_total']} NASA seed labels.")
+        try:
+            config = load_default_config()
+            source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
+            seed_output = seed_path or resolve_project_path("data/cqs/nasa_bga_aerodynamics.seed.gold.json")
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, result = write_nasa_benchmark_summary(
+                source_dir,
+                seed_output,
+                report_dir,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Generated {result['metadata']['labels_total']} NASA seed labels.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("nasa-kg-validation")
     @click.option("--kg-file", "kg_path", type=click.Path(path_type=Path), default=None)
@@ -211,30 +226,33 @@ def register_nasa_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Write NASA-specific KG validation metrics from an existing KG artifact."""
-        config = load_default_config()
-        kg_file = kg_path or resolve_project_path(
-            "data/kg/nasa_bga_aerodynamics.structure_aware_large.kg.jsonl"
-        )
-        chunks_file = chunks_path or resolve_project_path(
-            "data/chunks/nasa_bga_aerodynamics.structure_aware_large.jsonl"
-        )
-        profile = profile_path or resolve_project_path("configs/extraction_profile.yaml")
-        ontology_path = ontology_file or resolve_project_path(config["paths"]["curated_ontology"])
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_nasa_kg_validation_report(
-            kg_file,
-            chunks_file,
-            profile,
-            ontology_path,
-            report_dir,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            f"Validated {result['valid_triples']} of "
-            f"{result['triples_total']} NASA KG triples."
-        )
+        try:
+            config = load_default_config()
+            kg_file = kg_path or resolve_project_path(
+                "data/kg/nasa_bga_aerodynamics.structure_aware_large.kg.jsonl"
+            )
+            chunks_file = chunks_path or resolve_project_path(
+                "data/chunks/nasa_bga_aerodynamics.structure_aware_large.jsonl"
+            )
+            profile = profile_path or resolve_project_path("configs/extraction_profile.yaml")
+            ontology_path = ontology_file or resolve_project_path(config["paths"]["curated_ontology"])
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, result = write_nasa_kg_validation_report(
+                kg_file,
+                chunks_file,
+                profile,
+                ontology_path,
+                report_dir,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"Validated {result['valid_triples']} of "
+                f"{result['triples_total']} NASA KG triples."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("cross-source-ontology-validation")
     @click.option("--raw-dir", type=click.Path(path_type=Path), default=None)
@@ -250,25 +268,28 @@ def register_nasa_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Generate cross-source seed labels and ontology-routing diagnostics."""
-        config = load_default_config()
-        source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
-        nasa_seed_path = nasa_seed or resolve_project_path(
-            "data/cqs/nasa_bga_aerodynamics.seed.gold.json"
-        )
-        cross_seed_path = cross_seed or resolve_project_path(
-            "data/cqs/faa_phak_nasa_cross_source.seed.gold.json"
-        )
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_cross_source_ontology_validation(
-            source_dir,
-            nasa_seed_path,
-            cross_seed_path,
-            report_dir,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Generated {result['metadata']['labels_total']} cross-source labels.")
+        try:
+            config = load_default_config()
+            source_dir = raw_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
+            nasa_seed_path = nasa_seed or resolve_project_path(
+                "data/cqs/nasa_bga_aerodynamics.seed.gold.json"
+            )
+            cross_seed_path = cross_seed or resolve_project_path(
+                "data/cqs/faa_phak_nasa_cross_source.seed.gold.json"
+            )
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, result = write_cross_source_ontology_validation(
+                source_dir,
+                nasa_seed_path,
+                cross_seed_path,
+                report_dir,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Generated {result['metadata']['labels_total']} cross-source labels.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("multisource-retrieval-smoke")
     @click.option("--nasa-seed", type=click.Path(path_type=Path), default=None)
@@ -286,32 +307,35 @@ def register_nasa_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Run a small deterministic FAA/NASA source-routing smoke report."""
-        config = load_default_config()
-        nasa_seed_path = nasa_seed or resolve_project_path(
-            "data/cqs/nasa_bga_aerodynamics.seed.gold.json"
-        )
-        cross_seed_path = cross_seed or resolve_project_path(
-            "data/cqs/faa_phak_nasa_cross_source.seed.gold.json"
-        )
-        nasa_chunks_path = nasa_chunks or resolve_project_path(
-            "data/chunks/nasa_bga_aerodynamics.structure_aware_large.jsonl"
-        )
-        faa_chunks_path = faa_chunks or resolve_project_path(
-            "data/chunks/06_phak_ch4_0.structure_aware_large.benchmark_v2.jsonl"
-        )
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_multisource_retrieval_smoke(
-            nasa_seed_path,
-            cross_seed_path,
-            nasa_chunks_path,
-            faa_chunks_path,
-            report_dir,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Smoke labels: "
-            f"{result['metadata']['labels_total']} with FAA+NASA "
-            f"Recall@5={result['scenarios']['faa_plus_nasa']['recall_at_5']}."
-        )
+        try:
+            config = load_default_config()
+            nasa_seed_path = nasa_seed or resolve_project_path(
+                "data/cqs/nasa_bga_aerodynamics.seed.gold.json"
+            )
+            cross_seed_path = cross_seed or resolve_project_path(
+                "data/cqs/faa_phak_nasa_cross_source.seed.gold.json"
+            )
+            nasa_chunks_path = nasa_chunks or resolve_project_path(
+                "data/chunks/nasa_bga_aerodynamics.structure_aware_large.jsonl"
+            )
+            faa_chunks_path = faa_chunks or resolve_project_path(
+                "data/chunks/06_phak_ch4_0.structure_aware_large.benchmark_v2.jsonl"
+            )
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            json_path, md_path, result = write_multisource_retrieval_smoke(
+                nasa_seed_path,
+                cross_seed_path,
+                nasa_chunks_path,
+                faa_chunks_path,
+                report_dir,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Smoke labels: "
+                f"{result['metadata']['labels_total']} with FAA+NASA "
+                f"Recall@5={result['scenarios']['faa_plus_nasa']['recall_at_5']}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc

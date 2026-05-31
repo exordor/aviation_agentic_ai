@@ -8,6 +8,7 @@ from aviation_agentic_ai.config import (
     load_yaml,
     resolve_project_path,
 )
+from aviation_agentic_ai.paths import PROJECT_ROOT
 
 
 def test_load_default_config() -> None:
@@ -33,16 +34,16 @@ def test_ontology_generation_config_uses_larger_token_budget() -> None:
 
 
 def test_load_environment_loads_dotenv_once_and_can_force(monkeypatch) -> None:
-    calls: list[str] = []
+    calls: list[object] = []
     dotenv_module = ModuleType("dotenv")
-    dotenv_module.load_dotenv = lambda: calls.append("loaded")
+    dotenv_module.load_dotenv = lambda dotenv_path=None: calls.append(dotenv_path)
     monkeypatch.setitem(__import__("sys").modules, "dotenv", dotenv_module)
     monkeypatch.setattr(config_module, "_ENVIRONMENT_LOADED", False)
 
     assert load_environment() is True
     assert load_environment() is False
     assert load_environment(force=True) is True
-    assert calls == ["loaded", "loaded"]
+    assert calls == [PROJECT_ROOT / ".env", PROJECT_ROOT / ".env"]
 
 
 def test_load_environment_caches_missing_dotenv(monkeypatch) -> None:

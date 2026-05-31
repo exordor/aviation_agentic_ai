@@ -193,7 +193,17 @@ def apply_hygiene_plan(plan: dict[str, Any], *, base: str | Path = PROJECT_ROOT)
             continue
         target = _unique_destination(destination)
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.move(str(source), str(target))
+        try:
+            shutil.move(str(source), str(target))
+        except OSError as exc:
+            import logging
+            logging.getLogger(__name__).warning(
+                "Failed to move %s to %s: %s",
+                project_relative_path(source, base=base_path),
+                project_relative_path(target, base=base_path),
+                exc,
+            )
+            continue
         moved.append(
             {
                 "from": project_relative_path(source, base=base_path),

@@ -39,21 +39,24 @@ def chunk_build(
     max_pages: int | None,
 ) -> None:
     """Build stable JSONL chunks from a source PDF."""
-    config = load_default_config()
-    default_output = chunk_output_path_for_strategy(
-        resolve_project_path(config["paths"]["chunks_file"]),
-        strategy,
-    )
-    path, chunks = build_chunk_file(
-        pdf_path or resolve_project_path(config["paths"]["raw_pdf"]),
-        output_path or default_output,
-        max_chars=max_chars,
-        overlap_chars=overlap_chars,
-        max_pages=max_pages,
-        strategy=strategy,
-    )
-    pages = sorted({chunk.page for chunk in chunks})
-    click.echo(
-        f"Wrote {project_relative_path(path)} with {len(chunks)} {strategy} chunks "
-        f"from {len(pages)} pages."
-    )
+    try:
+        config = load_default_config()
+        default_output = chunk_output_path_for_strategy(
+            resolve_project_path(config["paths"]["chunks_file"]),
+            strategy,
+        )
+        path, chunks = build_chunk_file(
+            pdf_path or resolve_project_path(config["paths"]["raw_pdf"]),
+            output_path or default_output,
+            max_chars=max_chars,
+            overlap_chars=overlap_chars,
+            max_pages=max_pages,
+            strategy=strategy,
+        )
+        pages = sorted({chunk.page for chunk in chunks})
+        click.echo(
+            f"Wrote {project_relative_path(path)} with {len(chunks)} {strategy} chunks "
+            f"from {len(pages)} pages."
+        )
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc

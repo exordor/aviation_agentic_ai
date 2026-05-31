@@ -76,7 +76,7 @@ def get_llm(temperature: float = 0.3, max_tokens: int = 4096) -> "BaseChatModel"
         return ChatOpenAI(
             model=model,
             base_url=f"http://localhost:{os.getenv('VLLM_PORT', '8000')}/v1",
-            api_key="not-needed",
+            api_key=os.getenv("VLLM_API_KEY", "not-needed"),
             temperature=temperature,
             max_tokens=max_tokens,
         )

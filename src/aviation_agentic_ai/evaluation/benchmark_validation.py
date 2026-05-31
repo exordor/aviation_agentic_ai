@@ -172,8 +172,11 @@ def validate_benchmark(
 
         if no_answer:
             no_answer_total += 1
-            if gold_level != "no_answer":
-                errors.append(f"{cq_id}: no-answer labels must use gold_level `no_answer`.")
+            if gold_level not in NO_ANSWER_LEVELS:
+                errors.append(
+                    f"{cq_id}: no-answer labels must use a no-answer gold_level "
+                    f"({', '.join(sorted(NO_ANSWER_LEVELS))})."
+                )
             if bool(label.get("expected_abstention", False)) is not True:
                 errors.append(f"{cq_id}: no-answer labels must set expected_abstention=true.")
             if int(label.get("source_page", 0)) != -1:

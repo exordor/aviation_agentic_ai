@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +11,7 @@ from aviation_agentic_ai.retrieval.indexing import DEFAULT_COLLECTION_NAME, quer
 from aviation_agentic_ai.utils.io import write_json_document
 from aviation_agentic_ai.utils.text import tokenize_terms
 
+logger = logging.getLogger(__name__)
 
 SOURCE_DELIMITER = "+"
 UNKNOWN_SOURCE = "unknown"
@@ -189,10 +191,9 @@ def vector_first_guarded_fusion(
 ) -> list[dict[str, Any]]:
     """Fuse while preserving the strongest vector evidence unless graph overlap is strong."""
     protected = [dict(item) for item in vector_hits[:preserve_top_n]]
-    fused_tail_source = (
-        reciprocal_rank_fusion([vector_hits, graph_hits], top_k=top_k + preserve_top_n)
-        if _strong_graph_overlap(question, graph_triples, graph_paths)
-        else [*vector_hits, *graph_hits]
+    fused_tail_source = reciprocal_rank_fusion(
+        [vector_hits, graph_hits],
+        top_k=top_k + preserve_top_n,
     )
     fused: list[dict[str, Any]] = []
     positions: dict[str, int] = {}
@@ -277,9 +278,10 @@ def generate_grounded_answer(
             [HumanMessage(content=prompt)]
         )
     except Exception as exc:
+        logger.exception("LLM answer generation failed")
         return (
             "Insufficient evidence to generate an LLM answer because answer generation "
-            f"failed with {type(exc).__name__}. Use the retrieved evidence directly "
+            f"failed with {type(exc).__name__}: {exc}. Use the retrieved evidence directly "
             "instead of treating this as a generated answer.\n\nCitations: none",
             prompt,
         )

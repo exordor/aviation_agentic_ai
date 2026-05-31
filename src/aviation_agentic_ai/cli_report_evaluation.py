@@ -5,7 +5,17 @@ from pathlib import Path
 
 import click
 
-from aviation_agentic_ai.config import load_default_config, resolve_project_path
+from aviation_agentic_ai.cli_common import (
+    _safe_path,
+    default_benchmark_v2_gold_labels,
+    default_boundary_cqs,
+    default_expanded_gold_labels,
+    default_gold_labels,
+    default_robustness_cases,
+    default_structure_aware_chunks,
+    default_structure_aware_kg,
+)
+from aviation_agentic_ai.config import load_default_config
 from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.answer_eval import write_answer_evaluation
 from aviation_agentic_ai.reporting.evidence_cards import write_evidence_cards
@@ -51,29 +61,31 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         max_questions: int | None,
     ) -> None:
         """Run and report the boundary-CQ Hybrid RAG experiment."""
-        config = load_default_config()
-        retrieval_config = config.get("retrieval", {})
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_hybrid_rag_experiment(
-            boundary_cqs or resolve_project_path("data/cqs/06_phak_ch4_0.boundary.json"),
-            chunks_path or resolve_project_path(config["paths"]["chunks_file"]),
-            kg_path or resolve_project_path(config["paths"]["kg_file"]),
-            index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
-            report_dir,
-            collection_name=collection_name
-            or retrieval_config.get("collection_name", DEFAULT_COLLECTION_NAME),
-            graph_hops=int(retrieval_config.get("graph_hops", 2)),
-            vector_top_k=int(retrieval_config.get("vector_top_k", 5)),
-            hybrid_top_k=int(retrieval_config.get("hybrid_top_k", 8)),
-            max_questions=max_questions,
-            gold_labels_path=gold_labels,
-            chunking_strategy=chunking_strategy,
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Evaluated {result['metadata']['questions_total']} boundary CQs.")
+        try:
+            retrieval_config = load_default_config().get("retrieval", {})
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            json_path, md_path, result = write_hybrid_rag_experiment(
+                boundary_cqs or default_boundary_cqs(),
+                chunks_path or _safe_path("chunks_file", "data/chunks/06_phak_ch4_0.jsonl"),
+                kg_path or _safe_path("kg_file", "data/kg/06_phak_ch4_0.kg.jsonl"),
+                index_dir or _safe_path("index_dir", "data/indexes") / "chroma",
+                report_dir,
+                collection_name=collection_name
+                or retrieval_config.get("collection_name", DEFAULT_COLLECTION_NAME),
+                graph_hops=int(retrieval_config.get("graph_hops", 2)),
+                vector_top_k=int(retrieval_config.get("vector_top_k", 5)),
+                hybrid_top_k=int(retrieval_config.get("hybrid_top_k", 8)),
+                max_questions=max_questions,
+                gold_labels_path=gold_labels,
+                chunking_strategy=chunking_strategy,
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Evaluated {result['metadata']['questions_total']} boundary CQs.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("graphrag-review")
     @click.option("--chunking-comparison", type=click.Path(path_type=Path), default=None)
@@ -91,32 +103,34 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Review GraphRAG value and failure modes across experiment reports."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        default_structure = report_dir / "hybrid_rag_structure_aware.json"
-        structure_path = structure_aware_hybrid or (
-            default_structure if default_structure.exists() else None
-        )
-        default_evidence = report_dir / "evidence_level_evaluation.json"
-        evidence_path = evidence_eval or (default_evidence if default_evidence.exists() else None)
-        json_path, md_path, result = write_graphrag_review(
-            chunking_comparison or report_dir / "chunking_comparison.json",
-            fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
-            report_dir,
-            structure_aware_hybrid_path=structure_path,
-            evidence_eval_path=evidence_path,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        structure_status = (
-            "included" if result["metadata"]["structure_aware_present"] else "missing"
-        )
-        evidence_status = "included" if result["metadata"]["evidence_eval_present"] else "missing"
-        click.echo(
-            f"Reviewed GraphRAG reports; structure-aware experiment: {structure_status}; "
-            f"evidence evaluation: {evidence_status}."
-        )
+        try:
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            default_structure = report_dir / "hybrid_rag_structure_aware.json"
+            structure_path = structure_aware_hybrid or (
+                default_structure if default_structure.exists() else None
+            )
+            default_evidence = report_dir / "evidence_level_evaluation.json"
+            evidence_path = evidence_eval or (default_evidence if default_evidence.exists() else None)
+            json_path, md_path, result = write_graphrag_review(
+                chunking_comparison or report_dir / "chunking_comparison.json",
+                fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
+                report_dir,
+                structure_aware_hybrid_path=structure_path,
+                evidence_eval_path=evidence_path,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            structure_status = (
+                "included" if result["metadata"]["structure_aware_present"] else "missing"
+            )
+            evidence_status = "included" if result["metadata"]["evidence_eval_present"] else "missing"
+            click.echo(
+                f"Reviewed GraphRAG reports; structure-aware experiment: {structure_status}; "
+                f"evidence evaluation: {evidence_status}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("evidence-eval")
     @click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
@@ -132,21 +146,23 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Evaluate Hybrid RAG reports against chunk/span gold labels."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_evidence_level_evaluation(
-            gold_labels or resolve_project_path("data/cqs/06_phak_ch4_0.gold.json"),
-            report_dir,
-            fixed_hybrid_path=fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
-            structure_aware_hybrid_path=structure_aware_hybrid
-            or report_dir / "hybrid_rag_structure_aware.json",
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            f"Evaluated evidence-level metrics for {result['metadata']['labels_total']} CQs."
-        )
+        try:
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            json_path, md_path, result = write_evidence_level_evaluation(
+                gold_labels or default_gold_labels(),
+                report_dir,
+                fixed_hybrid_path=fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
+                structure_aware_hybrid_path=structure_aware_hybrid
+                or report_dir / "hybrid_rag_structure_aware.json",
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"Evaluated evidence-level metrics for {result['metadata']['labels_total']} CQs."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("evidence-cards")
     @click.option("--hybrid-report", type=click.Path(path_type=Path), default=None)
@@ -160,24 +176,26 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         top_k: int,
     ) -> None:
         """Write per-question evidence cards from an existing Hybrid RAG report."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        stage_dir = resolve_project_path(config["paths"]["stage_report_dir"])
-        structure_report = stage_dir / "hybrid_rag_structure_aware.json"
-        default_report = (
-            structure_report
-            if structure_report.exists()
-            else stage_dir / "hybrid_rag_experiment.json"
-        )
-        json_path, md_path, result = write_evidence_cards(
-            report_dir,
-            hybrid_report_path=hybrid_report or default_report,
-            report_name=report_name,
-            top_k=top_k,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Wrote {result['metadata']['cards_total']} per-question evidence cards.")
+        try:
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            stage_dir = _safe_path("stage_report_dir", "reports/stages")
+            structure_report = stage_dir / "hybrid_rag_structure_aware.json"
+            default_report = (
+                structure_report
+                if structure_report.exists()
+                else stage_dir / "hybrid_rag_experiment.json"
+            )
+            json_path, md_path, result = write_evidence_cards(
+                report_dir,
+                hybrid_report_path=hybrid_report or default_report,
+                report_name=report_name,
+                top_k=top_k,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Wrote {result['metadata']['cards_total']} per-question evidence cards.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("retrieval-ablation")
     @click.option("--boundary-cqs", type=click.Path(path_type=Path), default=None)
@@ -206,33 +224,32 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Compare vector, graph, hybrid, hops, and top-k retrieval settings."""
-        config = load_default_config()
-        retrieval_config = config.get("retrieval", {})
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_retrieval_ablation(
-            boundary_cqs or resolve_project_path("data/cqs/06_phak_ch4_0.boundary.json"),
-            chunks_path
-            or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
-            kg_path
-            or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
-            index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
-            report_dir,
-            collection_name=collection_name
-            or retrieval_config.get(
-                "structure_aware_collection_name", "phak_ch4_chunks_structure_aware"
-            ),
-            gold_labels_path=gold_labels
-            or resolve_project_path("data/cqs/06_phak_ch4_0.expanded.gold.json"),
-            graph_method=graph_method,
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            f"Evaluated {result['metadata']['scenarios_total']} retrieval ablation scenarios "
-            f"for {result['metadata']['questions_total']} CQs."
-        )
+        try:
+            retrieval_config = load_default_config().get("retrieval", {})
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            json_path, md_path, result = write_retrieval_ablation(
+                boundary_cqs or default_boundary_cqs(),
+                chunks_path or default_structure_aware_chunks(),
+                kg_path or default_structure_aware_kg(),
+                index_dir or _safe_path("index_dir", "data/indexes") / "chroma",
+                report_dir,
+                collection_name=collection_name
+                or retrieval_config.get(
+                    "structure_aware_collection_name", "phak_ch4_chunks_structure_aware"
+                ),
+                gold_labels_path=gold_labels or default_expanded_gold_labels(),
+                graph_method=graph_method,
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"Evaluated {result['metadata']['scenarios_total']} retrieval ablation scenarios "
+                f"for {result['metadata']['questions_total']} CQs."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("graph-traversal-ablation")
     @click.option("--boundary-cqs", type=click.Path(path_type=Path), default=None)
@@ -261,46 +278,45 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Compare lexical KG retrieval with bounded graph traversal variants."""
-        config = load_default_config()
-        retrieval_config = config.get("retrieval", {})
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        scenarios = None
-        if graph_fusion_policy is not None:
-            from aviation_agentic_ai.reporting.graph_traversal_ablation import (
-                DEFAULT_GRAPH_TRAVERSAL_SCENARIOS,
-            )
+        try:
+            retrieval_config = load_default_config().get("retrieval", {})
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            scenarios = None
+            if graph_fusion_policy is not None:
+                from aviation_agentic_ai.reporting.graph_traversal_ablation import (
+                    DEFAULT_GRAPH_TRAVERSAL_SCENARIOS,
+                )
 
-            scenarios = tuple(
-                scenario
-                for scenario in DEFAULT_GRAPH_TRAVERSAL_SCENARIOS
-                if scenario.get("graph_fusion_policy", "rrf") == graph_fusion_policy
+                scenarios = tuple(
+                    scenario
+                    for scenario in DEFAULT_GRAPH_TRAVERSAL_SCENARIOS
+                    if scenario.get("graph_fusion_policy", "rrf") == graph_fusion_policy
+                )
+            json_path, md_path, result = write_graph_traversal_ablation(
+                boundary_cqs or default_boundary_cqs(),
+                chunks_path or default_structure_aware_chunks(),
+                kg_path or default_structure_aware_kg(),
+                index_dir or _safe_path("index_dir", "data/indexes") / "chroma",
+                report_dir,
+                collection_name=collection_name
+                or retrieval_config.get(
+                    "structure_aware_collection_name", "phak_ch4_chunks_structure_aware"
+                ),
+                gold_labels_path=gold_labels or default_expanded_gold_labels(),
+                vector_top_k=int(retrieval_config.get("vector_top_k", 5)),
+                hybrid_top_k=int(retrieval_config.get("hybrid_top_k", 8)),
+                **({"scenarios": scenarios} if scenarios is not None else {}),
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
             )
-        json_path, md_path, result = write_graph_traversal_ablation(
-            boundary_cqs or resolve_project_path("data/cqs/06_phak_ch4_0.boundary.json"),
-            chunks_path
-            or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
-            kg_path
-            or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
-            index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
-            report_dir,
-            collection_name=collection_name
-            or retrieval_config.get(
-                "structure_aware_collection_name", "phak_ch4_chunks_structure_aware"
-            ),
-            gold_labels_path=gold_labels
-            or resolve_project_path("data/cqs/06_phak_ch4_0.expanded.gold.json"),
-            vector_top_k=int(retrieval_config.get("vector_top_k", 5)),
-            hybrid_top_k=int(retrieval_config.get("hybrid_top_k", 8)),
-            **({"scenarios": scenarios} if scenarios is not None else {}),
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            f"Evaluated {result['metadata']['scenarios_total']} graph traversal scenarios "
-            f"for {result['metadata']['questions_total']} CQs."
-        )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"Evaluated {result['metadata']['scenarios_total']} graph traversal scenarios "
+                f"for {result['metadata']['questions_total']} CQs."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("kg-extraction-comparison")
     @click.option("--fixed-kg", type=click.Path(path_type=Path), default=None)
@@ -316,21 +332,21 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Compare fixed-window and structure-aware KG extraction artifacts."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_kg_extraction_comparison(
-            report_dir,
-            fixed_kg_path=fixed_kg or resolve_project_path("data/kg/06_phak_ch4_0.kg.jsonl"),
-            structure_aware_kg_path=structure_aware_kg
-            or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
-            gold_labels_path=gold_labels
-            or resolve_project_path("data/cqs/06_phak_ch4_0.expanded.gold.json"),
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Compared {len(result['experiments'])} KG extraction artifacts.")
+        try:
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            json_path, md_path, result = write_kg_extraction_comparison(
+                report_dir,
+                fixed_kg_path=fixed_kg or _safe_path("kg_file", "data/kg/06_phak_ch4_0.kg.jsonl"),
+                structure_aware_kg_path=structure_aware_kg or default_structure_aware_kg(),
+                gold_labels_path=gold_labels or default_expanded_gold_labels(),
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Compared {len(result['experiments'])} KG extraction artifacts.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("answer-eval")
     @click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
@@ -344,19 +360,20 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Evaluate answer citations, abstention, relevance, and advisory boundary behavior."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_answer_evaluation(
-            report_dir,
-            gold_labels_path=gold_labels
-            or resolve_project_path("data/cqs/06_phak_ch4_0.gold.json"),
-            hybrid_report_path=hybrid_report or report_dir / "hybrid_rag_structure_aware.json",
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Evaluated {result['metadata']['answers_total']} answers.")
+        try:
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            json_path, md_path, result = write_answer_evaluation(
+                report_dir,
+                gold_labels_path=gold_labels or default_gold_labels(),
+                hybrid_report_path=hybrid_report or report_dir / "hybrid_rag_structure_aware.json",
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Evaluated {result['metadata']['answers_total']} answers.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("sufficiency-eval")
     @click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
@@ -372,23 +389,24 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Evaluate deterministic evidence sufficiency and abstention behavior."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        default_report = report_dir / "retrieval_ablation_benchmark_v2.json"
-        json_path, md_path, result = write_sufficiency_evaluation(
-            gold_labels
-            or resolve_project_path("data/cqs/06_phak_ch4_0.benchmark_v2.gold.json"),
-            retrieval_report or default_report,
-            report_dir,
-            scenario_name=scenario_name,
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Sufficiency evaluation complete; insufficient-evidence abstention accuracy="
-            f"{result['metrics']['insufficient_evidence_abstention_accuracy']}."
-        )
+        try:
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            default_report = report_dir / "retrieval_ablation_benchmark_v2.json"
+            json_path, md_path, result = write_sufficiency_evaluation(
+                gold_labels or default_benchmark_v2_gold_labels(),
+                retrieval_report or default_report,
+                report_dir,
+                scenario_name=scenario_name,
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Sufficiency evaluation complete; insufficient-evidence abstention accuracy="
+                f"{result['metrics']['insufficient_evidence_abstention_accuracy']}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("triple-semantic-review")
     @click.option("--kg-file", "kg_path", type=click.Path(path_type=Path), default=None)
@@ -408,17 +426,19 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         output_dir: Path | None,
     ) -> None:
         """Prepare a KG triple semantic review sample with empty manual annotations."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_triple_semantic_review(
-            kg_path or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
-            report_dir,
-            sample_size=sample_size,
-            annotations_path=annotations_path,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Prepared {result['metadata']['sample_size']} triples for semantic review.")
+        try:
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            json_path, md_path, result = write_triple_semantic_review(
+                kg_path or default_structure_aware_kg(),
+                report_dir,
+                sample_size=sample_size,
+                annotations_path=annotations_path,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Prepared {result['metadata']['sample_size']} triples for semantic review.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("robustness")
     @click.option("--robustness-cases", type=click.Path(path_type=Path), default=None)
@@ -438,27 +458,27 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Evaluate paraphrase, terminology, ambiguity, cross-page, and unsupported cases."""
-        config = load_default_config()
-        retrieval_config = config.get("retrieval", {})
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_robustness_evaluation(
-            robustness_cases or resolve_project_path("data/cqs/06_phak_ch4_0.robustness.json"),
-            chunks_path
-            or resolve_project_path("data/chunks/06_phak_ch4_0.structure_aware.jsonl"),
-            kg_path
-            or resolve_project_path("data/kg/06_phak_ch4_0.structure_aware.kg.jsonl"),
-            index_dir or resolve_project_path(config["paths"]["index_dir"]) / "chroma",
-            report_dir,
-            collection_name=collection_name
-            or retrieval_config.get(
-                "structure_aware_collection_name", "phak_ch4_chunks_structure_aware"
-            ),
-            report_name=report_name,
-            command=" ".join(["aviation-ai", *sys.argv[1:]]),
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(f"Evaluated {result['metadata']['cases_total']} robustness cases.")
+        try:
+            retrieval_config = load_default_config().get("retrieval", {})
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            json_path, md_path, result = write_robustness_evaluation(
+                robustness_cases or default_robustness_cases(),
+                chunks_path or default_structure_aware_chunks(),
+                kg_path or default_structure_aware_kg(),
+                index_dir or _safe_path("index_dir", "data/indexes") / "chroma",
+                report_dir,
+                collection_name=collection_name
+                or retrieval_config.get(
+                    "structure_aware_collection_name", "phak_ch4_chunks_structure_aware"
+                ),
+                report_name=report_name,
+                command=" ".join(["aviation-ai", *sys.argv[1:]]),
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Evaluated {result['metadata']['cases_total']} robustness cases.")
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
 
     @report.command("final-evaluation")
     @click.option("--gold-labels", type=click.Path(path_type=Path), default=None)
@@ -480,24 +500,25 @@ def register_evaluation_report_commands(report: click.Group) -> None:
         report_name: str,
     ) -> None:
         """Write final layered evaluation and submission-readiness review."""
-        config = load_default_config()
-        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-        json_path, md_path, result = write_final_evaluation_review(
-            report_dir,
-            gold_labels_path=gold_labels
-            or resolve_project_path("data/cqs/06_phak_ch4_0.gold.json"),
-            chunking_comparison_path=chunking_comparison
-            or report_dir / "chunking_comparison.json",
-            fixed_hybrid_path=fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
-            structure_aware_hybrid_path=structure_aware_hybrid
-            or report_dir / "hybrid_rag_structure_aware.json",
-            evidence_eval_path=evidence_eval or report_dir / "evidence_level_evaluation.json",
-            graphrag_review_path=graphrag_review or report_dir / "graphrag_review.json",
-            report_name=report_name,
-        )
-        click.echo(f"Wrote {project_relative_path(json_path)}")
-        click.echo(f"Wrote {project_relative_path(md_path)}")
-        click.echo(
-            "Final evaluation review complete; recommended default strategy: "
-            f"{result['default_strategy_decision']['recommended_default']}."
-        )
+        try:
+            report_dir = output_dir or _safe_path("stage_report_dir", "reports/stages")
+            json_path, md_path, result = write_final_evaluation_review(
+                report_dir,
+                gold_labels_path=gold_labels or default_gold_labels(),
+                chunking_comparison_path=chunking_comparison
+                or report_dir / "chunking_comparison.json",
+                fixed_hybrid_path=fixed_hybrid or report_dir / "hybrid_rag_experiment.json",
+                structure_aware_hybrid_path=structure_aware_hybrid
+                or report_dir / "hybrid_rag_structure_aware.json",
+                evidence_eval_path=evidence_eval or report_dir / "evidence_level_evaluation.json",
+                graphrag_review_path=graphrag_review or report_dir / "graphrag_review.json",
+                report_name=report_name,
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                "Final evaluation review complete; recommended default strategy: "
+                f"{result['default_strategy_decision']['recommended_default']}."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc

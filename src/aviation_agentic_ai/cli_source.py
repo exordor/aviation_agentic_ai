@@ -43,23 +43,26 @@ def ingest_nasa(
     workers: int,
 ) -> None:
     """Ingest NASA Glenn BGA aerodynamics pages from manifest."""
-    config = load_default_config()
-    manifest_path = manifest or resolve_project_path(
-        "data/sources/nasa_bga_aerodynamics_sources.yaml"
-    )
-    raw_dir = raw_output_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
-    report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-    json_path, md_path, result = ingest_nasa_sources(
-        manifest_path,
-        raw_output_dir=raw_dir,
-        report_output_dir=report_dir,
-        fixture_dir=fixture_dir,
-        workers=workers,
-    )
-    click.echo(f"Wrote {project_relative_path(json_path)}")
-    click.echo(f"Wrote {project_relative_path(md_path)}")
-    click.echo(
-        "Ingested "
-        f"{result['metadata']['pages_total']} NASA pages with "
-        f"{result['metadata']['valid_pages']} valid normalized pages."
-    )
+    try:
+        config = load_default_config()
+        manifest_path = manifest or resolve_project_path(
+            "data/sources/nasa_bga_aerodynamics_sources.yaml"
+        )
+        raw_dir = raw_output_dir or resolve_project_path("data/raw/nasa_bga_aerodynamics")
+        report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+        json_path, md_path, result = ingest_nasa_sources(
+            manifest_path,
+            raw_output_dir=raw_dir,
+            report_output_dir=report_dir,
+            fixture_dir=fixture_dir,
+            workers=workers,
+        )
+        click.echo(f"Wrote {project_relative_path(json_path)}")
+        click.echo(f"Wrote {project_relative_path(md_path)}")
+        click.echo(
+            "Ingested "
+            f"{result['metadata']['pages_total']} NASA pages with "
+            f"{result['metadata']['valid_pages']} valid normalized pages."
+        )
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc

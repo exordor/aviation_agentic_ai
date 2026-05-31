@@ -17,6 +17,9 @@ def test_sufficiency_risk_category_detection() -> None:
     assert detect_risk_category("What V-speeds should I use in this aircraft?")[0] == (
         "aircraft_specific_vspeeds"
     )
+    assert detect_risk_category("What altitude should I fly in the traffic pattern?")[0] == (
+        "training_question"
+    )
     assert detect_risk_category("How does angle of attack affect lift?")[0] == "training_question"
 
 

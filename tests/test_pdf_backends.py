@@ -1,15 +1,18 @@
 from pathlib import Path
 
+import pytest
+
 from aviation_agentic_ai.chunking import chunks as chunk_module
 from aviation_agentic_ai.chunking.chunks import build_chunks, build_chunks_from_normalized_pdf_document
 from aviation_agentic_ai.reporting import pdf_extraction
-from aviation_agentic_ai.sources import pdf_hybrid
+from aviation_agentic_ai.sources import docling_backend, pdf_hybrid
 from aviation_agentic_ai.sources.pdf_hybrid import repair_docling_text_with_pymupdf
 from aviation_agentic_ai.sources.pymupdf_backend import PyMuPDFBlock, PyMuPDFPageText
 from aviation_agentic_ai.utils.pdf import PdfPage
 
 
 def test_hybrid_repair_uses_pymupdf_spaced_reference() -> None:
+    assert pdf_hybrid.EXPLICIT_DOCLING_REPAIR_REPLACEMENTS["ORESSURE"] == "PRESSURE"
     repaired, repairs, warnings = repair_docling_text_with_pymupdf(
         "Angleofattack and ORESSURE",
         "Angle of attack and PRESSURE are visible in the source.",
@@ -30,6 +33,38 @@ def test_hybrid_repair_leaves_uncertain_text_unchanged() -> None:
     assert repaired == "Unclearmergedtoken"
     assert repairs == []
     assert "docling_text_not_aligned_to_pymupdf_page" in warnings
+
+
+class _FallbackMarkdownItem:
+    text = ""
+
+    def export_to_markdown(self, doc=None) -> str:
+        if doc is not None:
+            raise TypeError("doc argument unsupported")
+        return "Fallback markdown"
+
+
+class _BrokenMarkdownItem:
+    text = ""
+
+    def export_to_markdown(self, doc=None) -> str:
+        _ = doc
+        raise RuntimeError("broken export")
+
+
+def test_docling_item_text_records_expected_markdown_fallback_diagnostic() -> None:
+    text, diagnostic = docling_backend._item_text_and_diagnostic(
+        _FallbackMarkdownItem(),
+        object(),
+    )
+
+    assert text == "Fallback markdown"
+    assert diagnostic == "export_to_markdown_doc_argument_unsupported"
+
+
+def test_docling_item_text_does_not_swallow_unexpected_export_errors() -> None:
+    with pytest.raises(RuntimeError, match="broken export"):
+        docling_backend._item_text_and_diagnostic(_BrokenMarkdownItem(), object())
 
 
 def test_docling_section_headers_create_chunk_boundaries_without_heuristic(monkeypatch) -> None:

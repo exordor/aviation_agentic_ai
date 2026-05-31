@@ -1214,9 +1214,17 @@ def _sample_failure_record(
     records: list[dict[str, Any]],
     predicate: Callable[[dict[str, Any]], bool],
 ) -> list[dict[str, Any]]:
+    """Collect all records matching *predicate* and return a representative sample.
+
+    Each failure type gets its own pool of matching records.  A single record
+    that happens to match multiple failure-type predicates will appear in each
+    relevant pool, which is correct: that record is a valid example for each
+    failure type it satisfies.
+    """
+    matches: list[dict[str, Any]] = []
     for record in records:
         if predicate(record):
-            return [
+            matches.append(
                 {
                     "cq_id": record["cq_id"],
                     "question_type": record.get("gold", {}).get("question_type", ""),
@@ -1226,8 +1234,9 @@ def _sample_failure_record(
                     "top_hits": record["hits"][:3],
                     "no_answer_diagnostics": record.get("no_answer_diagnostics", {}),
                 }
-            ]
-    return []
+            )
+    # Return up to 1 representative sample per failure type from the pool.
+    return matches[:1]
 
 
 def _failure_samples_for_strategy(strategy: str, strategy_result: dict[str, Any]) -> dict[str, Any]:
