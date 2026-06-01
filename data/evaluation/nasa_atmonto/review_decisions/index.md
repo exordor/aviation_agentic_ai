@@ -9,6 +9,7 @@
 ## Completion Gate
 
 - Decision templates are editable review inputs. Applying them with all records still pending must not produce reviewed gold; set records to reviewed only after manual source-text review.
+- `review_checklist` items must all be true before a record can be applied as reviewed.
 - `suggested_valid_candidate_fact_ids` lists S0 facts accepted by the schema validator; copy only source-supported IDs into `valid_candidate_fact_ids`.
 - Rejected-fact `suggested_*` fields are copied from `reports/stages/nasa_atmonto_rejection_adjudication.md`; leave `decision`, `rationale`, and `recommended_action` empty until a reviewer confirms them.
 

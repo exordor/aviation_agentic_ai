@@ -35,6 +35,16 @@ Use one of these statuses:
 A record should become `reviewed` only after all valid facts, invalid candidate
 facts, missing facts, and rejected-fact adjudications have been checked.
 
+Each reviewed decision must also set every `review_checklist` item to `true`:
+
+- `source_text_checked`
+- `semantic_rubric_checked`
+- `profile_gap_boundary_checked`
+- `missing_facts_checked`
+
+The apply command rejects `reviewed` decision records when any checklist item is
+missing or false.
+
 ## Fact Fields
 
 Gold facts should use the same canonical shape as system predictions:

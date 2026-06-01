@@ -459,6 +459,9 @@ candidate facts.
    smaller review units. The JSONL decision templates under
    `data/evaluation/nasa_atmonto/review_decisions/` are the structured inputs
    for applying reviewed decisions.
+   A record is not ready to apply as reviewed until all `review_checklist`
+   fields are true: source text checked, semantic rubric checked,
+   profile-gap boundary checked, and missing facts checked.
 
    Use `reports/stages/nasa_atmonto_gold_review_workload_plan.md` to choose
    review order. It prioritizes records needing rejected-fact adjudication,

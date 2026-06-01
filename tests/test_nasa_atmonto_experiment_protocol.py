@@ -24,6 +24,16 @@ def test_nasa_atmonto_gold_sample_manifest_and_template_are_consistent() -> None
         record["gold_annotation"]["annotation_status"] == "pending_manual_gold_annotation"
         for record in records
     )
+    assert all(
+        record["gold_annotation"]["review_checklist"]
+        == {
+            "source_text_checked": False,
+            "semantic_rubric_checked": False,
+            "profile_gap_boundary_checked": False,
+            "missing_facts_checked": False,
+        }
+        for record in records
+    )
 
 
 def test_nasa_atmonto_rejection_analysis_covers_all_rejected_facts() -> None:
@@ -92,6 +102,8 @@ def test_gold_annotation_guide_defines_manual_semantic_rubric() -> None:
         "False positive",
         "False negative",
         "Profile-gap candidate",
+        "review_checklist",
+        "semantic_rubric_checked",
         "keep the record pending",
     ]:
         assert required in guide

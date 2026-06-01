@@ -44,6 +44,15 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
 )
 
 
+def complete_review_checklist() -> dict[str, bool]:
+    return {
+        "source_text_checked": True,
+        "semantic_rubric_checked": True,
+        "profile_gap_boundary_checked": True,
+        "missing_facts_checked": True,
+    }
+
+
 def test_formal_experiment_registers_four_required_systems() -> None:
     assert [system.system_id for system in SYSTEMS] == [
         "S0_rule_only",
@@ -743,6 +752,7 @@ def test_formal_scoring_gold_source_prefers_frozen_reviewed_gold(tmp_path: Path)
         "gold_annotation": {
             "annotation_status": "reviewed",
             "annotator_id": "annotator-a",
+            "review_checklist": complete_review_checklist(),
             "valid_facts": [fact],
             "invalid_candidate_fact_ids": [],
             "missing_facts": [],
@@ -837,6 +847,7 @@ def test_gold_annotation_validation_accepts_reviewed_record_with_rejection_decis
         "gold_annotation": {
             "annotation_status": "reviewed",
             "annotator_id": "annotator-a",
+            "review_checklist": complete_review_checklist(),
             "valid_facts": [fact],
             "invalid_candidate_fact_ids": [],
             "missing_facts": [],
@@ -899,6 +910,7 @@ def test_freeze_reviewed_gold_set_writes_only_valid_reviewed_gold(tmp_path: Path
         "gold_annotation": {
             "annotation_status": "reviewed",
             "annotator_id": "annotator-a",
+            "review_checklist": complete_review_checklist(),
             "valid_facts": [fact],
             "invalid_candidate_fact_ids": [],
             "missing_facts": [],
@@ -1138,6 +1150,12 @@ def test_gold_review_decision_templates_prepare_structured_review_inputs() -> No
     first_record = first_batch["records"][0]
     assert first_record["sample_id"] == "ATCSCC-GOLD-001"
     assert first_record["annotation_status"] == "pending_manual_gold_annotation"
+    assert first_record["review_checklist"] == {
+        "source_text_checked": False,
+        "semantic_rubric_checked": False,
+        "profile_gap_boundary_checked": False,
+        "missing_facts_checked": False,
+    }
     assert first_record["valid_candidate_fact_ids"] == []
     assert first_record["valid_cross_system_fact_ids"] == []
     assert first_record["suggested_valid_candidate_fact_ids"]
@@ -1271,6 +1289,7 @@ def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) 
         "source_id": "SRC1",
         "annotation_status": "reviewed",
         "annotator_id": "reviewer-1",
+        "review_checklist": complete_review_checklist(),
         "valid_candidate_fact_ids": ["fact-1"],
         "valid_cross_system_fact_ids": ["S2:fact-1"],
         "invalid_candidate_fact_ids": [],
@@ -1300,6 +1319,76 @@ def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) 
     assert draft["gold_annotation"]["missing_facts"][0]["source_system_id"] == (
         "S2_llm_schema_slice"
     )
+
+
+def test_apply_gold_review_decisions_requires_completed_review_checklist(
+    tmp_path: Path,
+) -> None:
+    eval_dir = tmp_path / "data/evaluation/nasa_atmonto"
+    eval_dir.mkdir(parents=True)
+    (eval_dir / "atcscc_gold_sample_manifest.json").write_text(
+        json.dumps({"selected_source_ids": ["SRC1"]}) + "\n",
+        encoding="utf-8",
+    )
+    fact = {
+        "fact_id": "fact-1",
+        "fact_type": "datatype_property",
+        "subject_class": "TrafficManagementInitiative",
+        "predicate": "advisoryNumber",
+        "value": 1,
+        "datatype": "xsd:integer",
+        "evidence_text": "ADVZY 001",
+        "source_id": "SRC1",
+    }
+    record = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "SRC1",
+        "source_text": "ATCSCC ADVZY 001",
+        "candidate_facts": [fact],
+        "validator_results": [],
+        "gold_annotation": {
+            "annotation_status": "pending_manual_gold_annotation",
+            "annotator_id": "",
+            "valid_facts": [],
+            "invalid_candidate_fact_ids": [],
+            "missing_facts": [],
+            "rejected_fact_adjudications": [],
+            "notes": "",
+        },
+    }
+    (eval_dir / "atcscc_gold_annotation_template.jsonl").write_text(
+        json.dumps(record, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    decision_dir = eval_dir / "review_decisions"
+    decision_dir.mkdir()
+    decision = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "SRC1",
+        "annotation_status": "reviewed",
+        "annotator_id": "reviewer-1",
+        "valid_candidate_fact_ids": ["fact-1"],
+        "valid_cross_system_fact_ids": [],
+        "invalid_candidate_fact_ids": [],
+        "missing_facts": [],
+        "rejected_fact_adjudications": [],
+        "notes": "source checked",
+    }
+    (decision_dir / "batch_01.jsonl").write_text(
+        json.dumps(decision, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    report = apply_gold_review_decisions(
+        tmp_path,
+        decision_dir=decision_dir,
+        output_path=eval_dir / "reviewed_draft.jsonl",
+    )
+
+    assert report["output_written"] is False
+    assert report["error_count"] == 1
+    assert report["errors"][0]["error"] == "incomplete_review_checklist"
+    assert set(report["errors"][0]["fields"]) == set(complete_review_checklist())
 
 
 def test_rejection_adjudication_finalizes_property_level_decisions() -> None:

@@ -104,6 +104,12 @@ ALLOWED_REJECTION_ADJUDICATIONS = {
     "source_ambiguity",
     "manual_review_only",
 }
+REVIEW_CHECKLIST_FIELDS: tuple[str, ...] = (
+    "source_text_checked",
+    "semantic_rubric_checked",
+    "profile_gap_boundary_checked",
+    "missing_facts_checked",
+)
 
 
 @dataclass(frozen=True)
@@ -492,6 +498,32 @@ def rejected_fact_ids(record: dict[str, Any]) -> set[str]:
     }
 
 
+def review_checklist_template(value: bool = False) -> dict[str, bool]:
+    return {field: value for field in REVIEW_CHECKLIST_FIELDS}
+
+
+def incomplete_review_checklist_fields(checklist: Any) -> list[str]:
+    if not isinstance(checklist, dict):
+        return list(REVIEW_CHECKLIST_FIELDS)
+    return [field for field in REVIEW_CHECKLIST_FIELDS if checklist.get(field) is not True]
+
+
+def validate_review_checklist(record: dict[str, Any]) -> list[dict[str, Any]]:
+    annotation = record.get("gold_annotation", {})
+    incomplete = incomplete_review_checklist_fields(annotation.get("review_checklist"))
+    if not incomplete:
+        return []
+    return [
+        {
+            "sample_id": record.get("sample_id"),
+            "source_id": record.get("source_id"),
+            "path": "gold_annotation.review_checklist",
+            "error": "incomplete_review_checklist",
+            "fields": incomplete,
+        }
+    ]
+
+
 def validate_rejection_adjudications(record: dict[str, Any]) -> list[dict[str, Any]]:
     annotation = record.get("gold_annotation", {})
     adjudications = annotation.get("rejected_fact_adjudications", [])
@@ -610,6 +642,7 @@ def validate_gold_annotation_records(
                     "error": "missing_annotator_id",
                 }
             )
+        errors.extend(validate_review_checklist(record))
         for field in ("valid_facts", "invalid_candidate_fact_ids", "missing_facts"):
             if not isinstance(annotation.get(field), list):
                 errors.append(
@@ -2548,6 +2581,7 @@ def gold_review_decision_record(
         "annotator_id": "",
         "reviewed_at": "",
         "notes": "",
+        "review_checklist": review_checklist_template(),
         "valid_candidate_fact_ids": [],
         "valid_cross_system_fact_ids": [],
         "invalid_candidate_fact_ids": [],
@@ -2576,10 +2610,12 @@ def gold_review_decision_record(
             "rule-baseline fact IDs in valid_candidate_fact_ids, rejected rule-baseline IDs "
             "in invalid_candidate_fact_ids, put accepted S1-S3 schema-valid fact IDs in "
             "valid_cross_system_fact_ids, add corrected/manual facts to missing_facts, and "
-            "complete every rejected_fact_adjudications decision. The suggested_valid_candidate_fact_ids "
-            "field lists validator-accepted S0 facts, and rejected-fact suggested_* fields are "
-            "copied from property-level rejection adjudication. All suggestions must be confirmed, "
-            "edited, or rejected by the reviewer before scoring."
+            "complete every rejected_fact_adjudications decision. Set all review_checklist "
+            "items to true only after completing the source-text, semantic-rubric, profile-gap, "
+            "and missing-fact checks. The suggested_valid_candidate_fact_ids field lists "
+            "validator-accepted S0 facts, and rejected-fact suggested_* fields are copied from "
+            "property-level rejection adjudication. All suggestions must be confirmed, edited, "
+            "or rejected by the reviewer before scoring."
         ),
     }
 
@@ -2664,6 +2700,8 @@ def gold_review_decision_index_markdown(report: dict[str, Any]) -> str:
         "## Completion Gate",
         "",
         f"- {report['completion_gate']}",
+        "- `review_checklist` items must all be true before a record can be "
+        "applied as reviewed.",
         "- `suggested_valid_candidate_fact_ids` lists S0 facts accepted by the schema "
         "validator; copy only source-supported IDs into `valid_candidate_fact_ids`.",
         "- Rejected-fact `suggested_*` fields are copied from "
@@ -2727,6 +2765,9 @@ def gold_review_decision_has_manual_edits(decision: dict[str, Any]) -> bool:
     if str(decision.get("reviewed_at", "")).strip():
         return True
     if str(decision.get("notes", "")).strip():
+        return True
+    checklist = decision.get("review_checklist")
+    if isinstance(checklist, dict) and any(checklist.get(field) for field in REVIEW_CHECKLIST_FIELDS):
         return True
     for field in (
         "valid_candidate_fact_ids",
@@ -2886,6 +2927,19 @@ def apply_gold_review_decision_to_record(
         )
         return gold_record, errors
 
+    review_checklist = decision.get("review_checklist")
+    incomplete_checklist = incomplete_review_checklist_fields(review_checklist)
+    if status == REVIEWED_GOLD_STATUS and incomplete_checklist:
+        errors.append(
+            {
+                "source_id": source_id,
+                "sample_id": gold_record.get("sample_id"),
+                "error": "incomplete_review_checklist",
+                "fields": incomplete_checklist,
+            }
+        )
+        return gold_record, errors
+
     updated = dict(gold_record)
     annotation = dict(updated.get("gold_annotation", {}))
     manual_missing_facts = [
@@ -2902,6 +2956,17 @@ def apply_gold_review_decision_to_record(
             "invalid_candidate_fact_ids": invalid_ids,
             "missing_facts": unique_facts_by_id(
                 [*manual_missing_facts, *cross_system_missing_facts]
+            ),
+            "review_checklist": (
+                review_checklist_template(True)
+                if status == REVIEWED_GOLD_STATUS
+                else {
+                    field: (
+                        isinstance(review_checklist, dict)
+                        and review_checklist.get(field) is True
+                    )
+                    for field in REVIEW_CHECKLIST_FIELDS
+                }
             ),
             "rejected_fact_adjudications": [
                 adjudication

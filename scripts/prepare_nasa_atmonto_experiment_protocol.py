@@ -384,6 +384,12 @@ def build_gold_template_records(
                 "gold_annotation": {
                     "annotation_status": "pending_manual_gold_annotation",
                     "annotator_id": "",
+                    "review_checklist": {
+                        "source_text_checked": False,
+                        "semantic_rubric_checked": False,
+                        "profile_gap_boundary_checked": False,
+                        "missing_facts_checked": False,
+                    },
                     "valid_facts": [],
                     "invalid_candidate_fact_ids": [],
                     "rejected_fact_adjudications": [],
