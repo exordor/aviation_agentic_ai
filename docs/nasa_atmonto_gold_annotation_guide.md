@@ -86,6 +86,11 @@ to audit decision-level progress before applying the draft. This catches
 records that are still pending, missing rejected-fact decisions, or contain
 unknown candidate IDs.
 
+Decision templates include `suggested_valid_candidate_fact_ids` for S0 facts
+that passed schema validation. These are copy aids only: copy an ID into
+`valid_candidate_fact_ids` only after checking that the fact is supported by the
+source text.
+
 Rejected-fact adjudication entries include `suggested_decision`,
 `suggested_rationale`, and `suggested_recommended_action` copied from the
 property-level rejection adjudication report. These are review aids only:

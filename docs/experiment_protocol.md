@@ -464,6 +464,11 @@ candidate facts.
    `valid_candidate_fact_ids` and schema-valid S1-S3 IDs for
    `valid_cross_system_fact_ids`.
 
+   Decision templates also include `suggested_valid_candidate_fact_ids`, which
+   lists S0 facts that passed structural validation. These are copy aids only;
+   they become gold only after source review and explicit copy into
+   `valid_candidate_fact_ids`.
+
    Rejected-fact entries in `data/evaluation/nasa_atmonto/review_decisions/`
    also include `suggested_*` fields from
    `reports/stages/nasa_atmonto_rejection_adjudication.md`. These fields carry
@@ -478,8 +483,8 @@ uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py
 The decision-progress command audits the editable `review_decisions/*.jsonl`
 files before applying them. It reports which records are `ready_to_apply`,
 `in_progress`, `not_started`, or `needs_revision`, and it treats `suggested_*`
-fields as incomplete until a reviewer confirms them in the actual decision
-fields.
+and `suggested_valid_candidate_fact_ids` fields as incomplete until a reviewer
+confirms them in the actual decision fields.
 
 ```bash
 uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py

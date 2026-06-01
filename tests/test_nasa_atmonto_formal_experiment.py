@@ -1140,9 +1140,13 @@ def test_gold_review_decision_templates_prepare_structured_review_inputs() -> No
     assert first_record["annotation_status"] == "pending_manual_gold_annotation"
     assert first_record["valid_candidate_fact_ids"] == []
     assert first_record["valid_cross_system_fact_ids"] == []
+    assert first_record["suggested_valid_candidate_fact_ids"]
     assert first_record["review_context"]["candidate_cluster_count"] > 0
     assert first_record["review_context"]["cross_system_fact_ids"]
     assert first_record["review_context"]["cross_system_candidate_options"]
+    assert first_record["review_context"]["validator_accepted_candidate_fact_ids"] == (
+        first_record["suggested_valid_candidate_fact_ids"]
+    )
     first_adjudication = first_record["rejected_fact_adjudications"][0]
     assert first_adjudication["decision"] == ""
     assert first_adjudication["suggested_decision"] in {"extractor_bug", "profile_gap"}
@@ -1152,6 +1156,7 @@ def test_gold_review_decision_templates_prepare_structured_review_inputs() -> No
     markdown = gold_review_decision_index_markdown(report)
     assert "Gold Review Decision Templates" in markdown
     assert "batch_10" in markdown
+    assert "Suggested valid S0" in markdown
     assert "suggested_*" in markdown
 
 
@@ -1165,6 +1170,7 @@ def test_gold_review_decision_progress_audits_editable_decision_files() -> None:
     assert report["decision_record_count"] == 100
     assert report["not_started_record_count"] == 100
     assert report["ready_to_apply_record_count"] == 0
+    assert report["suggested_valid_candidate_fact_count"] > 0
     assert report["rejected_fact_decision_count"] > 0
     assert report["completed_rejected_fact_decision_count"] == 0
     assert report["pending_rejected_fact_decision_count"] == (
@@ -1178,6 +1184,7 @@ def test_gold_review_decision_progress_audits_editable_decision_files() -> None:
 
     markdown = gold_review_decision_progress_markdown(report)
     assert "Gold Review Decision Progress" in markdown
+    assert "Suggested valid S0" in markdown
     assert "Records Needing Attention" in markdown
     assert "ATCSCC-GOLD-001" in markdown
 

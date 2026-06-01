@@ -2486,6 +2486,22 @@ def rejected_fact_decision_template(
     return templates
 
 
+def validator_accepted_candidate_fact_ids(record: dict[str, Any]) -> list[str]:
+    candidate_fact_ids = [
+        str(candidate.get("fact_id"))
+        for candidate in record.get("candidate_facts", [])
+        if isinstance(candidate, dict) and candidate.get("fact_id")
+    ]
+    accepted_fact_ids = {
+        str(result.get("fact_id"))
+        for result in record.get("validator_results", [])
+        if isinstance(result, dict)
+        and result.get("accepted") is True
+        and result.get("fact_id")
+    }
+    return [fact_id for fact_id in candidate_fact_ids if fact_id in accepted_fact_ids]
+
+
 def cross_system_candidate_options(record: dict[str, Any]) -> list[dict[str, Any]]:
     options: list[dict[str, Any]] = []
     for cluster in record.get("candidate_clusters", []):
@@ -2522,6 +2538,7 @@ def gold_review_decision_record(
     | None = None,
 ) -> dict[str, Any]:
     cross_system_options = cross_system_candidate_options(record)
+    accepted_candidate_fact_ids = validator_accepted_candidate_fact_ids(gold_record)
     return {
         "batch_id": batch_id,
         "sample_id": record.get("sample_id"),
@@ -2535,6 +2552,7 @@ def gold_review_decision_record(
         "valid_cross_system_fact_ids": [],
         "invalid_candidate_fact_ids": [],
         "missing_facts": [],
+        "suggested_valid_candidate_fact_ids": accepted_candidate_fact_ids,
         "rejected_fact_adjudications": rejected_fact_decision_template(
             gold_record,
             rejection_adjudication_lookup=rejection_adjudication_lookup,
@@ -2549,6 +2567,7 @@ def gold_review_decision_record(
                 for candidate in gold_record.get("candidate_facts", [])
                 if isinstance(candidate, dict)
             ],
+            "validator_accepted_candidate_fact_ids": accepted_candidate_fact_ids,
             "cross_system_fact_ids": [option["fact_id"] for option in cross_system_options],
             "cross_system_candidate_options": cross_system_options,
         },
@@ -2557,9 +2576,10 @@ def gold_review_decision_record(
             "rule-baseline fact IDs in valid_candidate_fact_ids, rejected rule-baseline IDs "
             "in invalid_candidate_fact_ids, put accepted S1-S3 schema-valid fact IDs in "
             "valid_cross_system_fact_ids, add corrected/manual facts to missing_facts, and "
-            "complete every rejected_fact_adjudications decision. The suggested_* fields are "
-            "copied from property-level rejection adjudication and must be confirmed, edited, "
-            "or rejected by the reviewer before scoring."
+            "complete every rejected_fact_adjudications decision. The suggested_valid_candidate_fact_ids "
+            "field lists validator-accepted S0 facts, and rejected-fact suggested_* fields are "
+            "copied from property-level rejection adjudication. All suggestions must be confirmed, "
+            "edited, or rejected by the reviewer before scoring."
         ),
     }
 
@@ -2602,6 +2622,10 @@ def build_gold_review_decision_templates(
                 "rejected_fact_adjudication_count": sum(
                     len(record["rejected_fact_adjudications"]) for record in decision_records
                 ),
+                "suggested_valid_candidate_fact_count": sum(
+                    len(record["suggested_valid_candidate_fact_ids"])
+                    for record in decision_records
+                ),
                 "records": decision_records,
             }
         )
@@ -2615,6 +2639,9 @@ def build_gold_review_decision_templates(
         "decision_dir": project_relative_path(repo_root / GOLD_REVIEW_DECISION_DIR, repo_root),
         "batch_count": len(batches),
         "record_count": sum(batch["record_count"] for batch in batches),
+        "suggested_valid_candidate_fact_count": sum(
+            batch["suggested_valid_candidate_fact_count"] for batch in batches
+        ),
         "batches": batches,
         "completion_gate": (
             "Decision templates are editable review inputs. Applying them with all records "
@@ -2632,18 +2659,21 @@ def gold_review_decision_index_markdown(report: dict[str, Any]) -> str:
         f"- Decision directory: `{report['decision_dir']}`",
         f"- Records: {report['record_count']}",
         f"- Batches: {report['batch_count']}",
+        f"- Suggested valid S0 candidate facts: {report['suggested_valid_candidate_fact_count']}",
         "",
         "## Completion Gate",
         "",
         f"- {report['completion_gate']}",
+        "- `suggested_valid_candidate_fact_ids` lists S0 facts accepted by the schema "
+        "validator; copy only source-supported IDs into `valid_candidate_fact_ids`.",
         "- Rejected-fact `suggested_*` fields are copied from "
         "`reports/stages/nasa_atmonto_rejection_adjudication.md`; leave `decision`, "
         "`rationale`, and `recommended_action` empty until a reviewer confirms them.",
         "",
         "## Decision Files",
         "",
-        "| Batch | Samples | Records | Rejected facts | File |",
-        "| --- | --- | ---: | ---: | --- |",
+        "| Batch | Samples | Records | Suggested valid S0 facts | Rejected facts | File |",
+        "| --- | --- | ---: | ---: | ---: | --- |",
     ]
     for batch in report["batches"]:
         lines.append(
@@ -2651,6 +2681,7 @@ def gold_review_decision_index_markdown(report: dict[str, Any]) -> str:
             f"`{batch['batch_id']}` | "
             f"`{batch['first_sample_id']}`-`{batch['last_sample_id']}` | "
             f"{batch['record_count']} | "
+            f"{batch['suggested_valid_candidate_fact_count']} | "
             f"{batch['rejected_fact_adjudication_count']} | "
             f"`{batch['path']}` |"
         )
@@ -2936,6 +2967,10 @@ def gold_review_decision_record_progress(
     else:
         status = "not_started"
 
+    suggested_valid_candidate_fact_ids = decision.get("suggested_valid_candidate_fact_ids")
+    if not isinstance(suggested_valid_candidate_fact_ids, list):
+        suggested_valid_candidate_fact_ids = validator_accepted_candidate_fact_ids(gold_record)
+
     return {
         "sample_id": sample_id,
         "source_id": source_id,
@@ -2945,6 +2980,7 @@ def gold_review_decision_record_progress(
         "ready_to_apply": status == "ready_to_apply",
         "issue_count": len(errors),
         "issues": errors[:20],
+        "suggested_valid_candidate_fact_count": len(suggested_valid_candidate_fact_ids),
         "rejected_fact_decisions": rejection_counts,
     }
 
@@ -3011,8 +3047,10 @@ def build_gold_review_decision_progress(
         else:
             status = "not_started"
         rejected_counts = Counter()
+        suggested_valid_candidate_count = 0
         for record in records:
             rejected_counts.update(record["rejected_fact_decisions"])
+            suggested_valid_candidate_count += record["suggested_valid_candidate_fact_count"]
         batch_progress.append(
             {
                 "batch_id": batch["batch_id"],
@@ -3027,6 +3065,7 @@ def build_gold_review_decision_progress(
                 "not_started_record_count": status_counts.get("not_started", 0),
                 "needs_revision_record_count": status_counts.get("needs_revision", 0),
                 "missing_decision_record_count": status_counts.get("missing_decision", 0),
+                "suggested_valid_candidate_fact_count": suggested_valid_candidate_count,
                 "rejected_fact_decision_count": rejected_counts["total"],
                 "completed_rejected_fact_decision_count": rejected_counts["completed"],
                 "pending_rejected_fact_decision_count": rejected_counts["pending"],
@@ -3038,8 +3077,10 @@ def build_gold_review_decision_progress(
         record["status"] for record in progress_by_source_id.values()
     )
     rejected_totals = Counter()
+    suggested_valid_candidate_total = 0
     for record in progress_by_source_id.values():
         rejected_totals.update(record["rejected_fact_decisions"])
+        suggested_valid_candidate_total += record["suggested_valid_candidate_fact_count"]
     status = (
         "ready_to_apply"
         if progress_by_source_id
@@ -3080,6 +3121,7 @@ def build_gold_review_decision_progress(
         "duplicate_decision_source_ids": sorted(duplicate_source_ids),
         "missing_decision_source_ids": missing_decision_source_ids,
         "unexpected_decision_source_ids": unexpected_decision_source_ids,
+        "suggested_valid_candidate_fact_count": suggested_valid_candidate_total,
         "rejected_fact_decision_count": rejected_totals["total"],
         "completed_rejected_fact_decision_count": rejected_totals["completed"],
         "pending_rejected_fact_decision_count": rejected_totals["pending"],
@@ -3090,8 +3132,9 @@ def build_gold_review_decision_progress(
         "batch_progress": batch_progress,
         "completion_gate": (
             "All 100 decision records must be ready_to_apply before the reviewed draft can "
-            "be treated as complete manual gold. Pending suggested_* fields do not count "
-            "until copied or edited into reviewer decision fields."
+            "be treated as complete manual gold. Pending suggested_valid_candidate_fact_ids "
+            "and rejected-fact suggested_* fields do not count until copied or edited into "
+            "reviewer decision fields."
         ),
     }
 
@@ -3110,6 +3153,7 @@ def gold_review_decision_progress_markdown(report: dict[str, Any]) -> str:
         f"- Not started: {report['not_started_record_count']}",
         f"- Needs revision: {report['needs_revision_record_count']}",
         f"- Missing decisions: {report['missing_decision_record_count']}",
+        f"- Suggested valid S0 candidate facts: {report['suggested_valid_candidate_fact_count']}",
         "- Rejected-fact decisions confirmed: "
         f"{report['completed_rejected_fact_decision_count']} / "
         f"{report['rejected_fact_decision_count']}",
@@ -3121,8 +3165,8 @@ def gold_review_decision_progress_markdown(report: dict[str, Any]) -> str:
         "## Batch Progress",
         "",
         "| Batch | Status | Ready | In progress | Not started | Needs revision | "
-        "Missing | Rejected decisions | File |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+        "Missing | Suggested valid S0 | Rejected decisions | File |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for batch in report["batch_progress"]:
         lines.append(
@@ -3134,6 +3178,7 @@ def gold_review_decision_progress_markdown(report: dict[str, Any]) -> str:
             f"{batch['not_started_record_count']} | "
             f"{batch['needs_revision_record_count']} | "
             f"{batch['missing_decision_record_count']} | "
+            f"{batch['suggested_valid_candidate_fact_count']} | "
             f"{batch['completed_rejected_fact_decision_count']} / "
             f"{batch['rejected_fact_decision_count']} | "
             f"`{batch['decision_path']}` |"
