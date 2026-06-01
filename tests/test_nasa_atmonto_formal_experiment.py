@@ -6,6 +6,7 @@ from pathlib import Path
 from aviation_agentic_ai.ontology.atmonto_experiment import (
     SYSTEMS,
     build_formal_experiment_readiness,
+    prepare_formal_experiment_inputs,
     semantic_metrics,
     structural_metrics,
 )
@@ -110,6 +111,8 @@ def test_readiness_report_marks_gold_and_llm_outputs_as_pending() -> None:
     assert report["status"] == "ready_for_manual_gold_and_llm_runs"
     assert report["gold_status"]["record_count"] == 100
     assert report["gold_status"]["complete"] is False
+    assert report["formal_input_status"]["input_records_exists"] is True
+    assert report["formal_input_status"]["system_specs_exists"] is True
     assert "completed manual gold annotations" in report["missing_required_inputs"][0]
     assert any("S1_llm_only predictions" in item for item in report["missing_required_inputs"])
 
@@ -123,4 +126,60 @@ def test_generated_readiness_report_json_is_consistent() -> None:
 
     assert report["status"] == "ready_for_manual_gold_and_llm_runs"
     assert report["gold_status"]["pending_record_count"] == 100
+    assert report["formal_input_status"]["input_records_exists"] is True
     assert report["current_s0_rule_only_structural_metrics"]["attempted_record_count"] == 100
+
+
+def test_prepare_formal_experiment_inputs_generates_batches_and_s0_predictions() -> None:
+    result = prepare_formal_experiment_inputs(Path("."))
+
+    assert result["input_record_count"] == 100
+    assert result["s0_prediction_record_count"] == 100
+    assert set(result["prompt_batches"].values()) == {100}
+
+    s0_records = [
+        json.loads(line)
+        for line in Path(
+            "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl"
+        ).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert len(s0_records) == 100
+    assert {record["system_id"] for record in s0_records} == {"S0_rule_only"}
+    assert all("facts" in record for record in s0_records)
+
+
+def test_llm_prompt_batches_keep_system_conditions_separate() -> None:
+    s1 = json.loads(
+        Path("data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()[0]
+    )
+    s2 = json.loads(
+        Path("data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()[0]
+    )
+    s3 = json.loads(
+        Path(
+            "data/experiments/nasa_atmonto/formal/"
+            "s3_llm_schema_slice_validator_repair_prompt_batch.jsonl"
+        )
+        .read_text(encoding="utf-8")
+        .splitlines()[0]
+    )
+
+    s1_system_prompt = s1["messages"][0]["content"]
+    assert s1["schema_context_ref"] is None
+    assert "NASA ATMONTO" not in s1_system_prompt
+    assert "atm:" not in s1_system_prompt
+    assert "controlledNASelement" not in s1_system_prompt
+
+    s2_system_prompt = s2["messages"][0]["content"]
+    assert s2["schema_context_ref"] == "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json"
+    assert "nasa_atmonto_atcscc_tmi_slice" in s2_system_prompt
+    assert "atm:GroundStopTMI" in s2_system_prompt
+    assert "controlledNASelement" in s2_system_prompt
+
+    assert s3["stages"] == ["initial_extraction", "validate", "repair_if_invalid"]
+    assert "Validator/repair condition" in s3["messages"][0]["content"]

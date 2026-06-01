@@ -13,12 +13,19 @@
 - Complete: `False`
 - Status counts: `{"pending_manual_gold_annotation": 100}`
 
+## Formal Inputs
+
+- Input records: `data/experiments/nasa_atmonto/formal/input_records.jsonl`
+- Input records exists: `True`
+- System specs: `data/experiments/nasa_atmonto/formal/system_specs.json`
+- System specs exists: `True`
+
 ## Systems
 
-- `S0_rule_only`: Rule-only (LLM=False, schema=True, repair=False)
-- `S1_llm_only`: LLM-only (LLM=True, schema=False, repair=False)
-- `S2_llm_schema_slice`: LLM + schema slice (LLM=True, schema=True, repair=False)
-- `S3_llm_schema_slice_validator_repair`: LLM + schema slice + validator/repair (LLM=True, schema=True, repair=True)
+- `S0_rule_only`: Rule-only (LLM=False, schema=True, repair=False, prompt_ready=None, output_ready=True)
+- `S1_llm_only`: LLM-only (LLM=True, schema=False, repair=False, prompt_ready=True, output_ready=False)
+- `S2_llm_schema_slice`: LLM + schema slice (LLM=True, schema=True, repair=False, prompt_ready=True, output_ready=False)
+- `S3_llm_schema_slice_validator_repair`: LLM + schema slice + validator/repair (LLM=True, schema=True, repair=True, prompt_ready=True, output_ready=False)
 
 ## Current S0 Structural Metrics
 

@@ -13,6 +13,12 @@
 - Formal-study inputs prepared:
   - `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
   - `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
+  - `data/experiments/nasa_atmonto/formal/input_records.jsonl`
+  - `data/experiments/nasa_atmonto/formal/system_specs.json`
+  - `data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl`
+  - `data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl`
+  - `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
+  - `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
   - `reports/stages/nasa_atmonto_rejection_error_analysis.md`
 - Claim boundary: retrospective extraction and validation research only. This protocol does not support live aviation operations, operational advisories, flight planning, dispatch, ATC decisions, or safety certification.
 
@@ -172,6 +178,18 @@ current JSONL is an annotation template, not completed gold truth.
 
 ## Systems Under Test
 
+Prepared execution files:
+
+- Common input records: `data/experiments/nasa_atmonto/formal/input_records.jsonl`
+- System specs: `data/experiments/nasa_atmonto/formal/system_specs.json`
+- S0 baseline predictions: `data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl`
+- S1 prompt batch: `data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl`
+- S2 prompt batch: `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
+- S3 prompt batch: `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
+
+These files prepare model inputs and the deterministic baseline only. They do
+not contain fabricated LLM results.
+
 ### S0: Rule-Only
 
 The existing deterministic ATCSCC extractor runs without an LLM. It uses
@@ -314,21 +332,29 @@ uv run python scripts/run_nasa_atmonto_minimal_loop.py --all-records
 uv run python scripts/prepare_nasa_atmonto_experiment_protocol.py
 ```
 
-3. Complete manual annotation in
+3. Generate formal input records, S0 predictions, S1/S2/S3 prompt batches, and
+   the readiness report.
+
+```bash
+uv run python scripts/run_nasa_atmonto_formal_experiment.py
+```
+
+4. Complete manual annotation in
    `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`.
 
-4. Freeze the completed gold set under a new filename before running model
+5. Freeze the completed gold set under a new filename before running model
    comparisons, for example:
 
 ```text
 data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl
 ```
 
-5. Run S0, S1, S2, and S3 on the same 100 source records.
+6. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
+   records. Use the committed S0 prediction file as the deterministic baseline.
 
-6. Compute metrics against the reviewed gold set.
+7. Compute metrics against the reviewed gold set.
 
-7. Produce:
+8. Produce:
 
 - system-level metric table;
 - property-level metric table;

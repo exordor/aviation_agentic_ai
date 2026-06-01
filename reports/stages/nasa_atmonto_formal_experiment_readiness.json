@@ -15,12 +15,19 @@
     "missing_fact_count": 0,
     "complete": false
   },
+  "formal_input_status": {
+    "input_records": "data/experiments/nasa_atmonto/formal/input_records.jsonl",
+    "input_records_exists": true,
+    "system_specs": "data/experiments/nasa_atmonto/formal/system_specs.json",
+    "system_specs_exists": true
+  },
   "systems": [
     {
       "system_id": "S0_rule_only",
       "label": "Rule-only",
       "description": "Deterministic ATCSCC surface-pattern extractor used by the pilot.",
       "expected_output": "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl",
+      "prompt_batch": null,
       "requires_llm": false,
       "uses_schema_slice": true,
       "uses_validator_repair": false
@@ -30,6 +37,7 @@
       "label": "LLM-only",
       "description": "LLM extractor without NASA ATMONTO schema terms in the prompt.",
       "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
+      "prompt_batch": "data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl",
       "requires_llm": true,
       "uses_schema_slice": false,
       "uses_validator_repair": false
@@ -39,6 +47,7 @@
       "label": "LLM + schema slice",
       "description": "LLM extractor constrained by the ATCSCC schema slice and JSON shape.",
       "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
+      "prompt_batch": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl",
       "requires_llm": true,
       "uses_schema_slice": true,
       "uses_validator_repair": false
@@ -48,6 +57,7 @@
       "label": "LLM + schema slice + validator/repair",
       "description": "S2 with custom validation and one repair attempt for invalid payloads.",
       "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
+      "prompt_batch": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl",
       "requires_llm": true,
       "uses_schema_slice": true,
       "uses_validator_repair": true
@@ -57,25 +67,33 @@
     {
       "system_id": "S0_rule_only",
       "expected_output": "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl",
-      "exists": false,
+      "exists": true,
+      "prompt_batch": null,
+      "prompt_batch_exists": null,
       "required_before_formal_scoring": false
     },
     {
       "system_id": "S1_llm_only",
       "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
       "exists": false,
+      "prompt_batch": "data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl",
+      "prompt_batch_exists": true,
       "required_before_formal_scoring": true
     },
     {
       "system_id": "S2_llm_schema_slice",
       "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
       "exists": false,
+      "prompt_batch": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl",
+      "prompt_batch_exists": true,
       "required_before_formal_scoring": true
     },
     {
       "system_id": "S3_llm_schema_slice_validator_repair",
       "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
       "exists": false,
+      "prompt_batch": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl",
+      "prompt_batch_exists": true,
       "required_before_formal_scoring": true
     }
   ],
