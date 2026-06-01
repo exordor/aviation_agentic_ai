@@ -1,0 +1,125 @@
+{
+  "source_family": "nasa_atmonto_formal_experiment_readiness",
+  "status": "ready_for_manual_gold_and_llm_runs",
+  "protocol": "docs/experiment_protocol.md",
+  "gold_manifest": "data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json",
+  "gold_template": "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl",
+  "gold_status": {
+    "record_count": 100,
+    "status_counts": {
+      "pending_manual_gold_annotation": 100
+    },
+    "reviewed_record_count": 0,
+    "pending_record_count": 100,
+    "valid_fact_count": 0,
+    "missing_fact_count": 0,
+    "complete": false
+  },
+  "systems": [
+    {
+      "system_id": "S0_rule_only",
+      "label": "Rule-only",
+      "description": "Deterministic ATCSCC surface-pattern extractor used by the pilot.",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl",
+      "requires_llm": false,
+      "uses_schema_slice": true,
+      "uses_validator_repair": false
+    },
+    {
+      "system_id": "S1_llm_only",
+      "label": "LLM-only",
+      "description": "LLM extractor without NASA ATMONTO schema terms in the prompt.",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
+      "requires_llm": true,
+      "uses_schema_slice": false,
+      "uses_validator_repair": false
+    },
+    {
+      "system_id": "S2_llm_schema_slice",
+      "label": "LLM + schema slice",
+      "description": "LLM extractor constrained by the ATCSCC schema slice and JSON shape.",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
+      "requires_llm": true,
+      "uses_schema_slice": true,
+      "uses_validator_repair": false
+    },
+    {
+      "system_id": "S3_llm_schema_slice_validator_repair",
+      "label": "LLM + schema slice + validator/repair",
+      "description": "S2 with custom validation and one repair attempt for invalid payloads.",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
+      "requires_llm": true,
+      "uses_schema_slice": true,
+      "uses_validator_repair": true
+    }
+  ],
+  "system_output_status": [
+    {
+      "system_id": "S0_rule_only",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl",
+      "exists": false,
+      "required_before_formal_scoring": false
+    },
+    {
+      "system_id": "S1_llm_only",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
+      "exists": false,
+      "required_before_formal_scoring": true
+    },
+    {
+      "system_id": "S2_llm_schema_slice",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
+      "exists": false,
+      "required_before_formal_scoring": true
+    },
+    {
+      "system_id": "S3_llm_schema_slice_validator_repair",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
+      "exists": false,
+      "required_before_formal_scoring": true
+    }
+  ],
+  "current_s0_rule_only_structural_metrics": {
+    "attempted_record_count": 100,
+    "valid_json_payload_count": 100,
+    "json_adherence": 1.0,
+    "candidate_fact_count": 615,
+    "accepted_fact_count": 567,
+    "rejected_fact_count": 48,
+    "schema_violation_rate": 0.07804878048780488,
+    "repair_success_rate": 0.9219512195121952,
+    "status_counts": {
+      "rejected_schema": 48,
+      "repaired_accepted": 567
+    },
+    "error_counts": {
+      "allowed_value_violation": 16,
+      "domain_violation": 17,
+      "range_violation": 15
+    },
+    "semantic_metrics": {
+      "available": false,
+      "reason": "manual_gold_facts_missing",
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "manual_semantic_correctness": null
+    }
+  },
+  "metrics_defined": [
+    "json_adherence",
+    "schema_violation_rate",
+    "triple_precision",
+    "triple_recall",
+    "triple_f1",
+    "repair_success_rate",
+    "manual_semantic_correctness"
+  ],
+  "missing_required_inputs": [
+    "completed manual gold annotations for 100 sampled advisories",
+    "S1_llm_only predictions at data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
+    "S2_llm_schema_slice predictions at data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
+    "S3_llm_schema_slice_validator_repair predictions at data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl"
+  ],
+  "claim_boundary": "This readiness report does not claim formal extraction effectiveness until manual gold annotations and S1-S3 outputs are present."
+}
