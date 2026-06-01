@@ -52,8 +52,12 @@
         "candidate_fact_count": 615,
         "accepted_fact_count": 567,
         "rejected_fact_count": 48,
+        "structural_acceptance_rate": 0.9219512195121952,
         "schema_violation_rate": 0.07804878048780488,
-        "repair_success_rate": 0.9219512195121952,
+        "repair_applicable": false,
+        "repair_attempted_fact_count": null,
+        "repair_accepted_fact_count": null,
+        "repair_success_rate": null,
         "status_counts": {
           "rejected_schema": 48,
           "repaired_accepted": 567
@@ -95,8 +99,12 @@
         "candidate_fact_count": 1211,
         "accepted_fact_count": 0,
         "rejected_fact_count": 1211,
+        "structural_acceptance_rate": 0.0,
         "schema_violation_rate": 1.0,
-        "repair_success_rate": 0.0,
+        "repair_applicable": false,
+        "repair_attempted_fact_count": null,
+        "repair_accepted_fact_count": null,
+        "repair_success_rate": null,
         "status_counts": {
           "rejected_evidence": 3,
           "rejected_schema": 1208
@@ -140,8 +148,12 @@
         "candidate_fact_count": 708,
         "accepted_fact_count": 361,
         "rejected_fact_count": 347,
+        "structural_acceptance_rate": 0.5098870056497176,
         "schema_violation_rate": 0.4901129943502825,
-        "repair_success_rate": 0.5098870056497176,
+        "repair_applicable": false,
+        "repair_attempted_fact_count": null,
+        "repair_accepted_fact_count": null,
+        "repair_success_rate": null,
         "status_counts": {
           "rejected_evidence": 97,
           "rejected_schema": 250,
@@ -191,7 +203,11 @@
         "candidate_fact_count": 396,
         "accepted_fact_count": 286,
         "rejected_fact_count": 110,
+        "structural_acceptance_rate": 0.7222222222222222,
         "schema_violation_rate": 0.2777777777777778,
+        "repair_applicable": true,
+        "repair_attempted_fact_count": 396,
+        "repair_accepted_fact_count": 286,
         "repair_success_rate": 0.7222222222222222,
         "status_counts": {
           "rejected_evidence": 19,
@@ -406,6 +422,7 @@
   ],
   "metrics_reported": [
     "json_adherence",
+    "structural_acceptance_rate",
     "schema_violation_rate",
     "triple_precision",
     "triple_recall",

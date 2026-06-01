@@ -345,18 +345,31 @@ def accepted_prediction_facts(
     return facts
 
 
-def structural_metrics(validations: list[dict[str, Any]]) -> dict[str, Any]:
+def structural_metrics(
+    validations: list[dict[str, Any]],
+    *,
+    repair_applicable: bool = False,
+) -> dict[str, Any]:
     candidate_count = len(validations)
     rejected = [item for item in validations if not item.get("accepted")]
     accepted = [item for item in validations if item.get("accepted")]
     repaired = [item for item in accepted if item.get("repairs")]
     initially_invalid = len(repaired) + len(rejected)
+    repair_success_rate = (
+        (len(repaired) / initially_invalid)
+        if repair_applicable and initially_invalid
+        else None
+    )
     return {
         "candidate_fact_count": candidate_count,
         "accepted_fact_count": len(accepted),
         "rejected_fact_count": len(rejected),
+        "structural_acceptance_rate": (len(accepted) / candidate_count) if candidate_count else None,
         "schema_violation_rate": (len(rejected) / candidate_count) if candidate_count else None,
-        "repair_success_rate": (len(repaired) / initially_invalid) if initially_invalid else None,
+        "repair_applicable": repair_applicable,
+        "repair_attempted_fact_count": initially_invalid if repair_applicable else None,
+        "repair_accepted_fact_count": len(repaired) if repair_applicable else None,
+        "repair_success_rate": repair_success_rate,
         "status_counts": dict(sorted(Counter(str(item.get("status")) for item in validations).items())),
         "error_counts": dict(
             sorted(
@@ -5445,7 +5458,10 @@ def score_system_predictions(
         "available": True,
         "reason": None,
         "json_metrics": json_metrics,
-        "structural_metrics": structural_metrics(validation_results),
+        "structural_metrics": structural_metrics(
+            validation_results,
+            repair_applicable=system.uses_validator_repair,
+        ),
         "semantic_metrics": semantic,
         "property_level_semantic_metrics": (
             property_level_semantic_metrics(
@@ -5467,6 +5483,10 @@ def nested_metric(score: dict[str, Any], group: str, key: str) -> Any:
     if not isinstance(metrics, dict):
         return None
     return metrics.get(key)
+
+
+def metric_value_text(value: Any) -> str:
+    return "n/a" if value is None else str(value)
 
 
 def status_record(
@@ -5934,6 +5954,7 @@ def build_formal_experiment_score_report(
         "missing_required_inputs": missing_inputs,
         "metrics_reported": [
             "json_adherence",
+            "structural_acceptance_rate",
             "schema_violation_rate",
             "triple_precision",
             "triple_recall",
@@ -5976,8 +5997,8 @@ def score_report_markdown(report: dict[str, Any]) -> str:
             "",
             "## System Metrics",
             "",
-            "| System | Output | JSON adherence | Candidate facts | Accepted | Rejected | Schema violation rate | Repair success | Semantic metrics |",
-            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+            "| System | Output | JSON adherence | Candidate facts | Accepted | Rejected | Structural acceptance | Schema violation rate | Repair success | Semantic metrics |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
         ]
     )
     for score in report["systems"]:
@@ -5993,12 +6014,13 @@ def score_report_markdown(report: dict[str, Any]) -> str:
             "| "
             f"`{score['system_id']}` | "
             f"`{score['output_exists']}` | "
-            f"{json_metrics.get('json_adherence')} | "
-            f"{structural.get('candidate_fact_count')} | "
-            f"{structural.get('accepted_fact_count')} | "
-            f"{structural.get('rejected_fact_count')} | "
-            f"{structural.get('schema_violation_rate')} | "
-            f"{structural.get('repair_success_rate')} | "
+            f"{metric_value_text(json_metrics.get('json_adherence'))} | "
+            f"{metric_value_text(structural.get('candidate_fact_count'))} | "
+            f"{metric_value_text(structural.get('accepted_fact_count'))} | "
+            f"{metric_value_text(structural.get('rejected_fact_count'))} | "
+            f"{metric_value_text(structural.get('structural_acceptance_rate'))} | "
+            f"{metric_value_text(structural.get('schema_violation_rate'))} | "
+            f"{metric_value_text(structural.get('repair_success_rate'))} | "
             f"{semantic_text} |"
         )
     adjudication = report["rejection_adjudication"]
@@ -6106,7 +6128,7 @@ def build_formal_experiment_readiness(
             }
         )
 
-    s0_structural = structural_metrics(s0_validations)
+    s0_structural = structural_metrics(s0_validations, repair_applicable=False)
     s0_json = json_adherence_from_payloads(s0_payloads, selected_ids)
     s0_semantic = semantic_metrics(predictions=s0_predictions, gold_records=gold_records)
 
@@ -6164,6 +6186,7 @@ def build_formal_experiment_readiness(
         },
         "metrics_defined": [
             "json_adherence",
+            "structural_acceptance_rate",
             "schema_violation_rate",
             "triple_precision",
             "triple_recall",
@@ -6232,10 +6255,14 @@ def markdown_report(report: dict[str, Any]) -> str:
         "candidate_fact_count",
         "accepted_fact_count",
         "rejected_fact_count",
+        "structural_acceptance_rate",
         "schema_violation_rate",
+        "repair_applicable",
+        "repair_attempted_fact_count",
+        "repair_accepted_fact_count",
         "repair_success_rate",
     ):
-        lines.append(f"- `{key}`: {s0.get(key)}")
+        lines.append(f"- `{key}`: {metric_value_text(s0.get(key))}")
     lines.extend(["", "## Missing Required Inputs", ""])
     for item in report["missing_required_inputs"]:
         lines.append(f"- {item}")

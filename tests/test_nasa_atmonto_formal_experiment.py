@@ -75,15 +75,36 @@ def test_structural_metrics_report_schema_violation_and_repair_rates() -> None:
             {"accepted": True, "status": "accepted_deterministic", "repairs": []},
             {"accepted": True, "status": "repaired_accepted", "repairs": ["identifier_expansion"]},
             {"accepted": False, "status": "rejected_schema", "errors": ["domain_violation"]},
-        ]
+        ],
+        repair_applicable=True,
     )
 
     assert metrics["candidate_fact_count"] == 3
     assert metrics["accepted_fact_count"] == 2
     assert metrics["rejected_fact_count"] == 1
+    assert metrics["structural_acceptance_rate"] == 2 / 3
     assert metrics["schema_violation_rate"] == 1 / 3
+    assert metrics["repair_applicable"] is True
+    assert metrics["repair_attempted_fact_count"] == 2
+    assert metrics["repair_accepted_fact_count"] == 1
     assert metrics["repair_success_rate"] == 1 / 2
     assert metrics["error_counts"] == {"domain_violation": 1}
+
+
+def test_structural_metrics_do_not_report_repair_when_not_applicable() -> None:
+    metrics = structural_metrics(
+        [
+            {"accepted": True, "status": "repaired_accepted", "repairs": ["canonicalization"]},
+            {"accepted": False, "status": "rejected_schema", "errors": ["range_violation"]},
+        ]
+    )
+
+    assert metrics["structural_acceptance_rate"] == 1 / 2
+    assert metrics["schema_violation_rate"] == 1 / 2
+    assert metrics["repair_applicable"] is False
+    assert metrics["repair_attempted_fact_count"] is None
+    assert metrics["repair_accepted_fact_count"] is None
+    assert metrics["repair_success_rate"] is None
 
 
 def test_semantic_metrics_wait_for_manual_gold_when_gold_is_empty() -> None:
@@ -683,6 +704,7 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     assert s0["structural_metrics"]["candidate_fact_count"] == 615
     assert s0["structural_metrics"]["accepted_fact_count"] == 567
     assert s0["structural_metrics"]["rejected_fact_count"] == 48
+    assert s0["structural_metrics"]["repair_success_rate"] is None
     assert s0["semantic_metrics"]["available"] is False
     assert s0["semantic_metrics"]["reason"] == "manual_gold_facts_missing"
 
@@ -691,7 +713,16 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     assert s1["json_metrics"]["json_adherence"] == 1.0
     assert s1["structural_metrics"]["candidate_fact_count"] == 1211
     assert s1["structural_metrics"]["rejected_fact_count"] == 1211
+    assert s1["structural_metrics"]["repair_success_rate"] is None
     assert s1["semantic_metrics"]["reason"] == "manual_gold_facts_missing"
+
+    s3 = next(
+        score
+        for score in report["systems"]
+        if score["system_id"] == "S3_llm_schema_slice_validator_repair"
+    )
+    assert s3["structural_metrics"]["repair_applicable"] is True
+    assert s3["structural_metrics"]["repair_success_rate"] == 286 / 396
 
     audit = report["completion_audit"]
     assert audit["overall_status"] == "formal_experiment_pending"

@@ -20,12 +20,12 @@
 
 ## System Metrics
 
-| System | Output | JSON adherence | Candidate facts | Accepted | Rejected | Schema violation rate | Repair success | Semantic metrics |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `S0_rule_only` | `True` | 1.0 | 615 | 567 | 48 | 0.07804878048780488 | 0.9219512195121952 | pending:manual_gold_facts_missing |
-| `S1_llm_only` | `True` | 1.0 | 1211 | 0 | 1211 | 1.0 | 0.0 | pending:manual_gold_facts_missing |
-| `S2_llm_schema_slice` | `True` | 1.0 | 708 | 361 | 347 | 0.4901129943502825 | 0.5098870056497176 | pending:manual_gold_facts_missing |
-| `S3_llm_schema_slice_validator_repair` | `True` | 1.0 | 396 | 286 | 110 | 0.2777777777777778 | 0.7222222222222222 | pending:manual_gold_facts_missing |
+| System | Output | JSON adherence | Candidate facts | Accepted | Rejected | Structural acceptance | Schema violation rate | Repair success | Semantic metrics |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `S0_rule_only` | `True` | 1.0 | 615 | 567 | 48 | 0.9219512195121952 | 0.07804878048780488 | n/a | pending:manual_gold_facts_missing |
+| `S1_llm_only` | `True` | 1.0 | 1211 | 0 | 1211 | 0.0 | 1.0 | n/a | pending:manual_gold_facts_missing |
+| `S2_llm_schema_slice` | `True` | 1.0 | 708 | 361 | 347 | 0.5098870056497176 | 0.4901129943502825 | n/a | pending:manual_gold_facts_missing |
+| `S3_llm_schema_slice_validator_repair` | `True` | 1.0 | 396 | 286 | 110 | 0.7222222222222222 | 0.2777777777777778 | 0.7222222222222222 | pending:manual_gold_facts_missing |
 
 ## Rejection Adjudication
 

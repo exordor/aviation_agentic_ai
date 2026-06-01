@@ -290,6 +290,18 @@ Formula:
 schema_violation_rate = schema_rejected_facts / candidate_facts
 ```
 
+### Structural Acceptance Rate
+
+Fact-level percentage of candidate facts that pass the validator gate and are
+eligible for semantic scoring. This metric is reported for every system and
+must not be interpreted as repair success.
+
+Formula:
+
+```text
+structural_acceptance_rate = structurally_accepted_facts / candidate_facts
+```
+
 ### Triple Precision, Recall, And F1
 
 Manual gold facts define the denominator. A predicted fact matches a gold fact
@@ -309,7 +321,10 @@ property-level failures inside a single average.
 
 ### Repair Success Rate
 
-Report both structural and semantic repair success.
+Report repair success only for systems with an explicit repair loop, currently
+S3 (`LLM + Schema Slice + Validator/Repair`). For S0-S2, this metric is
+`not_applicable`; their validator pass rate is the structural acceptance rate.
+When repair is enabled, report both structural and semantic repair success.
 
 ```text
 structural_repair_success = repaired_accepted_facts / initially_invalid_facts
@@ -565,7 +580,8 @@ The formal experiment is complete only when all of these are true:
 - 100 sampled advisories have reviewed gold annotations.
 - All four systems S0-S3 have run on the identical sample.
 - JSON adherence, schema violation rate, triple precision/recall/F1, repair
-  success, and manual semantic correctness are reported.
+  success for S3, structural acceptance for all systems, and manual semantic
+  correctness are reported.
 - The 288 pilot rejections have reviewed property-level decisions.
 - Claims C1-C4 and hypotheses H1-H4 have explicit supported, falsified, or
   inconclusive status.

@@ -116,8 +116,12 @@
     "candidate_fact_count": 615,
     "accepted_fact_count": 567,
     "rejected_fact_count": 48,
+    "structural_acceptance_rate": 0.9219512195121952,
     "schema_violation_rate": 0.07804878048780488,
-    "repair_success_rate": 0.9219512195121952,
+    "repair_applicable": false,
+    "repair_attempted_fact_count": null,
+    "repair_accepted_fact_count": null,
+    "repair_success_rate": null,
     "status_counts": {
       "rejected_schema": 48,
       "repaired_accepted": 567
@@ -138,6 +142,7 @@
   },
   "metrics_defined": [
     "json_adherence",
+    "structural_acceptance_rate",
     "schema_violation_rate",
     "triple_precision",
     "triple_recall",

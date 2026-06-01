@@ -38,8 +38,12 @@
 - `candidate_fact_count`: 615
 - `accepted_fact_count`: 567
 - `rejected_fact_count`: 48
+- `structural_acceptance_rate`: 0.9219512195121952
 - `schema_violation_rate`: 0.07804878048780488
-- `repair_success_rate`: 0.9219512195121952
+- `repair_applicable`: False
+- `repair_attempted_fact_count`: n/a
+- `repair_accepted_fact_count`: n/a
+- `repair_success_rate`: n/a
 
 ## Missing Required Inputs
 
