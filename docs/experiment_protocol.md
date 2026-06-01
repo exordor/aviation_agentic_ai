@@ -321,6 +321,9 @@ Structural success alone is not evidence of semantic correctness.
 ### Manual Semantic Correctness
 
 Percentage of structurally accepted facts judged correct by manual review.
+Correctness follows the source-evidence rubric in
+`docs/nasa_atmonto_gold_annotation_guide.md`: predicate, subject/object class,
+object or value, normalization, and evidence text must all match the advisory.
 
 ```text
 manual_semantic_correctness = manually_correct_accepted_facts / accepted_facts

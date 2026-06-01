@@ -75,3 +75,23 @@ def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
     assert "275 `profile_gap`" in protocol
     assert "final adjudication is pending manual review" not in protocol
     assert "Current status: not yet tested." not in protocol
+
+
+def test_gold_annotation_guide_defines_manual_semantic_rubric() -> None:
+    guide = Path("docs/nasa_atmonto_gold_annotation_guide.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required in [
+        "Semantic Correctness Rubric",
+        "predicate",
+        "subject_class",
+        "object_class",
+        "evidence_text",
+        "True positive",
+        "False positive",
+        "False negative",
+        "Profile-gap candidate",
+        "keep the record pending",
+    ]:
+        assert required in guide

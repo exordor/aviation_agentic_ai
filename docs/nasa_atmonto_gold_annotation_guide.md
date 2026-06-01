@@ -54,6 +54,37 @@ For every reviewed record, put correct extracted facts in `valid_facts`. Put
 gold facts missed by all systems or by the candidate baseline in
 `missing_facts`.
 
+## Semantic Correctness Rubric
+
+Manual semantic correctness is judged against the advisory source text, not
+against validator acceptance alone. A fact is correct only when all of these
+conditions hold:
+
+- The `predicate` expresses the same relation or attribute stated in the
+  advisory.
+- The `subject_class` and `object_class` match the ATCSCC entity being described.
+- The `object` or `value` preserves the advisory meaning after documented
+  normalization.
+- The `evidence_text` is present in `source_text` and is specific enough to
+  justify the fact.
+- The fact does not require an unapproved NASA ATMONTO profile extension.
+
+Use these review outcomes consistently:
+
+- True positive: a system fact satisfies the rubric and belongs in
+  `valid_facts`, or in `missing_facts` when copied from a schema-valid S1-S3
+  candidate.
+- False positive: a system fact is structurally accepted but fails the rubric;
+  put its candidate ID in `invalid_candidate_fact_ids` when it comes from S0.
+- False negative: a source-supported fact needed for the gold set was not
+  produced by the candidate path; enter it manually in `missing_facts`.
+- Profile-gap candidate: the source supports the fact, but the current NASA
+  ATMONTO runtime profile rejects it. Record the rejection decision, but do not
+  count the fact as accepted gold unless a reviewed profile bridge is added.
+
+When in doubt, keep the record pending and add a note rather than marking it
+`reviewed`.
+
 Use `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl` as a
 coverage checklist after reading the source text. It aggregates S0-S3 candidate
 facts and validator outcomes, but it is not gold truth; source evidence and this
