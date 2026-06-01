@@ -8,6 +8,8 @@
   `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl`
 - Batch review index: `data/evaluation/nasa_atmonto/review_batches/index.md`
 - Decision templates: `data/evaluation/nasa_atmonto/review_decisions/index.md`
+- Decision progress:
+  `data/evaluation/nasa_atmonto/gold_review_decision_progress.md`
 - Progress tracker: `data/evaluation/nasa_atmonto/gold_review_progress.md`
 - Workload plan: `reports/stages/nasa_atmonto_gold_review_workload_plan.md`
 - Priority packets: `data/evaluation/nasa_atmonto/review_priority_packets/index.md`
@@ -78,6 +80,12 @@ For structured entry, edit the JSONL files under
 `uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py` to produce a
 reviewed-draft gold template for validation.
 
+While editing those JSONL files, run
+`uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py`
+to audit decision-level progress before applying the draft. This catches
+records that are still pending, missing rejected-fact decisions, or contain
+unknown candidate IDs.
+
 Rejected-fact adjudication entries include `suggested_decision`,
 `suggested_rationale`, and `suggested_recommended_action` copied from the
 property-level rejection adjudication report. These are review aids only:
@@ -96,6 +104,8 @@ Free-form or corrected facts that cannot be copied directly from S0-S3 should
 still be entered manually in `missing_facts`.
 
 After each batch update, run
+`uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py`
+to check the editable decision files, then run
 `uv run python scripts/prepare_nasa_atmonto_gold_review_progress.py` to refresh
 the batch-level progress report and confirm whether the gold set can be frozen.
 

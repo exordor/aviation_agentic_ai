@@ -13,6 +13,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_review_worklist,
     build_gold_review_workload_plan,
     build_gold_review_batches,
+    build_gold_review_decision_progress,
     build_gold_review_decision_templates,
     build_gold_review_progress,
     build_prediction_output_validation_report,
@@ -30,6 +31,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     gold_review_batch_index_markdown,
     gold_review_batch_markdown,
     gold_review_decision_index_markdown,
+    gold_review_decision_progress_markdown,
     gold_review_priority_packet_index_markdown,
     gold_review_priority_packet_markdown,
     gold_review_progress_markdown,
@@ -1151,6 +1153,33 @@ def test_gold_review_decision_templates_prepare_structured_review_inputs() -> No
     assert "Gold Review Decision Templates" in markdown
     assert "batch_10" in markdown
     assert "suggested_*" in markdown
+
+
+def test_gold_review_decision_progress_audits_editable_decision_files() -> None:
+    candidate_review = build_system_candidate_review_package(Path("."))
+    batch_report = build_gold_review_batches(Path("."), candidate_review=candidate_review)
+    report = build_gold_review_decision_progress(Path("."), batch_report=batch_report)
+
+    assert report["status"] == "not_started"
+    assert report["record_count"] == 100
+    assert report["decision_record_count"] == 100
+    assert report["not_started_record_count"] == 100
+    assert report["ready_to_apply_record_count"] == 0
+    assert report["rejected_fact_decision_count"] > 0
+    assert report["completed_rejected_fact_decision_count"] == 0
+    assert report["pending_rejected_fact_decision_count"] == (
+        report["rejected_fact_decision_count"]
+    )
+
+    first_batch = report["batch_progress"][0]
+    assert first_batch["batch_id"] == "batch_01"
+    assert first_batch["status"] == "not_started"
+    assert first_batch["not_started_record_count"] == 10
+
+    markdown = gold_review_decision_progress_markdown(report)
+    assert "Gold Review Decision Progress" in markdown
+    assert "Records Needing Attention" in markdown
+    assert "ATCSCC-GOLD-001" in markdown
 
 
 def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) -> None:

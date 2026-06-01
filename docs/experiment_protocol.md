@@ -18,6 +18,7 @@
   - `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md`
   - `data/evaluation/nasa_atmonto/review_batches/index.md`
   - `data/evaluation/nasa_atmonto/review_decisions/index.md`
+  - `data/evaluation/nasa_atmonto/gold_review_decision_progress.md`
   - `data/evaluation/nasa_atmonto/gold_review_progress.md`
   - `docs/nasa_atmonto_gold_annotation_guide.md`
   - `reports/stages/nasa_atmonto_gold_freeze_status.md`
@@ -422,6 +423,7 @@ shape rather than asking the model to change its extraction.
 uv run python scripts/prepare_nasa_atmonto_system_candidate_review.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_batches.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_decisions.py
+uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_progress.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_workload_plan.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_priority_packets.py
@@ -468,6 +470,16 @@ candidate facts.
    the finalized property-level classification, but they are not accepted gold
    decisions until a reviewer copies or edits them into `decision`, `rationale`,
    and `recommended_action`.
+
+```bash
+uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py
+```
+
+The decision-progress command audits the editable `review_decisions/*.jsonl`
+files before applying them. It reports which records are `ready_to_apply`,
+`in_progress`, `not_started`, or `needs_revision`, and it treats `suggested_*`
+fields as incomplete until a reviewer confirms them in the actual decision
+fields.
 
 ```bash
 uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py

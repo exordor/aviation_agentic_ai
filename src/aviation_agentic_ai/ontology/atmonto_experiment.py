@@ -48,6 +48,12 @@ GOLD_REVIEW_PRIORITY_PACKET_DIR = Path("data/evaluation/nasa_atmonto/review_prio
 GOLD_REVIEW_PRIORITY_PACKET_INDEX_MD = GOLD_REVIEW_PRIORITY_PACKET_DIR / "index.md"
 GOLD_REVIEW_DECISION_DIR = Path("data/evaluation/nasa_atmonto/review_decisions")
 GOLD_REVIEW_DECISION_INDEX_MD = GOLD_REVIEW_DECISION_DIR / "index.md"
+GOLD_REVIEW_DECISION_PROGRESS_JSON = Path(
+    "data/evaluation/nasa_atmonto/gold_review_decision_progress.json"
+)
+GOLD_REVIEW_DECISION_PROGRESS_MD = Path(
+    "data/evaluation/nasa_atmonto/gold_review_decision_progress.md"
+)
 GOLD_REVIEW_DECISION_DRAFT_PATH = Path(
     "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.reviewed_draft.jsonl"
 )
@@ -2682,6 +2688,56 @@ def read_gold_review_decisions(decision_dir: Path) -> list[dict[str, Any]]:
     return records
 
 
+def gold_review_decision_has_manual_edits(decision: dict[str, Any]) -> bool:
+    if str(decision.get("annotation_status", PENDING_GOLD_STATUS)) != PENDING_GOLD_STATUS:
+        return True
+    if str(decision.get("annotator_id", "")).strip():
+        return True
+    if str(decision.get("reviewed_at", "")).strip():
+        return True
+    if str(decision.get("notes", "")).strip():
+        return True
+    for field in (
+        "valid_candidate_fact_ids",
+        "valid_cross_system_fact_ids",
+        "invalid_candidate_fact_ids",
+        "missing_facts",
+    ):
+        if decision.get(field):
+            return True
+    for adjudication in decision.get("rejected_fact_adjudications", []):
+        if not isinstance(adjudication, dict):
+            continue
+        if any(
+            str(adjudication.get(field, "")).strip()
+            for field in ("decision", "rationale", "recommended_action")
+        ):
+            return True
+    return False
+
+
+def rejection_decision_completion_counts(decision: dict[str, Any]) -> dict[str, int]:
+    adjudications = [
+        item
+        for item in decision.get("rejected_fact_adjudications", [])
+        if isinstance(item, dict)
+    ]
+    completed = 0
+    for adjudication in adjudications:
+        if (
+            str(adjudication.get("decision", "")) in ALLOWED_REJECTION_ADJUDICATIONS
+            and str(adjudication.get("rationale", "")).strip()
+            and str(adjudication.get("recommended_action", "")).strip()
+        ):
+            completed += 1
+    total = len(adjudications)
+    return {
+        "total": total,
+        "completed": completed,
+        "pending": total - completed,
+    }
+
+
 def build_cross_system_fact_lookup(
     *,
     repo_root: Path,
@@ -2826,6 +2882,333 @@ def apply_gold_review_decision_to_record(
     )
     updated["gold_annotation"] = annotation
     return updated, []
+
+
+def gold_review_decision_record_progress(
+    *,
+    gold_record: dict[str, Any],
+    decision: dict[str, Any] | None,
+    cross_system_fact_lookup: dict[str, dict[str, Any]],
+    duplicate_source_ids: set[str],
+) -> dict[str, Any]:
+    sample_id = gold_record.get("sample_id")
+    source_id = str(gold_record.get("source_id"))
+    if decision is None:
+        return {
+            "sample_id": sample_id,
+            "source_id": source_id,
+            "annotation_status": "missing_decision_record",
+            "status": "missing_decision",
+            "manual_edits_present": False,
+            "ready_to_apply": False,
+            "issue_count": 1,
+            "issues": [{"error": "missing_decision_record"}],
+            "rejected_fact_decisions": {"total": 0, "completed": 0, "pending": 0},
+        }
+
+    errors: list[dict[str, Any]] = []
+    if source_id in duplicate_source_ids:
+        errors.append({"error": "duplicate_decision_source_id", "source_id": source_id})
+
+    manual_edits_present = gold_review_decision_has_manual_edits(decision)
+    rejection_counts = rejection_decision_completion_counts(decision)
+    annotation_status = str(decision.get("annotation_status", PENDING_GOLD_STATUS))
+    updated, apply_errors = apply_gold_review_decision_to_record(
+        gold_record=gold_record,
+        decision=decision,
+        cross_system_fact_lookup=cross_system_fact_lookup,
+    )
+    errors.extend(apply_errors)
+
+    if not apply_errors and annotation_status == REVIEWED_GOLD_STATUS:
+        validation = validate_gold_annotation_records(
+            gold_records=[updated],
+            selected_source_ids={source_id},
+        )
+        errors.extend(validation["errors"])
+
+    if errors:
+        status = "needs_revision"
+    elif annotation_status == REVIEWED_GOLD_STATUS:
+        status = "ready_to_apply"
+    elif manual_edits_present:
+        status = "in_progress"
+    else:
+        status = "not_started"
+
+    return {
+        "sample_id": sample_id,
+        "source_id": source_id,
+        "annotation_status": annotation_status,
+        "status": status,
+        "manual_edits_present": manual_edits_present,
+        "ready_to_apply": status == "ready_to_apply",
+        "issue_count": len(errors),
+        "issues": errors[:20],
+        "rejected_fact_decisions": rejection_counts,
+    }
+
+
+def build_gold_review_decision_progress(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+    batch_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
+    selected_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
+    gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    if batch_report is None:
+        batch_report = build_gold_review_batches(repo_root, batch_size=batch_size)
+
+    decision_root = repo_root / GOLD_REVIEW_DECISION_DIR
+    decisions = read_gold_review_decisions(decision_root) if decision_root.exists() else []
+    decision_source_ids = [str(decision.get("source_id")) for decision in decisions]
+    duplicate_source_ids = {
+        source_id for source_id, count in Counter(decision_source_ids).items() if count > 1
+    }
+    decisions_by_source_id = {
+        str(decision.get("source_id")): decision
+        for decision in decisions
+        if decision.get("source_id")
+    }
+    gold_records_by_source_id = {
+        str(record.get("source_id")): record for record in gold_records
+    }
+    cross_system_fact_lookup = build_cross_system_fact_lookup(
+        repo_root=repo_root,
+        selected_ids=selected_ids,
+    )
+
+    progress_by_source_id: dict[str, dict[str, Any]] = {}
+    for source_id, gold_record in gold_records_by_source_id.items():
+        progress_by_source_id[source_id] = gold_review_decision_record_progress(
+            gold_record=gold_record,
+            decision=decisions_by_source_id.get(source_id),
+            cross_system_fact_lookup=cross_system_fact_lookup,
+            duplicate_source_ids=duplicate_source_ids,
+        )
+
+    missing_decision_source_ids = sorted(set(gold_records_by_source_id) - set(decisions_by_source_id))
+    unexpected_decision_source_ids = sorted(set(decisions_by_source_id) - set(gold_records_by_source_id))
+    batch_progress: list[dict[str, Any]] = []
+    for batch in batch_report["batches"]:
+        records = [
+            progress_by_source_id[str(record.get("source_id"))]
+            for record in batch["records"]
+            if str(record.get("source_id")) in progress_by_source_id
+        ]
+        status_counts = Counter(record["status"] for record in records)
+        if status_counts.get("needs_revision", 0):
+            status = "needs_revision"
+        elif records and status_counts.get("ready_to_apply", 0) == len(records):
+            status = "ready_to_apply"
+        elif status_counts.get("in_progress", 0) or status_counts.get("ready_to_apply", 0):
+            status = "in_progress"
+        elif status_counts.get("missing_decision", 0):
+            status = "missing_decisions"
+        else:
+            status = "not_started"
+        rejected_counts = Counter()
+        for record in records:
+            rejected_counts.update(record["rejected_fact_decisions"])
+        batch_progress.append(
+            {
+                "batch_id": batch["batch_id"],
+                "decision_path": project_relative_path(
+                    repo_root / GOLD_REVIEW_DECISION_DIR / f"{batch['batch_id']}.jsonl",
+                    repo_root,
+                ),
+                "status": status,
+                "record_count": len(records),
+                "ready_to_apply_record_count": status_counts.get("ready_to_apply", 0),
+                "in_progress_record_count": status_counts.get("in_progress", 0),
+                "not_started_record_count": status_counts.get("not_started", 0),
+                "needs_revision_record_count": status_counts.get("needs_revision", 0),
+                "missing_decision_record_count": status_counts.get("missing_decision", 0),
+                "rejected_fact_decision_count": rejected_counts["total"],
+                "completed_rejected_fact_decision_count": rejected_counts["completed"],
+                "pending_rejected_fact_decision_count": rejected_counts["pending"],
+                "records": records,
+            }
+        )
+
+    total_status_counts = Counter(
+        record["status"] for record in progress_by_source_id.values()
+    )
+    rejected_totals = Counter()
+    for record in progress_by_source_id.values():
+        rejected_totals.update(record["rejected_fact_decisions"])
+    status = (
+        "ready_to_apply"
+        if progress_by_source_id
+        and total_status_counts.get("ready_to_apply", 0) == len(progress_by_source_id)
+        and not unexpected_decision_source_ids
+        and not duplicate_source_ids
+        else "needs_revision"
+        if total_status_counts.get("needs_revision", 0)
+        or unexpected_decision_source_ids
+        or duplicate_source_ids
+        else "in_progress"
+        if total_status_counts.get("in_progress", 0)
+        or total_status_counts.get("ready_to_apply", 0)
+        else "missing_decisions"
+        if total_status_counts.get("missing_decision", 0)
+        else "not_started"
+    )
+    return {
+        "source_family": "nasa_atmonto_gold_review_decision_progress",
+        "status": status,
+        "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "decision_dir": project_relative_path(decision_root, repo_root),
+        "decision_progress_json": project_relative_path(
+            repo_root / GOLD_REVIEW_DECISION_PROGRESS_JSON,
+            repo_root,
+        ),
+        "decision_progress_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_DECISION_PROGRESS_MD,
+            repo_root,
+        ),
+        "record_count": len(gold_records_by_source_id),
+        "decision_record_count": len(decisions),
+        "ready_to_apply_record_count": total_status_counts.get("ready_to_apply", 0),
+        "in_progress_record_count": total_status_counts.get("in_progress", 0),
+        "not_started_record_count": total_status_counts.get("not_started", 0),
+        "needs_revision_record_count": total_status_counts.get("needs_revision", 0),
+        "missing_decision_record_count": total_status_counts.get("missing_decision", 0),
+        "duplicate_decision_source_ids": sorted(duplicate_source_ids),
+        "missing_decision_source_ids": missing_decision_source_ids,
+        "unexpected_decision_source_ids": unexpected_decision_source_ids,
+        "rejected_fact_decision_count": rejected_totals["total"],
+        "completed_rejected_fact_decision_count": rejected_totals["completed"],
+        "pending_rejected_fact_decision_count": rejected_totals["pending"],
+        "batch_count": len(batch_progress),
+        "ready_to_apply_batch_count": sum(
+            1 for batch in batch_progress if batch["status"] == "ready_to_apply"
+        ),
+        "batch_progress": batch_progress,
+        "completion_gate": (
+            "All 100 decision records must be ready_to_apply before the reviewed draft can "
+            "be treated as complete manual gold. Pending suggested_* fields do not count "
+            "until copied or edited into reviewer decision fields."
+        ),
+    }
+
+
+def gold_review_decision_progress_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Gold Review Decision Progress",
+        "",
+        f"- Status: `{report['status']}`",
+        f"- Gold template: `{report['gold_template']}`",
+        f"- Decision directory: `{report['decision_dir']}`",
+        f"- Records: {report['record_count']}",
+        f"- Decision records: {report['decision_record_count']}",
+        f"- Ready to apply: {report['ready_to_apply_record_count']}",
+        f"- In progress: {report['in_progress_record_count']}",
+        f"- Not started: {report['not_started_record_count']}",
+        f"- Needs revision: {report['needs_revision_record_count']}",
+        f"- Missing decisions: {report['missing_decision_record_count']}",
+        "- Rejected-fact decisions confirmed: "
+        f"{report['completed_rejected_fact_decision_count']} / "
+        f"{report['rejected_fact_decision_count']}",
+        "",
+        "## Completion Gate",
+        "",
+        f"- {report['completion_gate']}",
+        "",
+        "## Batch Progress",
+        "",
+        "| Batch | Status | Ready | In progress | Not started | Needs revision | "
+        "Missing | Rejected decisions | File |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for batch in report["batch_progress"]:
+        lines.append(
+            "| "
+            f"`{batch['batch_id']}` | "
+            f"`{batch['status']}` | "
+            f"{batch['ready_to_apply_record_count']} | "
+            f"{batch['in_progress_record_count']} | "
+            f"{batch['not_started_record_count']} | "
+            f"{batch['needs_revision_record_count']} | "
+            f"{batch['missing_decision_record_count']} | "
+            f"{batch['completed_rejected_fact_decision_count']} / "
+            f"{batch['rejected_fact_decision_count']} | "
+            f"`{batch['decision_path']}` |"
+        )
+
+    attention_records = [
+        (batch["batch_id"], record)
+        for batch in report["batch_progress"]
+        for record in batch["records"]
+        if record["status"] != "ready_to_apply"
+    ][:25]
+    lines.extend(["", "## Records Needing Attention", ""])
+    if not attention_records:
+        lines.append("- None.")
+    else:
+        lines.extend(
+            [
+                "| Batch | Sample | Status | Issues | Rejected pending |",
+                "| --- | --- | --- | ---: | ---: |",
+            ]
+        )
+        for batch_id, record in attention_records:
+            lines.append(
+                "| "
+                f"`{batch_id}` | "
+                f"`{record['sample_id']}` | "
+                f"`{record['status']}` | "
+                f"{record['issue_count']} | "
+                f"{record['rejected_fact_decisions']['pending']} |"
+            )
+        remaining = sum(
+            1
+            for batch in report["batch_progress"]
+            for record in batch["records"]
+            if record["status"] != "ready_to_apply"
+        ) - len(attention_records)
+        if remaining > 0:
+            lines.append(f"- ... {remaining} more records omitted")
+
+    if report["duplicate_decision_source_ids"]:
+        lines.extend(["", "## Duplicate Decision Source IDs", ""])
+        lines.append(", ".join(f"`{value}`" for value in report["duplicate_decision_source_ids"]))
+    if report["unexpected_decision_source_ids"]:
+        lines.extend(["", "## Unexpected Decision Source IDs", ""])
+        lines.append(", ".join(f"`{value}`" for value in report["unexpected_decision_source_ids"]))
+    return "\n".join(lines) + "\n"
+
+
+def run_gold_review_decision_progress(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    batch_report = build_gold_review_batches(repo_root, batch_size=batch_size)
+    report = build_gold_review_decision_progress(
+        repo_root,
+        batch_report=batch_report,
+    )
+    write_json(repo_root / GOLD_REVIEW_DECISION_PROGRESS_JSON, report)
+    (repo_root / GOLD_REVIEW_DECISION_PROGRESS_MD).write_text(
+        gold_review_decision_progress_markdown(report),
+        encoding="utf-8",
+    )
+    return {
+        "decision_progress_json": report["decision_progress_json"],
+        "decision_progress_markdown": report["decision_progress_markdown"],
+        "status": report["status"],
+        "ready_to_apply_record_count": report["ready_to_apply_record_count"],
+        "in_progress_record_count": report["in_progress_record_count"],
+        "not_started_record_count": report["not_started_record_count"],
+        "needs_revision_record_count": report["needs_revision_record_count"],
+        "missing_decision_record_count": report["missing_decision_record_count"],
+        "record_count": report["record_count"],
+    }
 
 
 def apply_gold_review_decisions(
@@ -5772,6 +6155,16 @@ def run_formal_experiment_readiness(
     batch_report = build_gold_review_batches(repo_root, candidate_review=candidate_review)
     workload_plan = build_gold_review_workload_plan(repo_root)
     priority_packets = build_gold_review_priority_packets(repo_root)
+    existing_decision_root = repo_root / GOLD_REVIEW_DECISION_DIR
+    existing_decisions = (
+        read_gold_review_decisions(existing_decision_root)
+        if existing_decision_root.exists()
+        else []
+    )
+    preserve_existing_decisions = any(
+        gold_review_decision_has_manual_edits(decision)
+        for decision in existing_decisions
+    )
     decision_report = build_gold_review_decision_templates(
         repo_root,
         batch_report=batch_report,
@@ -5830,10 +6223,20 @@ def run_formal_experiment_readiness(
         encoding="utf-8",
     )
     (repo_root / GOLD_REVIEW_DECISION_DIR).mkdir(parents=True, exist_ok=True)
-    for batch in decision_report["batches"]:
-        write_jsonl(repo_root / batch["path"], batch["records"])
-    (repo_root / GOLD_REVIEW_DECISION_INDEX_MD).write_text(
-        gold_review_decision_index_markdown(decision_report),
+    if not preserve_existing_decisions:
+        for batch in decision_report["batches"]:
+            write_jsonl(repo_root / batch["path"], batch["records"])
+        (repo_root / GOLD_REVIEW_DECISION_INDEX_MD).write_text(
+            gold_review_decision_index_markdown(decision_report),
+            encoding="utf-8",
+        )
+    decision_progress = build_gold_review_decision_progress(
+        repo_root,
+        batch_report=batch_report,
+    )
+    write_json(repo_root / GOLD_REVIEW_DECISION_PROGRESS_JSON, decision_progress)
+    (repo_root / GOLD_REVIEW_DECISION_PROGRESS_MD).write_text(
+        gold_review_decision_progress_markdown(decision_progress),
         encoding="utf-8",
     )
     (repo_root / GOLD_REVIEW_PROGRESS_MD).write_text(
@@ -5917,6 +6320,15 @@ def run_formal_experiment_readiness(
             repo_root / GOLD_REVIEW_DECISION_INDEX_MD,
             repo_root,
         ),
+        "gold_review_decision_progress_json": project_relative_path(
+            repo_root / GOLD_REVIEW_DECISION_PROGRESS_JSON,
+            repo_root,
+        ),
+        "gold_review_decision_progress_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_DECISION_PROGRESS_MD,
+            repo_root,
+        ),
+        "gold_review_decision_templates_written": not preserve_existing_decisions,
         "gold_review_progress_json": project_relative_path(
             repo_root / GOLD_REVIEW_PROGRESS_JSON,
             repo_root,
