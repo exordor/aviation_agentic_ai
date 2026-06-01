@@ -10,6 +10,7 @@
       "description": "Deterministic ATCSCC surface-pattern extractor used by the pilot.",
       "expected_output": "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl",
       "prompt_batch": null,
+      "run_metadata": "data/experiments/nasa_atmonto/formal/s0_rule_only_run_metadata.json",
       "requires_llm": false,
       "uses_schema_slice": true,
       "uses_validator_repair": false
@@ -20,6 +21,7 @@
       "description": "LLM extractor without NASA ATMONTO schema terms in the prompt.",
       "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
       "prompt_batch": "data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl",
+      "run_metadata": "data/experiments/nasa_atmonto/formal/s1_llm_only_run_metadata.json",
       "requires_llm": true,
       "uses_schema_slice": false,
       "uses_validator_repair": false
@@ -30,6 +32,7 @@
       "description": "LLM extractor constrained by the ATCSCC schema slice and JSON shape.",
       "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
       "prompt_batch": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl",
+      "run_metadata": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_run_metadata.json",
       "requires_llm": true,
       "uses_schema_slice": true,
       "uses_validator_repair": false
@@ -40,6 +43,7 @@
       "description": "S2 with custom validation and one repair attempt for invalid payloads.",
       "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
       "prompt_batch": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl",
+      "run_metadata": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_run_metadata.json",
       "requires_llm": true,
       "uses_schema_slice": true,
       "uses_validator_repair": true

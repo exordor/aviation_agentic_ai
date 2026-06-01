@@ -22,6 +22,7 @@
   - `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
   - `reports/stages/nasa_atmonto_rejection_error_analysis.md`
   - `reports/stages/nasa_atmonto_gold_annotation_validation.md`
+  - `reports/stages/nasa_atmonto_prediction_output_validation.md`
   - `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
 - Claim boundary: retrospective extraction and validation research only. This protocol does not support live aviation operations, operational advisories, flight planning, dispatch, ATC decisions, or safety certification.
 
@@ -195,6 +196,7 @@ Prepared execution files:
 - S2 prompt batch: `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
 - S3 prompt batch: `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
 - Pending/scoring report: `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
+- Prediction-output validation report: `reports/stages/nasa_atmonto_prediction_output_validation.md`
 
 These files prepare model inputs and the deterministic baseline only. They do
 not contain fabricated LLM results.
@@ -367,14 +369,24 @@ data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl
 7. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
    records. Use the committed S0 prediction file as the deterministic baseline.
 
-8. Re-run the formal experiment scorer to compute metrics against the reviewed
+8. Validate S1/S2/S3 prediction JSONL files and run metadata before scoring.
+
+```bash
+uv run python scripts/validate_nasa_atmonto_prediction_outputs.py
+```
+
+Each LLM system output must have 100 valid prediction records, one per selected
+`source_id`, plus a run metadata JSON file documenting `system_id`,
+`run_status`, `input_records`, and `prediction_output`.
+
+9. Re-run the formal experiment scorer to compute metrics against the reviewed
    gold set and available system prediction files.
 
 ```bash
 uv run python scripts/run_nasa_atmonto_formal_experiment.py --skip-prepare-inputs
 ```
 
-9. Produce:
+10. Produce:
 
 - system-level metric table;
 - property-level metric table;

@@ -41,6 +41,12 @@ GOLD_VALIDATION_REPORT_JSON = Path(
 GOLD_VALIDATION_REPORT_MD = Path(
     "reports/stages/nasa_atmonto_gold_annotation_validation.md"
 )
+PREDICTION_OUTPUT_VALIDATION_REPORT_JSON = Path(
+    "reports/stages/nasa_atmonto_prediction_output_validation.json"
+)
+PREDICTION_OUTPUT_VALIDATION_REPORT_MD = Path(
+    "reports/stages/nasa_atmonto_prediction_output_validation.md"
+)
 
 REVIEWED_GOLD_STATUS = "reviewed"
 PENDING_GOLD_STATUS = "pending_manual_gold_annotation"
@@ -172,12 +178,24 @@ def system_definitions(repo_root: Path) -> list[dict[str, Any]]:
                 if system.prompt_batch
                 else None
             ),
+            "run_metadata": project_relative_path(
+                repo_root / system_run_metadata_path(system),
+                repo_root,
+            ),
             "requires_llm": system.requires_llm,
             "uses_schema_slice": system.uses_schema_slice,
             "uses_validator_repair": system.uses_validator_repair,
         }
         for system in SYSTEMS
     ]
+
+
+def system_output_stem(system: SystemDefinition) -> str:
+    return system.expected_output.name.removesuffix("_predictions.jsonl")
+
+
+def system_run_metadata_path(system: SystemDefinition) -> Path:
+    return FORMAL_OUTPUT_DIR / f"{system_output_stem(system)}_run_metadata.json"
 
 
 def gold_annotation_status(gold_records: list[dict[str, Any]]) -> dict[str, Any]:
@@ -763,6 +781,30 @@ def build_s0_prediction_records(
     return predictions
 
 
+def build_s0_run_metadata(
+    *,
+    repo_root: Path,
+    input_record_count: int,
+    prediction_record_count: int,
+) -> dict[str, Any]:
+    return {
+        "system_id": "S0_rule_only",
+        "run_status": "completed",
+        "runner": "schema_slice_rule_baseline",
+        "requires_llm": False,
+        "input_records": project_relative_path(repo_root / FORMAL_INPUT_RECORDS_PATH, repo_root),
+        "prediction_output": project_relative_path(repo_root / SYSTEMS[0].expected_output, repo_root),
+        "input_record_count": input_record_count,
+        "prediction_record_count": prediction_record_count,
+        "source_candidates": project_relative_path(repo_root / S0_CANDIDATES_PATH, repo_root),
+        "source_validations": project_relative_path(repo_root / S0_VALIDATED_PATH, repo_root),
+        "claim_boundary": (
+            "S0 is deterministic baseline output. It is not manual gold truth and "
+            "semantic correctness must be evaluated against reviewed annotations."
+        ),
+    }
+
+
 def extraction_output_contract() -> dict[str, Any]:
     return {
         "required_top_level_fields": ["source_id", "source_family", "facts"],
@@ -976,6 +1018,14 @@ def prepare_formal_experiment_inputs(
 
     write_jsonl(repo_root / FORMAL_INPUT_RECORDS_PATH, input_records)
     write_jsonl(repo_root / SYSTEMS[0].expected_output, s0_predictions)
+    write_json(
+        repo_root / system_run_metadata_path(SYSTEMS[0]),
+        build_s0_run_metadata(
+            repo_root=repo_root,
+            input_record_count=len(input_records),
+            prediction_record_count=len(s0_predictions),
+        ),
+    )
     for path, records in prompt_batches.items():
         write_jsonl(repo_root / path, records)
     write_json(repo_root / FORMAL_SYSTEM_SPECS_PATH, build_system_specs(repo_root, schema_context))
@@ -984,6 +1034,10 @@ def prepare_formal_experiment_inputs(
         "input_records": project_relative_path(repo_root / FORMAL_INPUT_RECORDS_PATH, repo_root),
         "input_record_count": len(input_records),
         "s0_predictions": project_relative_path(repo_root / SYSTEMS[0].expected_output, repo_root),
+        "s0_run_metadata": project_relative_path(
+            repo_root / system_run_metadata_path(SYSTEMS[0]),
+            repo_root,
+        ),
         "s0_prediction_record_count": len(s0_predictions),
         "prompt_batches": {
             path.as_posix(): len(records)
@@ -1039,6 +1093,18 @@ def read_jsonl_lenient(path: Path) -> dict[str, Any]:
     }
 
 
+def read_json_lenient(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {"exists": False, "payload": None, "error": None}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return {"exists": True, "payload": None, "error": exc.msg}
+    if not isinstance(payload, dict):
+        return {"exists": True, "payload": None, "error": "top_level_json_value_is_not_object"}
+    return {"exists": True, "payload": payload, "error": None}
+
+
 def is_valid_prediction_payload(record: dict[str, Any], selected_ids: set[str]) -> bool:
     return str(record.get("source_id")) in selected_ids and isinstance(record.get("facts"), list)
 
@@ -1080,6 +1146,269 @@ def valid_prediction_records(
         seen.add(source_id)
         records.append(record)
     return records
+
+
+def prompt_batch_validation(
+    *,
+    system: SystemDefinition,
+    repo_root: Path,
+    selected_ids: set[str],
+) -> dict[str, Any]:
+    if not system.prompt_batch:
+        return {
+            "path": None,
+            "exists": None,
+            "task_count": None,
+            "valid_task_count": None,
+            "missing_source_id_count": None,
+            "duplicate_source_id_count": None,
+            "invalid_json_line_count": None,
+            "status": "not_applicable",
+            "errors": [],
+        }
+    path = repo_root / system.prompt_batch
+    parse_result = read_jsonl_lenient(path)
+    errors: list[str] = []
+    if not parse_result["exists"]:
+        return {
+            "path": project_relative_path(path, repo_root),
+            "exists": False,
+            "task_count": 0,
+            "valid_task_count": 0,
+            "missing_source_id_count": len(selected_ids),
+            "duplicate_source_id_count": 0,
+            "invalid_json_line_count": 0,
+            "status": "missing",
+            "errors": ["prompt_batch_missing"],
+        }
+    records = [record for record in parse_result["records"] if isinstance(record, dict)]
+    valid_records = [
+        record
+        for record in records
+        if str(record.get("source_id")) in selected_ids
+        and record.get("system_id") == system.system_id
+        and isinstance(record.get("messages"), list)
+        and isinstance(record.get("expected_output_contract"), dict)
+    ]
+    source_counts = Counter(str(record.get("source_id")) for record in valid_records)
+    duplicate_count = sum(count - 1 for count in source_counts.values() if count > 1)
+    missing_count = len(selected_ids - set(source_counts))
+    if parse_result["invalid_json_line_count"]:
+        errors.append("prompt_batch_invalid_json")
+    if len(valid_records) != len(records):
+        errors.append("prompt_batch_invalid_task_shape")
+    if duplicate_count:
+        errors.append("prompt_batch_duplicate_source_ids")
+    if missing_count:
+        errors.append("prompt_batch_missing_source_ids")
+    return {
+        "path": project_relative_path(path, repo_root),
+        "exists": True,
+        "task_count": parse_result["line_count"],
+        "valid_task_count": len(valid_records),
+        "missing_source_id_count": missing_count,
+        "duplicate_source_id_count": duplicate_count,
+        "invalid_json_line_count": parse_result["invalid_json_line_count"],
+        "status": "ready" if not errors else "needs_revision",
+        "errors": errors,
+    }
+
+
+def run_metadata_validation(
+    *,
+    system: SystemDefinition,
+    repo_root: Path,
+    output_exists: bool,
+) -> dict[str, Any]:
+    path = repo_root / system_run_metadata_path(system)
+    parse_result = read_json_lenient(path)
+    errors: list[str] = []
+    warnings: list[str] = []
+    if not parse_result["exists"]:
+        return {
+            "path": project_relative_path(path, repo_root),
+            "exists": False,
+            "status": "missing" if system.requires_llm or output_exists else "optional_missing",
+            "errors": [],
+            "warnings": ["run_metadata_missing"],
+        }
+    payload = parse_result["payload"] or {}
+    if parse_result["error"]:
+        errors.append("run_metadata_invalid_json")
+    if payload.get("system_id") != system.system_id:
+        errors.append("run_metadata_system_id_mismatch")
+    if output_exists and payload.get("run_status") not in {"completed", "reviewed"}:
+        errors.append("run_metadata_run_status_not_completed")
+    for field in ("prediction_output", "input_records"):
+        if output_exists and not payload.get(field):
+            errors.append(f"run_metadata_missing_{field}")
+    return {
+        "path": project_relative_path(path, repo_root),
+        "exists": True,
+        "status": "ready" if not errors else "needs_revision",
+        "errors": errors,
+        "warnings": warnings,
+    }
+
+
+def validate_prediction_output_system(
+    *,
+    system: SystemDefinition,
+    repo_root: Path,
+    selected_ids: set[str],
+) -> dict[str, Any]:
+    output_path = repo_root / system.expected_output
+    parse_result = read_jsonl_lenient(output_path)
+    prompt_status = prompt_batch_validation(
+        system=system,
+        repo_root=repo_root,
+        selected_ids=selected_ids,
+    )
+    metadata_status = run_metadata_validation(
+        system=system,
+        repo_root=repo_root,
+        output_exists=parse_result["exists"],
+    )
+    errors: list[str] = []
+    pending: list[str] = []
+    json_metrics = None
+
+    if prompt_status["status"] == "needs_revision":
+        errors.extend(prompt_status["errors"])
+    elif prompt_status["status"] == "missing":
+        pending.append("prompt_batch_missing")
+
+    if not parse_result["exists"]:
+        pending.append("prediction_output_missing")
+    else:
+        json_metrics = prediction_json_metrics(parse_result=parse_result, selected_ids=selected_ids)
+        if json_metrics["invalid_json_line_count"]:
+            errors.append("prediction_output_invalid_json_lines")
+        if json_metrics["invalid_payload_count"]:
+            errors.append("prediction_output_invalid_payload_shape")
+        if json_metrics["duplicate_output_record_count"]:
+            errors.append("prediction_output_duplicate_source_ids")
+        if json_metrics["missing_output_record_count"]:
+            errors.append("prediction_output_missing_source_ids")
+
+    if metadata_status["status"] == "needs_revision":
+        errors.extend(metadata_status["errors"])
+    elif metadata_status["status"] == "missing":
+        pending.append("run_metadata_missing")
+
+    if errors:
+        status = "needs_revision"
+    elif pending:
+        status = "pending_required_outputs"
+    else:
+        status = "ready_for_scoring"
+
+    return {
+        "system_id": system.system_id,
+        "label": system.label,
+        "expected_output": project_relative_path(output_path, repo_root),
+        "output_exists": parse_result["exists"],
+        "prompt_batch": prompt_status,
+        "run_metadata": metadata_status,
+        "json_metrics": json_metrics,
+        "status": status,
+        "errors": errors,
+        "pending": pending,
+    }
+
+
+def build_prediction_output_validation_report(
+    repo_root: str | Path = PROJECT_ROOT,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
+    selected_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
+    system_reports = [
+        validate_prediction_output_system(
+            system=system,
+            repo_root=repo_root,
+            selected_ids=selected_ids,
+        )
+        for system in SYSTEMS
+    ]
+    error_count = sum(len(report["errors"]) for report in system_reports)
+    pending_count = sum(len(report["pending"]) for report in system_reports)
+    if error_count:
+        status = "needs_revision"
+    elif pending_count:
+        status = "pending_required_outputs"
+    else:
+        status = "ready_for_scoring"
+    return {
+        "source_family": "nasa_atmonto_prediction_output_validation",
+        "status": status,
+        "selected_source_id_count": len(selected_ids),
+        "systems": system_reports,
+        "error_count": error_count,
+        "pending_count": pending_count,
+        "completion_gate": (
+            "Prediction outputs are usable for formal scoring only when every system status is "
+            "ready_for_scoring."
+        ),
+    }
+
+
+def prediction_output_validation_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Prediction Output Validation",
+        "",
+        f"- Status: `{report['status']}`",
+        f"- Selected source IDs: {report['selected_source_id_count']}",
+        f"- Errors: {report['error_count']}",
+        f"- Pending items: {report['pending_count']}",
+        "",
+        "## Completion Gate",
+        "",
+        f"- {report['completion_gate']}",
+        "",
+        "## Systems",
+        "",
+        "| System | Status | Output | Run Metadata | JSON adherence | Missing records | Pending | Errors |",
+        "| --- | --- | --- | --- | ---: | ---: | --- | --- |",
+    ]
+    for system in report["systems"]:
+        json_metrics = system.get("json_metrics") or {}
+        lines.append(
+            "| "
+            f"`{system['system_id']}` | "
+            f"`{system['status']}` | "
+            f"`{system['output_exists']}` | "
+            f"`{system['run_metadata']['exists']}` | "
+            f"{json_metrics.get('json_adherence')} | "
+            f"{json_metrics.get('missing_output_record_count')} | "
+            f"`{', '.join(system['pending'])}` | "
+            f"`{', '.join(system['errors'])}` |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def run_prediction_output_validation(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    report = build_prediction_output_validation_report(repo_root)
+    write_json(repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_JSON, report)
+    (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).write_text(
+        prediction_output_validation_markdown(report),
+        encoding="utf-8",
+    )
+    return {
+        "report_json": project_relative_path(
+            repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_JSON,
+            repo_root,
+        ),
+        "report_markdown": project_relative_path(
+            repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD,
+            repo_root,
+        ),
+        "status": report["status"],
+        "error_count": report["error_count"],
+        "pending_count": report["pending_count"],
+    }
 
 
 def prediction_payloads_for_validation(
@@ -1487,14 +1816,21 @@ def run_formal_experiment_readiness(
     repo_root = Path(repo_root).resolve()
     prepared = prepare_formal_experiment_inputs(repo_root) if prepare_inputs else None
     gold_validation = build_gold_annotation_validation_report(repo_root)
+    prediction_validation = build_prediction_output_validation_report(repo_root)
     report = build_formal_experiment_readiness(repo_root)
     score_report = build_formal_experiment_score_report(repo_root)
     write_json(repo_root / GOLD_VALIDATION_REPORT_JSON, gold_validation)
+    write_json(repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_JSON, prediction_validation)
     write_json(repo_root / READINESS_REPORT_JSON, report)
     write_json(repo_root / SCORING_REPORT_JSON, score_report)
     (repo_root / GOLD_VALIDATION_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / GOLD_VALIDATION_REPORT_MD).write_text(
         gold_validation_markdown(gold_validation),
+        encoding="utf-8",
+    )
+    (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).write_text(
+        prediction_output_validation_markdown(prediction_validation),
         encoding="utf-8",
     )
     (repo_root / READINESS_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
@@ -1514,11 +1850,20 @@ def run_formal_experiment_readiness(
             repo_root / GOLD_VALIDATION_REPORT_MD,
             repo_root,
         ),
+        "prediction_output_validation_report_json": project_relative_path(
+            repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_JSON,
+            repo_root,
+        ),
+        "prediction_output_validation_report_markdown": project_relative_path(
+            repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD,
+            repo_root,
+        ),
         "report_json": project_relative_path(repo_root / READINESS_REPORT_JSON, repo_root),
         "report_markdown": project_relative_path(repo_root / READINESS_REPORT_MD, repo_root),
         "scoring_report_json": project_relative_path(repo_root / SCORING_REPORT_JSON, repo_root),
         "scoring_report_markdown": project_relative_path(repo_root / SCORING_REPORT_MD, repo_root),
         "gold_validation_status": gold_validation["status"],
+        "prediction_output_validation_status": prediction_validation["status"],
         "status": report["status"],
         "scoring_status": score_report["status"],
         "missing_required_inputs": report["missing_required_inputs"],

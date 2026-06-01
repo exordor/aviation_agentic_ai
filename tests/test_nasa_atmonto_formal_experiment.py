@@ -8,6 +8,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_formal_experiment_score_report,
     build_formal_experiment_readiness,
     build_gold_annotation_validation_report,
+    build_prediction_output_validation_report,
     prepare_formal_experiment_inputs,
     property_level_semantic_metrics,
     semantic_metrics,
@@ -299,3 +300,32 @@ def test_gold_annotation_validation_accepts_reviewed_record_with_rejection_decis
     assert report["status"] == "ready_for_scoring"
     assert report["error_count"] == 0
     assert report["warning_count"] == 0
+
+
+def test_prediction_output_validation_reports_s0_ready_and_llm_outputs_pending() -> None:
+    prepare_formal_experiment_inputs(Path("."))
+    report = build_prediction_output_validation_report(Path("."))
+
+    assert report["status"] == "pending_required_outputs"
+    s0 = next(system for system in report["systems"] if system["system_id"] == "S0_rule_only")
+    assert s0["status"] == "ready_for_scoring"
+    assert s0["json_metrics"]["json_adherence"] == 1.0
+    assert s0["run_metadata"]["exists"] is True
+
+    s1 = next(system for system in report["systems"] if system["system_id"] == "S1_llm_only")
+    assert s1["status"] == "pending_required_outputs"
+    assert "prediction_output_missing" in s1["pending"]
+    assert "run_metadata_missing" in s1["pending"]
+    assert s1["prompt_batch"]["status"] == "ready"
+
+
+def test_generated_prediction_output_validation_report_json_is_consistent() -> None:
+    report = json.loads(
+        Path("reports/stages/nasa_atmonto_prediction_output_validation.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert report["status"] == "pending_required_outputs"
+    assert report["selected_source_id_count"] == 100
+    assert any(system["system_id"] == "S0_rule_only" for system in report["systems"])

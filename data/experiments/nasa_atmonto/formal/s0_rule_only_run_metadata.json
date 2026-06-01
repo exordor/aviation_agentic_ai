@@ -1,0 +1,13 @@
+{
+  "system_id": "S0_rule_only",
+  "run_status": "completed",
+  "runner": "schema_slice_rule_baseline",
+  "requires_llm": false,
+  "input_records": "data/experiments/nasa_atmonto/formal/input_records.jsonl",
+  "prediction_output": "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl",
+  "input_record_count": 100,
+  "prediction_record_count": 100,
+  "source_candidates": "data/processed/nasa_atmonto/extraction/2026-05-14/atcscc_schema_slice_candidates.jsonl",
+  "source_validations": "data/processed/nasa_atmonto/extraction/2026-05-14/atcscc_schema_slice_validated.jsonl",
+  "claim_boundary": "S0 is deterministic baseline output. It is not manual gold truth and semantic correctness must be evaluated against reviewed annotations."
+}
