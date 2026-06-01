@@ -25,7 +25,7 @@
 - Decision progress: `ready_to_apply`
 - Ready to apply / not started: 100 / 0
 - Rejected-fact decisions confirmed: 48 / 48
-- First priority lane: `1_rejection_adjudication` (40 records, 808 est. min)
+- First priority lane: `1_rejection_adjudication` (40 records, 941 est. min)
 - Start packet: `data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md`
 - First sample: `ATCSCC-GOLD-024` / `2026-05-18:136` via `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
 - Boundary: Priority packets and suggested_* fields are work aids only. A record becomes gold only after source review, completed review_checklist, confirmed decisions, validation, and frozen reviewed output.
@@ -50,8 +50,10 @@
 
 - `S0_rule_only`: Rule-only (LLM=False, schema=True, repair=False, prompt_ready=None, output_ready=True)
 - `S1_llm_only`: LLM-only (LLM=True, schema=False, repair=False, prompt_ready=True, output_ready=True)
+- `S1b_llm_canonicalized`: LLM-only + post-hoc canonicalization (LLM=False, schema=True, repair=False, prompt_ready=None, output_ready=True)
 - `S2_llm_schema_slice`: LLM + schema slice (LLM=True, schema=True, repair=False, prompt_ready=True, output_ready=True)
 - `S3_llm_schema_slice_validator_repair`: LLM + schema slice + validator/repair (LLM=True, schema=True, repair=True, prompt_ready=True, output_ready=True)
+- `S4_hybrid_backbone_enrichment`: Hybrid backbone + semantic enrichment (LLM=False, schema=True, repair=True, prompt_ready=None, output_ready=True)
 
 ## Current S0 Structural Metrics
 

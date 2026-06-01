@@ -59,16 +59,51 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
 
     for required in [
         "pilot / feasibility study",
+        "Source Families",
+        "faa_atcscc_advisories",
+        "faa_nasa_pdf_reference_documents",
+        "hybrid_docling_pymupdf",
+        "pymupdf_text_legacy",
+        "term_has_definition",
+        "procedure_mentions_concept",
+        "Consensus SOTA Adaptation For The Rerun",
+        "Extract-Define-Canonicalize",
+        "reviewed_dev_examples",
+        "held-out 100 scoring records",
+        "canonicalizers",
+        "evidence checkers",
+        "profile-gap explainers",
+        "nine-stage pipeline",
+        "ATCSCC parsing",
+        "schema/atcscc_tmi_profile.yaml",
+        "predicate_uri",
+        "repair-induced false positive",
+        "format error",
+        "predicate drift",
+        "entity canonicalization error",
+        "fuzzy-only mappings",
+        "repair-only facts",
+        "log/review/quarantine",
+        "GraphRAG evaluation remains layered",
+        "end-to-end GraphRAG answer improvement",
+        "requiring verification",
+        "JSON-Schema-guided information extraction",
         "S0: Rule-Only",
         "S1: LLM-Only",
         "S2: LLM + Schema Slice",
         "S3: LLM + Schema Slice + Validator/Repair",
+        "S4: Hybrid Backbone + Semantic Enrichment",
         "Baselines And Comparators",
         "S0 rule-only",
         "S1 LLM-only",
+        "S1_raw_open_llm",
+        "S1b_llm_canonicalized",
+        "S4_hybrid_backbone_enrichment",
+        "invalid_direct_schema_scoring",
         "JSON Adherence",
         "Schema Violation Rate",
         "Triple Precision, Recall, And F1",
+        "Canonicalization Yield",
         "Repair Success Rate",
         "Manual Semantic Correctness",
         "Falsified if",
@@ -90,7 +125,8 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
 def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
     protocol = Path("docs/experiment_protocol.md").read_text(encoding="utf-8")
 
-    assert "supported by the formal scoring report" in protocol
+    assert "supported on the corrected stage" in protocol
+    assert "S1b/S4 corrected-stage derived outputs" in protocol
     assert "supported on the reviewed 100-record sample" in protocol
     assert "Semantic Stratification" in protocol
     assert "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl" in protocol

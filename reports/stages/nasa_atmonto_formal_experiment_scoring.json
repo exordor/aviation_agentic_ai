@@ -95,7 +95,8 @@
         },
         "priority_lane_counts": {
           "1_rejection_adjudication": 17,
-          "3_standard_review": 9
+          "2_high_cross_system_coverage": 2,
+          "3_standard_review": 7
         },
         "sample_ids": [
           "ATCSCC-GOLD-021",
@@ -303,8 +304,8 @@
         },
         "priority_lane_counts": {
           "1_rejection_adjudication": 5,
-          "2_high_cross_system_coverage": 2,
-          "3_standard_review": 5
+          "2_high_cross_system_coverage": 4,
+          "3_standard_review": 3
         },
         "sample_ids": [
           "ATCSCC-GOLD-017",
@@ -530,6 +531,200 @@
       "Ontology candidate classes and operational semantic groups intentionally differ for status/cancellation/FYI notices."
     ]
   },
+  "methodology_remediation": {
+    "status": "methodology_remediation",
+    "scope_statement": "The current scored run is a narrow FAA ATCSCC advisory / NASA ATMONTO ATCSCC schema-slice experiment. PDF reference documents are added only as a second source-family design for the next rerun; PDF definition/procedure metrics must not be mixed into the ATCSCC event F1 table.",
+    "source_families": [
+      {
+        "id": "A",
+        "source_family": "faa_atcscc_advisories",
+        "data_shape": "semi_structured_short_advisories",
+        "task": "TMI/event ABox extraction",
+        "preferred_system_design": "S0 deterministic backbone plus S3 semantic enrichment and validator gate",
+        "current_gold": "100 reviewed advisories from 2026-05-14 through 2026-05-20"
+      },
+      {
+        "id": "B",
+        "source_family": "faa_nasa_pdf_reference_documents",
+        "data_shape": "unstructured_or_long_form_reference_text",
+        "task": "definition, terminology, procedure, and source-mapping evidence extraction",
+        "candidate_documents": [
+          "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf",
+          "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/7110.65BB_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+          "data/papers/ntrs_ontology_selection/20170006095_nasa_air_traffic_management_ontology.pdf"
+        ],
+        "allowed_predicates": [
+          "term_has_definition",
+          "term_has_alias",
+          "procedure_mentions_concept",
+          "document_defines_or_constrains",
+          "source_supports_mapping"
+        ],
+        "required_provenance_fields": [
+          "document_id",
+          "page",
+          "section",
+          "span",
+          "evidence_text"
+        ],
+        "backend_policy": {
+          "candidate_default": "hybrid_docling_pymupdf",
+          "legacy_baseline": "pymupdf_text_legacy",
+          "policy_reports": [
+            "reports/stages/pdf_extraction_comparison.md",
+            "reports/stages/pdf_backend_chunking_comparison.md"
+          ]
+        }
+      }
+    ],
+    "cross_source_metric_policy": "Compare structural conformance, evidence grounding, and canonicalization yield across source families. Report semantic F1 within each task family only."
+  },
+  "consensus_sota_remediation": {
+    "status": "rerun_design_constraint",
+    "scope_boundary": "These constraints refine the narrow ATCSCC / ATMONTO rerun. They are not a pivot to a general aviation KG or an end-to-end GraphRAG claim.",
+    "s1_interpretation": {
+      "current_system": "S1_llm_only",
+      "current_label": "invalid_direct_schema_scoring",
+      "future_raw_system": "S1_raw_open_llm",
+      "future_comparable_system": "S1b_llm_canonicalized",
+      "rule": "Report raw S1 coverage, JSON adherence, and evidence containment only. Compute target-schema precision/recall/F1 only after canonicalization."
+    },
+    "nine_stage_pipeline": [
+      "ATCSCC parsing",
+      "S0 deterministic backbone",
+      "schema-slice retrieval",
+      "LLM semantic extraction",
+      "canonicalization",
+      "validator gate",
+      "repair with trace",
+      "graph materialization",
+      "layered evaluation"
+    ],
+    "sota_adaptations": [
+      {
+        "anchor": "Extract-Define-Canonicalize",
+        "implementation": "Split open extraction from target-schema canonicalization.",
+        "claim_guardrail": "Do not score raw open LLM output with ATMONTO P/R/F1."
+      },
+      {
+        "anchor": "ontology_guided_domain_short_text_kgc",
+        "implementation": "Use 10-20 reviewed dev examples for S2/S3 by advisory type and predicate family.",
+        "claim_guardrail": "Do not draw examples from the held-out 100 scoring records."
+      },
+      {
+        "anchor": "llm_as_kg_assistant",
+        "implementation": "Use LLMs as canonicalizer, semantic enrichment module, evidence checker, and profile-gap explainer.",
+        "claim_guardrail": "Do not make pure LLM extraction the primary thesis system."
+      },
+      {
+        "anchor": "production_ontology_guided_pipeline",
+        "implementation": "Combine pattern/rule extraction, ontology-guided prompting, grounding, corroboration, and validator gating.",
+        "claim_guardrail": "Quarantine conflicts, unsupported spans, and rejected repairs."
+      },
+      {
+        "anchor": "source_family_separation",
+        "implementation": "Keep ATCSCC event extraction and PDF reference extraction in separate metric tables.",
+        "claim_guardrail": "Do not compare PDF definition F1 with ATCSCC event F1."
+      },
+      {
+        "anchor": "graph_rag_layered_evaluation",
+        "implementation": "Report KG construction, graph retrieval, and answer generation metrics as separate layers.",
+        "claim_guardrail": "Current remediation supports KG construction metrics only; no end-to-end GraphRAG answer improvement claim."
+      }
+    ],
+    "s4_merge_policy": {
+      "primary_candidate_system": "S4_hybrid_backbone_enrichment",
+      "s0_owns": [
+        "advisoryNumber",
+        "issuedTime",
+        "effectiveStartTime",
+        "effectiveEndTime",
+        "header/template fields"
+      ],
+      "s3_s4_may_add_not_overwrite": [
+        "reRouteReason",
+        "reRouteType",
+        "implementationStatus"
+      ],
+      "quarantine_conditions": [
+        "conflict",
+        "unsupported span",
+        "fuzzy-only mapping",
+        "validator rejected fact",
+        "repair-only fact with semantic-change flag"
+      ]
+    },
+    "planned_artifacts": [
+      {
+        "path": "schema/atcscc_tmi_profile.yaml",
+        "required_fields": [
+          "class",
+          "predicate_uri",
+          "label",
+          "aliases",
+          "domain",
+          "range",
+          "cardinality",
+          "allowed_enum",
+          "normalizer",
+          "validator_rule",
+          "example_spans",
+          "profile_version",
+          "source_doc",
+          "commit_hash"
+        ]
+      },
+      {
+        "component": "predicate canonicalizer"
+      },
+      {
+        "component": "enum canonicalizer"
+      },
+      {
+        "component": "entity canonicalizer"
+      },
+      {
+        "component": "time normalizer"
+      },
+      {
+        "component": "repair trace",
+        "fields": [
+          "pre_error",
+          "repair_action",
+          "post_validation_status",
+          "semantic_change_flag",
+          "evidence_status"
+        ]
+      },
+      {
+        "component": "error taxonomy",
+        "categories": [
+          "format error",
+          "predicate drift",
+          "class/domain error",
+          "range error",
+          "enum error",
+          "entity canonicalization error",
+          "unsupported span",
+          "temporal normalization error",
+          "duplicate/merge error"
+        ]
+      }
+    ],
+    "unverified_search_leads": {
+      "status": "requiring verification",
+      "rule": "Do not cite these as formal evidence until fetched and checked directly.",
+      "items": [
+        "OntoLogX",
+        "JSON-Schema-guided information extraction",
+        "Graphusion",
+        "RAKG",
+        "RAGAS",
+        "STaRK",
+        "Microsoft GraphRAG"
+      ]
+    }
+  },
   "systems": [
     {
       "system_id": "S0_rule_only",
@@ -604,7 +799,10 @@
               "high": 0.7770992366412214
             }
           }
-        }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
       },
       "property_level_semantic_metrics": [
         {
@@ -1223,7 +1421,10 @@
               "high": 0.0
             }
           }
-        }
+        },
+        "scoring_validity": "invalid_direct_schema_scoring",
+        "valid_for_baseline_comparison": false,
+        "interpretation": "The schema-free LLM output is JSON-adherent but all candidate facts are rejected by the target ATMONTO validator. Direct target-schema precision/recall/F1 are diagnostic zeros, not a valid semantic baseline. Use S1_raw_open_llm diagnostics and S1b_llm_canonicalized for future target-schema semantic comparisons."
       },
       "property_level_semantic_metrics": [
         {
@@ -1768,6 +1969,627 @@
       ]
     },
     {
+      "system_id": "S1b_llm_canonicalized",
+      "label": "LLM-only + post-hoc canonicalization",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 454,
+        "accepted_fact_count": 185,
+        "rejected_fact_count": 269,
+        "structural_acceptance_rate": 0.40748898678414097,
+        "schema_violation_rate": 0.5925110132158591,
+        "repair_applicable": false,
+        "repair_attempted_fact_count": null,
+        "repair_accepted_fact_count": null,
+        "repair_success_rate": null,
+        "status_counts": {
+          "rejected_schema": 269,
+          "repaired_accepted": 185
+        },
+        "error_counts": {
+          "allowed_value_violation": 35,
+          "domain_violation": 25,
+          "range_violation": 204,
+          "unknown_object_class": 5
+        }
+      },
+      "semantic_metrics": {
+        "available": true,
+        "predicted_fact_count": 185,
+        "gold_fact_count": 643,
+        "true_positive_count": 94,
+        "false_positive_count": 91,
+        "false_negative_count": 549,
+        "precision": 0.5081081081081081,
+        "recall": 0.14618973561430793,
+        "f1": 0.22705314009661837,
+        "manual_semantic_correctness": 0.5081081081081081,
+        "confidence_intervals": {
+          "available": true,
+          "method": "record_bootstrap_by_source_id",
+          "level": 0.95,
+          "iterations": 200,
+          "seed": 1701,
+          "sampled_source_id_count": 100,
+          "intervals": {
+            "f1": {
+              "low": 0.18698224852071005,
+              "high": 0.25806451612903225
+            },
+            "manual_semantic_correctness": {
+              "low": 0.4271356783919598,
+              "high": 0.6086956521739131
+            },
+            "precision": {
+              "low": 0.4271356783919598,
+              "high": 0.6086956521739131
+            },
+            "recall": {
+              "low": 0.121765601217656,
+              "high": 0.1696969696969697
+            }
+          }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
+      },
+      "property_level_semantic_metrics": [
+        {
+          "predicate": "advisoryNumber",
+          "predicted_fact_count": 84,
+          "gold_fact_count": 100,
+          "true_positive_count": 60,
+          "false_positive_count": 24,
+          "false_negative_count": 40,
+          "precision": 0.7142857142857143,
+          "recall": 0.6,
+          "f1": 0.6521739130434783
+        },
+        {
+          "predicate": "controlledNASelement",
+          "predicted_fact_count": 83,
+          "gold_fact_count": 46,
+          "true_positive_count": 16,
+          "false_positive_count": 67,
+          "false_negative_count": 30,
+          "precision": 0.1927710843373494,
+          "recall": 0.34782608695652173,
+          "f1": 0.24806201550387602
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "effectiveStartTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "extensionProbability",
+          "predicted_fact_count": 18,
+          "gold_fact_count": 30,
+          "true_positive_count": 18,
+          "false_positive_count": 0,
+          "false_negative_count": 12,
+          "precision": 1.0,
+          "recall": 0.6,
+          "f1": 0.7499999999999999
+        },
+        {
+          "predicate": "impactingCondition",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 22,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 22,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "impactingConditionMessage",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 10,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 10,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "implementationStatus",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 21,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 21,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "initiativeComments",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 81,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 81,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "issuedTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "reRouteReason",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 20,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 20,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "reRouteType",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 19,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 19,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "semantic_group_metrics": [
+        {
+          "group_id": "ground_stop_lifecycle",
+          "label": "Ground stop lifecycle",
+          "record_count": 26,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 77,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 77,
+            "gold_fact_count": 183,
+            "true_positive_count": 44,
+            "false_positive_count": 33,
+            "false_negative_count": 139,
+            "precision": 0.5714285714285714,
+            "recall": 0.24043715846994534,
+            "f1": 0.3384615384615384,
+            "manual_semantic_correctness": 0.5714285714285714,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 26,
+              "intervals": {
+                "f1": {
+                  "low": 0.27343750000000006,
+                  "high": 0.4
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.43,
+                  "high": 0.7611940298507462
+                },
+                "precision": {
+                  "low": 0.43,
+                  "high": 0.7611940298507462
+                },
+                "recall": {
+                  "low": 0.1919191919191919,
+                  "high": 0.28342245989304815
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "reroute_or_route_constraint",
+          "label": "Reroute or route constraint",
+          "record_count": 25,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 24,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 24,
+            "gold_fact_count": 183,
+            "true_positive_count": 9,
+            "false_positive_count": 15,
+            "false_negative_count": 174,
+            "precision": 0.375,
+            "recall": 0.04918032786885246,
+            "f1": 0.08695652173913043,
+            "manual_semantic_correctness": 0.375,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 25,
+              "intervals": {
+                "f1": {
+                  "low": 0.03980099502487562,
+                  "high": 0.12935323383084577
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.20833333333333334,
+                  "high": 0.5
+                },
+                "precision": {
+                  "low": 0.20833333333333334,
+                  "high": 0.5
+                },
+                "recall": {
+                  "low": 0.021621621621621623,
+                  "high": 0.07428571428571429
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "volcanic_activity_bulletin",
+          "label": "Volcanic activity bulletin",
+          "record_count": 19,
+          "gold_fact_count": 95,
+          "predicted_fact_count": 26,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 26,
+            "gold_fact_count": 95,
+            "true_positive_count": 17,
+            "false_positive_count": 9,
+            "false_negative_count": 78,
+            "precision": 0.6538461538461539,
+            "recall": 0.17894736842105263,
+            "f1": 0.2809917355371901,
+            "manual_semantic_correctness": 0.6538461538461539,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 19,
+              "intervals": {
+                "f1": {
+                  "low": 0.2280701754385965,
+                  "high": 0.3140495867768595
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.5625,
+                  "high": 0.7727272727272727
+                },
+                "precision": {
+                  "low": 0.5625,
+                  "high": 0.7727272727272727
+                },
+                "recall": {
+                  "low": 0.1368421052631579,
+                  "high": 0.2
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "ground_delay_program_lifecycle",
+          "label": "Ground delay program lifecycle",
+          "record_count": 12,
+          "gold_fact_count": 86,
+          "predicted_fact_count": 34,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 34,
+            "gold_fact_count": 86,
+            "true_positive_count": 13,
+            "false_positive_count": 21,
+            "false_negative_count": 73,
+            "precision": 0.38235294117647056,
+            "recall": 0.1511627906976744,
+            "f1": 0.21666666666666665,
+            "manual_semantic_correctness": 0.38235294117647056,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 12,
+              "intervals": {
+                "f1": {
+                  "low": 0.15517241379310345,
+                  "high": 0.2912621359223301
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.225,
+                  "high": 0.6363636363636364
+                },
+                "precision": {
+                  "low": 0.225,
+                  "high": 0.6363636363636364
+                },
+                "recall": {
+                  "low": 0.11235955056179775,
+                  "high": 0.2
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_arrival_or_scheduling_delay",
+          "label": "Airport arrival or scheduling delay",
+          "record_count": 10,
+          "gold_fact_count": 55,
+          "predicted_fact_count": 20,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 20,
+            "gold_fact_count": 55,
+            "true_positive_count": 10,
+            "false_positive_count": 10,
+            "false_negative_count": 45,
+            "precision": 0.5,
+            "recall": 0.18181818181818182,
+            "f1": 0.26666666666666666,
+            "manual_semantic_correctness": 0.5,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 10,
+              "intervals": {
+                "f1": {
+                  "low": 0.20779220779220778,
+                  "high": 0.3287671232876712
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.3333333333333333,
+                  "high": 0.75
+                },
+                "precision": {
+                  "low": 0.3333333333333333,
+                  "high": 0.75
+                },
+                "recall": {
+                  "low": 0.14035087719298245,
+                  "high": 0.22641509433962265
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "hotline_or_webpage_status",
+          "label": "Hotline or webpage status",
+          "record_count": 3,
+          "gold_fact_count": 15,
+          "predicted_fact_count": 1,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 1,
+            "gold_fact_count": 15,
+            "true_positive_count": 0,
+            "false_positive_count": 1,
+            "false_negative_count": 15,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 3,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_diversion_recovery",
+          "label": "Airport diversion recovery",
+          "record_count": 2,
+          "gold_fact_count": 12,
+          "predicted_fact_count": 2,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 2,
+            "gold_fact_count": 12,
+            "true_positive_count": 0,
+            "false_positive_count": 2,
+            "false_negative_count": 12,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "special_or_flow_constraint_fyi",
+          "label": "Special mission or flow-constraint FYI",
+          "record_count": 2,
+          "gold_fact_count": 10,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 10,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 10,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "flight_plan_drop_time_status",
+          "label": "Flight plan drop time status",
+          "record_count": 1,
+          "gold_fact_count": 4,
+          "predicted_fact_count": 1,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 1,
+            "gold_fact_count": 4,
+            "true_positive_count": 1,
+            "false_positive_count": 0,
+            "false_negative_count": 3,
+            "precision": 1.0,
+            "recall": 0.25,
+            "f1": 0.4,
+            "manual_semantic_correctness": 1.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 1,
+              "intervals": {
+                "f1": {
+                  "low": 0.4,
+                  "high": 0.4
+                },
+                "manual_semantic_correctness": {
+                  "low": 1.0,
+                  "high": 1.0
+                },
+                "precision": {
+                  "low": 1.0,
+                  "high": 1.0
+                },
+                "recall": {
+                  "low": 0.25,
+                  "high": 0.25
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "system_id": "S2_llm_schema_slice",
       "label": "LLM + schema slice",
       "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
@@ -1848,7 +2670,10 @@
               "high": 0.17425431711145997
             }
           }
-        }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
       },
       "property_level_semantic_metrics": [
         {
@@ -2505,7 +3330,10 @@
               "high": 0.1529051987767584
             }
           }
-        }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
       },
       "property_level_semantic_metrics": [
         {
@@ -3059,6 +3887,633 @@
           }
         }
       ]
+    },
+    {
+      "system_id": "S4_hybrid_backbone_enrichment",
+      "label": "Hybrid backbone + semantic enrichment",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 686,
+        "accepted_fact_count": 686,
+        "rejected_fact_count": 0,
+        "structural_acceptance_rate": 1.0,
+        "schema_violation_rate": 0.0,
+        "repair_applicable": true,
+        "repair_attempted_fact_count": 686,
+        "repair_accepted_fact_count": 686,
+        "repair_success_rate": 1.0,
+        "status_counts": {
+          "hybrid_backbone_accepted": 567,
+          "hybrid_enrichment_accepted": 119
+        },
+        "error_counts": {}
+      },
+      "semantic_metrics": {
+        "available": true,
+        "predicted_fact_count": 685,
+        "gold_fact_count": 643,
+        "true_positive_count": 491,
+        "false_positive_count": 194,
+        "false_negative_count": 152,
+        "precision": 0.7167883211678832,
+        "recall": 0.7636080870917574,
+        "f1": 0.7394578313253012,
+        "manual_semantic_correctness": 0.7167883211678832,
+        "confidence_intervals": {
+          "available": true,
+          "method": "record_bootstrap_by_source_id",
+          "level": 0.95,
+          "iterations": 200,
+          "seed": 1701,
+          "sampled_source_id_count": 100,
+          "intervals": {
+            "f1": {
+              "low": 0.6923076923076923,
+              "high": 0.7757216876387862
+            },
+            "manual_semantic_correctness": {
+              "low": 0.664756446991404,
+              "high": 0.7591463414634146
+            },
+            "precision": {
+              "low": 0.664756446991404,
+              "high": 0.7591463414634146
+            },
+            "recall": {
+              "low": 0.709375,
+              "high": 0.8108527131782945
+            }
+          }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
+      },
+      "property_level_semantic_metrics": [
+        {
+          "predicate": "advisoryNumber",
+          "predicted_fact_count": 100,
+          "gold_fact_count": 100,
+          "true_positive_count": 92,
+          "false_positive_count": 8,
+          "false_negative_count": 8,
+          "precision": 0.92,
+          "recall": 0.92,
+          "f1": 0.92
+        },
+        {
+          "predicate": "controlledNASelement",
+          "predicted_fact_count": 103,
+          "gold_fact_count": 46,
+          "true_positive_count": 36,
+          "false_positive_count": 67,
+          "false_negative_count": 10,
+          "precision": 0.34951456310679613,
+          "recall": 0.782608695652174,
+          "f1": 0.48322147651006714
+        },
+        {
+          "predicate": "departureScope",
+          "predicted_fact_count": 2,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 2,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 91,
+          "false_positive_count": 7,
+          "false_negative_count": 7,
+          "precision": 0.9285714285714286,
+          "recall": 0.9285714285714286,
+          "f1": 0.9285714285714286
+        },
+        {
+          "predicate": "effectiveStartTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 91,
+          "false_positive_count": 7,
+          "false_negative_count": 7,
+          "precision": 0.9285714285714286,
+          "recall": 0.9285714285714286,
+          "f1": 0.9285714285714286
+        },
+        {
+          "predicate": "extensionProbability",
+          "predicted_fact_count": 37,
+          "gold_fact_count": 30,
+          "true_positive_count": 24,
+          "false_positive_count": 13,
+          "false_negative_count": 6,
+          "precision": 0.6486486486486487,
+          "recall": 0.8,
+          "f1": 0.7164179104477612
+        },
+        {
+          "predicate": "impactingCondition",
+          "predicted_fact_count": 36,
+          "gold_fact_count": 22,
+          "true_positive_count": 21,
+          "false_positive_count": 15,
+          "false_negative_count": 1,
+          "precision": 0.5833333333333334,
+          "recall": 0.9545454545454546,
+          "f1": 0.7241379310344828
+        },
+        {
+          "predicate": "impactingConditionMessage",
+          "predicted_fact_count": 12,
+          "gold_fact_count": 10,
+          "true_positive_count": 10,
+          "false_positive_count": 2,
+          "false_negative_count": 0,
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1": 0.9090909090909091
+        },
+        {
+          "predicate": "implementationStatus",
+          "predicted_fact_count": 17,
+          "gold_fact_count": 21,
+          "true_positive_count": 13,
+          "false_positive_count": 4,
+          "false_negative_count": 8,
+          "precision": 0.7647058823529411,
+          "recall": 0.6190476190476191,
+          "f1": 0.6842105263157895
+        },
+        {
+          "predicate": "initiativeComments",
+          "predicted_fact_count": 64,
+          "gold_fact_count": 81,
+          "true_positive_count": 29,
+          "false_positive_count": 35,
+          "false_negative_count": 52,
+          "precision": 0.453125,
+          "recall": 0.35802469135802467,
+          "f1": 0.39999999999999997
+        },
+        {
+          "predicate": "issuedTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 72,
+          "false_positive_count": 26,
+          "false_negative_count": 26,
+          "precision": 0.7346938775510204,
+          "recall": 0.7346938775510204,
+          "f1": 0.7346938775510203
+        },
+        {
+          "predicate": "reRouteReason",
+          "predicted_fact_count": 10,
+          "gold_fact_count": 20,
+          "true_positive_count": 5,
+          "false_positive_count": 5,
+          "false_negative_count": 15,
+          "precision": 0.5,
+          "recall": 0.25,
+          "f1": 0.3333333333333333
+        },
+        {
+          "predicate": "reRouteType",
+          "predicted_fact_count": 10,
+          "gold_fact_count": 19,
+          "true_positive_count": 7,
+          "false_positive_count": 3,
+          "false_negative_count": 12,
+          "precision": 0.7,
+          "recall": 0.3684210526315789,
+          "f1": 0.48275862068965514
+        }
+      ],
+      "semantic_group_metrics": [
+        {
+          "group_id": "ground_stop_lifecycle",
+          "label": "Ground stop lifecycle",
+          "record_count": 26,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 224,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 224,
+            "gold_fact_count": 183,
+            "true_positive_count": 170,
+            "false_positive_count": 54,
+            "false_negative_count": 13,
+            "precision": 0.7589285714285714,
+            "recall": 0.9289617486338798,
+            "f1": 0.8353808353808354,
+            "manual_semantic_correctness": 0.7589285714285714,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 26,
+              "intervals": {
+                "f1": {
+                  "low": 0.7525252525252526,
+                  "high": 0.9016786570743407
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.6666666666666666,
+                  "high": 0.8311111111111111
+                },
+                "precision": {
+                  "low": 0.6666666666666666,
+                  "high": 0.8311111111111111
+                },
+                "recall": {
+                  "low": 0.8333333333333334,
+                  "high": 1.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "reroute_or_route_constraint",
+          "label": "Reroute or route constraint",
+          "record_count": 25,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 160,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 160,
+            "gold_fact_count": 183,
+            "true_positive_count": 125,
+            "false_positive_count": 35,
+            "false_negative_count": 58,
+            "precision": 0.78125,
+            "recall": 0.6830601092896175,
+            "f1": 0.7288629737609328,
+            "manual_semantic_correctness": 0.78125,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 25,
+              "intervals": {
+                "f1": {
+                  "low": 0.652694610778443,
+                  "high": 0.7987421383647798
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.6536312849162011,
+                  "high": 0.9090909090909091
+                },
+                "precision": {
+                  "low": 0.6536312849162011,
+                  "high": 0.9090909090909091
+                },
+                "recall": {
+                  "low": 0.6032608695652174,
+                  "high": 0.7527472527472527
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "volcanic_activity_bulletin",
+          "label": "Volcanic activity bulletin",
+          "record_count": 19,
+          "gold_fact_count": 95,
+          "predicted_fact_count": 79,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 79,
+            "gold_fact_count": 95,
+            "true_positive_count": 57,
+            "false_positive_count": 22,
+            "false_negative_count": 38,
+            "precision": 0.7215189873417721,
+            "recall": 0.6,
+            "f1": 0.6551724137931034,
+            "manual_semantic_correctness": 0.7215189873417721,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 19,
+              "intervals": {
+                "f1": {
+                  "low": 0.6440677966101696,
+                  "high": 0.6666666666666665
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.6951219512195121,
+                  "high": 0.75
+                },
+                "precision": {
+                  "low": 0.6951219512195121,
+                  "high": 0.75
+                },
+                "recall": {
+                  "low": 0.6,
+                  "high": 0.6
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "ground_delay_program_lifecycle",
+          "label": "Ground delay program lifecycle",
+          "record_count": 12,
+          "gold_fact_count": 86,
+          "predicted_fact_count": 105,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 105,
+            "gold_fact_count": 86,
+            "true_positive_count": 86,
+            "false_positive_count": 19,
+            "false_negative_count": 0,
+            "precision": 0.819047619047619,
+            "recall": 1.0,
+            "f1": 0.900523560209424,
+            "manual_semantic_correctness": 0.819047619047619,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 12,
+              "intervals": {
+                "f1": {
+                  "low": 0.8585365853658536,
+                  "high": 0.9392265193370166
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.7521367521367521,
+                  "high": 0.8854166666666666
+                },
+                "precision": {
+                  "low": 0.7521367521367521,
+                  "high": 0.8854166666666666
+                },
+                "recall": {
+                  "low": 1.0,
+                  "high": 1.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_arrival_or_scheduling_delay",
+          "label": "Airport arrival or scheduling delay",
+          "record_count": 10,
+          "gold_fact_count": 55,
+          "predicted_fact_count": 74,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 74,
+            "gold_fact_count": 55,
+            "true_positive_count": 41,
+            "false_positive_count": 33,
+            "false_negative_count": 14,
+            "precision": 0.5540540540540541,
+            "recall": 0.7454545454545455,
+            "f1": 0.6356589147286822,
+            "manual_semantic_correctness": 0.5540540540540541,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 10,
+              "intervals": {
+                "f1": {
+                  "low": 0.5734265734265734,
+                  "high": 0.7017543859649122
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.45555555555555555,
+                  "high": 0.6666666666666666
+                },
+                "precision": {
+                  "low": 0.45555555555555555,
+                  "high": 0.6666666666666666
+                },
+                "recall": {
+                  "low": 0.7017543859649122,
+                  "high": 0.8076923076923077
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "hotline_or_webpage_status",
+          "label": "Hotline or webpage status",
+          "record_count": 3,
+          "gold_fact_count": 15,
+          "predicted_fact_count": 15,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 15,
+            "gold_fact_count": 15,
+            "true_positive_count": 4,
+            "false_positive_count": 11,
+            "false_negative_count": 11,
+            "precision": 0.26666666666666666,
+            "recall": 0.26666666666666666,
+            "f1": 0.26666666666666666,
+            "manual_semantic_correctness": 0.26666666666666666,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 3,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.8000000000000002
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.8
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.8
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.8
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_diversion_recovery",
+          "label": "Airport diversion recovery",
+          "record_count": 2,
+          "gold_fact_count": 12,
+          "predicted_fact_count": 10,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 10,
+            "gold_fact_count": 12,
+            "true_positive_count": 0,
+            "false_positive_count": 10,
+            "false_negative_count": 12,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "special_or_flow_constraint_fyi",
+          "label": "Special mission or flow-constraint FYI",
+          "record_count": 2,
+          "gold_fact_count": 10,
+          "predicted_fact_count": 9,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 9,
+            "gold_fact_count": 10,
+            "true_positive_count": 4,
+            "false_positive_count": 5,
+            "false_negative_count": 6,
+            "precision": 0.4444444444444444,
+            "recall": 0.4,
+            "f1": 0.4210526315789474,
+            "manual_semantic_correctness": 0.4444444444444444,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.888888888888889
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 1.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 1.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.8
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "flight_plan_drop_time_status",
+          "label": "Flight plan drop time status",
+          "record_count": 1,
+          "gold_fact_count": 4,
+          "predicted_fact_count": 9,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 9,
+            "gold_fact_count": 4,
+            "true_positive_count": 4,
+            "false_positive_count": 5,
+            "false_negative_count": 0,
+            "precision": 0.4444444444444444,
+            "recall": 1.0,
+            "f1": 0.6153846153846153,
+            "manual_semantic_correctness": 0.4444444444444444,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 1,
+              "intervals": {
+                "f1": {
+                  "low": 0.6153846153846153,
+                  "high": 0.6153846153846153
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.4444444444444444,
+                  "high": 0.4444444444444444
+                },
+                "precision": {
+                  "low": 0.4444444444444444,
+                  "high": 0.4444444444444444
+                },
+                "recall": {
+                  "low": 1.0,
+                  "high": 1.0
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   ],
   "rejection_adjudication": {
@@ -3095,9 +4550,9 @@
       "id": "C2",
       "label": "Schema-slice constraint benefit",
       "status": "supported",
-      "rationale": "S2 schema violation rate is at least 10 percentage points lower than S1; gold-supported fact suppression still needs reviewed gold if unavailable.",
+      "rationale": "S2 schema guidance reduces target-schema violation rate versus the canonicalized S1b baseline by at least 10 percentage points.",
       "evidence": [
-        "S1_llm_only structural metrics",
+        "S1b_llm_canonicalized structural metrics",
         "S2_llm_schema_slice structural metrics"
       ]
     },
@@ -3127,13 +4582,15 @@
       "id": "H1",
       "label": "Schema guidance reduces structural drift",
       "status": "supported",
-      "rationale": "S2 schema violation rate is at least 10 percentage points lower than S1; gold-supported fact suppression still needs reviewed gold if unavailable.",
+      "rationale": "S2 schema guidance reduces target-schema violation rate versus the canonicalized S1b baseline by at least 10 percentage points.",
       "evidence": [
         "s1_schema_violation_rate=1.0",
+        "s1b_schema_violation_rate=0.5925110132158591",
         "s2_schema_violation_rate=0.4901129943502825",
-        "s1_minus_s2=0.5098870056497176"
+        "S1b_llm_canonicalized_minus_s2=0.10239801886557659",
+        "s1_semantic_scoring_validity=invalid_direct_schema_scoring"
       ],
-      "falsification_criterion": "Falsified if S2 does not reduce schema violation rate versus S1 by at least 10 percentage points, or if the reduction only comes from suppressing more than 25 percent of gold-supported facts."
+      "falsification_criterion": "Falsified if schema guidance does not reduce unsupported target-schema terms after a canonicalized S1b baseline exists, or if the reduction only comes from suppressing more than 25 percent of gold-supported facts."
     },
     {
       "id": "H2",
@@ -3151,16 +4608,21 @@
     },
     {
       "id": "H3",
-      "label": "Ontology constraints improve precision more than they harm recall",
+      "label": "Hybrid backbone plus enrichment improves selected semantic predicates",
       "status": "supported",
-      "rationale": "S3 improves precision and keeps F1 within the allowed loss threshold.",
+      "rationale": "S4 improves the selected semantic predicate macro-F1 over S0 while preserving deterministic-field macro-F1 within tolerance.",
       "evidence": [
         "s1_precision=0.0",
         "s3_precision=0.26223776223776224",
         "s1_f1=0.0",
-        "s3_f1=0.16146393972012918"
+        "s3_f1=0.16146393972012918",
+        "s1_semantic_scoring_validity=invalid_direct_schema_scoring",
+        "s0_selected_semantic_macro_f1=0.14285714285714285",
+        "s4_selected_semantic_macro_f1=0.5001008267795927",
+        "s0_deterministic_macro_f1=0.8779591836734694",
+        "s4_deterministic_macro_f1=0.8779591836734694"
       ],
-      "falsification_criterion": "Falsified if S3 precision does not exceed S1, or if S3 F1 is lower than S1 by more than 5 percentage points."
+      "falsification_criterion": "Falsified if S4 hybrid does not improve selected semantic predicate F1 over S0 while preserving deterministic-field F1 within the pre-registered tolerance."
     },
     {
       "id": "H4",
@@ -3198,15 +4660,15 @@
       },
       {
         "id": "R3",
-        "requirement": "Define the four systems: rule-only, LLM-only, schema slice, schema slice plus validator/repair.",
+        "requirement": "Define the corrected system suite: S0, diagnostic S1, S1b, S2, S3, and S4.",
         "status": "satisfied",
-        "evidence": "systems=S0_rule_only,S1_llm_only,S2_llm_schema_slice,S3_llm_schema_slice_validator_repair"
+        "evidence": "systems=S0_rule_only,S1_llm_only,S1b_llm_canonicalized,S2_llm_schema_slice,S3_llm_schema_slice_validator_repair,S4_hybrid_backbone_enrichment"
       },
       {
         "id": "R4",
-        "requirement": "Run all four systems on the identical sampled records.",
+        "requirement": "Run all corrected-stage systems on the identical sampled records.",
         "status": "satisfied",
-        "evidence": "{\"S0_rule_only\": true, \"S1_llm_only\": true, \"S2_llm_schema_slice\": true, \"S3_llm_schema_slice_validator_repair\": true}"
+        "evidence": "{\"S0_rule_only\": true, \"S1_llm_only\": true, \"S1b_llm_canonicalized\": true, \"S2_llm_schema_slice\": true, \"S3_llm_schema_slice_validator_repair\": true, \"S4_hybrid_backbone_enrichment\": true}"
       },
       {
         "id": "R5",

@@ -4,7 +4,7 @@
 - Gold template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
 - Records: 100
 - Batches: 10
-- Candidate clusters: 2819
+- Candidate clusters: 3169
 
 ## Completion Gate
 
@@ -14,13 +14,13 @@
 
 | Batch | Samples | Records | Candidate clusters | File |
 | --- | --- | ---: | ---: | --- |
-| `batch_01` | `ATCSCC-GOLD-001`-`ATCSCC-GOLD-010` | 10 | 282 | `data/evaluation/nasa_atmonto/review_batches/batch_01.md` |
-| `batch_02` | `ATCSCC-GOLD-011`-`ATCSCC-GOLD-020` | 10 | 356 | `data/evaluation/nasa_atmonto/review_batches/batch_02.md` |
-| `batch_03` | `ATCSCC-GOLD-021`-`ATCSCC-GOLD-030` | 10 | 324 | `data/evaluation/nasa_atmonto/review_batches/batch_03.md` |
-| `batch_04` | `ATCSCC-GOLD-031`-`ATCSCC-GOLD-040` | 10 | 312 | `data/evaluation/nasa_atmonto/review_batches/batch_04.md` |
-| `batch_05` | `ATCSCC-GOLD-041`-`ATCSCC-GOLD-050` | 10 | 233 | `data/evaluation/nasa_atmonto/review_batches/batch_05.md` |
-| `batch_06` | `ATCSCC-GOLD-051`-`ATCSCC-GOLD-060` | 10 | 299 | `data/evaluation/nasa_atmonto/review_batches/batch_06.md` |
-| `batch_07` | `ATCSCC-GOLD-061`-`ATCSCC-GOLD-070` | 10 | 255 | `data/evaluation/nasa_atmonto/review_batches/batch_07.md` |
-| `batch_08` | `ATCSCC-GOLD-071`-`ATCSCC-GOLD-080` | 10 | 242 | `data/evaluation/nasa_atmonto/review_batches/batch_08.md` |
-| `batch_09` | `ATCSCC-GOLD-081`-`ATCSCC-GOLD-090` | 10 | 261 | `data/evaluation/nasa_atmonto/review_batches/batch_09.md` |
-| `batch_10` | `ATCSCC-GOLD-091`-`ATCSCC-GOLD-100` | 10 | 255 | `data/evaluation/nasa_atmonto/review_batches/batch_10.md` |
+| `batch_01` | `ATCSCC-GOLD-001`-`ATCSCC-GOLD-010` | 10 | 321 | `data/evaluation/nasa_atmonto/review_batches/batch_01.md` |
+| `batch_02` | `ATCSCC-GOLD-011`-`ATCSCC-GOLD-020` | 10 | 416 | `data/evaluation/nasa_atmonto/review_batches/batch_02.md` |
+| `batch_03` | `ATCSCC-GOLD-021`-`ATCSCC-GOLD-030` | 10 | 383 | `data/evaluation/nasa_atmonto/review_batches/batch_03.md` |
+| `batch_04` | `ATCSCC-GOLD-031`-`ATCSCC-GOLD-040` | 10 | 367 | `data/evaluation/nasa_atmonto/review_batches/batch_04.md` |
+| `batch_05` | `ATCSCC-GOLD-041`-`ATCSCC-GOLD-050` | 10 | 243 | `data/evaluation/nasa_atmonto/review_batches/batch_05.md` |
+| `batch_06` | `ATCSCC-GOLD-051`-`ATCSCC-GOLD-060` | 10 | 358 | `data/evaluation/nasa_atmonto/review_batches/batch_06.md` |
+| `batch_07` | `ATCSCC-GOLD-061`-`ATCSCC-GOLD-070` | 10 | 263 | `data/evaluation/nasa_atmonto/review_batches/batch_07.md` |
+| `batch_08` | `ATCSCC-GOLD-071`-`ATCSCC-GOLD-080` | 10 | 255 | `data/evaluation/nasa_atmonto/review_batches/batch_08.md` |
+| `batch_09` | `ATCSCC-GOLD-081`-`ATCSCC-GOLD-090` | 10 | 279 | `data/evaluation/nasa_atmonto/review_batches/batch_09.md` |
+| `batch_10` | `ATCSCC-GOLD-091`-`ATCSCC-GOLD-100` | 10 | 284 | `data/evaluation/nasa_atmonto/review_batches/batch_10.md` |

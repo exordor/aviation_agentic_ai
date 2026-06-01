@@ -29,6 +29,17 @@
       "uses_validator_repair": false
     },
     {
+      "system_id": "S1b_llm_canonicalized",
+      "label": "LLM-only + post-hoc canonicalization",
+      "description": "Post-hoc canonicalization of schema-free S1 facts into the ATMONTO ATCSCC scoring profile.",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_predictions.jsonl",
+      "prompt_batch": null,
+      "run_metadata": "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_run_metadata.json",
+      "requires_llm": false,
+      "uses_schema_slice": true,
+      "uses_validator_repair": false
+    },
+    {
       "system_id": "S2_llm_schema_slice",
       "label": "LLM + schema slice",
       "description": "LLM extractor constrained by the ATCSCC schema slice and JSON shape.",
@@ -47,6 +58,17 @@
       "prompt_batch": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl",
       "run_metadata": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_run_metadata.json",
       "requires_llm": true,
+      "uses_schema_slice": true,
+      "uses_validator_repair": true
+    },
+    {
+      "system_id": "S4_hybrid_backbone_enrichment",
+      "label": "Hybrid backbone + semantic enrichment",
+      "description": "S0 deterministic backbone merged with S3 semantic enrichment through evidence and validator gates.",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl",
+      "prompt_batch": null,
+      "run_metadata": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_run_metadata.json",
+      "requires_llm": false,
       "uses_schema_slice": true,
       "uses_validator_repair": true
     }

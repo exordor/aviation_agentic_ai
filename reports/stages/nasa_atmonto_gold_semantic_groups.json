@@ -482,7 +482,7 @@
       "source_id": "2026-05-20:084",
       "advisory_date": "2026-05-20",
       "batch_id": "batch_04",
-      "priority_lane": "3_standard_review",
+      "priority_lane": "2_high_cross_system_coverage",
       "candidate_subject_class": "GroundDelayProgramTMI",
       "semantic_group_id": "ground_delay_program_lifecycle",
       "semantic_group_label": "Ground delay program lifecycle",
@@ -1080,7 +1080,7 @@
       "source_id": "2026-05-18:023",
       "advisory_date": "2026-05-18",
       "batch_id": "batch_09",
-      "priority_lane": "3_standard_review",
+      "priority_lane": "2_high_cross_system_coverage",
       "candidate_subject_class": "GroundDelayProgramTMI",
       "semantic_group_id": "ground_delay_program_lifecycle",
       "semantic_group_label": "Ground delay program lifecycle",
@@ -1210,7 +1210,7 @@
       "source_id": "2026-05-19:068",
       "advisory_date": "2026-05-19",
       "batch_id": "batch_10",
-      "priority_lane": "3_standard_review",
+      "priority_lane": "2_high_cross_system_coverage",
       "candidate_subject_class": "GroundStopTMI",
       "semantic_group_id": "ground_stop_lifecycle",
       "semantic_group_label": "Ground stop lifecycle",
@@ -1223,7 +1223,7 @@
       "source_id": "2026-05-15:075",
       "advisory_date": "2026-05-15",
       "batch_id": "batch_10",
-      "priority_lane": "3_standard_review",
+      "priority_lane": "2_high_cross_system_coverage",
       "candidate_subject_class": "GroundDelayProgramTMI",
       "semantic_group_id": "ground_stop_lifecycle",
       "semantic_group_label": "Ground stop lifecycle",
@@ -1358,7 +1358,8 @@
       },
       "priority_lane_counts": {
         "1_rejection_adjudication": 17,
-        "3_standard_review": 9
+        "2_high_cross_system_coverage": 2,
+        "3_standard_review": 7
       },
       "sample_ids": [
         "ATCSCC-GOLD-021",
@@ -1566,8 +1567,8 @@
       },
       "priority_lane_counts": {
         "1_rejection_adjudication": 5,
-        "2_high_cross_system_coverage": 2,
-        "3_standard_review": 5
+        "2_high_cross_system_coverage": 4,
+        "3_standard_review": 3
       },
       "sample_ids": [
         "ATCSCC-GOLD-017",

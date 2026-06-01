@@ -57,18 +57,29 @@ def complete_review_checklist() -> dict[str, bool]:
     }
 
 
-def test_formal_experiment_registers_four_required_systems() -> None:
+def test_formal_experiment_registers_corrected_stage_systems() -> None:
     assert [system.system_id for system in SYSTEMS] == [
         "S0_rule_only",
         "S1_llm_only",
+        "S1b_llm_canonicalized",
         "S2_llm_schema_slice",
         "S3_llm_schema_slice_validator_repair",
+        "S4_hybrid_backbone_enrichment",
     ]
-    assert [system.requires_llm for system in SYSTEMS] == [False, True, True, True]
+    assert [system.requires_llm for system in SYSTEMS] == [
+        False,
+        True,
+        False,
+        True,
+        True,
+        False,
+    ]
     assert [system.uses_validator_repair for system in SYSTEMS] == [
         False,
         False,
         False,
+        False,
+        True,
         True,
     ]
 
@@ -806,7 +817,28 @@ def test_formal_score_report_scores_frozen_reviewed_gold() -> None:
     assert s1["structural_metrics"]["rejected_fact_count"] == 1211
     assert s1["structural_metrics"]["repair_success_rate"] is None
     assert s1["semantic_metrics"]["available"] is True
+    assert s1["semantic_metrics"]["scoring_validity"] == "invalid_direct_schema_scoring"
+    assert s1["semantic_metrics"]["valid_for_baseline_comparison"] is False
     assert s1["semantic_metrics"]["f1"] == 0.0
+
+    s1b_score = next(
+        score for score in report["systems"] if score["system_id"] == "S1b_llm_canonicalized"
+    )
+    assert s1b_score["available"] is True
+    assert s1b_score["structural_metrics"]["accepted_fact_count"] > 0
+    assert s1b_score["semantic_metrics"]["scoring_validity"] == "valid_target_schema_scoring"
+
+    sota = report["consensus_sota_remediation"]
+    assert sota["s1_interpretation"]["future_raw_system"] == "S1_raw_open_llm"
+    assert sota["s1_interpretation"]["future_comparable_system"] == "S1b_llm_canonicalized"
+    assert sota["s4_merge_policy"]["primary_candidate_system"] == (
+        "S4_hybrid_backbone_enrichment"
+    )
+    assert sota["unverified_search_leads"]["status"] == "requiring verification"
+    assert any(
+        artifact.get("path") == "schema/atcscc_tmi_profile.yaml"
+        for artifact in sota["planned_artifacts"]
+    )
 
     s3 = next(
         score
@@ -815,6 +847,13 @@ def test_formal_score_report_scores_frozen_reviewed_gold() -> None:
     )
     assert s3["structural_metrics"]["repair_applicable"] is True
     assert s3["structural_metrics"]["repair_success_rate"] == 286 / 396
+
+    s4 = next(
+        score for score in report["systems"] if score["system_id"] == "S4_hybrid_backbone_enrichment"
+    )
+    assert s4["available"] is True
+    assert s4["structural_metrics"]["accepted_fact_count"] > s0["structural_metrics"]["accepted_fact_count"]
+    assert s4["semantic_metrics"]["scoring_validity"] == "valid_target_schema_scoring"
 
     audit = report["completion_audit"]
     assert audit["overall_status"] == "formal_experiment_complete"
@@ -850,6 +889,14 @@ def test_formal_score_report_scores_frozen_reviewed_gold() -> None:
     assert "## Claim Status" in markdown
     assert "## Hypothesis Status" in markdown
     assert "## Completion Audit" in markdown
+    assert "## Methodology Remediation" in markdown
+    assert "## Consensus SOTA Constraints" in markdown
+    assert "Extract-Define-Canonicalize" in markdown
+    assert "reviewed_dev_examples" in markdown
+    assert "schema/atcscc_tmi_profile.yaml" in markdown
+    assert "end-to-end GraphRAG answer improvement claim" in markdown
+    assert "invalid_direct_schema_scoring" in markdown
+    assert "hybrid_docling_pymupdf" in markdown
     assert "`R0` Position the current NASA ATMONTO loop as pilot / feasibility evidence" in markdown
     assert "`R2` Freeze reviewed gold annotations before semantic scoring." in markdown
     assert "`R10` Fix the protocol artifact" in markdown
@@ -1086,6 +1133,63 @@ def test_prediction_output_validation_reports_all_systems_ready() -> None:
     assert s1["run_metadata"]["status"] == "ready"
     assert s1["prompt_batch"]["status"] == "ready"
 
+    s1b = next(
+        system for system in report["systems"] if system["system_id"] == "S1b_llm_canonicalized"
+    )
+    assert s1b["status"] == "ready_for_scoring"
+    assert s1b["prompt_batch"]["status"] == "not_applicable"
+    assert s1b["json_metrics"]["attempted_record_count"] == 100
+    assert s1b["run_metadata"]["status"] == "ready"
+
+    s4 = next(
+        system for system in report["systems"] if system["system_id"] == "S4_hybrid_backbone_enrichment"
+    )
+    assert s4["status"] == "ready_for_scoring"
+    assert s4["prompt_batch"]["status"] == "not_applicable"
+    assert s4["json_metrics"]["attempted_record_count"] == 100
+    assert s4["run_metadata"]["status"] == "ready"
+
+
+def test_prepare_formal_experiment_inputs_writes_s1b_and_s4_predictions() -> None:
+    prepare_formal_experiment_inputs(Path("."))
+
+    s1b_records = [
+        json.loads(line)
+        for line in Path(
+            "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_predictions.jsonl"
+        )
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line.strip()
+    ]
+    s4_records = [
+        json.loads(line)
+        for line in Path(
+            "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl"
+        )
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line.strip()
+    ]
+
+    assert len(s1b_records) == 100
+    assert {record["system_id"] for record in s1b_records} == {"S1b_llm_canonicalized"}
+    assert sum(record["accepted_fact_count"] for record in s1b_records) > 0
+    assert sum(record["canonicalization_summary"]["mapped_fact_count"] for record in s1b_records) > 0
+
+    assert len(s4_records) == 100
+    assert {record["system_id"] for record in s4_records} == {
+        "S4_hybrid_backbone_enrichment"
+    }
+    assert sum(record["accepted_fact_count"] for record in s4_records) >= sum(
+        record["backbone_fact_count"] for record in s4_records
+    )
+    assert sum(record["hybrid_merge_summary"]["added_semantic_fact_count"] for record in s4_records) > 0
+    assert all(
+        record["hybrid_merge_summary"]["overwritten_deterministic_fact_count"] == 0
+        for record in s4_records
+    )
+
 
 def test_generated_prediction_output_validation_report_json_is_consistent() -> None:
     report = json.loads(
@@ -1200,15 +1304,15 @@ def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
     assert plan["target_session_minutes"] == 90
     assert plan["ready_to_apply_record_count"] == 100
     assert plan["remaining_record_count"] == 0
-    assert plan["completed_session_count"] == 22
+    assert plan["completed_session_count"] == 25
     assert plan["session_count"] > 1
     assert "manual-review queues only" in plan["completion_gate"]
 
     first_session = plan["sessions"][0]
     assert first_session["session_id"] == "session_01"
     assert first_session["status"] == "ready_to_apply"
-    assert first_session["record_count"] == 4
-    assert first_session["estimated_review_minutes"] == 85
+    assert first_session["record_count"] == 3
+    assert first_session["estimated_review_minutes"] == 79
     assert first_session["records"][0]["sample_id"] == "ATCSCC-GOLD-024"
     assert first_session["records"][0]["source_id"] == "2026-05-18:136"
     assert first_session["records"][0]["decision_template"].endswith(
@@ -1220,7 +1324,7 @@ def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
     assert "Gold Review Session Plan" in markdown
     assert "Next Session" in markdown
     assert "No remaining review records" in markdown
-    assert "Completed sessions: 22 /" in markdown
+    assert "Completed sessions: 25 /" in markdown
     assert "Session plans are manual-review queues only" in markdown
 
 
@@ -1231,8 +1335,8 @@ def test_gold_review_priority_packets_expose_copyable_review_ids() -> None:
     assert report["lane_count"] == 3
     assert report["priority_lane_counts"] == {
         "1_rejection_adjudication": 40,
-        "2_high_cross_system_coverage": 7,
-        "3_standard_review": 53,
+        "2_high_cross_system_coverage": 11,
+        "3_standard_review": 49,
     }
 
     first_lane = report["lanes"][0]
@@ -1265,14 +1369,18 @@ def test_system_candidate_review_package_covers_all_prediction_systems() -> None
     assert report["system_ids"] == [
         "S0_rule_only",
         "S1_llm_only",
+        "S1b_llm_canonicalized",
         "S2_llm_schema_slice",
         "S3_llm_schema_slice_validator_repair",
+        "S4_hybrid_backbone_enrichment",
     ]
     assert all(report["prediction_outputs_exist_by_system"].values())
     assert report["raw_fact_counts_by_system"]["S0_rule_only"] == 615
     assert report["raw_fact_counts_by_system"]["S1_llm_only"] == 1211
+    assert report["raw_fact_counts_by_system"]["S1b_llm_canonicalized"] > 0
     assert report["raw_fact_counts_by_system"]["S2_llm_schema_slice"] == 708
     assert report["raw_fact_counts_by_system"]["S3_llm_schema_slice_validator_repair"] == 396
+    assert report["raw_fact_counts_by_system"]["S4_hybrid_backbone_enrichment"] > 615
     assert report["candidate_cluster_count"] > report["raw_fact_counts_by_system"]["S0_rule_only"]
 
     first = report["records"][0]

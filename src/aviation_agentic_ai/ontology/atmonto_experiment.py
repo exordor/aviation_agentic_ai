@@ -9,11 +9,18 @@ from hashlib import sha1, sha256
 import json
 from pathlib import Path
 from random import Random
+import re
 import sys
 from typing import Any, Callable
 
 from aviation_agentic_ai.llm.providers import configured_llm_model, configured_llm_provider, get_llm
-from aviation_agentic_ai.ontology.atmonto_minimal_loop import validate_candidate_payloads
+from aviation_agentic_ai.ontology.atmonto_minimal_loop import (
+    classify_controlled_element,
+    classify_tmi,
+    nas_entity_iri,
+    source_entity_iri,
+    validate_candidate_payloads,
+)
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 from aviation_agentic_ai.utils.json_extraction import (
     JSONPayloadExtractionError,
@@ -86,6 +93,8 @@ FORMAL_SYSTEM_SPECS_PATH = FORMAL_OUTPUT_DIR / "system_specs.json"
 S1_PROMPT_BATCH_PATH = FORMAL_OUTPUT_DIR / "s1_llm_only_prompt_batch.jsonl"
 S2_PROMPT_BATCH_PATH = FORMAL_OUTPUT_DIR / "s2_llm_schema_slice_prompt_batch.jsonl"
 S3_PROMPT_BATCH_PATH = FORMAL_OUTPUT_DIR / "s3_llm_schema_slice_validator_repair_prompt_batch.jsonl"
+S1B_PREDICTIONS_PATH = FORMAL_OUTPUT_DIR / "s1b_llm_canonicalized_predictions.jsonl"
+S4_PREDICTIONS_PATH = FORMAL_OUTPUT_DIR / "s4_hybrid_backbone_enrichment_predictions.jsonl"
 READINESS_REPORT_JSON = Path("reports/stages/nasa_atmonto_formal_experiment_readiness.json")
 READINESS_REPORT_MD = Path("reports/stages/nasa_atmonto_formal_experiment_readiness.md")
 SCORING_REPORT_JSON = Path("reports/stages/nasa_atmonto_formal_experiment_scoring.json")
@@ -157,6 +166,19 @@ SYSTEMS: tuple[SystemDefinition, ...] = (
         uses_validator_repair=False,
     ),
     SystemDefinition(
+        system_id="S1b_llm_canonicalized",
+        label="LLM-only + post-hoc canonicalization",
+        description=(
+            "Post-hoc canonicalization of schema-free S1 facts into the ATMONTO "
+            "ATCSCC scoring profile."
+        ),
+        expected_output=S1B_PREDICTIONS_PATH,
+        prompt_batch=None,
+        requires_llm=False,
+        uses_schema_slice=True,
+        uses_validator_repair=False,
+    ),
+    SystemDefinition(
         system_id="S2_llm_schema_slice",
         label="LLM + schema slice",
         description="LLM extractor constrained by the ATCSCC schema slice and JSON shape.",
@@ -174,6 +196,19 @@ SYSTEMS: tuple[SystemDefinition, ...] = (
         / "s3_llm_schema_slice_validator_repair_predictions.jsonl",
         prompt_batch=S3_PROMPT_BATCH_PATH,
         requires_llm=True,
+        uses_schema_slice=True,
+        uses_validator_repair=True,
+    ),
+    SystemDefinition(
+        system_id="S4_hybrid_backbone_enrichment",
+        label="Hybrid backbone + semantic enrichment",
+        description=(
+            "S0 deterministic backbone merged with S3 semantic enrichment through "
+            "evidence and validator gates."
+        ),
+        expected_output=S4_PREDICTIONS_PATH,
+        prompt_batch=None,
+        requires_llm=False,
         uses_schema_slice=True,
         uses_validator_repair=True,
     ),
@@ -4368,6 +4403,637 @@ def build_s0_run_metadata(
     }
 
 
+DETERMINISTIC_BACKBONE_PREDICATES = {
+    "advisoryNumber",
+    "issuedTime",
+    "effectiveStartTime",
+    "effectiveEndTime",
+}
+
+HYBRID_SEMANTIC_ENRICHMENT_PREDICATES = {
+    "controlledNASelement",
+    "departureScope",
+    "extensionProbability",
+    "impactingCondition",
+    "impactingConditionMessage",
+    "implementationStatus",
+    "initiativeComments",
+    "reRouteReason",
+    "reRouteType",
+}
+
+S1B_EXTENSION_ENUMS = {"NONE", "LOW", "MEDIUM", "MODERATE", "HIGH"}
+S1B_IMPLEMENTATION_ENUMS = {"FYI", "PLN", "RMD", "RQD"}
+S1B_STOPWORDS = {
+    "ADVZY",
+    "AIRPORT",
+    "ALL",
+    "AND",
+    "ARRIVAL",
+    "CAN",
+    "COMMENT",
+    "COMMENTS",
+    "DCC",
+    "DEP",
+    "DUE",
+    "EVENT",
+    "FAA",
+    "FOR",
+    "FROM",
+    "GROUND",
+    "INTO",
+    "NOT",
+    "ROUTE",
+    "THE",
+    "TIME",
+    "USERS",
+    "WILL",
+}
+
+
+def derived_fact_id(system_id: str, source_id: str, *parts: object) -> str:
+    return (
+        f"{system_id}:{source_id}:fact-"
+        + sha1(json.dumps(parts, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()[
+            :12
+        ]
+    )
+
+
+def raw_open_text(value: object) -> str:
+    if isinstance(value, dict):
+        return " ".join(
+            str(value.get(key, ""))
+            for key in ("predicate", "label", "class", "text", "value", "type")
+            if value.get(key) not in (None, "")
+        )
+    return str(value or "")
+
+
+def normalized_open_text(value: object) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", raw_open_text(value).lower()).strip()
+
+
+def fact_object_text(fact: dict[str, Any]) -> str:
+    value = fact.get("object") if fact.get("object") not in (None, "") else fact.get("value")
+    if isinstance(value, dict):
+        return " ".join(
+            str(value.get(key, ""))
+            for key in ("label", "text", "value", "name", "type")
+            if value.get(key) not in (None, "")
+        )
+    return str(value or "")
+
+
+def evidence_is_supported(evidence_text: object, source_text: object) -> bool:
+    evidence = compact_text(evidence_text)
+    source = compact_text(source_text)
+    return bool(evidence and source and evidence.lower() in source.lower())
+
+
+def source_interval_value(input_record: dict[str, Any], basis: str, endpoint: str) -> object | None:
+    alignment = input_record.get("temporal_alignment")
+    if not isinstance(alignment, dict):
+        return None
+    for interval in alignment.get("parsed_intervals", []):
+        if isinstance(interval, dict) and interval.get("basis") == basis:
+            return interval.get(endpoint)
+    return None
+
+
+def canonical_subject_fields(input_record: dict[str, Any]) -> dict[str, str]:
+    source_id = str(input_record["source_id"])
+    source_text = str(input_record.get("source_text", ""))
+    return {
+        "subject": source_entity_iri(source_id),
+        "subject_class": classify_tmi(source_text),
+    }
+
+
+def canonical_datatype_fact(
+    *,
+    system_id: str,
+    source_id: str,
+    input_record: dict[str, Any],
+    predicate: str,
+    value: object,
+    datatype: str,
+    evidence_text: str,
+    source_fact_id: object,
+    mapping_reason: str,
+) -> dict[str, Any]:
+    subject = canonical_subject_fields(input_record)
+    return {
+        "fact_id": derived_fact_id(system_id, source_id, predicate, value, evidence_text),
+        "source_id": source_id,
+        "source_family": "atcscc_advisories",
+        "fact_type": "datatype_property",
+        **subject,
+        "predicate": f"atm:{predicate}",
+        "value": value,
+        "datatype": datatype,
+        "evidence_text": evidence_text,
+        "canonicalizer": system_id,
+        "source_fact_id": source_fact_id,
+        "mapping_reason": mapping_reason,
+        "mapping_confidence": "heuristic_high",
+    }
+
+
+def canonical_object_fact(
+    *,
+    system_id: str,
+    source_id: str,
+    input_record: dict[str, Any],
+    predicate: str,
+    object_code: str,
+    evidence_text: str,
+    source_fact_id: object,
+    mapping_reason: str,
+) -> dict[str, Any]:
+    subject = canonical_subject_fields(input_record)
+    code = object_code.upper()
+    return {
+        "fact_id": derived_fact_id(system_id, source_id, predicate, code, evidence_text),
+        "source_id": source_id,
+        "source_family": "atcscc_advisories",
+        "fact_type": "object_property",
+        **subject,
+        "predicate": f"atm:{predicate}",
+        "object": nas_entity_iri(code),
+        "object_label": code,
+        "object_class": f"nas:{classify_controlled_element(code)}",
+        "evidence_text": evidence_text,
+        "canonicalizer": system_id,
+        "source_fact_id": source_fact_id,
+        "mapping_reason": mapping_reason,
+        "mapping_confidence": "heuristic_high",
+    }
+
+
+def facility_codes_from_text(value: str) -> list[str]:
+    codes: list[str] = []
+    for code in re.findall(r"\b[A-Z][A-Z0-9]{2,4}\b", value.upper()):
+        if code not in S1B_STOPWORDS and code not in codes:
+            codes.append(code)
+    return codes
+
+
+def canonicalize_s1_fact(
+    *,
+    fact: dict[str, Any],
+    input_record: dict[str, Any],
+) -> list[dict[str, Any]]:
+    source_id = str(input_record["source_id"])
+    predicate_text = normalized_open_text(fact.get("predicate"))
+    object_text = fact_object_text(fact)
+    evidence_text = compact_text(fact.get("evidence_text"))
+    source_fact_id = fact.get("fact_id")
+    if not evidence_is_supported(evidence_text, input_record.get("source_text")):
+        return []
+
+    mapped: list[dict[str, Any]] = []
+    if (
+        "advisory" in predicate_text
+        and any(token in predicate_text for token in ("number", "identifier", "title"))
+        and input_record.get("advisory_number") is not None
+    ) or re.search(r"\bADVZY\s+\d{3}\b", evidence_text.upper()):
+        mapped.append(
+            canonical_datatype_fact(
+                system_id="S1b_llm_canonicalized",
+                source_id=source_id,
+                input_record=input_record,
+                predicate="advisoryNumber",
+                value=input_record["advisory_number"],
+                datatype="xsd:integer",
+                evidence_text=evidence_text,
+                source_fact_id=source_fact_id,
+                mapping_reason="open_advisory_identifier_to_advisoryNumber",
+            )
+        )
+
+    if any(token in predicate_text for token in ("signature", "advisory time", "issued")):
+        issued = source_interval_value(input_record, "issued_time", "start")
+        if issued:
+            mapped.append(
+                canonical_datatype_fact(
+                    system_id="S1b_llm_canonicalized",
+                    source_id=source_id,
+                    input_record=input_record,
+                    predicate="issuedTime",
+                    value=issued,
+                    datatype="xsd:dateTime",
+                    evidence_text=evidence_text,
+                    source_fact_id=source_fact_id,
+                    mapping_reason="open_issued_time_to_issuedTime",
+                )
+            )
+
+    if any(token in predicate_text for token in ("effective", "event time", "valid during")):
+        start = source_interval_value(input_record, "compact_effective_range", "start")
+        end = source_interval_value(input_record, "compact_effective_range", "end")
+        if start and end:
+            for canonical_predicate, value in (
+                ("effectiveStartTime", start),
+                ("effectiveEndTime", end),
+            ):
+                mapped.append(
+                    canonical_datatype_fact(
+                        system_id="S1b_llm_canonicalized",
+                        source_id=source_id,
+                        input_record=input_record,
+                        predicate=canonical_predicate,
+                        value=value,
+                        datatype="xsd:dateTime",
+                        evidence_text=evidence_text,
+                        source_fact_id=source_fact_id,
+                        mapping_reason="open_effective_window_to_effective_interval",
+                    )
+                )
+
+    if any(
+        token in predicate_text
+        for token in ("facility", "facilities", "control element", "airport", "departure")
+    ):
+        for code in facility_codes_from_text(object_text or evidence_text):
+            mapped.append(
+                canonical_object_fact(
+                    system_id="S1b_llm_canonicalized",
+                    source_id=source_id,
+                    input_record=input_record,
+                    predicate="controlledNASelement",
+                    object_code=code,
+                    evidence_text=evidence_text,
+                    source_fact_id=source_fact_id,
+                    mapping_reason="open_facility_to_controlledNASelement",
+                )
+            )
+
+    enum_value = object_text.upper().strip()
+    if "probability" in predicate_text and enum_value in S1B_EXTENSION_ENUMS:
+        mapped.append(
+            canonical_datatype_fact(
+                system_id="S1b_llm_canonicalized",
+                source_id=source_id,
+                input_record=input_record,
+                predicate="extensionProbability",
+                value=enum_value,
+                datatype="xsd:string",
+                evidence_text=evidence_text,
+                source_fact_id=source_fact_id,
+                mapping_reason="open_extension_probability_to_extensionProbability",
+            )
+        )
+    if (
+        any(token in predicate_text for token in ("status", "required", "recommended"))
+        and enum_value in S1B_IMPLEMENTATION_ENUMS
+    ):
+        mapped.append(
+            canonical_datatype_fact(
+                system_id="S1b_llm_canonicalized",
+                source_id=source_id,
+                input_record=input_record,
+                predicate="implementationStatus",
+                value=enum_value,
+                datatype="xsd:string",
+                evidence_text=evidence_text,
+                source_fact_id=source_fact_id,
+                mapping_reason="open_status_to_implementationStatus",
+            )
+        )
+    if any(token in predicate_text for token in ("impacting condition", "cause", "reason")):
+        value = compact_text(object_text).lower()
+        if value and len(value) <= 80:
+            mapped.append(
+                canonical_datatype_fact(
+                    system_id="S1b_llm_canonicalized",
+                    source_id=source_id,
+                    input_record=input_record,
+                    predicate="impactingCondition",
+                    value=value,
+                    datatype="xsd:string",
+                    evidence_text=evidence_text,
+                    source_fact_id=source_fact_id,
+                    mapping_reason="open_reason_to_impactingCondition",
+                )
+            )
+    return mapped
+
+
+def dedupe_facts(facts: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    deduped: list[dict[str, Any]] = []
+    seen: set[FactKey] = set()
+    for fact in facts:
+        key = canonical_fact_key(fact)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(fact)
+    return deduped
+
+
+def build_s1b_prediction_record(
+    *,
+    input_record: dict[str, Any],
+    s1_record: dict[str, Any] | None,
+    schema_slice: dict[str, Any],
+) -> dict[str, Any]:
+    source_id = str(input_record["source_id"])
+    raw_facts = [
+        fact for fact in (s1_record or {}).get("facts", []) if isinstance(fact, dict)
+    ]
+    mapped_facts = dedupe_facts(
+        fact
+        for raw_fact in raw_facts
+        for fact in canonicalize_s1_fact(fact=raw_fact, input_record=input_record)
+    )
+    validation_results = validate_candidate_payloads(
+        [{"source_id": source_id, "facts": mapped_facts}],
+        [{"source_id": source_id, "text": input_record.get("source_text", "")}],
+        schema_slice,
+    )
+    accepted = [item for item in validation_results if item.get("accepted")]
+    rejected = [item for item in validation_results if not item.get("accepted")]
+    return {
+        "system_id": "S1b_llm_canonicalized",
+        "sample_id": input_record["sample_id"],
+        "source_id": source_id,
+        "source_family": input_record["source_family"],
+        "json_adherence": True,
+        "facts": mapped_facts,
+        "validator_results": validation_results,
+        "schema_valid": bool(mapped_facts) and not rejected,
+        "candidate_fact_count": len(mapped_facts),
+        "accepted_fact_count": len(accepted),
+        "rejected_fact_count": len(rejected),
+        "canonicalization_summary": {
+            "raw_fact_count": len(raw_facts),
+            "mapped_fact_count": len(mapped_facts),
+            "accepted_mapped_fact_count": len(accepted),
+            "mapping_yield": len(mapped_facts) / len(raw_facts) if raw_facts else 0.0,
+            "unmapped_fact_count": max(len(raw_facts) - len(mapped_facts), 0),
+        },
+        "claim_boundary": (
+            "S1b is a post-hoc canonicalization baseline. It is comparable under "
+            "the ATMONTO profile, unlike direct S1_llm_only target-schema scoring."
+        ),
+    }
+
+
+def accepted_validation_items(record: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        item
+        for item in record.get("validator_results", [])
+        if isinstance(item, dict) and item.get("accepted") and isinstance(item.get("validated_fact"), dict)
+    ]
+
+
+def semantic_repair_safe(item: dict[str, Any]) -> bool:
+    repairs = [str(repair) for repair in item.get("repairs", [])]
+    return all(
+        repair.startswith(("identifier_expansion:", "datatype_expansion:"))
+        for repair in repairs
+    )
+
+
+def hybrid_fact_from_item(
+    item: dict[str, Any],
+    *,
+    source_system: str,
+    role: str,
+) -> dict[str, Any]:
+    fact = dict(item["validated_fact"])
+    fact["hybrid_source_system"] = source_system
+    fact["hybrid_role"] = role
+    fact["validator_status"] = item.get("status")
+    fact["validator_repairs"] = item.get("repairs", [])
+    fact["extractor"] = "S4_hybrid_backbone_enrichment"
+    return fact
+
+
+def build_s4_prediction_record(
+    *,
+    input_record: dict[str, Any],
+    s0_record: dict[str, Any] | None,
+    s3_record: dict[str, Any] | None,
+) -> dict[str, Any]:
+    source_id = str(input_record["source_id"])
+    source_text = input_record.get("source_text", "")
+    facts: list[dict[str, Any]] = []
+    validator_results: list[dict[str, Any]] = []
+    accepted_keys: set[FactKey] = set()
+    existing_deterministic_predicates: set[str] = set()
+
+    for item in accepted_validation_items(s0_record or {}):
+        fact = hybrid_fact_from_item(item, source_system="S0_rule_only", role="deterministic_backbone")
+        facts.append(fact)
+        accepted_keys.add(canonical_fact_key(fact))
+        predicate = term_name(fact.get("predicate"))
+        if predicate in DETERMINISTIC_BACKBONE_PREDICATES:
+            existing_deterministic_predicates.add(predicate)
+        validator_results.append(
+            {
+                **item,
+                "status": "hybrid_backbone_accepted",
+                "validated_fact": fact,
+                "hybrid_role": "deterministic_backbone",
+            }
+        )
+
+    quarantine: list[dict[str, Any]] = []
+    added_semantic_count = 0
+    overwritten_deterministic_count = 0
+    for item in accepted_validation_items(s3_record or {}):
+        fact = item["validated_fact"]
+        predicate = term_name(fact.get("predicate"))
+        reason: str | None = None
+        if predicate in DETERMINISTIC_BACKBONE_PREDICATES:
+            reason = "deterministic_predicate_owned_by_s0"
+            overwritten_deterministic_count += 1
+        elif predicate not in HYBRID_SEMANTIC_ENRICHMENT_PREDICATES:
+            reason = "predicate_not_in_semantic_enrichment_allowlist"
+        elif not evidence_is_supported(fact.get("evidence_text"), source_text):
+            reason = "unsupported_span"
+        elif not semantic_repair_safe(item):
+            reason = "semantic_changing_or_fuzzy_repair"
+        elif canonical_fact_key(fact) in accepted_keys:
+            reason = "duplicate_fact"
+
+        if reason:
+            quarantine.append(
+                {
+                    "source_system": "S3_llm_schema_slice_validator_repair",
+                    "fact_id": item.get("fact_id"),
+                    "predicate": predicate,
+                    "reason": reason,
+                    "evidence_text": fact.get("evidence_text"),
+                }
+            )
+            continue
+
+        hybrid_fact = hybrid_fact_from_item(
+            item,
+            source_system="S3_llm_schema_slice_validator_repair",
+            role="semantic_enrichment",
+        )
+        facts.append(hybrid_fact)
+        accepted_keys.add(canonical_fact_key(hybrid_fact))
+        added_semantic_count += 1
+        validator_results.append(
+            {
+                **item,
+                "status": "hybrid_enrichment_accepted",
+                "validated_fact": hybrid_fact,
+                "hybrid_role": "semantic_enrichment",
+            }
+        )
+
+    return {
+        "system_id": "S4_hybrid_backbone_enrichment",
+        "sample_id": input_record["sample_id"],
+        "source_id": source_id,
+        "source_family": input_record["source_family"],
+        "json_adherence": True,
+        "facts": facts,
+        "validator_results": validator_results,
+        "schema_valid": True,
+        "candidate_fact_count": len(facts),
+        "accepted_fact_count": len(facts),
+        "rejected_fact_count": 0,
+        "backbone_fact_count": len(accepted_validation_items(s0_record or {})),
+        "hybrid_merge_summary": {
+            "added_semantic_fact_count": added_semantic_count,
+            "quarantined_fact_count": len(quarantine),
+            "overwritten_deterministic_fact_count": 0,
+            "deterministic_overwrite_attempt_count": overwritten_deterministic_count,
+        },
+        "quarantine": quarantine,
+        "claim_boundary": (
+            "S4 keeps S0 deterministic/header facts and only adds S3 semantic facts "
+            "that pass evidence and validator gates."
+        ),
+    }
+
+
+def build_derived_run_metadata(
+    *,
+    repo_root: Path,
+    system: SystemDefinition,
+    prediction_output: Path,
+    records: list[dict[str, Any]],
+    input_record_count: int,
+    runner: str,
+    source_systems: list[str],
+) -> dict[str, Any]:
+    return {
+        "system_id": system.system_id,
+        "run_status": "completed" if len(records) == input_record_count else "partial",
+        "runner": runner,
+        "requires_llm": False,
+        "source_systems": source_systems,
+        "input_records": project_relative_path(repo_root / FORMAL_INPUT_RECORDS_PATH, repo_root),
+        "prediction_output": project_relative_path(prediction_output, repo_root),
+        "prediction_record_count": len(records),
+        "completed_source_ids": sorted(str(record.get("source_id")) for record in records),
+        "parse_error_count": 0,
+        "schema_valid_record_count": sum(1 for record in records if record.get("schema_valid")),
+        "repair_attempted_record_count": 0,
+        "repair_success_record_count": 0,
+        "normalizer_version": normalizer_version(),
+        "flattened_schema_object_fact_count": 0,
+        "claim_boundary": (
+            "Derived corrected-stage predictions are deterministic post-processing of "
+            "existing experiment outputs, not new model generations."
+        ),
+    }
+
+
+def generate_corrected_stage_predictions(
+    *,
+    repo_root: Path,
+    input_records: list[dict[str, Any]],
+    schema_slice: dict[str, Any],
+) -> dict[str, Any]:
+    s1_system = system_by_id("S1_llm_only")
+    s1b_system = system_by_id("S1b_llm_canonicalized")
+    s0_system = system_by_id("S0_rule_only")
+    s3_system = system_by_id("S3_llm_schema_slice_validator_repair")
+    s4_system = system_by_id("S4_hybrid_backbone_enrichment")
+
+    s1_path = repo_root / s1_system.expected_output
+    s0_path = repo_root / s0_system.expected_output
+    s3_path = repo_root / s3_system.expected_output
+    if not (s1_path.exists() and s0_path.exists() and s3_path.exists()):
+        return {
+            "status": "skipped_missing_source_predictions",
+            "missing": [
+                project_relative_path(path, repo_root)
+                for path in (s1_path, s0_path, s3_path)
+                if not path.exists()
+            ],
+        }
+
+    s1_by_source = {str(record.get("source_id")): record for record in read_jsonl(s1_path)}
+    s0_by_source = {str(record.get("source_id")): record for record in read_jsonl(s0_path)}
+    s3_by_source = {str(record.get("source_id")): record for record in read_jsonl(s3_path)}
+
+    s1b_records = [
+        build_s1b_prediction_record(
+            input_record=record,
+            s1_record=s1_by_source.get(str(record["source_id"])),
+            schema_slice=schema_slice,
+        )
+        for record in input_records
+    ]
+    s4_records = [
+        build_s4_prediction_record(
+            input_record=record,
+            s0_record=s0_by_source.get(str(record["source_id"])),
+            s3_record=s3_by_source.get(str(record["source_id"])),
+        )
+        for record in input_records
+    ]
+
+    write_jsonl(repo_root / s1b_system.expected_output, s1b_records)
+    write_jsonl(repo_root / s4_system.expected_output, s4_records)
+    write_json(
+        repo_root / system_run_metadata_path(s1b_system),
+        build_derived_run_metadata(
+            repo_root=repo_root,
+            system=s1b_system,
+            prediction_output=repo_root / s1b_system.expected_output,
+            records=s1b_records,
+            input_record_count=len(input_records),
+            runner="s1_raw_open_fact_canonicalizer",
+            source_systems=["S1_llm_only"],
+        ),
+    )
+    write_json(
+        repo_root / system_run_metadata_path(s4_system),
+        build_derived_run_metadata(
+            repo_root=repo_root,
+            system=s4_system,
+            prediction_output=repo_root / s4_system.expected_output,
+            records=s4_records,
+            input_record_count=len(input_records),
+            runner="s0_s3_hybrid_backbone_enrichment_merger",
+            source_systems=["S0_rule_only", "S3_llm_schema_slice_validator_repair"],
+        ),
+    )
+    return {
+        "status": "completed",
+        "s1b_predictions": project_relative_path(repo_root / s1b_system.expected_output, repo_root),
+        "s1b_prediction_record_count": len(s1b_records),
+        "s1b_accepted_fact_count": sum(record["accepted_fact_count"] for record in s1b_records),
+        "s4_predictions": project_relative_path(repo_root / s4_system.expected_output, repo_root),
+        "s4_prediction_record_count": len(s4_records),
+        "s4_added_semantic_fact_count": sum(
+            record["hybrid_merge_summary"]["added_semantic_fact_count"]
+            for record in s4_records
+        ),
+    }
+
+
 def extraction_output_contract() -> dict[str, Any]:
     return {
         "required_top_level_fields": ["source_id", "source_family", "facts"],
@@ -4580,17 +5246,17 @@ def prepare_formal_experiment_inputs(
     schema_context = compact_schema_context(schema_slice)
     prompt_batches = {
         S1_PROMPT_BATCH_PATH: build_prompt_batch(
-            system=SYSTEMS[1],
+            system=system_by_id("S1_llm_only"),
             input_records=input_records,
             schema_context=schema_context,
         ),
         S2_PROMPT_BATCH_PATH: build_prompt_batch(
-            system=SYSTEMS[2],
+            system=system_by_id("S2_llm_schema_slice"),
             input_records=input_records,
             schema_context=schema_context,
         ),
         S3_PROMPT_BATCH_PATH: build_prompt_batch(
-            system=SYSTEMS[3],
+            system=system_by_id("S3_llm_schema_slice_validator_repair"),
             input_records=input_records,
             schema_context=schema_context,
         ),
@@ -4609,6 +5275,11 @@ def prepare_formal_experiment_inputs(
     for path, records in prompt_batches.items():
         write_jsonl(repo_root / path, records)
     write_json(repo_root / FORMAL_SYSTEM_SPECS_PATH, build_system_specs(repo_root, schema_context))
+    corrected_stage = generate_corrected_stage_predictions(
+        repo_root=repo_root,
+        input_records=input_records,
+        schema_slice=schema_slice,
+    )
 
     return {
         "input_records": project_relative_path(repo_root / FORMAL_INPUT_RECORDS_PATH, repo_root),
@@ -4627,6 +5298,7 @@ def prepare_formal_experiment_inputs(
             )
         },
         "system_specs": project_relative_path(repo_root / FORMAL_SYSTEM_SPECS_PATH, repo_root),
+        "corrected_stage_predictions": corrected_stage,
     }
 
 
@@ -6049,6 +6721,278 @@ def semantic_group_semantic_metrics(
     return rows
 
 
+def semantic_scoring_validity(
+    *,
+    system: SystemDefinition,
+    structural: dict[str, Any],
+) -> dict[str, Any]:
+    if (
+        system.system_id == "S1_llm_only"
+        and int(structural.get("candidate_fact_count") or 0) > 0
+        and int(structural.get("accepted_fact_count") or 0) == 0
+        and structural.get("schema_violation_rate") == 1.0
+    ):
+        return {
+            "scoring_validity": "invalid_direct_schema_scoring",
+            "valid_for_baseline_comparison": False,
+            "interpretation": (
+                "The schema-free LLM output is JSON-adherent but all candidate facts "
+                "are rejected by the target ATMONTO validator. Direct target-schema "
+                "precision/recall/F1 are diagnostic zeros, not a valid semantic baseline. "
+                "Use S1_raw_open_llm diagnostics and S1b_llm_canonicalized for future "
+                "target-schema semantic comparisons."
+            ),
+        }
+    return {
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": True,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system.",
+    }
+
+
+def source_family_methodology_boundaries(repo_root: Path) -> dict[str, Any]:
+    return {
+        "status": "methodology_remediation",
+        "scope_statement": (
+            "The current scored run is a narrow FAA ATCSCC advisory / NASA ATMONTO "
+            "ATCSCC schema-slice experiment. PDF reference documents are added only as "
+            "a second source-family design for the next rerun; PDF definition/procedure "
+            "metrics must not be mixed into the ATCSCC event F1 table."
+        ),
+        "source_families": [
+            {
+                "id": "A",
+                "source_family": "faa_atcscc_advisories",
+                "data_shape": "semi_structured_short_advisories",
+                "task": "TMI/event ABox extraction",
+                "preferred_system_design": (
+                    "S0 deterministic backbone plus S3 semantic enrichment and validator gate"
+                ),
+                "current_gold": "100 reviewed advisories from 2026-05-14 through 2026-05-20",
+            },
+            {
+                "id": "B",
+                "source_family": "faa_nasa_pdf_reference_documents",
+                "data_shape": "unstructured_or_long_form_reference_text",
+                "task": (
+                    "definition, terminology, procedure, and source-mapping evidence extraction"
+                ),
+                "candidate_documents": [
+                    project_relative_path(
+                        repo_root
+                        / "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/"
+                        "PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf",
+                        repo_root,
+                    ),
+                    project_relative_path(
+                        repo_root
+                        / "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/"
+                        "7110.65BB_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+                        repo_root,
+                    ),
+                    project_relative_path(
+                        repo_root
+                        / "data/papers/ntrs_ontology_selection/"
+                        "20170006095_nasa_air_traffic_management_ontology.pdf",
+                        repo_root,
+                    ),
+                ],
+                "allowed_predicates": [
+                    "term_has_definition",
+                    "term_has_alias",
+                    "procedure_mentions_concept",
+                    "document_defines_or_constrains",
+                    "source_supports_mapping",
+                ],
+                "required_provenance_fields": [
+                    "document_id",
+                    "page",
+                    "section",
+                    "span",
+                    "evidence_text",
+                ],
+                "backend_policy": {
+                    "candidate_default": "hybrid_docling_pymupdf",
+                    "legacy_baseline": "pymupdf_text_legacy",
+                    "policy_reports": [
+                        "reports/stages/pdf_extraction_comparison.md",
+                        "reports/stages/pdf_backend_chunking_comparison.md",
+                    ],
+                },
+            },
+        ],
+        "cross_source_metric_policy": (
+            "Compare structural conformance, evidence grounding, and canonicalization yield "
+            "across source families. Report semantic F1 within each task family only."
+        ),
+    }
+
+
+def consensus_sota_remediation_constraints() -> dict[str, Any]:
+    return {
+        "status": "rerun_design_constraint",
+        "scope_boundary": (
+            "These constraints refine the narrow ATCSCC / ATMONTO rerun. They are "
+            "not a pivot to a general aviation KG or an end-to-end GraphRAG claim."
+        ),
+        "s1_interpretation": {
+            "current_system": "S1_llm_only",
+            "current_label": "invalid_direct_schema_scoring",
+            "future_raw_system": "S1_raw_open_llm",
+            "future_comparable_system": "S1b_llm_canonicalized",
+            "rule": (
+                "Report raw S1 coverage, JSON adherence, and evidence containment only. "
+                "Compute target-schema precision/recall/F1 only after canonicalization."
+            ),
+        },
+        "nine_stage_pipeline": [
+            "ATCSCC parsing",
+            "S0 deterministic backbone",
+            "schema-slice retrieval",
+            "LLM semantic extraction",
+            "canonicalization",
+            "validator gate",
+            "repair with trace",
+            "graph materialization",
+            "layered evaluation",
+        ],
+        "sota_adaptations": [
+            {
+                "anchor": "Extract-Define-Canonicalize",
+                "implementation": "Split open extraction from target-schema canonicalization.",
+                "claim_guardrail": "Do not score raw open LLM output with ATMONTO P/R/F1.",
+            },
+            {
+                "anchor": "ontology_guided_domain_short_text_kgc",
+                "implementation": (
+                    "Use 10-20 reviewed dev examples for S2/S3 by advisory type and "
+                    "predicate family."
+                ),
+                "claim_guardrail": "Do not draw examples from the held-out 100 scoring records.",
+            },
+            {
+                "anchor": "llm_as_kg_assistant",
+                "implementation": (
+                    "Use LLMs as canonicalizer, semantic enrichment module, evidence checker, "
+                    "and profile-gap explainer."
+                ),
+                "claim_guardrail": "Do not make pure LLM extraction the primary thesis system.",
+            },
+            {
+                "anchor": "production_ontology_guided_pipeline",
+                "implementation": (
+                    "Combine pattern/rule extraction, ontology-guided prompting, grounding, "
+                    "corroboration, and validator gating."
+                ),
+                "claim_guardrail": "Quarantine conflicts, unsupported spans, and rejected repairs.",
+            },
+            {
+                "anchor": "source_family_separation",
+                "implementation": (
+                    "Keep ATCSCC event extraction and PDF reference extraction in separate "
+                    "metric tables."
+                ),
+                "claim_guardrail": "Do not compare PDF definition F1 with ATCSCC event F1.",
+            },
+            {
+                "anchor": "graph_rag_layered_evaluation",
+                "implementation": (
+                    "Report KG construction, graph retrieval, and answer generation metrics "
+                    "as separate layers."
+                ),
+                "claim_guardrail": (
+                    "Current remediation supports KG construction metrics only; no "
+                    "end-to-end GraphRAG answer improvement claim."
+                ),
+            },
+        ],
+        "s4_merge_policy": {
+            "primary_candidate_system": "S4_hybrid_backbone_enrichment",
+            "s0_owns": [
+                "advisoryNumber",
+                "issuedTime",
+                "effectiveStartTime",
+                "effectiveEndTime",
+                "header/template fields",
+            ],
+            "s3_s4_may_add_not_overwrite": [
+                "reRouteReason",
+                "reRouteType",
+                "implementationStatus",
+            ],
+            "quarantine_conditions": [
+                "conflict",
+                "unsupported span",
+                "fuzzy-only mapping",
+                "validator rejected fact",
+                "repair-only fact with semantic-change flag",
+            ],
+        },
+        "planned_artifacts": [
+            {
+                "path": "schema/atcscc_tmi_profile.yaml",
+                "required_fields": [
+                    "class",
+                    "predicate_uri",
+                    "label",
+                    "aliases",
+                    "domain",
+                    "range",
+                    "cardinality",
+                    "allowed_enum",
+                    "normalizer",
+                    "validator_rule",
+                    "example_spans",
+                    "profile_version",
+                    "source_doc",
+                    "commit_hash",
+                ],
+            },
+            {"component": "predicate canonicalizer"},
+            {"component": "enum canonicalizer"},
+            {"component": "entity canonicalizer"},
+            {"component": "time normalizer"},
+            {
+                "component": "repair trace",
+                "fields": [
+                    "pre_error",
+                    "repair_action",
+                    "post_validation_status",
+                    "semantic_change_flag",
+                    "evidence_status",
+                ],
+            },
+            {
+                "component": "error taxonomy",
+                "categories": [
+                    "format error",
+                    "predicate drift",
+                    "class/domain error",
+                    "range error",
+                    "enum error",
+                    "entity canonicalization error",
+                    "unsupported span",
+                    "temporal normalization error",
+                    "duplicate/merge error",
+                ],
+            },
+        ],
+        "unverified_search_leads": {
+            "status": "requiring verification",
+            "rule": "Do not cite these as formal evidence until fetched and checked directly.",
+            "items": [
+                "OntoLogX",
+                "JSON-Schema-guided information extraction",
+                "Graphusion",
+                "RAKG",
+                "RAGAS",
+                "STaRK",
+                "Microsoft GraphRAG",
+            ],
+        },
+    }
+
+
 def formal_scoring_gold_source(repo_root: Path, selected_ids: set[str]) -> dict[str, Any]:
     reviewed_path = repo_root / GOLD_REVIEWED_PATH
     template_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
@@ -6134,15 +7078,22 @@ def score_system_predictions(
         )
     prediction_facts = accepted_prediction_facts(validation_results)
     semantic = semantic_metrics(predictions=prediction_facts, gold_records=gold_records)
+    structural = structural_metrics(
+        validation_results,
+        repair_applicable=system.uses_validator_repair,
+    )
+    semantic.update(
+        semantic_scoring_validity(
+            system=system,
+            structural=structural,
+        )
+    )
     return {
         **base,
         "available": True,
         "reason": None,
         "json_metrics": json_metrics,
-        "structural_metrics": structural_metrics(
-            validation_results,
-            repair_applicable=system.uses_validator_repair,
-        ),
+        "structural_metrics": structural,
         "semantic_metrics": semantic,
         "property_level_semantic_metrics": (
             property_level_semantic_metrics(
@@ -6173,6 +7124,26 @@ def nested_metric(score: dict[str, Any], group: str, key: str) -> Any:
     if not isinstance(metrics, dict):
         return None
     return metrics.get(key)
+
+
+def property_metric_value(score: dict[str, Any], predicate: str, metric: str) -> float | None:
+    for row in score.get("property_level_semantic_metrics", []):
+        if row.get("predicate") == predicate and isinstance(row.get(metric), (int, float)):
+            return float(row[metric])
+    return None
+
+
+def macro_property_metric(
+    score: dict[str, Any],
+    predicates: Iterable[str],
+    metric: str,
+) -> float | None:
+    values = [
+        value
+        for predicate in predicates
+        if (value := property_metric_value(score, predicate, metric)) is not None
+    ]
+    return sum(values) / len(values) if values else None
 
 
 def metric_value_text(value: Any) -> str:
@@ -6214,13 +7185,18 @@ def claim_and_hypothesis_statuses(
     rejection_adjudication: dict[str, Any],
 ) -> dict[str, Any]:
     by_id = system_score_by_id(system_scores)
+    s0 = by_id["S0_rule_only"]
     s1 = by_id["S1_llm_only"]
+    s1b = by_id.get("S1b_llm_canonicalized")
     s2 = by_id["S2_llm_schema_slice"]
     s3 = by_id["S3_llm_schema_slice_validator_repair"]
+    s4 = by_id.get("S4_hybrid_backbone_enrichment")
     reviewed_gold_ready = bool(gold_source.get("ready_for_formal_scoring"))
     s1_s2_ready = bool(s1.get("available") and s2.get("available"))
+    s1b_s2_ready = bool(s1b and s1b.get("available") and s2.get("available"))
     s2_s3_ready = bool(s2.get("available") and s3.get("available"))
     all_llm_ready = bool(s1.get("available") and s2.get("available") and s3.get("available"))
+    s4_ready = bool(s4 and s4.get("available"))
     semantic_ready = reviewed_gold_ready and all(
         bool((score.get("semantic_metrics") or {}).get("available"))
         for score in system_scores
@@ -6232,9 +7208,14 @@ def claim_and_hypothesis_statuses(
     manual_review_only = int(final_rejection_decisions.get("manual_review_only", 0))
 
     s1_violation = nested_metric(s1, "structural_metrics", "schema_violation_rate")
+    s1b_violation = (
+        nested_metric(s1b, "structural_metrics", "schema_violation_rate") if s1b else None
+    )
     s2_violation = nested_metric(s2, "structural_metrics", "schema_violation_rate")
     h1_delta = (
-        s1_violation - s2_violation
+        s1b_violation - s2_violation
+        if isinstance(s1b_violation, (int, float)) and isinstance(s2_violation, (int, float))
+        else s1_violation - s2_violation
         if isinstance(s1_violation, (int, float)) and isinstance(s2_violation, (int, float))
         else None
     )
@@ -6247,20 +7228,57 @@ def claim_and_hypothesis_statuses(
     s3_precision = nested_metric(s3, "semantic_metrics", "precision")
     s1_f1 = nested_metric(s1, "semantic_metrics", "f1")
     s3_f1 = nested_metric(s3, "semantic_metrics", "f1")
+    s1_scoring_validity = nested_metric(s1, "semantic_metrics", "scoring_validity")
+    s1_invalid_direct = s1_scoring_validity == "invalid_direct_schema_scoring"
+    h3_semantic_predicates = ("implementationStatus", "reRouteReason", "reRouteType")
+    h3_deterministic_predicates = tuple(sorted(DETERMINISTIC_BACKBONE_PREDICATES))
+    s0_h3_semantic_f1 = macro_property_metric(s0, h3_semantic_predicates, "f1")
+    s4_h3_semantic_f1 = macro_property_metric(s4 or {}, h3_semantic_predicates, "f1")
+    s0_deterministic_f1 = macro_property_metric(s0, h3_deterministic_predicates, "f1")
+    s4_deterministic_f1 = macro_property_metric(s4 or {}, h3_deterministic_predicates, "f1")
 
-    if not s1_s2_ready:
+    if s1b_s2_ready:
+        h1_baseline_label = "S1b_llm_canonicalized"
+        if h1_delta is None:
+            h1_status = "inconclusive_missing_metric"
+            h1_rationale = "S1b/S2 outputs exist, but schema violation rates are unavailable."
+        elif h1_delta >= 0.10:
+            h1_status = "supported"
+            h1_rationale = (
+                "S2 schema guidance reduces target-schema violation rate versus the "
+                "canonicalized S1b baseline by at least 10 percentage points."
+            )
+        else:
+            h1_status = "falsified"
+            h1_rationale = (
+                "S2 did not reduce schema violation rate versus the canonicalized S1b "
+                "baseline by the required 10 percentage points."
+            )
+    elif not s1_s2_ready:
+        h1_baseline_label = "S1_llm_only"
         h1_status = "pending_required_inputs"
         h1_rationale = "S1 and S2 prediction outputs are required before schema-violation comparison."
     elif h1_delta is None:
+        h1_baseline_label = "S1_llm_only"
         h1_status = "inconclusive_missing_metric"
         h1_rationale = "S1/S2 outputs exist, but schema violation rates are unavailable."
+    elif s1_invalid_direct:
+        h1_baseline_label = "S1_llm_only"
+        h1_status = "inconclusive"
+        h1_rationale = (
+            "S2 reduces direct target-schema violations versus S1, but S1 is a "
+            "schema-free output scored without a canonicalization bridge. Treat this as "
+            "structural-drift diagnosis until S1_raw_open_llm and S1b_llm_canonicalized exist."
+        )
     elif h1_delta >= 0.10:
+        h1_baseline_label = "S1_llm_only"
         h1_status = "supported_structural_only" if not reviewed_gold_ready else "supported"
         h1_rationale = (
             "S2 schema violation rate is at least 10 percentage points lower than S1; "
             "gold-supported fact suppression still needs reviewed gold if unavailable."
         )
     else:
+        h1_baseline_label = "S1_llm_only"
         h1_status = "falsified"
         h1_rationale = "S2 did not reduce schema violation rate by the required 10 percentage points."
 
@@ -6283,12 +7301,39 @@ def claim_and_hypothesis_statuses(
         h2_status = "falsified"
         h2_rationale = "S3 failed the repair-success or semantic-preservation criterion."
 
-    if not all_llm_ready:
+    if s4_ready and semantic_ready:
+        if (
+            isinstance(s0_h3_semantic_f1, (int, float))
+            and isinstance(s4_h3_semantic_f1, (int, float))
+            and isinstance(s0_deterministic_f1, (int, float))
+            and isinstance(s4_deterministic_f1, (int, float))
+            and s4_h3_semantic_f1 > s0_h3_semantic_f1 + 0.05
+            and s4_deterministic_f1 >= s0_deterministic_f1 - 0.02
+        ):
+            h3_status = "supported"
+            h3_rationale = (
+                "S4 improves the selected semantic predicate macro-F1 over S0 while "
+                "preserving deterministic-field macro-F1 within tolerance."
+            )
+        else:
+            h3_status = "falsified"
+            h3_rationale = (
+                "S4 did not improve selected semantic predicate macro-F1 over S0 while "
+                "preserving deterministic-field macro-F1 within tolerance."
+            )
+    elif not all_llm_ready:
         h3_status = "pending_required_inputs"
         h3_rationale = "S1-S3 prediction outputs are required before precision/recall/F1 comparison."
     elif not semantic_ready:
         h3_status = "pending_manual_gold"
         h3_rationale = "Precision, recall, F1, and manual semantic correctness require reviewed gold."
+    elif s1_invalid_direct:
+        h3_status = "inconclusive"
+        h3_rationale = (
+            "S1 direct target-schema semantic scores are invalid because all schema-free "
+            "facts were rejected at the ATMONTO scoring interface. S3>S1 is therefore not "
+            "valid evidence for ontology-constrained semantic improvement."
+        )
     elif (
         isinstance(s1_precision, (int, float))
         and isinstance(s3_precision, (int, float))
@@ -6340,7 +7385,7 @@ def claim_and_hypothesis_statuses(
             status=h1_status,
             rationale=h1_rationale,
             evidence=[
-                "S1_llm_only structural metrics",
+                f"{h1_baseline_label} structural metrics",
                 "S2_llm_schema_slice structural metrics",
             ],
         ),
@@ -6374,13 +7419,15 @@ def claim_and_hypothesis_statuses(
             rationale=h1_rationale,
             evidence=[
                 f"s1_schema_violation_rate={s1_violation}",
+                f"s1b_schema_violation_rate={s1b_violation}",
                 f"s2_schema_violation_rate={s2_violation}",
-                f"s1_minus_s2={h1_delta}",
+                f"{h1_baseline_label}_minus_s2={h1_delta}",
+                f"s1_semantic_scoring_validity={s1_scoring_validity}",
             ],
             falsification_criterion=(
-                "Falsified if S2 does not reduce schema violation rate versus S1 by at least "
-                "10 percentage points, or if the reduction only comes from suppressing more "
-                "than 25 percent of gold-supported facts."
+                "Falsified if schema guidance does not reduce unsupported target-schema "
+                "terms after a canonicalized S1b baseline exists, or if the reduction only "
+                "comes from suppressing more than 25 percent of gold-supported facts."
             ),
         ),
         status_record(
@@ -6403,7 +7450,7 @@ def claim_and_hypothesis_statuses(
         ),
         status_record(
             item_id="H3",
-            label="Ontology constraints improve precision more than they harm recall",
+            label="Hybrid backbone plus enrichment improves selected semantic predicates",
             status=h3_status,
             rationale=h3_rationale,
             evidence=[
@@ -6411,10 +7458,16 @@ def claim_and_hypothesis_statuses(
                 f"s3_precision={s3_precision}",
                 f"s1_f1={s1_f1}",
                 f"s3_f1={s3_f1}",
+                f"s1_semantic_scoring_validity={s1_scoring_validity}",
+                f"s0_selected_semantic_macro_f1={s0_h3_semantic_f1}",
+                f"s4_selected_semantic_macro_f1={s4_h3_semantic_f1}",
+                f"s0_deterministic_macro_f1={s0_deterministic_f1}",
+                f"s4_deterministic_macro_f1={s4_deterministic_f1}",
             ],
             falsification_criterion=(
-                "Falsified if S3 precision does not exceed S1, or if S3 F1 is lower than "
-                "S1 by more than 5 percentage points."
+                "Falsified if S4 hybrid does not improve selected semantic "
+                "predicate F1 over S0 while preserving deterministic-field F1 within the "
+                "pre-registered tolerance."
             ),
         ),
         status_record(
@@ -6517,14 +7570,19 @@ def formal_completion_audit(
         },
         {
             "id": "R3",
-            "requirement": "Define the four systems: rule-only, LLM-only, schema slice, schema slice plus validator/repair.",
+            "requirement": (
+                "Define the corrected system suite: S0, diagnostic S1, S1b, S2, S3, "
+                "and S4."
+            ),
             "status": (
                 "satisfied"
                 if set(systems_by_id) == {
                     "S0_rule_only",
                     "S1_llm_only",
+                    "S1b_llm_canonicalized",
                     "S2_llm_schema_slice",
                     "S3_llm_schema_slice_validator_repair",
+                    "S4_hybrid_backbone_enrichment",
                 }
                 else "incomplete"
             ),
@@ -6532,7 +7590,7 @@ def formal_completion_audit(
         },
         {
             "id": "R4",
-            "requirement": "Run all four systems on the identical sampled records.",
+            "requirement": "Run all corrected-stage systems on the identical sampled records.",
             "status": "satisfied" if all_system_outputs else "pending_model_output",
             "evidence": json.dumps(
                 {
@@ -6681,6 +7739,8 @@ def build_formal_experiment_score_report(
             for key, value in semantic_groups.items()
             if key != "records"
         },
+        "methodology_remediation": source_family_methodology_boundaries(repo_root),
+        "consensus_sota_remediation": consensus_sota_remediation_constraints(),
         "systems": system_scores,
         "rejection_adjudication": {
             key: value
@@ -6735,6 +7795,142 @@ def score_report_markdown(report: dict[str, Any]) -> str:
             f"- Pending records: {gold['pending_record_count']}",
             f"- Complete: `{gold['complete']}`",
             "",
+            "## Methodology Remediation",
+            "",
+            f"- Status: `{report['methodology_remediation']['status']}`",
+            f"- Scope: {report['methodology_remediation']['scope_statement']}",
+            f"- Cross-source metric policy: {report['methodology_remediation']['cross_source_metric_policy']}",
+            "",
+            "| Source family | Data shape | Task | Boundary |",
+            "| --- | --- | --- | --- |",
+        ]
+    )
+    for family in report["methodology_remediation"]["source_families"]:
+        boundary = (
+            "Current scored ATCSCC event extraction."
+            if family["id"] == "A"
+            else "Next-rerun PDF reference extraction; do not mix definition/procedure F1 with ATCSCC event F1."
+        )
+        lines.append(
+            "| "
+            f"`{family['source_family']}` | "
+            f"`{family['data_shape']}` | "
+            f"{family['task']} | "
+            f"{boundary} |"
+        )
+    pdf_family = next(
+        family
+        for family in report["methodology_remediation"]["source_families"]
+        if family["id"] == "B"
+    )
+    lines.extend(
+        [
+            "",
+            "- PDF backend policy: `hybrid_docling_pymupdf` is the candidate default; "
+            "`pymupdf_text_legacy` is a baseline only.",
+            "- PDF target predicates: "
+            f"`{', '.join(pdf_family['allowed_predicates'])}`.",
+            "- PDF provenance fields: "
+            f"`{', '.join(pdf_family['required_provenance_fields'])}`.",
+            "",
+            "## Consensus SOTA Constraints",
+            "",
+        ]
+    )
+    sota = report["consensus_sota_remediation"]
+    lines.extend(
+        [
+            f"- Status: `{sota['status']}`",
+            f"- Boundary: {sota['scope_boundary']}",
+            "- S1 interpretation: "
+            "`S1_raw_open_llm` is a drift diagnostic; "
+            "`S1b_llm_canonicalized` is the comparable target-schema baseline.",
+            "- Nine-stage pipeline: "
+            f"`{' -> '.join(sota['nine_stage_pipeline'])}`.",
+            "- Reviewed dev examples artifact: `reviewed_dev_examples`; use 10-20 "
+            "examples outside the held-out 100 scoring records.",
+            "",
+            "| SOTA constraint | Implementation | Claim guardrail |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for constraint in sota["sota_adaptations"]:
+        lines.append(
+            "| "
+            f"`{constraint['anchor']}` | "
+            f"{constraint['implementation']} | "
+            f"{constraint['claim_guardrail']} |"
+        )
+    s4_policy = sota["s4_merge_policy"]
+    artifact_names = [
+        artifact.get("path") or artifact.get("component")
+        for artifact in sota["planned_artifacts"]
+    ]
+    lines.extend(
+        [
+            "",
+            "- S4 primary candidate: "
+            f"`{s4_policy['primary_candidate_system']}`.",
+            "- S0 owns deterministic fields: "
+            f"`{', '.join(s4_policy['s0_owns'])}`.",
+            "- S3/S4 may add but not overwrite semantic fields: "
+            f"`{', '.join(s4_policy['s3_s4_may_add_not_overwrite'])}`.",
+            "- Quarantine/review conditions: "
+            f"`{', '.join(s4_policy['quarantine_conditions'])}`.",
+            "- Planned artifacts/TODO: "
+            f"`{', '.join(name for name in artifact_names if name)}`.",
+            "- Unverified search leads remain `requiring verification`: "
+            f"`{', '.join(sota['unverified_search_leads']['items'])}`.",
+            "- GraphRAG boundary: report `KG construction`, `graph retrieval`, and "
+            "`answer faithfulness/completeness/citation support` separately; current "
+            "remediation makes no end-to-end GraphRAG answer improvement claim.",
+            "",
+            "## Corrected Stage Results",
+            "",
+        ]
+    )
+    score_by_id = {str(score["system_id"]): score for score in report["systems"]}
+    s0_score = score_by_id.get("S0_rule_only", {})
+    s1b_score = score_by_id.get("S1b_llm_canonicalized", {})
+    s4_score = score_by_id.get("S4_hybrid_backbone_enrichment", {})
+    if s1b_score:
+        s1b_structural = s1b_score.get("structural_metrics") or {}
+        s1b_semantic = s1b_score.get("semantic_metrics") or {}
+        lines.append(
+            "- `S1b_llm_canonicalized`: "
+            f"accepted {s1b_structural.get('accepted_fact_count')} / "
+            f"{s1b_structural.get('candidate_fact_count')} mapped facts; "
+            f"target-schema F1={s1b_semantic.get('f1')}."
+        )
+    if s4_score:
+        s4_semantic_macro = macro_property_metric(
+            s4_score,
+            ("implementationStatus", "reRouteReason", "reRouteType"),
+            "f1",
+        )
+        s0_semantic_macro = macro_property_metric(
+            s0_score,
+            ("implementationStatus", "reRouteReason", "reRouteType"),
+            "f1",
+        )
+        s4_deterministic_macro = macro_property_metric(
+            s4_score,
+            sorted(DETERMINISTIC_BACKBONE_PREDICATES),
+            "f1",
+        )
+        s0_deterministic_macro = macro_property_metric(
+            s0_score,
+            sorted(DETERMINISTIC_BACKBONE_PREDICATES),
+            "f1",
+        )
+        lines.append(
+            "- `S4_hybrid_backbone_enrichment`: selected semantic macro-F1 "
+            f"{s0_semantic_macro} -> {s4_semantic_macro}; deterministic macro-F1 "
+            f"{s0_deterministic_macro} -> {s4_deterministic_macro}."
+        )
+    lines.extend(
+        [
+            "",
             "## System Metrics",
             "",
             "| System | Output | JSON adherence | Candidate facts | Accepted | Rejected | Structural acceptance | Schema violation rate | Repair success | Semantic metrics |",
@@ -6746,7 +7942,13 @@ def score_report_markdown(report: dict[str, Any]) -> str:
         structural = score.get("structural_metrics") or {}
         semantic = score.get("semantic_metrics") or {}
         semantic_text = (
-            f"P={semantic.get('precision')}, R={semantic.get('recall')}, F1={semantic.get('f1')}"
+            (
+                "`invalid_direct_schema_scoring`; "
+                f"diagnostic P={semantic.get('precision')}, R={semantic.get('recall')}, "
+                f"F1={semantic.get('f1')}"
+            )
+            if semantic.get("scoring_validity") == "invalid_direct_schema_scoring"
+            else f"P={semantic.get('precision')}, R={semantic.get('recall')}, F1={semantic.get('f1')}"
             if semantic.get("available")
             else f"pending:{semantic.get('reason') or score.get('reason')}"
         )
@@ -6767,6 +7969,8 @@ def score_report_markdown(report: dict[str, Any]) -> str:
         (score["system_id"], (score.get("semantic_metrics") or {}).get("confidence_intervals"))
         for score in report["systems"]
         if ((score.get("semantic_metrics") or {}).get("confidence_intervals") or {}).get("available")
+        and (score.get("semantic_metrics") or {}).get("scoring_validity")
+        != "invalid_direct_schema_scoring"
     ]
     if ci_rows:
         lines.extend(
@@ -6793,6 +7997,8 @@ def score_report_markdown(report: dict[str, Any]) -> str:
         for score in report["systems"]
         for row in score.get("semantic_group_metrics", [])
         if (row.get("semantic_metrics") or {}).get("available")
+        and (score.get("semantic_metrics") or {}).get("scoring_validity")
+        != "invalid_direct_schema_scoring"
     ]
     if group_rows:
         lines.extend(

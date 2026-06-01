@@ -92,6 +92,50 @@
       "pending": []
     },
     {
+      "system_id": "S1b_llm_canonicalized",
+      "label": "LLM-only + post-hoc canonicalization",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_predictions.jsonl",
+      "output_exists": true,
+      "prompt_batch": {
+        "path": null,
+        "exists": null,
+        "task_count": null,
+        "valid_task_count": null,
+        "missing_source_id_count": null,
+        "duplicate_source_id_count": null,
+        "invalid_json_line_count": null,
+        "status": "not_applicable",
+        "errors": []
+      },
+      "run_metadata": {
+        "path": "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_run_metadata.json",
+        "exists": true,
+        "status": "ready",
+        "summary": {
+          "normalizer_version": "schema_object_flattening_v1",
+          "flattened_schema_object_fact_count": 0,
+          "reprocessed_from_saved_raw_response": null,
+          "schema_valid_record_count": 32,
+          "repair_success_record_count": 0
+        },
+        "errors": [],
+        "warnings": []
+      },
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "status": "ready_for_scoring",
+      "errors": [],
+      "pending": []
+    },
+    {
       "system_id": "S2_llm_schema_slice",
       "label": "LLM + schema slice",
       "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
@@ -161,6 +205,50 @@
           "reprocessed_from_saved_raw_response": true,
           "schema_valid_record_count": 68,
           "repair_success_record_count": 53
+        },
+        "errors": [],
+        "warnings": []
+      },
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "status": "ready_for_scoring",
+      "errors": [],
+      "pending": []
+    },
+    {
+      "system_id": "S4_hybrid_backbone_enrichment",
+      "label": "Hybrid backbone + semantic enrichment",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl",
+      "output_exists": true,
+      "prompt_batch": {
+        "path": null,
+        "exists": null,
+        "task_count": null,
+        "valid_task_count": null,
+        "missing_source_id_count": null,
+        "duplicate_source_id_count": null,
+        "invalid_json_line_count": null,
+        "status": "not_applicable",
+        "errors": []
+      },
+      "run_metadata": {
+        "path": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_run_metadata.json",
+        "exists": true,
+        "status": "ready",
+        "summary": {
+          "normalizer_version": "schema_object_flattening_v1",
+          "flattened_schema_object_fact_count": 0,
+          "reprocessed_from_saved_raw_response": null,
+          "schema_valid_record_count": 100,
+          "repair_success_record_count": 0
         },
         "errors": [],
         "warnings": []

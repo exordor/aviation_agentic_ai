@@ -22,7 +22,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 282,
+      "candidate_cluster_count": 321,
       "first_sample_id": "ATCSCC-GOLD-001",
       "last_sample_id": "ATCSCC-GOLD-010",
       "records": [
@@ -145,7 +145,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 356,
+      "candidate_cluster_count": 416,
       "first_sample_id": "ATCSCC-GOLD-011",
       "last_sample_id": "ATCSCC-GOLD-020",
       "records": [
@@ -268,7 +268,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 324,
+      "candidate_cluster_count": 383,
       "first_sample_id": "ATCSCC-GOLD-021",
       "last_sample_id": "ATCSCC-GOLD-030",
       "records": [
@@ -391,7 +391,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 312,
+      "candidate_cluster_count": 367,
       "first_sample_id": "ATCSCC-GOLD-031",
       "last_sample_id": "ATCSCC-GOLD-040",
       "records": [
@@ -514,7 +514,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 233,
+      "candidate_cluster_count": 243,
       "first_sample_id": "ATCSCC-GOLD-041",
       "last_sample_id": "ATCSCC-GOLD-050",
       "records": [
@@ -637,7 +637,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 299,
+      "candidate_cluster_count": 358,
       "first_sample_id": "ATCSCC-GOLD-051",
       "last_sample_id": "ATCSCC-GOLD-060",
       "records": [
@@ -760,7 +760,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 255,
+      "candidate_cluster_count": 263,
       "first_sample_id": "ATCSCC-GOLD-061",
       "last_sample_id": "ATCSCC-GOLD-070",
       "records": [
@@ -883,7 +883,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 242,
+      "candidate_cluster_count": 255,
       "first_sample_id": "ATCSCC-GOLD-071",
       "last_sample_id": "ATCSCC-GOLD-080",
       "records": [
@@ -1006,7 +1006,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 261,
+      "candidate_cluster_count": 279,
       "first_sample_id": "ATCSCC-GOLD-081",
       "last_sample_id": "ATCSCC-GOLD-090",
       "records": [
@@ -1129,7 +1129,7 @@
       "record_count": 10,
       "reviewed_record_count": 10,
       "pending_record_count": 0,
-      "candidate_cluster_count": 255,
+      "candidate_cluster_count": 284,
       "first_sample_id": "ATCSCC-GOLD-091",
       "last_sample_id": "ATCSCC-GOLD-100",
       "records": [

@@ -2,9 +2,11 @@
 
 ## Material Passport
 
-- Artifact: formal experiment protocol for the NASA ATMONTO ATCSCC KG extraction study.
+- Artifact: formal experiment protocol for the NASA ATMONTO ATCSCC KG extraction
+  study and source-family remediation.
 - Status: protocol, reviewed 100-record gold set, S0-S3 prediction outputs,
-  rejection triage, and formal scoring artifacts prepared.
+  S1b/S4 corrected-stage derived outputs, rejection triage, and formal scoring
+  artifacts prepared.
 - Prior stage: pilot / feasibility study.
 - Pilot evidence:
   - `reports/stages/nasa_atmonto_minimal_loop_validation.md`
@@ -40,7 +42,9 @@
   - `reports/stages/nasa_atmonto_gold_annotation_validation.md`
   - `reports/stages/nasa_atmonto_prediction_output_validation.md`
   - `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
-- Claim boundary: retrospective extraction and validation research only. This protocol does not support live aviation operations, operational advisories, flight planning, dispatch, ATC decisions, or safety certification.
+- Claim boundary: retrospective extraction and validation research only. This
+  protocol does not support live aviation operations, operational advisories,
+  flight planning, dispatch, ATC decisions, or safety certification.
 
 ## Current Pilot Positioning
 
@@ -54,11 +58,123 @@ window, produced 4429 candidate facts, accepted 4141 facts after structural
 repair, and rejected 288 facts. The accepted facts remain
 `bronze_until_reviewed`; structural validation is not semantic correctness.
 
-The next experiment must therefore answer a stronger question:
+The next experiment must therefore answer a stronger but still narrow question:
 
-> Does NASA ATMONTO schema-slice constrained extraction improve schema validity
-> and manually judged KG extraction quality compared with rule-only and
-> unconstrained LLM baselines?
+> Can a NASA ATMONTO-derived ATCSCC schema slice improve structural validity,
+> evidence grounding, and selected semantic extraction quality for retrospective
+> FAA ATCSCC advisory KG extraction?
+
+This is not a general aviation KG claim. NASA ATMONTO is used as an external
+TBox, schema slice, validator profile, and terminology reference; it is not
+treated as the gold-truth extracted KG.
+
+## Source Families
+
+The corrected experiment separates two source families. Their metrics may be
+compared for structural conformance, evidence grounding, and canonicalization
+yield, but their semantic F1 tables must remain task-specific.
+
+| Source family | Data shape | Extraction task | Primary design |
+| --- | --- | --- | --- |
+| `faa_atcscc_advisories` | Semi-structured short FAA ATCSCC advisories. | TMI/event ABox extraction. | S0 deterministic backbone plus S3 semantic enrichment and validator gate. |
+| `faa_nasa_pdf_reference_documents` | Long-form PDF reference text with definitions, procedures, tables, and section hierarchy. | Terminology, definition, procedure, and source-mapping evidence extraction. | Section-aware PDF chunking plus constrained extraction; no event-instance predicates. |
+
+Source family A is the current scored corpus. The previous run used 100 reviewed
+FAA ATCSCC advisories sampled from `2026-05-14` through `2026-05-20`, with
+candidate classes `GroundDelayProgramTMI`, `GroundStopTMI`, `ReRouteTMI`, and
+`TrafficManagementInitiative`.
+
+Source family B is a planned second source-family pilot. It should use the
+already-downloaded FAA/NASA reference PDFs, especially:
+
+- `data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf`
+- `data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/7110.65BB_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf`
+- optional ontology documentation evidence:
+  `data/papers/ntrs_ontology_selection/20170006095_nasa_air_traffic_management_ontology.pdf`
+
+PDF extraction must target reference-text predicates such as
+`term_has_definition`, `term_has_alias`, `procedure_mentions_concept`,
+`document_defines_or_constrains`, and `source_supports_mapping`. Each extracted
+PDF fact must include `document_id`, `page`, `section`, `span`, and
+`evidence_text`. Do not mix these PDF definition/procedure facts with ATCSCC
+event-instance predicates such as `advisoryNumber`, `effectiveStartTime`, or
+`controlledNASelement` in the same semantic F1 table.
+
+The PDF backend policy follows the existing project reports:
+`hybrid_docling_pymupdf` is the candidate default, while
+`pymupdf_text_legacy` is a baseline only. The policy is grounded in
+`reports/stages/pdf_extraction_comparison.md` and
+`reports/stages/pdf_backend_chunking_comparison.md`.
+
+## Consensus SOTA Adaptation For The Rerun
+
+The rerun uses the Consensus and ChatGPT Pro methodology reviews as design
+constraints for this narrow ATCSCC / ATMONTO study. They do not change the
+project into a general aviation KG or a broad GraphRAG benchmark.
+
+The current all-zero `S1_llm_only` result is treated as an ontology-interface
+and canonicalization failure. `S1_raw_open_llm` is a drift diagnostic and must
+not report target-schema precision, recall, or F1. `S1b_llm_canonicalized`
+maps open facts into the ATMONTO profile and is the comparable baseline for
+S2/S3/S4.
+
+The next rerun should follow a nine-stage pipeline:
+
+1. ATCSCC parsing.
+2. S0 deterministic backbone.
+3. Schema-slice retrieval.
+4. LLM semantic extraction.
+5. Canonicalization.
+6. Validator gate.
+7. Repair with trace.
+8. Graph materialization.
+9. Layered evaluation.
+
+The Extract-Define-Canonicalize design separates open extraction from
+target-schema scoring. Ontology-guided short-text KGC motivates 10-20
+`reviewed_dev_examples` for S2/S3, selected by advisory type and predicate
+family. These examples must come from a development split outside the
+held-out 100 scoring records.
+
+LLMs are used as canonicalizers, semantic enrichment modules, evidence checkers,
+and profile-gap explainers. They are not the primary thesis system by
+themselves. The primary candidate for the next ATCSCC extraction rerun is
+`S4_hybrid_backbone_enrichment`: pattern/rule extraction plus ontology-guided
+prompting, grounding, corroboration, validator gating, and review quarantine.
+
+S4 merge rules:
+
+- S0 wins for `advisoryNumber`, `issuedTime`, `effectiveStartTime`,
+  `effectiveEndTime`, and other header/template fields.
+- S3/S4 may add, but not overwrite, semantic facts such as `reRouteReason`,
+  `reRouteType`, and `implementationStatus`.
+- Conflicts, unsupported spans, fuzzy-only mappings, validator-rejected facts,
+  and repair-only facts with semantic-change flags go to log/review/quarantine.
+
+Planned implementation artifacts:
+
+- `schema/atcscc_tmi_profile.yaml` with `class`, `predicate_uri`, `label`,
+  `aliases`, `domain`, `range`, `cardinality`, `allowed_enum`, `normalizer`,
+  `validator_rule`, `example_spans`, `profile_version`, `source_doc`, and
+  `commit_hash`.
+- Predicate canonicalizer, enum canonicalizer, entity canonicalizer, and time
+  normalizer.
+- Repair trace with pre-error, repair action, post-validation status,
+  semantic-change flag, evidence status, and repair-induced false positive
+  accounting.
+- Error taxonomy: format error, predicate drift, class/domain error, range
+  error, enum error, entity canonicalization error, unsupported span, temporal
+  normalization error, and duplicate/merge error.
+
+GraphRAG evaluation remains layered. KG construction, graph retrieval, answer
+faithfulness/completeness, and citation support must be reported separately.
+The current remediation only supports KG construction metrics; it must not be
+used to claim end-to-end GraphRAG answer improvement.
+
+Additional Pro-review leads such as OntoLogX, JSON-Schema-guided information extraction,
+Graphusion, RAKG, RAGAS, STaRK, and Microsoft GraphRAG are
+`requiring verification`. They are search leads only until directly fetched and
+checked.
 
 ## Research Claims
 
@@ -75,13 +191,16 @@ ATCSCC schema slice for KG extraction and validation.
 ### C2: Schema-Slice Constraint Benefit
 
 An LLM using the ATCSCC schema slice should produce fewer unsupported terms and
-domain/range violations than an LLM-only extractor.
+domain/range violations than a schema-free extractor after the schema-free
+output has a documented canonicalization bridge.
 
 - Evidence required: lower schema violation rate for `LLM + schema slice` than
-  `LLM-only` on the same gold-sampled records.
-- Current status: supported by the formal scoring report for schema-violation
-  reduction; semantic precision/recall impact is reported descriptively and
-  should not be overgeneralized beyond this 100-record retrospective sample.
+  `S1b_llm_canonicalized` on the same gold-sampled records.
+- Current status: inconclusive for semantic baseline comparison. The saved
+  `S1_llm_only` run is JSON-adherent but all 1211 facts are rejected by direct
+  ATMONTO target-schema scoring, so its P/R/F1 are
+  `invalid_direct_schema_scoring` diagnostics rather than a valid LLM-only
+  semantic baseline.
 
 ### C3: Validator/Repair Benefit
 
@@ -92,7 +211,9 @@ reducing manual semantic correctness below the LLM + schema-slice condition.
   manual semantic correctness on the same gold sample.
 - Current status: supported on the reviewed 100-record sample: S3 improves
   structural acceptance versus S2 and does not reduce manual semantic
-  correctness in the frozen-gold scoring report.
+  correctness in the frozen-gold scoring report. This is not evidence that S3
+  beats an unconstrained LLM semantic baseline until `S1b_llm_canonicalized` is
+  added.
 
 ### C4: Rejection Analysis Utility
 
@@ -107,18 +228,34 @@ ATMONTO runtime-profile gaps.
   facts. This does not automatically approve profile extensions or semantic gold
   facts.
 
+### C5: Source-Family Separation
+
+ATCSCC advisories and PDF reference documents should be evaluated as separate
+source families with task-specific semantic metrics.
+
+- Evidence required: protocol and reports separate ATCSCC event ABox extraction
+  from PDF definition/procedure/reference extraction; shared metrics are limited
+  to structural conformance, evidence grounding, and canonicalization yield.
+- Current status: remediation requirement. The current scored run covers only
+  ATCSCC advisories; PDF source-family B is a planned second pilot using PCG,
+  JO 7110.65BB, and optional NASA ATMONTO documentation passages.
+
 ## Hypotheses And Falsification Criteria
 
-### H1: Schema Guidance Reduces Structural Drift
+### H1: Schema Guidance Reduces Structural Drift After Canonicalization
 
-Compared with `LLM-only`, `LLM + schema slice` will reduce schema violation rate.
+Compared with `S1b_llm_canonicalized`, `LLM + schema slice` will reduce
+unsupported target-schema terms and schema violation rate.
 
-- Primary comparison: S2 vs S1.
-- Falsified if S2 schema violation rate is not lower than S1 by at least 10
+- Primary comparison: S2 vs S1b.
+- Falsified if S2 schema violation rate is not lower than S1b by at least 10
   percentage points, or if bootstrap confidence intervals show no practical
   separation.
 - Secondary failure mode: S2 achieves lower violations only by suppressing more
-  than 25 percent of gold-supported facts relative to S1.
+  than 25 percent of gold-supported facts relative to S1b.
+- Current interpretation: supported on the corrected stage. S1 direct schema
+  scoring remains an interface-failure diagnostic, while
+  `S1b_llm_canonicalized` provides the comparable canonicalized baseline.
 
 ### H2: Validator/Repair Improves Valid Yield
 
@@ -130,16 +267,22 @@ increase structurally accepted facts while preserving manual semantic correctnes
   that enter the S3 validator/repair loop as initially invalid, or if S3 manual
   semantic correctness is more than 5 percentage points lower than S2.
 
-### H3: Ontology Constraints Improve Precision More Than They Harm Recall
+### H3: Hybrid Backbone Plus Enrichment Improves Selected Semantic Predicates
 
-The validator/repair system should improve triple precision enough that any
-recall loss is visible and defensible.
+The next candidate system should combine the deterministic ATCSCC parser with
+schema-constrained LLM enrichment.
 
-- Primary comparison: S3 vs S1 and S2.
-- Falsified if S3 precision does not exceed S1, or if S3 F1 is lower than S1 by
-  more than 5 percentage points.
-- Interpretation rule: if S3 precision rises but recall drops materially, report
-  the tradeoff instead of claiming a general win.
+- Primary comparison: S4 vs S0 for selected semantic predicates where S0 is
+  weak, especially `reRouteReason`, `reRouteType`, and
+  `implementationStatus`.
+- Preservation criterion: S4 must preserve S0 F1 for deterministic fields such
+  as `advisoryNumber`, `issuedTime`, `effectiveStartTime`, and
+  `effectiveEndTime` within a pre-registered tolerance.
+- Falsified if S4 does not improve the selected semantic predicate family or if
+  it materially harms deterministic-field F1.
+- Current interpretation: supported on the corrected stage for the selected
+  semantic predicate family. This is not an aggregate end-to-end GraphRAG or
+  general aviation KG claim.
 
 ### H4: Rejection Triage Produces Actionable Engineering Decisions
 
@@ -299,16 +442,26 @@ report records whether every system has 100 usable records before scoring.
 
 ## Baselines And Comparators
 
-The formal experiment uses four systems on the identical 100-record ATCSCC
-sample. S0 and S1 are baselines; S2 and S3 are ontology-constrained
-interventions.
+The current scored ATCSCC run uses the original four saved systems plus two
+corrected-stage derived systems on the identical 100-record advisory sample.
+S1 direct target-schema scoring remains a diagnostic artifact because a
+schema-free output was scored without canonicalization; S1b and S4 are the
+corrected comparators.
 
 | System | Role | Comparator Question |
 | --- | --- | --- |
 | S0 rule-only | Deterministic parser baseline | How much can a low-cost rule extractor recover before LLMs? |
-| S1 LLM-only | Unconstrained LLM baseline | How much structural drift appears without ontology terms? |
+| S1 LLM-only | Historical direct-scoring diagnostic | How much target-schema interface failure appears without ontology terms or canonicalization? |
 | S2 LLM + schema slice | Schema-guided extraction condition | Does a compact ATCSCC slice reduce unsupported terms? |
 | S3 LLM + schema slice + validator/repair | Full ontology-constrained loop | Does validation/repair improve accepted yield without semantic loss? |
+
+The corrected next-rerun suite should add:
+
+| System | Role | Scoring boundary |
+| --- | --- | --- |
+| `S1_raw_open_llm` | Schema-free open extraction with generic entities, events, attributes, relations, times, evidence spans, and confidence. | Raw JSON, evidence, coverage, and drift diagnostics only; no direct ATMONTO P/R/F1. |
+| `S1b_llm_canonicalized` | Post-hoc canonicalization bridge from S1 raw output into the ATMONTO fact schema. | Target-schema P/R/F1 after canonicalization. Implemented as a deterministic corrected-stage derivation from saved S1 facts. |
+| `S4_hybrid_backbone_enrichment` | S0 deterministic backbone plus S3 semantic enrichment and validator gate. | Primary candidate system for ATCSCC event extraction. Implemented as a deterministic corrected-stage merge from saved S0 and S3 facts. |
 
 ### S0: Rule-Only
 
@@ -327,9 +480,14 @@ An LLM extracts facts from advisory text without NASA ATMONTO classes,
 properties, or schema slice guidance. The output is converted into the common
 fact schema for evaluation.
 
-- Purpose: measure free-form extraction drift.
+- Purpose: historical measure of direct schema-interface drift.
 - Constraint: no ontology term list in the prompt.
 - Validator role: post-hoc measurement only; no repair loop.
+- Current interpretation: `invalid_direct_schema_scoring` for semantic
+  P/R/F1. The saved S1 run produced JSON, but all 1211 facts were rejected by
+  the target ATMONTO validator. This is evidence that an open baseline needs
+  `S1_raw_open_llm` plus `S1b_llm_canonicalized`, not evidence that the LLM
+  extracted no useful information.
 
 ### S2: LLM + Schema Slice
 
@@ -349,6 +507,34 @@ repair opportunity with validator errors and evidence requirements.
 - Purpose: test the complete ontology-constrained extraction loop.
 - Repair budget: one repair attempt per invalid payload.
 - Validator role: gate final structurally accepted facts and record rejected facts.
+
+### S4: Hybrid Backbone + Semantic Enrichment
+
+S4 is the recommended next ATCSCC system rather than a replacement for S0. It
+should merge S0 and S3 with predicate-family rules:
+
+- Preserve S0 facts for semi-structured deterministic fields:
+  `advisoryNumber`, `issuedTime`, `effectiveStartTime`, and
+  `effectiveEndTime`.
+- Use S3 as semantic enrichment for predicates where S0 is weak, especially
+  `reRouteReason`, `reRouteType`, `implementationStatus`, and evidence-rich
+  comments.
+- Quarantine conflicts, unsupported spans, fuzzy-only mappings, and repair-only
+  facts with semantic-change flags for review.
+- Validate the final merged output with the ATMONTO schema-slice validator.
+
+### PDF Reference Extraction Systems
+
+PDF source-family B should not reuse the ATCSCC event systems unchanged. Its
+default backend is `hybrid_docling_pymupdf`; `pymupdf_text_legacy` remains a
+baseline. The PDF extraction task should use page/section/span provenance and
+target reference predicates only:
+
+- `term_has_definition`
+- `term_has_alias`
+- `procedure_mentions_concept`
+- `document_defines_or_constrains`
+- `source_supports_mapping`
 
 ## Metrics
 
@@ -408,6 +594,24 @@ available, report deterministic record-level bootstrap 95 percent confidence
 intervals for precision, recall, F1, and manual semantic correctness. The
 bootstrap unit is `source_id`, so the uncertainty estimate respects the
 advisory-level sampling design.
+
+For PDF source-family B, semantic scores must be reported in a separate
+definition/procedure/reference table. Do not compare PDF
+`term_has_definition` F1 directly against ATCSCC `advisoryNumber` or
+`effectiveStartTime` F1. Cross-source comparison is limited to JSON adherence,
+schema conformance, evidence-span validity, and canonicalization yield.
+
+### Canonicalization Yield
+
+For schema-free extraction baselines, report canonicalization yield before
+target-schema semantic scores:
+
+```text
+canonicalization_yield = canonicalized_target_schema_facts / raw_open_facts
+```
+
+`S1_raw_open_llm` has no direct target-schema semantic F1. Only
+`S1b_llm_canonicalized` can enter target-schema precision/recall/F1.
 
 ### Repair Success Rate
 
@@ -486,7 +690,8 @@ uv run python scripts/prepare_nasa_atmonto_experiment_protocol.py
 ```
 
 3. Generate formal input records, S0 predictions, S1/S2/S3 prompt batches,
-   readiness report, and the pending/scoring report.
+   S1b/S4 derived predictions when their source outputs exist, readiness
+   report, and the scoring report.
 
 ```bash
 uv run python scripts/run_nasa_atmonto_formal_experiment.py
@@ -505,7 +710,8 @@ For a connectivity smoke test, use `--limit 1`. Limited runs write to
 `data/experiments/nasa_atmonto/formal/smoke/` by default, so they cannot
 overwrite the formal S1/S2/S3 prediction files used by scoring.
 
-5. Validate S1/S2/S3 prediction JSONL files and run metadata before scoring.
+5. Validate S1/S1b/S2/S3/S4 prediction JSONL files and run metadata before
+   scoring.
 
 ```bash
 uv run python scripts/validate_nasa_atmonto_prediction_outputs.py
@@ -529,6 +735,25 @@ uv run python scripts/reprocess_nasa_atmonto_llm_predictions.py all
 This reprocessing step is an adapter repair, not a new model run. It should be
 reported separately from S3 validator/repair because it fixes experiment I/O
 shape rather than asking the model to change its extraction.
+
+For the remediation rerun, replace the direct S1 semantic comparison with:
+
+```bash
+# planned names; implementation may split generation and canonicalization
+uv run python scripts/run_nasa_atmonto_llm_predictions.py S1_raw_open_llm --resume
+uv run python scripts/canonicalize_nasa_atmonto_open_llm.py S1_raw_open_llm
+```
+
+The raw S1 output should contain generic entities, events, attributes,
+relations, quantities/times, evidence spans, and confidence. The canonicalizer
+creates `S1b_llm_canonicalized`; only S1b enters ATMONTO target-schema
+precision/recall/F1.
+
+For PDF source-family B, create a separate passage-level input set and do not
+append PDF passages to the ATCSCC advisory input JSONL. The PDF pilot should use
+PCG and JO 7110.65BB first, optionally adding NASA ATMONTO technical
+documentation for ontology term-boundary evidence. Each PDF fact must carry
+`document_id`, `page`, `section`, `span`, and `evidence_text`.
 
 6. Generate the cross-system candidate review package and reviewer batches.
 
@@ -671,13 +896,15 @@ as pilot/prepared-state evidence, not as a completed formal experiment.
 - Do not claim operational readiness or aviation safety certification.
 - Do not claim GraphRAG or ontology constraints improve Recall@k unless the
   formal metrics support that exact claim.
+- Do not claim end-to-end GraphRAG answer improvement from KG construction
+  metrics alone; retrieval and answer-generation layers need separate evidence.
 
 ## Completion Gate For The Formal Study
 
 The formal experiment is complete only when all of these are true:
 
 - 100 sampled advisories have reviewed gold annotations.
-- All four systems S0-S3 have run on the identical sample.
+- S0, diagnostic S1, S1b, S2, S3, and S4 have run on the identical sample.
 - JSON adherence, schema violation rate, triple precision/recall/F1, repair
   success for S3, structural acceptance for all systems, and manual semantic
   correctness are reported.
