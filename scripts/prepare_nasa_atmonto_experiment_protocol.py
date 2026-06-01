@@ -386,6 +386,7 @@ def build_gold_template_records(
                     "annotator_id": "",
                     "valid_facts": [],
                     "invalid_candidate_fact_ids": [],
+                    "rejected_fact_adjudications": [],
                     "missing_facts": [],
                     "notes": "",
                 },

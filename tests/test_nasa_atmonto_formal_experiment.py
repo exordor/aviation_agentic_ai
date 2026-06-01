@@ -7,10 +7,12 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     SYSTEMS,
     build_formal_experiment_score_report,
     build_formal_experiment_readiness,
+    build_gold_annotation_validation_report,
     prepare_formal_experiment_inputs,
     property_level_semantic_metrics,
     semantic_metrics,
     structural_metrics,
+    validate_gold_annotation_records,
 )
 
 
@@ -239,3 +241,61 @@ def test_property_level_semantic_metrics_group_by_predicate() -> None:
     assert by_predicate["advisoryNumber"]["true_positive_count"] == 1
     assert by_predicate["advisoryNumber"]["false_positive_count"] == 1
     assert by_predicate["issuedTime"]["false_negative_count"] == 1
+
+
+def test_gold_annotation_validation_reports_current_template_pending() -> None:
+    report = build_gold_annotation_validation_report(Path("."))
+
+    assert report["status"] == "pending_manual_annotation"
+    assert report["record_count"] == 100
+    assert report["reviewed_record_count"] == 0
+    assert report["pending_record_count"] == 100
+    assert report["error_count"] == 0
+    assert report["warning_count"] == 100
+
+
+def test_gold_annotation_validation_accepts_reviewed_record_with_rejection_decision() -> None:
+    fact = {
+        "fact_id": "fact-1",
+        "fact_type": "datatype_property",
+        "subject": "urn:test",
+        "subject_class": "GroundStopTMI",
+        "predicate": "advisoryNumber",
+        "value": 1,
+        "datatype": "xsd:integer",
+        "evidence_text": "ATCSCC ADVZY 001",
+        "source_id": "2026-05-14:001",
+    }
+    record = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_text": "ATCSCC ADVZY 001 DCC TEST",
+        "candidate_facts": [fact],
+        "validator_results": [
+            {"fact_id": "fact-rejected", "accepted": False, "errors": ["range_violation"]}
+        ],
+        "gold_annotation": {
+            "annotation_status": "reviewed",
+            "annotator_id": "annotator-a",
+            "valid_facts": [fact],
+            "invalid_candidate_fact_ids": [],
+            "missing_facts": [],
+            "rejected_fact_adjudications": [
+                {
+                    "fact_id": "fact-rejected",
+                    "decision": "profile_gap",
+                    "rationale": "Source supports the fact but current profile range is too narrow.",
+                    "recommended_action": "Review NASA ATMONTO runtime profile extension.",
+                }
+            ],
+        },
+    }
+
+    report = validate_gold_annotation_records(
+        gold_records=[record],
+        selected_source_ids={"2026-05-14:001"},
+    )
+
+    assert report["status"] == "ready_for_scoring"
+    assert report["error_count"] == 0
+    assert report["warning_count"] == 0

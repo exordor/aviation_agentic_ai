@@ -1,0 +1,95 @@
+# NASA ATMONTO ATCSCC Gold Annotation Guide
+
+## Material Passport
+
+- Artifact: annotation guide for the NASA ATMONTO ATCSCC formal experiment.
+- Applies to: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
+- Validation command: `uv run python scripts/validate_nasa_atmonto_gold_annotations.py`
+- Boundary: this guide creates a retrospective research gold set. It does not
+  support live aviation operations, flight planning, ATC decisions, or safety
+  certification.
+
+## Annotation Goal
+
+Each sampled ATCSCC advisory needs a reviewed gold annotation so S0-S3 can be
+scored on the same 100 records. The gold set is the evaluation target for
+triple precision, recall, F1, and manual semantic correctness. NASA ATMONTO is
+the schema constraint, not the ground truth by itself.
+
+## Record Status
+
+Use one of these statuses:
+
+- `pending_manual_gold_annotation`: not ready for scoring.
+- `reviewed`: ready for automated validation and scoring.
+
+A record should become `reviewed` only after all valid facts, invalid candidate
+facts, missing facts, and rejected-fact adjudications have been checked.
+
+## Fact Fields
+
+Gold facts should use the same canonical shape as system predictions:
+
+- `fact_type`: `object_property` or `datatype_property`
+- `subject`: subject URI when available
+- `subject_class`: NASA ATMONTO class or compact local class name
+- `predicate`: NASA ATMONTO property or compact local property name
+- `object`: object URI or identifier for object-property facts
+- `object_class`: object class for object-property facts
+- `value`: literal value for datatype-property facts
+- `datatype`: datatype for datatype-property facts
+- `evidence_text`: exact or whitespace-normalized excerpt from `source_text`
+- `source_id`: must match the record source ID
+
+For every reviewed record, put correct extracted facts in `valid_facts`. Put
+gold facts missed by all systems or by the candidate baseline in
+`missing_facts`.
+
+## Invalid Candidate Facts
+
+Put candidate `fact_id` values judged semantically wrong in
+`invalid_candidate_fact_ids`. These IDs must come from the record's
+`candidate_facts` list.
+
+Validator acceptance is not semantic truth. A structurally accepted candidate can
+still be invalid if the object, predicate, value, or evidence does not match the
+advisory meaning.
+
+## Rejected-Fact Adjudication
+
+For each validator-rejected fact in a reviewed record, add a
+`rejected_fact_adjudications` entry:
+
+```json
+{
+  "fact_id": "fact-example",
+  "decision": "profile_gap",
+  "rationale": "The source supports the value, but the current ATMONTO runtime profile lacks the needed class/range/enum coverage.",
+  "recommended_action": "Review profile extension before accepting this pattern."
+}
+```
+
+Allowed decisions:
+
+- `extractor_bug`: the extractor normalized, typed, or parsed the source
+  incorrectly.
+- `profile_gap`: the source supports the fact, but the current NASA ATMONTO
+  runtime profile is too narrow for this ATCSCC pattern.
+- `source_ambiguity`: the advisory text is not clear enough for a stable fact.
+- `manual_review_only`: keep as reviewed evidence but do not change extractor or
+  profile yet.
+
+This is the manual bridge from the 288 pilot rejections to property-level
+engineering decisions.
+
+## Validation Gate
+
+Run:
+
+```bash
+uv run python scripts/validate_nasa_atmonto_gold_annotations.py
+```
+
+The gold set is usable for formal scoring only when the validation report status
+is `ready_for_scoring`. The current template is expected to report
+`pending_manual_annotation` until the 100 records are manually reviewed.

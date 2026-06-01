@@ -13,6 +13,7 @@
 - Formal-study inputs prepared:
   - `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
   - `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
+  - `docs/nasa_atmonto_gold_annotation_guide.md`
   - `data/experiments/nasa_atmonto/formal/input_records.jsonl`
   - `data/experiments/nasa_atmonto/formal/system_specs.json`
   - `data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl`
@@ -20,6 +21,7 @@
   - `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
   - `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
   - `reports/stages/nasa_atmonto_rejection_error_analysis.md`
+  - `reports/stages/nasa_atmonto_gold_annotation_validation.md`
   - `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
 - Claim boundary: retrospective extraction and validation research only. This protocol does not support live aviation operations, operational advisories, flight planning, dispatch, ATC decisions, or safety certification.
 
@@ -165,14 +167,19 @@ For each sampled advisory, the reviewer records:
 
 Gold facts must use the same normalized fields for all systems:
 
-- `subject_id`
+- `subject`
 - `subject_class`
 - `predicate`
-- `object_id` or literal `value`
+- `object` or literal `value`
 - `object_class` when applicable
 - `datatype` when applicable
 - `evidence_text`
 - `source_id`
+
+For every reviewed record, validator-rejected candidate facts also need
+`rejected_fact_adjudications` with one of `extractor_bug`, `profile_gap`,
+`source_ambiguity`, or `manual_review_only`. The annotation guide is
+`docs/nasa_atmonto_gold_annotation_guide.md`.
 
 The gold set is complete only after manual annotation and adjudication. The
 current JSONL is an annotation template, not completed gold truth.
@@ -344,24 +351,30 @@ uv run python scripts/run_nasa_atmonto_formal_experiment.py
 4. Complete manual annotation in
    `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`.
 
-5. Freeze the completed gold set under a new filename before running model
+5. Validate the gold annotations.
+
+```bash
+uv run python scripts/validate_nasa_atmonto_gold_annotations.py
+```
+
+6. Freeze the completed gold set under a new filename before running model
    comparisons, for example:
 
 ```text
 data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl
 ```
 
-6. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
+7. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
    records. Use the committed S0 prediction file as the deterministic baseline.
 
-7. Re-run the formal experiment scorer to compute metrics against the reviewed
+8. Re-run the formal experiment scorer to compute metrics against the reviewed
    gold set and available system prediction files.
 
 ```bash
 uv run python scripts/run_nasa_atmonto_formal_experiment.py --skip-prepare-inputs
 ```
 
-8. Produce:
+9. Produce:
 
 - system-level metric table;
 - property-level metric table;
