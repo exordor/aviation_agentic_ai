@@ -18,9 +18,9 @@
     "reviewed_record_count": 0,
     "pending_record_count": 100,
     "decision_progress_status": "in_progress",
-    "ready_to_apply_record_count": 4,
-    "not_started_record_count": 96,
-    "completed_rejected_fact_decision_count": 8,
+    "ready_to_apply_record_count": 14,
+    "not_started_record_count": 86,
+    "completed_rejected_fact_decision_count": 22,
     "rejected_fact_decision_count": 48,
     "complete_batch_count": 0,
     "batch_count": 10,
@@ -37,15 +37,15 @@
       "first_batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
     },
     "next_review_session": {
-      "session_id": "session_02",
+      "session_id": "session_05",
       "status": "pending_manual_review",
       "record_count": 4,
       "ready_to_apply_record_count": 0,
       "remaining_record_count": 4,
-      "estimated_review_minutes": 74,
-      "pending_rejected_fact_decision_count": 8,
-      "first_sample_id": "ATCSCC-GOLD-056",
-      "first_source_id": "2026-05-17:041",
+      "estimated_review_minutes": 87,
+      "pending_rejected_fact_decision_count": 4,
+      "first_sample_id": "ATCSCC-GOLD-030",
+      "first_source_id": "2026-05-16:027",
       "session_plan_markdown": "reports/stages/nasa_atmonto_gold_review_session_plan.md"
     },
     "next_commands": [

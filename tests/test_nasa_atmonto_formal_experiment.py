@@ -243,15 +243,15 @@ def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> No
     kickoff = report["manual_gold_review_kickoff"]
     assert kickoff["status"] == "ready_for_manual_gold_review"
     assert kickoff["pending_record_count"] == 100
-    assert kickoff["ready_to_apply_record_count"] == 4
-    assert kickoff["not_started_record_count"] == 96
+    assert kickoff["ready_to_apply_record_count"] == 14
+    assert kickoff["not_started_record_count"] == 86
     assert kickoff["first_priority_lane"]["lane_id"] == "1_rejection_adjudication"
     assert kickoff["first_priority_lane"]["packet_markdown"].endswith(
         "review_priority_packets/1_rejection_adjudication.md"
     )
-    assert kickoff["next_review_session"]["session_id"] == "session_02"
+    assert kickoff["next_review_session"]["session_id"] == "session_05"
     assert kickoff["next_review_session"]["record_count"] == 4
-    assert kickoff["next_review_session"]["estimated_review_minutes"] == 74
+    assert kickoff["next_review_session"]["estimated_review_minutes"] == 87
     assert "suggested_* fields are work aids only" in kickoff["review_boundary"]
     assert "completed manual gold annotations" in report["missing_required_inputs"][0]
     assert not any("predictions" in item for item in report["missing_required_inputs"])
@@ -277,9 +277,9 @@ def test_generated_readiness_report_json_is_consistent() -> None:
         "review_priority_packets/index.md"
     )
     assert report["manual_gold_review_kickoff"]["decision_progress_status"] == "in_progress"
-    assert report["manual_gold_review_kickoff"]["ready_to_apply_record_count"] == 4
-    assert report["manual_gold_review_kickoff"]["not_started_record_count"] == 96
-    assert report["manual_gold_review_kickoff"]["next_review_session"]["session_id"] == "session_02"
+    assert report["manual_gold_review_kickoff"]["ready_to_apply_record_count"] == 14
+    assert report["manual_gold_review_kickoff"]["not_started_record_count"] == 86
+    assert report["manual_gold_review_kickoff"]["next_review_session"]["session_id"] == "session_05"
     assert report["current_s0_rule_only_structural_metrics"]["attempted_record_count"] == 100
 
 
@@ -1137,9 +1137,9 @@ def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
 
     assert plan["status"] == "ready_for_manual_review"
     assert plan["target_session_minutes"] == 90
-    assert plan["ready_to_apply_record_count"] == 4
-    assert plan["remaining_record_count"] == 96
-    assert plan["completed_session_count"] == 1
+    assert plan["ready_to_apply_record_count"] == 14
+    assert plan["remaining_record_count"] == 86
+    assert plan["completed_session_count"] == 4
     assert plan["session_count"] > 1
     assert "manual-review queues only" in plan["completion_gate"]
 
@@ -1153,13 +1153,13 @@ def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
     assert first_session["records"][0]["decision_template"].endswith(
         "review_decisions/batch_03.jsonl"
     )
-    assert plan["next_session"]["session_id"] == "session_02"
-    assert plan["next_session"]["records"][0]["sample_id"] == "ATCSCC-GOLD-056"
+    assert plan["next_session"]["session_id"] == "session_05"
+    assert plan["next_session"]["records"][0]["sample_id"] == "ATCSCC-GOLD-030"
 
     markdown = gold_review_session_plan_markdown(plan)
     assert "Gold Review Session Plan" in markdown
     assert "Next Session" in markdown
-    assert "Completed sessions: 1 /" in markdown
+    assert "Completed sessions: 4 /" in markdown
     assert "Session plans are manual-review queues only" in markdown
 
 
@@ -1331,20 +1331,20 @@ def test_gold_review_decision_progress_audits_editable_decision_files() -> None:
     assert report["status"] == "in_progress"
     assert report["record_count"] == 100
     assert report["decision_record_count"] == 100
-    assert report["not_started_record_count"] == 96
-    assert report["ready_to_apply_record_count"] == 4
+    assert report["not_started_record_count"] == 86
+    assert report["ready_to_apply_record_count"] == 14
     assert report["suggested_valid_candidate_fact_count"] > 0
     assert report["rejected_fact_decision_count"] > 0
-    assert report["completed_rejected_fact_decision_count"] == 8
+    assert report["completed_rejected_fact_decision_count"] == 22
     assert report["pending_rejected_fact_decision_count"] == (
-        report["rejected_fact_decision_count"] - 8
+        report["rejected_fact_decision_count"] - 22
     )
 
     first_batch = report["batch_progress"][0]
     assert first_batch["batch_id"] == "batch_01"
     assert first_batch["status"] == "in_progress"
-    assert first_batch["ready_to_apply_record_count"] == 2
-    assert first_batch["not_started_record_count"] == 8
+    assert first_batch["ready_to_apply_record_count"] == 5
+    assert first_batch["not_started_record_count"] == 5
 
     markdown = gold_review_decision_progress_markdown(report)
     assert "Gold Review Decision Progress" in markdown

@@ -22,13 +22,13 @@
 - Status: `ready_for_manual_gold_review`
 - Reviewed / pending records: 0 / 100
 - Decision progress: `in_progress`
-- Ready to apply / not started: 4 / 96
-- Rejected-fact decisions confirmed: 8 / 48
+- Ready to apply / not started: 14 / 86
+- Rejected-fact decisions confirmed: 22 / 48
 - First priority lane: `1_rejection_adjudication` (40 records, 808 est. min)
 - Start packet: `data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md`
 - First sample: `ATCSCC-GOLD-024` / `2026-05-18:136` via `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
-- Next review session: `session_02` (4 records, 74 est. min, status=`pending_manual_review`) from `reports/stages/nasa_atmonto_gold_review_session_plan.md`
-- Next session sample: `ATCSCC-GOLD-056` / `2026-05-17:041`
+- Next review session: `session_05` (4 records, 87 est. min, status=`pending_manual_review`) from `reports/stages/nasa_atmonto_gold_review_session_plan.md`
+- Next session sample: `ATCSCC-GOLD-030` / `2026-05-16:027`
 - Boundary: Priority packets and suggested_* fields are work aids only. A record becomes gold only after source review, completed review_checklist, confirmed decisions, validation, and frozen reviewed output.
 
 ### Next Commands
