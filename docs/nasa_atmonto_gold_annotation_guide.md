@@ -4,6 +4,9 @@
 
 - Artifact: annotation guide for the NASA ATMONTO ATCSCC formal experiment.
 - Applies to: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
+- Cross-system checklist:
+  `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl`
+- Batch review index: `data/evaluation/nasa_atmonto/review_batches/index.md`
 - Validation command: `uv run python scripts/validate_nasa_atmonto_gold_annotations.py`
 - Boundary: this guide creates a retrospective research gold set. It does not
   support live aviation operations, flight planning, ATC decisions, or safety
@@ -44,6 +47,16 @@ Gold facts should use the same canonical shape as system predictions:
 For every reviewed record, put correct extracted facts in `valid_facts`. Put
 gold facts missed by all systems or by the candidate baseline in
 `missing_facts`.
+
+Use `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl` as a
+coverage checklist after reading the source text. It aggregates S0-S3 candidate
+facts and validator outcomes, but it is not gold truth; source evidence and this
+guide remain authoritative for the final annotation.
+
+For review ergonomics, use
+`data/evaluation/nasa_atmonto/review_batches/index.md` to work through ten
+10-record Markdown batches. The batch files are checklists only; transfer final
+decisions back into the JSONL template before validation.
 
 ## Invalid Candidate Facts
 

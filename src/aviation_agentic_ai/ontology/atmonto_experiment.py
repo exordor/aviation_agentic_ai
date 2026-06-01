@@ -25,6 +25,14 @@ GOLD_TEMPLATE_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_annotation_t
 GOLD_REVIEWED_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl")
 GOLD_REVIEW_WORKLIST_JSON = Path("data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.json")
 GOLD_REVIEW_WORKLIST_MD = Path("data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md")
+GOLD_CANDIDATE_REVIEW_JSONL = Path(
+    "data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl"
+)
+GOLD_CANDIDATE_REVIEW_MD = Path(
+    "data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md"
+)
+GOLD_REVIEW_BATCH_DIR = Path("data/evaluation/nasa_atmonto/review_batches")
+GOLD_REVIEW_BATCH_INDEX_MD = GOLD_REVIEW_BATCH_DIR / "index.md"
 REJECTION_ANALYSIS_JSON = Path("reports/stages/nasa_atmonto_rejection_error_analysis.json")
 REJECTION_ADJUDICATION_JSON = Path("reports/stages/nasa_atmonto_rejection_adjudication.json")
 REJECTION_ADJUDICATION_MD = Path("reports/stages/nasa_atmonto_rejection_adjudication.md")
@@ -728,7 +736,7 @@ def gold_validation_markdown(report: dict[str, Any]) -> str:
         lines.append(f"- ... {len(report['errors']) - 20} more errors omitted")
     while lines and lines[-1] == "":
         lines.pop()
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def run_gold_annotation_validation(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
@@ -1021,7 +1029,7 @@ def gold_review_worklist_markdown(worklist: dict[str, Any]) -> str:
                 f"{evidence} |"
             )
     lines.extend(["", "## Completion Gate", "", f"- {worklist['completion_gate']}"])
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def run_gold_review_worklist(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
@@ -1039,6 +1047,561 @@ def run_gold_review_worklist(repo_root: str | Path = PROJECT_ROOT) -> dict[str, 
         "record_count": worklist["record_count"],
         "records_with_rejections": worklist["records_with_rejections"],
         "total_rejected_facts_to_adjudicate": worklist["total_rejected_facts_to_adjudicate"],
+    }
+
+
+def candidate_review_value(fact: dict[str, Any]) -> object:
+    if fact.get("object") not in (None, ""):
+        return fact.get("object")
+    if fact.get("value") not in (None, ""):
+        return fact.get("value")
+    properties = fact.get("properties")
+    if isinstance(properties, dict) and properties:
+        return json.dumps(properties, sort_keys=True, ensure_ascii=False)
+    for key, value in sorted(fact.items()):
+        if key.startswith("atm:") and value not in (None, ""):
+            if isinstance(value, dict):
+                return value.get("label") or json.dumps(value, sort_keys=True, ensure_ascii=False)
+            return value
+    return ""
+
+
+def candidate_review_predicate(fact: dict[str, Any]) -> str:
+    if fact.get("predicate"):
+        return term_name(fact.get("predicate"))
+    properties = fact.get("properties")
+    if isinstance(properties, dict) and len(properties) == 1:
+        return term_name(next(iter(properties)))
+    if isinstance(properties, dict) and len(properties) > 1:
+        return "property_bundle"
+    for key in sorted(fact):
+        if key.startswith("atm:"):
+            return term_name(key)
+    return "unmapped_payload"
+
+
+def candidate_review_object_class(fact: dict[str, Any]) -> str:
+    if fact.get("object_class"):
+        return term_name(fact.get("object_class"))
+    for key, value in sorted(fact.items()):
+        if key.startswith("atm:") and isinstance(value, dict) and value.get("type"):
+            return term_name(value["type"])
+    return ""
+
+
+def candidate_review_subject_class(fact: dict[str, Any]) -> str:
+    return term_name(fact.get("subject_class") or fact.get("type") or "")
+
+
+def candidate_review_kind(fact: dict[str, Any]) -> str:
+    if fact.get("fact_type") in {"object_property", "datatype_property"}:
+        return "canonical_fact"
+    if isinstance(fact.get("properties"), dict):
+        return "property_bundle"
+    if any(str(key).startswith("atm:") for key in fact):
+        return "schema_shaped_object"
+    return "freeform_or_unmapped_fact"
+
+
+def candidate_review_signature(fact: dict[str, Any]) -> tuple[str, str, str, str, str, str, str]:
+    return (
+        candidate_review_kind(fact),
+        candidate_review_subject_class(fact),
+        candidate_review_predicate(fact),
+        compact_text(candidate_review_value(fact)).lower(),
+        candidate_review_object_class(fact),
+        term_name(fact.get("datatype")),
+        compact_text(fact.get("evidence_text")).lower(),
+    )
+
+
+def candidate_review_fields(fact: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "candidate_kind": candidate_review_kind(fact),
+        "subject_class": candidate_review_subject_class(fact),
+        "predicate": candidate_review_predicate(fact),
+        "value_or_object": candidate_review_value(fact),
+        "object_class": candidate_review_object_class(fact),
+        "datatype": term_name(fact.get("datatype")),
+        "evidence_text": compact_text(fact.get("evidence_text")),
+    }
+
+
+def truncated_candidate_payload(fact: dict[str, Any]) -> dict[str, Any]:
+    payload: dict[str, Any] = {}
+    for key, value in sorted(fact.items()):
+        if key == "evidence_text":
+            payload[key] = compact_text(value)[:500]
+        elif isinstance(value, str):
+            payload[key] = compact_text(value)[:500]
+        else:
+            payload[key] = value
+    return payload
+
+
+def validator_results_by_fact_id(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    results: dict[str, dict[str, Any]] = {}
+    for result in record.get("validator_results", []):
+        if isinstance(result, dict) and result.get("fact_id") and str(result["fact_id"]) not in results:
+            results[str(result["fact_id"])] = result
+    return results
+
+
+def system_candidate_facts(system: SystemDefinition, record: dict[str, Any]) -> list[dict[str, Any]]:
+    field = "candidate_facts" if system.system_id == "S0_rule_only" else "facts"
+    return [fact for fact in record.get(field, []) if isinstance(fact, dict)]
+
+
+def build_system_candidate_review_package(
+    repo_root: str | Path = PROJECT_ROOT,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
+    gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    selected_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
+
+    prediction_records_by_system: dict[str, dict[str, dict[str, Any]]] = {}
+    output_status_by_system: dict[str, bool] = {}
+    raw_fact_counts_by_system: Counter[str] = Counter()
+    for system in SYSTEMS:
+        parse_result = read_jsonl_lenient(repo_root / system.expected_output)
+        output_status_by_system[system.system_id] = bool(parse_result["exists"])
+        records = valid_prediction_records(parse_result, selected_ids) if parse_result["exists"] else []
+        prediction_records_by_system[system.system_id] = {
+            str(record.get("source_id")): record
+            for record in records
+            if isinstance(record, dict)
+        }
+        for record in records:
+            raw_fact_counts_by_system[system.system_id] += len(system_candidate_facts(system, record))
+
+    review_records: list[dict[str, Any]] = []
+    cluster_count_by_system: Counter[str] = Counter()
+    accepted_cluster_count = 0
+    rejected_cluster_count = 0
+    candidate_kind_counts: Counter[str] = Counter()
+    schema_error_counts: Counter[str] = Counter()
+
+    for gold_record in gold_records:
+        source_id = str(gold_record.get("source_id"))
+        clusters: dict[tuple[str, str, str, str, str, str, str], dict[str, Any]] = {}
+        for system in SYSTEMS:
+            prediction_record = prediction_records_by_system[system.system_id].get(source_id)
+            if not prediction_record:
+                continue
+            validations = validator_results_by_fact_id(prediction_record)
+            for fact in system_candidate_facts(system, prediction_record):
+                signature = candidate_review_signature(fact)
+                candidate_id = "cand-" + sha1(
+                    json.dumps(
+                        [source_id, *signature],
+                        sort_keys=True,
+                        ensure_ascii=False,
+                    ).encode("utf-8")
+                ).hexdigest()[:16]
+                cluster = clusters.setdefault(
+                    signature,
+                    {
+                        "candidate_id": candidate_id,
+                        "review_fields": candidate_review_fields(fact),
+                        "source_systems": [],
+                        "system_observations": [],
+                        "schema_status_counts": {},
+                        "schema_error_counts": {},
+                    },
+                )
+                if system.system_id not in cluster["source_systems"]:
+                    cluster["source_systems"].append(system.system_id)
+                fact_id = str(fact.get("fact_id", ""))
+                validation = validations.get(fact_id, {})
+                accepted = validation.get("accepted")
+                errors = [str(error) for error in validation.get("errors", [])]
+                status = str(validation.get("status", "not_validated"))
+                cluster["system_observations"].append(
+                    {
+                        "system_id": system.system_id,
+                        "fact_id": fact_id,
+                        "accepted_by_validator": accepted,
+                        "validator_status": status,
+                        "validator_errors": errors,
+                        "repairs": validation.get("repairs", []),
+                        "fact_payload": truncated_candidate_payload(fact),
+                    }
+                )
+
+        candidate_clusters = []
+        for cluster in clusters.values():
+            status_counts = Counter(
+                observation["validator_status"]
+                for observation in cluster["system_observations"]
+            )
+            error_counts = Counter(
+                error
+                for observation in cluster["system_observations"]
+                for error in observation["validator_errors"]
+            )
+            source_systems = sorted(cluster["source_systems"])
+            for system_id in source_systems:
+                cluster_count_by_system[system_id] += 1
+            accepted_by_any = any(
+                observation["accepted_by_validator"] is True
+                for observation in cluster["system_observations"]
+            )
+            rejected_by_all = all(
+                observation["accepted_by_validator"] is False
+                for observation in cluster["system_observations"]
+                if observation["accepted_by_validator"] is not None
+            )
+            if accepted_by_any:
+                accepted_cluster_count += 1
+            elif rejected_by_all:
+                rejected_cluster_count += 1
+            candidate_kind_counts[str(cluster["review_fields"]["candidate_kind"])] += 1
+            schema_error_counts.update(error_counts)
+            candidate_clusters.append(
+                {
+                    **cluster,
+                    "source_systems": source_systems,
+                    "schema_status_counts": dict(sorted(status_counts.items())),
+                    "schema_error_counts": dict(sorted(error_counts.items())),
+                    "accepted_by_any_system_validator": accepted_by_any,
+                    "rejected_by_all_system_validators": rejected_by_all,
+                    "review_action_options": [
+                        "accept_as_gold_fact",
+                        "reject_semantically",
+                        "add_corrected_missing_fact",
+                        "ignore_structurally_invalid_payload",
+                    ],
+                }
+            )
+
+        candidate_clusters.sort(key=lambda item: item["candidate_id"])
+        review_records.append(
+            {
+                "sample_id": gold_record.get("sample_id"),
+                "source_id": source_id,
+                "source_url": gold_record.get("source_url"),
+                "candidate_subject_class": gold_record.get("candidate_subject_class"),
+                "annotation_status": gold_record.get("gold_annotation", {}).get(
+                    "annotation_status"
+                ),
+                "source_text_excerpt": gold_record.get("source_text_excerpt", ""),
+                "candidate_cluster_count": len(candidate_clusters),
+                "candidate_clusters": candidate_clusters,
+            }
+        )
+
+    summary = {
+        "source_family": "nasa_atmonto_system_candidate_review",
+        "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "gold_manifest": project_relative_path(repo_root / GOLD_MANIFEST_PATH, repo_root),
+        "candidate_review_jsonl": project_relative_path(
+            repo_root / GOLD_CANDIDATE_REVIEW_JSONL,
+            repo_root,
+        ),
+        "candidate_review_markdown": project_relative_path(
+            repo_root / GOLD_CANDIDATE_REVIEW_MD,
+            repo_root,
+        ),
+        "selected_source_id_count": len(selected_ids),
+        "record_count": len(review_records),
+        "system_ids": [system.system_id for system in SYSTEMS],
+        "prediction_outputs_exist_by_system": dict(sorted(output_status_by_system.items())),
+        "raw_fact_counts_by_system": dict(sorted(raw_fact_counts_by_system.items())),
+        "candidate_cluster_count": sum(record["candidate_cluster_count"] for record in review_records),
+        "candidate_cluster_counts_by_system": dict(sorted(cluster_count_by_system.items())),
+        "accepted_cluster_count": accepted_cluster_count,
+        "rejected_cluster_count": rejected_cluster_count,
+        "candidate_kind_counts": dict(sorted(candidate_kind_counts.items())),
+        "schema_error_counts": dict(sorted(schema_error_counts.items())),
+        "records": review_records,
+        "completion_gate": (
+            "Use this cross-system candidate package during manual gold review so S1-S3 "
+            "facts are considered alongside the rule-only baseline. It is not itself "
+            "reviewed gold and must not be scored as manual truth."
+        ),
+    }
+    return summary
+
+
+def system_candidate_review_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Cross-System Candidate Review",
+        "",
+        f"- Gold template: `{report['gold_template']}`",
+        f"- Candidate review JSONL: `{report['candidate_review_jsonl']}`",
+        f"- Records: {report['record_count']}",
+        f"- Candidate clusters: {report['candidate_cluster_count']}",
+        f"- Raw fact counts by system: `{json.dumps(report['raw_fact_counts_by_system'], sort_keys=True)}`",
+        f"- Cluster counts by system: `{json.dumps(report['candidate_cluster_counts_by_system'], sort_keys=True)}`",
+        f"- Candidate kinds: `{json.dumps(report['candidate_kind_counts'], sort_keys=True)}`",
+        "",
+        "## Completion Gate",
+        "",
+        f"- {report['completion_gate']}",
+        "",
+        "## Review Queue",
+        "",
+        "| Sample | Source | Class | Candidate clusters | Status |",
+        "| --- | --- | --- | ---: | --- |",
+    ]
+    for record in report["records"]:
+        lines.append(
+            "| "
+            f"`{record['sample_id']}` | "
+            f"`{record['source_id']}` | "
+            f"`{record['candidate_subject_class']}` | "
+            f"{record['candidate_cluster_count']} | "
+            f"`{record['annotation_status']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## High-Load Samples",
+            "",
+            "| Sample | Source | Candidate clusters | Dominant systems |",
+            "| --- | --- | ---: | --- |",
+        ]
+    )
+    top_records = sorted(
+        report["records"],
+        key=lambda item: int(item["candidate_cluster_count"]),
+        reverse=True,
+    )[:20]
+    for record in top_records:
+        systems = Counter(
+            system_id
+            for cluster in record["candidate_clusters"]
+            for system_id in cluster["source_systems"]
+        )
+        lines.append(
+            "| "
+            f"`{record['sample_id']}` | "
+            f"`{record['source_id']}` | "
+            f"{record['candidate_cluster_count']} | "
+            f"`{json.dumps(dict(sorted(systems.items())), sort_keys=True)}` |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def run_system_candidate_review_package(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    report = build_system_candidate_review_package(repo_root)
+    records = report["records"]
+    write_jsonl(repo_root / GOLD_CANDIDATE_REVIEW_JSONL, records)
+    (repo_root / GOLD_CANDIDATE_REVIEW_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_CANDIDATE_REVIEW_MD).write_text(
+        system_candidate_review_markdown(report),
+        encoding="utf-8",
+    )
+    batch_report = build_gold_review_batches(repo_root, candidate_review=report)
+    (repo_root / GOLD_REVIEW_BATCH_DIR).mkdir(parents=True, exist_ok=True)
+    for batch in batch_report["batches"]:
+        (repo_root / batch["path"]).write_text(
+            gold_review_batch_markdown(batch),
+            encoding="utf-8",
+        )
+    (repo_root / GOLD_REVIEW_BATCH_INDEX_MD).write_text(
+        gold_review_batch_index_markdown(batch_report),
+        encoding="utf-8",
+    )
+    return {
+        "candidate_review_jsonl": report["candidate_review_jsonl"],
+        "candidate_review_markdown": report["candidate_review_markdown"],
+        "batch_index_markdown": batch_report["batch_index_markdown"],
+        "batch_count": batch_report["batch_count"],
+        "record_count": report["record_count"],
+        "candidate_cluster_count": report["candidate_cluster_count"],
+        "raw_fact_counts_by_system": report["raw_fact_counts_by_system"],
+        "candidate_cluster_counts_by_system": report["candidate_cluster_counts_by_system"],
+    }
+
+
+def markdown_cell(value: object, *, max_chars: int = 180) -> str:
+    text = compact_text(value)
+    if len(text) > max_chars:
+        text = text[: max_chars - 3].rstrip() + "..."
+    return text.replace("|", "\\|")
+
+
+def build_gold_review_batches(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+    candidate_review: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    if batch_size <= 0:
+        raise ValueError("batch_size must be positive")
+    if candidate_review is None:
+        candidate_review = build_system_candidate_review_package(repo_root)
+    records = list(candidate_review["records"])
+    batches: list[dict[str, Any]] = []
+    for start in range(0, len(records), batch_size):
+        batch_records = records[start : start + batch_size]
+        batch_number = len(batches) + 1
+        batch_id = f"batch_{batch_number:02d}"
+        candidate_cluster_count = sum(
+            int(record.get("candidate_cluster_count", 0)) for record in batch_records
+        )
+        batches.append(
+            {
+                "batch_id": batch_id,
+                "batch_number": batch_number,
+                "path": project_relative_path(
+                    repo_root / GOLD_REVIEW_BATCH_DIR / f"{batch_id}.md",
+                    repo_root,
+                ),
+                "record_count": len(batch_records),
+                "first_sample_id": batch_records[0]["sample_id"] if batch_records else None,
+                "last_sample_id": batch_records[-1]["sample_id"] if batch_records else None,
+                "candidate_cluster_count": candidate_cluster_count,
+                "records": batch_records,
+            }
+        )
+    return {
+        "source_family": "nasa_atmonto_gold_review_batches",
+        "batch_size": batch_size,
+        "batch_count": len(batches),
+        "record_count": len(records),
+        "candidate_cluster_count": sum(
+            int(record.get("candidate_cluster_count", 0)) for record in records
+        ),
+        "candidate_review_jsonl": candidate_review["candidate_review_jsonl"],
+        "gold_template": candidate_review["gold_template"],
+        "batch_index_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_BATCH_INDEX_MD,
+            repo_root,
+        ),
+        "batches": batches,
+        "completion_gate": (
+            "Review every batch, then transfer reviewed decisions into "
+            "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl and run "
+            "gold validation before freezing the formal gold set."
+        ),
+    }
+
+
+def gold_review_batch_markdown(batch: dict[str, Any]) -> str:
+    lines = [
+        f"# NASA ATMONTO Gold Review {batch['batch_id']}",
+        "",
+        f"- Samples: `{batch['first_sample_id']}` to `{batch['last_sample_id']}`",
+        f"- Records: {batch['record_count']}",
+        f"- Candidate clusters: {batch['candidate_cluster_count']}",
+        "",
+        "## Batch Checklist",
+        "",
+        "- [ ] Read every source text excerpt and URL when needed.",
+        "- [ ] Mark semantically valid candidate facts.",
+        "- [ ] Mark semantically invalid candidate fact IDs.",
+        "- [ ] Add missing gold facts with evidence text.",
+        "- [ ] Copy final decisions into `atcscc_gold_annotation_template.jsonl`.",
+        "",
+    ]
+    for record in batch["records"]:
+        lines.extend(
+            [
+                f"## {record['sample_id']} / {record['source_id']}",
+                "",
+                f"- Source URL: {record.get('source_url')}",
+                f"- Candidate class: `{record.get('candidate_subject_class')}`",
+                f"- Current status: `{record.get('annotation_status')}`",
+                f"- Candidate clusters: {record.get('candidate_cluster_count')}",
+                "",
+                "Source excerpt:",
+                "",
+                f"> {markdown_cell(record.get('source_text_excerpt'), max_chars=900)}",
+                "",
+                "Review actions:",
+                "",
+                "- [ ] valid facts selected",
+                "- [ ] invalid candidate fact IDs selected",
+                "- [ ] missing facts added",
+                "- [ ] rejected facts adjudicated if applicable",
+                "",
+                "| Candidate | Systems | Kind | Predicate | Value/Object | Validator | Errors | Evidence |",
+                "| --- | --- | --- | --- | --- | --- | --- | --- |",
+            ]
+        )
+        for cluster in record["candidate_clusters"]:
+            fields = cluster["review_fields"]
+            validator = json.dumps(cluster["schema_status_counts"], sort_keys=True)
+            errors = json.dumps(cluster["schema_error_counts"], sort_keys=True)
+            lines.append(
+                "| "
+                f"`{cluster['candidate_id']}` | "
+                f"`{', '.join(cluster['source_systems'])}` | "
+                f"`{markdown_cell(fields.get('candidate_kind'), max_chars=80)}` | "
+                f"`{markdown_cell(fields.get('predicate'), max_chars=80)}` | "
+                f"{markdown_cell(fields.get('value_or_object'), max_chars=160)} | "
+                f"`{markdown_cell(validator, max_chars=120)}` | "
+                f"`{markdown_cell(errors, max_chars=120)}` | "
+                f"{markdown_cell(fields.get('evidence_text'), max_chars=220)} |"
+            )
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def gold_review_batch_index_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Gold Review Batches",
+        "",
+        f"- Candidate review: `{report['candidate_review_jsonl']}`",
+        f"- Gold template: `{report['gold_template']}`",
+        f"- Records: {report['record_count']}",
+        f"- Batches: {report['batch_count']}",
+        f"- Candidate clusters: {report['candidate_cluster_count']}",
+        "",
+        "## Completion Gate",
+        "",
+        f"- {report['completion_gate']}",
+        "",
+        "## Batches",
+        "",
+        "| Batch | Samples | Records | Candidate clusters | File |",
+        "| --- | --- | ---: | ---: | --- |",
+    ]
+    for batch in report["batches"]:
+        lines.append(
+            "| "
+            f"`{batch['batch_id']}` | "
+            f"`{batch['first_sample_id']}`-`{batch['last_sample_id']}` | "
+            f"{batch['record_count']} | "
+            f"{batch['candidate_cluster_count']} | "
+            f"`{batch['path']}` |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def run_gold_review_batches(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    candidate_review = build_system_candidate_review_package(repo_root)
+    report = build_gold_review_batches(
+        repo_root,
+        batch_size=batch_size,
+        candidate_review=candidate_review,
+    )
+    (repo_root / GOLD_REVIEW_BATCH_DIR).mkdir(parents=True, exist_ok=True)
+    for batch in report["batches"]:
+        (repo_root / batch["path"]).write_text(
+            gold_review_batch_markdown(batch),
+            encoding="utf-8",
+        )
+    (repo_root / GOLD_REVIEW_BATCH_INDEX_MD).write_text(
+        gold_review_batch_index_markdown(report),
+        encoding="utf-8",
+    )
+    return {
+        "batch_index_markdown": report["batch_index_markdown"],
+        "batch_count": report["batch_count"],
+        "record_count": report["record_count"],
+        "candidate_cluster_count": report["candidate_cluster_count"],
+        "batch_files": [batch["path"] for batch in report["batches"]],
     }
 
 
@@ -3431,6 +3994,8 @@ def run_formal_experiment_readiness(
     gold_validation = build_gold_annotation_validation_report(repo_root)
     gold_freeze_status = build_gold_freeze_status(repo_root)
     prediction_validation = build_prediction_output_validation_report(repo_root)
+    candidate_review = build_system_candidate_review_package(repo_root)
+    batch_report = build_gold_review_batches(repo_root, candidate_review=candidate_review)
     rejection_adjudication = build_rejection_adjudication_report(repo_root)
     report = build_formal_experiment_readiness(repo_root)
     score_report = build_formal_experiment_score_report(repo_root)
@@ -3441,6 +4006,7 @@ def run_formal_experiment_readiness(
     write_json(repo_root / REJECTION_ADJUDICATION_JSON, rejection_adjudication)
     write_json(repo_root / READINESS_REPORT_JSON, report)
     write_json(repo_root / SCORING_REPORT_JSON, score_report)
+    write_jsonl(repo_root / GOLD_CANDIDATE_REVIEW_JSONL, candidate_review["records"])
     (repo_root / GOLD_REVIEW_WORKLIST_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / GOLD_REVIEW_WORKLIST_MD).write_text(
         gold_review_worklist_markdown(gold_worklist),
@@ -3459,6 +4025,21 @@ def run_formal_experiment_readiness(
     (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).write_text(
         prediction_output_validation_markdown(prediction_validation),
+        encoding="utf-8",
+    )
+    (repo_root / GOLD_CANDIDATE_REVIEW_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_CANDIDATE_REVIEW_MD).write_text(
+        system_candidate_review_markdown(candidate_review),
+        encoding="utf-8",
+    )
+    (repo_root / GOLD_REVIEW_BATCH_DIR).mkdir(parents=True, exist_ok=True)
+    for batch in batch_report["batches"]:
+        (repo_root / batch["path"]).write_text(
+            gold_review_batch_markdown(batch),
+            encoding="utf-8",
+        )
+    (repo_root / GOLD_REVIEW_BATCH_INDEX_MD).write_text(
+        gold_review_batch_index_markdown(batch_report),
         encoding="utf-8",
     )
     (repo_root / REJECTION_ADJUDICATION_MD).parent.mkdir(parents=True, exist_ok=True)
@@ -3505,6 +4086,18 @@ def run_formal_experiment_readiness(
         ),
         "prediction_output_validation_report_markdown": project_relative_path(
             repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD,
+            repo_root,
+        ),
+        "candidate_review_jsonl": project_relative_path(
+            repo_root / GOLD_CANDIDATE_REVIEW_JSONL,
+            repo_root,
+        ),
+        "candidate_review_markdown": project_relative_path(
+            repo_root / GOLD_CANDIDATE_REVIEW_MD,
+            repo_root,
+        ),
+        "gold_review_batch_index_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_BATCH_INDEX_MD,
             repo_root,
         ),
         "rejection_adjudication_json": project_relative_path(

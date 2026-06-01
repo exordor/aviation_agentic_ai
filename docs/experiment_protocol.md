@@ -3,7 +3,8 @@
 ## Material Passport
 
 - Artifact: formal experiment protocol for the NASA ATMONTO ATCSCC KG extraction study.
-- Status: protocol draft with gold-sample template and rejection triage artifacts prepared.
+- Status: protocol draft with gold-sample template, cross-system candidate review,
+  and rejection triage artifacts prepared.
 - Prior stage: pilot / feasibility study.
 - Pilot evidence:
   - `reports/stages/nasa_atmonto_minimal_loop_validation.md`
@@ -14,11 +15,16 @@
   - `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
   - `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
   - `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
+  - `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md`
+  - `data/evaluation/nasa_atmonto/review_batches/index.md`
   - `docs/nasa_atmonto_gold_annotation_guide.md`
   - `reports/stages/nasa_atmonto_gold_freeze_status.md`
   - `data/experiments/nasa_atmonto/formal/input_records.jsonl`
   - `data/experiments/nasa_atmonto/formal/system_specs.json`
   - `data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl`
+  - `data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl`
+  - `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl`
+  - `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl`
   - `data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl`
   - `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
   - `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
@@ -366,41 +372,20 @@ uv run python scripts/prepare_nasa_atmonto_experiment_protocol.py
 uv run python scripts/run_nasa_atmonto_formal_experiment.py
 ```
 
-4. Complete manual annotation in
-   `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`.
-   Use `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md` as the
-   per-record review queue.
-
-5. Validate the gold annotations.
-
-```bash
-uv run python scripts/validate_nasa_atmonto_gold_annotations.py
-```
-
-6. Freeze the completed gold set before running model comparisons. The freeze
-   command refuses to write reviewed gold while validation is still pending.
-
-```bash
-uv run python scripts/freeze_nasa_atmonto_gold_set.py
-```
-
-Expected reviewed output:
-`data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
-
-7. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
+4. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
    records. Use the committed S0 prediction file as the deterministic baseline.
 
 ```bash
-uv run python scripts/run_nasa_atmonto_llm_predictions.py S1_llm_only
-uv run python scripts/run_nasa_atmonto_llm_predictions.py S2_llm_schema_slice
-uv run python scripts/run_nasa_atmonto_llm_predictions.py S3_llm_schema_slice_validator_repair
+uv run python scripts/run_nasa_atmonto_llm_predictions.py S1_llm_only --resume
+uv run python scripts/run_nasa_atmonto_llm_predictions.py S2_llm_schema_slice --resume
+uv run python scripts/run_nasa_atmonto_llm_predictions.py S3_llm_schema_slice_validator_repair --resume
 ```
 
 For a connectivity smoke test, use `--limit 1`. Limited runs write to
 `data/experiments/nasa_atmonto/formal/smoke/` by default, so they cannot
 overwrite the formal S1/S2/S3 prediction files used by scoring.
 
-8. Validate S1/S2/S3 prediction JSONL files and run metadata before scoring.
+5. Validate S1/S2/S3 prediction JSONL files and run metadata before scoring.
 
 ```bash
 uv run python scripts/validate_nasa_atmonto_prediction_outputs.py
@@ -410,7 +395,44 @@ Each LLM system output must have 100 valid prediction records, one per selected
 `source_id`, plus a run metadata JSON file documenting `system_id`,
 `run_status`, `input_records`, and `prediction_output`.
 
-9. Re-run the formal experiment scorer to compute metrics against the reviewed
+6. Generate the cross-system candidate review package and reviewer batches.
+
+```bash
+uv run python scripts/prepare_nasa_atmonto_system_candidate_review.py
+uv run python scripts/prepare_nasa_atmonto_gold_review_batches.py
+```
+
+Use `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md` as a
+coverage checklist during annotation. It aggregates S0-S3 candidate facts by
+sample and marks validator acceptance/rejection, but it is not reviewed gold and
+must not override source-text review.
+
+7. Complete manual annotation in
+   `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`.
+   Use `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md` as the
+   per-record queue and
+   `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl` as the
+   cross-system coverage checklist. The batch files under
+   `data/evaluation/nasa_atmonto/review_batches/` split the 100 records into
+   smaller review units.
+
+8. Validate the gold annotations.
+
+```bash
+uv run python scripts/validate_nasa_atmonto_gold_annotations.py
+```
+
+9. Freeze the completed gold set before running model comparisons. The freeze
+   command refuses to write reviewed gold while validation is still pending.
+
+```bash
+uv run python scripts/freeze_nasa_atmonto_gold_set.py
+```
+
+Expected reviewed output:
+`data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
+
+10. Re-run the formal experiment scorer to compute metrics against the reviewed
    gold set and available system prediction files.
 
 ```bash
@@ -426,7 +448,7 @@ The scoring report also emits a claim/hypothesis status table and completion
 audit. Any pending audit requirement means the artifact must still be reported
 as pilot/prepared-state evidence, not as a completed formal experiment.
 
-10. Produce:
+11. Produce:
 
 - system-level metric table;
 - property-level metric table;

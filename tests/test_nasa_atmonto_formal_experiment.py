@@ -10,8 +10,10 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_freeze_status,
     build_gold_annotation_validation_report,
     build_gold_review_worklist,
+    build_gold_review_batches,
     build_prediction_output_validation_report,
     build_rejection_adjudication_report,
+    build_system_candidate_review_package,
     freeze_reviewed_gold_set,
     formal_scoring_gold_source,
     parse_llm_prediction_payload,
@@ -19,9 +21,12 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     property_level_semantic_metrics,
     rejection_adjudication_markdown,
     run_llm_prediction_system,
+    gold_review_batch_index_markdown,
+    gold_review_batch_markdown,
     score_report_markdown,
     semantic_metrics,
     structural_metrics,
+    system_candidate_review_markdown,
     validate_gold_annotation_records,
 )
 
@@ -791,6 +796,63 @@ def test_gold_review_worklist_summarizes_human_annotation_queue() -> None:
         "extractor_normalization_bug_candidate",
         "nasa_atmonto_profile_gap_candidate",
     }
+
+
+def test_system_candidate_review_package_covers_all_prediction_systems() -> None:
+    report = build_system_candidate_review_package(Path("."))
+
+    assert report["record_count"] == 100
+    assert report["selected_source_id_count"] == 100
+    assert report["system_ids"] == [
+        "S0_rule_only",
+        "S1_llm_only",
+        "S2_llm_schema_slice",
+        "S3_llm_schema_slice_validator_repair",
+    ]
+    assert all(report["prediction_outputs_exist_by_system"].values())
+    assert report["raw_fact_counts_by_system"]["S0_rule_only"] == 615
+    assert report["raw_fact_counts_by_system"]["S1_llm_only"] == 1211
+    assert report["raw_fact_counts_by_system"]["S2_llm_schema_slice"] == 326
+    assert report["raw_fact_counts_by_system"]["S3_llm_schema_slice_validator_repair"] == 137
+    assert report["candidate_cluster_count"] > report["raw_fact_counts_by_system"]["S0_rule_only"]
+
+    first = report["records"][0]
+    assert first["sample_id"] == "ATCSCC-GOLD-001"
+    assert first["candidate_cluster_count"] > 0
+    assert any(
+        "S1_llm_only" in cluster["source_systems"]
+        for cluster in first["candidate_clusters"]
+    )
+
+    markdown = system_candidate_review_markdown(report)
+    assert "Cross-System Candidate Review" in markdown
+    assert "not itself reviewed gold" in markdown
+
+
+def test_gold_review_batches_split_cross_system_candidates_for_manual_review() -> None:
+    candidate_review = build_system_candidate_review_package(Path("."))
+    report = build_gold_review_batches(Path("."), candidate_review=candidate_review)
+
+    assert report["batch_size"] == 10
+    assert report["batch_count"] == 10
+    assert report["record_count"] == 100
+    assert report["candidate_cluster_count"] == candidate_review["candidate_cluster_count"]
+
+    first_batch = report["batches"][0]
+    assert first_batch["batch_id"] == "batch_01"
+    assert first_batch["record_count"] == 10
+    assert first_batch["first_sample_id"] == "ATCSCC-GOLD-001"
+    assert first_batch["last_sample_id"] == "ATCSCC-GOLD-010"
+    assert first_batch["candidate_cluster_count"] > 0
+
+    batch_markdown = gold_review_batch_markdown(first_batch)
+    assert "Batch Checklist" in batch_markdown
+    assert "ATCSCC-GOLD-001" in batch_markdown
+    assert "valid facts selected" in batch_markdown
+
+    index_markdown = gold_review_batch_index_markdown(report)
+    assert "Gold Review Batches" in index_markdown
+    assert "batch_10" in index_markdown
 
 
 def test_rejection_adjudication_finalizes_property_level_decisions() -> None:
