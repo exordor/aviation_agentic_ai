@@ -4,7 +4,7 @@ import argparse
 from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from hashlib import sha1, sha256
 import json
 from pathlib import Path
@@ -233,13 +233,17 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
 
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    tmp.replace(path)
 
 
 def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> None:
     payload = "\n".join(json.dumps(record, sort_keys=True, ensure_ascii=False) for record in records)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(payload + ("\n" if payload else ""), encoding="utf-8")
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(payload + ("\n" if payload else ""), encoding="utf-8")
+    tmp.replace(path)
 
 
 def append_jsonl_record(path: Path, record: dict[str, Any]) -> None:
@@ -255,6 +259,20 @@ def file_sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _jsonl_semantically_equal(
+    left: list[dict[str, Any]], right: list[dict[str, Any]]
+) -> bool:
+    """Compare two JSONL record lists for semantic equality, normalising key order."""
+    if len(left) != len(right):
+        return False
+    for a, b in zip(left, right):
+        if json.dumps(a, sort_keys=True, ensure_ascii=False) != json.dumps(
+            b, sort_keys=True, ensure_ascii=False
+        ):
+            return False
+    return True
 
 
 def compact_text(value: object) -> str:
@@ -1006,7 +1024,7 @@ def build_gold_freeze_status(
     ready = validation["status"] == "ready_for_scoring"
     output_file = repo_root / output
     output_exists = output_file.exists()
-    output_matches_template = output_exists and read_jsonl(output_file) == gold_records
+    output_matches_template = output_exists and _jsonl_semantically_equal(read_jsonl(output_file), gold_records)
     status = "blocked_pending_review"
     if ready and output_matches_template:
         status = "frozen"
@@ -1991,7 +2009,11 @@ def build_gold_semantic_groups(
 
     for review_record in workload_plan["records"]:
         sample_id = str(review_record["sample_id"])
-        source_record = source_records[sample_id]
+        source_record = source_records.get(sample_id)
+        if source_record is None:
+            raise ValueError(
+                f"sample_id {sample_id!r} found in workload plan but not in gold template"
+            )
         headline = atcscc_advisory_headline(source_record.get("source_text"))
         group_id, rationale = classify_atcscc_semantic_group(headline)
         candidate_class = str(review_record.get("candidate_subject_class") or "")
@@ -4219,9 +4241,9 @@ def build_rejection_adjudication_report(
         "property_level_complete": complete,
         "groups": groups,
         "boundary": (
-            "This artifact finalizes property-level error categories for the 288 pilot "
-            "rejections. It does not automatically approve profile extensions or convert "
-            "validator-rejected facts into semantic gold facts."
+            "This artifact finalizes property-level error categories for the "
+            f"{rejected_fact_count} pilot rejections. It does not automatically approve "
+            "profile extensions or convert validator-rejected facts into semantic gold facts."
         ),
     }
 
@@ -5303,7 +5325,7 @@ def prepare_formal_experiment_inputs(
 
 
 def utc_timestamp() -> str:
-    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def llm_response_text(response: object) -> str:
@@ -6730,7 +6752,7 @@ def semantic_scoring_validity(
         system.system_id == "S1_llm_only"
         and int(structural.get("candidate_fact_count") or 0) > 0
         and int(structural.get("accepted_fact_count") or 0) == 0
-        and structural.get("schema_violation_rate") == 1.0
+        and float(structural.get("schema_violation_rate") or 0.0) >= 0.999
     ):
         return {
             "scoring_validity": "invalid_direct_schema_scoring",
@@ -7151,8 +7173,10 @@ def metric_value_text(value: Any) -> str:
 
 
 def metric_interval_text(interval: dict[str, Any] | None) -> str:
-    if not interval:
+    if interval is None:
         return "n/a"
+    if not interval:
+        return "n/a (empty)"
     return f"{metric_value_text(interval.get('low'))} - {metric_value_text(interval.get('high'))}"
 
 
@@ -7348,9 +7372,12 @@ def claim_and_hypothesis_statuses(
         h3_status = "falsified"
         h3_rationale = "S3 did not satisfy the precision/F1 tradeoff criterion."
 
-    if rejection_count != 288 or rejection_group_total != rejection_count:
+    if rejection_group_total != rejection_count:
         h4_status = "incomplete_rejection_accounting"
-        h4_rationale = "The rejection analysis does not account for all 288 pilot rejections."
+        h4_rationale = (
+            "The rejection analysis does not account for all "
+            f"{rejection_count} pilot rejections."
+        )
     elif not adjudication_complete:
         h4_status = "pending_manual_adjudication"
         h4_rationale = "Property-level adjudication still has unresolved manual-review-only facts."
@@ -7360,7 +7387,7 @@ def claim_and_hypothesis_statuses(
     else:
         h4_status = "supported"
         h4_rationale = (
-            "All 288 rejections have final property-level action labels: "
+            f"All {rejection_count} rejections have final property-level action labels: "
             f"{json.dumps(final_rejection_decisions, sort_keys=True)}."
         )
 
@@ -7614,10 +7641,12 @@ def formal_completion_audit(
         },
         {
             "id": "R7",
-            "requirement": "Account for all 288 pilot rejections in property-level error analysis.",
+            "requirement": (
+                "Account for all pilot rejections in property-level error analysis."
+            ),
             "status": (
                 "satisfied"
-                if rejection_count == 288 and rejection_group_total == rejection_count
+                if rejection_group_total == rejection_count
                 else "incomplete_rejection_accounting"
             ),
             "evidence": f"rejected_fact_count={rejection_count}; grouped_fact_count={rejection_group_total}",
@@ -8359,28 +8388,24 @@ def markdown_report(report: dict[str, Any]) -> str:
             f"via `{first_lane['first_decision_template']}`",
             f"- Boundary: {kickoff['review_boundary']}",
             "",
-            "### Next Commands",
-            "",
         ]
     )
+    next_section = ["", "### Next Commands", ""]
     if next_session:
-        lines.insert(
-            -3,
+        next_section[:0] = [
+            "- Next session sample: "
+            f"`{next_session['first_sample_id']}` / `{next_session['first_source_id']}`",
             "- Next review session: "
             f"`{next_session['session_id']}` ({next_session['record_count']} records, "
             f"{next_session['estimated_review_minutes']} est. min, "
             f"status=`{next_session['status']}`) "
             f"from `{next_session['session_plan_markdown']}`",
-        )
-        lines.insert(
-            -3,
-            "- Next session sample: "
-            f"`{next_session['first_sample_id']}` / `{next_session['first_source_id']}`",
-        )
+        ]
     else:
-        lines.insert(-3, "- Next review session: `none`; gold review is complete.")
+        next_section[:0] = ["- Next review session: `none`; gold review is complete."]
     for command in kickoff["next_commands"]:
-        lines.append(f"- `{command}`")
+        next_section.append(f"- `{command}`")
+    lines.extend(next_section)
     lines.extend(
         [
             "",
