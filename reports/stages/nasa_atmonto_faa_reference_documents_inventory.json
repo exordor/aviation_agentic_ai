@@ -1,0 +1,501 @@
+{
+  "source_family": "faa_reference_documents",
+  "snapshot_date": "2026-06-01",
+  "retrieved_at": "2026-06-01T02:43:41+00:00",
+  "manifest": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/manifest.json",
+  "record_count": 15,
+  "total_bytes": 181320851,
+  "document_groups": [
+    "aim",
+    "aip",
+    "air_traffic_publications",
+    "aviation_weather_handbook",
+    "chart_users_guide",
+    "jo_7110_65",
+    "jo_7210_3",
+    "pilot_controller_glossary"
+  ],
+  "files": [
+    {
+      "source_id": "faa_air_traffic_publications_catalog",
+      "title": "FAA Air Traffic Plans and Publications catalog",
+      "source_url": "https://www.faa.gov/air_traffic/publications/",
+      "final_url": "https://www.faa.gov/air_traffic/publications/",
+      "http_status": 200,
+      "content_type": "text/html;charset=UTF-8",
+      "source_effective_date": null,
+      "raw_payload_hash": "f65a4393f66e1c278310f8740e8290722015666bb375cc904c517c1b72e8ace4",
+      "bytes": 145626,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/faa_air_traffic_publications_catalog.html",
+      "format": "html",
+      "document_group": "air_traffic_publications",
+      "role": "catalog",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "gen"
+      ],
+      "atmonto_targets": [
+        "Air traffic publication inventory",
+        "ATM/NAS reference-document provenance"
+      ],
+      "use_scope": "Catalog page used to anchor the official FAA publication set.",
+      "known_limitations": [
+        "Catalog page is an entrypoint, not a complete content source."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "aim_html_entrypoint",
+      "title": "Aeronautical Information Manual HTML entrypoint",
+      "source_url": "https://www.faa.gov/air_traffic/publications/atpubs/aim_html/index.html",
+      "final_url": "https://www.faa.gov/air_traffic/publications/atpubs/aim_html/index.html",
+      "http_status": 200,
+      "content_type": "text/html;charset=utf-8",
+      "source_effective_date": "2026-04-22",
+      "raw_payload_hash": "e744b7de974c0e7d04128aaf351e6dea0768a926c490a0977c1850c7351074e7",
+      "bytes": 29691,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/aim_html_index.html",
+      "format": "html",
+      "document_group": "aim",
+      "role": "structured_html_entrypoint",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "gen",
+        "data"
+      ],
+      "atmonto_targets": [
+        "Flight",
+        "NavigationFix",
+        "Airport",
+        "FederalAirway",
+        "Location"
+      ],
+      "use_scope": "Structured HTML entrypoint for ATM/NAS concept explanations.",
+      "known_limitations": [
+        "Only the HTML entrypoint is captured; recursive HTML capture is a later step."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "aim_pdf",
+      "title": "Aeronautical Information Manual Basic with Change 1 and 2",
+      "source_url": "https://www.faa.gov/air_traffic/publications/media/AIM_Basic_w_Chg_1_and_2_dtd_1-22-26.pdf",
+      "final_url": "https://www.faa.gov/air_traffic/publications/media/AIM_Basic_w_Chg_1_and_2_dtd_1-22-26.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "source_effective_date": "2026-02-11",
+      "raw_payload_hash": "04c655008742aa97e8440085dfd7aea5f687af51677c1764cfd989093008b06f",
+      "bytes": 41049516,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/AIM_Basic_w_Chg_1_and_2_dtd_1-22-26.pdf",
+      "format": "pdf",
+      "document_group": "aim",
+      "role": "reference_document",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "gen",
+        "data"
+      ],
+      "atmonto_targets": [
+        "Flight",
+        "NavigationFix",
+        "Airport",
+        "FederalAirway",
+        "Location"
+      ],
+      "use_scope": "Official FAA ATM/NAS reference text for concept extraction and QA evidence.",
+      "known_limitations": [
+        "Reference text is not live operational guidance for flight decisions."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "pilot_controller_glossary_html_entrypoint",
+      "title": "Pilot/Controller Glossary HTML entrypoint",
+      "source_url": "https://www.faa.gov/air_traffic/publications/atpubs/pcg_html/index.html",
+      "final_url": "https://www.faa.gov/air_traffic/publications/atpubs/pcg_html/index.html",
+      "http_status": 200,
+      "content_type": "text/html;charset=utf-8",
+      "source_effective_date": "2026-03-03",
+      "raw_payload_hash": "20870190e5c44ac55007f9e0a4343e7da4ccf2091882a2a34cbb8f90b589fd20",
+      "bytes": 11775,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/pilot_controller_glossary_html_index.html",
+      "format": "html",
+      "document_group": "pilot_controller_glossary",
+      "role": "structured_html_entrypoint",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "data",
+        "gen"
+      ],
+      "atmonto_targets": [
+        "Terminology alignment",
+        "Entity aliases",
+        "Controlled labels"
+      ],
+      "use_scope": "Terminology source for labels, aliases, and extraction vocabulary.",
+      "known_limitations": [
+        "Glossary definitions help normalization but do not by themselves create event facts."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "pilot_controller_glossary_pdf",
+      "title": "Pilot/Controller Glossary Basic with Change 1 and 2",
+      "source_url": "https://www.faa.gov/air_traffic/publications/media/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf",
+      "final_url": "https://www.faa.gov/air_traffic/publications/media/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "source_effective_date": "2026-01-22",
+      "raw_payload_hash": "6bf5b614446668f4a431b6fd9a5424811b52db6f80e946cb285d00c8a2d6727b",
+      "bytes": 745529,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf",
+      "format": "pdf",
+      "document_group": "pilot_controller_glossary",
+      "role": "terminology_reference",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "data",
+        "gen"
+      ],
+      "atmonto_targets": [
+        "Terminology alignment",
+        "Entity aliases",
+        "Controlled labels"
+      ],
+      "use_scope": "Official glossary for controlled vocabulary and synonym mapping.",
+      "known_limitations": [
+        "Glossary definitions require mapping rules before KG use."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "aip_html_entrypoint",
+      "title": "Aeronautical Information Publication HTML entrypoint",
+      "source_url": "https://www.faa.gov/air_traffic/publications/atpubs/aip_html/index.html",
+      "final_url": "https://www.faa.gov/air_traffic/publications/atpubs/aip_html/index.html",
+      "http_status": 200,
+      "content_type": "text/html;charset=utf-8",
+      "source_effective_date": "2026-03-27",
+      "raw_payload_hash": "da7622e1e8cf7b67474029e97deee421ac449ef4a27a225d4739e70cf2a09686",
+      "bytes": 33358,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/aip_html_index.html",
+      "format": "html",
+      "document_group": "aip",
+      "role": "structured_html_entrypoint",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "gen"
+      ],
+      "atmonto_targets": [
+        "Airport",
+        "Airspace",
+        "NavigationFix",
+        "FederalAirway",
+        "Location"
+      ],
+      "use_scope": "Structured entrypoint for NAS/airspace/procedure reference text.",
+      "known_limitations": [
+        "Only the HTML entrypoint is captured; recursive HTML capture is a later step."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "aip_pdf",
+      "title": "Aeronautical Information Publication Basic",
+      "source_url": "https://www.faa.gov/air_traffic/publications/media/AIP_Basic_dtd_1-22-26.pdf",
+      "final_url": "https://www.faa.gov/air_traffic/publications/media/AIP_Basic_dtd_1-22-26.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "source_effective_date": "2026-02-11",
+      "raw_payload_hash": "476b7805eae9e8bebb3b4e63c4aafb9ef386c33f9f7b6bac8b9928ecba1e7b2a",
+      "bytes": 49528378,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/AIP_Basic_dtd_1-22-26.pdf",
+      "format": "pdf",
+      "document_group": "aip",
+      "role": "reference_document",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "gen"
+      ],
+      "atmonto_targets": [
+        "Airport",
+        "Airspace",
+        "NavigationFix",
+        "FederalAirway",
+        "Location"
+      ],
+      "use_scope": "Official NAS/airspace/procedure explanatory reference.",
+      "known_limitations": [
+        "Reference text should not be treated as current operational clearance data."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "jo_7110_65_html_entrypoint",
+      "title": "FAA Order JO 7110.65 Air Traffic Control HTML entrypoint",
+      "source_url": "https://www.faa.gov/air_traffic/publications/atpubs/atc_html/",
+      "final_url": "https://www.faa.gov/air_traffic/publications/atpubs/atc_html/",
+      "http_status": 200,
+      "content_type": "text/html;charset=utf-8",
+      "source_effective_date": "2026-02-24",
+      "raw_payload_hash": "27c9f2d6d001230b1f8fe32ea218621b4cfff0d1dbb8bc45b42251804b4b2d67",
+      "bytes": 42330,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/jo_7110_65_atc_html_index.html",
+      "format": "html",
+      "document_group": "jo_7110_65",
+      "role": "structured_html_entrypoint",
+      "atmonto_modules": [
+        "atm",
+        "nas"
+      ],
+      "atmonto_targets": [
+        "Flight",
+        "NavigationFix",
+        "TrafficManagementInitiative"
+      ],
+      "use_scope": "Structured entrypoint for ATC procedure and ATM concept extraction.",
+      "known_limitations": [
+        "Procedure text must not be converted into operational advice."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "jo_7110_65_pdf",
+      "title": "FAA Order JO 7110.65BB Air Traffic Control",
+      "source_url": "https://www.faa.gov/documentLibrary/media/Order/7110.65BB_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+      "final_url": "https://www.faa.gov/documentLibrary/media/Order/7110.65BB_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "source_effective_date": "2026-01-22",
+      "raw_payload_hash": "2c2ea08ee7378a154daf04b48555c2c9bff07192c57c6930aac69339e24f94de",
+      "bytes": 9660913,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/7110.65BB_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+      "format": "pdf",
+      "document_group": "jo_7110_65",
+      "role": "procedure_reference",
+      "atmonto_modules": [
+        "atm",
+        "nas"
+      ],
+      "atmonto_targets": [
+        "Flight",
+        "NavigationFix",
+        "TrafficManagementInitiative"
+      ],
+      "use_scope": "Official ATC procedure reference for ATM/NAS concept coverage.",
+      "known_limitations": [
+        "Use for retrospective text QA only, not live operational decision support."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "jo_7210_3_html_entrypoint",
+      "title": "FAA Order JO 7210.3 Facility Operation and Administration HTML entrypoint",
+      "source_url": "https://www.faa.gov/air_traffic/publications/atpubs/foa_html/",
+      "final_url": "https://www.faa.gov/air_traffic/publications/atpubs/foa_html/",
+      "http_status": 200,
+      "content_type": "text/html;charset=utf-8",
+      "source_effective_date": "2026-03-03",
+      "raw_payload_hash": "1cd70344b26a4111fb667856a9a7ba2039374c3869c66d3b9766bc5056bc9877",
+      "bytes": 54426,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/jo_7210_3_foa_html_index.html",
+      "format": "html",
+      "document_group": "jo_7210_3",
+      "role": "structured_html_entrypoint",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "gen"
+      ],
+      "atmonto_targets": [
+        "Airport",
+        "ARTCC",
+        "TRACON",
+        "Sector",
+        "Location"
+      ],
+      "use_scope": "Structured entrypoint for facility-operation and NAS administration concepts.",
+      "known_limitations": [
+        "Procedure text must be interpreted as source evidence, not operational instruction."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "jo_7210_3_pdf",
+      "title": "FAA Order JO 7210.3EE Facility Operation and Administration",
+      "source_url": "https://www.faa.gov/documentLibrary/media/Order/7210.3EE_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+      "final_url": "https://www.faa.gov/documentLibrary/media/Order/7210.3EE_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "source_effective_date": "2026-01-22",
+      "raw_payload_hash": "3caa7d5c51151918ba763ba6e69a96bafccf8c0916a180bdf4dd8c4c202c9d8e",
+      "bytes": 6134111,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/7210.3EE_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+      "format": "pdf",
+      "document_group": "jo_7210_3",
+      "role": "facility_reference",
+      "atmonto_modules": [
+        "atm",
+        "nas",
+        "gen"
+      ],
+      "atmonto_targets": [
+        "Airport",
+        "ARTCC",
+        "TRACON",
+        "Sector",
+        "Location"
+      ],
+      "use_scope": "Official facility-operation reference for NAS entity and relation coverage.",
+      "known_limitations": [
+        "Use for retrospective evidence and schema coverage only."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "aviation_weather_handbook_page",
+      "title": "Aviation Weather Handbook FAA detail page",
+      "source_url": "https://www.faa.gov/regulationspolicies/handbooksmanuals/aviation/faa-h-8083-28b-aviation-weather-handbook",
+      "final_url": "https://www.faa.gov/regulationspolicies/handbooksmanuals/aviation/faa-h-8083-28b-aviation-weather-handbook",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "source_effective_date": "2026-05-31",
+      "raw_payload_hash": "b651f0d242e3f35fb6cd4055e2ce4b0741a66069e94d0f2bfab081ff75e4675f",
+      "bytes": 104778,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/aviation_weather_handbook_detail.html",
+      "format": "html",
+      "document_group": "aviation_weather_handbook",
+      "role": "catalog",
+      "atmonto_modules": [
+        "data",
+        "nas"
+      ],
+      "atmonto_targets": [
+        "MeteorologicalReport",
+        "WeatherCondition",
+        "forecastingAirport"
+      ],
+      "use_scope": "Detail page anchoring the official Aviation Weather Handbook PDF.",
+      "known_limitations": [
+        "Detail page is provenance metadata, not the main content artifact."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "aviation_weather_handbook_pdf",
+      "title": "FAA-H-8083-28B Aviation Weather Handbook",
+      "source_url": "https://www.faa.gov/sites/faa.gov/files/FAA-H-8083-28B.pdf",
+      "final_url": "https://www.faa.gov/sites/faa.gov/files/FAA-H-8083-28B.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "source_effective_date": "2026-04-13",
+      "raw_payload_hash": "2a87e4a5613e2a8e060aaf83a95dfc55b61b0e576f5b783df9fdcebe62da62c3",
+      "bytes": 18515580,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/FAA-H-8083-28B_Aviation_Weather_Handbook.pdf",
+      "format": "pdf",
+      "document_group": "aviation_weather_handbook",
+      "role": "weather_reference",
+      "atmonto_modules": [
+        "data",
+        "nas"
+      ],
+      "atmonto_targets": [
+        "MeteorologicalReport",
+        "WeatherCondition",
+        "SurfaceWindCondition",
+        "VisibilityCondition",
+        "SkyCondition",
+        "CloudLayer"
+      ],
+      "use_scope": "Weather concept reference paired with AviationWeather METAR/TAF records.",
+      "known_limitations": [
+        "Concept handbook does not provide live weather observations."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "chart_users_guide_page",
+      "title": "Aeronautical Chart Users' Guide FAA page",
+      "source_url": "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/aero_guide/",
+      "final_url": "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/aero_guide/",
+      "http_status": 200,
+      "content_type": "text/html;charset=UTF-8",
+      "source_effective_date": null,
+      "raw_payload_hash": "207159a2240e48a827710e496db6bd9b66246793178721a38b88f1d5b25b3226",
+      "bytes": 114535,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/aeronautical_chart_users_guide_page.html",
+      "format": "html",
+      "document_group": "chart_users_guide",
+      "role": "catalog",
+      "atmonto_modules": [
+        "nas",
+        "gen",
+        "atm"
+      ],
+      "atmonto_targets": [
+        "Airport",
+        "NavigationFix",
+        "FederalAirway",
+        "Location"
+      ],
+      "use_scope": "Guide page anchoring chart-symbol and NAS interpretation artifacts.",
+      "known_limitations": [
+        "Chart interpretation source is not a substitute for NASR records."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    },
+    {
+      "source_id": "chart_users_guide_pdf",
+      "title": "Aeronautical Chart Users' Guide complete PDF",
+      "source_url": "https://aeronav.faa.gov/user_guide/cug-complete_20260122.pdf",
+      "final_url": "https://aeronav.faa.gov/user_guide/cug-complete_20260122.pdf",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "source_effective_date": "2026-03-19",
+      "raw_payload_hash": "1b93d7d67422e789ce6bfdfcb8a21fa9af625e4c1a569b20f77e39291c710be6",
+      "bytes": 55150305,
+      "cached": false,
+      "raw_file": "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/cug-complete_20260122.pdf",
+      "format": "pdf",
+      "document_group": "chart_users_guide",
+      "role": "chart_reference",
+      "atmonto_modules": [
+        "nas",
+        "gen",
+        "atm"
+      ],
+      "atmonto_targets": [
+        "Airport",
+        "NavigationFix",
+        "FederalAirway",
+        "Location"
+      ],
+      "use_scope": "Chart-symbol and NAS interpretation reference paired with NASR records.",
+      "known_limitations": [
+        "Chart guide supports interpretation, not current chart-cycle completeness."
+      ],
+      "retrieval_command": "python scripts/collect_nasa_atmonto_reference_docs.py --snapshot-date 2026-06-01"
+    }
+  ]
+}

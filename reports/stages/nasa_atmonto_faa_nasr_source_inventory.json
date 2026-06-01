@@ -1,0 +1,14 @@
+{
+  "source_family": "faa_nasr",
+  "retrieved_at": "2026-06-01T02:40:01+00:00",
+  "snapshot_date": "2026-05-14",
+  "source_effective_date": "2026-05-14",
+  "cycle_start": "2026-05-14T00:00:00Z",
+  "cycle_end_exclusive": "2026-06-11T00:00:00Z",
+  "experiment_window_start": "2026-05-14T00:00:00Z",
+  "experiment_window_end": "2026-05-21T00:00:00Z",
+  "zip_member_count": 147,
+  "zip_file": "data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip",
+  "processed_file": "data/processed/nasa_atmonto/source/2026-05-14/faa_nasr_zip_inventory.jsonl",
+  "manifest": "data/raw/nasa_atmonto/2026-05-14/faa_nasr/manifest.json"
+}

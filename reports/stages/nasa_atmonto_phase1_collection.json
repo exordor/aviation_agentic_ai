@@ -1,0 +1,100 @@
+{
+  "collection": "nasa_atmonto_phase1_core_sources",
+  "retrieved_at": "2026-06-01T02:40:01+00:00",
+  "snapshot_date": "2026-05-14",
+  "alignment_window": {
+    "start": "2026-05-14T00:00:00Z",
+    "end": "2026-05-21T00:00:00Z",
+    "policy": "fixed historical UTC window selected before retrieval"
+  },
+  "sources": [
+    {
+      "source_family": "aviationweather",
+      "retrieved_at": "2026-06-01T02:40:01+00:00",
+      "snapshot_date": "2026-05-14",
+      "records": [
+        {
+          "source_family": "aviationweather",
+          "record_type": "metar",
+          "record_count": 518,
+          "raw_files": [
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/metar_KJFK_20260514T0000Z_20260521T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/metar_KEWR_20260514T0000Z_20260521T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/metar_KLGA_20260514T0000Z_20260521T0000Z.json"
+          ],
+          "processed_file": "data/processed/nasa_atmonto/source/2026-05-14/aviationweather_metar.jsonl"
+        },
+        {
+          "source_family": "aviationweather",
+          "record_type": "taf",
+          "record_count": 87,
+          "raw_files": [
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260514T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260514T0600Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260514T1200Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260514T1800Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260515T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260515T0600Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260515T1200Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260515T1800Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260516T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260516T0600Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260516T1200Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260516T1800Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260517T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260517T0600Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260517T1200Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260517T1800Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260518T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260518T0600Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260518T1200Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260518T1800Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260519T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260519T0600Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260519T1200Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260519T1800Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260520T0000Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260520T0600Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260520T1200Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260520T1800Z.json",
+            "data/raw/nasa_atmonto/2026-05-14/aviationweather/taf_KJFK_KEWR_KLGA_valid_20260521T0000Z.json"
+          ],
+          "processed_file": "data/processed/nasa_atmonto/source/2026-05-14/aviationweather_taf.jsonl"
+        },
+        {
+          "source_family": "aviationweather",
+          "record_type": "stationinfo",
+          "record_count": 3,
+          "raw_file": "data/raw/nasa_atmonto/2026-05-14/aviationweather/stationinfo_KJFK_KEWR_KLGA.json",
+          "processed_file": "data/processed/nasa_atmonto/source/2026-05-14/aviationweather_stationinfo.jsonl"
+        }
+      ],
+      "manifest": "data/raw/nasa_atmonto/2026-05-14/aviationweather/manifest.json"
+    },
+    {
+      "source_family": "faa_nasr",
+      "retrieved_at": "2026-06-01T02:40:01+00:00",
+      "snapshot_date": "2026-05-14",
+      "source_effective_date": "2026-05-14",
+      "cycle_start": "2026-05-14T00:00:00Z",
+      "cycle_end_exclusive": "2026-06-11T00:00:00Z",
+      "experiment_window_start": "2026-05-14T00:00:00Z",
+      "experiment_window_end": "2026-05-21T00:00:00Z",
+      "zip_member_count": 147,
+      "zip_file": "data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip",
+      "processed_file": "data/processed/nasa_atmonto/source/2026-05-14/faa_nasr_zip_inventory.jsonl",
+      "manifest": "data/raw/nasa_atmonto/2026-05-14/faa_nasr/manifest.json"
+    },
+    {
+      "source_family": "atcscc_advisories",
+      "retrieved_at": "2026-06-01T02:40:01+00:00",
+      "snapshot_date": "2026-05-14",
+      "advisory_count": 867,
+      "downloaded_advisory_links": 867,
+      "alignment_window_start": "2026-05-14T00:00:00Z",
+      "alignment_window_end": "2026-05-21T00:00:00Z",
+      "processed_file": "data/processed/nasa_atmonto/source/2026-05-14/atcscc_advisories.jsonl",
+      "manifest": "data/raw/nasa_atmonto/2026-05-14/atcscc_advisories/manifest.json"
+    }
+  ]
+}

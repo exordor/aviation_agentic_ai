@@ -1,0 +1,79 @@
+{
+  "artifact": "nasa_atmonto_phase1_temporal_alignment",
+  "snapshot_date": "2026-05-14",
+  "alignment_policy": "fixed historical UTC window selected before retrieval",
+  "alignment_window": {
+    "start": "2026-05-14T00:00:00Z",
+    "end": "2026-05-21T00:00:00Z",
+    "boundary_rule": "inclusive for instant records; interval records are included when they intersect the window"
+  },
+  "selected_airports": [
+    "KJFK",
+    "KEWR",
+    "KLGA"
+  ],
+  "source_coverage": {
+    "aviationweather_metar": {
+      "basis": "AviationWeather METAR query window; individual records are filtered by reportTime",
+      "start": "2026-05-14T00:00:00Z",
+      "end": "2026-05-21T00:00:00Z",
+      "observed_record_span": {
+        "start": "2026-05-14T00:00:00Z",
+        "end": "2026-05-21T00:00:00Z",
+        "basis": "reportTime"
+      }
+    },
+    "aviationweather_taf": {
+      "basis": "AviationWeather TAF query timestamps covering fixed window; records are filtered by validity interval",
+      "start": "2026-05-14T00:00:00Z",
+      "end": "2026-05-21T00:00:00Z",
+      "observed_validity_span": {
+        "start": "2026-05-14T00:00:00Z",
+        "end": "2026-05-22T06:00:00Z",
+        "basis": "TAF validity union across collected forecasts"
+      }
+    },
+    "faa_nasr": {
+      "basis": "28-day effective cycle",
+      "start": "2026-05-14T00:00:00Z",
+      "end": "2026-06-11T00:00:00Z",
+      "end_boundary": "exclusive"
+    },
+    "atcscc_advisories": {
+      "basis": "advisory database dates covering fixed alignment window",
+      "start": "2026-05-14T00:00:00Z",
+      "end": "2026-05-21T00:00:00Z"
+    }
+  },
+  "outputs": {
+    "aviationweather_metar": {
+      "path": "data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_metar.jsonl",
+      "record_count": 518
+    },
+    "aviationweather_taf": {
+      "path": "data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_taf.jsonl",
+      "record_count": 87
+    },
+    "aviationweather_stationinfo": {
+      "path": "data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_stationinfo.jsonl",
+      "record_count": 3
+    },
+    "faa_nasr_zip_inventory": {
+      "path": "data/processed/nasa_atmonto/aligned/2026-05-14/faa_nasr_zip_inventory.jsonl",
+      "record_count": 147
+    },
+    "atcscc_advisories": {
+      "path": "data/processed/nasa_atmonto/aligned/2026-05-14/atcscc_advisories.jsonl",
+      "record_count": 718
+    },
+    "temporal_alignment_manifest": {
+      "path": "data/processed/nasa_atmonto/aligned/2026-05-14/temporal_alignment_manifest.json",
+      "record_count": 1
+    }
+  },
+  "limitations": [
+    "The aligned window is a fixed past UTC window selected before retrieval and verified against each source coverage.",
+    "NASR is cycle-valid reference data; every zip member is attached as the reference layer covering the aligned window.",
+    "ATCSCC advisory intervals are parsed from public HTML text and should be reviewed before treating them as gold timestamps."
+  ]
+}

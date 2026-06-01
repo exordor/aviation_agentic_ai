@@ -1,0 +1,60 @@
+{
+  "artifact": "nasa_atmonto_window_selection",
+  "primary_window": {
+    "start": "2026-05-14T00:00:00Z",
+    "end": "2026-05-21T00:00:00Z",
+    "airports": [
+      "KJFK",
+      "KEWR",
+      "KLGA"
+    ],
+    "nasr_cycle_effective_date": "2026-05-14",
+    "nasr_cycle_start": "2026-05-14T00:00:00Z",
+    "nasr_cycle_end_exclusive": "2026-06-11T00:00:00Z",
+    "role": "main public reproducible quantitative experiment"
+  },
+  "paper_windows": [
+    {
+      "source_file": "data/papers/ntrs_ontology_selection/20170006095_nasa_air_traffic_management_ontology.pdf",
+      "window": "July 2014",
+      "airports": [
+        "JFK",
+        "EWR",
+        "LGA"
+      ],
+      "role": "NASA-paper replay target if original instance files or equivalent archived feeds are obtained",
+      "current_status": "not fully reconstructable from current public AviationWeather API path"
+    },
+    {
+      "source_file": "data/papers/ntrs_ontology_selection/20190000452_nasa_atm_ontology_semantic_integration_querying.pdf",
+      "window": "2012-09-08",
+      "airports": [
+        "KATL"
+      ],
+      "role": "query-template and qualitative comparison arm",
+      "current_status": "partial reconstruction only without archived flight and weather feeds"
+    }
+  ],
+  "superseded_windows": [
+    {
+      "start": "2026-05-22T00:00:00Z",
+      "end": "2026-05-29T00:00:00Z",
+      "reason": "not anchored to the available FAA NASR 2026-05-14 effective-cycle start"
+    }
+  ],
+  "aligned_counts": {
+    "aviationweather_metar": 518,
+    "aviationweather_taf": 87,
+    "aviationweather_stationinfo": 3,
+    "faa_nasr_zip_inventory": 147,
+    "atcscc_advisories": 718
+  },
+  "artifact_paths": {
+    "collection_report": "reports/stages/nasa_atmonto_phase1_collection.json",
+    "alignment_report": "reports/stages/nasa_atmonto_temporal_alignment.json",
+    "alignment_markdown": "reports/stages/nasa_atmonto_temporal_alignment.md",
+    "raw_source_root": "data/raw/nasa_atmonto/2026-05-14/",
+    "source_processed_root": "data/processed/nasa_atmonto/source/2026-05-14/",
+    "aligned_processed_root": "data/processed/nasa_atmonto/aligned/2026-05-14/"
+  }
+}

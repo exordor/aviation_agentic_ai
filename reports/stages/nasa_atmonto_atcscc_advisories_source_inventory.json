@@ -1,0 +1,11 @@
+{
+  "source_family": "atcscc_advisories",
+  "retrieved_at": "2026-06-01T02:40:01+00:00",
+  "snapshot_date": "2026-05-14",
+  "advisory_count": 867,
+  "downloaded_advisory_links": 867,
+  "alignment_window_start": "2026-05-14T00:00:00Z",
+  "alignment_window_end": "2026-05-21T00:00:00Z",
+  "processed_file": "data/processed/nasa_atmonto/source/2026-05-14/atcscc_advisories.jsonl",
+  "manifest": "data/raw/nasa_atmonto/2026-05-14/atcscc_advisories/manifest.json"
+}
