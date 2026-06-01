@@ -75,7 +75,8 @@ domain/range violations than an LLM-only extractor.
 
 - Evidence required: lower schema violation rate for `LLM + schema slice` than
   `LLM-only` on the same gold-sampled records.
-- Current status: not yet tested.
+- Current status: supported as structural-only evidence on the prepared 100-record
+  sample; semantic precision/recall impact is pending reviewed gold.
 
 ### C3: Validator/Repair Benefit
 
@@ -84,7 +85,8 @@ reducing manual semantic correctness below the LLM + schema-slice condition.
 
 - Evidence required: repair success rate, post-repair schema violation rate, and
   manual semantic correctness on the same gold sample.
-- Current status: not yet tested.
+- Current status: structural repair evidence is available on the prepared
+  100-record sample; semantic preservation is pending reviewed gold.
 
 ### C4: Rejection Analysis Utility
 
@@ -94,7 +96,10 @@ ATMONTO runtime-profile gaps.
 - Evidence required: every rejection group has a reviewed action label
   (`extractor_bug`, `profile_gap`, `source_ambiguity`, or `manual_review_only`)
   and a regression or profile-extension follow-up.
-- Current status: initial triage exists; final adjudication is pending manual review.
+- Current status: supported at property level. The finalized adjudication covers
+  all 288 pilot rejections: 13 `extractor_bug` facts and 275 `profile_gap`
+  facts. This does not automatically approve profile extensions or semantic gold
+  facts.
 
 ## Hypotheses And Falsification Criteria
 
@@ -344,7 +349,7 @@ groups into:
 - `extractor_bug`: 13 facts (`extensionProbability=MODERATE`, requiring a
   reviewed normalization rule before acceptance).
 
-Initial interpretation:
+Property-level interpretation:
 
 - `controlledNASelement` rejections mostly reflect ARTCC center identifiers that
   the runtime profile does not currently type as `atm:TFMcontrolElement`.

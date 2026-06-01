@@ -63,3 +63,15 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
         "100 sampled advisories have reviewed gold annotations",
     ]:
         assert required in protocol
+
+
+def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
+    protocol = Path("docs/experiment_protocol.md").read_text(encoding="utf-8")
+
+    assert "supported as structural-only evidence" in protocol
+    assert "semantic preservation is pending reviewed gold" in protocol
+    assert "all 288 pilot rejections" in protocol
+    assert "13 `extractor_bug` facts" in protocol
+    assert "275 `profile_gap`" in protocol
+    assert "final adjudication is pending manual review" not in protocol
+    assert "Current status: not yet tested." not in protocol
