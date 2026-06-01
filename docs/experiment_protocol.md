@@ -17,6 +17,7 @@
   - `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
   - `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md`
   - `data/evaluation/nasa_atmonto/review_batches/index.md`
+  - `data/evaluation/nasa_atmonto/gold_review_progress.md`
   - `docs/nasa_atmonto_gold_annotation_guide.md`
   - `reports/stages/nasa_atmonto_gold_freeze_status.md`
   - `data/experiments/nasa_atmonto/formal/input_records.jsonl`
@@ -400,6 +401,7 @@ Each LLM system output must have 100 valid prediction records, one per selected
 ```bash
 uv run python scripts/prepare_nasa_atmonto_system_candidate_review.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_batches.py
+uv run python scripts/prepare_nasa_atmonto_gold_review_progress.py
 ```
 
 Use `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md` as a

@@ -33,6 +33,8 @@ GOLD_CANDIDATE_REVIEW_MD = Path(
 )
 GOLD_REVIEW_BATCH_DIR = Path("data/evaluation/nasa_atmonto/review_batches")
 GOLD_REVIEW_BATCH_INDEX_MD = GOLD_REVIEW_BATCH_DIR / "index.md"
+GOLD_REVIEW_PROGRESS_JSON = Path("data/evaluation/nasa_atmonto/gold_review_progress.json")
+GOLD_REVIEW_PROGRESS_MD = Path("data/evaluation/nasa_atmonto/gold_review_progress.md")
 REJECTION_ANALYSIS_JSON = Path("reports/stages/nasa_atmonto_rejection_error_analysis.json")
 REJECTION_ADJUDICATION_JSON = Path("reports/stages/nasa_atmonto_rejection_adjudication.json")
 REJECTION_ADJUDICATION_MD = Path("reports/stages/nasa_atmonto_rejection_adjudication.md")
@@ -1602,6 +1604,175 @@ def run_gold_review_batches(
         "record_count": report["record_count"],
         "candidate_cluster_count": report["candidate_cluster_count"],
         "batch_files": [batch["path"] for batch in report["batches"]],
+    }
+
+
+def gold_review_record_progress(record: dict[str, Any]) -> dict[str, Any]:
+    annotation = record.get("gold_annotation", {})
+    status = str(annotation.get("annotation_status", "missing_status"))
+    return {
+        "sample_id": record.get("sample_id"),
+        "source_id": record.get("source_id"),
+        "annotation_status": status,
+        "review_complete": status == REVIEWED_GOLD_STATUS,
+        "valid_fact_count": len(annotation.get("valid_facts", [])),
+        "missing_fact_count": len(annotation.get("missing_facts", [])),
+        "invalid_candidate_fact_count": len(annotation.get("invalid_candidate_fact_ids", [])),
+        "rejected_fact_adjudication_count": len(
+            annotation.get("rejected_fact_adjudications", [])
+        ),
+        "notes_present": bool(str(annotation.get("notes", "")).strip()),
+    }
+
+
+def build_gold_review_progress(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+    batch_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
+    selected_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
+    gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    if batch_report is None:
+        batch_report = build_gold_review_batches(repo_root, batch_size=batch_size)
+    validation = validate_gold_annotation_records(
+        gold_records=gold_records,
+        selected_source_ids=selected_ids,
+    )
+    progress_by_source_id = {
+        str(record.get("source_id")): gold_review_record_progress(record)
+        for record in gold_records
+    }
+    batch_progress: list[dict[str, Any]] = []
+    for batch in batch_report["batches"]:
+        records = [
+            progress_by_source_id.get(str(record.get("source_id")))
+            for record in batch["records"]
+        ]
+        concrete_records = [record for record in records if isinstance(record, dict)]
+        reviewed_count = sum(1 for record in concrete_records if record["review_complete"])
+        pending_count = len(concrete_records) - reviewed_count
+        if pending_count == 0 and concrete_records:
+            status = "complete"
+        elif reviewed_count == 0:
+            status = "not_started"
+        else:
+            status = "in_progress"
+        batch_progress.append(
+            {
+                "batch_id": batch["batch_id"],
+                "path": batch["path"],
+                "status": status,
+                "record_count": len(concrete_records),
+                "reviewed_record_count": reviewed_count,
+                "pending_record_count": pending_count,
+                "candidate_cluster_count": batch["candidate_cluster_count"],
+                "first_sample_id": batch["first_sample_id"],
+                "last_sample_id": batch["last_sample_id"],
+                "records": concrete_records,
+            }
+        )
+
+    reviewed_total = sum(batch["reviewed_record_count"] for batch in batch_progress)
+    pending_total = sum(batch["pending_record_count"] for batch in batch_progress)
+    return {
+        "source_family": "nasa_atmonto_gold_review_progress",
+        "status": (
+            "ready_for_freeze"
+            if validation["status"] == "ready_for_scoring"
+            else "pending_manual_review"
+        ),
+        "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "gold_manifest": project_relative_path(repo_root / GOLD_MANIFEST_PATH, repo_root),
+        "batch_index_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_BATCH_INDEX_MD,
+            repo_root,
+        ),
+        "review_progress_json": project_relative_path(
+            repo_root / GOLD_REVIEW_PROGRESS_JSON,
+            repo_root,
+        ),
+        "review_progress_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_PROGRESS_MD,
+            repo_root,
+        ),
+        "record_count": len(gold_records),
+        "reviewed_record_count": reviewed_total,
+        "pending_record_count": pending_total,
+        "batch_count": len(batch_progress),
+        "complete_batch_count": sum(
+            1 for batch in batch_progress if batch["status"] == "complete"
+        ),
+        "validation_status": validation["status"],
+        "validation_error_count": validation["error_count"],
+        "validation_warning_count": validation["warning_count"],
+        "batch_progress": batch_progress,
+        "completion_gate": (
+            "All batches must be complete and gold annotation validation must be "
+            "ready_for_scoring before freezing atcscc_gold_v1.reviewed.jsonl."
+        ),
+    }
+
+
+def gold_review_progress_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Gold Review Progress",
+        "",
+        f"- Status: `{report['status']}`",
+        f"- Gold template: `{report['gold_template']}`",
+        f"- Batch index: `{report['batch_index_markdown']}`",
+        f"- Records: {report['record_count']}",
+        f"- Reviewed records: {report['reviewed_record_count']}",
+        f"- Pending records: {report['pending_record_count']}",
+        f"- Complete batches: {report['complete_batch_count']} / {report['batch_count']}",
+        f"- Validation status: `{report['validation_status']}`",
+        f"- Validation errors: {report['validation_error_count']}",
+        f"- Validation warnings: {report['validation_warning_count']}",
+        "",
+        "## Completion Gate",
+        "",
+        f"- {report['completion_gate']}",
+        "",
+        "## Batch Progress",
+        "",
+        "| Batch | Status | Reviewed | Pending | Candidate clusters | File |",
+        "| --- | --- | ---: | ---: | ---: | --- |",
+    ]
+    for batch in report["batch_progress"]:
+        lines.append(
+            "| "
+            f"`{batch['batch_id']}` | "
+            f"`{batch['status']}` | "
+            f"{batch['reviewed_record_count']} | "
+            f"{batch['pending_record_count']} | "
+            f"{batch['candidate_cluster_count']} | "
+            f"`{batch['path']}` |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def run_gold_review_progress(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    report = build_gold_review_progress(repo_root, batch_size=batch_size)
+    write_json(repo_root / GOLD_REVIEW_PROGRESS_JSON, report)
+    (repo_root / GOLD_REVIEW_PROGRESS_MD).write_text(
+        gold_review_progress_markdown(report),
+        encoding="utf-8",
+    )
+    return {
+        "review_progress_json": report["review_progress_json"],
+        "review_progress_markdown": report["review_progress_markdown"],
+        "status": report["status"],
+        "reviewed_record_count": report["reviewed_record_count"],
+        "pending_record_count": report["pending_record_count"],
+        "complete_batch_count": report["complete_batch_count"],
+        "batch_count": report["batch_count"],
     }
 
 
@@ -3996,6 +4167,7 @@ def run_formal_experiment_readiness(
     prediction_validation = build_prediction_output_validation_report(repo_root)
     candidate_review = build_system_candidate_review_package(repo_root)
     batch_report = build_gold_review_batches(repo_root, candidate_review=candidate_review)
+    progress_report = build_gold_review_progress(repo_root, batch_report=batch_report)
     rejection_adjudication = build_rejection_adjudication_report(repo_root)
     report = build_formal_experiment_readiness(repo_root)
     score_report = build_formal_experiment_score_report(repo_root)
@@ -4006,6 +4178,7 @@ def run_formal_experiment_readiness(
     write_json(repo_root / REJECTION_ADJUDICATION_JSON, rejection_adjudication)
     write_json(repo_root / READINESS_REPORT_JSON, report)
     write_json(repo_root / SCORING_REPORT_JSON, score_report)
+    write_json(repo_root / GOLD_REVIEW_PROGRESS_JSON, progress_report)
     write_jsonl(repo_root / GOLD_CANDIDATE_REVIEW_JSONL, candidate_review["records"])
     (repo_root / GOLD_REVIEW_WORKLIST_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / GOLD_REVIEW_WORKLIST_MD).write_text(
@@ -4040,6 +4213,10 @@ def run_formal_experiment_readiness(
         )
     (repo_root / GOLD_REVIEW_BATCH_INDEX_MD).write_text(
         gold_review_batch_index_markdown(batch_report),
+        encoding="utf-8",
+    )
+    (repo_root / GOLD_REVIEW_PROGRESS_MD).write_text(
+        gold_review_progress_markdown(progress_report),
         encoding="utf-8",
     )
     (repo_root / REJECTION_ADJUDICATION_MD).parent.mkdir(parents=True, exist_ok=True)
@@ -4098,6 +4275,14 @@ def run_formal_experiment_readiness(
         ),
         "gold_review_batch_index_markdown": project_relative_path(
             repo_root / GOLD_REVIEW_BATCH_INDEX_MD,
+            repo_root,
+        ),
+        "gold_review_progress_json": project_relative_path(
+            repo_root / GOLD_REVIEW_PROGRESS_JSON,
+            repo_root,
+        ),
+        "gold_review_progress_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_PROGRESS_MD,
             repo_root,
         ),
         "rejection_adjudication_json": project_relative_path(

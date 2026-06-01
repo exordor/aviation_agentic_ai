@@ -7,6 +7,7 @@
 - Cross-system checklist:
   `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl`
 - Batch review index: `data/evaluation/nasa_atmonto/review_batches/index.md`
+- Progress tracker: `data/evaluation/nasa_atmonto/gold_review_progress.md`
 - Validation command: `uv run python scripts/validate_nasa_atmonto_gold_annotations.py`
 - Boundary: this guide creates a retrospective research gold set. It does not
   support live aviation operations, flight planning, ATC decisions, or safety
@@ -57,6 +58,10 @@ For review ergonomics, use
 `data/evaluation/nasa_atmonto/review_batches/index.md` to work through ten
 10-record Markdown batches. The batch files are checklists only; transfer final
 decisions back into the JSONL template before validation.
+
+After each batch update, run
+`uv run python scripts/prepare_nasa_atmonto_gold_review_progress.py` to refresh
+the batch-level progress report and confirm whether the gold set can be frozen.
 
 ## Invalid Candidate Facts
 

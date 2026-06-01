@@ -11,6 +11,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_annotation_validation_report,
     build_gold_review_worklist,
     build_gold_review_batches,
+    build_gold_review_progress,
     build_prediction_output_validation_report,
     build_rejection_adjudication_report,
     build_system_candidate_review_package,
@@ -23,6 +24,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     run_llm_prediction_system,
     gold_review_batch_index_markdown,
     gold_review_batch_markdown,
+    gold_review_progress_markdown,
     score_report_markdown,
     semantic_metrics,
     structural_metrics,
@@ -853,6 +855,33 @@ def test_gold_review_batches_split_cross_system_candidates_for_manual_review() -
     index_markdown = gold_review_batch_index_markdown(report)
     assert "Gold Review Batches" in index_markdown
     assert "batch_10" in index_markdown
+
+
+def test_gold_review_progress_tracks_batch_completion_against_template() -> None:
+    candidate_review = build_system_candidate_review_package(Path("."))
+    batch_report = build_gold_review_batches(Path("."), candidate_review=candidate_review)
+    report = build_gold_review_progress(Path("."), batch_report=batch_report)
+
+    assert report["status"] == "pending_manual_review"
+    assert report["record_count"] == 100
+    assert report["reviewed_record_count"] == 0
+    assert report["pending_record_count"] == 100
+    assert report["batch_count"] == 10
+    assert report["complete_batch_count"] == 0
+    assert report["validation_status"] == "pending_manual_annotation"
+    assert all(batch["status"] == "not_started" for batch in report["batch_progress"])
+
+    first = report["batch_progress"][0]
+    assert first["batch_id"] == "batch_01"
+    assert first["record_count"] == 10
+    assert first["pending_record_count"] == 10
+    assert first["records"][0]["sample_id"] == "ATCSCC-GOLD-001"
+    assert first["records"][0]["annotation_status"] == "pending_manual_gold_annotation"
+
+    markdown = gold_review_progress_markdown(report)
+    assert "Gold Review Progress" in markdown
+    assert "pending_manual_review" in markdown
+    assert "batch_01" in markdown
 
 
 def test_rejection_adjudication_finalizes_property_level_decisions() -> None:
