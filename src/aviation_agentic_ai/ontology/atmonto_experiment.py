@@ -1807,12 +1807,40 @@ def rejected_fact_decision_template(record: dict[str, Any]) -> list[dict[str, An
     return templates
 
 
+def cross_system_candidate_options(record: dict[str, Any]) -> list[dict[str, Any]]:
+    options: list[dict[str, Any]] = []
+    for cluster in record.get("candidate_clusters", []):
+        if not isinstance(cluster, dict):
+            continue
+        review_fields = cluster.get("review_fields", {})
+        for observation in cluster.get("system_observations", []):
+            if not isinstance(observation, dict):
+                continue
+            system_id = str(observation.get("system_id", ""))
+            fact_id = str(observation.get("fact_id", ""))
+            if system_id == "S0_rule_only" or not fact_id:
+                continue
+            if observation.get("accepted_by_validator") is not True:
+                continue
+            options.append(
+                {
+                    "fact_id": fact_id,
+                    "candidate_id": cluster.get("candidate_id"),
+                    "system_id": system_id,
+                    "validator_status": observation.get("validator_status"),
+                    "review_fields": review_fields,
+                }
+            )
+    return options
+
+
 def gold_review_decision_record(
     *,
     batch_id: str,
     record: dict[str, Any],
     gold_record: dict[str, Any],
 ) -> dict[str, Any]:
+    cross_system_options = cross_system_candidate_options(record)
     return {
         "batch_id": batch_id,
         "sample_id": record.get("sample_id"),
@@ -1823,6 +1851,7 @@ def gold_review_decision_record(
         "reviewed_at": "",
         "notes": "",
         "valid_candidate_fact_ids": [],
+        "valid_cross_system_fact_ids": [],
         "invalid_candidate_fact_ids": [],
         "missing_facts": [],
         "rejected_fact_adjudications": rejected_fact_decision_template(gold_record),
@@ -1836,12 +1865,15 @@ def gold_review_decision_record(
                 for candidate in gold_record.get("candidate_facts", [])
                 if isinstance(candidate, dict)
             ],
+            "cross_system_fact_ids": [option["fact_id"] for option in cross_system_options],
+            "cross_system_candidate_options": cross_system_options,
         },
         "instructions": (
             "Set annotation_status to reviewed only after source-text review. Put accepted "
             "rule-baseline fact IDs in valid_candidate_fact_ids, rejected rule-baseline IDs "
-            "in invalid_candidate_fact_ids, add any cross-system/manual facts to missing_facts, "
-            "and complete every rejected_fact_adjudications decision."
+            "in invalid_candidate_fact_ids, put accepted S1-S3 schema-valid fact IDs in "
+            "valid_cross_system_fact_ids, add corrected/manual facts to missing_facts, and "
+            "complete every rejected_fact_adjudications decision."
         ),
     }
 
@@ -1964,21 +1996,66 @@ def read_gold_review_decisions(decision_dir: Path) -> list[dict[str, Any]]:
     return records
 
 
+def build_cross_system_fact_lookup(
+    *,
+    repo_root: Path,
+    selected_ids: set[str],
+) -> dict[str, dict[str, Any]]:
+    lookup: dict[str, dict[str, Any]] = {}
+    for system in SYSTEMS:
+        if system.system_id == "S0_rule_only":
+            continue
+        parse_result = read_jsonl_lenient(repo_root / system.expected_output)
+        if not parse_result["exists"]:
+            continue
+        for record in valid_prediction_records(parse_result, selected_ids):
+            for fact in system_candidate_facts(system, record):
+                fact_id = str(fact.get("fact_id", ""))
+                if not fact_id:
+                    continue
+                enriched = dict(fact)
+                enriched.setdefault("source_id", record.get("source_id"))
+                enriched["source_system_id"] = system.system_id
+                enriched["selected_as_gold_from_cross_system_candidate"] = True
+                lookup[fact_id] = enriched
+    return lookup
+
+
+def unique_facts_by_id(facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    unique: list[dict[str, Any]] = []
+    for index, fact in enumerate(facts):
+        fact_id = str(fact.get("fact_id") or f"manual-missing-{index}")
+        if fact_id in seen:
+            continue
+        seen.add(fact_id)
+        unique.append(fact)
+    return unique
+
+
 def apply_gold_review_decision_to_record(
     *,
     gold_record: dict[str, Any],
     decision: dict[str, Any],
+    cross_system_fact_lookup: dict[str, dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     errors: list[dict[str, Any]] = []
     source_id = str(gold_record.get("source_id"))
+    cross_system_fact_lookup = cross_system_fact_lookup or {}
     candidate_by_id = {
         str(candidate.get("fact_id")): candidate
         for candidate in gold_record.get("candidate_facts", [])
         if isinstance(candidate, dict) and candidate.get("fact_id")
     }
     valid_ids = [str(value) for value in decision.get("valid_candidate_fact_ids", [])]
+    cross_system_valid_ids = [
+        str(value) for value in decision.get("valid_cross_system_fact_ids", [])
+    ]
     invalid_ids = [str(value) for value in decision.get("invalid_candidate_fact_ids", [])]
     unknown_valid = sorted(set(valid_ids) - set(candidate_by_id))
+    unknown_cross_system_valid = sorted(
+        set(cross_system_valid_ids) - set(cross_system_fact_lookup)
+    )
     unknown_invalid = sorted(set(invalid_ids) - set(candidate_by_id))
     if unknown_valid:
         errors.append(
@@ -1989,6 +2066,15 @@ def apply_gold_review_decision_to_record(
                 "fact_ids": unknown_valid,
             }
         )
+    if unknown_cross_system_valid:
+        errors.append(
+            {
+                "source_id": source_id,
+                "sample_id": gold_record.get("sample_id"),
+                "error": "unknown_valid_cross_system_fact_ids",
+                "fact_ids": unknown_cross_system_valid,
+            }
+        )
     if unknown_invalid:
         errors.append(
             {
@@ -1996,6 +2082,20 @@ def apply_gold_review_decision_to_record(
                 "sample_id": gold_record.get("sample_id"),
                 "error": "unknown_invalid_candidate_fact_ids",
                 "fact_ids": unknown_invalid,
+            }
+        )
+    source_mismatch_ids = sorted(
+        fact_id
+        for fact_id in cross_system_valid_ids
+        if str(cross_system_fact_lookup.get(fact_id, {}).get("source_id")) != source_id
+    )
+    if source_mismatch_ids:
+        errors.append(
+            {
+                "source_id": source_id,
+                "sample_id": gold_record.get("sample_id"),
+                "error": "valid_cross_system_fact_source_mismatch",
+                "fact_ids": source_mismatch_ids,
             }
         )
     if errors:
@@ -2015,15 +2115,21 @@ def apply_gold_review_decision_to_record(
 
     updated = dict(gold_record)
     annotation = dict(updated.get("gold_annotation", {}))
+    manual_missing_facts = [
+        fact for fact in decision.get("missing_facts", []) if isinstance(fact, dict)
+    ]
+    cross_system_missing_facts = [
+        cross_system_fact_lookup[fact_id] for fact_id in cross_system_valid_ids
+    ]
     annotation.update(
         {
             "annotation_status": status,
             "annotator_id": str(decision.get("annotator_id", "")),
             "valid_facts": [candidate_by_id[fact_id] for fact_id in valid_ids],
             "invalid_candidate_fact_ids": invalid_ids,
-            "missing_facts": [
-                fact for fact in decision.get("missing_facts", []) if isinstance(fact, dict)
-            ],
+            "missing_facts": unique_facts_by_id(
+                [*manual_missing_facts, *cross_system_missing_facts]
+            ),
             "rejected_fact_adjudications": [
                 adjudication
                 for adjudication in decision.get("rejected_fact_adjudications", [])
@@ -2054,6 +2160,10 @@ def apply_gold_review_decisions(
     selected_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
     gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
     decisions = read_gold_review_decisions(decision_root)
+    cross_system_fact_lookup = build_cross_system_fact_lookup(
+        repo_root=repo_root,
+        selected_ids=selected_ids,
+    )
     decisions_by_source_id = {str(decision.get("source_id")): decision for decision in decisions}
     errors: list[dict[str, Any]] = []
     duplicate_source_ids = [
@@ -2074,6 +2184,7 @@ def apply_gold_review_decisions(
         updated, record_errors = apply_gold_review_decision_to_record(
             gold_record=record,
             decision=decision,
+            cross_system_fact_lookup=cross_system_fact_lookup,
         )
         errors.extend(record_errors)
         updated_records.append(updated)
@@ -2449,6 +2560,10 @@ def extraction_output_contract() -> dict[str, Any]:
             "Every fact must include a short evidence_text copied from the advisory text. "
             "Do not invent evidence."
         ),
+        "shape_rule": (
+            "Return one flat fact object per predicate-value assertion. Do not return nested "
+            "entity objects or a properties map; convert each property into its own fact."
+        ),
         "empty_case": "If no fact is supported, return an empty facts list.",
     }
 
@@ -2503,11 +2618,16 @@ def prompt_user_content(record: dict[str, Any]) -> str:
 
 
 def llm_only_system_prompt() -> str:
-    return (
-        "Extract a compact knowledge-graph fact payload from one ATCSCC advisory. "
-        "Return strict JSON only. Use descriptive class and predicate labels derived "
-        "from the text. Do not use any external ontology term list or schema "
-        "vocabulary. Every fact must quote evidence_text from the advisory."
+    return "\n".join(
+        [
+            "Extract a compact knowledge-graph fact payload from one ATCSCC advisory.",
+            "Return strict JSON only.",
+            "Use descriptive class and predicate labels derived from the text.",
+            "Do not use any external ontology term list or schema vocabulary.",
+            "Every fact must quote evidence_text from the advisory.",
+            "Output contract:",
+            json.dumps(extraction_output_contract(), ensure_ascii=False, sort_keys=True),
+        ]
     )
 
 
@@ -2518,6 +2638,8 @@ def schema_slice_system_prompt(schema_context: dict[str, Any]) -> str:
             "Return strict JSON only.",
             "Use only the provided NASA ATMONTO ATCSCC schema-slice classes and properties.",
             "Every fact must quote evidence_text from the advisory.",
+            "Output contract:",
+            json.dumps(extraction_output_contract(), ensure_ascii=False, sort_keys=True),
             "Schema slice:",
             json.dumps(schema_context, ensure_ascii=False, sort_keys=True),
         ]
@@ -2756,48 +2878,300 @@ def stable_llm_fact_id(
     return f"{system_id}:{sample_id}:fact-{index + 1:02d}-{digest}"
 
 
+def schema_property_specs(schema_slice: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
+    if not schema_slice:
+        return {}
+    specs: dict[str, dict[str, Any]] = {}
+    for category, fact_type in (
+        ("object_properties", "object_property"),
+        ("datatype_properties", "datatype_property"),
+    ):
+        for row in schema_slice.get(category, []):
+            if not isinstance(row, dict):
+                continue
+            spec = {
+                "fact_type": fact_type,
+                "predicate": row.get("prefixed_name") or row.get("local_name") or row.get("iri"),
+                "datatype": None,
+                "range": row.get("range_set", []),
+            }
+            datatype_set = row.get("datatype_set") or []
+            if fact_type == "datatype_property" and datatype_set:
+                spec["datatype"] = datatype_set[0]
+            for key in (
+                row.get("iri"),
+                row.get("prefixed_name"),
+                row.get("local_name"),
+                term_name(row.get("prefixed_name")),
+                term_name(row.get("iri")),
+            ):
+                if key:
+                    specs[str(key)] = spec
+                    specs[str(key).lower()] = spec
+    return specs
+
+
+def schema_property_spec(
+    property_name: object,
+    property_specs: dict[str, dict[str, Any]],
+) -> dict[str, Any] | None:
+    if not property_name:
+        return None
+    text = str(property_name)
+    return (
+        property_specs.get(text)
+        or property_specs.get(text.lower())
+        or property_specs.get(term_name(text))
+        or property_specs.get(term_name(text).lower())
+    )
+
+
+def property_value_entries(value: object) -> list[object]:
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def first_schema_range(spec: dict[str, Any]) -> str | None:
+    ranges = spec.get("range") or []
+    if isinstance(ranges, list) and len(ranges) == 1:
+        return str(ranges[0])
+    return None
+
+
+def object_value_parts(value: object, spec: dict[str, Any]) -> tuple[object, str | None, str | None]:
+    if isinstance(value, dict):
+        actual = value.get("value", value.get("object", value))
+        object_class = (
+            value.get("object_class")
+            or value.get("type")
+            or value.get("class")
+        )
+        label = value.get("label") or value.get("name") or value.get("id")
+        if isinstance(actual, dict):
+            object_class = (
+                object_class
+                or actual.get("object_class")
+                or actual.get("type")
+                or actual.get("class")
+            )
+            label = label or actual.get("label") or actual.get("name") or actual.get("id")
+            actual = (
+                actual.get("uri")
+                or actual.get("object")
+                or actual.get("id")
+                or label
+                or json.dumps(actual, sort_keys=True, ensure_ascii=False)
+            )
+        object_class = object_class or first_schema_range(spec)
+        return actual, str(object_class) if object_class else None, str(label) if label else None
+    return value, first_schema_range(spec), None
+
+
+def literal_value_parts(value: object) -> tuple[object, str | None]:
+    if isinstance(value, dict):
+        datatype = value.get("datatype")
+        return value.get("value", value.get("literal", "")), str(datatype) if datatype else None
+    return value, None
+
+
+def evidence_for_value(value: object, fallback: object) -> str:
+    if isinstance(value, dict) and value.get("evidence_text"):
+        return str(value["evidence_text"])
+    return str(fallback or "")
+
+
+def fact_subject_class(fact: dict[str, Any]) -> object:
+    return fact.get("subject_class") or fact.get("class") or fact.get("type")
+
+
+def flattened_schema_property_fact(
+    *,
+    raw_fact: dict[str, Any],
+    property_name: object,
+    property_value: object,
+    property_specs: dict[str, dict[str, Any]],
+    task: dict[str, Any],
+) -> dict[str, Any] | None:
+    spec = schema_property_spec(property_name, property_specs)
+    if not spec:
+        return None
+    evidence_text = evidence_for_value(property_value, raw_fact.get("evidence_text"))
+    base: dict[str, Any] = {
+        "source_id": task["source_id"],
+        "source_family": task.get("source_family", "atcscc_advisories"),
+        "subject": raw_fact.get("subject") or f"urn:aviation-agentic-ai:tmi:{task['source_id']}",
+        "subject_class": fact_subject_class(raw_fact),
+        "predicate": spec["predicate"],
+        "fact_type": spec["fact_type"],
+        "evidence_text": evidence_text,
+        "llm_normalization": "schema_object_flattened",
+    }
+    if raw_fact.get("fact_id"):
+        base["source_raw_fact_id"] = raw_fact["fact_id"]
+
+    if spec["fact_type"] == "object_property":
+        object_value, object_class, object_label = object_value_parts(property_value, spec)
+        base["object"] = object_value
+        if object_class:
+            base["object_class"] = object_class
+        if object_label:
+            base["object_label"] = object_label
+    else:
+        value, datatype = literal_value_parts(property_value)
+        base["value"] = value
+        base["datatype"] = datatype or spec.get("datatype")
+    return base
+
+
+def flatten_schema_object_fact(
+    *,
+    fact: dict[str, Any],
+    property_specs: dict[str, dict[str, Any]],
+    task: dict[str, Any],
+) -> list[dict[str, Any]]:
+    flattened: list[dict[str, Any]] = []
+    properties = fact.get("properties")
+    if isinstance(properties, dict):
+        for property_name, property_values in properties.items():
+            for property_value in property_value_entries(property_values):
+                flattened_fact = flattened_schema_property_fact(
+                    raw_fact=fact,
+                    property_name=property_name,
+                    property_value=property_value,
+                    property_specs=property_specs,
+                    task=task,
+                )
+                if flattened_fact:
+                    flattened.append(flattened_fact)
+
+    reserved_keys = {
+        "class",
+        "evidence_text",
+        "fact_id",
+        "id",
+        "properties",
+        "source_family",
+        "source_id",
+        "subject",
+        "subject_class",
+        "type",
+    }
+    for property_name, property_value in fact.items():
+        if property_name in reserved_keys:
+            continue
+        if not schema_property_spec(property_name, property_specs):
+            continue
+        for entry in property_value_entries(property_value):
+            flattened_fact = flattened_schema_property_fact(
+                raw_fact=fact,
+                property_name=property_name,
+                property_value=entry,
+                property_specs=property_specs,
+                task=task,
+            )
+            if flattened_fact:
+                flattened.append(flattened_fact)
+    return flattened
+
+
+def normalize_flat_llm_fact(fact: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(fact)
+    normalized.setdefault("source_id", task["source_id"])
+    normalized.setdefault("source_family", task.get("source_family", "atcscc_advisories"))
+    normalized.setdefault(
+        "subject",
+        f"urn:aviation-agentic-ai:tmi:{task['source_id']}",
+    )
+    if "subject_class" not in normalized:
+        subject_class = fact_subject_class(normalized)
+        if subject_class:
+            normalized["subject_class"] = subject_class
+    if "fact_type" not in normalized:
+        if "value" in normalized:
+            normalized["fact_type"] = "datatype_property"
+        elif "object" in normalized:
+            normalized["fact_type"] = "object_property"
+    return normalized
+
+
 def normalize_llm_facts(
     *,
     payload: dict[str, Any],
     task: dict[str, Any],
+    schema_slice: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
     facts_raw = payload.get("facts", [])
     if not isinstance(facts_raw, list):
         raise ValueError("facts_not_a_list")
     facts: list[dict[str, Any]] = []
     skipped = 0
-    for index, fact in enumerate(facts_raw):
+    property_specs = schema_property_specs(schema_slice)
+    for fact in facts_raw:
         if not isinstance(fact, dict):
             skipped += 1
             continue
-        normalized = dict(fact)
-        normalized.setdefault("source_id", task["source_id"])
-        normalized.setdefault("source_family", task.get("source_family", "atcscc_advisories"))
-        normalized.setdefault(
-            "subject",
-            f"urn:aviation-agentic-ai:tmi:{task['source_id']}",
+        normalized_items = [normalize_flat_llm_fact(fact, task)]
+        flattened_items = flatten_schema_object_fact(
+            fact=fact,
+            property_specs=property_specs,
+            task=task,
         )
-        normalized.setdefault(
-            "fact_id",
-            stable_llm_fact_id(
-                system_id=str(task["system_id"]),
-                sample_id=str(task["sample_id"]),
-                index=index,
-                fact=normalized,
-            ),
-        )
-        facts.append(normalized)
+        if flattened_items:
+            normalized_items = flattened_items
+        for normalized in normalized_items:
+            normalized.setdefault("source_id", task["source_id"])
+            normalized.setdefault(
+                "source_family",
+                task.get("source_family", "atcscc_advisories"),
+            )
+            normalized.setdefault(
+                "subject",
+                f"urn:aviation-agentic-ai:tmi:{task['source_id']}",
+            )
+            normalized.setdefault(
+                "fact_id",
+                stable_llm_fact_id(
+                    system_id=str(task["system_id"]),
+                    sample_id=str(task["sample_id"]),
+                    index=len(facts),
+                    fact=normalized,
+                ),
+            )
+            facts.append(normalized)
     return facts, skipped
+
+
+def normalizer_version() -> str:
+    return "schema_object_flattening_v1"
+
+
+def record_normalizer_metadata(record: dict[str, Any]) -> dict[str, Any]:
+    facts = record.get("facts") or []
+    flattened_count = sum(
+        1
+        for fact in facts
+        if isinstance(fact, dict) and fact.get("llm_normalization") == "schema_object_flattened"
+    )
+    return {
+        "normalizer_version": normalizer_version(),
+        "flattened_schema_object_fact_count": flattened_count,
+    }
 
 
 def parse_llm_prediction_payload(
     *,
     raw_response: str,
     task: dict[str, Any],
+    schema_slice: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     try:
         payload = extract_json_object(raw_response)
-        facts, skipped_fact_count = normalize_llm_facts(payload=payload, task=task)
+        facts, skipped_fact_count = normalize_llm_facts(
+            payload=payload,
+            task=task,
+            schema_slice=schema_slice,
+        )
     except (JSONPayloadExtractionError, ValueError) as exc:
         return {
             "system_id": task["system_id"],
@@ -2821,6 +3195,12 @@ def parse_llm_prediction_payload(
         "raw_response": raw_response,
         "parse_error": None,
         "skipped_non_object_fact_count": skipped_fact_count,
+        "normalizer_version": normalizer_version(),
+        "flattened_schema_object_fact_count": sum(
+            1
+            for fact in facts
+            if fact.get("llm_normalization") == "schema_object_flattened"
+        ),
     }
 
 
@@ -2914,7 +3294,11 @@ def build_llm_prediction_record(
     schema_slice: dict[str, Any],
     invoker: LLMInvoker,
 ) -> dict[str, Any]:
-    initial_record = parse_llm_prediction_payload(raw_response=raw_response, task=task)
+    initial_record = parse_llm_prediction_payload(
+        raw_response=raw_response,
+        task=task,
+        schema_slice=schema_slice,
+    )
     initial_validation = validate_prediction_record(
         record=initial_record,
         source_row=source_row,
@@ -2940,7 +3324,11 @@ def build_llm_prediction_record(
                 validation_results=initial_validation,
             )
         )
-        repaired_record = parse_llm_prediction_payload(raw_response=repair_raw_response, task=task)
+        repaired_record = parse_llm_prediction_payload(
+            raw_response=repair_raw_response,
+            task=task,
+            schema_slice=schema_slice,
+        )
         repair_parse_error = repaired_record.get("parse_error")
         if repaired_record.get("json_adherence"):
             final_record = repaired_record
@@ -3021,6 +3409,11 @@ def build_llm_run_metadata(
         "schema_valid_record_count": sum(1 for record in records if record.get("schema_valid")),
         "repair_attempted_record_count": repair_attempted,
         "repair_success_record_count": repair_success,
+        "normalizer_version": normalizer_version(),
+        "flattened_schema_object_fact_count": sum(
+            int(record.get("flattened_schema_object_fact_count", 0) or 0)
+            for record in records
+        ),
         "limit": limit,
         "claim_boundary": (
             "LLM predictions are experiment outputs only; formal extraction effectiveness still "
@@ -3171,6 +3564,159 @@ def run_llm_prediction_system(
         "schema_valid_record_count": metadata["schema_valid_record_count"],
         "repair_attempted_record_count": metadata["repair_attempted_record_count"],
         "repair_success_record_count": metadata["repair_success_record_count"],
+    }
+
+
+def rebuild_llm_prediction_record_from_saved_raw(
+    *,
+    system: SystemDefinition,
+    existing_record: dict[str, Any],
+    task: dict[str, Any],
+    source_row: dict[str, object],
+    schema_slice: dict[str, Any],
+) -> dict[str, Any]:
+    raw_response = str(existing_record.get("raw_response") or "")
+    initial_record = parse_llm_prediction_payload(
+        raw_response=raw_response,
+        task=task,
+        schema_slice=schema_slice,
+    )
+    initial_validation = validate_prediction_record(
+        record=initial_record,
+        source_row=source_row,
+        schema_slice=schema_slice,
+    )
+
+    repair_attempted = bool(existing_record.get("repair_attempted"))
+    repair_reason = existing_record.get("repair_reason")
+    repair_raw_response = existing_record.get("repair_raw_response")
+    repair_parse_error = existing_record.get("repair_parse_error")
+    final_record = dict(initial_record)
+    if repair_attempted and isinstance(repair_raw_response, str) and repair_raw_response:
+        repaired_record = parse_llm_prediction_payload(
+            raw_response=repair_raw_response,
+            task=task,
+            schema_slice=schema_slice,
+        )
+        repair_parse_error = repaired_record.get("parse_error")
+        if repaired_record.get("json_adherence"):
+            final_record = repaired_record
+
+    final_validation = validate_prediction_record(
+        record=final_record,
+        source_row=source_row,
+        schema_slice=schema_slice,
+    )
+    final_record["validator_results"] = final_validation
+    final_record["initial_validator_results"] = initial_validation
+    final_record["repair_attempted"] = repair_attempted
+    final_record["repair_reason"] = repair_reason
+    final_record["repair_raw_response"] = repair_raw_response
+    final_record["repair_parse_error"] = repair_parse_error
+    final_record["schema_valid"] = (
+        final_record.get("json_adherence") is True
+        and isinstance(final_record.get("facts"), list)
+        and all(item.get("accepted") for item in final_validation)
+    )
+    final_record["reprocessed_from_saved_raw_response"] = True
+    final_record.update(record_normalizer_metadata(final_record))
+    final_record.update(prediction_record_counts(final_record))
+    return final_record
+
+
+def reprocess_llm_prediction_system_outputs(
+    *,
+    system_id: str,
+    repo_root: str | Path = PROJECT_ROOT,
+    output_dir: str | Path | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    system = system_by_id(system_id)
+    if not system.requires_llm:
+        raise ValueError(f"{system_id} is not an LLM prediction system")
+    if not system.prompt_batch:
+        raise ValueError(f"{system_id} does not define a prompt batch")
+
+    run_output_dir = Path(output_dir) if output_dir is not None else FORMAL_OUTPUT_DIR
+    output_dir_abs = run_output_dir if run_output_dir.is_absolute() else repo_root / run_output_dir
+    prediction_output = output_dir_abs / system.expected_output.name
+    metadata_output = output_dir_abs / f"{system_output_stem(system)}_run_metadata.json"
+    existing = read_jsonl_lenient(prediction_output)
+    if not existing["exists"]:
+        raise FileNotFoundError(prediction_output)
+
+    prompt_records = read_jsonl(repo_root / system.prompt_batch)
+    input_records = read_jsonl(repo_root / FORMAL_INPUT_RECORDS_PATH)
+    schema_slice = read_json(repo_root / SCHEMA_SLICE_PATH)
+    tasks_by_source_id = {str(task["source_id"]): task for task in prompt_records}
+    input_by_source_id = {str(record["source_id"]): record for record in input_records}
+    rebuilt_records: list[dict[str, Any]] = []
+    skipped_records: list[str] = []
+    for existing_record in existing["records"]:
+        source_id = str(existing_record.get("source_id"))
+        task = tasks_by_source_id.get(source_id)
+        input_record = input_by_source_id.get(source_id)
+        if not task or not input_record or not existing_record.get("raw_response"):
+            skipped_records.append(source_id)
+            continue
+        rebuilt_records.append(
+            rebuild_llm_prediction_record_from_saved_raw(
+                system=system,
+                existing_record=existing_record,
+                task=task,
+                source_row={"source_id": source_id, "text": input_record.get("source_text", "")},
+                schema_slice=schema_slice,
+            )
+        )
+
+    write_jsonl(prediction_output, rebuilt_records)
+    previous_metadata = read_json_lenient(metadata_output)
+    metadata_payload = previous_metadata.get("payload") or {}
+    metadata = {
+        **metadata_payload,
+        "run_status": "completed"
+        if len(rebuilt_records) == len(prompt_records)
+        else "partial_reprocessed",
+        "runner": "nasa_atmonto_saved_raw_response_reprocessor",
+        "prediction_output": project_relative_path(prediction_output, repo_root),
+        "prediction_record_count": len(rebuilt_records),
+        "completed_source_ids": sorted(str(record.get("source_id")) for record in rebuilt_records),
+        "parse_error_count": sum(
+            1 for record in rebuilt_records if not record.get("json_adherence")
+        ),
+        "schema_valid_record_count": sum(
+            1 for record in rebuilt_records if record.get("schema_valid")
+        ),
+        "repair_attempted_record_count": sum(
+            1 for record in rebuilt_records if record.get("repair_attempted")
+        ),
+        "repair_success_record_count": sum(
+            1
+            for record in rebuilt_records
+            if record.get("repair_attempted")
+            and record.get("repair_parse_error") is None
+            and record.get("schema_valid")
+        ),
+        "normalizer_version": normalizer_version(),
+        "flattened_schema_object_fact_count": sum(
+            int(record.get("flattened_schema_object_fact_count", 0) or 0)
+            for record in rebuilt_records
+        ),
+        "reprocessed_from_saved_raw_response": True,
+        "skipped_reprocess_source_ids": skipped_records,
+    }
+    write_json(metadata_output, metadata)
+    return {
+        "system_id": system.system_id,
+        "prediction_output": project_relative_path(prediction_output, repo_root),
+        "run_metadata": project_relative_path(metadata_output, repo_root),
+        "prediction_record_count": len(rebuilt_records),
+        "skipped_record_count": len(skipped_records),
+        "parse_error_count": metadata["parse_error_count"],
+        "schema_valid_record_count": metadata["schema_valid_record_count"],
+        "repair_attempted_record_count": metadata["repair_attempted_record_count"],
+        "repair_success_record_count": metadata["repair_success_record_count"],
+        "flattened_schema_object_fact_count": metadata["flattened_schema_object_fact_count"],
     }
 
 
@@ -3370,6 +3916,17 @@ def run_metadata_validation(
         "path": project_relative_path(path, repo_root),
         "exists": True,
         "status": "ready" if not errors else "needs_revision",
+        "summary": {
+            "normalizer_version": payload.get("normalizer_version"),
+            "flattened_schema_object_fact_count": payload.get(
+                "flattened_schema_object_fact_count"
+            ),
+            "reprocessed_from_saved_raw_response": payload.get(
+                "reprocessed_from_saved_raw_response",
+            ),
+            "schema_valid_record_count": payload.get("schema_valid_record_count"),
+            "repair_success_record_count": payload.get("repair_success_record_count"),
+        },
         "errors": errors,
         "warnings": warnings,
     }
@@ -3492,11 +4049,14 @@ def prediction_output_validation_markdown(report: dict[str, Any]) -> str:
         "",
         "## Systems",
         "",
-        "| System | Status | Output | Run Metadata | JSON adherence | Missing records | Pending | Errors |",
-        "| --- | --- | --- | --- | ---: | ---: | --- | --- |",
+        "| System | Status | Output | Run Metadata | JSON adherence | Missing records | Normalizer | Flattened facts | Schema-valid records | Pending | Errors |",
+        "| --- | --- | --- | --- | ---: | ---: | --- | ---: | ---: | --- | --- |",
     ]
     for system in report["systems"]:
         json_metrics = system.get("json_metrics") or {}
+        metadata_summary = system.get("run_metadata", {}).get("summary") or {}
+        flattened = metadata_summary.get("flattened_schema_object_fact_count")
+        schema_valid_records = metadata_summary.get("schema_valid_record_count")
         lines.append(
             "| "
             f"`{system['system_id']}` | "
@@ -3505,6 +4065,9 @@ def prediction_output_validation_markdown(report: dict[str, Any]) -> str:
             f"`{system['run_metadata']['exists']}` | "
             f"{json_metrics.get('json_adherence')} | "
             f"{json_metrics.get('missing_output_record_count')} | "
+            f"`{metadata_summary.get('normalizer_version') or ''}` | "
+            f"{'' if flattened is None else flattened} | "
+            f"{'' if schema_valid_records is None else schema_valid_records} | "
             f"`{', '.join(system['pending'])}` | "
             f"`{', '.join(system['errors'])}` |"
         )

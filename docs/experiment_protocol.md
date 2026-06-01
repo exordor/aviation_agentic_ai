@@ -209,6 +209,8 @@ Prepared execution files:
 - S2 prompt batch: `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
 - S3 prompt batch: `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
 - LLM prediction runner: `scripts/run_nasa_atmonto_llm_predictions.py`
+- Saved-response reprocessor:
+  `scripts/reprocess_nasa_atmonto_llm_predictions.py`
 - Pending/scoring report: `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
 - Prediction-output validation report: `reports/stages/nasa_atmonto_prediction_output_validation.md`
 
@@ -397,6 +399,21 @@ Each LLM system output must have 100 valid prediction records, one per selected
 `source_id`, plus a run metadata JSON file documenting `system_id`,
 `run_status`, `input_records`, and `prediction_output`.
 
+The common output contract is a flat fact schema. Schema-slice LLMs sometimes
+return a nested entity shape such as `type` plus a `properties` map. The
+prediction parser normalizes this into one flat fact per property-value
+assertion before validation. If the parser or normalizer changes, rebuild saved
+prediction records from the committed `raw_response` fields without calling the
+LLM again:
+
+```bash
+uv run python scripts/reprocess_nasa_atmonto_llm_predictions.py all
+```
+
+This reprocessing step is an adapter repair, not a new model run. It should be
+reported separately from S3 validator/repair because it fixes experiment I/O
+shape rather than asking the model to change its extraction.
+
 6. Generate the cross-system candidate review package and reviewer batches.
 
 ```bash
@@ -410,6 +427,13 @@ Use `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md` as a
 coverage checklist during annotation. It aggregates S0-S3 candidate facts by
 sample and marks validator acceptance/rejection, but it is not reviewed gold and
 must not override source-text review.
+
+The structured decision templates expose both `valid_candidate_fact_ids` for S0
+rule-baseline facts and `valid_cross_system_fact_ids` for schema-valid S1-S3
+facts. Applying reviewed decisions copies S0 facts into `valid_facts` and
+schema-valid cross-system facts into `missing_facts` with provenance. This keeps
+the gold set source-reviewed while avoiding manual retyping of correct S1-S3
+candidate facts.
 
 7. Complete manual annotation in
    `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`.

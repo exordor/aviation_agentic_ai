@@ -11,9 +11,9 @@
 
 ## Systems
 
-| System | Status | Output | Run Metadata | JSON adherence | Missing records | Pending | Errors |
-| --- | --- | --- | --- | ---: | ---: | --- | --- |
-| `S0_rule_only` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `` | `` |
-| `S1_llm_only` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `` | `` |
-| `S2_llm_schema_slice` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `` | `` |
-| `S3_llm_schema_slice_validator_repair` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `` | `` |
+| System | Status | Output | Run Metadata | JSON adherence | Missing records | Normalizer | Flattened facts | Schema-valid records | Pending | Errors |
+| --- | --- | --- | --- | ---: | ---: | --- | ---: | ---: | --- | --- |
+| `S0_rule_only` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `` |  |  | `` | `` |
+| `S1_llm_only` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 0 | 0 | `` | `` |
+| `S2_llm_schema_slice` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 465 | 44 | `` | `` |
+| `S3_llm_schema_slice_validator_repair` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 321 | 68 | `` | `` |

@@ -65,6 +65,17 @@ For structured entry, edit the JSONL files under
 `uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py` to produce a
 reviewed-draft gold template for validation.
 
+Decision files support two accepted-fact paths:
+
+- `valid_candidate_fact_ids`: S0 rule-baseline candidate IDs copied into
+  `valid_facts`.
+- `valid_cross_system_fact_ids`: schema-valid S1-S3 candidate IDs copied into
+  `missing_facts` with `source_system_id` provenance. Use this only after
+  checking the source text; the cross-system package is a checklist, not truth.
+
+Free-form or corrected facts that cannot be copied directly from S0-S3 should
+still be entered manually in `missing_facts`.
+
 After each batch update, run
 `uv run python scripts/prepare_nasa_atmonto_gold_review_progress.py` to refresh
 the batch-level progress report and confirm whether the gold set can be frozen.

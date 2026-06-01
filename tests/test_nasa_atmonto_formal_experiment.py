@@ -22,6 +22,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     parse_llm_prediction_payload,
     prepare_formal_experiment_inputs,
     property_level_semantic_metrics,
+    reprocess_llm_prediction_system_outputs,
     rejection_adjudication_markdown,
     run_llm_prediction_system,
     gold_review_batch_index_markdown,
@@ -225,6 +226,67 @@ def test_llm_prediction_payload_parser_marks_invalid_json_non_adherent() -> None
     assert record["parse_error"]
 
 
+def test_llm_prediction_payload_parser_flattens_schema_object_shape() -> None:
+    schema_slice = json.loads(
+        Path("data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    record = parse_llm_prediction_payload(
+        raw_response=json.dumps(
+            {
+                "source_id": "2026-05-14:001",
+                "source_family": "atcscc_advisories",
+                "facts": [
+                    {
+                        "subject": "urn:aviation-agentic-ai:tmi:2026-05-14:001",
+                        "type": "atm:TrafficManagementInitiative",
+                        "properties": {
+                            "atm:advisoryNumber": [
+                                {
+                                    "value": 1,
+                                    "evidence_text": "ATCSCC ADVZY 001",
+                                }
+                            ],
+                            "atm:issuedTime": [
+                                {
+                                    "value": "2026-05-14T00:01:00Z",
+                                    "evidence_text": "SIGNATURE: 26/05/14 00:01",
+                                }
+                            ],
+                            "atm:controlledNASelement": [
+                                {
+                                    "value": {"label": "ZNY", "type": "nas:ARTCC"},
+                                    "evidence_text": "CONSTRAINED FACILITIES: ZNY",
+                                }
+                            ],
+                        },
+                    }
+                ],
+            }
+        ),
+        task={
+            "system_id": "S2_llm_schema_slice",
+            "sample_id": "ATCSCC-GOLD-001",
+            "source_id": "2026-05-14:001",
+            "source_family": "atcscc_advisories",
+        },
+        schema_slice=schema_slice,
+    )
+
+    assert record["json_adherence"] is True
+    assert record["flattened_schema_object_fact_count"] == 3
+    assert [fact["predicate"] for fact in record["facts"]] == [
+        "atm:advisoryNumber",
+        "atm:issuedTime",
+        "atm:controlledNASelement",
+    ]
+    assert all(fact["subject_class"] == "atm:TrafficManagementInitiative" for fact in record["facts"])
+    assert record["facts"][2]["fact_type"] == "object_property"
+    assert record["facts"][2]["object"] == "ZNY"
+    assert record["facts"][2]["object_class"] == "nas:ARTCC"
+
+
 def test_s3_llm_runner_repairs_validator_rejected_payload(tmp_path: Path) -> None:
     schema_target = tmp_path / "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json"
     schema_target.parent.mkdir(parents=True, exist_ok=True)
@@ -301,6 +363,100 @@ def test_s3_llm_runner_repairs_validator_rejected_payload(tmp_path: Path) -> Non
     )
     assert output["json_adherence"] is True
     assert output["repair_attempted"] is True
+    assert output["accepted_fact_count"] == 1
+    assert output["rejected_fact_count"] == 0
+
+
+def test_reprocess_llm_predictions_rebuilds_saved_schema_object_raw_response(
+    tmp_path: Path,
+) -> None:
+    schema_target = tmp_path / "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json"
+    schema_target.parent.mkdir(parents=True, exist_ok=True)
+    schema_target.write_text(
+        Path("data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+
+    formal_dir = tmp_path / "data/experiments/nasa_atmonto/formal"
+    formal_dir.mkdir(parents=True, exist_ok=True)
+    input_record = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_family": "atcscc_advisories",
+        "source_text": "ATCSCC ADVZY 001 SIGNATURE: 26/05/14 00:01",
+    }
+    (formal_dir / "input_records.jsonl").write_text(
+        json.dumps(input_record, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    task = {
+        "task_id": "S2_llm_schema_slice:ATCSCC-GOLD-001",
+        "system_id": "S2_llm_schema_slice",
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_family": "atcscc_advisories",
+        "messages": [{"role": "user", "content": input_record["source_text"]}],
+    }
+    (formal_dir / "s2_llm_schema_slice_prompt_batch.jsonl").write_text(
+        json.dumps(task, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    raw_response = json.dumps(
+        {
+            "source_id": "2026-05-14:001",
+            "source_family": "atcscc_advisories",
+            "facts": [
+                {
+                    "type": "atm:TrafficManagementInitiative",
+                    "properties": {
+                        "atm:advisoryNumber": {
+                            "value": 1,
+                            "evidence_text": "ATCSCC ADVZY 001",
+                        }
+                    },
+                }
+            ],
+        }
+    )
+    stale_record = {
+        "system_id": "S2_llm_schema_slice",
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_family": "atcscc_advisories",
+        "json_adherence": True,
+        "facts": [{"type": "atm:TrafficManagementInitiative", "properties": {}}],
+        "raw_response": raw_response,
+        "parse_error": None,
+        "validator_results": [
+            {
+                "accepted": False,
+                "fact_id": "stale",
+                "errors": ["unknown_fact_type"],
+            }
+        ],
+    }
+    (formal_dir / "s2_llm_schema_slice_predictions.jsonl").write_text(
+        json.dumps(stale_record, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    (formal_dir / "s2_llm_schema_slice_run_metadata.json").write_text(
+        json.dumps({"system_id": "S2_llm_schema_slice"}, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    result = reprocess_llm_prediction_system_outputs(
+        system_id="S2_llm_schema_slice",
+        repo_root=tmp_path,
+    )
+
+    assert result["prediction_record_count"] == 1
+    assert result["flattened_schema_object_fact_count"] == 1
+    output = json.loads(
+        (formal_dir / "s2_llm_schema_slice_predictions.jsonl").read_text(encoding="utf-8")
+    )
+    assert output["reprocessed_from_saved_raw_response"] is True
     assert output["accepted_fact_count"] == 1
     assert output["rejected_fact_count"] == 0
 
@@ -521,9 +677,9 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     claim_status = {item["id"]: item["status"] for item in report["claim_statuses"]}
     hypothesis_status = {item["id"]: item["status"] for item in report["hypothesis_statuses"]}
     assert claim_status["C1"] == "supported_by_pilot"
-    assert claim_status["C2"] == "falsified"
+    assert claim_status["C2"] == "supported_structural_only"
     assert claim_status["C4"] == "supported"
-    assert hypothesis_status["H1"] == "falsified"
+    assert hypothesis_status["H1"] == "supported_structural_only"
     assert hypothesis_status["H4"] == "supported"
     assert report["rejection_adjudication"]["property_level_complete"] is True
     assert report["rejection_adjudication"]["decision_counts_by_fact"] == {
@@ -817,8 +973,8 @@ def test_system_candidate_review_package_covers_all_prediction_systems() -> None
     assert all(report["prediction_outputs_exist_by_system"].values())
     assert report["raw_fact_counts_by_system"]["S0_rule_only"] == 615
     assert report["raw_fact_counts_by_system"]["S1_llm_only"] == 1211
-    assert report["raw_fact_counts_by_system"]["S2_llm_schema_slice"] == 326
-    assert report["raw_fact_counts_by_system"]["S3_llm_schema_slice_validator_repair"] == 137
+    assert report["raw_fact_counts_by_system"]["S2_llm_schema_slice"] == 708
+    assert report["raw_fact_counts_by_system"]["S3_llm_schema_slice_validator_repair"] == 396
     assert report["candidate_cluster_count"] > report["raw_fact_counts_by_system"]["S0_rule_only"]
 
     first = report["records"][0]
@@ -903,7 +1059,10 @@ def test_gold_review_decision_templates_prepare_structured_review_inputs() -> No
     assert first_record["sample_id"] == "ATCSCC-GOLD-001"
     assert first_record["annotation_status"] == "pending_manual_gold_annotation"
     assert first_record["valid_candidate_fact_ids"] == []
+    assert first_record["valid_cross_system_fact_ids"] == []
     assert first_record["review_context"]["candidate_cluster_count"] > 0
+    assert first_record["review_context"]["cross_system_fact_ids"]
+    assert first_record["review_context"]["cross_system_candidate_options"]
 
     markdown = gold_review_decision_index_markdown(report)
     assert "Gold Review Decision Templates" in markdown
@@ -930,7 +1089,7 @@ def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) 
     record = {
         "sample_id": "ATCSCC-GOLD-001",
         "source_id": "SRC1",
-        "source_text": "ATCSCC ADVZY 001",
+        "source_text": "ATCSCC ADVZY 001 SIGNATURE 00:01",
         "candidate_facts": [fact],
         "validator_results": [],
         "gold_annotation": {
@@ -947,6 +1106,44 @@ def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) 
         json.dumps(record, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    formal_dir = tmp_path / "data/experiments/nasa_atmonto/formal"
+    formal_dir.mkdir(parents=True)
+    cross_fact = {
+        "fact_id": "S2:fact-1",
+        "fact_type": "datatype_property",
+        "subject_class": "TrafficManagementInitiative",
+        "predicate": "issuedTime",
+        "value": "2026-05-14T00:01:00Z",
+        "datatype": "xsd:dateTime",
+        "evidence_text": "SIGNATURE 00:01",
+        "source_id": "SRC1",
+    }
+    s2_record = {
+        "system_id": "S2_llm_schema_slice",
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "SRC1",
+        "source_family": "atcscc_advisories",
+        "json_adherence": True,
+        "facts": [cross_fact],
+        "validator_results": [
+            {
+                "fact_id": "S2:fact-1",
+                "accepted": True,
+                "validated_fact": cross_fact,
+                "status": "repaired_accepted",
+                "errors": [],
+            }
+        ],
+    }
+    for filename in (
+        "s1_llm_only_predictions.jsonl",
+        "s3_llm_schema_slice_validator_repair_predictions.jsonl",
+    ):
+        (formal_dir / filename).write_text("", encoding="utf-8")
+    (formal_dir / "s2_llm_schema_slice_predictions.jsonl").write_text(
+        json.dumps(s2_record, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     decision_dir = eval_dir / "review_decisions"
     decision_dir.mkdir()
     decision = {
@@ -955,6 +1152,7 @@ def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) 
         "annotation_status": "reviewed",
         "annotator_id": "reviewer-1",
         "valid_candidate_fact_ids": ["fact-1"],
+        "valid_cross_system_fact_ids": ["S2:fact-1"],
         "invalid_candidate_fact_ids": [],
         "missing_facts": [],
         "rejected_fact_adjudications": [],
@@ -978,6 +1176,10 @@ def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) 
     draft = json.loads(output.read_text(encoding="utf-8").strip())
     assert draft["gold_annotation"]["annotation_status"] == "reviewed"
     assert draft["gold_annotation"]["valid_facts"][0]["fact_id"] == "fact-1"
+    assert draft["gold_annotation"]["missing_facts"][0]["fact_id"] == "S2:fact-1"
+    assert draft["gold_annotation"]["missing_facts"][0]["source_system_id"] == (
+        "S2_llm_schema_slice"
+    )
 
 
 def test_rejection_adjudication_finalizes_property_level_decisions() -> None:

@@ -103,7 +103,8 @@
         },
         "error_counts": {
           "evidence_not_found_in_source": 3,
-          "unknown_fact_type": 1211,
+          "unknown_fact_type": 35,
+          "unknown_object_class": 1176,
           "unknown_predicate": 1211,
           "unknown_subject_class": 1211
         }
@@ -136,21 +137,27 @@
         "json_adherence": 1.0
       },
       "structural_metrics": {
-        "candidate_fact_count": 326,
-        "accepted_fact_count": 0,
-        "rejected_fact_count": 326,
-        "schema_violation_rate": 1.0,
-        "repair_success_rate": 0.0,
+        "candidate_fact_count": 708,
+        "accepted_fact_count": 361,
+        "rejected_fact_count": 347,
+        "schema_violation_rate": 0.4901129943502825,
+        "repair_success_rate": 0.5098870056497176,
         "status_counts": {
-          "rejected_evidence": 51,
-          "rejected_schema": 275
+          "rejected_evidence": 97,
+          "rejected_schema": 250,
+          "repaired_accepted": 361
         },
         "error_counts": {
-          "evidence_not_found_in_source": 11,
-          "missing_evidence": 40,
-          "unknown_fact_type": 326,
-          "unknown_predicate": 98,
-          "unknown_subject_class": 309
+          "datatype_value_not_datetime": 1,
+          "domain_violation": 3,
+          "evidence_not_found_in_source": 64,
+          "missing_evidence": 33,
+          "predicate_not_object_property": 185,
+          "range_violation": 4,
+          "unknown_fact_type": 9,
+          "unknown_object_class": 233,
+          "unknown_predicate": 15,
+          "unknown_subject_class": 230
         }
       },
       "semantic_metrics": {
@@ -181,20 +188,26 @@
         "json_adherence": 1.0
       },
       "structural_metrics": {
-        "candidate_fact_count": 137,
-        "accepted_fact_count": 0,
-        "rejected_fact_count": 137,
-        "schema_violation_rate": 1.0,
-        "repair_success_rate": 0.0,
+        "candidate_fact_count": 396,
+        "accepted_fact_count": 286,
+        "rejected_fact_count": 110,
+        "schema_violation_rate": 0.2777777777777778,
+        "repair_success_rate": 0.7222222222222222,
         "status_counts": {
-          "rejected_evidence": 25,
-          "rejected_schema": 112
+          "rejected_evidence": 19,
+          "rejected_schema": 91,
+          "repaired_accepted": 286
         },
         "error_counts": {
-          "missing_evidence": 25,
-          "unknown_fact_type": 137,
-          "unknown_predicate": 67,
-          "unknown_subject_class": 133
+          "allowed_value_violation": 1,
+          "evidence_not_found_in_source": 1,
+          "missing_evidence": 18,
+          "predicate_not_object_property": 54,
+          "range_violation": 15,
+          "unknown_fact_type": 2,
+          "unknown_object_class": 73,
+          "unknown_predicate": 5,
+          "unknown_subject_class": 69
         }
       },
       "semantic_metrics": {
@@ -241,8 +254,8 @@
     {
       "id": "C2",
       "label": "Schema-slice constraint benefit",
-      "status": "falsified",
-      "rationale": "S2 did not reduce schema violation rate by the required 10 percentage points.",
+      "status": "supported_structural_only",
+      "rationale": "S2 schema violation rate is at least 10 percentage points lower than S1; gold-supported fact suppression still needs reviewed gold if unavailable.",
       "evidence": [
         "S1_llm_only structural metrics",
         "S2_llm_schema_slice structural metrics"
@@ -273,12 +286,12 @@
     {
       "id": "H1",
       "label": "Schema guidance reduces structural drift",
-      "status": "falsified",
-      "rationale": "S2 did not reduce schema violation rate by the required 10 percentage points.",
+      "status": "supported_structural_only",
+      "rationale": "S2 schema violation rate is at least 10 percentage points lower than S1; gold-supported fact suppression still needs reviewed gold if unavailable.",
       "evidence": [
         "s1_schema_violation_rate=1.0",
-        "s2_schema_violation_rate=1.0",
-        "s1_minus_s2=0.0"
+        "s2_schema_violation_rate=0.4901129943502825",
+        "s1_minus_s2=0.5098870056497176"
       ],
       "falsification_criterion": "Falsified if S2 does not reduce schema violation rate versus S1 by at least 10 percentage points, or if the reduction only comes from suppressing more than 25 percent of gold-supported facts."
     },
@@ -288,9 +301,9 @@
       "status": "pending_manual_gold",
       "rationale": "Structural repair can be inspected, but semantic preservation requires reviewed gold.",
       "evidence": [
-        "s2_accepted_fact_count=0",
-        "s3_accepted_fact_count=0",
-        "s3_repair_success_rate=0.0",
+        "s2_accepted_fact_count=361",
+        "s3_accepted_fact_count=286",
+        "s3_repair_success_rate=0.7222222222222222",
         "s2_manual_semantic_correctness=None",
         "s3_manual_semantic_correctness=None"
       ],
@@ -381,7 +394,7 @@
         "id": "R9",
         "requirement": "Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4.",
         "status": "pending_scoring",
-        "evidence": "{\"C1\": \"supported_by_pilot\", \"C2\": \"falsified\", \"C3\": \"pending_manual_gold\", \"C4\": \"supported\", \"H1\": \"falsified\", \"H2\": \"pending_manual_gold\", \"H3\": \"pending_manual_gold\", \"H4\": \"supported\"}"
+        "evidence": "{\"C1\": \"supported_by_pilot\", \"C2\": \"supported_structural_only\", \"C3\": \"pending_manual_gold\", \"C4\": \"supported\", \"H1\": \"supported_structural_only\", \"H2\": \"pending_manual_gold\", \"H3\": \"pending_manual_gold\", \"H4\": \"supported\"}"
       }
     ],
     "claim_boundary": "A satisfied audit means the formal experiment can be reported; pending items must remain described as pilot/prepared-state evidence."

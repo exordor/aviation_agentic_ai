@@ -73,6 +73,7 @@
       "datatype_property"
     ],
     "evidence_rule": "Every fact must include a short evidence_text copied from the advisory text. Do not invent evidence.",
+    "shape_rule": "Return one flat fact object per predicate-value assertion. Do not return nested entity objects or a properties map; convert each property into its own fact.",
     "empty_case": "If no fact is supported, return an empty facts list."
   },
   "schema_context_summary": {

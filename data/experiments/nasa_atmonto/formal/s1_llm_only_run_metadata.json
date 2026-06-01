@@ -4,7 +4,7 @@
   "output_scope": "formal",
   "resumed": true,
   "skipped_existing_record_count": 0,
-  "runner": "nasa_atmonto_prompt_batch_llm_runner",
+  "runner": "nasa_atmonto_saved_raw_response_reprocessor",
   "provider": "openai",
   "model": "gpt-5.4-mini",
   "temperature": 0.0,
@@ -123,5 +123,9 @@
   "repair_attempted_record_count": 0,
   "repair_success_record_count": 0,
   "limit": null,
-  "claim_boundary": "LLM predictions are experiment outputs only; formal extraction effectiveness still requires reviewed gold annotations and scoring."
+  "claim_boundary": "LLM predictions are experiment outputs only; formal extraction effectiveness still requires reviewed gold annotations and scoring.",
+  "normalizer_version": "schema_object_flattening_v1",
+  "flattened_schema_object_fact_count": 0,
+  "reprocessed_from_saved_raw_response": true,
+  "skipped_reprocess_source_ids": []
 }
