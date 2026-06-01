@@ -1,6 +1,6 @@
 SNAPSHOT_DATE ?= 2026-06-01
 
-.PHONY: validate reports-core reports-main-experiments reports-review thesis-dashboard thesis-all airm-o
+.PHONY: validate reports-core reports-main-experiments reports-review thesis-dashboard thesis-all airm-o sync-windows sync-windows-dry-run sync-windows-list
 
 validate:
 	uv run ruff check .
@@ -34,5 +34,14 @@ thesis-dashboard:
 
 airm-o:
 	uv run python scripts/collect_airm_o_pipeline.py --snapshot-date $(SNAPSHOT_DATE)
+
+sync-windows:
+	uv run python scripts/sync_windows_workspace.py
+
+sync-windows-dry-run:
+	uv run python scripts/sync_windows_workspace.py --dry-run
+
+sync-windows-list:
+	uv run python scripts/sync_windows_workspace.py --list-only
 
 thesis-all: reports-core reports-main-experiments reports-review thesis-dashboard validate
