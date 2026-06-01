@@ -74,7 +74,8 @@
         "precision": null,
         "recall": null,
         "f1": null,
-        "manual_semantic_correctness": null
+        "manual_semantic_correctness": null,
+        "confidence_intervals": null
       },
       "property_level_semantic_metrics": []
     },
@@ -123,7 +124,8 @@
         "precision": null,
         "recall": null,
         "f1": null,
-        "manual_semantic_correctness": null
+        "manual_semantic_correctness": null,
+        "confidence_intervals": null
       },
       "property_level_semantic_metrics": []
     },
@@ -178,7 +180,8 @@
         "precision": null,
         "recall": null,
         "f1": null,
-        "manual_semantic_correctness": null
+        "manual_semantic_correctness": null,
+        "confidence_intervals": null
       },
       "property_level_semantic_metrics": []
     },
@@ -232,7 +235,8 @@
         "precision": null,
         "recall": null,
         "f1": null,
-        "manual_semantic_correctness": null
+        "manual_semantic_correctness": null,
+        "confidence_intervals": null
       },
       "property_level_semantic_metrics": []
     }

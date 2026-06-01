@@ -169,7 +169,8 @@
       "precision": null,
       "recall": null,
       "f1": null,
-      "manual_semantic_correctness": null
+      "manual_semantic_correctness": null,
+      "confidence_intervals": null
     }
   },
   "metrics_defined": [

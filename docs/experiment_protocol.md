@@ -335,7 +335,11 @@ f1 = 2 * precision * recall / (precision + recall)
 ```
 
 Report micro-averaged scores and property-level scores. Do not hide
-property-level failures inside a single average.
+property-level failures inside a single average. When reviewed gold is
+available, report deterministic record-level bootstrap 95 percent confidence
+intervals for precision, recall, F1, and manual semantic correctness. The
+bootstrap unit is `source_id`, so the uncertainty estimate respects the
+advisory-level sampling design.
 
 ### Repair Success Rate
 

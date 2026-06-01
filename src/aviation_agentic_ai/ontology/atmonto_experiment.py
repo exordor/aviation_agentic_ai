@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from hashlib import sha1, sha256
 import json
 from pathlib import Path
+from random import Random
 import sys
 from typing import Any, Callable
 
@@ -81,6 +82,8 @@ READINESS_REPORT_JSON = Path("reports/stages/nasa_atmonto_formal_experiment_read
 READINESS_REPORT_MD = Path("reports/stages/nasa_atmonto_formal_experiment_readiness.md")
 SCORING_REPORT_JSON = Path("reports/stages/nasa_atmonto_formal_experiment_scoring.json")
 SCORING_REPORT_MD = Path("reports/stages/nasa_atmonto_formal_experiment_scoring.md")
+SEMANTIC_BOOTSTRAP_ITERATIONS = 200
+SEMANTIC_BOOTSTRAP_SEED = 1701
 GOLD_VALIDATION_REPORT_JSON = Path(
     "reports/stages/nasa_atmonto_gold_annotation_validation.json"
 )
@@ -359,6 +362,97 @@ def accepted_prediction_facts(
     return facts
 
 
+def semantic_metric_values(
+    *,
+    predicted_count: int,
+    gold_count: int,
+    true_positive_count: int,
+) -> dict[str, float]:
+    precision = true_positive_count / predicted_count if predicted_count else 0.0
+    recall = true_positive_count / gold_count if gold_count else 0.0
+    f1 = 0.0 if precision + recall == 0 else 2 * precision * recall / (precision + recall)
+    return {
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "manual_semantic_correctness": precision,
+    }
+
+
+def source_key_groups(keys: set[FactKey]) -> dict[str, set[FactKey]]:
+    groups: dict[str, set[FactKey]] = {}
+    for key in keys:
+        groups.setdefault(key[0], set()).add(key)
+    return groups
+
+
+def percentile_interval(values: list[float], *, lower_q: float = 0.025, upper_q: float = 0.975) -> dict[str, float]:
+    ordered = sorted(values)
+    if not ordered:
+        return {"low": 0.0, "high": 0.0}
+    lower_index = int((len(ordered) - 1) * lower_q)
+    upper_index = int((len(ordered) - 1) * upper_q)
+    return {"low": ordered[lower_index], "high": ordered[upper_index]}
+
+
+def semantic_bootstrap_confidence_intervals(
+    *,
+    prediction_keys: set[FactKey],
+    gold_keys: set[FactKey],
+    iterations: int = SEMANTIC_BOOTSTRAP_ITERATIONS,
+    seed: int = SEMANTIC_BOOTSTRAP_SEED,
+) -> dict[str, Any]:
+    source_ids = sorted(source_id for source_id in {key[0] for key in gold_keys | prediction_keys} if source_id)
+    if not source_ids:
+        return {
+            "available": False,
+            "reason": "source_ids_missing",
+            "method": "record_bootstrap_by_source_id",
+            "iterations": iterations,
+            "seed": seed,
+        }
+
+    predictions_by_source = source_key_groups(prediction_keys)
+    gold_by_source = source_key_groups(gold_keys)
+    rng = Random(seed)
+    samples: dict[str, list[float]] = {
+        "precision": [],
+        "recall": [],
+        "f1": [],
+        "manual_semantic_correctness": [],
+    }
+    for _ in range(iterations):
+        predicted_count = 0
+        gold_count = 0
+        true_positive_count = 0
+        for source_id in (rng.choice(source_ids) for _ in source_ids):
+            predicted = predictions_by_source.get(source_id, set())
+            gold = gold_by_source.get(source_id, set())
+            predicted_count += len(predicted)
+            gold_count += len(gold)
+            true_positive_count += len(predicted & gold)
+        values = semantic_metric_values(
+            predicted_count=predicted_count,
+            gold_count=gold_count,
+            true_positive_count=true_positive_count,
+        )
+        for key in samples:
+            samples[key].append(values[key])
+
+    return {
+        "available": True,
+        "method": "record_bootstrap_by_source_id",
+        "level": 0.95,
+        "iterations": iterations,
+        "seed": seed,
+        "sampled_source_id_count": len(source_ids),
+        "intervals": {
+            key: percentile_interval(values)
+            for key, values in sorted(samples.items())
+        },
+    }
+
+
 def structural_metrics(
     validations: list[dict[str, Any]],
     *,
@@ -421,14 +515,17 @@ def semantic_metrics(
             "recall": None,
             "f1": None,
             "manual_semantic_correctness": None,
+            "confidence_intervals": None,
         }
     prediction_keys = {canonical_fact_key(fact) for fact in predictions}
     true_positive = prediction_keys & gold_keys
     false_positive = prediction_keys - gold_keys
     false_negative = gold_keys - prediction_keys
-    precision = len(true_positive) / len(prediction_keys) if prediction_keys else 0.0
-    recall = len(true_positive) / len(gold_keys) if gold_keys else 0.0
-    f1 = 0.0 if precision + recall == 0 else 2 * precision * recall / (precision + recall)
+    metric_values = semantic_metric_values(
+        predicted_count=len(prediction_keys),
+        gold_count=len(gold_keys),
+        true_positive_count=len(true_positive),
+    )
     return {
         "available": True,
         "predicted_fact_count": len(prediction_keys),
@@ -436,10 +533,11 @@ def semantic_metrics(
         "true_positive_count": len(true_positive),
         "false_positive_count": len(false_positive),
         "false_negative_count": len(false_negative),
-        "precision": precision,
-        "recall": recall,
-        "f1": f1,
-        "manual_semantic_correctness": precision,
+        **metric_values,
+        "confidence_intervals": semantic_bootstrap_confidence_intervals(
+            prediction_keys=prediction_keys,
+            gold_keys=gold_keys,
+        ),
     }
 
 
@@ -5507,6 +5605,12 @@ def metric_value_text(value: Any) -> str:
     return "n/a" if value is None else str(value)
 
 
+def metric_interval_text(interval: dict[str, Any] | None) -> str:
+    if not interval:
+        return "n/a"
+    return f"{metric_value_text(interval.get('low'))} - {metric_value_text(interval.get('high'))}"
+
+
 def status_record(
     *,
     item_id: str,
@@ -6077,6 +6181,31 @@ def score_report_markdown(report: dict[str, Any]) -> str:
             f"{metric_value_text(structural.get('repair_success_rate'))} | "
             f"{semantic_text} |"
         )
+    ci_rows = [
+        (score["system_id"], (score.get("semantic_metrics") or {}).get("confidence_intervals"))
+        for score in report["systems"]
+        if ((score.get("semantic_metrics") or {}).get("confidence_intervals") or {}).get("available")
+    ]
+    if ci_rows:
+        lines.extend(
+            [
+                "",
+                "## Semantic Confidence Intervals",
+                "",
+                "| System | Method | Precision 95% CI | Recall 95% CI | F1 95% CI |",
+                "| --- | --- | ---: | ---: | ---: |",
+            ]
+        )
+        for system_id, intervals in ci_rows:
+            values = intervals["intervals"]
+            lines.append(
+                "| "
+                f"`{system_id}` | "
+                f"`{intervals['method']}` ({intervals['iterations']} iter, seed={intervals['seed']}) | "
+                f"{metric_interval_text(values['precision'])} | "
+                f"{metric_interval_text(values['recall'])} | "
+                f"{metric_interval_text(values['f1'])} |"
+            )
     adjudication = report["rejection_adjudication"]
     lines.extend(
         [

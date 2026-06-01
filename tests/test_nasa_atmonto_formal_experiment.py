@@ -133,11 +133,13 @@ def test_semantic_metrics_wait_for_manual_gold_when_gold_is_empty() -> None:
     assert metrics["available"] is False
     assert metrics["reason"] == "manual_gold_facts_missing"
     assert metrics["precision"] is None
+    assert metrics["confidence_intervals"] is None
 
 
 def test_semantic_metrics_compute_precision_recall_f1_when_gold_exists() -> None:
     fact = {
         "fact_type": "datatype_property",
+        "source_id": "2026-05-14:001",
         "subject_class": "GroundStopTMI",
         "predicate": "advisoryNumber",
         "value": 1,
@@ -149,6 +151,7 @@ def test_semantic_metrics_compute_precision_recall_f1_when_gold_exists() -> None
         predictions=[fact, {**fact, "value": 2}],
         gold_records=[
             {
+                "source_id": "2026-05-14:001",
                 "gold_annotation": {
                     "annotation_status": "reviewed",
                     "valid_facts": [fact],
@@ -165,6 +168,9 @@ def test_semantic_metrics_compute_precision_recall_f1_when_gold_exists() -> None
     assert metrics["precision"] == 0.5
     assert metrics["recall"] == 0.5
     assert metrics["f1"] == 0.5
+    assert metrics["confidence_intervals"]["available"] is True
+    assert metrics["confidence_intervals"]["method"] == "record_bootstrap_by_source_id"
+    assert metrics["confidence_intervals"]["intervals"]["precision"] == {"low": 0.5, "high": 0.5}
 
 
 def test_semantic_metrics_keep_identical_facts_source_scoped() -> None:
@@ -205,6 +211,14 @@ def test_semantic_metrics_keep_identical_facts_source_scoped() -> None:
     assert metrics["precision"] == 1.0
     assert metrics["recall"] == 0.5
     assert metrics["f1"] == 2 / 3
+    assert metrics["confidence_intervals"]["available"] is True
+    assert metrics["confidence_intervals"]["sampled_source_id_count"] == 2
+    assert set(metrics["confidence_intervals"]["intervals"]) == {
+        "f1",
+        "manual_semantic_correctness",
+        "precision",
+        "recall",
+    }
 
 
 def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> None:
