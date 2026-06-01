@@ -120,3 +120,52 @@ offline demo behavior and must be attributed below.
 Commit source code, configs, curated sample data, tests, and final reports.
 Do not commit virtual environments, API keys, vector indexes, downloaded models,
 external repositories, temporary logs, or generated caches.
+
+### ICARUS Ontology / NASA ATMONTO
+
+- Source:
+  https://github.com/UCY-LINC-LAB/icarus-ontology (MIT License)
+- Local:
+  `data/ontology/external/icarus_ontology/`
+- Use in this project:
+  - ATM ontology reference used in ATMONTO experiment and minimal-loop scripts.
+  - Referenced by `atmonto_minimal_loop.py` and `atmonto_experiment.py`.
+
+### AIRM-O Ontology
+
+- Source:
+  https://github.com/airm-o/airm-o (CC-BY-4.0)
+- Local:
+  `data/ontology/external/airm_o/`
+- Use in this project:
+  - ATM Information Reference Model ontology used as external reference.
+  - Referenced by `airm_o.py`.
+
+### NASA Beginner's Guide to Aeronautics (BGA)
+
+- Source:
+  https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/
+- Source type:
+  NASA educational web resource covering aerodynamics principles.
+- Use in this project:
+  - Web source material for aerodynamics ontology extraction.
+
+### Additional Research Papers
+
+- Local reference papers in `data/papers/`:
+  - `2404.16130v2.pdf` — LLM-based ontology construction survey.
+  - `stefanidis_2020_icarus_ontology.pdf` — ICARUS ontology methodology.
+  - `Building a Knowledge Graph for the Air Traffic Management Community.pdf` —
+    ATM KG reference.
+  - `Paper_17-An_Improvement_for_Spatial_Temporal_Queries_of_ATMGRAPH.pdf` —
+    ATMGRAPH spatial-temporal query reference.
+
+## Presentation Generation
+
+### PPTX Generation Script
+
+- Local script:
+  `scripts/build_defense_deck.mjs`
+- Use in this project:
+  - Generates the thesis defense deck as an editable PPTX under `reports/final/`.
+  - Uses the Presentations runtime for PPTX construction.

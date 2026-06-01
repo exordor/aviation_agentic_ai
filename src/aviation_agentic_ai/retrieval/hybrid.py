@@ -304,6 +304,8 @@ def generate_grounded_answer(
         try:
             response = get_llm(temperature=temperature, max_tokens=max_tokens).invoke(messages)
             return str(getattr(response, "content", response)).strip(), prompt
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as exc:
             last_error = exc
             error_name = type(exc).__name__

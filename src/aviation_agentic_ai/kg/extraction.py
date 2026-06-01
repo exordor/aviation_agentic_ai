@@ -713,7 +713,9 @@ def extract_kg_file(
                     max_tokens=max_tokens,
                     extraction_stats=extraction_stats,
                 )
-            except Exception as exc:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except (ValueError, RuntimeError, ConnectionError) as exc:
                 extraction_errors.append(
                     {
                         "chunk_id": chunk.chunk_id,

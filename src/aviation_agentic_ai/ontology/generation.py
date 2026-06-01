@@ -481,7 +481,9 @@ def generate_ontology(
                 max_qa_cycles,
             )
             tip = _json_dump(tip_artifact.model_dump())
-        except Exception as exc:
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except (ValueError, RuntimeError, ConnectionError) as exc:
             failure = {
                 "page": page.page_number,
                 "stage": "srd_tip_validation",
@@ -526,7 +528,9 @@ def generate_ontology(
         for _ in range(max_qa_cycles + 1):
             try:
                 candidate = _invoke_text(llm, _build_coder_prompt(profile, ttl, tip, page_text))
-            except Exception as exc:
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except (ValueError, RuntimeError, ConnectionError) as exc:
                 failure = {
                     "page": page.page_number,
                     "stage": "candidate_generation",

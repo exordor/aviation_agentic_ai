@@ -3,7 +3,11 @@ from __future__ import annotations
 import importlib.util
 import os
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
+
+if TYPE_CHECKING:
+    from fastapi import FastAPI
+    from fastapi.responses import FileResponse, Response
 
 from pydantic import BaseModel, Field
 
@@ -131,7 +135,7 @@ def create_app(
     *,
     project_root: str | Path = PROJECT_ROOT,
     enable_live_query: bool | None = None,
-):
+) -> FastAPI:
     try:
         from fastapi import FastAPI, HTTPException
         from fastapi.responses import FileResponse, Response
@@ -148,15 +152,15 @@ def create_app(
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
     @app.get("/")
-    def index():
+    def index() -> FileResponse:
         return FileResponse(static_dir / "index.html")
 
     @app.get("/favicon.ico", include_in_schema=False)
-    def favicon():
+    def favicon() -> Response:
         return Response(status_code=204)
 
     @app.get("/api/status")
-    def status():
+    def status() -> Any:
         try:
             readiness = build_live_query_readiness(root, enable_live_query=enable_live_query)
             payload = build_demo_status(root, live_query_enabled=readiness["enabled"])
@@ -168,7 +172,7 @@ def create_app(
             raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     @app.get("/api/demo/explanation")
-    def demo_explanation():
+    def demo_explanation() -> Any:
         try:
             return build_demo_explanation(root)
         except WebDataReadError as exc:
@@ -177,7 +181,7 @@ def create_app(
             raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     @app.get("/api/questions")
-    def questions():
+    def questions() -> Any:
         try:
             return {"questions": build_questions(root)}
         except WebDataReadError as exc:
@@ -186,7 +190,7 @@ def create_app(
             raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     @app.get("/api/questions/{cq_id}")
-    def question_detail(cq_id: str):
+    def question_detail(cq_id: str) -> Any:
         try:
             detail = build_question_detail(cq_id, root)
         except WebDataReadError as exc:
@@ -202,7 +206,7 @@ def create_app(
         cq_id: str,
         experiment: Literal["fixed_window", "structure_aware"] = "structure_aware",
         mode: Literal["vector", "graph", "hybrid"] = "hybrid",
-    ):
+    ) -> Any:
         try:
             graph = build_question_kg_graph(cq_id, root, experiment=experiment, mode=mode)
         except WebDataReadError as exc:
@@ -216,7 +220,7 @@ def create_app(
         return graph
 
     @app.get("/api/experiments/summary")
-    def experiments_summary():
+    def experiments_summary() -> Any:
         try:
             return build_experiment_summary(root)
         except WebDataReadError as exc:
@@ -225,7 +229,7 @@ def create_app(
             raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     @app.post("/api/query")
-    def live_query(request: QueryRequest):
+    def live_query(request: QueryRequest) -> Any:
         readiness = build_live_query_readiness(root, enable_live_query=enable_live_query)
         if not readiness["enabled"]:
             raise HTTPException(
