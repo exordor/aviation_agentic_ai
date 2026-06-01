@@ -196,6 +196,21 @@ into existing RDF/Turtle-oriented tools. Create a project runtime profile:
 - `data/ontology/curated/nasa_atmonto_profile.ttl`
 - `configs/extraction_profile_nasa_atmonto.yaml`
 - `data/ontology/mappings/nasa_atmonto_mapping_rules.yaml`
+- `data/ontology/mappings/atmonto_airm_alignment.jsonl`
+
+AIRM-O is an external ATM interoperability reference ontology, not a replacement
+for NASA ATMONTO. The AIRM-O integration stage downloads the AIRM-O ontology and
+the ATMONTO2AIRM reference alignments, then writes a normalized mapping JSONL for
+profile coverage, mapping-rule review, and extension-gap analysis:
+
+```bash
+uv run python scripts/collect_airm_o_pipeline.py --snapshot-date 2026-06-01
+```
+
+Use AIRM-O domain/range information to audit candidate terms and relationships,
+but keep NASA ATMONTO as the primary schema constraint for extraction and
+validation. Alignment records are schema-level references; they are not ABox
+facts and they do not prove extracted triple truth.
 
 The runtime profile should include only terms required by the experiment:
 
@@ -414,6 +429,8 @@ Expected but not guaranteed:
 
 - `data/ontology/curated/nasa_atmonto_profile.ttl`
 - `data/ontology/mappings/nasa_atmonto_mapping_rules.yaml`
+- `data/ontology/mappings/atmonto_airm_alignment.jsonl`
+- `data/ontology/external/airm_o/manifest.json`
 - `configs/extraction_profile_nasa_atmonto.yaml`
 - `configs/nasa_atmonto_experiment.yaml`
 - `data/raw/nasa_atmonto/<snapshot_date>/manifest.json`
@@ -423,6 +440,7 @@ Expected but not guaranteed:
 - `data/cqs/nasa_atmonto_cqs.gold.json`
 - `reports/stages/nasa_atmonto_source_inventory.json`
 - `reports/stages/nasa_atmonto_ontology_profile.json`
+- `reports/stages/airm_o_ontology_alignment.json`
 - `reports/stages/nasa_atmonto_extraction_comparison.json`
 - `reports/stages/nasa_atmonto_integration_validation.json`
 - `reports/stages/nasa_atmonto_cq_evaluation.json`

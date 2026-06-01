@@ -1,4 +1,6 @@
-.PHONY: validate reports-core reports-main-experiments reports-review thesis-dashboard thesis-all
+SNAPSHOT_DATE ?= 2026-06-01
+
+.PHONY: validate reports-core reports-main-experiments reports-review thesis-dashboard thesis-all airm-o
 
 validate:
 	uv run ruff check .
@@ -29,5 +31,8 @@ reports-review:
 
 thesis-dashboard:
 	uv run aviation-ai report thesis-experiment-dashboard
+
+airm-o:
+	uv run python scripts/collect_airm_o_pipeline.py --snapshot-date $(SNAPSHOT_DATE)
 
 thesis-all: reports-core reports-main-experiments reports-review thesis-dashboard validate
