@@ -42,6 +42,12 @@ GOLD_REVIEW_WORKLOAD_PLAN_JSON = Path(
 GOLD_REVIEW_WORKLOAD_PLAN_MD = Path(
     "reports/stages/nasa_atmonto_gold_review_workload_plan.md"
 )
+GOLD_REVIEW_SESSION_PLAN_JSON = Path(
+    "reports/stages/nasa_atmonto_gold_review_session_plan.json"
+)
+GOLD_REVIEW_SESSION_PLAN_MD = Path(
+    "reports/stages/nasa_atmonto_gold_review_session_plan.md"
+)
 GOLD_REVIEW_PRIORITY_PACKET_JSON = Path(
     "reports/stages/nasa_atmonto_gold_review_priority_packets.json"
 )
@@ -2078,6 +2084,227 @@ def run_gold_review_workload_plan(repo_root: str | Path = PROJECT_ROOT) -> dict[
         "estimated_total_review_minutes": plan["estimated_total_review_minutes"],
         "complexity_counts": plan["complexity_counts"],
         "priority_lane_counts": plan["priority_lane_counts"],
+    }
+
+
+def decision_progress_record_lookup(
+    decision_progress: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
+    records: dict[str, dict[str, Any]] = {}
+    for batch in decision_progress.get("batch_progress", []):
+        if not isinstance(batch, dict):
+            continue
+        for record in batch.get("records", []):
+            if isinstance(record, dict) and record.get("source_id"):
+                records[str(record["source_id"])] = record
+    return records
+
+
+def review_session_id(index: int) -> str:
+    return f"session_{index:02d}"
+
+
+def gold_review_session_summary(
+    *,
+    session_id: str,
+    records: list[dict[str, Any]],
+) -> dict[str, Any]:
+    return {
+        "session_id": session_id,
+        "record_count": len(records),
+        "estimated_review_minutes": sum(
+            int(record["estimated_review_minutes"]) for record in records
+        ),
+        "rejected_fact_count": sum(int(record["rejected_fact_count"]) for record in records),
+        "pending_rejected_fact_decision_count": sum(
+            int(record["pending_rejected_fact_decision_count"]) for record in records
+        ),
+        "priority_lane_counts": dict(
+            sorted(Counter(str(record["priority_lane"]) for record in records).items())
+        ),
+        "records": records,
+    }
+
+
+def build_gold_review_session_plan(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    target_session_minutes: int = 90,
+    workload_plan: dict[str, Any] | None = None,
+    decision_progress: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    workload_plan = workload_plan or build_gold_review_workload_plan(repo_root)
+    decision_progress = decision_progress or build_gold_review_decision_progress(repo_root)
+    progress_by_source_id = decision_progress_record_lookup(decision_progress)
+    remaining_records: list[dict[str, Any]] = []
+    for record in workload_plan["recommended_review_order"]:
+        progress = progress_by_source_id.get(str(record.get("source_id")), {})
+        progress_status = progress.get("status", "not_started")
+        if progress_status == "ready_to_apply":
+            continue
+        remaining_records.append(
+            {
+                **record,
+                "decision_status": progress_status,
+                "decision_issue_count": progress.get("issue_count", 0),
+                "pending_rejected_fact_decision_count": progress.get(
+                    "rejected_fact_decisions",
+                    {},
+                ).get("pending", 0),
+                "decision_template": project_relative_path(
+                    repo_root / GOLD_REVIEW_DECISION_DIR / f"{record['batch_id']}.jsonl",
+                    repo_root,
+                ),
+                "priority_packet": project_relative_path(
+                    repo_root
+                    / GOLD_REVIEW_PRIORITY_PACKET_DIR
+                    / f"{record['priority_lane']}.md",
+                    repo_root,
+                ),
+            }
+        )
+
+    sessions: list[dict[str, Any]] = []
+    current_records: list[dict[str, Any]] = []
+    current_minutes = 0
+    for record in remaining_records:
+        minutes = int(record["estimated_review_minutes"])
+        if current_records and current_minutes + minutes > target_session_minutes:
+            sessions.append(
+                gold_review_session_summary(
+                    session_id=review_session_id(len(sessions) + 1),
+                    records=current_records,
+                )
+            )
+            current_records = []
+            current_minutes = 0
+        current_records.append(record)
+        current_minutes += minutes
+    if current_records:
+        sessions.append(
+            gold_review_session_summary(
+                session_id=review_session_id(len(sessions) + 1),
+                records=current_records,
+            )
+        )
+
+    return {
+        "source_family": "nasa_atmonto_gold_review_session_plan",
+        "status": "ready_for_manual_review" if remaining_records else "ready_to_apply",
+        "workload_plan": project_relative_path(repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD, repo_root),
+        "decision_progress": project_relative_path(
+            repo_root / GOLD_REVIEW_DECISION_PROGRESS_MD,
+            repo_root,
+        ),
+        "session_plan_json": project_relative_path(
+            repo_root / GOLD_REVIEW_SESSION_PLAN_JSON,
+            repo_root,
+        ),
+        "session_plan_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_SESSION_PLAN_MD,
+            repo_root,
+        ),
+        "target_session_minutes": target_session_minutes,
+        "remaining_record_count": len(remaining_records),
+        "estimated_remaining_review_minutes": sum(
+            int(record["estimated_review_minutes"]) for record in remaining_records
+        ),
+        "session_count": len(sessions),
+        "sessions": sessions,
+        "completion_gate": (
+            "Session plans are manual-review queues only. A record becomes gold only after "
+            "the reviewer confirms decisions in review_decisions JSONL, applies the draft, "
+            "validates annotations, and freezes the reviewed gold set."
+        ),
+    }
+
+
+def gold_review_session_plan_markdown(plan: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Gold Review Session Plan",
+        "",
+        f"- Status: `{plan['status']}`",
+        f"- Workload plan: `{plan['workload_plan']}`",
+        f"- Decision progress: `{plan['decision_progress']}`",
+        f"- Target session length: {plan['target_session_minutes']} minutes",
+        f"- Remaining records: {plan['remaining_record_count']}",
+        f"- Estimated remaining review time: {plan['estimated_remaining_review_minutes']} minutes",
+        f"- Sessions: {plan['session_count']}",
+        "",
+        "## Completion Gate",
+        "",
+        f"- {plan['completion_gate']}",
+        "",
+    ]
+    if not plan["sessions"]:
+        return "\n".join(lines + ["## Sessions", "", "- No remaining review records."]) + "\n"
+
+    next_session = plan["sessions"][0]
+    lines.extend(
+        [
+            "## Next Session",
+            "",
+            f"- Session: `{next_session['session_id']}`",
+            f"- Records: {next_session['record_count']}",
+            f"- Estimated minutes: {next_session['estimated_review_minutes']}",
+            f"- Pending rejected-fact decisions: {next_session['pending_rejected_fact_decision_count']}",
+            "",
+            "| Order | Sample | Source | Batch | Lane | Est. min | Rejected pending | Decision file | Priority packet |",
+            "| ---: | --- | --- | --- | --- | ---: | ---: | --- | --- |",
+        ]
+    )
+    for index, record in enumerate(next_session["records"], start=1):
+        lines.append(
+            "| "
+            f"{index} | "
+            f"`{record['sample_id']}` | "
+            f"`{record['source_id']}` | "
+            f"`{record['batch_id']}` | "
+            f"`{record['priority_lane']}` | "
+            f"{record['estimated_review_minutes']} | "
+            f"{record['pending_rejected_fact_decision_count']} | "
+            f"`{record['decision_template']}` | "
+            f"`{record['priority_packet']}` |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Sessions",
+            "",
+            "| Session | Records | Est. min | Rejected facts | Pending rejected decisions | Lanes |",
+            "| --- | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for session in plan["sessions"]:
+        lines.append(
+            "| "
+            f"`{session['session_id']}` | "
+            f"{session['record_count']} | "
+            f"{session['estimated_review_minutes']} | "
+            f"{session['rejected_fact_count']} | "
+            f"{session['pending_rejected_fact_decision_count']} | "
+            f"`{json.dumps(session['priority_lane_counts'], sort_keys=True)}` |"
+        )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def run_gold_review_session_plan(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    plan = build_gold_review_session_plan(repo_root)
+    write_json(repo_root / GOLD_REVIEW_SESSION_PLAN_JSON, plan)
+    (repo_root / GOLD_REVIEW_SESSION_PLAN_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_REVIEW_SESSION_PLAN_MD).write_text(
+        gold_review_session_plan_markdown(plan),
+        encoding="utf-8",
+    )
+    return {
+        "session_plan_json": plan["session_plan_json"],
+        "session_plan_markdown": plan["session_plan_markdown"],
+        "status": plan["status"],
+        "remaining_record_count": plan["remaining_record_count"],
+        "session_count": plan["session_count"],
     }
 
 
@@ -6275,6 +6502,10 @@ def score_report_markdown(report: dict[str, Any]) -> str:
 
 def build_formal_experiment_readiness(
     repo_root: str | Path = PROJECT_ROOT,
+    *,
+    session_plan: dict[str, Any] | None = None,
+    decision_progress: dict[str, Any] | None = None,
+    review_progress: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
     manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
@@ -6334,7 +6565,14 @@ def build_formal_experiment_readiness(
         status = "ready_for_manual_gold_review"
     else:
         status = "ready_for_manual_gold_and_llm_runs"
-    review_kickoff = build_manual_gold_review_kickoff(repo_root, gold_status=gold_status)
+    session_plan = session_plan or build_gold_review_session_plan(repo_root)
+    review_kickoff = build_manual_gold_review_kickoff(
+        repo_root,
+        gold_status=gold_status,
+        session_plan=session_plan,
+        decision_progress=decision_progress,
+        review_progress=review_progress,
+    )
 
     return {
         "source_family": "nasa_atmonto_formal_experiment_readiness",
@@ -6346,6 +6584,10 @@ def build_formal_experiment_readiness(
             "worklist": project_relative_path(repo_root / GOLD_REVIEW_WORKLIST_MD, repo_root),
             "workload_plan": project_relative_path(
                 repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD,
+                repo_root,
+            ),
+            "session_plan": project_relative_path(
+                repo_root / GOLD_REVIEW_SESSION_PLAN_MD,
                 repo_root,
             ),
             "priority_packets": project_relative_path(
@@ -6395,13 +6637,20 @@ def build_manual_gold_review_kickoff(
     repo_root: Path,
     *,
     gold_status: dict[str, Any],
+    session_plan: dict[str, Any] | None = None,
+    decision_progress: dict[str, Any] | None = None,
+    review_progress: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     priority_packets = read_json_if_exists(repo_root / GOLD_REVIEW_PRIORITY_PACKET_JSON)
-    decision_progress = read_json_if_exists(repo_root / GOLD_REVIEW_DECISION_PROGRESS_JSON)
-    review_progress = read_json_if_exists(repo_root / GOLD_REVIEW_PROGRESS_JSON)
+    decision_progress = decision_progress or read_json_if_exists(
+        repo_root / GOLD_REVIEW_DECISION_PROGRESS_JSON
+    )
+    review_progress = review_progress or read_json_if_exists(repo_root / GOLD_REVIEW_PROGRESS_JSON)
+    session_plan = session_plan or read_json_if_exists(repo_root / GOLD_REVIEW_SESSION_PLAN_JSON)
     lanes = priority_packets.get("lanes", [])
     first_lane = lanes[0] if lanes else {}
     first_record = (first_lane.get("records") or [{}])[0]
+    first_session = (session_plan.get("sessions") or [{}])[0]
     return {
         "status": "ready_for_manual_gold_review" if not gold_status.get("complete") else "complete",
         "reviewed_record_count": gold_status.get("reviewed_record_count", 0),
@@ -6427,6 +6676,17 @@ def build_manual_gold_review_kickoff(
             "first_decision_template": first_record.get("decision_template"),
             "first_batch_markdown": first_record.get("batch_markdown"),
         },
+        "first_review_session": {
+            "session_id": first_session.get("session_id"),
+            "record_count": first_session.get("record_count"),
+            "estimated_review_minutes": first_session.get("estimated_review_minutes"),
+            "pending_rejected_fact_decision_count": first_session.get(
+                "pending_rejected_fact_decision_count"
+            ),
+            "first_sample_id": (first_session.get("records") or [{}])[0].get("sample_id"),
+            "first_source_id": (first_session.get("records") or [{}])[0].get("source_id"),
+            "session_plan_markdown": session_plan.get("session_plan_markdown"),
+        },
         "next_commands": [
             "uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py",
             "uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py",
@@ -6451,6 +6711,7 @@ def markdown_report(report: dict[str, Any]) -> str:
         f"- Gold manifest: `{report['gold_manifest']}`",
         f"- Gold template: `{report['gold_template']}`",
         f"- Workload plan: `{report['manual_review_artifacts']['workload_plan']}`",
+        f"- Session plan: `{report['manual_review_artifacts']['session_plan']}`",
         f"- Priority packets: `{report['manual_review_artifacts']['priority_packets']}`",
         f"- Review progress: `{report['manual_review_artifacts']['progress']}`",
         "",
@@ -6472,6 +6733,7 @@ def markdown_report(report: dict[str, Any]) -> str:
     )
     kickoff = report["manual_gold_review_kickoff"]
     first_lane = kickoff["first_priority_lane"]
+    first_session = kickoff["first_review_session"]
     lines.extend(
         [
             f"- Status: `{kickoff['status']}`",
@@ -6488,6 +6750,12 @@ def markdown_report(report: dict[str, Any]) -> str:
             "- First sample: "
             f"`{first_lane['first_sample_id']}` / `{first_lane['first_source_id']}` "
             f"via `{first_lane['first_decision_template']}`",
+            "- First review session: "
+            f"`{first_session['session_id']}` ({first_session['record_count']} records, "
+            f"{first_session['estimated_review_minutes']} est. min) "
+            f"from `{first_session['session_plan_markdown']}`",
+            "- First session sample: "
+            f"`{first_session['first_sample_id']}` / `{first_session['first_source_id']}`",
             f"- Boundary: {kickoff['review_boundary']}",
             "",
             "### Next Commands",
@@ -6581,15 +6849,11 @@ def run_formal_experiment_readiness(
     )
     progress_report = build_gold_review_progress(repo_root, batch_report=batch_report)
     rejection_adjudication = build_rejection_adjudication_report(repo_root)
-    report = build_formal_experiment_readiness(repo_root)
-    score_report = build_formal_experiment_score_report(repo_root)
     write_json(repo_root / GOLD_REVIEW_WORKLIST_JSON, gold_worklist)
     write_json(repo_root / GOLD_VALIDATION_REPORT_JSON, gold_validation)
     write_json(repo_root / GOLD_FREEZE_REPORT_JSON, gold_freeze_status)
     write_json(repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_JSON, prediction_validation)
     write_json(repo_root / REJECTION_ADJUDICATION_JSON, rejection_adjudication)
-    write_json(repo_root / READINESS_REPORT_JSON, report)
-    write_json(repo_root / SCORING_REPORT_JSON, score_report)
     write_json(repo_root / GOLD_REVIEW_PROGRESS_JSON, progress_report)
     write_json(repo_root / GOLD_REVIEW_WORKLOAD_PLAN_JSON, workload_plan)
     write_json(
@@ -6643,6 +6907,26 @@ def run_formal_experiment_readiness(
     decision_progress = build_gold_review_decision_progress(
         repo_root,
         batch_report=batch_report,
+    )
+    session_plan = build_gold_review_session_plan(
+        repo_root,
+        workload_plan=workload_plan,
+        decision_progress=decision_progress,
+    )
+    report = build_formal_experiment_readiness(
+        repo_root,
+        session_plan=session_plan,
+        decision_progress=decision_progress,
+        review_progress=progress_report,
+    )
+    score_report = build_formal_experiment_score_report(repo_root)
+    write_json(repo_root / GOLD_REVIEW_SESSION_PLAN_JSON, session_plan)
+    write_json(repo_root / READINESS_REPORT_JSON, report)
+    write_json(repo_root / SCORING_REPORT_JSON, score_report)
+    (repo_root / GOLD_REVIEW_SESSION_PLAN_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_REVIEW_SESSION_PLAN_MD).write_text(
+        gold_review_session_plan_markdown(session_plan),
+        encoding="utf-8",
     )
     write_json(repo_root / GOLD_REVIEW_DECISION_PROGRESS_JSON, decision_progress)
     (repo_root / GOLD_REVIEW_DECISION_PROGRESS_MD).write_text(
@@ -6753,6 +7037,14 @@ def run_formal_experiment_readiness(
         ),
         "gold_review_workload_plan_markdown": project_relative_path(
             repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD,
+            repo_root,
+        ),
+        "gold_review_session_plan_json": project_relative_path(
+            repo_root / GOLD_REVIEW_SESSION_PLAN_JSON,
+            repo_root,
+        ),
+        "gold_review_session_plan_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_SESSION_PLAN_MD,
             repo_root,
         ),
         "gold_review_priority_packet_json": project_relative_path(

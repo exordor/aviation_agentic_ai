@@ -10,6 +10,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_freeze_status,
     build_gold_annotation_validation_report,
     build_gold_review_priority_packets,
+    build_gold_review_session_plan,
     build_gold_review_worklist,
     build_gold_review_workload_plan,
     build_gold_review_batches,
@@ -35,6 +36,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     gold_review_priority_packet_index_markdown,
     gold_review_priority_packet_markdown,
     gold_review_progress_markdown,
+    gold_review_session_plan_markdown,
     gold_review_workload_plan_markdown,
     score_report_markdown,
     semantic_metrics,
@@ -232,6 +234,9 @@ def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> No
     assert report["manual_review_artifacts"]["workload_plan"].endswith(
         "nasa_atmonto_gold_review_workload_plan.md"
     )
+    assert report["manual_review_artifacts"]["session_plan"].endswith(
+        "nasa_atmonto_gold_review_session_plan.md"
+    )
     assert report["manual_review_artifacts"]["priority_packets"].endswith(
         "review_priority_packets/index.md"
     )
@@ -243,6 +248,9 @@ def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> No
     assert kickoff["first_priority_lane"]["packet_markdown"].endswith(
         "review_priority_packets/1_rejection_adjudication.md"
     )
+    assert kickoff["first_review_session"]["session_id"] == "session_01"
+    assert kickoff["first_review_session"]["record_count"] == 4
+    assert kickoff["first_review_session"]["estimated_review_minutes"] == 85
     assert "suggested_* fields are work aids only" in kickoff["review_boundary"]
     assert "completed manual gold annotations" in report["missing_required_inputs"][0]
     assert not any("predictions" in item for item in report["missing_required_inputs"])
@@ -261,11 +269,15 @@ def test_generated_readiness_report_json_is_consistent() -> None:
     assert report["manual_review_artifacts"]["workload_plan"].endswith(
         "nasa_atmonto_gold_review_workload_plan.md"
     )
+    assert report["manual_review_artifacts"]["session_plan"].endswith(
+        "nasa_atmonto_gold_review_session_plan.md"
+    )
     assert report["manual_review_artifacts"]["priority_packets"].endswith(
         "review_priority_packets/index.md"
     )
     assert report["manual_gold_review_kickoff"]["decision_progress_status"] == "not_started"
     assert report["manual_gold_review_kickoff"]["not_started_record_count"] == 100
+    assert report["manual_gold_review_kickoff"]["first_review_session"]["session_id"] == "session_01"
     assert report["current_s0_rule_only_structural_metrics"]["attempted_record_count"] == 100
 
 
@@ -1116,6 +1128,31 @@ def test_gold_review_workload_plan_prioritizes_manual_review_queue() -> None:
     assert "Gold Review Workload Plan" in markdown
     assert "Recommended Review Order" in markdown
     assert "does not create gold truth" in markdown
+
+
+def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
+    plan = build_gold_review_session_plan(Path("."))
+
+    assert plan["status"] == "ready_for_manual_review"
+    assert plan["target_session_minutes"] == 90
+    assert plan["remaining_record_count"] == 100
+    assert plan["session_count"] > 1
+    assert "manual-review queues only" in plan["completion_gate"]
+
+    first_session = plan["sessions"][0]
+    assert first_session["session_id"] == "session_01"
+    assert first_session["record_count"] == 4
+    assert first_session["estimated_review_minutes"] == 85
+    assert first_session["records"][0]["sample_id"] == "ATCSCC-GOLD-024"
+    assert first_session["records"][0]["source_id"] == "2026-05-18:136"
+    assert first_session["records"][0]["decision_template"].endswith(
+        "review_decisions/batch_03.jsonl"
+    )
+
+    markdown = gold_review_session_plan_markdown(plan)
+    assert "Gold Review Session Plan" in markdown
+    assert "Next Session" in markdown
+    assert "Session plans are manual-review queues only" in markdown
 
 
 def test_gold_review_priority_packets_expose_copyable_review_ids() -> None:

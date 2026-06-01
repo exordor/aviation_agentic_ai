@@ -7,6 +7,7 @@
   "manual_review_artifacts": {
     "worklist": "data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md",
     "workload_plan": "reports/stages/nasa_atmonto_gold_review_workload_plan.md",
+    "session_plan": "reports/stages/nasa_atmonto_gold_review_session_plan.md",
     "priority_packets": "data/evaluation/nasa_atmonto/review_priority_packets/index.md",
     "batch_index": "data/evaluation/nasa_atmonto/review_batches/index.md",
     "decision_templates": "data/evaluation/nasa_atmonto/review_decisions/index.md",
@@ -34,6 +35,15 @@
       "first_batch_id": "batch_03",
       "first_decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
       "first_batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
+    },
+    "first_review_session": {
+      "session_id": "session_01",
+      "record_count": 4,
+      "estimated_review_minutes": 85,
+      "pending_rejected_fact_decision_count": 8,
+      "first_sample_id": "ATCSCC-GOLD-024",
+      "first_source_id": "2026-05-18:136",
+      "session_plan_markdown": "reports/stages/nasa_atmonto_gold_review_session_plan.md"
     },
     "next_commands": [
       "uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py",
