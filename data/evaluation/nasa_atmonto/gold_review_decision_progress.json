@@ -1,15 +1,15 @@
 {
   "source_family": "nasa_atmonto_gold_review_decision_progress",
-  "status": "not_started",
+  "status": "in_progress",
   "gold_template": "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl",
   "decision_dir": "data/evaluation/nasa_atmonto/review_decisions",
   "decision_progress_json": "data/evaluation/nasa_atmonto/gold_review_decision_progress.json",
   "decision_progress_markdown": "data/evaluation/nasa_atmonto/gold_review_decision_progress.md",
   "record_count": 100,
   "decision_record_count": 100,
-  "ready_to_apply_record_count": 0,
+  "ready_to_apply_record_count": 4,
   "in_progress_record_count": 0,
-  "not_started_record_count": 100,
+  "not_started_record_count": 96,
   "needs_revision_record_count": 0,
   "missing_decision_record_count": 0,
   "duplicate_decision_source_ids": [],
@@ -17,40 +17,40 @@
   "unexpected_decision_source_ids": [],
   "suggested_valid_candidate_fact_count": 567,
   "rejected_fact_decision_count": 48,
-  "completed_rejected_fact_decision_count": 0,
-  "pending_rejected_fact_decision_count": 48,
+  "completed_rejected_fact_decision_count": 8,
+  "pending_rejected_fact_decision_count": 40,
   "batch_count": 10,
   "ready_to_apply_batch_count": 0,
   "batch_progress": [
     {
       "batch_id": "batch_01",
       "decision_path": "data/evaluation/nasa_atmonto/review_decisions/batch_01.jsonl",
-      "status": "not_started",
+      "status": "in_progress",
       "record_count": 10,
-      "ready_to_apply_record_count": 0,
+      "ready_to_apply_record_count": 2,
       "in_progress_record_count": 0,
-      "not_started_record_count": 10,
+      "not_started_record_count": 8,
       "needs_revision_record_count": 0,
       "missing_decision_record_count": 0,
       "suggested_valid_candidate_fact_count": 74,
       "rejected_fact_decision_count": 14,
-      "completed_rejected_fact_decision_count": 0,
-      "pending_rejected_fact_decision_count": 14,
+      "completed_rejected_fact_decision_count": 4,
+      "pending_rejected_fact_decision_count": 10,
       "records": [
         {
           "sample_id": "ATCSCC-GOLD-001",
           "source_id": "2026-05-19:032",
-          "annotation_status": "pending_manual_gold_annotation",
-          "status": "not_started",
-          "manual_edits_present": false,
-          "ready_to_apply": false,
+          "annotation_status": "reviewed",
+          "status": "ready_to_apply",
+          "manual_edits_present": true,
+          "ready_to_apply": true,
           "issue_count": 0,
           "issues": [],
           "suggested_valid_candidate_fact_count": 13,
           "rejected_fact_decisions": {
             "total": 2,
-            "completed": 0,
-            "pending": 2
+            "completed": 2,
+            "pending": 0
           }
         },
         {
@@ -104,17 +104,17 @@
         {
           "sample_id": "ATCSCC-GOLD-005",
           "source_id": "2026-05-19:059",
-          "annotation_status": "pending_manual_gold_annotation",
-          "status": "not_started",
-          "manual_edits_present": false,
-          "ready_to_apply": false,
+          "annotation_status": "reviewed",
+          "status": "ready_to_apply",
+          "manual_edits_present": true,
+          "ready_to_apply": true,
           "issue_count": 0,
           "issues": [],
           "suggested_valid_candidate_fact_count": 5,
           "rejected_fact_decisions": {
             "total": 2,
-            "completed": 0,
-            "pending": 2
+            "completed": 2,
+            "pending": 0
           }
         },
         {
@@ -379,17 +379,17 @@
     {
       "batch_id": "batch_03",
       "decision_path": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
-      "status": "not_started",
+      "status": "in_progress",
       "record_count": 10,
-      "ready_to_apply_record_count": 0,
+      "ready_to_apply_record_count": 2,
       "in_progress_record_count": 0,
-      "not_started_record_count": 10,
+      "not_started_record_count": 8,
       "needs_revision_record_count": 0,
       "missing_decision_record_count": 0,
       "suggested_valid_candidate_fact_count": 76,
       "rejected_fact_decision_count": 13,
-      "completed_rejected_fact_decision_count": 0,
-      "pending_rejected_fact_decision_count": 13,
+      "completed_rejected_fact_decision_count": 4,
+      "pending_rejected_fact_decision_count": 9,
       "records": [
         {
           "sample_id": "ATCSCC-GOLD-021",
@@ -426,33 +426,33 @@
         {
           "sample_id": "ATCSCC-GOLD-023",
           "source_id": "2026-05-20:163",
-          "annotation_status": "pending_manual_gold_annotation",
-          "status": "not_started",
-          "manual_edits_present": false,
-          "ready_to_apply": false,
+          "annotation_status": "reviewed",
+          "status": "ready_to_apply",
+          "manual_edits_present": true,
+          "ready_to_apply": true,
           "issue_count": 0,
           "issues": [],
           "suggested_valid_candidate_fact_count": 7,
           "rejected_fact_decisions": {
             "total": 2,
-            "completed": 0,
-            "pending": 2
+            "completed": 2,
+            "pending": 0
           }
         },
         {
           "sample_id": "ATCSCC-GOLD-024",
           "source_id": "2026-05-18:136",
-          "annotation_status": "pending_manual_gold_annotation",
-          "status": "not_started",
-          "manual_edits_present": false,
-          "ready_to_apply": false,
+          "annotation_status": "reviewed",
+          "status": "ready_to_apply",
+          "manual_edits_present": true,
+          "ready_to_apply": true,
           "issue_count": 0,
           "issues": [],
           "suggested_valid_candidate_fact_count": 7,
           "rejected_fact_decisions": {
             "total": 2,
-            "completed": 0,
-            "pending": 2
+            "completed": 2,
+            "pending": 0
           }
         },
         {

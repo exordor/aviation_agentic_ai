@@ -6,18 +6,125 @@
   "session_plan_json": "reports/stages/nasa_atmonto_gold_review_session_plan.json",
   "session_plan_markdown": "reports/stages/nasa_atmonto_gold_review_session_plan.md",
   "target_session_minutes": 90,
-  "remaining_record_count": 100,
-  "estimated_remaining_review_minutes": 1738,
+  "record_count": 100,
+  "ready_to_apply_record_count": 4,
+  "remaining_record_count": 96,
+  "estimated_remaining_review_minutes": 1653,
   "session_count": 22,
+  "completed_session_count": 1,
+  "next_session": {
+    "session_id": "session_02",
+    "status": "pending_manual_review",
+    "record_count": 4,
+    "ready_to_apply_record_count": 0,
+    "remaining_record_count": 4,
+    "estimated_review_minutes": 74,
+    "rejected_fact_count": 8,
+    "pending_rejected_fact_decision_count": 8,
+    "priority_lane_counts": {
+      "1_rejection_adjudication": 4
+    },
+    "decision_status_counts": {
+      "not_started": 4
+    },
+    "records": [
+      {
+        "sample_id": "ATCSCC-GOLD-056",
+        "source_id": "2026-05-17:041",
+        "batch_id": "batch_06",
+        "candidate_subject_class": "TrafficManagementInitiative",
+        "annotation_status": "pending_manual_gold_annotation",
+        "candidate_cluster_count": 27,
+        "cross_system_candidate_cluster_count": 20,
+        "rejected_fact_count": 2,
+        "source_word_count": 100,
+        "workload_score": 54,
+        "complexity_tier": "medium",
+        "estimated_review_minutes": 19,
+        "priority_lane": "1_rejection_adjudication",
+        "decision_status": "not_started",
+        "decision_issue_count": 0,
+        "pending_rejected_fact_decision_count": 2,
+        "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_06.jsonl",
+        "priority_packet": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md"
+      },
+      {
+        "sample_id": "ATCSCC-GOLD-021",
+        "source_id": "2026-05-14:089",
+        "batch_id": "batch_03",
+        "candidate_subject_class": "GroundStopTMI",
+        "annotation_status": "pending_manual_gold_annotation",
+        "candidate_cluster_count": 26,
+        "cross_system_candidate_cluster_count": 19,
+        "rejected_fact_count": 2,
+        "source_word_count": 139,
+        "workload_score": 52,
+        "complexity_tier": "medium",
+        "estimated_review_minutes": 20,
+        "priority_lane": "1_rejection_adjudication",
+        "decision_status": "not_started",
+        "decision_issue_count": 0,
+        "pending_rejected_fact_decision_count": 2,
+        "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
+        "priority_packet": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md"
+      },
+      {
+        "sample_id": "ATCSCC-GOLD-007",
+        "source_id": "2026-05-16:051",
+        "batch_id": "batch_01",
+        "candidate_subject_class": "TrafficManagementInitiative",
+        "annotation_status": "pending_manual_gold_annotation",
+        "candidate_cluster_count": 22,
+        "cross_system_candidate_cluster_count": 16,
+        "rejected_fact_count": 2,
+        "source_word_count": 96,
+        "workload_score": 45,
+        "complexity_tier": "medium",
+        "estimated_review_minutes": 17,
+        "priority_lane": "1_rejection_adjudication",
+        "decision_status": "not_started",
+        "decision_issue_count": 0,
+        "pending_rejected_fact_decision_count": 2,
+        "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_01.jsonl",
+        "priority_packet": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md"
+      },
+      {
+        "sample_id": "ATCSCC-GOLD-006",
+        "source_id": "2026-05-19:144",
+        "batch_id": "batch_01",
+        "candidate_subject_class": "GroundDelayProgramTMI",
+        "annotation_status": "pending_manual_gold_annotation",
+        "candidate_cluster_count": 23,
+        "cross_system_candidate_cluster_count": 14,
+        "rejected_fact_count": 2,
+        "source_word_count": 124,
+        "workload_score": 44,
+        "complexity_tier": "medium",
+        "estimated_review_minutes": 18,
+        "priority_lane": "1_rejection_adjudication",
+        "decision_status": "not_started",
+        "decision_issue_count": 0,
+        "pending_rejected_fact_decision_count": 2,
+        "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_01.jsonl",
+        "priority_packet": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md"
+      }
+    ]
+  },
   "sessions": [
     {
       "session_id": "session_01",
+      "status": "ready_to_apply",
       "record_count": 4,
+      "ready_to_apply_record_count": 4,
+      "remaining_record_count": 0,
       "estimated_review_minutes": 85,
       "rejected_fact_count": 8,
-      "pending_rejected_fact_decision_count": 8,
+      "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "1_rejection_adjudication": 4
+      },
+      "decision_status_counts": {
+        "ready_to_apply": 4
       },
       "records": [
         {
@@ -34,9 +141,9 @@
           "complexity_tier": "heavy",
           "estimated_review_minutes": 23,
           "priority_lane": "1_rejection_adjudication",
-          "decision_status": "not_started",
+          "decision_status": "ready_to_apply",
           "decision_issue_count": 0,
-          "pending_rejected_fact_decision_count": 2,
+          "pending_rejected_fact_decision_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
           "priority_packet": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md"
         },
@@ -54,9 +161,9 @@
           "complexity_tier": "medium",
           "estimated_review_minutes": 22,
           "priority_lane": "1_rejection_adjudication",
-          "decision_status": "not_started",
+          "decision_status": "ready_to_apply",
           "decision_issue_count": 0,
-          "pending_rejected_fact_decision_count": 2,
+          "pending_rejected_fact_decision_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
           "priority_packet": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md"
         },
@@ -74,9 +181,9 @@
           "complexity_tier": "medium",
           "estimated_review_minutes": 20,
           "priority_lane": "1_rejection_adjudication",
-          "decision_status": "not_started",
+          "decision_status": "ready_to_apply",
           "decision_issue_count": 0,
-          "pending_rejected_fact_decision_count": 2,
+          "pending_rejected_fact_decision_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_01.jsonl",
           "priority_packet": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md"
         },
@@ -94,9 +201,9 @@
           "complexity_tier": "medium",
           "estimated_review_minutes": 20,
           "priority_lane": "1_rejection_adjudication",
-          "decision_status": "not_started",
+          "decision_status": "ready_to_apply",
           "decision_issue_count": 0,
-          "pending_rejected_fact_decision_count": 2,
+          "pending_rejected_fact_decision_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_01.jsonl",
           "priority_packet": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md"
         }
@@ -104,12 +211,18 @@
     },
     {
       "session_id": "session_02",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 74,
       "rejected_fact_count": 8,
       "pending_rejected_fact_decision_count": 8,
       "priority_lane_counts": {
         "1_rejection_adjudication": 4
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -196,12 +309,18 @@
     },
     {
       "session_id": "session_03",
+      "status": "pending_manual_review",
       "record_count": 3,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 3,
       "estimated_review_minutes": 72,
       "rejected_fact_count": 3,
       "pending_rejected_fact_decision_count": 3,
       "priority_lane_counts": {
         "1_rejection_adjudication": 3
+      },
+      "decision_status_counts": {
+        "not_started": 3
       },
       "records": [
         {
@@ -268,12 +387,18 @@
     },
     {
       "session_id": "session_04",
+      "status": "pending_manual_review",
       "record_count": 3,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 3,
       "estimated_review_minutes": 69,
       "rejected_fact_count": 3,
       "pending_rejected_fact_decision_count": 3,
       "priority_lane_counts": {
         "1_rejection_adjudication": 3
+      },
+      "decision_status_counts": {
+        "not_started": 3
       },
       "records": [
         {
@@ -340,12 +465,18 @@
     },
     {
       "session_id": "session_05",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 87,
       "rejected_fact_count": 4,
       "pending_rejected_fact_decision_count": 4,
       "priority_lane_counts": {
         "1_rejection_adjudication": 4
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -432,12 +563,18 @@
     },
     {
       "session_id": "session_06",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 83,
       "rejected_fact_count": 4,
       "pending_rejected_fact_decision_count": 4,
       "priority_lane_counts": {
         "1_rejection_adjudication": 4
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -524,12 +661,18 @@
     },
     {
       "session_id": "session_07",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 83,
       "rejected_fact_count": 4,
       "pending_rejected_fact_decision_count": 4,
       "priority_lane_counts": {
         "1_rejection_adjudication": 4
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -616,12 +759,18 @@
     },
     {
       "session_id": "session_08",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 78,
       "rejected_fact_count": 4,
       "pending_rejected_fact_decision_count": 4,
       "priority_lane_counts": {
         "1_rejection_adjudication": 4
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -708,12 +857,18 @@
     },
     {
       "session_id": "session_09",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 74,
       "rejected_fact_count": 4,
       "pending_rejected_fact_decision_count": 4,
       "priority_lane_counts": {
         "1_rejection_adjudication": 4
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -800,12 +955,18 @@
     },
     {
       "session_id": "session_10",
+      "status": "pending_manual_review",
       "record_count": 5,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 5,
       "estimated_review_minutes": 89,
       "rejected_fact_count": 5,
       "pending_rejected_fact_decision_count": 5,
       "priority_lane_counts": {
         "1_rejection_adjudication": 5
+      },
+      "decision_status_counts": {
+        "not_started": 5
       },
       "records": [
         {
@@ -912,13 +1073,19 @@
     },
     {
       "session_id": "session_11",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 87,
       "rejected_fact_count": 1,
       "pending_rejected_fact_decision_count": 1,
       "priority_lane_counts": {
         "1_rejection_adjudication": 1,
         "2_high_cross_system_coverage": 3
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -1005,12 +1172,18 @@
     },
     {
       "session_id": "session_12",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 89,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "2_high_cross_system_coverage": 4
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -1097,12 +1270,18 @@
     },
     {
       "session_id": "session_13",
+      "status": "pending_manual_review",
       "record_count": 4,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 4,
       "estimated_review_minutes": 75,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 4
+      },
+      "decision_status_counts": {
+        "not_started": 4
       },
       "records": [
         {
@@ -1189,12 +1368,18 @@
     },
     {
       "session_id": "session_14",
+      "status": "pending_manual_review",
       "record_count": 5,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 5,
       "estimated_review_minutes": 87,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 5
+      },
+      "decision_status_counts": {
+        "not_started": 5
       },
       "records": [
         {
@@ -1301,12 +1486,18 @@
     },
     {
       "session_id": "session_15",
+      "status": "pending_manual_review",
       "record_count": 5,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 5,
       "estimated_review_minutes": 80,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 5
+      },
+      "decision_status_counts": {
+        "not_started": 5
       },
       "records": [
         {
@@ -1413,12 +1604,18 @@
     },
     {
       "session_id": "session_16",
+      "status": "pending_manual_review",
       "record_count": 5,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 5,
       "estimated_review_minutes": 79,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 5
+      },
+      "decision_status_counts": {
+        "not_started": 5
       },
       "records": [
         {
@@ -1525,12 +1722,18 @@
     },
     {
       "session_id": "session_17",
+      "status": "pending_manual_review",
       "record_count": 5,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 5,
       "estimated_review_minutes": 76,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 5
+      },
+      "decision_status_counts": {
+        "not_started": 5
       },
       "records": [
         {
@@ -1637,12 +1840,18 @@
     },
     {
       "session_id": "session_18",
+      "status": "pending_manual_review",
       "record_count": 6,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 6,
       "estimated_review_minutes": 88,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 6
+      },
+      "decision_status_counts": {
+        "not_started": 6
       },
       "records": [
         {
@@ -1769,12 +1978,18 @@
     },
     {
       "session_id": "session_19",
+      "status": "pending_manual_review",
       "record_count": 6,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 6,
       "estimated_review_minutes": 80,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 6
+      },
+      "decision_status_counts": {
+        "not_started": 6
       },
       "records": [
         {
@@ -1901,12 +2116,18 @@
     },
     {
       "session_id": "session_20",
+      "status": "pending_manual_review",
       "record_count": 7,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 7,
       "estimated_review_minutes": 89,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 7
+      },
+      "decision_status_counts": {
+        "not_started": 7
       },
       "records": [
         {
@@ -2053,12 +2274,18 @@
     },
     {
       "session_id": "session_21",
+      "status": "pending_manual_review",
       "record_count": 7,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 7,
       "estimated_review_minutes": 84,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 7
+      },
+      "decision_status_counts": {
+        "not_started": 7
       },
       "records": [
         {
@@ -2205,12 +2432,18 @@
     },
     {
       "session_id": "session_22",
+      "status": "pending_manual_review",
       "record_count": 3,
+      "ready_to_apply_record_count": 0,
+      "remaining_record_count": 3,
       "estimated_review_minutes": 30,
       "rejected_fact_count": 0,
       "pending_rejected_fact_decision_count": 0,
       "priority_lane_counts": {
         "3_standard_review": 3
+      },
+      "decision_status_counts": {
+        "not_started": 3
       },
       "records": [
         {

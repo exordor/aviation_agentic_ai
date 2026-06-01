@@ -2109,9 +2109,21 @@ def gold_review_session_summary(
     session_id: str,
     records: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    status_counts = Counter(str(record["decision_status"]) for record in records)
+    if status_counts.get("needs_revision"):
+        status = "needs_revision"
+    elif records and status_counts.get("ready_to_apply", 0) == len(records):
+        status = "ready_to_apply"
+    elif status_counts.get("ready_to_apply") or status_counts.get("in_progress"):
+        status = "in_progress"
+    else:
+        status = "pending_manual_review"
     return {
         "session_id": session_id,
+        "status": status,
         "record_count": len(records),
+        "ready_to_apply_record_count": status_counts.get("ready_to_apply", 0),
+        "remaining_record_count": len(records) - status_counts.get("ready_to_apply", 0),
         "estimated_review_minutes": sum(
             int(record["estimated_review_minutes"]) for record in records
         ),
@@ -2122,6 +2134,7 @@ def gold_review_session_summary(
         "priority_lane_counts": dict(
             sorted(Counter(str(record["priority_lane"]) for record in records).items())
         ),
+        "decision_status_counts": dict(sorted(status_counts.items())),
         "records": records,
     }
 
@@ -2137,13 +2150,11 @@ def build_gold_review_session_plan(
     workload_plan = workload_plan or build_gold_review_workload_plan(repo_root)
     decision_progress = decision_progress or build_gold_review_decision_progress(repo_root)
     progress_by_source_id = decision_progress_record_lookup(decision_progress)
-    remaining_records: list[dict[str, Any]] = []
+    review_records: list[dict[str, Any]] = []
     for record in workload_plan["recommended_review_order"]:
         progress = progress_by_source_id.get(str(record.get("source_id")), {})
         progress_status = progress.get("status", "not_started")
-        if progress_status == "ready_to_apply":
-            continue
-        remaining_records.append(
+        review_records.append(
             {
                 **record,
                 "decision_status": progress_status,
@@ -2168,7 +2179,7 @@ def build_gold_review_session_plan(
     sessions: list[dict[str, Any]] = []
     current_records: list[dict[str, Any]] = []
     current_minutes = 0
-    for record in remaining_records:
+    for record in review_records:
         minutes = int(record["estimated_review_minutes"])
         if current_records and current_minutes + minutes > target_session_minutes:
             sessions.append(
@@ -2188,6 +2199,13 @@ def build_gold_review_session_plan(
                 records=current_records,
             )
         )
+    remaining_records = [
+        record for record in review_records if record["decision_status"] != "ready_to_apply"
+    ]
+    next_session = next(
+        (session for session in sessions if session["status"] != "ready_to_apply"),
+        None,
+    )
 
     return {
         "source_family": "nasa_atmonto_gold_review_session_plan",
@@ -2206,11 +2224,17 @@ def build_gold_review_session_plan(
             repo_root,
         ),
         "target_session_minutes": target_session_minutes,
+        "record_count": len(review_records),
+        "ready_to_apply_record_count": len(review_records) - len(remaining_records),
         "remaining_record_count": len(remaining_records),
         "estimated_remaining_review_minutes": sum(
             int(record["estimated_review_minutes"]) for record in remaining_records
         ),
         "session_count": len(sessions),
+        "completed_session_count": sum(
+            1 for session in sessions if session["status"] == "ready_to_apply"
+        ),
+        "next_session": next_session,
         "sessions": sessions,
         "completion_gate": (
             "Session plans are manual-review queues only. A record becomes gold only after "
@@ -2228,9 +2252,10 @@ def gold_review_session_plan_markdown(plan: dict[str, Any]) -> str:
         f"- Workload plan: `{plan['workload_plan']}`",
         f"- Decision progress: `{plan['decision_progress']}`",
         f"- Target session length: {plan['target_session_minutes']} minutes",
+        f"- Ready-to-apply records: {plan['ready_to_apply_record_count']}",
         f"- Remaining records: {plan['remaining_record_count']}",
         f"- Estimated remaining review time: {plan['estimated_remaining_review_minutes']} minutes",
-        f"- Sessions: {plan['session_count']}",
+        f"- Completed sessions: {plan['completed_session_count']} / {plan['session_count']}",
         "",
         "## Completion Gate",
         "",
@@ -2240,48 +2265,57 @@ def gold_review_session_plan_markdown(plan: dict[str, Any]) -> str:
     if not plan["sessions"]:
         return "\n".join(lines + ["## Sessions", "", "- No remaining review records."]) + "\n"
 
-    next_session = plan["sessions"][0]
-    lines.extend(
-        [
-            "## Next Session",
-            "",
-            f"- Session: `{next_session['session_id']}`",
-            f"- Records: {next_session['record_count']}",
-            f"- Estimated minutes: {next_session['estimated_review_minutes']}",
-            f"- Pending rejected-fact decisions: {next_session['pending_rejected_fact_decision_count']}",
-            "",
-            "| Order | Sample | Source | Batch | Lane | Est. min | Rejected pending | Decision file | Priority packet |",
-            "| ---: | --- | --- | --- | --- | ---: | ---: | --- | --- |",
-        ]
-    )
-    for index, record in enumerate(next_session["records"], start=1):
-        lines.append(
-            "| "
-            f"{index} | "
-            f"`{record['sample_id']}` | "
-            f"`{record['source_id']}` | "
-            f"`{record['batch_id']}` | "
-            f"`{record['priority_lane']}` | "
-            f"{record['estimated_review_minutes']} | "
-            f"{record['pending_rejected_fact_decision_count']} | "
-            f"`{record['decision_template']}` | "
-            f"`{record['priority_packet']}` |"
+    next_session = plan.get("next_session")
+    if next_session:
+        lines.extend(
+            [
+                "## Next Session",
+                "",
+                f"- Session: `{next_session['session_id']}`",
+                f"- Status: `{next_session['status']}`",
+                f"- Records: {next_session['record_count']}",
+                f"- Ready / remaining records: {next_session['ready_to_apply_record_count']} / {next_session['remaining_record_count']}",
+                f"- Estimated minutes: {next_session['estimated_review_minutes']}",
+                f"- Pending rejected-fact decisions: {next_session['pending_rejected_fact_decision_count']}",
+                "",
+                "| Order | Sample | Source | Status | Batch | Lane | Est. min | Rejected pending | Decision file | Priority packet |",
+                "| ---: | --- | --- | --- | --- | --- | ---: | ---: | --- | --- |",
+            ]
         )
+        for index, record in enumerate(next_session["records"], start=1):
+            lines.append(
+                "| "
+                f"{index} | "
+                f"`{record['sample_id']}` | "
+                f"`{record['source_id']}` | "
+                f"`{record['decision_status']}` | "
+                f"`{record['batch_id']}` | "
+                f"`{record['priority_lane']}` | "
+                f"{record['estimated_review_minutes']} | "
+                f"{record['pending_rejected_fact_decision_count']} | "
+                f"`{record['decision_template']}` | "
+                f"`{record['priority_packet']}` |"
+            )
+    else:
+        lines.extend(["## Next Session", "", "- No remaining review records."])
 
     lines.extend(
         [
             "",
             "## Sessions",
             "",
-            "| Session | Records | Est. min | Rejected facts | Pending rejected decisions | Lanes |",
-            "| --- | ---: | ---: | ---: | ---: | --- |",
+            "| Session | Status | Records | Ready | Remaining | Est. min | Rejected facts | Pending rejected decisions | Lanes |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
         ]
     )
     for session in plan["sessions"]:
         lines.append(
             "| "
             f"`{session['session_id']}` | "
+            f"`{session['status']}` | "
             f"{session['record_count']} | "
+            f"{session['ready_to_apply_record_count']} | "
+            f"{session['remaining_record_count']} | "
             f"{session['estimated_review_minutes']} | "
             f"{session['rejected_fact_count']} | "
             f"{session['pending_rejected_fact_decision_count']} | "
@@ -2303,8 +2337,10 @@ def run_gold_review_session_plan(repo_root: str | Path = PROJECT_ROOT) -> dict[s
         "session_plan_json": plan["session_plan_json"],
         "session_plan_markdown": plan["session_plan_markdown"],
         "status": plan["status"],
+        "ready_to_apply_record_count": plan["ready_to_apply_record_count"],
         "remaining_record_count": plan["remaining_record_count"],
         "session_count": plan["session_count"],
+        "completed_session_count": plan["completed_session_count"],
     }
 
 
@@ -6650,7 +6686,7 @@ def build_manual_gold_review_kickoff(
     lanes = priority_packets.get("lanes", [])
     first_lane = lanes[0] if lanes else {}
     first_record = (first_lane.get("records") or [{}])[0]
-    first_session = (session_plan.get("sessions") or [{}])[0]
+    next_session = session_plan.get("next_session") or (session_plan.get("sessions") or [{}])[0]
     return {
         "status": "ready_for_manual_gold_review" if not gold_status.get("complete") else "complete",
         "reviewed_record_count": gold_status.get("reviewed_record_count", 0),
@@ -6676,15 +6712,18 @@ def build_manual_gold_review_kickoff(
             "first_decision_template": first_record.get("decision_template"),
             "first_batch_markdown": first_record.get("batch_markdown"),
         },
-        "first_review_session": {
-            "session_id": first_session.get("session_id"),
-            "record_count": first_session.get("record_count"),
-            "estimated_review_minutes": first_session.get("estimated_review_minutes"),
-            "pending_rejected_fact_decision_count": first_session.get(
+        "next_review_session": {
+            "session_id": next_session.get("session_id"),
+            "status": next_session.get("status"),
+            "record_count": next_session.get("record_count"),
+            "ready_to_apply_record_count": next_session.get("ready_to_apply_record_count"),
+            "remaining_record_count": next_session.get("remaining_record_count"),
+            "estimated_review_minutes": next_session.get("estimated_review_minutes"),
+            "pending_rejected_fact_decision_count": next_session.get(
                 "pending_rejected_fact_decision_count"
             ),
-            "first_sample_id": (first_session.get("records") or [{}])[0].get("sample_id"),
-            "first_source_id": (first_session.get("records") or [{}])[0].get("source_id"),
+            "first_sample_id": (next_session.get("records") or [{}])[0].get("sample_id"),
+            "first_source_id": (next_session.get("records") or [{}])[0].get("source_id"),
             "session_plan_markdown": session_plan.get("session_plan_markdown"),
         },
         "next_commands": [
@@ -6733,7 +6772,7 @@ def markdown_report(report: dict[str, Any]) -> str:
     )
     kickoff = report["manual_gold_review_kickoff"]
     first_lane = kickoff["first_priority_lane"]
-    first_session = kickoff["first_review_session"]
+    next_session = kickoff["next_review_session"]
     lines.extend(
         [
             f"- Status: `{kickoff['status']}`",
@@ -6750,12 +6789,13 @@ def markdown_report(report: dict[str, Any]) -> str:
             "- First sample: "
             f"`{first_lane['first_sample_id']}` / `{first_lane['first_source_id']}` "
             f"via `{first_lane['first_decision_template']}`",
-            "- First review session: "
-            f"`{first_session['session_id']}` ({first_session['record_count']} records, "
-            f"{first_session['estimated_review_minutes']} est. min) "
-            f"from `{first_session['session_plan_markdown']}`",
-            "- First session sample: "
-            f"`{first_session['first_sample_id']}` / `{first_session['first_source_id']}`",
+            "- Next review session: "
+            f"`{next_session['session_id']}` ({next_session['record_count']} records, "
+            f"{next_session['estimated_review_minutes']} est. min, "
+            f"status=`{next_session['status']}`) "
+            f"from `{next_session['session_plan_markdown']}`",
+            "- Next session sample: "
+            f"`{next_session['first_sample_id']}` / `{next_session['first_source_id']}`",
             f"- Boundary: {kickoff['review_boundary']}",
             "",
             "### Next Commands",
