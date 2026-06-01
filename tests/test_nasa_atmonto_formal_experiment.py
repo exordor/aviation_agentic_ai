@@ -7,9 +7,11 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     SYSTEMS,
     build_formal_experiment_score_report,
     build_formal_experiment_readiness,
+    build_gold_freeze_status,
     build_gold_annotation_validation_report,
     build_gold_review_worklist,
     build_prediction_output_validation_report,
+    freeze_reviewed_gold_set,
     parse_llm_prediction_payload,
     prepare_formal_experiment_inputs,
     property_level_semantic_metrics,
@@ -399,6 +401,67 @@ def test_gold_annotation_validation_accepts_reviewed_record_with_rejection_decis
     assert report["status"] == "ready_for_scoring"
     assert report["error_count"] == 0
     assert report["warning_count"] == 0
+
+
+def test_gold_freeze_status_blocks_current_pending_template() -> None:
+    report = build_gold_freeze_status(Path("."))
+
+    assert report["status"] == "blocked_pending_review"
+    assert report["validation_status"] == "pending_manual_annotation"
+    assert report["record_count"] == 100
+    assert report["pending_record_count"] == 100
+    assert report["reviewed_gold_output"].endswith("atcscc_gold_v1.reviewed.jsonl")
+
+
+def test_freeze_reviewed_gold_set_writes_only_valid_reviewed_gold(tmp_path: Path) -> None:
+    manifest_path = tmp_path / "data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json"
+    template_path = tmp_path / "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(
+        json.dumps({"selected_source_ids": ["2026-05-14:001"]}) + "\n",
+        encoding="utf-8",
+    )
+    fact = {
+        "fact_id": "fact-1",
+        "fact_type": "datatype_property",
+        "subject": "urn:test",
+        "subject_class": "GroundStopTMI",
+        "predicate": "advisoryNumber",
+        "value": 1,
+        "datatype": "xsd:integer",
+        "evidence_text": "ATCSCC ADVZY 001",
+        "source_id": "2026-05-14:001",
+    }
+    reviewed_record = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_text": "ATCSCC ADVZY 001 DCC TEST",
+        "candidate_facts": [fact],
+        "validator_results": [],
+        "gold_annotation": {
+            "annotation_status": "reviewed",
+            "annotator_id": "annotator-a",
+            "valid_facts": [fact],
+            "invalid_candidate_fact_ids": [],
+            "missing_facts": [],
+            "rejected_fact_adjudications": [],
+        },
+    }
+    template_path.write_text(
+        json.dumps(reviewed_record, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    report = freeze_reviewed_gold_set(tmp_path)
+
+    assert report["status"] == "frozen"
+    assert report["validation_status"] == "ready_for_scoring"
+    assert report["output_exists"] is True
+    assert report["output_sha256"]
+    frozen = (
+        tmp_path / "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl"
+    ).read_text(encoding="utf-8")
+    assert "ATCSCC-GOLD-001" in frozen
 
 
 def test_prediction_output_validation_reports_s0_ready_and_llm_outputs_pending() -> None:

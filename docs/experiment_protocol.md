@@ -15,6 +15,7 @@
   - `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
   - `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
   - `docs/nasa_atmonto_gold_annotation_guide.md`
+  - `reports/stages/nasa_atmonto_gold_freeze_status.md`
   - `data/experiments/nasa_atmonto/formal/input_records.jsonl`
   - `data/experiments/nasa_atmonto/formal/system_specs.json`
   - `data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl`
@@ -140,6 +141,7 @@ Prepared files:
 - Manifest: `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
 - Annotation template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
 - Review worklist: `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
+- Freeze status: `reports/stages/nasa_atmonto_gold_freeze_status.md`
 
 Current sample properties:
 
@@ -365,12 +367,15 @@ uv run python scripts/run_nasa_atmonto_formal_experiment.py
 uv run python scripts/validate_nasa_atmonto_gold_annotations.py
 ```
 
-6. Freeze the completed gold set under a new filename before running model
-   comparisons, for example:
+6. Freeze the completed gold set before running model comparisons. The freeze
+   command refuses to write reviewed gold while validation is still pending.
 
-```text
-data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl
+```bash
+uv run python scripts/freeze_nasa_atmonto_gold_set.py
 ```
+
+Expected reviewed output:
+`data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
 
 7. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
    records. Use the committed S0 prediction file as the deterministic baseline.

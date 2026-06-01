@@ -1,0 +1,17 @@
+{
+  "source_family": "nasa_atmonto_gold_freeze_status",
+  "status": "blocked_pending_review",
+  "gold_template": "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl",
+  "gold_manifest": "data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json",
+  "reviewed_gold_output": "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
+  "selected_source_id_count": 100,
+  "record_count": 100,
+  "validation_status": "pending_manual_annotation",
+  "reviewed_record_count": 0,
+  "pending_record_count": 100,
+  "error_count": 0,
+  "warning_count": 100,
+  "output_exists": false,
+  "output_sha256": null,
+  "completion_gate": "The reviewed gold JSONL may be frozen only when gold annotation validation status is ready_for_scoring."
+}

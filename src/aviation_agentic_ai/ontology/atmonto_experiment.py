@@ -5,7 +5,7 @@ from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from hashlib import sha1
+from hashlib import sha1, sha256
 import json
 from pathlib import Path
 import sys
@@ -22,6 +22,7 @@ from aviation_agentic_ai.utils.json_extraction import (
 
 GOLD_MANIFEST_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json")
 GOLD_TEMPLATE_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl")
+GOLD_REVIEWED_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl")
 GOLD_REVIEW_WORKLIST_JSON = Path("data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.json")
 GOLD_REVIEW_WORKLIST_MD = Path("data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md")
 REJECTION_ANALYSIS_JSON = Path("reports/stages/nasa_atmonto_rejection_error_analysis.json")
@@ -51,6 +52,8 @@ GOLD_VALIDATION_REPORT_JSON = Path(
 GOLD_VALIDATION_REPORT_MD = Path(
     "reports/stages/nasa_atmonto_gold_annotation_validation.md"
 )
+GOLD_FREEZE_REPORT_JSON = Path("reports/stages/nasa_atmonto_gold_freeze_status.json")
+GOLD_FREEZE_REPORT_MD = Path("reports/stages/nasa_atmonto_gold_freeze_status.md")
 PREDICTION_OUTPUT_VALIDATION_REPORT_JSON = Path(
     "reports/stages/nasa_atmonto_prediction_output_validation.json"
 )
@@ -150,6 +153,14 @@ def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> None:
     payload = "\n".join(json.dumps(record, sort_keys=True, ensure_ascii=False) for record in records)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(payload + ("\n" if payload else ""), encoding="utf-8")
+
+
+def file_sha256(path: Path) -> str:
+    digest = sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def compact_text(value: object) -> str:
@@ -706,6 +717,106 @@ def run_gold_annotation_validation(repo_root: str | Path = PROJECT_ROOT) -> dict
         "error_count": report["error_count"],
         "warning_count": report["warning_count"],
     }
+
+
+def build_gold_freeze_status(
+    repo_root: str | Path = PROJECT_ROOT,
+    output_path: str | Path = GOLD_REVIEWED_PATH,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    output = Path(output_path)
+    if output.is_absolute():
+        output = output.relative_to(repo_root)
+    manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
+    gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    selected_source_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
+    validation = validate_gold_annotation_records(
+        gold_records=gold_records,
+        selected_source_ids=selected_source_ids,
+    )
+    ready = validation["status"] == "ready_for_scoring"
+    output_file = repo_root / output
+    return {
+        "source_family": "nasa_atmonto_gold_freeze_status",
+        "status": "ready_to_freeze" if ready else "blocked_pending_review",
+        "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "gold_manifest": project_relative_path(repo_root / GOLD_MANIFEST_PATH, repo_root),
+        "reviewed_gold_output": project_relative_path(output_file, repo_root),
+        "selected_source_id_count": len(selected_source_ids),
+        "record_count": validation["record_count"],
+        "validation_status": validation["status"],
+        "reviewed_record_count": validation["reviewed_record_count"],
+        "pending_record_count": validation["pending_record_count"],
+        "error_count": validation["error_count"],
+        "warning_count": validation["warning_count"],
+        "output_exists": output_file.exists(),
+        "output_sha256": file_sha256(output_file) if output_file.exists() else None,
+        "completion_gate": (
+            "The reviewed gold JSONL may be frozen only when gold annotation validation "
+            "status is ready_for_scoring."
+        ),
+    }
+
+
+def gold_freeze_status_markdown(report: dict[str, Any]) -> str:
+    return "\n".join(
+        [
+            "# NASA ATMONTO Gold Freeze Status",
+            "",
+            f"- Status: `{report['status']}`",
+            f"- Validation status: `{report['validation_status']}`",
+            f"- Gold template: `{report['gold_template']}`",
+            f"- Reviewed gold output: `{report['reviewed_gold_output']}`",
+            f"- Records: {report['record_count']}",
+            f"- Reviewed records: {report['reviewed_record_count']}",
+            f"- Pending records: {report['pending_record_count']}",
+            f"- Errors: {report['error_count']}",
+            f"- Warnings: {report['warning_count']}",
+            f"- Output exists: `{report['output_exists']}`",
+            f"- Output SHA-256: `{report['output_sha256']}`",
+            "",
+            "## Completion Gate",
+            "",
+            f"- {report['completion_gate']}",
+        ]
+    ) + "\n"
+
+
+def freeze_reviewed_gold_set(
+    repo_root: str | Path = PROJECT_ROOT,
+    output_path: str | Path = GOLD_REVIEWED_PATH,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    output = Path(output_path)
+    if output.is_absolute():
+        output = output.relative_to(repo_root)
+    status = build_gold_freeze_status(repo_root, output)
+    if status["status"] != "ready_to_freeze":
+        write_json(repo_root / GOLD_FREEZE_REPORT_JSON, status)
+        (repo_root / GOLD_FREEZE_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
+        (repo_root / GOLD_FREEZE_REPORT_MD).write_text(
+            gold_freeze_status_markdown(status),
+            encoding="utf-8",
+        )
+        return status
+
+    records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    output_file = repo_root / output
+    write_jsonl(output_file, records)
+    frozen_status = {
+        **build_gold_freeze_status(repo_root, output),
+        "status": "frozen",
+        "frozen_at": utc_timestamp(),
+        "output_exists": True,
+        "output_sha256": file_sha256(output_file),
+    }
+    write_json(repo_root / GOLD_FREEZE_REPORT_JSON, frozen_status)
+    (repo_root / GOLD_FREEZE_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_FREEZE_REPORT_MD).write_text(
+        gold_freeze_status_markdown(frozen_status),
+        encoding="utf-8",
+    )
+    return frozen_status
 
 
 def rejection_group_lookup(rejection_analysis: dict[str, Any]) -> dict[tuple[str, tuple[str, ...]], dict[str, Any]]:
@@ -2439,11 +2550,13 @@ def run_formal_experiment_readiness(
     prepared = prepare_formal_experiment_inputs(repo_root) if prepare_inputs else None
     gold_worklist = build_gold_review_worklist(repo_root)
     gold_validation = build_gold_annotation_validation_report(repo_root)
+    gold_freeze_status = build_gold_freeze_status(repo_root)
     prediction_validation = build_prediction_output_validation_report(repo_root)
     report = build_formal_experiment_readiness(repo_root)
     score_report = build_formal_experiment_score_report(repo_root)
     write_json(repo_root / GOLD_REVIEW_WORKLIST_JSON, gold_worklist)
     write_json(repo_root / GOLD_VALIDATION_REPORT_JSON, gold_validation)
+    write_json(repo_root / GOLD_FREEZE_REPORT_JSON, gold_freeze_status)
     write_json(repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_JSON, prediction_validation)
     write_json(repo_root / READINESS_REPORT_JSON, report)
     write_json(repo_root / SCORING_REPORT_JSON, score_report)
@@ -2455,6 +2568,11 @@ def run_formal_experiment_readiness(
     (repo_root / GOLD_VALIDATION_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / GOLD_VALIDATION_REPORT_MD).write_text(
         gold_validation_markdown(gold_validation),
+        encoding="utf-8",
+    )
+    (repo_root / GOLD_FREEZE_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_FREEZE_REPORT_MD).write_text(
+        gold_freeze_status_markdown(gold_freeze_status),
         encoding="utf-8",
     )
     (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
@@ -2485,6 +2603,14 @@ def run_formal_experiment_readiness(
         ),
         "gold_validation_report_markdown": project_relative_path(
             repo_root / GOLD_VALIDATION_REPORT_MD,
+            repo_root,
+        ),
+        "gold_freeze_status_json": project_relative_path(
+            repo_root / GOLD_FREEZE_REPORT_JSON,
+            repo_root,
+        ),
+        "gold_freeze_status_markdown": project_relative_path(
+            repo_root / GOLD_FREEZE_REPORT_MD,
             repo_root,
         ),
         "prediction_output_validation_report_json": project_relative_path(
