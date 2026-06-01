@@ -4,6 +4,7 @@
   "schema_slice": "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json",
   "extraction_schema": "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json",
   "llm_prediction_runner": "scripts/run_nasa_atmonto_llm_predictions.py",
+  "llm_smoke_output_dir": "data/experiments/nasa_atmonto/formal/smoke",
   "systems": [
     {
       "system_id": "S0_rule_only",

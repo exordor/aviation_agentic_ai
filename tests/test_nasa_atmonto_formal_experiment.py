@@ -292,6 +292,80 @@ def test_s3_llm_runner_repairs_validator_rejected_payload(tmp_path: Path) -> Non
     assert output["rejected_fact_count"] == 0
 
 
+def test_limited_llm_runner_writes_smoke_outputs_without_overwriting_formal_outputs(
+    tmp_path: Path,
+) -> None:
+    schema_target = tmp_path / "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json"
+    schema_target.parent.mkdir(parents=True, exist_ok=True)
+    schema_target.write_text(
+        Path("data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+
+    formal_dir = tmp_path / "data/experiments/nasa_atmonto/formal"
+    formal_dir.mkdir(parents=True, exist_ok=True)
+    input_records = [
+        {
+            "sample_id": "ATCSCC-GOLD-001",
+            "source_id": "2026-05-14:001",
+            "source_family": "atcscc_advisories",
+            "source_text": "ATCSCC ADVZY 001 TEST",
+        },
+        {
+            "sample_id": "ATCSCC-GOLD-002",
+            "source_id": "2026-05-14:002",
+            "source_family": "atcscc_advisories",
+            "source_text": "ATCSCC ADVZY 002 TEST",
+        },
+    ]
+    (formal_dir / "input_records.jsonl").write_text(
+        "\n".join(json.dumps(record, sort_keys=True) for record in input_records) + "\n",
+        encoding="utf-8",
+    )
+    tasks = [
+        {
+            "task_id": f"S1_llm_only:{record['sample_id']}",
+            "system_id": "S1_llm_only",
+            "sample_id": record["sample_id"],
+            "source_id": record["source_id"],
+            "source_family": "atcscc_advisories",
+            "messages": [{"role": "user", "content": record["source_text"]}],
+        }
+        for record in input_records
+    ]
+    (formal_dir / "s1_llm_only_prompt_batch.jsonl").write_text(
+        "\n".join(json.dumps(task, sort_keys=True) for task in tasks) + "\n",
+        encoding="utf-8",
+    )
+
+    result = run_llm_prediction_system(
+        system_id="S1_llm_only",
+        repo_root=tmp_path,
+        limit=1,
+        invoker=lambda _messages: json.dumps(
+            {
+                "source_id": "2026-05-14:001",
+                "source_family": "atcscc_advisories",
+                "facts": [],
+            }
+        ),
+    )
+
+    assert result["output_scope"] == "smoke"
+    assert result["run_status"] == "partial"
+    assert result["prediction_record_count"] == 1
+    assert result["prediction_output"].endswith("formal/smoke/s1_llm_only_predictions.jsonl")
+    assert not (formal_dir / "s1_llm_only_predictions.jsonl").exists()
+    assert (formal_dir / "smoke/s1_llm_only_predictions.jsonl").exists()
+    metadata = json.loads(
+        (formal_dir / "smoke/s1_llm_only_run_metadata.json").read_text(encoding="utf-8")
+    )
+    assert metadata["output_scope"] == "smoke"
+    assert metadata["prediction_output"].endswith("formal/smoke/s1_llm_only_predictions.jsonl")
+
+
 def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     prepare_formal_experiment_inputs(Path("."))
     report = build_formal_experiment_score_report(Path("."))

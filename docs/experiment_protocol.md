@@ -386,8 +386,9 @@ uv run python scripts/run_nasa_atmonto_llm_predictions.py S2_llm_schema_slice
 uv run python scripts/run_nasa_atmonto_llm_predictions.py S3_llm_schema_slice_validator_repair
 ```
 
-For a connectivity smoke test, use `--limit 1`; do not use limited outputs for
-formal scoring.
+For a connectivity smoke test, use `--limit 1`. Limited runs write to
+`data/experiments/nasa_atmonto/formal/smoke/` by default, so they cannot
+overwrite the formal S1/S2/S3 prediction files used by scoring.
 
 8. Validate S1/S2/S3 prediction JSONL files and run metadata before scoring.
 

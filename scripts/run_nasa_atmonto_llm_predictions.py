@@ -22,7 +22,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--limit",
         type=int,
-        help="Optional smoke-run record limit. Omit for the formal full 100-record run.",
+        help=(
+            "Optional smoke-run record limit. Limited runs write to the smoke output "
+            "directory by default and are not used for formal scoring."
+        ),
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help=(
+            "Optional custom output directory. Defaults to formal outputs for full runs "
+            "and data/experiments/nasa_atmonto/formal/smoke for limited runs."
+        ),
     )
     return parser.parse_args()
 
@@ -35,6 +46,7 @@ def main() -> int:
         temperature=args.temperature,
         max_tokens=args.max_tokens,
         limit=args.limit,
+        output_dir=args.output_dir,
     )
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0

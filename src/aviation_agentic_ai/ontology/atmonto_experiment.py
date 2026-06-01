@@ -37,6 +37,7 @@ S0_VALIDATED_PATH = Path(
     "data/processed/nasa_atmonto/extraction/2026-05-14/atcscc_schema_slice_validated.jsonl"
 )
 FORMAL_OUTPUT_DIR = Path("data/experiments/nasa_atmonto/formal")
+FORMAL_SMOKE_OUTPUT_DIR = FORMAL_OUTPUT_DIR / "smoke"
 FORMAL_INPUT_RECORDS_PATH = FORMAL_OUTPUT_DIR / "input_records.jsonl"
 FORMAL_SYSTEM_SPECS_PATH = FORMAL_OUTPUT_DIR / "system_specs.json"
 S1_PROMPT_BATCH_PATH = FORMAL_OUTPUT_DIR / "s1_llm_only_prompt_batch.jsonl"
@@ -220,6 +221,26 @@ def system_output_stem(system: SystemDefinition) -> str:
 
 def system_run_metadata_path(system: SystemDefinition) -> Path:
     return FORMAL_OUTPUT_DIR / f"{system_output_stem(system)}_run_metadata.json"
+
+
+def llm_run_output_dir(
+    *,
+    limit: int | None,
+    output_dir: str | Path | None,
+) -> Path:
+    if output_dir is not None:
+        return Path(output_dir)
+    if limit is not None:
+        return FORMAL_SMOKE_OUTPUT_DIR
+    return FORMAL_OUTPUT_DIR
+
+
+def llm_run_prediction_path(system: SystemDefinition, output_dir: str | Path) -> Path:
+    return Path(output_dir) / system.expected_output.name
+
+
+def llm_run_metadata_path(system: SystemDefinition, output_dir: str | Path) -> Path:
+    return Path(output_dir) / f"{system_output_stem(system)}_run_metadata.json"
 
 
 def gold_annotation_status(gold_records: list[dict[str, Any]]) -> dict[str, Any]:
@@ -1281,6 +1302,10 @@ def build_system_specs(repo_root: Path, schema_context: dict[str, Any]) -> dict[
         "schema_slice": project_relative_path(repo_root / SCHEMA_SLICE_PATH, repo_root),
         "extraction_schema": project_relative_path(repo_root / EXTRACTION_SCHEMA_PATH, repo_root),
         "llm_prediction_runner": "scripts/run_nasa_atmonto_llm_predictions.py",
+        "llm_smoke_output_dir": project_relative_path(
+            repo_root / FORMAL_SMOKE_OUTPUT_DIR,
+            repo_root,
+        ),
         "systems": system_definitions(repo_root),
         "common_output_contract": extraction_output_contract(),
         "schema_context_summary": {
@@ -1664,6 +1689,7 @@ def build_llm_run_metadata(
     *,
     repo_root: Path,
     system: SystemDefinition,
+    prediction_output: Path,
     prompt_count: int,
     records: list[dict[str, Any]],
     started_at: str,
@@ -1671,6 +1697,7 @@ def build_llm_run_metadata(
     temperature: float,
     max_tokens: int,
     limit: int | None,
+    output_scope: str,
 ) -> dict[str, Any]:
     repair_attempted = sum(1 for record in records if record.get("repair_attempted"))
     repair_success = sum(
@@ -1683,6 +1710,7 @@ def build_llm_run_metadata(
     return {
         "system_id": system.system_id,
         "run_status": "completed" if limit is None or len(records) == prompt_count else "partial",
+        "output_scope": output_scope,
         "runner": "nasa_atmonto_prompt_batch_llm_runner",
         "provider": configured_llm_provider(),
         "model": configured_llm_model(),
@@ -1694,7 +1722,7 @@ def build_llm_run_metadata(
         "prompt_batch": project_relative_path(repo_root / system.prompt_batch, repo_root)
         if system.prompt_batch
         else None,
-        "prediction_output": project_relative_path(repo_root / system.expected_output, repo_root),
+        "prediction_output": project_relative_path(prediction_output, repo_root),
         "prompt_count": prompt_count,
         "prediction_record_count": len(records),
         "parse_error_count": sum(1 for record in records if not record.get("json_adherence")),
@@ -1716,6 +1744,7 @@ def run_llm_prediction_system(
     temperature: float = 0.0,
     max_tokens: int = 4096,
     limit: int | None = None,
+    output_dir: str | Path | None = None,
     invoker: LLMInvoker | None = None,
 ) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
@@ -1732,6 +1761,20 @@ def run_llm_prediction_system(
     schema_slice = read_json(repo_root / SCHEMA_SLICE_PATH)
     input_by_source_id = {str(record["source_id"]): record for record in input_records}
     effective_records = prompt_records[:limit] if limit is not None else prompt_records
+    run_output_dir = llm_run_output_dir(limit=limit, output_dir=output_dir)
+    if run_output_dir.is_absolute():
+        output_dir_abs = run_output_dir
+    else:
+        output_dir_abs = repo_root / run_output_dir
+    prediction_output = output_dir_abs / system.expected_output.name
+    metadata_output = output_dir_abs / f"{system_output_stem(system)}_run_metadata.json"
+    output_scope = (
+        "custom"
+        if output_dir is not None
+        else "smoke"
+        if limit is not None
+        else "formal"
+    )
     effective_invoker = invoker or build_default_llm_invoker(
         temperature=temperature,
         max_tokens=max_tokens,
@@ -1756,6 +1799,7 @@ def run_llm_prediction_system(
     metadata = build_llm_run_metadata(
         repo_root=repo_root,
         system=system,
+        prediction_output=prediction_output,
         prompt_count=len(prompt_records),
         records=predictions,
         started_at=started_at,
@@ -1763,16 +1807,15 @@ def run_llm_prediction_system(
         temperature=temperature,
         max_tokens=max_tokens,
         limit=limit,
+        output_scope=output_scope,
     )
-    write_jsonl(repo_root / system.expected_output, predictions)
-    write_json(repo_root / system_run_metadata_path(system), metadata)
+    write_jsonl(prediction_output, predictions)
+    write_json(metadata_output, metadata)
     return {
         "system_id": system.system_id,
-        "prediction_output": project_relative_path(repo_root / system.expected_output, repo_root),
-        "run_metadata": project_relative_path(
-            repo_root / system_run_metadata_path(system),
-            repo_root,
-        ),
+        "prediction_output": project_relative_path(prediction_output, repo_root),
+        "run_metadata": project_relative_path(metadata_output, repo_root),
+        "output_scope": output_scope,
         "run_status": metadata["run_status"],
         "prompt_count": len(prompt_records),
         "prediction_record_count": len(predictions),
