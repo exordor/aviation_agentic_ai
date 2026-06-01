@@ -87,6 +87,16 @@ def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
     assert "Current status: not yet tested." not in protocol
 
 
+def test_experiment_protocol_repair_metric_boundary_matches_s3_loop() -> None:
+    protocol = Path("docs/experiment_protocol.md").read_text(encoding="utf-8")
+
+    assert "enter the S3 validator/repair loop as initially invalid" in protocol
+    assert "initially invalid S2 facts" not in protocol
+    assert "must be created by running the LLM prediction runner" not in protocol
+    assert "must not be fabricated or manually filled" in protocol
+    assert "100 usable records before scoring" in protocol
+
+
 def test_gold_annotation_guide_defines_manual_semantic_rubric() -> None:
     guide = Path("docs/nasa_atmonto_gold_annotation_guide.md").read_text(
         encoding="utf-8"

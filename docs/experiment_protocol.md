@@ -3,8 +3,9 @@
 ## Material Passport
 
 - Artifact: formal experiment protocol for the NASA ATMONTO ATCSCC KG extraction study.
-- Status: protocol draft with gold-sample template, cross-system candidate review,
-  and rejection triage artifacts prepared.
+- Status: protocol and prepared-state audit with gold-sample template,
+  cross-system candidate review, S0-S3 prediction outputs, and rejection triage
+  artifacts prepared; semantic scoring remains pending reviewed gold.
 - Prior stage: pilot / feasibility study.
 - Pilot evidence:
   - `reports/stages/nasa_atmonto_minimal_loop_validation.md`
@@ -120,9 +121,9 @@ Compared with `LLM + schema slice`, `LLM + schema slice + validator/repair` will
 increase structurally accepted facts while preserving manual semantic correctness.
 
 - Primary comparison: S3 vs S2.
-- Falsified if S3 structural repair success rate is below 15 percent of initially
-  invalid S2 facts, or if S3 manual semantic correctness is more than 5
-  percentage points lower than S2.
+- Falsified if S3 structural repair success rate is below 15 percent of facts
+  that enter the S3 validator/repair loop as initially invalid, or if S3 manual
+  semantic correctness is more than 5 percentage points lower than S2.
 
 ### H3: Ontology Constraints Improve Precision More Than They Harm Recall
 
@@ -222,9 +223,11 @@ Prepared execution files:
 - Pending/scoring report: `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
 - Prediction-output validation report: `reports/stages/nasa_atmonto_prediction_output_validation.md`
 
-These files prepare model inputs and the deterministic baseline only. They do
-not contain fabricated LLM results. S1-S3 prediction files must be created by
-running the LLM prediction runner against the committed prompt batches.
+These files fix the common sample, deterministic baseline, prompt batches, and
+saved S1-S3 prediction outputs. The LLM outputs must come from the prediction
+runner or from deterministic reprocessing of committed `raw_response` fields;
+they must not be fabricated or manually filled. The prediction-output validation
+report records whether every system has 100 usable records before scoring.
 
 ### S0: Rule-Only
 
