@@ -1817,5 +1817,5 @@ def test_structural_metrics_handles_empty_list() -> None:
     assert result["candidate_fact_count"] == 0
     assert result["accepted_fact_count"] == 0
     assert result["rejected_fact_count"] == 0
-    assert result.get("acceptance_rate") is None
+    assert result.get("structural_acceptance_rate") is None
     assert result.get("schema_violation_rate") is None
