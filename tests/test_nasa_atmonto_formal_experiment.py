@@ -10,8 +10,10 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_annotation_validation_report,
     build_gold_review_worklist,
     build_prediction_output_validation_report,
+    parse_llm_prediction_payload,
     prepare_formal_experiment_inputs,
     property_level_semantic_metrics,
+    run_llm_prediction_system,
     semantic_metrics,
     structural_metrics,
     validate_gold_annotation_records,
@@ -189,6 +191,102 @@ def test_llm_prompt_batches_keep_system_conditions_separate() -> None:
 
     assert s3["stages"] == ["initial_extraction", "validate", "repair_if_invalid"]
     assert "Validator/repair condition" in s3["messages"][0]["content"]
+
+
+def test_llm_prediction_payload_parser_marks_invalid_json_non_adherent() -> None:
+    record = parse_llm_prediction_payload(
+        raw_response="I could not produce JSON.",
+        task={
+            "system_id": "S1_llm_only",
+            "sample_id": "ATCSCC-GOLD-001",
+            "source_id": "2026-05-14:001",
+            "source_family": "atcscc_advisories",
+        },
+    )
+
+    assert record["json_adherence"] is False
+    assert record["facts"] is None
+    assert record["parse_error"]
+
+
+def test_s3_llm_runner_repairs_validator_rejected_payload(tmp_path: Path) -> None:
+    schema_target = tmp_path / "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json"
+    schema_target.parent.mkdir(parents=True, exist_ok=True)
+    schema_target.write_text(
+        Path("data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+
+    formal_dir = tmp_path / "data/experiments/nasa_atmonto/formal"
+    formal_dir.mkdir(parents=True, exist_ok=True)
+    input_record = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_family": "atcscc_advisories",
+        "source_text": "ATCSCC ADVZY 001 PROBABILITY OF EXTENSION: MODERATE",
+    }
+    (formal_dir / "input_records.jsonl").write_text(
+        json.dumps(input_record, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    task = {
+        "task_id": "S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-001",
+        "system_id": "S3_llm_schema_slice_validator_repair",
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_family": "atcscc_advisories",
+        "messages": [
+            {"role": "system", "content": "Return JSON only."},
+            {"role": "user", "content": "PROBABILITY OF EXTENSION: MODERATE"},
+        ],
+    }
+    (formal_dir / "s3_llm_schema_slice_validator_repair_prompt_batch.jsonl").write_text(
+        json.dumps(task, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    initial_payload = {
+        "source_id": "2026-05-14:001",
+        "source_family": "atcscc_advisories",
+        "facts": [
+            {
+                "fact_type": "datatype_property",
+                "subject_class": "ReRouteTMI",
+                "predicate": "extensionProbability",
+                "value": "MODERATE",
+                "datatype": "xsd:string",
+                "evidence_text": "PROBABILITY OF EXTENSION: MODERATE",
+            }
+        ],
+    }
+    repaired_payload = {
+        **initial_payload,
+        "facts": [{**initial_payload["facts"][0], "value": "MEDIUM"}],
+    }
+    responses = [json.dumps(initial_payload), json.dumps(repaired_payload)]
+
+    def fake_invoker(_messages: list[dict[str, str]]) -> str:
+        return responses.pop(0)
+
+    result = run_llm_prediction_system(
+        system_id="S3_llm_schema_slice_validator_repair",
+        repo_root=tmp_path,
+        invoker=fake_invoker,
+    )
+
+    assert result["prediction_record_count"] == 1
+    assert result["repair_attempted_record_count"] == 1
+    assert result["repair_success_record_count"] == 1
+    output = json.loads(
+        (formal_dir / "s3_llm_schema_slice_validator_repair_predictions.jsonl")
+        .read_text(encoding="utf-8")
+        .strip()
+    )
+    assert output["json_adherence"] is True
+    assert output["repair_attempted"] is True
+    assert output["accepted_fact_count"] == 1
+    assert output["rejected_fact_count"] == 0
 
 
 def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:

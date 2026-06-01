@@ -4,13 +4,20 @@ import argparse
 from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import UTC, datetime
+from hashlib import sha1
 import json
 from pathlib import Path
 import sys
-from typing import Any
+from typing import Any, Callable
 
+from aviation_agentic_ai.llm.providers import configured_llm_model, configured_llm_provider, get_llm
 from aviation_agentic_ai.ontology.atmonto_minimal_loop import validate_candidate_payloads
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
+from aviation_agentic_ai.utils.json_extraction import (
+    JSONPayloadExtractionError,
+    extract_json_object,
+)
 
 
 GOLD_MANIFEST_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json")
@@ -116,6 +123,9 @@ SYSTEMS: tuple[SystemDefinition, ...] = (
         uses_validator_repair=True,
     ),
 )
+
+LLM_RUN_SYSTEM_IDS = {system.system_id for system in SYSTEMS if system.requires_llm}
+LLMInvoker = Callable[[list[dict[str, str]]], str]
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -1159,6 +1169,7 @@ def build_system_specs(repo_root: Path, schema_context: dict[str, Any]) -> dict[
         "input_records": project_relative_path(repo_root / FORMAL_INPUT_RECORDS_PATH, repo_root),
         "schema_slice": project_relative_path(repo_root / SCHEMA_SLICE_PATH, repo_root),
         "extraction_schema": project_relative_path(repo_root / EXTRACTION_SCHEMA_PATH, repo_root),
+        "llm_prediction_runner": "scripts/run_nasa_atmonto_llm_predictions.py",
         "systems": system_definitions(repo_root),
         "common_output_contract": extraction_output_contract(),
         "schema_context_summary": {
@@ -1168,8 +1179,9 @@ def build_system_specs(repo_root: Path, schema_context: dict[str, Any]) -> dict[
             "datatype_property_count": len(schema_context["datatype_properties"]),
         },
         "execution_boundary": (
-            "Prompt batches prepare model inputs only. LLM outputs are not fabricated; "
-            "formal scoring waits for reviewed gold annotations and S1-S3 predictions."
+            "Prompt batches prepare model inputs only. S1-S3 predictions are produced by "
+            "the explicit LLM runner and are not fabricated; formal scoring waits for "
+            "reviewed gold annotations and S1-S3 predictions."
         ),
     }
 
@@ -1243,6 +1255,420 @@ def prepare_formal_experiment_inputs(
             )
         },
         "system_specs": project_relative_path(repo_root / FORMAL_SYSTEM_SPECS_PATH, repo_root),
+    }
+
+
+def utc_timestamp() -> str:
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+
+
+def llm_response_text(response: object) -> str:
+    content = getattr(response, "content", response)
+    if isinstance(content, str):
+        return content.strip()
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, dict):
+                text = item.get("text") or item.get("content")
+                if text:
+                    parts.append(str(text))
+            elif item:
+                parts.append(str(item))
+        return "\n".join(parts).strip()
+    return str(content).strip()
+
+
+def invoke_llm_messages(
+    messages: list[dict[str, str]],
+    *,
+    temperature: float,
+    max_tokens: int,
+) -> str:
+    return build_default_llm_invoker(temperature=temperature, max_tokens=max_tokens)(messages)
+
+
+def build_langchain_messages(messages: list[dict[str, str]]) -> list[Any]:
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+    except ImportError as exc:
+        raise RuntimeError(
+            "NASA ATMONTO LLM prediction runs require optional LLM dependencies. "
+            "Install with: uv sync --extra ontology-generation"
+        ) from exc
+
+    chat_messages = []
+    for message in messages:
+        role = str(message.get("role", "user"))
+        content = str(message.get("content", ""))
+        if role == "system":
+            chat_messages.append(SystemMessage(content=content))
+        else:
+            chat_messages.append(HumanMessage(content=content))
+    return chat_messages
+
+
+def build_default_llm_invoker(
+    *,
+    temperature: float,
+    max_tokens: int,
+) -> LLMInvoker:
+    llm = get_llm(temperature=temperature, max_tokens=max_tokens)
+
+    def invoke(messages: list[dict[str, str]]) -> str:
+        return llm_response_text(llm.invoke(build_langchain_messages(messages)))
+
+    return invoke
+
+
+def stable_llm_fact_id(
+    *,
+    system_id: str,
+    sample_id: str,
+    index: int,
+    fact: dict[str, Any],
+) -> str:
+    material = json.dumps(fact, sort_keys=True, ensure_ascii=False)
+    digest = sha1(material.encode("utf-8")).hexdigest()[:12]
+    return f"{system_id}:{sample_id}:fact-{index + 1:02d}-{digest}"
+
+
+def normalize_llm_facts(
+    *,
+    payload: dict[str, Any],
+    task: dict[str, Any],
+) -> tuple[list[dict[str, Any]], int]:
+    facts_raw = payload.get("facts", [])
+    if not isinstance(facts_raw, list):
+        raise ValueError("facts_not_a_list")
+    facts: list[dict[str, Any]] = []
+    skipped = 0
+    for index, fact in enumerate(facts_raw):
+        if not isinstance(fact, dict):
+            skipped += 1
+            continue
+        normalized = dict(fact)
+        normalized.setdefault("source_id", task["source_id"])
+        normalized.setdefault("source_family", task.get("source_family", "atcscc_advisories"))
+        normalized.setdefault(
+            "subject",
+            f"urn:aviation-agentic-ai:tmi:{task['source_id']}",
+        )
+        normalized.setdefault(
+            "fact_id",
+            stable_llm_fact_id(
+                system_id=str(task["system_id"]),
+                sample_id=str(task["sample_id"]),
+                index=index,
+                fact=normalized,
+            ),
+        )
+        facts.append(normalized)
+    return facts, skipped
+
+
+def parse_llm_prediction_payload(
+    *,
+    raw_response: str,
+    task: dict[str, Any],
+) -> dict[str, Any]:
+    try:
+        payload = extract_json_object(raw_response)
+        facts, skipped_fact_count = normalize_llm_facts(payload=payload, task=task)
+    except (JSONPayloadExtractionError, ValueError) as exc:
+        return {
+            "system_id": task["system_id"],
+            "sample_id": task["sample_id"],
+            "source_id": task["source_id"],
+            "source_family": task.get("source_family", "atcscc_advisories"),
+            "json_adherence": False,
+            "facts": None,
+            "raw_response": raw_response,
+            "parse_error": str(exc),
+        }
+    return {
+        "system_id": task["system_id"],
+        "sample_id": task["sample_id"],
+        "source_id": str(payload.get("source_id") or task["source_id"]),
+        "source_family": str(
+            payload.get("source_family") or task.get("source_family", "atcscc_advisories")
+        ),
+        "json_adherence": True,
+        "facts": facts,
+        "raw_response": raw_response,
+        "parse_error": None,
+        "skipped_non_object_fact_count": skipped_fact_count,
+    }
+
+
+def source_row_for_task(task: dict[str, Any], input_by_source_id: dict[str, dict[str, Any]]) -> dict[str, object]:
+    source_id = str(task["source_id"])
+    input_record = input_by_source_id[source_id]
+    return {"source_id": source_id, "text": input_record.get("source_text", "")}
+
+
+def validate_prediction_record(
+    *,
+    record: dict[str, Any],
+    source_row: dict[str, object],
+    schema_slice: dict[str, Any],
+) -> list[dict[str, Any]]:
+    if not record.get("json_adherence") or not isinstance(record.get("facts"), list):
+        return []
+    return validate_candidate_payloads(
+        prediction_payloads_for_validation([record]),
+        [source_row],
+        schema_slice,
+    )
+
+
+def rejected_validation_summary(validation_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "fact_id": item.get("fact_id"),
+            "errors": item.get("errors", []),
+            "candidate": item.get("candidate"),
+        }
+        for item in validation_results
+        if item.get("accepted") is False
+    ]
+
+
+def build_repair_messages(
+    *,
+    task: dict[str, Any],
+    initial_record: dict[str, Any],
+    validation_results: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    rejected = rejected_validation_summary(validation_results)
+    repair_context = {
+        "sample_id": task["sample_id"],
+        "source_id": task["source_id"],
+        "parse_error": initial_record.get("parse_error"),
+        "validator_rejections": rejected,
+        "instruction": (
+            "Return one complete corrected JSON object with source_id, source_family, and facts. "
+            "Remove unsupported facts instead of inventing replacements. Keep evidence_text copied "
+            "from the advisory."
+        ),
+    }
+    messages = list(task["messages"])
+    messages.append(
+        {
+            "role": "user",
+            "content": "\n".join(
+                [
+                    "The initial extraction payload failed validation.",
+                    "Initial raw response:",
+                    str(initial_record.get("raw_response", "")),
+                    "",
+                    "Validation feedback:",
+                    json.dumps(repair_context, ensure_ascii=False, sort_keys=True),
+                ]
+            ),
+        }
+    )
+    return messages
+
+
+def prediction_record_counts(record: dict[str, Any]) -> dict[str, int]:
+    validation_results = [
+        item for item in record.get("validator_results", []) if isinstance(item, dict)
+    ]
+    return {
+        "candidate_fact_count": len(record.get("facts") or []),
+        "accepted_fact_count": sum(1 for item in validation_results if item.get("accepted")),
+        "rejected_fact_count": sum(1 for item in validation_results if not item.get("accepted")),
+    }
+
+
+def build_llm_prediction_record(
+    *,
+    system: SystemDefinition,
+    task: dict[str, Any],
+    raw_response: str,
+    source_row: dict[str, object],
+    schema_slice: dict[str, Any],
+    invoker: LLMInvoker,
+) -> dict[str, Any]:
+    initial_record = parse_llm_prediction_payload(raw_response=raw_response, task=task)
+    initial_validation = validate_prediction_record(
+        record=initial_record,
+        source_row=source_row,
+        schema_slice=schema_slice,
+    )
+    final_record = dict(initial_record)
+    repair_attempted = False
+    repair_raw_response = None
+    repair_parse_error = None
+    repair_reason = None
+
+    should_repair = system.uses_validator_repair and (
+        not initial_record.get("json_adherence")
+        or any(item.get("accepted") is False for item in initial_validation)
+    )
+    if should_repair:
+        repair_attempted = True
+        repair_reason = "parse_error" if not initial_record.get("json_adherence") else "validator_rejections"
+        repair_raw_response = invoker(
+            build_repair_messages(
+                task=task,
+                initial_record=initial_record,
+                validation_results=initial_validation,
+            )
+        )
+        repaired_record = parse_llm_prediction_payload(raw_response=repair_raw_response, task=task)
+        repair_parse_error = repaired_record.get("parse_error")
+        if repaired_record.get("json_adherence"):
+            final_record = repaired_record
+
+    final_validation = validate_prediction_record(
+        record=final_record,
+        source_row=source_row,
+        schema_slice=schema_slice,
+    )
+    final_record["validator_results"] = final_validation
+    final_record["initial_validator_results"] = initial_validation
+    final_record["repair_attempted"] = repair_attempted
+    final_record["repair_reason"] = repair_reason
+    final_record["repair_raw_response"] = repair_raw_response
+    final_record["repair_parse_error"] = repair_parse_error
+    final_record["schema_valid"] = (
+        final_record.get("json_adherence") is True
+        and isinstance(final_record.get("facts"), list)
+        and all(item.get("accepted") for item in final_validation)
+    )
+    final_record.update(prediction_record_counts(final_record))
+    return final_record
+
+
+def system_by_id(system_id: str) -> SystemDefinition:
+    for system in SYSTEMS:
+        if system.system_id == system_id:
+            return system
+    raise ValueError(f"Unknown system_id: {system_id}")
+
+
+def build_llm_run_metadata(
+    *,
+    repo_root: Path,
+    system: SystemDefinition,
+    prompt_count: int,
+    records: list[dict[str, Any]],
+    started_at: str,
+    completed_at: str,
+    temperature: float,
+    max_tokens: int,
+    limit: int | None,
+) -> dict[str, Any]:
+    repair_attempted = sum(1 for record in records if record.get("repair_attempted"))
+    repair_success = sum(
+        1
+        for record in records
+        if record.get("repair_attempted")
+        and record.get("repair_parse_error") is None
+        and record.get("schema_valid")
+    )
+    return {
+        "system_id": system.system_id,
+        "run_status": "completed" if limit is None or len(records) == prompt_count else "partial",
+        "runner": "nasa_atmonto_prompt_batch_llm_runner",
+        "provider": configured_llm_provider(),
+        "model": configured_llm_model(),
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "started_at": started_at,
+        "completed_at": completed_at,
+        "input_records": project_relative_path(repo_root / FORMAL_INPUT_RECORDS_PATH, repo_root),
+        "prompt_batch": project_relative_path(repo_root / system.prompt_batch, repo_root)
+        if system.prompt_batch
+        else None,
+        "prediction_output": project_relative_path(repo_root / system.expected_output, repo_root),
+        "prompt_count": prompt_count,
+        "prediction_record_count": len(records),
+        "parse_error_count": sum(1 for record in records if not record.get("json_adherence")),
+        "schema_valid_record_count": sum(1 for record in records if record.get("schema_valid")),
+        "repair_attempted_record_count": repair_attempted,
+        "repair_success_record_count": repair_success,
+        "limit": limit,
+        "claim_boundary": (
+            "LLM predictions are experiment outputs only; formal extraction effectiveness still "
+            "requires reviewed gold annotations and scoring."
+        ),
+    }
+
+
+def run_llm_prediction_system(
+    *,
+    system_id: str,
+    repo_root: str | Path = PROJECT_ROOT,
+    temperature: float = 0.0,
+    max_tokens: int = 4096,
+    limit: int | None = None,
+    invoker: LLMInvoker | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    system = system_by_id(system_id)
+    if not system.requires_llm:
+        raise ValueError(f"{system_id} is not an LLM prediction system")
+    if not system.prompt_batch:
+        raise ValueError(f"{system_id} does not define a prompt batch")
+    if limit is not None and limit < 1:
+        raise ValueError("limit must be >= 1 when provided")
+
+    prompt_records = read_jsonl(repo_root / system.prompt_batch)
+    input_records = read_jsonl(repo_root / FORMAL_INPUT_RECORDS_PATH)
+    schema_slice = read_json(repo_root / SCHEMA_SLICE_PATH)
+    input_by_source_id = {str(record["source_id"]): record for record in input_records}
+    effective_records = prompt_records[:limit] if limit is not None else prompt_records
+    effective_invoker = invoker or build_default_llm_invoker(
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+
+    started_at = utc_timestamp()
+    predictions: list[dict[str, Any]] = []
+    for task in effective_records:
+        source_row = source_row_for_task(task, input_by_source_id)
+        raw_response = effective_invoker(task["messages"])
+        predictions.append(
+            build_llm_prediction_record(
+                system=system,
+                task=task,
+                raw_response=raw_response,
+                source_row=source_row,
+                schema_slice=schema_slice,
+                invoker=effective_invoker,
+            )
+        )
+    completed_at = utc_timestamp()
+    metadata = build_llm_run_metadata(
+        repo_root=repo_root,
+        system=system,
+        prompt_count=len(prompt_records),
+        records=predictions,
+        started_at=started_at,
+        completed_at=completed_at,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        limit=limit,
+    )
+    write_jsonl(repo_root / system.expected_output, predictions)
+    write_json(repo_root / system_run_metadata_path(system), metadata)
+    return {
+        "system_id": system.system_id,
+        "prediction_output": project_relative_path(repo_root / system.expected_output, repo_root),
+        "run_metadata": project_relative_path(
+            repo_root / system_run_metadata_path(system),
+            repo_root,
+        ),
+        "run_status": metadata["run_status"],
+        "prompt_count": len(prompt_records),
+        "prediction_record_count": len(predictions),
+        "parse_error_count": metadata["parse_error_count"],
+        "schema_valid_record_count": metadata["schema_valid_record_count"],
+        "repair_attempted_record_count": metadata["repair_attempted_record_count"],
+        "repair_success_record_count": metadata["repair_success_record_count"],
     }
 
 

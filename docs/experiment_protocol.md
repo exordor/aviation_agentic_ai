@@ -197,11 +197,13 @@ Prepared execution files:
 - S1 prompt batch: `data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl`
 - S2 prompt batch: `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
 - S3 prompt batch: `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
+- LLM prediction runner: `scripts/run_nasa_atmonto_llm_predictions.py`
 - Pending/scoring report: `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
 - Prediction-output validation report: `reports/stages/nasa_atmonto_prediction_output_validation.md`
 
 These files prepare model inputs and the deterministic baseline only. They do
-not contain fabricated LLM results.
+not contain fabricated LLM results. S1-S3 prediction files must be created by
+running the LLM prediction runner against the committed prompt batches.
 
 ### S0: Rule-Only
 
@@ -372,6 +374,15 @@ data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl
 
 7. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
    records. Use the committed S0 prediction file as the deterministic baseline.
+
+```bash
+uv run python scripts/run_nasa_atmonto_llm_predictions.py S1_llm_only
+uv run python scripts/run_nasa_atmonto_llm_predictions.py S2_llm_schema_slice
+uv run python scripts/run_nasa_atmonto_llm_predictions.py S3_llm_schema_slice_validator_repair
+```
+
+For a connectivity smoke test, use `--limit 1`; do not use limited outputs for
+formal scoring.
 
 8. Validate S1/S2/S3 prediction JSONL files and run metadata before scoring.
 

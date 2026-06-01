@@ -3,6 +3,7 @@
   "input_records": "data/experiments/nasa_atmonto/formal/input_records.jsonl",
   "schema_slice": "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json",
   "extraction_schema": "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json",
+  "llm_prediction_runner": "scripts/run_nasa_atmonto_llm_predictions.py",
   "systems": [
     {
       "system_id": "S0_rule_only",
@@ -79,5 +80,5 @@
     "object_property_count": 11,
     "datatype_property_count": 11
   },
-  "execution_boundary": "Prompt batches prepare model inputs only. LLM outputs are not fabricated; formal scoring waits for reviewed gold annotations and S1-S3 predictions."
+  "execution_boundary": "Prompt batches prepare model inputs only. S1-S3 predictions are produced by the explicit LLM runner and are not fabricated; formal scoring waits for reviewed gold annotations and S1-S3 predictions."
 }
