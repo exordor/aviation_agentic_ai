@@ -11,10 +11,12 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_annotation_validation_report,
     build_gold_review_worklist,
     build_gold_review_batches,
+    build_gold_review_decision_templates,
     build_gold_review_progress,
     build_prediction_output_validation_report,
     build_rejection_adjudication_report,
     build_system_candidate_review_package,
+    apply_gold_review_decisions,
     freeze_reviewed_gold_set,
     formal_scoring_gold_source,
     parse_llm_prediction_payload,
@@ -24,6 +26,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     run_llm_prediction_system,
     gold_review_batch_index_markdown,
     gold_review_batch_markdown,
+    gold_review_decision_index_markdown,
     gold_review_progress_markdown,
     score_report_markdown,
     semantic_metrics,
@@ -882,6 +885,99 @@ def test_gold_review_progress_tracks_batch_completion_against_template() -> None
     assert "Gold Review Progress" in markdown
     assert "pending_manual_review" in markdown
     assert "batch_01" in markdown
+
+
+def test_gold_review_decision_templates_prepare_structured_review_inputs() -> None:
+    candidate_review = build_system_candidate_review_package(Path("."))
+    batch_report = build_gold_review_batches(Path("."), candidate_review=candidate_review)
+    report = build_gold_review_decision_templates(Path("."), batch_report=batch_report)
+
+    assert report["batch_count"] == 10
+    assert report["record_count"] == 100
+    first_batch = report["batches"][0]
+    assert first_batch["batch_id"] == "batch_01"
+    assert first_batch["record_count"] == 10
+    assert first_batch["rejected_fact_adjudication_count"] > 0
+
+    first_record = first_batch["records"][0]
+    assert first_record["sample_id"] == "ATCSCC-GOLD-001"
+    assert first_record["annotation_status"] == "pending_manual_gold_annotation"
+    assert first_record["valid_candidate_fact_ids"] == []
+    assert first_record["review_context"]["candidate_cluster_count"] > 0
+
+    markdown = gold_review_decision_index_markdown(report)
+    assert "Gold Review Decision Templates" in markdown
+    assert "batch_10" in markdown
+
+
+def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) -> None:
+    eval_dir = tmp_path / "data/evaluation/nasa_atmonto"
+    eval_dir.mkdir(parents=True)
+    (eval_dir / "atcscc_gold_sample_manifest.json").write_text(
+        json.dumps({"selected_source_ids": ["SRC1"]}) + "\n",
+        encoding="utf-8",
+    )
+    fact = {
+        "fact_id": "fact-1",
+        "fact_type": "datatype_property",
+        "subject_class": "TrafficManagementInitiative",
+        "predicate": "advisoryNumber",
+        "value": 1,
+        "datatype": "xsd:integer",
+        "evidence_text": "ADVZY 001",
+        "source_id": "SRC1",
+    }
+    record = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "SRC1",
+        "source_text": "ATCSCC ADVZY 001",
+        "candidate_facts": [fact],
+        "validator_results": [],
+        "gold_annotation": {
+            "annotation_status": "pending_manual_gold_annotation",
+            "annotator_id": "",
+            "valid_facts": [],
+            "invalid_candidate_fact_ids": [],
+            "missing_facts": [],
+            "rejected_fact_adjudications": [],
+            "notes": "",
+        },
+    }
+    (eval_dir / "atcscc_gold_annotation_template.jsonl").write_text(
+        json.dumps(record, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    decision_dir = eval_dir / "review_decisions"
+    decision_dir.mkdir()
+    decision = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "SRC1",
+        "annotation_status": "reviewed",
+        "annotator_id": "reviewer-1",
+        "valid_candidate_fact_ids": ["fact-1"],
+        "invalid_candidate_fact_ids": [],
+        "missing_facts": [],
+        "rejected_fact_adjudications": [],
+        "notes": "source checked",
+    }
+    (decision_dir / "batch_01.jsonl").write_text(
+        json.dumps(decision, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    output = eval_dir / "reviewed_draft.jsonl"
+    report = apply_gold_review_decisions(
+        tmp_path,
+        decision_dir=decision_dir,
+        output_path=output,
+    )
+
+    assert report["output_written"] is True
+    assert report["validation_status"] == "ready_for_scoring"
+    assert report["reviewed_record_count"] == 1
+    draft = json.loads(output.read_text(encoding="utf-8").strip())
+    assert draft["gold_annotation"]["annotation_status"] == "reviewed"
+    assert draft["gold_annotation"]["valid_facts"][0]["fact_id"] == "fact-1"
 
 
 def test_rejection_adjudication_finalizes_property_level_decisions() -> None:

@@ -35,6 +35,11 @@ GOLD_REVIEW_BATCH_DIR = Path("data/evaluation/nasa_atmonto/review_batches")
 GOLD_REVIEW_BATCH_INDEX_MD = GOLD_REVIEW_BATCH_DIR / "index.md"
 GOLD_REVIEW_PROGRESS_JSON = Path("data/evaluation/nasa_atmonto/gold_review_progress.json")
 GOLD_REVIEW_PROGRESS_MD = Path("data/evaluation/nasa_atmonto/gold_review_progress.md")
+GOLD_REVIEW_DECISION_DIR = Path("data/evaluation/nasa_atmonto/review_decisions")
+GOLD_REVIEW_DECISION_INDEX_MD = GOLD_REVIEW_DECISION_DIR / "index.md"
+GOLD_REVIEW_DECISION_DRAFT_PATH = Path(
+    "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.reviewed_draft.jsonl"
+)
 REJECTION_ANALYSIS_JSON = Path("reports/stages/nasa_atmonto_rejection_error_analysis.json")
 REJECTION_ADJUDICATION_JSON = Path("reports/stages/nasa_atmonto_rejection_adjudication.json")
 REJECTION_ADJUDICATION_MD = Path("reports/stages/nasa_atmonto_rejection_adjudication.md")
@@ -1773,6 +1778,328 @@ def run_gold_review_progress(
         "pending_record_count": report["pending_record_count"],
         "complete_batch_count": report["complete_batch_count"],
         "batch_count": report["batch_count"],
+    }
+
+
+def rejected_fact_decision_template(record: dict[str, Any]) -> list[dict[str, Any]]:
+    candidate_by_id = {
+        str(candidate.get("fact_id")): candidate
+        for candidate in record.get("candidate_facts", [])
+        if isinstance(candidate, dict) and candidate.get("fact_id")
+    }
+    templates: list[dict[str, Any]] = []
+    for result in record.get("validator_results", []):
+        if not isinstance(result, dict) or result.get("accepted") is not False:
+            continue
+        fact_id = str(result.get("fact_id", ""))
+        candidate = candidate_by_id.get(fact_id, {})
+        templates.append(
+            {
+                "fact_id": fact_id,
+                "predicate": term_name(candidate.get("predicate")),
+                "errors": [str(error) for error in result.get("errors", [])],
+                "evidence_text": compact_text(candidate.get("evidence_text")),
+                "decision": "",
+                "rationale": "",
+                "recommended_action": "",
+            }
+        )
+    return templates
+
+
+def gold_review_decision_record(
+    *,
+    batch_id: str,
+    record: dict[str, Any],
+    gold_record: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "batch_id": batch_id,
+        "sample_id": record.get("sample_id"),
+        "source_id": record.get("source_id"),
+        "source_url": record.get("source_url"),
+        "annotation_status": PENDING_GOLD_STATUS,
+        "annotator_id": "",
+        "reviewed_at": "",
+        "notes": "",
+        "valid_candidate_fact_ids": [],
+        "invalid_candidate_fact_ids": [],
+        "missing_facts": [],
+        "rejected_fact_adjudications": rejected_fact_decision_template(gold_record),
+        "review_context": {
+            "candidate_cluster_count": record.get("candidate_cluster_count"),
+            "candidate_cluster_ids": [
+                cluster.get("candidate_id") for cluster in record.get("candidate_clusters", [])
+            ],
+            "candidate_fact_ids": [
+                candidate.get("fact_id")
+                for candidate in gold_record.get("candidate_facts", [])
+                if isinstance(candidate, dict)
+            ],
+        },
+        "instructions": (
+            "Set annotation_status to reviewed only after source-text review. Put accepted "
+            "rule-baseline fact IDs in valid_candidate_fact_ids, rejected rule-baseline IDs "
+            "in invalid_candidate_fact_ids, add any cross-system/manual facts to missing_facts, "
+            "and complete every rejected_fact_adjudications decision."
+        ),
+    }
+
+
+def build_gold_review_decision_templates(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+    batch_report: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    if batch_report is None:
+        batch_report = build_gold_review_batches(repo_root, batch_size=batch_size)
+    gold_records_by_source_id = {
+        str(record.get("source_id")): record for record in read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    }
+    batches: list[dict[str, Any]] = []
+    for batch in batch_report["batches"]:
+        decision_records = [
+            gold_review_decision_record(
+                batch_id=batch["batch_id"],
+                record=record,
+                gold_record=gold_records_by_source_id[str(record.get("source_id"))],
+            )
+            for record in batch["records"]
+        ]
+        batches.append(
+            {
+                "batch_id": batch["batch_id"],
+                "path": project_relative_path(
+                    repo_root / GOLD_REVIEW_DECISION_DIR / f"{batch['batch_id']}.jsonl",
+                    repo_root,
+                ),
+                "record_count": len(decision_records),
+                "first_sample_id": batch["first_sample_id"],
+                "last_sample_id": batch["last_sample_id"],
+                "rejected_fact_adjudication_count": sum(
+                    len(record["rejected_fact_adjudications"]) for record in decision_records
+                ),
+                "records": decision_records,
+            }
+        )
+    return {
+        "source_family": "nasa_atmonto_gold_review_decision_templates",
+        "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "decision_template_index_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_DECISION_INDEX_MD,
+            repo_root,
+        ),
+        "decision_dir": project_relative_path(repo_root / GOLD_REVIEW_DECISION_DIR, repo_root),
+        "batch_count": len(batches),
+        "record_count": sum(batch["record_count"] for batch in batches),
+        "batches": batches,
+        "completion_gate": (
+            "Decision templates are editable review inputs. Applying them with all records "
+            "still pending must not produce reviewed gold; set records to reviewed only after "
+            "manual source-text review."
+        ),
+    }
+
+
+def gold_review_decision_index_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Gold Review Decision Templates",
+        "",
+        f"- Gold template: `{report['gold_template']}`",
+        f"- Decision directory: `{report['decision_dir']}`",
+        f"- Records: {report['record_count']}",
+        f"- Batches: {report['batch_count']}",
+        "",
+        "## Completion Gate",
+        "",
+        f"- {report['completion_gate']}",
+        "",
+        "## Decision Files",
+        "",
+        "| Batch | Samples | Records | Rejected facts | File |",
+        "| --- | --- | ---: | ---: | --- |",
+    ]
+    for batch in report["batches"]:
+        lines.append(
+            "| "
+            f"`{batch['batch_id']}` | "
+            f"`{batch['first_sample_id']}`-`{batch['last_sample_id']}` | "
+            f"{batch['record_count']} | "
+            f"{batch['rejected_fact_adjudication_count']} | "
+            f"`{batch['path']}` |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def run_gold_review_decision_templates(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    batch_report = build_gold_review_batches(repo_root, batch_size=batch_size)
+    report = build_gold_review_decision_templates(repo_root, batch_report=batch_report)
+    (repo_root / GOLD_REVIEW_DECISION_DIR).mkdir(parents=True, exist_ok=True)
+    for batch in report["batches"]:
+        write_jsonl(repo_root / batch["path"], batch["records"])
+    (repo_root / GOLD_REVIEW_DECISION_INDEX_MD).write_text(
+        gold_review_decision_index_markdown(report),
+        encoding="utf-8",
+    )
+    return {
+        "decision_template_index_markdown": report["decision_template_index_markdown"],
+        "decision_dir": report["decision_dir"],
+        "batch_count": report["batch_count"],
+        "record_count": report["record_count"],
+        "decision_files": [batch["path"] for batch in report["batches"]],
+    }
+
+
+def read_gold_review_decisions(decision_dir: Path) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    for path in sorted(decision_dir.glob("batch_*.jsonl")):
+        records.extend(read_jsonl(path))
+    return records
+
+
+def apply_gold_review_decision_to_record(
+    *,
+    gold_record: dict[str, Any],
+    decision: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    errors: list[dict[str, Any]] = []
+    source_id = str(gold_record.get("source_id"))
+    candidate_by_id = {
+        str(candidate.get("fact_id")): candidate
+        for candidate in gold_record.get("candidate_facts", [])
+        if isinstance(candidate, dict) and candidate.get("fact_id")
+    }
+    valid_ids = [str(value) for value in decision.get("valid_candidate_fact_ids", [])]
+    invalid_ids = [str(value) for value in decision.get("invalid_candidate_fact_ids", [])]
+    unknown_valid = sorted(set(valid_ids) - set(candidate_by_id))
+    unknown_invalid = sorted(set(invalid_ids) - set(candidate_by_id))
+    if unknown_valid:
+        errors.append(
+            {
+                "source_id": source_id,
+                "sample_id": gold_record.get("sample_id"),
+                "error": "unknown_valid_candidate_fact_ids",
+                "fact_ids": unknown_valid,
+            }
+        )
+    if unknown_invalid:
+        errors.append(
+            {
+                "source_id": source_id,
+                "sample_id": gold_record.get("sample_id"),
+                "error": "unknown_invalid_candidate_fact_ids",
+                "fact_ids": unknown_invalid,
+            }
+        )
+    if errors:
+        return gold_record, errors
+
+    status = str(decision.get("annotation_status", PENDING_GOLD_STATUS))
+    if status not in {PENDING_GOLD_STATUS, REVIEWED_GOLD_STATUS}:
+        errors.append(
+            {
+                "source_id": source_id,
+                "sample_id": gold_record.get("sample_id"),
+                "error": "invalid_annotation_status",
+                "annotation_status": status,
+            }
+        )
+        return gold_record, errors
+
+    updated = dict(gold_record)
+    annotation = dict(updated.get("gold_annotation", {}))
+    annotation.update(
+        {
+            "annotation_status": status,
+            "annotator_id": str(decision.get("annotator_id", "")),
+            "valid_facts": [candidate_by_id[fact_id] for fact_id in valid_ids],
+            "invalid_candidate_fact_ids": invalid_ids,
+            "missing_facts": [
+                fact for fact in decision.get("missing_facts", []) if isinstance(fact, dict)
+            ],
+            "rejected_fact_adjudications": [
+                adjudication
+                for adjudication in decision.get("rejected_fact_adjudications", [])
+                if isinstance(adjudication, dict)
+            ],
+            "notes": str(decision.get("notes", "")),
+        }
+    )
+    updated["gold_annotation"] = annotation
+    return updated, []
+
+
+def apply_gold_review_decisions(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    decision_dir: str | Path = GOLD_REVIEW_DECISION_DIR,
+    output_path: str | Path = GOLD_REVIEW_DECISION_DRAFT_PATH,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    decision_root = Path(decision_dir)
+    if not decision_root.is_absolute():
+        decision_root = repo_root / decision_root
+    output = Path(output_path)
+    if not output.is_absolute():
+        output = repo_root / output
+
+    manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
+    selected_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
+    gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    decisions = read_gold_review_decisions(decision_root)
+    decisions_by_source_id = {str(decision.get("source_id")): decision for decision in decisions}
+    errors: list[dict[str, Any]] = []
+    duplicate_source_ids = [
+        source_id
+        for source_id, count in Counter(str(decision.get("source_id")) for decision in decisions).items()
+        if count > 1
+    ]
+    if duplicate_source_ids:
+        errors.append({"error": "duplicate_decision_source_ids", "source_ids": duplicate_source_ids})
+
+    updated_records: list[dict[str, Any]] = []
+    for record in gold_records:
+        source_id = str(record.get("source_id"))
+        decision = decisions_by_source_id.get(source_id)
+        if decision is None:
+            updated_records.append(record)
+            continue
+        updated, record_errors = apply_gold_review_decision_to_record(
+            gold_record=record,
+            decision=decision,
+        )
+        errors.extend(record_errors)
+        updated_records.append(updated)
+
+    if not errors:
+        write_jsonl(output, updated_records)
+
+    validation = validate_gold_annotation_records(
+        gold_records=updated_records,
+        selected_source_ids=selected_ids,
+    )
+    return {
+        "source_family": "nasa_atmonto_gold_review_decision_apply",
+        "decision_dir": project_relative_path(decision_root, repo_root),
+        "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "output_path": project_relative_path(output, repo_root),
+        "output_written": not errors,
+        "decision_record_count": len(decisions),
+        "updated_record_count": len(updated_records),
+        "error_count": len(errors),
+        "errors": errors[:100],
+        "validation_status": validation["status"],
+        "validation_error_count": validation["error_count"],
+        "validation_warning_count": validation["warning_count"],
+        "reviewed_record_count": validation["reviewed_record_count"],
+        "pending_record_count": validation["pending_record_count"],
     }
 
 
@@ -4167,6 +4494,10 @@ def run_formal_experiment_readiness(
     prediction_validation = build_prediction_output_validation_report(repo_root)
     candidate_review = build_system_candidate_review_package(repo_root)
     batch_report = build_gold_review_batches(repo_root, candidate_review=candidate_review)
+    decision_report = build_gold_review_decision_templates(
+        repo_root,
+        batch_report=batch_report,
+    )
     progress_report = build_gold_review_progress(repo_root, batch_report=batch_report)
     rejection_adjudication = build_rejection_adjudication_report(repo_root)
     report = build_formal_experiment_readiness(repo_root)
@@ -4213,6 +4544,13 @@ def run_formal_experiment_readiness(
         )
     (repo_root / GOLD_REVIEW_BATCH_INDEX_MD).write_text(
         gold_review_batch_index_markdown(batch_report),
+        encoding="utf-8",
+    )
+    (repo_root / GOLD_REVIEW_DECISION_DIR).mkdir(parents=True, exist_ok=True)
+    for batch in decision_report["batches"]:
+        write_jsonl(repo_root / batch["path"], batch["records"])
+    (repo_root / GOLD_REVIEW_DECISION_INDEX_MD).write_text(
+        gold_review_decision_index_markdown(decision_report),
         encoding="utf-8",
     )
     (repo_root / GOLD_REVIEW_PROGRESS_MD).write_text(
@@ -4275,6 +4613,10 @@ def run_formal_experiment_readiness(
         ),
         "gold_review_batch_index_markdown": project_relative_path(
             repo_root / GOLD_REVIEW_BATCH_INDEX_MD,
+            repo_root,
+        ),
+        "gold_review_decision_index_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_DECISION_INDEX_MD,
             repo_root,
         ),
         "gold_review_progress_json": project_relative_path(

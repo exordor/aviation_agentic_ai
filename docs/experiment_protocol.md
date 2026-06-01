@@ -17,6 +17,7 @@
   - `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
   - `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md`
   - `data/evaluation/nasa_atmonto/review_batches/index.md`
+  - `data/evaluation/nasa_atmonto/review_decisions/index.md`
   - `data/evaluation/nasa_atmonto/gold_review_progress.md`
   - `docs/nasa_atmonto_gold_annotation_guide.md`
   - `reports/stages/nasa_atmonto_gold_freeze_status.md`
@@ -401,6 +402,7 @@ Each LLM system output must have 100 valid prediction records, one per selected
 ```bash
 uv run python scripts/prepare_nasa_atmonto_system_candidate_review.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_batches.py
+uv run python scripts/prepare_nasa_atmonto_gold_review_decisions.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_progress.py
 ```
 
@@ -416,7 +418,18 @@ must not override source-text review.
    `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl` as the
    cross-system coverage checklist. The batch files under
    `data/evaluation/nasa_atmonto/review_batches/` split the 100 records into
-   smaller review units.
+   smaller review units. The JSONL decision templates under
+   `data/evaluation/nasa_atmonto/review_decisions/` are the structured inputs
+   for applying reviewed decisions.
+
+```bash
+uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py
+```
+
+The apply command writes
+`data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.reviewed_draft.jsonl`
+by default. Replace the live gold template only after the draft validates and
+the review boundary has been checked.
 
 8. Validate the gold annotations.
 
