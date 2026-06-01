@@ -73,6 +73,8 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
         "Repair Success Rate",
         "Manual Semantic Correctness",
         "Falsified if",
+        "reports/stages/nasa_atmonto_gold_review_session_plan.md",
+        "prepare_nasa_atmonto_gold_review_session_plan.py",
         "100 sampled advisories have reviewed gold annotations",
     ]:
         assert required in protocol
@@ -98,6 +100,8 @@ def test_experiment_protocol_repair_metric_boundary_matches_s3_loop() -> None:
     assert "must be created by running the LLM prediction runner" not in protocol
     assert "must not be fabricated or manually filled" in protocol
     assert "100 usable records before scoring" in protocol
+    assert "`session_01` covers 4 records" in protocol
+    assert "review queue only" in protocol
 
 
 def test_gold_annotation_guide_defines_manual_semantic_rubric() -> None:

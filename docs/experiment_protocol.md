@@ -21,6 +21,7 @@
   - `data/evaluation/nasa_atmonto/review_decisions/index.md`
   - `data/evaluation/nasa_atmonto/gold_review_decision_progress.md`
   - `data/evaluation/nasa_atmonto/gold_review_progress.md`
+  - `reports/stages/nasa_atmonto_gold_review_session_plan.md`
   - `docs/nasa_atmonto_gold_annotation_guide.md`
   - `reports/stages/nasa_atmonto_gold_freeze_status.md`
   - `data/experiments/nasa_atmonto/formal/input_records.jsonl`
@@ -158,6 +159,7 @@ Prepared files:
 - Annotation template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
 - Review worklist: `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
 - Review workload plan: `reports/stages/nasa_atmonto_gold_review_workload_plan.md`
+- Review session plan: `reports/stages/nasa_atmonto_gold_review_session_plan.md`
 - Review priority packets: `data/evaluation/nasa_atmonto/review_priority_packets/index.md`
 - Freeze status: `reports/stages/nasa_atmonto_gold_freeze_status.md`
 
@@ -471,6 +473,7 @@ uv run python scripts/prepare_nasa_atmonto_gold_review_decisions.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_progress.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_workload_plan.py
+uv run python scripts/prepare_nasa_atmonto_gold_review_session_plan.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_priority_packets.py
 ```
 
@@ -505,6 +508,14 @@ candidate facts.
    then cross-system-heavy records, then standard records. This queue planning
    artifact does not relax the requirement to manually review all 100 records
    before precision, recall, F1, and manual semantic correctness are reported.
+
+   Use `reports/stages/nasa_atmonto_gold_review_session_plan.md` to work in
+   time-boxed manual review sessions. The current default target is 90 minutes;
+   `session_01` covers 4 records, starts with `ATCSCC-GOLD-024` /
+   `2026-05-18:136`, and remains a review queue only. It does not convert any
+   suggested fact into gold until the reviewer confirms the decision fields,
+   applies the reviewed draft, validates annotations, and freezes the reviewed
+   gold set.
 
    Use `data/evaluation/nasa_atmonto/review_priority_packets/index.md` to work
    through those priority lanes without switching between the workload table,
