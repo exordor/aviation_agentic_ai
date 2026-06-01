@@ -9,6 +9,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_formal_experiment_readiness,
     build_gold_freeze_status,
     build_gold_annotation_validation_report,
+    build_gold_review_priority_packets,
     build_gold_review_worklist,
     build_gold_review_workload_plan,
     build_gold_review_batches,
@@ -29,6 +30,8 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     gold_review_batch_index_markdown,
     gold_review_batch_markdown,
     gold_review_decision_index_markdown,
+    gold_review_priority_packet_index_markdown,
+    gold_review_priority_packet_markdown,
     gold_review_progress_markdown,
     gold_review_workload_plan_markdown,
     score_report_markdown,
@@ -143,6 +146,9 @@ def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> No
     assert report["manual_review_artifacts"]["workload_plan"].endswith(
         "nasa_atmonto_gold_review_workload_plan.md"
     )
+    assert report["manual_review_artifacts"]["priority_packets"].endswith(
+        "review_priority_packets/index.md"
+    )
     assert "completed manual gold annotations" in report["missing_required_inputs"][0]
     assert not any("predictions" in item for item in report["missing_required_inputs"])
 
@@ -159,6 +165,9 @@ def test_generated_readiness_report_json_is_consistent() -> None:
     assert report["formal_input_status"]["input_records_exists"] is True
     assert report["manual_review_artifacts"]["workload_plan"].endswith(
         "nasa_atmonto_gold_review_workload_plan.md"
+    )
+    assert report["manual_review_artifacts"]["priority_packets"].endswith(
+        "review_priority_packets/index.md"
     )
     assert report["current_s0_rule_only_structural_metrics"]["attempted_record_count"] == 100
 
@@ -993,6 +1002,39 @@ def test_gold_review_workload_plan_prioritizes_manual_review_queue() -> None:
     assert "Gold Review Workload Plan" in markdown
     assert "Recommended Review Order" in markdown
     assert "does not create gold truth" in markdown
+
+
+def test_gold_review_priority_packets_expose_copyable_review_ids() -> None:
+    report = build_gold_review_priority_packets(Path("."))
+
+    assert report["record_count"] == 100
+    assert report["lane_count"] == 3
+    assert report["priority_lane_counts"] == {
+        "1_rejection_adjudication": 40,
+        "2_high_cross_system_coverage": 7,
+        "3_standard_review": 53,
+    }
+
+    first_lane = report["lanes"][0]
+    assert first_lane["lane_id"] == "1_rejection_adjudication"
+    assert first_lane["record_count"] == 40
+    assert first_lane["records"][0]["rejected_facts_to_adjudicate"]
+
+    first_cluster = next(
+        cluster
+        for record in first_lane["records"]
+        for cluster in record["candidate_clusters"]
+        if cluster["s0_fact_ids"] or cluster["schema_valid_cross_system_fact_ids"]
+    )
+    assert first_cluster["candidate_id"]
+    assert first_cluster["s0_fact_ids"] or first_cluster["schema_valid_cross_system_fact_ids"]
+
+    index_markdown = gold_review_priority_packet_index_markdown(report)
+    packet_markdown = gold_review_priority_packet_markdown(first_lane)
+    assert "Gold Review Priority Packets" in index_markdown
+    assert "valid_candidate_fact_ids" in packet_markdown
+    assert "valid_cross_system_fact_ids" in packet_markdown
+    assert "Rejected facts to adjudicate" in packet_markdown
 
 
 def test_system_candidate_review_package_covers_all_prediction_systems() -> None:

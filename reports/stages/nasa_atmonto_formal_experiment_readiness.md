@@ -5,6 +5,7 @@
 - Gold manifest: `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
 - Gold template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
 - Workload plan: `reports/stages/nasa_atmonto_gold_review_workload_plan.md`
+- Priority packets: `data/evaluation/nasa_atmonto/review_priority_packets/index.md`
 - Review progress: `data/evaluation/nasa_atmonto/gold_review_progress.md`
 
 ## Gold Status

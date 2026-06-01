@@ -10,6 +10,7 @@
 - Decision templates: `data/evaluation/nasa_atmonto/review_decisions/index.md`
 - Progress tracker: `data/evaluation/nasa_atmonto/gold_review_progress.md`
 - Workload plan: `reports/stages/nasa_atmonto_gold_review_workload_plan.md`
+- Priority packets: `data/evaluation/nasa_atmonto/review_priority_packets/index.md`
 - Validation command: `uv run python scripts/validate_nasa_atmonto_gold_annotations.py`
 - Boundary: this guide creates a retrospective research gold set. It does not
   support live aviation operations, flight planning, ATC decisions, or safety
@@ -65,6 +66,12 @@ Use `reports/stages/nasa_atmonto_gold_review_workload_plan.md` before starting
 manual review. It groups the 100 advisories into priority lanes based on
 validator rejections, cross-system candidate alternatives, and batch workload.
 The workload plan is only a queue planner; it does not create gold truth.
+
+Use `data/evaluation/nasa_atmonto/review_priority_packets/index.md` for the
+actual priority-ordered review packets. These packets put source excerpts,
+candidate facts, copyable S0/S1-S3 fact IDs, and rejected-fact adjudication
+items in the same Markdown page. Final decisions still belong in the JSONL
+files under `data/evaluation/nasa_atmonto/review_decisions/`.
 
 For structured entry, edit the JSONL files under
 `data/evaluation/nasa_atmonto/review_decisions/`, then run
