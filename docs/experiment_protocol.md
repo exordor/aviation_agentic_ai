@@ -462,6 +462,13 @@ candidate facts.
    `valid_candidate_fact_ids` and schema-valid S1-S3 IDs for
    `valid_cross_system_fact_ids`.
 
+   Rejected-fact entries in `data/evaluation/nasa_atmonto/review_decisions/`
+   also include `suggested_*` fields from
+   `reports/stages/nasa_atmonto_rejection_adjudication.md`. These fields carry
+   the finalized property-level classification, but they are not accepted gold
+   decisions until a reviewer copies or edits them into `decision`, `rationale`,
+   and `recommended_action`.
+
 ```bash
 uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py
 ```

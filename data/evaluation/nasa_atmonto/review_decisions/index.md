@@ -8,6 +8,7 @@
 ## Completion Gate
 
 - Decision templates are editable review inputs. Applying them with all records still pending must not produce reviewed gold; set records to reviewed only after manual source-text review.
+- Rejected-fact `suggested_*` fields are copied from `reports/stages/nasa_atmonto_rejection_adjudication.md`; leave `decision`, `rationale`, and `recommended_action` empty until a reviewer confirms them.
 
 ## Decision Files
 

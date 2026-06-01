@@ -78,6 +78,12 @@ For structured entry, edit the JSONL files under
 `uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py` to produce a
 reviewed-draft gold template for validation.
 
+Rejected-fact adjudication entries include `suggested_decision`,
+`suggested_rationale`, and `suggested_recommended_action` copied from the
+property-level rejection adjudication report. These are review aids only:
+copy or edit them into `decision`, `rationale`, and `recommended_action` after
+checking the source evidence.
+
 Decision files support two accepted-fact paths:
 
 - `valid_candidate_fact_ids`: S0 rule-baseline candidate IDs copied into

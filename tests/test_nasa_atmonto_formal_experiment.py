@@ -1141,10 +1141,16 @@ def test_gold_review_decision_templates_prepare_structured_review_inputs() -> No
     assert first_record["review_context"]["candidate_cluster_count"] > 0
     assert first_record["review_context"]["cross_system_fact_ids"]
     assert first_record["review_context"]["cross_system_candidate_options"]
+    first_adjudication = first_record["rejected_fact_adjudications"][0]
+    assert first_adjudication["decision"] == ""
+    assert first_adjudication["suggested_decision"] in {"extractor_bug", "profile_gap"}
+    assert first_adjudication["suggested_rationale"]
+    assert first_adjudication["suggested_recommended_action"]
 
     markdown = gold_review_decision_index_markdown(report)
     assert "Gold Review Decision Templates" in markdown
     assert "batch_10" in markdown
+    assert "suggested_*" in markdown
 
 
 def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) -> None:

@@ -2429,7 +2429,23 @@ def run_gold_review_progress(
     }
 
 
-def rejected_fact_decision_template(record: dict[str, Any]) -> list[dict[str, Any]]:
+def rejection_adjudication_decision_lookup(
+    rejection_adjudication: dict[str, Any],
+) -> dict[tuple[str, tuple[str, ...]], dict[str, Any]]:
+    lookup: dict[tuple[str, tuple[str, ...]], dict[str, Any]] = {}
+    for group in rejection_adjudication.get("groups", []):
+        predicate = str(group.get("predicate", ""))
+        errors = tuple(str(error) for error in group.get("errors", []))
+        lookup[(predicate, errors)] = group
+    return lookup
+
+
+def rejected_fact_decision_template(
+    record: dict[str, Any],
+    *,
+    rejection_adjudication_lookup: dict[tuple[str, tuple[str, ...]], dict[str, Any]]
+    | None = None,
+) -> list[dict[str, Any]]:
     candidate_by_id = {
         str(candidate.get("fact_id")): candidate
         for candidate in record.get("candidate_facts", [])
@@ -2441,15 +2457,24 @@ def rejected_fact_decision_template(record: dict[str, Any]) -> list[dict[str, An
             continue
         fact_id = str(result.get("fact_id", ""))
         candidate = candidate_by_id.get(fact_id, {})
+        predicate = term_name(candidate.get("predicate"))
+        errors = tuple(str(error) for error in result.get("errors", []))
+        suggestion = (
+            (rejection_adjudication_lookup or {}).get((predicate, errors), {})
+        )
         templates.append(
             {
                 "fact_id": fact_id,
-                "predicate": term_name(candidate.get("predicate")),
-                "errors": [str(error) for error in result.get("errors", [])],
+                "predicate": predicate,
+                "errors": list(errors),
                 "evidence_text": compact_text(candidate.get("evidence_text")),
                 "decision": "",
                 "rationale": "",
                 "recommended_action": "",
+                "suggested_decision": suggestion.get("final_decision", ""),
+                "suggested_confidence": suggestion.get("confidence", ""),
+                "suggested_rationale": suggestion.get("decision_basis", ""),
+                "suggested_recommended_action": suggestion.get("required_follow_up", ""),
             }
         )
     return templates
@@ -2487,6 +2512,8 @@ def gold_review_decision_record(
     batch_id: str,
     record: dict[str, Any],
     gold_record: dict[str, Any],
+    rejection_adjudication_lookup: dict[tuple[str, tuple[str, ...]], dict[str, Any]]
+    | None = None,
 ) -> dict[str, Any]:
     cross_system_options = cross_system_candidate_options(record)
     return {
@@ -2502,7 +2529,10 @@ def gold_review_decision_record(
         "valid_cross_system_fact_ids": [],
         "invalid_candidate_fact_ids": [],
         "missing_facts": [],
-        "rejected_fact_adjudications": rejected_fact_decision_template(gold_record),
+        "rejected_fact_adjudications": rejected_fact_decision_template(
+            gold_record,
+            rejection_adjudication_lookup=rejection_adjudication_lookup,
+        ),
         "review_context": {
             "candidate_cluster_count": record.get("candidate_cluster_count"),
             "candidate_cluster_ids": [
@@ -2521,7 +2551,9 @@ def gold_review_decision_record(
             "rule-baseline fact IDs in valid_candidate_fact_ids, rejected rule-baseline IDs "
             "in invalid_candidate_fact_ids, put accepted S1-S3 schema-valid fact IDs in "
             "valid_cross_system_fact_ids, add corrected/manual facts to missing_facts, and "
-            "complete every rejected_fact_adjudications decision."
+            "complete every rejected_fact_adjudications decision. The suggested_* fields are "
+            "copied from property-level rejection adjudication and must be confirmed, edited, "
+            "or rejected by the reviewer before scoring."
         ),
     }
 
@@ -2538,6 +2570,8 @@ def build_gold_review_decision_templates(
     gold_records_by_source_id = {
         str(record.get("source_id")): record for record in read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
     }
+    rejection_adjudication = build_rejection_adjudication_report(repo_root)
+    adjudication_lookup = rejection_adjudication_decision_lookup(rejection_adjudication)
     batches: list[dict[str, Any]] = []
     for batch in batch_report["batches"]:
         decision_records = [
@@ -2545,6 +2579,7 @@ def build_gold_review_decision_templates(
                 batch_id=batch["batch_id"],
                 record=record,
                 gold_record=gold_records_by_source_id[str(record.get("source_id"))],
+                rejection_adjudication_lookup=adjudication_lookup,
             )
             for record in batch["records"]
         ]
@@ -2595,6 +2630,9 @@ def gold_review_decision_index_markdown(report: dict[str, Any]) -> str:
         "## Completion Gate",
         "",
         f"- {report['completion_gate']}",
+        "- Rejected-fact `suggested_*` fields are copied from "
+        "`reports/stages/nasa_atmonto_rejection_adjudication.md`; leave `decision`, "
+        "`rationale`, and `recommended_action` empty until a reviewer confirms them.",
         "",
         "## Decision Files",
         "",
