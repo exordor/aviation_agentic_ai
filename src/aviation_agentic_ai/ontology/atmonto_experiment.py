@@ -232,9 +232,19 @@ def term_name(value: object) -> str:
     return text
 
 
-def canonical_fact_key(fact: dict[str, Any]) -> tuple[str, str, str, str, str, str]:
+FactKey = tuple[str, str, str, str, str, str, str]
+
+
+def fact_with_source_id(fact: dict[str, Any], source_id: object) -> dict[str, Any]:
+    if fact.get("source_id") not in (None, "") or source_id in (None, ""):
+        return fact
+    return {**fact, "source_id": source_id}
+
+
+def canonical_fact_key(fact: dict[str, Any]) -> FactKey:
     value = fact.get("object") if fact.get("fact_type") == "object_property" else fact.get("value")
     return (
+        compact_text(fact.get("source_id")),
         term_name(fact.get("subject_class")),
         term_name(fact.get("predicate")),
         compact_text(value).lower(),
@@ -323,15 +333,19 @@ def gold_annotation_status(gold_records: list[dict[str, Any]]) -> dict[str, Any]
     }
 
 
-def gold_fact_keys(gold_records: list[dict[str, Any]]) -> set[tuple[str, str, str, str, str, str]]:
-    keys: set[tuple[str, str, str, str, str, str]] = set()
+def fact_key_predicate(key: FactKey) -> str:
+    return key[2]
+
+
+def gold_fact_keys(gold_records: list[dict[str, Any]]) -> set[FactKey]:
+    keys: set[FactKey] = set()
     for record in gold_records:
         for fact in record.get("gold_annotation", {}).get("valid_facts", []):
             if isinstance(fact, dict):
-                keys.add(canonical_fact_key(fact))
+                keys.add(canonical_fact_key(fact_with_source_id(fact, record.get("source_id"))))
         for fact in record.get("gold_annotation", {}).get("missing_facts", []):
             if isinstance(fact, dict):
-                keys.add(canonical_fact_key(fact))
+                keys.add(canonical_fact_key(fact_with_source_id(fact, record.get("source_id"))))
     return keys
 
 
@@ -341,7 +355,7 @@ def accepted_prediction_facts(
     facts: list[dict[str, Any]] = []
     for item in validations:
         if item.get("accepted") and isinstance(item.get("validated_fact"), dict):
-            facts.append(item["validated_fact"])
+            facts.append(fact_with_source_id(item["validated_fact"], item.get("source_id")))
     return facts
 
 
@@ -5339,11 +5353,15 @@ def property_level_semantic_metrics(
     if not gold_keys:
         return []
     prediction_keys = {canonical_fact_key(fact) for fact in predictions}
-    predicates = sorted({key[1] for key in gold_keys | prediction_keys})
+    predicates = sorted({fact_key_predicate(key) for key in gold_keys | prediction_keys})
     rows: list[dict[str, Any]] = []
     for predicate in predicates:
-        gold_for_predicate = {key for key in gold_keys if key[1] == predicate}
-        pred_for_predicate = {key for key in prediction_keys if key[1] == predicate}
+        gold_for_predicate = {
+            key for key in gold_keys if fact_key_predicate(key) == predicate
+        }
+        pred_for_predicate = {
+            key for key in prediction_keys if fact_key_predicate(key) == predicate
+        }
         true_positive = pred_for_predicate & gold_for_predicate
         false_positive = pred_for_predicate - gold_for_predicate
         false_negative = gold_for_predicate - pred_for_predicate

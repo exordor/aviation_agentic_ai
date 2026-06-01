@@ -322,7 +322,9 @@ structural_acceptance_rate = structurally_accepted_facts / candidate_facts
 
 Manual gold facts define the denominator. A predicted fact matches a gold fact
 only when normalized subject class, predicate, object/value, datatype, and
-source evidence are compatible under the annotation guide.
+source evidence are compatible under the annotation guide. The match key is
+source-scoped: `source_id` is part of the comparison so identical fact shapes in
+different advisories count as separate gold or predicted facts.
 
 Formulas:
 

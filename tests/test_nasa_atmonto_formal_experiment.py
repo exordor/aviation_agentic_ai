@@ -167,6 +167,46 @@ def test_semantic_metrics_compute_precision_recall_f1_when_gold_exists() -> None
     assert metrics["f1"] == 0.5
 
 
+def test_semantic_metrics_keep_identical_facts_source_scoped() -> None:
+    fact = {
+        "fact_type": "datatype_property",
+        "subject_class": "GroundStopTMI",
+        "predicate": "advisoryNumber",
+        "value": 1,
+        "datatype": "xsd:integer",
+        "evidence_text": "ATCSCC ADVZY 001",
+    }
+
+    metrics = semantic_metrics(
+        predictions=[{**fact, "source_id": "2026-05-14:001"}],
+        gold_records=[
+            {
+                "source_id": "2026-05-14:001",
+                "gold_annotation": {
+                    "annotation_status": "reviewed",
+                    "valid_facts": [fact],
+                    "missing_facts": [],
+                },
+            },
+            {
+                "source_id": "2026-05-15:001",
+                "gold_annotation": {
+                    "annotation_status": "reviewed",
+                    "valid_facts": [fact],
+                    "missing_facts": [],
+                },
+            },
+        ],
+    )
+
+    assert metrics["available"] is True
+    assert metrics["true_positive_count"] == 1
+    assert metrics["false_negative_count"] == 1
+    assert metrics["precision"] == 1.0
+    assert metrics["recall"] == 0.5
+    assert metrics["f1"] == 2 / 3
+
+
 def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> None:
     report = build_formal_experiment_readiness(Path("."))
 
