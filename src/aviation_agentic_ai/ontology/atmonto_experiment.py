@@ -9,6 +9,7 @@ from pathlib import Path
 import sys
 from typing import Any
 
+from aviation_agentic_ai.ontology.atmonto_minimal_loop import validate_candidate_payloads
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 
 
@@ -32,6 +33,8 @@ S2_PROMPT_BATCH_PATH = FORMAL_OUTPUT_DIR / "s2_llm_schema_slice_prompt_batch.jso
 S3_PROMPT_BATCH_PATH = FORMAL_OUTPUT_DIR / "s3_llm_schema_slice_validator_repair_prompt_batch.jsonl"
 READINESS_REPORT_JSON = Path("reports/stages/nasa_atmonto_formal_experiment_readiness.json")
 READINESS_REPORT_MD = Path("reports/stages/nasa_atmonto_formal_experiment_readiness.md")
+SCORING_REPORT_JSON = Path("reports/stages/nasa_atmonto_formal_experiment_scoring.json")
+SCORING_REPORT_MD = Path("reports/stages/nasa_atmonto_formal_experiment_scoring.md")
 
 
 @dataclass(frozen=True)
@@ -347,6 +350,12 @@ def build_s0_prediction_records(
                 "source_family": record["source_family"],
                 "json_adherence": True,
                 "facts": facts,
+                "candidate_facts": [
+                    item["candidate"]
+                    for item in validations
+                    if isinstance(item.get("candidate"), dict)
+                ],
+                "validator_results": validations,
                 "candidate_fact_count": len(validations),
                 "accepted_fact_count": len(facts),
                 "rejected_fact_count": len(rejected),
@@ -595,6 +604,334 @@ def prepare_formal_experiment_inputs(
     }
 
 
+def read_jsonl_lenient(path: Path) -> dict[str, Any]:
+    records: list[dict[str, Any]] = []
+    invalid_lines: list[dict[str, Any]] = []
+    if not path.exists():
+        return {
+            "exists": False,
+            "records": records,
+            "line_count": 0,
+            "invalid_json_line_count": 0,
+            "invalid_json_lines": invalid_lines,
+        }
+    with path.open(encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip():
+                continue
+            try:
+                payload = json.loads(line)
+            except json.JSONDecodeError as exc:
+                invalid_lines.append(
+                    {
+                        "line_number": line_number,
+                        "error": exc.msg,
+                    }
+                )
+                continue
+            if isinstance(payload, dict):
+                records.append(payload)
+            else:
+                invalid_lines.append(
+                    {
+                        "line_number": line_number,
+                        "error": "top_level_json_value_is_not_object",
+                    }
+                )
+    return {
+        "exists": True,
+        "records": records,
+        "line_count": len(records) + len(invalid_lines),
+        "invalid_json_line_count": len(invalid_lines),
+        "invalid_json_lines": invalid_lines[:10],
+    }
+
+
+def is_valid_prediction_payload(record: dict[str, Any], selected_ids: set[str]) -> bool:
+    return str(record.get("source_id")) in selected_ids and isinstance(record.get("facts"), list)
+
+
+def prediction_json_metrics(
+    *,
+    parse_result: dict[str, Any],
+    selected_ids: set[str],
+) -> dict[str, Any]:
+    records = [record for record in parse_result["records"] if isinstance(record, dict)]
+    valid_records = [record for record in records if is_valid_prediction_payload(record, selected_ids)]
+    valid_source_counts = Counter(str(record["source_id"]) for record in valid_records)
+    valid_source_ids = set(valid_source_counts)
+    duplicate_count = sum(count - 1 for count in valid_source_counts.values() if count > 1)
+    invalid_payload_count = len(records) - len(valid_records)
+    attempted = len(selected_ids)
+    return {
+        "attempted_record_count": attempted,
+        "line_count": parse_result["line_count"],
+        "valid_json_payload_count": len(valid_source_ids),
+        "invalid_json_line_count": parse_result["invalid_json_line_count"],
+        "invalid_payload_count": invalid_payload_count,
+        "duplicate_output_record_count": duplicate_count,
+        "missing_output_record_count": len(selected_ids - valid_source_ids),
+        "json_adherence": (len(valid_source_ids) / attempted) if attempted else None,
+    }
+
+
+def valid_prediction_records(
+    parse_result: dict[str, Any],
+    selected_ids: set[str],
+) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    records: list[dict[str, Any]] = []
+    for record in parse_result["records"]:
+        source_id = str(record.get("source_id"))
+        if source_id in seen or not is_valid_prediction_payload(record, selected_ids):
+            continue
+        seen.add(source_id)
+        records.append(record)
+    return records
+
+
+def prediction_payloads_for_validation(
+    records: list[dict[str, Any]],
+) -> list[dict[str, object]]:
+    payloads: list[dict[str, object]] = []
+    for record in records:
+        facts: list[dict[str, Any]] = []
+        for fact in record.get("facts", []):
+            if isinstance(fact, dict):
+                normalized = dict(fact)
+                normalized.setdefault("source_id", record.get("source_id"))
+                facts.append(normalized)
+        payloads.append(
+            {
+                "source_id": record["source_id"],
+                "source_family": record.get("source_family", "atcscc_advisories"),
+                "facts": facts,
+            }
+        )
+    return payloads
+
+
+def source_rows_for_validation(input_records: list[dict[str, Any]]) -> list[dict[str, object]]:
+    return [
+        {
+            "source_id": record["source_id"],
+            "text": record.get("source_text", ""),
+        }
+        for record in input_records
+    ]
+
+
+def embedded_validator_results(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    for record in records:
+        for item in record.get("validator_results", []):
+            if isinstance(item, dict):
+                results.append(item)
+    return results
+
+
+def property_level_semantic_metrics(
+    *,
+    predictions: list[dict[str, Any]],
+    gold_records: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    gold_keys = gold_fact_keys(gold_records)
+    if not gold_keys:
+        return []
+    prediction_keys = {canonical_fact_key(fact) for fact in predictions}
+    predicates = sorted({key[1] for key in gold_keys | prediction_keys})
+    rows: list[dict[str, Any]] = []
+    for predicate in predicates:
+        gold_for_predicate = {key for key in gold_keys if key[1] == predicate}
+        pred_for_predicate = {key for key in prediction_keys if key[1] == predicate}
+        true_positive = pred_for_predicate & gold_for_predicate
+        false_positive = pred_for_predicate - gold_for_predicate
+        false_negative = gold_for_predicate - pred_for_predicate
+        precision = (
+            len(true_positive) / len(pred_for_predicate)
+            if pred_for_predicate
+            else 0.0
+        )
+        recall = len(true_positive) / len(gold_for_predicate) if gold_for_predicate else 0.0
+        f1 = 0.0 if precision + recall == 0 else 2 * precision * recall / (precision + recall)
+        rows.append(
+            {
+                "predicate": predicate,
+                "predicted_fact_count": len(pred_for_predicate),
+                "gold_fact_count": len(gold_for_predicate),
+                "true_positive_count": len(true_positive),
+                "false_positive_count": len(false_positive),
+                "false_negative_count": len(false_negative),
+                "precision": precision,
+                "recall": recall,
+                "f1": f1,
+            }
+        )
+    return rows
+
+
+def score_system_predictions(
+    *,
+    system: SystemDefinition,
+    repo_root: Path,
+    selected_ids: set[str],
+    input_records: list[dict[str, Any]],
+    gold_records: list[dict[str, Any]],
+    schema_slice: dict[str, Any],
+) -> dict[str, Any]:
+    output_path = repo_root / system.expected_output
+    parse_result = read_jsonl_lenient(output_path)
+    base = {
+        "system_id": system.system_id,
+        "label": system.label,
+        "expected_output": project_relative_path(output_path, repo_root),
+        "output_exists": parse_result["exists"],
+    }
+    if not parse_result["exists"]:
+        return {
+            **base,
+            "available": False,
+            "reason": "prediction_output_missing",
+            "json_metrics": None,
+            "structural_metrics": None,
+            "semantic_metrics": None,
+            "property_level_semantic_metrics": [],
+        }
+
+    json_metrics = prediction_json_metrics(parse_result=parse_result, selected_ids=selected_ids)
+    records = valid_prediction_records(parse_result, selected_ids)
+    validation_results = embedded_validator_results(records)
+    if not validation_results:
+        validation_results = validate_candidate_payloads(
+            prediction_payloads_for_validation(records),
+            source_rows_for_validation(input_records),
+            schema_slice,
+        )
+    prediction_facts = accepted_prediction_facts(validation_results)
+    semantic = semantic_metrics(predictions=prediction_facts, gold_records=gold_records)
+    return {
+        **base,
+        "available": True,
+        "reason": None,
+        "json_metrics": json_metrics,
+        "structural_metrics": structural_metrics(validation_results),
+        "semantic_metrics": semantic,
+        "property_level_semantic_metrics": (
+            property_level_semantic_metrics(
+                predictions=prediction_facts,
+                gold_records=gold_records,
+            )
+            if semantic["available"]
+            else []
+        ),
+    }
+
+
+def build_formal_experiment_score_report(
+    repo_root: str | Path = PROJECT_ROOT,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
+    gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    input_records = read_jsonl(repo_root / FORMAL_INPUT_RECORDS_PATH)
+    schema_slice = read_json(repo_root / SCHEMA_SLICE_PATH)
+    selected_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
+    gold_status = gold_annotation_status(gold_records)
+    system_scores = [
+        score_system_predictions(
+            system=system,
+            repo_root=repo_root,
+            selected_ids=selected_ids,
+            input_records=input_records,
+            gold_records=gold_records,
+            schema_slice=schema_slice,
+        )
+        for system in SYSTEMS
+    ]
+    missing_inputs: list[str] = []
+    if not gold_status["complete"]:
+        missing_inputs.append("completed manual gold annotations for 100 sampled advisories")
+    for score in system_scores:
+        if not score["output_exists"]:
+            missing_inputs.append(f"{score['system_id']} predictions at {score['expected_output']}")
+    if any(score["semantic_metrics"] and not score["semantic_metrics"]["available"] for score in system_scores):
+        missing_inputs.append("manual semantic metrics require reviewed gold facts")
+
+    return {
+        "source_family": "nasa_atmonto_formal_experiment_scoring",
+        "status": "scored" if not missing_inputs else "pending_required_inputs",
+        "protocol": "docs/experiment_protocol.md",
+        "gold_status": gold_status,
+        "systems": system_scores,
+        "missing_required_inputs": missing_inputs,
+        "metrics_reported": [
+            "json_adherence",
+            "schema_violation_rate",
+            "triple_precision",
+            "triple_recall",
+            "triple_f1",
+            "repair_success_rate",
+            "manual_semantic_correctness",
+        ],
+        "claim_boundary": (
+            "Formal metrics are descriptive until all four systems have predictions and "
+            "manual gold annotations are complete."
+        ),
+    }
+
+
+def score_report_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Formal Experiment Scoring",
+        "",
+        f"- Status: `{report['status']}`",
+        f"- Protocol: `{report['protocol']}`",
+        "",
+        "## Gold Status",
+        "",
+    ]
+    gold = report["gold_status"]
+    lines.extend(
+        [
+            f"- Records: {gold['record_count']}",
+            f"- Reviewed records: {gold['reviewed_record_count']}",
+            f"- Pending records: {gold['pending_record_count']}",
+            f"- Complete: `{gold['complete']}`",
+            "",
+            "## System Metrics",
+            "",
+            "| System | Output | JSON adherence | Candidate facts | Accepted | Rejected | Schema violation rate | Repair success | Semantic metrics |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for score in report["systems"]:
+        json_metrics = score.get("json_metrics") or {}
+        structural = score.get("structural_metrics") or {}
+        semantic = score.get("semantic_metrics") or {}
+        semantic_text = (
+            f"P={semantic.get('precision')}, R={semantic.get('recall')}, F1={semantic.get('f1')}"
+            if semantic.get("available")
+            else f"pending:{semantic.get('reason') or score.get('reason')}"
+        )
+        lines.append(
+            "| "
+            f"`{score['system_id']}` | "
+            f"`{score['output_exists']}` | "
+            f"{json_metrics.get('json_adherence')} | "
+            f"{structural.get('candidate_fact_count')} | "
+            f"{structural.get('accepted_fact_count')} | "
+            f"{structural.get('rejected_fact_count')} | "
+            f"{structural.get('schema_violation_rate')} | "
+            f"{structural.get('repair_success_rate')} | "
+            f"{semantic_text} |"
+        )
+    lines.extend(["", "## Missing Required Inputs", ""])
+    for item in report["missing_required_inputs"]:
+        lines.append(f"- {item}")
+    lines.extend(["", "## Boundary", "", f"- {report['claim_boundary']}"])
+    return "\n".join(lines) + "\n"
+
+
 def build_formal_experiment_readiness(
     repo_root: str | Path = PROJECT_ROOT,
 ) -> dict[str, Any]:
@@ -758,14 +1095,24 @@ def run_formal_experiment_readiness(
     repo_root = Path(repo_root).resolve()
     prepared = prepare_formal_experiment_inputs(repo_root) if prepare_inputs else None
     report = build_formal_experiment_readiness(repo_root)
+    score_report = build_formal_experiment_score_report(repo_root)
     write_json(repo_root / READINESS_REPORT_JSON, report)
+    write_json(repo_root / SCORING_REPORT_JSON, score_report)
     (repo_root / READINESS_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / READINESS_REPORT_MD).write_text(markdown_report(report), encoding="utf-8")
+    (repo_root / SCORING_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / SCORING_REPORT_MD).write_text(
+        score_report_markdown(score_report),
+        encoding="utf-8",
+    )
     return {
         "prepared_inputs": prepared,
         "report_json": project_relative_path(repo_root / READINESS_REPORT_JSON, repo_root),
         "report_markdown": project_relative_path(repo_root / READINESS_REPORT_MD, repo_root),
+        "scoring_report_json": project_relative_path(repo_root / SCORING_REPORT_JSON, repo_root),
+        "scoring_report_markdown": project_relative_path(repo_root / SCORING_REPORT_MD, repo_root),
         "status": report["status"],
+        "scoring_status": score_report["status"],
         "missing_required_inputs": report["missing_required_inputs"],
     }
 

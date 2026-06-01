@@ -1,0 +1,114 @@
+{
+  "source_family": "nasa_atmonto_formal_experiment_scoring",
+  "status": "pending_required_inputs",
+  "protocol": "docs/experiment_protocol.md",
+  "gold_status": {
+    "record_count": 100,
+    "status_counts": {
+      "pending_manual_gold_annotation": 100
+    },
+    "reviewed_record_count": 0,
+    "pending_record_count": 100,
+    "valid_fact_count": 0,
+    "missing_fact_count": 0,
+    "complete": false
+  },
+  "systems": [
+    {
+      "system_id": "S0_rule_only",
+      "label": "Rule-only",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 615,
+        "accepted_fact_count": 567,
+        "rejected_fact_count": 48,
+        "schema_violation_rate": 0.07804878048780488,
+        "repair_success_rate": 0.9219512195121952,
+        "status_counts": {
+          "rejected_schema": 48,
+          "repaired_accepted": 567
+        },
+        "error_counts": {
+          "allowed_value_violation": 16,
+          "domain_violation": 17,
+          "range_violation": 15
+        }
+      },
+      "semantic_metrics": {
+        "available": false,
+        "reason": "manual_gold_facts_missing",
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "manual_semantic_correctness": null
+      },
+      "property_level_semantic_metrics": []
+    },
+    {
+      "system_id": "S1_llm_only",
+      "label": "LLM-only",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
+      "output_exists": false,
+      "available": false,
+      "reason": "prediction_output_missing",
+      "json_metrics": null,
+      "structural_metrics": null,
+      "semantic_metrics": null,
+      "property_level_semantic_metrics": []
+    },
+    {
+      "system_id": "S2_llm_schema_slice",
+      "label": "LLM + schema slice",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
+      "output_exists": false,
+      "available": false,
+      "reason": "prediction_output_missing",
+      "json_metrics": null,
+      "structural_metrics": null,
+      "semantic_metrics": null,
+      "property_level_semantic_metrics": []
+    },
+    {
+      "system_id": "S3_llm_schema_slice_validator_repair",
+      "label": "LLM + schema slice + validator/repair",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
+      "output_exists": false,
+      "available": false,
+      "reason": "prediction_output_missing",
+      "json_metrics": null,
+      "structural_metrics": null,
+      "semantic_metrics": null,
+      "property_level_semantic_metrics": []
+    }
+  ],
+  "missing_required_inputs": [
+    "completed manual gold annotations for 100 sampled advisories",
+    "S1_llm_only predictions at data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
+    "S2_llm_schema_slice predictions at data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
+    "S3_llm_schema_slice_validator_repair predictions at data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
+    "manual semantic metrics require reviewed gold facts"
+  ],
+  "metrics_reported": [
+    "json_adherence",
+    "schema_violation_rate",
+    "triple_precision",
+    "triple_recall",
+    "triple_f1",
+    "repair_success_rate",
+    "manual_semantic_correctness"
+  ],
+  "claim_boundary": "Formal metrics are descriptive until all four systems have predictions and manual gold annotations are complete."
+}

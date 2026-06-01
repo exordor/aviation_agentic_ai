@@ -20,6 +20,7 @@
   - `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
   - `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
   - `reports/stages/nasa_atmonto_rejection_error_analysis.md`
+  - `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
 - Claim boundary: retrospective extraction and validation research only. This protocol does not support live aviation operations, operational advisories, flight planning, dispatch, ATC decisions, or safety certification.
 
 ## Current Pilot Positioning
@@ -186,6 +187,7 @@ Prepared execution files:
 - S1 prompt batch: `data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl`
 - S2 prompt batch: `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
 - S3 prompt batch: `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
+- Pending/scoring report: `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
 
 These files prepare model inputs and the deterministic baseline only. They do
 not contain fabricated LLM results.
@@ -332,8 +334,8 @@ uv run python scripts/run_nasa_atmonto_minimal_loop.py --all-records
 uv run python scripts/prepare_nasa_atmonto_experiment_protocol.py
 ```
 
-3. Generate formal input records, S0 predictions, S1/S2/S3 prompt batches, and
-   the readiness report.
+3. Generate formal input records, S0 predictions, S1/S2/S3 prompt batches,
+   readiness report, and the pending/scoring report.
 
 ```bash
 uv run python scripts/run_nasa_atmonto_formal_experiment.py
@@ -352,7 +354,12 @@ data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl
 6. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
    records. Use the committed S0 prediction file as the deterministic baseline.
 
-7. Compute metrics against the reviewed gold set.
+7. Re-run the formal experiment scorer to compute metrics against the reviewed
+   gold set and available system prediction files.
+
+```bash
+uv run python scripts/run_nasa_atmonto_formal_experiment.py --skip-prepare-inputs
+```
 
 8. Produce:
 

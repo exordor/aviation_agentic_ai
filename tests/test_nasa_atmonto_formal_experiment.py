@@ -5,8 +5,10 @@ from pathlib import Path
 
 from aviation_agentic_ai.ontology.atmonto_experiment import (
     SYSTEMS,
+    build_formal_experiment_score_report,
     build_formal_experiment_readiness,
     prepare_formal_experiment_inputs,
+    property_level_semantic_metrics,
     semantic_metrics,
     structural_metrics,
 )
@@ -183,3 +185,57 @@ def test_llm_prompt_batches_keep_system_conditions_separate() -> None:
 
     assert s3["stages"] == ["initial_extraction", "validate", "repair_if_invalid"]
     assert "Validator/repair condition" in s3["messages"][0]["content"]
+
+
+def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
+    prepare_formal_experiment_inputs(Path("."))
+    report = build_formal_experiment_score_report(Path("."))
+
+    assert report["status"] == "pending_required_inputs"
+    s0 = next(score for score in report["systems"] if score["system_id"] == "S0_rule_only")
+    assert s0["available"] is True
+    assert s0["json_metrics"]["json_adherence"] == 1.0
+    assert s0["structural_metrics"]["candidate_fact_count"] == 615
+    assert s0["structural_metrics"]["accepted_fact_count"] == 567
+    assert s0["structural_metrics"]["rejected_fact_count"] == 48
+    assert s0["semantic_metrics"]["available"] is False
+    assert s0["semantic_metrics"]["reason"] == "manual_gold_facts_missing"
+
+    s1 = next(score for score in report["systems"] if score["system_id"] == "S1_llm_only")
+    assert s1["available"] is False
+    assert s1["reason"] == "prediction_output_missing"
+
+
+def test_property_level_semantic_metrics_group_by_predicate() -> None:
+    base = {
+        "fact_type": "datatype_property",
+        "subject_class": "GroundStopTMI",
+        "datatype": "xsd:integer",
+        "evidence_text": "ATCSCC ADVZY 001",
+    }
+    gold_fact = {**base, "predicate": "advisoryNumber", "value": 1}
+    wrong_fact = {**base, "predicate": "advisoryNumber", "value": 2}
+    other_gold = {
+        **base,
+        "predicate": "issuedTime",
+        "value": "2026-05-14T00:01:00Z",
+        "datatype": "xsd:dateTime",
+    }
+
+    rows = property_level_semantic_metrics(
+        predictions=[gold_fact, wrong_fact],
+        gold_records=[
+            {
+                "gold_annotation": {
+                    "annotation_status": "reviewed",
+                    "valid_facts": [gold_fact],
+                    "missing_facts": [other_gold],
+                }
+            }
+        ],
+    )
+
+    by_predicate = {row["predicate"]: row for row in rows}
+    assert by_predicate["advisoryNumber"]["true_positive_count"] == 1
+    assert by_predicate["advisoryNumber"]["false_positive_count"] == 1
+    assert by_predicate["issuedTime"]["false_negative_count"] == 1
