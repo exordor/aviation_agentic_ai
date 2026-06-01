@@ -23,17 +23,55 @@
 | System | Output | JSON adherence | Candidate facts | Accepted | Rejected | Schema violation rate | Repair success | Semantic metrics |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | `S0_rule_only` | `True` | 1.0 | 615 | 567 | 48 | 0.07804878048780488 | 0.9219512195121952 | pending:manual_gold_facts_missing |
-| `S1_llm_only` | `False` | None | None | None | None | None | None | pending:prediction_output_missing |
-| `S2_llm_schema_slice` | `False` | None | None | None | None | None | None | pending:prediction_output_missing |
-| `S3_llm_schema_slice_validator_repair` | `False` | None | None | None | None | None | None | pending:prediction_output_missing |
+| `S1_llm_only` | `True` | 1.0 | 1211 | 0 | 1211 | 1.0 | 0.0 | pending:manual_gold_facts_missing |
+| `S2_llm_schema_slice` | `True` | 1.0 | 326 | 0 | 326 | 1.0 | 0.0 | pending:manual_gold_facts_missing |
+| `S3_llm_schema_slice_validator_repair` | `True` | 1.0 | 137 | 0 | 137 | 1.0 | 0.0 | pending:manual_gold_facts_missing |
+
+## Rejection Adjudication
+
+- Property-level complete: `True`
+- Decision counts: `{"extractor_bug": 13, "profile_gap": 275}`
+- Pending facts: 0
+
+## Claim Status
+
+| Claim | Status | Rationale |
+| --- | --- | --- |
+| `C1` Runtime NASA ATMONTO profile feasibility | `supported_by_pilot` | The pilot generated the schema catalog, ATCSCC schema slice, and validated candidate-fact artifact. This remains a schema-engineering claim. |
+| `C2` Schema-slice constraint benefit | `falsified` | S2 did not reduce schema violation rate by the required 10 percentage points. |
+| `C3` Validator/repair benefit | `pending_manual_gold` | Structural repair can be inspected, but semantic preservation requires reviewed gold. |
+| `C4` Rejection analysis utility | `supported` | All 288 rejections have final property-level action labels: {"extractor_bug": 13, "profile_gap": 275}. |
+
+## Hypothesis Status
+
+| Hypothesis | Status | Falsification criterion |
+| --- | --- | --- |
+| `H1` Schema guidance reduces structural drift | `falsified` | Falsified if S2 does not reduce schema violation rate versus S1 by at least 10 percentage points, or if the reduction only comes from suppressing more than 25 percent of gold-supported facts. |
+| `H2` Validator/repair improves valid yield | `pending_manual_gold` | Falsified if S3 repair success is below 15 percent of initially invalid facts, or if S3 manual semantic correctness is more than 5 percentage points lower than S2. |
+| `H3` Ontology constraints improve precision more than they harm recall | `pending_manual_gold` | Falsified if S3 precision does not exceed S1, or if S3 F1 is lower than S1 by more than 5 percentage points. |
+| `H4` Rejection triage produces actionable engineering decisions | `supported` | Falsified if more than 20 percent of rejected facts remain manual-review-only after review, or if profile extensions cannot be tied to source evidence and NASA ATMONTO terms. |
+
+## Completion Audit
+
+- Overall status: `formal_experiment_pending`
+- Blocking requirements: `["R2", "R6", "R9"]`
+
+| Requirement | Status | Evidence |
+| --- | --- | --- |
+| `R1` Sample 80-120 ATCSCC advisories for the formal gold set. | `satisfied` | sample_size=100; manifest=data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json |
+| `R2` Freeze reviewed gold annotations before semantic scoring. | `pending_manual_input` | gold_source=frozen_reviewed_gold_missing; template_reviewed=0; template_pending=100 |
+| `R3` Define the four systems: rule-only, LLM-only, schema slice, schema slice plus validator/repair. | `satisfied` | systems=S0_rule_only,S1_llm_only,S2_llm_schema_slice,S3_llm_schema_slice_validator_repair |
+| `R4` Run all four systems on the identical sampled records. | `satisfied` | {"S0_rule_only": true, "S1_llm_only": true, "S2_llm_schema_slice": true, "S3_llm_schema_slice_validator_repair": true} |
+| `R5` Define JSON, schema, semantic, repair, and manual-correctness metrics. | `satisfied` | docs/experiment_protocol.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json |
+| `R6` Report JSON adherence, schema violation rate, precision/recall/F1, repair success, and manual semantic correctness. | `pending_scoring` | all_system_outputs=True; all_semantic_metrics_available=False |
+| `R7` Account for all 288 pilot rejections in property-level error analysis. | `satisfied` | rejected_fact_count=288; grouped_fact_count=288 |
+| `R8` Finalize whether each rejection group is extractor bug, NASA ATMONTO profile gap, source ambiguity, or manual-review-only. | `satisfied` | {"extractor_bug": 13, "profile_gap": 275} |
+| `R9` Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4. | `pending_scoring` | {"C1": "supported_by_pilot", "C2": "falsified", "C3": "pending_manual_gold", "C4": "supported", "H1": "falsified", "H2": "pending_manual_gold", "H3": "pending_manual_gold", "H4": "supported"} |
 
 ## Missing Required Inputs
 
 - frozen reviewed gold set at data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl
 - completed manual gold annotations for 100 sampled advisories
-- S1_llm_only predictions at data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl
-- S2_llm_schema_slice predictions at data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl
-- S3_llm_schema_slice_validator_repair predictions at data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl
 - manual semantic metrics require reviewed gold facts
 
 ## Boundary

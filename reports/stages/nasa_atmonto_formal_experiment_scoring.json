@@ -78,45 +78,317 @@
       "system_id": "S1_llm_only",
       "label": "LLM-only",
       "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
-      "output_exists": false,
-      "available": false,
-      "reason": "prediction_output_missing",
-      "json_metrics": null,
-      "structural_metrics": null,
-      "semantic_metrics": null,
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 1211,
+        "accepted_fact_count": 0,
+        "rejected_fact_count": 1211,
+        "schema_violation_rate": 1.0,
+        "repair_success_rate": 0.0,
+        "status_counts": {
+          "rejected_evidence": 3,
+          "rejected_schema": 1208
+        },
+        "error_counts": {
+          "evidence_not_found_in_source": 3,
+          "unknown_fact_type": 1211,
+          "unknown_predicate": 1211,
+          "unknown_subject_class": 1211
+        }
+      },
+      "semantic_metrics": {
+        "available": false,
+        "reason": "manual_gold_facts_missing",
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "manual_semantic_correctness": null
+      },
       "property_level_semantic_metrics": []
     },
     {
       "system_id": "S2_llm_schema_slice",
       "label": "LLM + schema slice",
       "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
-      "output_exists": false,
-      "available": false,
-      "reason": "prediction_output_missing",
-      "json_metrics": null,
-      "structural_metrics": null,
-      "semantic_metrics": null,
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 326,
+        "accepted_fact_count": 0,
+        "rejected_fact_count": 326,
+        "schema_violation_rate": 1.0,
+        "repair_success_rate": 0.0,
+        "status_counts": {
+          "rejected_evidence": 51,
+          "rejected_schema": 275
+        },
+        "error_counts": {
+          "evidence_not_found_in_source": 11,
+          "missing_evidence": 40,
+          "unknown_fact_type": 326,
+          "unknown_predicate": 98,
+          "unknown_subject_class": 309
+        }
+      },
+      "semantic_metrics": {
+        "available": false,
+        "reason": "manual_gold_facts_missing",
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "manual_semantic_correctness": null
+      },
       "property_level_semantic_metrics": []
     },
     {
       "system_id": "S3_llm_schema_slice_validator_repair",
       "label": "LLM + schema slice + validator/repair",
       "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
-      "output_exists": false,
-      "available": false,
-      "reason": "prediction_output_missing",
-      "json_metrics": null,
-      "structural_metrics": null,
-      "semantic_metrics": null,
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 137,
+        "accepted_fact_count": 0,
+        "rejected_fact_count": 137,
+        "schema_violation_rate": 1.0,
+        "repair_success_rate": 0.0,
+        "status_counts": {
+          "rejected_evidence": 25,
+          "rejected_schema": 112
+        },
+        "error_counts": {
+          "missing_evidence": 25,
+          "unknown_fact_type": 137,
+          "unknown_predicate": 67,
+          "unknown_subject_class": 133
+        }
+      },
+      "semantic_metrics": {
+        "available": false,
+        "reason": "manual_gold_facts_missing",
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "manual_semantic_correctness": null
+      },
       "property_level_semantic_metrics": []
     }
   ],
+  "rejection_adjudication": {
+    "source_family": "nasa_atmonto_rejection_adjudication",
+    "input_rejection_analysis": "reports/stages/nasa_atmonto_rejection_error_analysis.json",
+    "rejected_fact_count": 288,
+    "grouped_fact_count": 288,
+    "group_count": 4,
+    "decision_counts_by_fact": {
+      "extractor_bug": 13,
+      "profile_gap": 275
+    },
+    "confidence_counts_by_fact": {
+      "high": 266,
+      "medium": 22
+    },
+    "pending_fact_count": 0,
+    "property_level_complete": true,
+    "boundary": "This artifact finalizes property-level error categories for the 288 pilot rejections. It does not automatically approve profile extensions or convert validator-rejected facts into semantic gold facts."
+  },
+  "claim_statuses": [
+    {
+      "id": "C1",
+      "label": "Runtime NASA ATMONTO profile feasibility",
+      "status": "supported_by_pilot",
+      "rationale": "The pilot generated the schema catalog, ATCSCC schema slice, and validated candidate-fact artifact. This remains a schema-engineering claim.",
+      "evidence": [
+        "data/ontology/curated/nasa_atmonto_schema_catalog.json",
+        "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json",
+        "data/processed/nasa_atmonto/extraction/2026-05-14/atcscc_schema_slice_validated.jsonl"
+      ]
+    },
+    {
+      "id": "C2",
+      "label": "Schema-slice constraint benefit",
+      "status": "falsified",
+      "rationale": "S2 did not reduce schema violation rate by the required 10 percentage points.",
+      "evidence": [
+        "S1_llm_only structural metrics",
+        "S2_llm_schema_slice structural metrics"
+      ]
+    },
+    {
+      "id": "C3",
+      "label": "Validator/repair benefit",
+      "status": "pending_manual_gold",
+      "rationale": "Structural repair can be inspected, but semantic preservation requires reviewed gold.",
+      "evidence": [
+        "S2_llm_schema_slice structural and semantic metrics",
+        "S3_llm_schema_slice_validator_repair structural and semantic metrics"
+      ]
+    },
+    {
+      "id": "C4",
+      "label": "Rejection analysis utility",
+      "status": "supported",
+      "rationale": "All 288 rejections have final property-level action labels: {\"extractor_bug\": 13, \"profile_gap\": 275}.",
+      "evidence": [
+        "reports/stages/nasa_atmonto_rejection_error_analysis.md",
+        "reports/stages/nasa_atmonto_rejection_adjudication.md"
+      ]
+    }
+  ],
+  "hypothesis_statuses": [
+    {
+      "id": "H1",
+      "label": "Schema guidance reduces structural drift",
+      "status": "falsified",
+      "rationale": "S2 did not reduce schema violation rate by the required 10 percentage points.",
+      "evidence": [
+        "s1_schema_violation_rate=1.0",
+        "s2_schema_violation_rate=1.0",
+        "s1_minus_s2=0.0"
+      ],
+      "falsification_criterion": "Falsified if S2 does not reduce schema violation rate versus S1 by at least 10 percentage points, or if the reduction only comes from suppressing more than 25 percent of gold-supported facts."
+    },
+    {
+      "id": "H2",
+      "label": "Validator/repair improves valid yield",
+      "status": "pending_manual_gold",
+      "rationale": "Structural repair can be inspected, but semantic preservation requires reviewed gold.",
+      "evidence": [
+        "s2_accepted_fact_count=0",
+        "s3_accepted_fact_count=0",
+        "s3_repair_success_rate=0.0",
+        "s2_manual_semantic_correctness=None",
+        "s3_manual_semantic_correctness=None"
+      ],
+      "falsification_criterion": "Falsified if S3 repair success is below 15 percent of initially invalid facts, or if S3 manual semantic correctness is more than 5 percentage points lower than S2."
+    },
+    {
+      "id": "H3",
+      "label": "Ontology constraints improve precision more than they harm recall",
+      "status": "pending_manual_gold",
+      "rationale": "Precision, recall, F1, and manual semantic correctness require reviewed gold.",
+      "evidence": [
+        "s1_precision=None",
+        "s3_precision=None",
+        "s1_f1=None",
+        "s3_f1=None"
+      ],
+      "falsification_criterion": "Falsified if S3 precision does not exceed S1, or if S3 F1 is lower than S1 by more than 5 percentage points."
+    },
+    {
+      "id": "H4",
+      "label": "Rejection triage produces actionable engineering decisions",
+      "status": "supported",
+      "rationale": "All 288 rejections have final property-level action labels: {\"extractor_bug\": 13, \"profile_gap\": 275}.",
+      "evidence": [
+        "rejected_fact_count=288",
+        "final_decision_counts_by_fact={\"extractor_bug\": 13, \"profile_gap\": 275}"
+      ],
+      "falsification_criterion": "Falsified if more than 20 percent of rejected facts remain manual-review-only after review, or if profile extensions cannot be tied to source evidence and NASA ATMONTO terms."
+    }
+  ],
+  "completion_audit": {
+    "overall_status": "formal_experiment_pending",
+    "blocking_requirement_ids": [
+      "R2",
+      "R6",
+      "R9"
+    ],
+    "requirements": [
+      {
+        "id": "R1",
+        "requirement": "Sample 80-120 ATCSCC advisories for the formal gold set.",
+        "status": "satisfied",
+        "evidence": "sample_size=100; manifest=data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json"
+      },
+      {
+        "id": "R2",
+        "requirement": "Freeze reviewed gold annotations before semantic scoring.",
+        "status": "pending_manual_input",
+        "evidence": "gold_source=frozen_reviewed_gold_missing; template_reviewed=0; template_pending=100"
+      },
+      {
+        "id": "R3",
+        "requirement": "Define the four systems: rule-only, LLM-only, schema slice, schema slice plus validator/repair.",
+        "status": "satisfied",
+        "evidence": "systems=S0_rule_only,S1_llm_only,S2_llm_schema_slice,S3_llm_schema_slice_validator_repair"
+      },
+      {
+        "id": "R4",
+        "requirement": "Run all four systems on the identical sampled records.",
+        "status": "satisfied",
+        "evidence": "{\"S0_rule_only\": true, \"S1_llm_only\": true, \"S2_llm_schema_slice\": true, \"S3_llm_schema_slice_validator_repair\": true}"
+      },
+      {
+        "id": "R5",
+        "requirement": "Define JSON, schema, semantic, repair, and manual-correctness metrics.",
+        "status": "satisfied",
+        "evidence": "docs/experiment_protocol.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json"
+      },
+      {
+        "id": "R6",
+        "requirement": "Report JSON adherence, schema violation rate, precision/recall/F1, repair success, and manual semantic correctness.",
+        "status": "pending_scoring",
+        "evidence": "all_system_outputs=True; all_semantic_metrics_available=False"
+      },
+      {
+        "id": "R7",
+        "requirement": "Account for all 288 pilot rejections in property-level error analysis.",
+        "status": "satisfied",
+        "evidence": "rejected_fact_count=288; grouped_fact_count=288"
+      },
+      {
+        "id": "R8",
+        "requirement": "Finalize whether each rejection group is extractor bug, NASA ATMONTO profile gap, source ambiguity, or manual-review-only.",
+        "status": "satisfied",
+        "evidence": "{\"extractor_bug\": 13, \"profile_gap\": 275}"
+      },
+      {
+        "id": "R9",
+        "requirement": "Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4.",
+        "status": "pending_scoring",
+        "evidence": "{\"C1\": \"supported_by_pilot\", \"C2\": \"falsified\", \"C3\": \"pending_manual_gold\", \"C4\": \"supported\", \"H1\": \"falsified\", \"H2\": \"pending_manual_gold\", \"H3\": \"pending_manual_gold\", \"H4\": \"supported\"}"
+      }
+    ],
+    "claim_boundary": "A satisfied audit means the formal experiment can be reported; pending items must remain described as pilot/prepared-state evidence."
+  },
   "missing_required_inputs": [
     "frozen reviewed gold set at data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
     "completed manual gold annotations for 100 sampled advisories",
-    "S1_llm_only predictions at data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
-    "S2_llm_schema_slice predictions at data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
-    "S3_llm_schema_slice_validator_repair predictions at data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
     "manual semantic metrics require reviewed gold facts"
   ],
   "metrics_reported": [

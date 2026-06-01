@@ -35,6 +35,16 @@ def parse_args() -> argparse.Namespace:
             "and data/experiments/nasa_atmonto/formal/smoke for limited runs."
         ),
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume from an existing prediction JSONL instead of starting from an empty file.",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress per-record progress logs on stderr.",
+    )
     return parser.parse_args()
 
 
@@ -47,6 +57,8 @@ def main() -> int:
         max_tokens=args.max_tokens,
         limit=args.limit,
         output_dir=args.output_dir,
+        resume=args.resume,
+        progress=not args.quiet,
     )
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0

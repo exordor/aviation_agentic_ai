@@ -11,12 +11,15 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_annotation_validation_report,
     build_gold_review_worklist,
     build_prediction_output_validation_report,
+    build_rejection_adjudication_report,
     freeze_reviewed_gold_set,
     formal_scoring_gold_source,
     parse_llm_prediction_payload,
     prepare_formal_experiment_inputs,
     property_level_semantic_metrics,
+    rejection_adjudication_markdown,
     run_llm_prediction_system,
+    score_report_markdown,
     semantic_metrics,
     structural_metrics,
     validate_gold_annotation_records,
@@ -116,7 +119,7 @@ def test_semantic_metrics_compute_precision_recall_f1_when_gold_exists() -> None
     assert metrics["f1"] == 0.5
 
 
-def test_readiness_report_marks_gold_and_llm_outputs_as_pending() -> None:
+def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> None:
     report = build_formal_experiment_readiness(Path("."))
 
     assert report["status"] == "ready_for_manual_gold_and_llm_runs"
@@ -125,7 +128,7 @@ def test_readiness_report_marks_gold_and_llm_outputs_as_pending() -> None:
     assert report["formal_input_status"]["input_records_exists"] is True
     assert report["formal_input_status"]["system_specs_exists"] is True
     assert "completed manual gold annotations" in report["missing_required_inputs"][0]
-    assert any("S1_llm_only predictions" in item for item in report["missing_required_inputs"])
+    assert not any("predictions" in item for item in report["missing_required_inputs"])
 
 
 def test_generated_readiness_report_json_is_consistent() -> None:
@@ -363,7 +366,113 @@ def test_limited_llm_runner_writes_smoke_outputs_without_overwriting_formal_outp
         (formal_dir / "smoke/s1_llm_only_run_metadata.json").read_text(encoding="utf-8")
     )
     assert metadata["output_scope"] == "smoke"
+    assert metadata["resumed"] is False
+    assert metadata["skipped_existing_record_count"] == 0
     assert metadata["prediction_output"].endswith("formal/smoke/s1_llm_only_predictions.jsonl")
+
+
+def test_llm_runner_checkpoints_and_resumes_existing_predictions(tmp_path: Path) -> None:
+    schema_target = tmp_path / "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json"
+    schema_target.parent.mkdir(parents=True, exist_ok=True)
+    schema_target.write_text(
+        Path("data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+
+    formal_dir = tmp_path / "data/experiments/nasa_atmonto/formal"
+    formal_dir.mkdir(parents=True, exist_ok=True)
+    input_records = [
+        {
+            "sample_id": "ATCSCC-GOLD-001",
+            "source_id": "2026-05-14:001",
+            "source_family": "atcscc_advisories",
+            "source_text": "ATCSCC ADVZY 001 TEST",
+        },
+        {
+            "sample_id": "ATCSCC-GOLD-002",
+            "source_id": "2026-05-14:002",
+            "source_family": "atcscc_advisories",
+            "source_text": "ATCSCC ADVZY 002 TEST",
+        },
+    ]
+    (formal_dir / "input_records.jsonl").write_text(
+        "\n".join(json.dumps(record, sort_keys=True) for record in input_records) + "\n",
+        encoding="utf-8",
+    )
+    tasks = [
+        {
+            "task_id": f"S1_llm_only:{record['sample_id']}",
+            "system_id": "S1_llm_only",
+            "sample_id": record["sample_id"],
+            "source_id": record["source_id"],
+            "source_family": "atcscc_advisories",
+            "messages": [{"role": "user", "content": record["source_text"]}],
+        }
+        for record in input_records
+    ]
+    (formal_dir / "s1_llm_only_prompt_batch.jsonl").write_text(
+        "\n".join(json.dumps(task, sort_keys=True) for task in tasks) + "\n",
+        encoding="utf-8",
+    )
+    existing_prediction = {
+        "system_id": "S1_llm_only",
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_family": "atcscc_advisories",
+        "json_adherence": True,
+        "facts": [],
+        "raw_response": '{"facts":[]}',
+        "parse_error": None,
+        "validator_results": [],
+        "schema_valid": True,
+        "candidate_fact_count": 0,
+        "accepted_fact_count": 0,
+        "rejected_fact_count": 0,
+    }
+    (formal_dir / "s1_llm_only_predictions.jsonl").write_text(
+        json.dumps(existing_prediction, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    invoked_source_ids: list[str] = []
+
+    def fake_invoker(messages: list[dict[str, str]]) -> str:
+        invoked_source_ids.append(messages[-1]["content"])
+        return json.dumps(
+            {
+                "source_id": "2026-05-14:002",
+                "source_family": "atcscc_advisories",
+                "facts": [],
+            }
+        )
+
+    result = run_llm_prediction_system(
+        system_id="S1_llm_only",
+        repo_root=tmp_path,
+        resume=True,
+        invoker=fake_invoker,
+    )
+
+    assert result["prediction_record_count"] == 2
+    assert len(invoked_source_ids) == 1
+    output_lines = [
+        json.loads(line)
+        for line in (formal_dir / "s1_llm_only_predictions.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line.strip()
+    ]
+    assert [record["source_id"] for record in output_lines] == [
+        "2026-05-14:001",
+        "2026-05-14:002",
+    ]
+    metadata = json.loads(
+        (formal_dir / "s1_llm_only_run_metadata.json").read_text(encoding="utf-8")
+    )
+    assert metadata["resumed"] is True
+    assert metadata["skipped_existing_record_count"] == 1
+    assert metadata["run_status"] == "completed"
 
 
 def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
@@ -384,8 +493,40 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     assert s0["semantic_metrics"]["reason"] == "manual_gold_facts_missing"
 
     s1 = next(score for score in report["systems"] if score["system_id"] == "S1_llm_only")
-    assert s1["available"] is False
-    assert s1["reason"] == "prediction_output_missing"
+    assert s1["available"] is True
+    assert s1["json_metrics"]["json_adherence"] == 1.0
+    assert s1["structural_metrics"]["candidate_fact_count"] == 1211
+    assert s1["structural_metrics"]["rejected_fact_count"] == 1211
+    assert s1["semantic_metrics"]["reason"] == "manual_gold_facts_missing"
+
+    audit = report["completion_audit"]
+    assert audit["overall_status"] == "formal_experiment_pending"
+    by_requirement = {item["id"]: item for item in audit["requirements"]}
+    assert by_requirement["R1"]["status"] == "satisfied"
+    assert by_requirement["R2"]["status"] == "pending_manual_input"
+    assert by_requirement["R4"]["status"] == "satisfied"
+    assert by_requirement["R7"]["status"] == "satisfied"
+    assert by_requirement["R8"]["status"] == "satisfied"
+
+    claim_status = {item["id"]: item["status"] for item in report["claim_statuses"]}
+    hypothesis_status = {item["id"]: item["status"] for item in report["hypothesis_statuses"]}
+    assert claim_status["C1"] == "supported_by_pilot"
+    assert claim_status["C2"] == "falsified"
+    assert claim_status["C4"] == "supported"
+    assert hypothesis_status["H1"] == "falsified"
+    assert hypothesis_status["H4"] == "supported"
+    assert report["rejection_adjudication"]["property_level_complete"] is True
+    assert report["rejection_adjudication"]["decision_counts_by_fact"] == {
+        "extractor_bug": 13,
+        "profile_gap": 275,
+    }
+
+    markdown = score_report_markdown(report)
+    assert "## Rejection Adjudication" in markdown
+    assert "## Claim Status" in markdown
+    assert "## Hypothesis Status" in markdown
+    assert "## Completion Audit" in markdown
+    assert "`R2` Freeze reviewed gold annotations before semantic scoring." in markdown
 
 
 def test_formal_scoring_gold_source_prefers_frozen_reviewed_gold(tmp_path: Path) -> None:
@@ -596,20 +737,21 @@ def test_freeze_reviewed_gold_set_writes_only_valid_reviewed_gold(tmp_path: Path
     assert "ATCSCC-GOLD-001" in frozen
 
 
-def test_prediction_output_validation_reports_s0_ready_and_llm_outputs_pending() -> None:
+def test_prediction_output_validation_reports_all_systems_ready() -> None:
     prepare_formal_experiment_inputs(Path("."))
     report = build_prediction_output_validation_report(Path("."))
 
-    assert report["status"] == "pending_required_outputs"
+    assert report["status"] == "ready_for_scoring"
     s0 = next(system for system in report["systems"] if system["system_id"] == "S0_rule_only")
     assert s0["status"] == "ready_for_scoring"
     assert s0["json_metrics"]["json_adherence"] == 1.0
     assert s0["run_metadata"]["exists"] is True
 
     s1 = next(system for system in report["systems"] if system["system_id"] == "S1_llm_only")
-    assert s1["status"] == "pending_required_outputs"
-    assert "prediction_output_missing" in s1["pending"]
-    assert "run_metadata_missing" in s1["pending"]
+    assert s1["status"] == "ready_for_scoring"
+    assert s1["pending"] == []
+    assert s1["json_metrics"]["attempted_record_count"] == 100
+    assert s1["run_metadata"]["status"] == "ready"
     assert s1["prompt_batch"]["status"] == "ready"
 
 
@@ -620,9 +762,9 @@ def test_generated_prediction_output_validation_report_json_is_consistent() -> N
         )
     )
 
-    assert report["status"] == "pending_required_outputs"
+    assert report["status"] == "ready_for_scoring"
     assert report["selected_source_id_count"] == 100
-    assert any(system["system_id"] == "S0_rule_only" for system in report["systems"])
+    assert all(system["status"] == "ready_for_scoring" for system in report["systems"])
 
 
 def test_gold_review_worklist_summarizes_human_annotation_queue() -> None:
@@ -649,3 +791,28 @@ def test_gold_review_worklist_summarizes_human_annotation_queue() -> None:
         "extractor_normalization_bug_candidate",
         "nasa_atmonto_profile_gap_candidate",
     }
+
+
+def test_rejection_adjudication_finalizes_property_level_decisions() -> None:
+    report = build_rejection_adjudication_report(Path("."))
+
+    assert report["rejected_fact_count"] == 288
+    assert report["grouped_fact_count"] == 288
+    assert report["property_level_complete"] is True
+    assert report["pending_fact_count"] == 0
+    assert report["decision_counts_by_fact"] == {
+        "extractor_bug": 13,
+        "profile_gap": 275,
+    }
+
+    by_predicate = {group["predicate"]: group for group in report["groups"]}
+    assert by_predicate["extensionProbability"]["final_decision"] == "extractor_bug"
+    assert by_predicate["controlledNASelement"]["final_decision"] == "profile_gap"
+    assert by_predicate["impactingConditionMessage"]["final_decision"] == "profile_gap"
+    assert by_predicate["impactingCondition"]["final_decision"] == "profile_gap"
+
+    markdown = rejection_adjudication_markdown(report)
+    assert "## Final Decision Counts By Fact" in markdown
+    assert "`extractor_bug`: 13" in markdown
+    assert "`profile_gap`: 275" in markdown
+    assert "does not automatically approve profile extensions" in markdown

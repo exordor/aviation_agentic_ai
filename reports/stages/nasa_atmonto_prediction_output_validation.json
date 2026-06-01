@@ -1,6 +1,6 @@
 {
   "source_family": "nasa_atmonto_prediction_output_validation",
-  "status": "pending_required_outputs",
+  "status": "ready_for_scoring",
   "selected_source_id_count": 100,
   "systems": [
     {
@@ -44,7 +44,7 @@
       "system_id": "S1_llm_only",
       "label": "LLM-only",
       "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
-      "output_exists": false,
+      "output_exists": true,
       "prompt_batch": {
         "path": "data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl",
         "exists": true,
@@ -58,26 +58,30 @@
       },
       "run_metadata": {
         "path": "data/experiments/nasa_atmonto/formal/s1_llm_only_run_metadata.json",
-        "exists": false,
-        "status": "missing",
+        "exists": true,
+        "status": "ready",
         "errors": [],
-        "warnings": [
-          "run_metadata_missing"
-        ]
+        "warnings": []
       },
-      "json_metrics": null,
-      "status": "pending_required_outputs",
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "status": "ready_for_scoring",
       "errors": [],
-      "pending": [
-        "prediction_output_missing",
-        "run_metadata_missing"
-      ]
+      "pending": []
     },
     {
       "system_id": "S2_llm_schema_slice",
       "label": "LLM + schema slice",
       "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
-      "output_exists": false,
+      "output_exists": true,
       "prompt_batch": {
         "path": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl",
         "exists": true,
@@ -91,26 +95,30 @@
       },
       "run_metadata": {
         "path": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_run_metadata.json",
-        "exists": false,
-        "status": "missing",
+        "exists": true,
+        "status": "ready",
         "errors": [],
-        "warnings": [
-          "run_metadata_missing"
-        ]
+        "warnings": []
       },
-      "json_metrics": null,
-      "status": "pending_required_outputs",
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "status": "ready_for_scoring",
       "errors": [],
-      "pending": [
-        "prediction_output_missing",
-        "run_metadata_missing"
-      ]
+      "pending": []
     },
     {
       "system_id": "S3_llm_schema_slice_validator_repair",
       "label": "LLM + schema slice + validator/repair",
       "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
-      "output_exists": false,
+      "output_exists": true,
       "prompt_batch": {
         "path": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl",
         "exists": true,
@@ -124,23 +132,27 @@
       },
       "run_metadata": {
         "path": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_run_metadata.json",
-        "exists": false,
-        "status": "missing",
+        "exists": true,
+        "status": "ready",
         "errors": [],
-        "warnings": [
-          "run_metadata_missing"
-        ]
+        "warnings": []
       },
-      "json_metrics": null,
-      "status": "pending_required_outputs",
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "status": "ready_for_scoring",
       "errors": [],
-      "pending": [
-        "prediction_output_missing",
-        "run_metadata_missing"
-      ]
+      "pending": []
     }
   ],
   "error_count": 0,
-  "pending_count": 6,
+  "pending_count": 0,
   "completion_gate": "Prediction outputs are usable for formal scoring only when every system status is ready_for_scoring."
 }

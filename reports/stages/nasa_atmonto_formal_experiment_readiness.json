@@ -79,7 +79,7 @@
     {
       "system_id": "S1_llm_only",
       "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
-      "exists": false,
+      "exists": true,
       "prompt_batch": "data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl",
       "prompt_batch_exists": true,
       "required_before_formal_scoring": true
@@ -87,7 +87,7 @@
     {
       "system_id": "S2_llm_schema_slice",
       "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
-      "exists": false,
+      "exists": true,
       "prompt_batch": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl",
       "prompt_batch_exists": true,
       "required_before_formal_scoring": true
@@ -95,7 +95,7 @@
     {
       "system_id": "S3_llm_schema_slice_validator_repair",
       "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
-      "exists": false,
+      "exists": true,
       "prompt_batch": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl",
       "prompt_batch_exists": true,
       "required_before_formal_scoring": true
@@ -138,10 +138,7 @@
     "manual_semantic_correctness"
   ],
   "missing_required_inputs": [
-    "completed manual gold annotations for 100 sampled advisories",
-    "S1_llm_only predictions at data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
-    "S2_llm_schema_slice predictions at data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
-    "S3_llm_schema_slice_validator_repair predictions at data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl"
+    "completed manual gold annotations for 100 sampled advisories"
   ],
   "claim_boundary": "This readiness report does not claim formal extraction effectiveness until manual gold annotations and S1-S3 outputs are present."
 }

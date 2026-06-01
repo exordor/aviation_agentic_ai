@@ -23,6 +23,7 @@
   - `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
   - `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
   - `reports/stages/nasa_atmonto_rejection_error_analysis.md`
+  - `reports/stages/nasa_atmonto_rejection_adjudication.md`
   - `reports/stages/nasa_atmonto_gold_annotation_validation.md`
   - `reports/stages/nasa_atmonto_prediction_output_validation.md`
   - `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
@@ -321,6 +322,15 @@ them as follows:
 | `extensionProbability` | `allowed_value_violation` | 13 | `extractor_normalization_bug_candidate` |
 | `impactingCondition` | `allowed_value_violation` | 9 | `nasa_atmonto_profile_gap_candidate` |
 
+The finalized property-level adjudication is stored in
+`reports/stages/nasa_atmonto_rejection_adjudication.md`. It resolves the four
+groups into:
+
+- `profile_gap`: 275 facts (`controlledNASelement`, `impactingConditionMessage`,
+  and `impactingCondition`).
+- `extractor_bug`: 13 facts (`extensionProbability=MODERATE`, requiring a
+  reviewed normalization rule before acceptance).
+
 Initial interpretation:
 
 - `controlledNASelement` rejections mostly reflect ARTCC center identifiers that
@@ -411,6 +421,10 @@ The scorer treats `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
 as the formal gold source. If that frozen reviewed file is missing or fails
 validation, semantic metrics remain blocked even if the live annotation template
 contains partial labels.
+
+The scoring report also emits a claim/hypothesis status table and completion
+audit. Any pending audit requirement means the artifact must still be reported
+as pilot/prepared-state evidence, not as a completed formal experiment.
 
 10. Produce:
 

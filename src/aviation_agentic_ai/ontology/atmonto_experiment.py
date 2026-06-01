@@ -26,6 +26,8 @@ GOLD_REVIEWED_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.
 GOLD_REVIEW_WORKLIST_JSON = Path("data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.json")
 GOLD_REVIEW_WORKLIST_MD = Path("data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md")
 REJECTION_ANALYSIS_JSON = Path("reports/stages/nasa_atmonto_rejection_error_analysis.json")
+REJECTION_ADJUDICATION_JSON = Path("reports/stages/nasa_atmonto_rejection_adjudication.json")
+REJECTION_ADJUDICATION_MD = Path("reports/stages/nasa_atmonto_rejection_adjudication.md")
 SCHEMA_SLICE_PATH = Path("data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json")
 EXTRACTION_SCHEMA_PATH = Path(
     "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json"
@@ -154,6 +156,13 @@ def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> None:
     payload = "\n".join(json.dumps(record, sort_keys=True, ensure_ascii=False) for record in records)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(payload + ("\n" if payload else ""), encoding="utf-8")
+
+
+def append_jsonl_record(path: Path, record: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True, ensure_ascii=False) + "\n")
+        handle.flush()
 
 
 def file_sha256(path: Path) -> str:
@@ -1033,6 +1042,223 @@ def run_gold_review_worklist(repo_root: str | Path = PROJECT_ROOT) -> dict[str, 
     }
 
 
+def final_rejection_group_decision(group: dict[str, Any]) -> dict[str, Any]:
+    predicate = str(group.get("predicate", ""))
+    errors = {str(error) for error in group.get("errors", [])}
+    value_counts = group.get("value_counts", {})
+    object_counts = group.get("object_class_counts", {})
+    subject_counts = group.get("subject_class_counts", {})
+
+    if (
+        predicate == "controlledNASelement"
+        and "range_violation" in errors
+        and object_counts == {"ARTCC": group.get("count")}
+    ):
+        return {
+            "final_decision": "profile_gap",
+            "confidence": "high",
+            "decision_basis": (
+                "ATCSCC source evidence identifies constrained ARTCC centers, while the "
+                "runtime NASA ATMONTO profile requires controlledNASelement objects to be "
+                "atm:TFMcontrolElement. The mismatch is a profile coverage gap, not a "
+                "surface extraction error."
+            ),
+            "required_follow_up": (
+                "Add a reviewed profile bridge or alternate property for ARTCC-controlled "
+                "NAS elements; keep current facts rejected until that profile change is approved."
+            ),
+        }
+    if (
+        predicate == "impactingConditionMessage"
+        and "domain_violation" in errors
+        and subject_counts == {"GroundStopTMI": group.get("count")}
+    ):
+        return {
+            "final_decision": "profile_gap",
+            "confidence": "high",
+            "decision_basis": (
+                "Ground Stop advisories carry explicit impacting-condition message text, "
+                "but the runtime profile only permits impactingConditionMessage on "
+                "GroundDelayProgramTMI. The extracted text is source-supported; the domain "
+                "constraint is too narrow for this ATCSCC subset."
+            ),
+            "required_follow_up": (
+                "Review a GroundStopTMI domain extension for impactingConditionMessage, or "
+                "store the message as provenance-only evidence until the profile is extended."
+            ),
+        }
+    if (
+        predicate == "extensionProbability"
+        and "allowed_value_violation" in errors
+        and set(value_counts) == {"MODERATE"}
+    ):
+        return {
+            "final_decision": "extractor_bug",
+            "confidence": "medium",
+            "decision_basis": (
+                "The source surface value is MODERATE, while the runtime profile accepts "
+                "LOW, MEDIUM, HIGH, or NONE. This is a normalization gap in the extractor "
+                "or mapping layer, not a need to broaden the ontology before scoring."
+            ),
+            "required_follow_up": (
+                "Add a regression-tested normalization rule MODERATE -> MEDIUM and retain "
+                "the raw surface value in provenance."
+            ),
+        }
+    if (
+        predicate == "impactingCondition"
+        and "allowed_value_violation" in errors
+        and set(value_counts) == {"staffing"}
+    ):
+        return {
+            "final_decision": "profile_gap",
+            "confidence": "medium",
+            "decision_basis": (
+                "The ATCSCC source explicitly uses STAFFING as an impacting condition, but "
+                "the runtime NASA ATMONTO enum does not include a staffing category. Mapping "
+                "it to other would lose a recurring operational distinction."
+            ),
+            "required_follow_up": (
+                "Review STAFFING as a profile extension value, or map to other only with "
+                "the raw staffing value preserved in impactingConditionMessage."
+            ),
+        }
+    return {
+        "final_decision": "manual_review_only",
+        "confidence": "low",
+        "decision_basis": (
+            "This property/error pattern is not covered by deterministic adjudication rules."
+        ),
+        "required_follow_up": "Inspect source evidence and NASA ATMONTO terms manually.",
+    }
+
+
+def build_rejection_adjudication_report(
+    repo_root: str | Path = PROJECT_ROOT,
+    rejection_analysis: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    if rejection_analysis is None:
+        rejection_analysis = read_json(repo_root / REJECTION_ANALYSIS_JSON)
+    groups: list[dict[str, Any]] = []
+    decision_counts: Counter[str] = Counter()
+    confidence_counts: Counter[str] = Counter()
+
+    for group in rejection_analysis.get("groups", []):
+        decision = final_rejection_group_decision(group)
+        count = int(group.get("count", 0))
+        decision_counts[decision["final_decision"]] += count
+        confidence_counts[decision["confidence"]] += count
+        groups.append(
+            {
+                "predicate": group.get("predicate"),
+                "errors": group.get("errors", []),
+                "count": count,
+                "initial_decision": group.get("decision"),
+                "final_decision": decision["final_decision"],
+                "confidence": decision["confidence"],
+                "decision_basis": decision["decision_basis"],
+                "required_follow_up": decision["required_follow_up"],
+                "subject_class_counts": group.get("subject_class_counts", {}),
+                "object_class_counts": group.get("object_class_counts", {}),
+                "value_counts": group.get("value_counts", {}),
+                "sample_rejections": group.get("sample_rejections", []),
+            }
+        )
+
+    rejected_fact_count = int(rejection_analysis.get("rejected_fact_count", 0))
+    grouped_fact_count = sum(group["count"] for group in groups)
+    pending_fact_count = int(decision_counts.get("manual_review_only", 0))
+    complete = rejected_fact_count == grouped_fact_count and pending_fact_count == 0
+    return {
+        "source_family": "nasa_atmonto_rejection_adjudication",
+        "input_rejection_analysis": project_relative_path(
+            repo_root / REJECTION_ANALYSIS_JSON,
+            repo_root,
+        ),
+        "rejected_fact_count": rejected_fact_count,
+        "grouped_fact_count": grouped_fact_count,
+        "group_count": len(groups),
+        "decision_counts_by_fact": dict(sorted(decision_counts.items())),
+        "confidence_counts_by_fact": dict(sorted(confidence_counts.items())),
+        "pending_fact_count": pending_fact_count,
+        "property_level_complete": complete,
+        "groups": groups,
+        "boundary": (
+            "This artifact finalizes property-level error categories for the 288 pilot "
+            "rejections. It does not automatically approve profile extensions or convert "
+            "validator-rejected facts into semantic gold facts."
+        ),
+    }
+
+
+def rejection_adjudication_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Rejection Adjudication",
+        "",
+        f"- Input: `{report['input_rejection_analysis']}`",
+        f"- Rejected facts: {report['rejected_fact_count']}",
+        f"- Grouped facts: {report['grouped_fact_count']}",
+        f"- Property-level complete: `{report['property_level_complete']}`",
+        f"- Pending manual-review-only facts: {report['pending_fact_count']}",
+        "",
+        "## Final Decision Counts By Fact",
+        "",
+    ]
+    for decision, count in report["decision_counts_by_fact"].items():
+        lines.append(f"- `{decision}`: {count}")
+    lines.extend(
+        [
+            "",
+            "## Property-Level Decisions",
+            "",
+            "| Predicate | Errors | Count | Initial decision | Final decision | Confidence |",
+            "| --- | --- | ---: | --- | --- | --- |",
+        ]
+    )
+    for group in report["groups"]:
+        lines.append(
+            "| "
+            f"`{group['predicate']}` | "
+            f"`{', '.join(group['errors'])}` | "
+            f"{group['count']} | "
+            f"`{group['initial_decision']}` | "
+            f"`{group['final_decision']}` | "
+            f"`{group['confidence']}` |"
+        )
+    lines.extend(["", "## Decision Rationale", ""])
+    for group in report["groups"]:
+        lines.extend(
+            [
+                f"### {group['predicate']} / {', '.join(group['errors'])}",
+                "",
+                f"- Final decision: `{group['final_decision']}`",
+                f"- Basis: {group['decision_basis']}",
+                f"- Follow-up: {group['required_follow_up']}",
+                "",
+            ]
+        )
+    lines.extend(["## Boundary", "", f"- {report['boundary']}"])
+    return "\n".join(lines) + "\n"
+
+
+def run_rejection_adjudication(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    report = build_rejection_adjudication_report(repo_root)
+    write_json(repo_root / REJECTION_ADJUDICATION_JSON, report)
+    (repo_root / REJECTION_ADJUDICATION_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / REJECTION_ADJUDICATION_MD).write_text(
+        rejection_adjudication_markdown(report),
+        encoding="utf-8",
+    )
+    return {
+        "report_json": project_relative_path(repo_root / REJECTION_ADJUDICATION_JSON, repo_root),
+        "report_markdown": project_relative_path(repo_root / REJECTION_ADJUDICATION_MD, repo_root),
+        "property_level_complete": report["property_level_complete"],
+        "decision_counts_by_fact": report["decision_counts_by_fact"],
+    }
+
+
 def selected_validations(
     validations: list[dict[str, Any]],
     selected_ids: set[str],
@@ -1698,6 +1924,8 @@ def build_llm_run_metadata(
     max_tokens: int,
     limit: int | None,
     output_scope: str,
+    resumed: bool = False,
+    skipped_existing_record_count: int = 0,
 ) -> dict[str, Any]:
     repair_attempted = sum(1 for record in records if record.get("repair_attempted"))
     repair_success = sum(
@@ -1711,6 +1939,8 @@ def build_llm_run_metadata(
         "system_id": system.system_id,
         "run_status": "completed" if limit is None or len(records) == prompt_count else "partial",
         "output_scope": output_scope,
+        "resumed": resumed,
+        "skipped_existing_record_count": skipped_existing_record_count,
         "runner": "nasa_atmonto_prompt_batch_llm_runner",
         "provider": configured_llm_provider(),
         "model": configured_llm_model(),
@@ -1725,6 +1955,7 @@ def build_llm_run_metadata(
         "prediction_output": project_relative_path(prediction_output, repo_root),
         "prompt_count": prompt_count,
         "prediction_record_count": len(records),
+        "completed_source_ids": sorted(str(record.get("source_id")) for record in records),
         "parse_error_count": sum(1 for record in records if not record.get("json_adherence")),
         "schema_valid_record_count": sum(1 for record in records if record.get("schema_valid")),
         "repair_attempted_record_count": repair_attempted,
@@ -1745,6 +1976,8 @@ def run_llm_prediction_system(
     max_tokens: int = 4096,
     limit: int | None = None,
     output_dir: str | Path | None = None,
+    resume: bool = False,
+    progress: bool = False,
     invoker: LLMInvoker | None = None,
 ) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
@@ -1782,19 +2015,72 @@ def run_llm_prediction_system(
 
     started_at = utc_timestamp()
     predictions: list[dict[str, Any]] = []
+    skipped_existing_record_count = 0
+    if resume and prediction_output.exists():
+        existing = read_jsonl_lenient(prediction_output)
+        predictions = [
+            record
+            for record in existing["records"]
+            if str(record.get("source_id")) in {str(task["source_id"]) for task in effective_records}
+        ]
+        skipped_existing_record_count = len(predictions)
+    else:
+        prediction_output.parent.mkdir(parents=True, exist_ok=True)
+        prediction_output.write_text("", encoding="utf-8")
+
+    completed_source_ids = {str(record.get("source_id")) for record in predictions}
     for task in effective_records:
+        if str(task["source_id"]) in completed_source_ids:
+            continue
         source_row = source_row_for_task(task, input_by_source_id)
-        raw_response = effective_invoker(task["messages"])
-        predictions.append(
-            build_llm_prediction_record(
-                system=system,
-                task=task,
-                raw_response=raw_response,
-                source_row=source_row,
-                schema_slice=schema_slice,
-                invoker=effective_invoker,
+        if progress:
+            print(
+                (
+                    f"[{system.system_id}] running "
+                    f"{len(predictions) + 1}/{len(effective_records)} "
+                    f"sample={task['sample_id']} source={task['source_id']}"
+                ),
+                file=sys.stderr,
+                flush=True,
             )
+        raw_response = effective_invoker(task["messages"])
+        record = build_llm_prediction_record(
+            system=system,
+            task=task,
+            raw_response=raw_response,
+            source_row=source_row,
+            schema_slice=schema_slice,
+            invoker=effective_invoker,
         )
+        predictions.append(record)
+        completed_source_ids.add(str(task["source_id"]))
+        append_jsonl_record(prediction_output, record)
+        checkpoint_metadata = build_llm_run_metadata(
+            repo_root=repo_root,
+            system=system,
+            prediction_output=prediction_output,
+            prompt_count=len(prompt_records),
+            records=predictions,
+            started_at=started_at,
+            completed_at=utc_timestamp(),
+            temperature=temperature,
+            max_tokens=max_tokens,
+            limit=limit,
+            output_scope=output_scope,
+            resumed=resume,
+            skipped_existing_record_count=skipped_existing_record_count,
+        )
+        write_json(metadata_output, checkpoint_metadata)
+        if progress:
+            print(
+                (
+                    f"[{system.system_id}] wrote {len(predictions)}/{len(effective_records)} "
+                    f"json={record.get('json_adherence')} schema_valid={record.get('schema_valid')} "
+                    f"facts={record.get('candidate_fact_count')}"
+                ),
+                file=sys.stderr,
+                flush=True,
+            )
     completed_at = utc_timestamp()
     metadata = build_llm_run_metadata(
         repo_root=repo_root,
@@ -1808,8 +2094,9 @@ def run_llm_prediction_system(
         max_tokens=max_tokens,
         limit=limit,
         output_scope=output_scope,
+        resumed=resume,
+        skipped_existing_record_count=skipped_existing_record_count,
     )
-    write_jsonl(prediction_output, predictions)
     write_json(metadata_output, metadata)
     return {
         "system_id": system.system_id,
@@ -2368,6 +2655,405 @@ def score_system_predictions(
     }
 
 
+def system_score_by_id(system_scores: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    return {str(score["system_id"]): score for score in system_scores}
+
+
+def nested_metric(score: dict[str, Any], group: str, key: str) -> Any:
+    metrics = score.get(group)
+    if not isinstance(metrics, dict):
+        return None
+    return metrics.get(key)
+
+
+def status_record(
+    *,
+    item_id: str,
+    label: str,
+    status: str,
+    rationale: str,
+    evidence: list[str] | None = None,
+    falsification_criterion: str | None = None,
+) -> dict[str, Any]:
+    record: dict[str, Any] = {
+        "id": item_id,
+        "label": label,
+        "status": status,
+        "rationale": rationale,
+        "evidence": evidence or [],
+    }
+    if falsification_criterion:
+        record["falsification_criterion"] = falsification_criterion
+    return record
+
+
+def claim_and_hypothesis_statuses(
+    *,
+    system_scores: list[dict[str, Any]],
+    gold_source: dict[str, Any],
+    rejection_analysis: dict[str, Any],
+    rejection_adjudication: dict[str, Any],
+) -> dict[str, Any]:
+    by_id = system_score_by_id(system_scores)
+    s1 = by_id["S1_llm_only"]
+    s2 = by_id["S2_llm_schema_slice"]
+    s3 = by_id["S3_llm_schema_slice_validator_repair"]
+    reviewed_gold_ready = bool(gold_source.get("ready_for_formal_scoring"))
+    s1_s2_ready = bool(s1.get("available") and s2.get("available"))
+    s2_s3_ready = bool(s2.get("available") and s3.get("available"))
+    all_llm_ready = bool(s1.get("available") and s2.get("available") and s3.get("available"))
+    semantic_ready = reviewed_gold_ready and all(
+        bool((score.get("semantic_metrics") or {}).get("available"))
+        for score in system_scores
+    )
+    rejection_count = int(rejection_analysis.get("rejected_fact_count", 0))
+    rejection_group_total = sum(int(group.get("count", 0)) for group in rejection_analysis.get("groups", []))
+    final_rejection_decisions = rejection_adjudication.get("decision_counts_by_fact", {})
+    adjudication_complete = bool(rejection_adjudication.get("property_level_complete"))
+    manual_review_only = int(final_rejection_decisions.get("manual_review_only", 0))
+
+    s1_violation = nested_metric(s1, "structural_metrics", "schema_violation_rate")
+    s2_violation = nested_metric(s2, "structural_metrics", "schema_violation_rate")
+    h1_delta = (
+        s1_violation - s2_violation
+        if isinstance(s1_violation, (int, float)) and isinstance(s2_violation, (int, float))
+        else None
+    )
+    s2_accepted = nested_metric(s2, "structural_metrics", "accepted_fact_count")
+    s3_accepted = nested_metric(s3, "structural_metrics", "accepted_fact_count")
+    s3_repair_success = nested_metric(s3, "structural_metrics", "repair_success_rate")
+    s2_semantic = nested_metric(s2, "semantic_metrics", "manual_semantic_correctness")
+    s3_semantic = nested_metric(s3, "semantic_metrics", "manual_semantic_correctness")
+    s1_precision = nested_metric(s1, "semantic_metrics", "precision")
+    s3_precision = nested_metric(s3, "semantic_metrics", "precision")
+    s1_f1 = nested_metric(s1, "semantic_metrics", "f1")
+    s3_f1 = nested_metric(s3, "semantic_metrics", "f1")
+
+    if not s1_s2_ready:
+        h1_status = "pending_required_inputs"
+        h1_rationale = "S1 and S2 prediction outputs are required before schema-violation comparison."
+    elif h1_delta is None:
+        h1_status = "inconclusive_missing_metric"
+        h1_rationale = "S1/S2 outputs exist, but schema violation rates are unavailable."
+    elif h1_delta >= 0.10:
+        h1_status = "supported_structural_only" if not reviewed_gold_ready else "supported"
+        h1_rationale = (
+            "S2 schema violation rate is at least 10 percentage points lower than S1; "
+            "gold-supported fact suppression still needs reviewed gold if unavailable."
+        )
+    else:
+        h1_status = "falsified"
+        h1_rationale = "S2 did not reduce schema violation rate by the required 10 percentage points."
+
+    if not s2_s3_ready:
+        h2_status = "pending_required_inputs"
+        h2_rationale = "S2 and S3 prediction outputs are required before repair comparison."
+    elif not semantic_ready:
+        h2_status = "pending_manual_gold"
+        h2_rationale = "Structural repair can be inspected, but semantic preservation requires reviewed gold."
+    elif (
+        isinstance(s3_repair_success, (int, float))
+        and isinstance(s2_semantic, (int, float))
+        and isinstance(s3_semantic, (int, float))
+        and s3_repair_success >= 0.15
+        and (s2_semantic - s3_semantic) <= 0.05
+    ):
+        h2_status = "supported"
+        h2_rationale = "S3 meets the repair-success threshold and preserves semantic correctness."
+    else:
+        h2_status = "falsified"
+        h2_rationale = "S3 failed the repair-success or semantic-preservation criterion."
+
+    if not all_llm_ready:
+        h3_status = "pending_required_inputs"
+        h3_rationale = "S1-S3 prediction outputs are required before precision/recall/F1 comparison."
+    elif not semantic_ready:
+        h3_status = "pending_manual_gold"
+        h3_rationale = "Precision, recall, F1, and manual semantic correctness require reviewed gold."
+    elif (
+        isinstance(s1_precision, (int, float))
+        and isinstance(s3_precision, (int, float))
+        and isinstance(s1_f1, (int, float))
+        and isinstance(s3_f1, (int, float))
+        and s3_precision > s1_precision
+        and s3_f1 >= s1_f1 - 0.05
+    ):
+        h3_status = "supported"
+        h3_rationale = "S3 improves precision and keeps F1 within the allowed loss threshold."
+    else:
+        h3_status = "falsified"
+        h3_rationale = "S3 did not satisfy the precision/F1 tradeoff criterion."
+
+    if rejection_count != 288 or rejection_group_total != rejection_count:
+        h4_status = "incomplete_rejection_accounting"
+        h4_rationale = "The rejection analysis does not account for all 288 pilot rejections."
+    elif not adjudication_complete:
+        h4_status = "pending_manual_adjudication"
+        h4_rationale = "Property-level adjudication still has unresolved manual-review-only facts."
+    elif manual_review_only / rejection_count > 0.20:
+        h4_status = "falsified"
+        h4_rationale = "More than 20 percent of rejected facts remain manual-review-only."
+    else:
+        h4_status = "supported"
+        h4_rationale = (
+            "All 288 rejections have final property-level action labels: "
+            f"{json.dumps(final_rejection_decisions, sort_keys=True)}."
+        )
+
+    claims = [
+        status_record(
+            item_id="C1",
+            label="Runtime NASA ATMONTO profile feasibility",
+            status="supported_by_pilot",
+            rationale=(
+                "The pilot generated the schema catalog, ATCSCC schema slice, and validated "
+                "candidate-fact artifact. This remains a schema-engineering claim."
+            ),
+            evidence=[
+                "data/ontology/curated/nasa_atmonto_schema_catalog.json",
+                "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json",
+                "data/processed/nasa_atmonto/extraction/2026-05-14/atcscc_schema_slice_validated.jsonl",
+            ],
+        ),
+        status_record(
+            item_id="C2",
+            label="Schema-slice constraint benefit",
+            status=h1_status,
+            rationale=h1_rationale,
+            evidence=[
+                "S1_llm_only structural metrics",
+                "S2_llm_schema_slice structural metrics",
+            ],
+        ),
+        status_record(
+            item_id="C3",
+            label="Validator/repair benefit",
+            status=h2_status,
+            rationale=h2_rationale,
+            evidence=[
+                "S2_llm_schema_slice structural and semantic metrics",
+                "S3_llm_schema_slice_validator_repair structural and semantic metrics",
+            ],
+        ),
+        status_record(
+            item_id="C4",
+            label="Rejection analysis utility",
+            status=h4_status,
+            rationale=h4_rationale,
+            evidence=[
+                "reports/stages/nasa_atmonto_rejection_error_analysis.md",
+                "reports/stages/nasa_atmonto_rejection_adjudication.md",
+            ],
+        ),
+    ]
+
+    hypotheses = [
+        status_record(
+            item_id="H1",
+            label="Schema guidance reduces structural drift",
+            status=h1_status,
+            rationale=h1_rationale,
+            evidence=[
+                f"s1_schema_violation_rate={s1_violation}",
+                f"s2_schema_violation_rate={s2_violation}",
+                f"s1_minus_s2={h1_delta}",
+            ],
+            falsification_criterion=(
+                "Falsified if S2 does not reduce schema violation rate versus S1 by at least "
+                "10 percentage points, or if the reduction only comes from suppressing more "
+                "than 25 percent of gold-supported facts."
+            ),
+        ),
+        status_record(
+            item_id="H2",
+            label="Validator/repair improves valid yield",
+            status=h2_status,
+            rationale=h2_rationale,
+            evidence=[
+                f"s2_accepted_fact_count={s2_accepted}",
+                f"s3_accepted_fact_count={s3_accepted}",
+                f"s3_repair_success_rate={s3_repair_success}",
+                f"s2_manual_semantic_correctness={s2_semantic}",
+                f"s3_manual_semantic_correctness={s3_semantic}",
+            ],
+            falsification_criterion=(
+                "Falsified if S3 repair success is below 15 percent of initially invalid "
+                "facts, or if S3 manual semantic correctness is more than 5 percentage "
+                "points lower than S2."
+            ),
+        ),
+        status_record(
+            item_id="H3",
+            label="Ontology constraints improve precision more than they harm recall",
+            status=h3_status,
+            rationale=h3_rationale,
+            evidence=[
+                f"s1_precision={s1_precision}",
+                f"s3_precision={s3_precision}",
+                f"s1_f1={s1_f1}",
+                f"s3_f1={s3_f1}",
+            ],
+            falsification_criterion=(
+                "Falsified if S3 precision does not exceed S1, or if S3 F1 is lower than "
+                "S1 by more than 5 percentage points."
+            ),
+        ),
+        status_record(
+            item_id="H4",
+            label="Rejection triage produces actionable engineering decisions",
+            status=h4_status,
+            rationale=h4_rationale,
+            evidence=[
+                f"rejected_fact_count={rejection_count}",
+                "final_decision_counts_by_fact="
+                f"{json.dumps(final_rejection_decisions, sort_keys=True)}",
+            ],
+            falsification_criterion=(
+                "Falsified if more than 20 percent of rejected facts remain manual-review-only "
+                "after review, or if profile extensions cannot be tied to source evidence and "
+                "NASA ATMONTO terms."
+            ),
+        ),
+    ]
+    return {"claims": claims, "hypotheses": hypotheses}
+
+
+def formal_completion_audit(
+    *,
+    manifest: dict[str, Any],
+    gold_source: dict[str, Any],
+    system_scores: list[dict[str, Any]],
+    rejection_analysis: dict[str, Any],
+    rejection_adjudication: dict[str, Any],
+    claim_statuses: list[dict[str, Any]],
+    hypothesis_statuses: list[dict[str, Any]],
+) -> dict[str, Any]:
+    sample_size = int(manifest.get("sample_size", 0))
+    sample_ok = 80 <= sample_size <= 120
+    systems_by_id = system_score_by_id(system_scores)
+    all_system_outputs = all(score.get("output_exists") for score in system_scores)
+    all_semantic = all(
+        bool((score.get("semantic_metrics") or {}).get("available"))
+        for score in system_scores
+    )
+    all_scores = all_system_outputs and all_semantic
+    rejection_count = int(rejection_analysis.get("rejected_fact_count", 0))
+    rejection_group_total = sum(int(group.get("count", 0)) for group in rejection_analysis.get("groups", []))
+    final_rejection_decisions = rejection_adjudication.get("decision_counts_by_fact", {})
+    adjudication_complete = bool(rejection_adjudication.get("property_level_complete"))
+    terminal_statuses = {"supported", "supported_by_pilot", "falsified", "inconclusive"}
+    final_claims = all(
+        status["status"] in terminal_statuses
+        for status in [*claim_statuses, *hypothesis_statuses]
+    )
+
+    requirements = [
+        {
+            "id": "R1",
+            "requirement": "Sample 80-120 ATCSCC advisories for the formal gold set.",
+            "status": "satisfied" if sample_ok else "incomplete",
+            "evidence": f"sample_size={sample_size}; manifest=data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json",
+        },
+        {
+            "id": "R2",
+            "requirement": "Freeze reviewed gold annotations before semantic scoring.",
+            "status": (
+                "satisfied"
+                if gold_source.get("ready_for_formal_scoring")
+                else "pending_manual_input"
+            ),
+            "evidence": (
+                f"gold_source={gold_source.get('source')}; "
+                f"template_reviewed={gold_source.get('template_reviewed_record_count')}; "
+                f"template_pending={gold_source.get('template_pending_record_count')}"
+            ),
+        },
+        {
+            "id": "R3",
+            "requirement": "Define the four systems: rule-only, LLM-only, schema slice, schema slice plus validator/repair.",
+            "status": (
+                "satisfied"
+                if set(systems_by_id) == {
+                    "S0_rule_only",
+                    "S1_llm_only",
+                    "S2_llm_schema_slice",
+                    "S3_llm_schema_slice_validator_repair",
+                }
+                else "incomplete"
+            ),
+            "evidence": f"systems={','.join(sorted(systems_by_id))}",
+        },
+        {
+            "id": "R4",
+            "requirement": "Run all four systems on the identical sampled records.",
+            "status": "satisfied" if all_system_outputs else "pending_model_output",
+            "evidence": json.dumps(
+                {
+                    score["system_id"]: bool(score.get("output_exists"))
+                    for score in system_scores
+                },
+                sort_keys=True,
+            ),
+        },
+        {
+            "id": "R5",
+            "requirement": "Define JSON, schema, semantic, repair, and manual-correctness metrics.",
+            "status": "satisfied",
+            "evidence": "docs/experiment_protocol.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json",
+        },
+        {
+            "id": "R6",
+            "requirement": "Report JSON adherence, schema violation rate, precision/recall/F1, repair success, and manual semantic correctness.",
+            "status": "satisfied" if all_scores else "pending_scoring",
+            "evidence": f"all_system_outputs={all_system_outputs}; all_semantic_metrics_available={all_semantic}",
+        },
+        {
+            "id": "R7",
+            "requirement": "Account for all 288 pilot rejections in property-level error analysis.",
+            "status": (
+                "satisfied"
+                if rejection_count == 288 and rejection_group_total == rejection_count
+                else "incomplete_rejection_accounting"
+            ),
+            "evidence": f"rejected_fact_count={rejection_count}; grouped_fact_count={rejection_group_total}",
+        },
+        {
+            "id": "R8",
+            "requirement": "Finalize whether each rejection group is extractor bug, NASA ATMONTO profile gap, source ambiguity, or manual-review-only.",
+            "status": "satisfied" if adjudication_complete else "pending_manual_adjudication",
+            "evidence": json.dumps(final_rejection_decisions, sort_keys=True),
+        },
+        {
+            "id": "R9",
+            "requirement": "Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4.",
+            "status": "satisfied" if final_claims else "pending_scoring",
+            "evidence": json.dumps(
+                {
+                    status["id"]: status["status"]
+                    for status in [*claim_statuses, *hypothesis_statuses]
+                },
+                sort_keys=True,
+            ),
+        },
+    ]
+    blockers = [
+        requirement["id"]
+        for requirement in requirements
+        if requirement["status"] != "satisfied"
+    ]
+    return {
+        "overall_status": (
+            "formal_experiment_complete" if not blockers else "formal_experiment_pending"
+        ),
+        "blocking_requirement_ids": blockers,
+        "requirements": requirements,
+        "claim_boundary": (
+            "A satisfied audit means the formal experiment can be reported; pending items "
+            "must remain described as pilot/prepared-state evidence."
+        ),
+    }
+
+
 def build_formal_experiment_score_report(
     repo_root: str | Path = PROJECT_ROOT,
 ) -> dict[str, Any]:
@@ -2390,6 +3076,26 @@ def build_formal_experiment_score_report(
         )
         for system in SYSTEMS
     ]
+    rejection_analysis = read_json(repo_root / REJECTION_ANALYSIS_JSON)
+    rejection_adjudication = build_rejection_adjudication_report(
+        repo_root,
+        rejection_analysis=rejection_analysis,
+    )
+    claim_hypothesis_status = claim_and_hypothesis_statuses(
+        system_scores=system_scores,
+        gold_source=gold_source,
+        rejection_analysis=rejection_analysis,
+        rejection_adjudication=rejection_adjudication,
+    )
+    completion_audit = formal_completion_audit(
+        manifest=manifest,
+        gold_source=gold_source,
+        system_scores=system_scores,
+        rejection_analysis=rejection_analysis,
+        rejection_adjudication=rejection_adjudication,
+        claim_statuses=claim_hypothesis_status["claims"],
+        hypothesis_statuses=claim_hypothesis_status["hypotheses"],
+    )
     missing_inputs: list[str] = []
     if not gold_source["ready_for_formal_scoring"]:
         missing_inputs.append(
@@ -2414,6 +3120,14 @@ def build_formal_experiment_score_report(
         },
         "gold_status": gold_status,
         "systems": system_scores,
+        "rejection_adjudication": {
+            key: value
+            for key, value in rejection_adjudication.items()
+            if key != "groups"
+        },
+        "claim_statuses": claim_hypothesis_status["claims"],
+        "hypothesis_statuses": claim_hypothesis_status["hypotheses"],
+        "completion_audit": completion_audit,
         "missing_required_inputs": missing_inputs,
         "metrics_reported": [
             "json_adherence",
@@ -2483,6 +3197,66 @@ def score_report_markdown(report: dict[str, Any]) -> str:
             f"{structural.get('schema_violation_rate')} | "
             f"{structural.get('repair_success_rate')} | "
             f"{semantic_text} |"
+        )
+    adjudication = report["rejection_adjudication"]
+    lines.extend(
+        [
+            "",
+            "## Rejection Adjudication",
+            "",
+            f"- Property-level complete: `{adjudication['property_level_complete']}`",
+            f"- Decision counts: `{json.dumps(adjudication['decision_counts_by_fact'], sort_keys=True)}`",
+            f"- Pending facts: {adjudication['pending_fact_count']}",
+        ]
+    )
+    lines.extend(
+        [
+            "",
+            "## Claim Status",
+            "",
+            "| Claim | Status | Rationale |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for claim in report["claim_statuses"]:
+        lines.append(
+            f"| `{claim['id']}` {claim['label']} | `{claim['status']}` | {claim['rationale']} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Hypothesis Status",
+            "",
+            "| Hypothesis | Status | Falsification criterion |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for hypothesis in report["hypothesis_statuses"]:
+        lines.append(
+            "| "
+            f"`{hypothesis['id']}` {hypothesis['label']} | "
+            f"`{hypothesis['status']}` | "
+            f"{hypothesis.get('falsification_criterion', '')} |"
+        )
+    audit = report["completion_audit"]
+    lines.extend(
+        [
+            "",
+            "## Completion Audit",
+            "",
+            f"- Overall status: `{audit['overall_status']}`",
+            f"- Blocking requirements: `{json.dumps(audit['blocking_requirement_ids'])}`",
+            "",
+            "| Requirement | Status | Evidence |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for requirement in audit["requirements"]:
+        lines.append(
+            "| "
+            f"`{requirement['id']}` {requirement['requirement']} | "
+            f"`{requirement['status']}` | "
+            f"{requirement['evidence']} |"
         )
     lines.extend(["", "## Missing Required Inputs", ""])
     for item in report["missing_required_inputs"]:
@@ -2657,12 +3431,14 @@ def run_formal_experiment_readiness(
     gold_validation = build_gold_annotation_validation_report(repo_root)
     gold_freeze_status = build_gold_freeze_status(repo_root)
     prediction_validation = build_prediction_output_validation_report(repo_root)
+    rejection_adjudication = build_rejection_adjudication_report(repo_root)
     report = build_formal_experiment_readiness(repo_root)
     score_report = build_formal_experiment_score_report(repo_root)
     write_json(repo_root / GOLD_REVIEW_WORKLIST_JSON, gold_worklist)
     write_json(repo_root / GOLD_VALIDATION_REPORT_JSON, gold_validation)
     write_json(repo_root / GOLD_FREEZE_REPORT_JSON, gold_freeze_status)
     write_json(repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_JSON, prediction_validation)
+    write_json(repo_root / REJECTION_ADJUDICATION_JSON, rejection_adjudication)
     write_json(repo_root / READINESS_REPORT_JSON, report)
     write_json(repo_root / SCORING_REPORT_JSON, score_report)
     (repo_root / GOLD_REVIEW_WORKLIST_MD).parent.mkdir(parents=True, exist_ok=True)
@@ -2683,6 +3459,11 @@ def run_formal_experiment_readiness(
     (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD).write_text(
         prediction_output_validation_markdown(prediction_validation),
+        encoding="utf-8",
+    )
+    (repo_root / REJECTION_ADJUDICATION_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / REJECTION_ADJUDICATION_MD).write_text(
+        rejection_adjudication_markdown(rejection_adjudication),
         encoding="utf-8",
     )
     (repo_root / READINESS_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
@@ -2724,6 +3505,14 @@ def run_formal_experiment_readiness(
         ),
         "prediction_output_validation_report_markdown": project_relative_path(
             repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_MD,
+            repo_root,
+        ),
+        "rejection_adjudication_json": project_relative_path(
+            repo_root / REJECTION_ADJUDICATION_JSON,
+            repo_root,
+        ),
+        "rejection_adjudication_markdown": project_relative_path(
+            repo_root / REJECTION_ADJUDICATION_MD,
             repo_root,
         ),
         "report_json": project_relative_path(repo_root / READINESS_REPORT_JSON, repo_root),
