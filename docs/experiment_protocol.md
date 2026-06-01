@@ -406,6 +406,11 @@ Each LLM system output must have 100 valid prediction records, one per selected
 uv run python scripts/run_nasa_atmonto_formal_experiment.py --skip-prepare-inputs
 ```
 
+The scorer treats `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
+as the formal gold source. If that frozen reviewed file is missing or fails
+validation, semantic metrics remain blocked even if the live annotation template
+contains partial labels.
+
 10. Produce:
 
 - system-level metric table;

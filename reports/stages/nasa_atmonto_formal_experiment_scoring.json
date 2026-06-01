@@ -2,13 +2,30 @@
   "source_family": "nasa_atmonto_formal_experiment_scoring",
   "status": "pending_required_inputs",
   "protocol": "docs/experiment_protocol.md",
-  "gold_status": {
-    "record_count": 100,
-    "status_counts": {
-      "pending_manual_gold_annotation": 100
+  "gold_source": {
+    "source": "frozen_reviewed_gold_missing",
+    "path": "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
+    "exists": false,
+    "sha256": null,
+    "gold_status": {
+      "record_count": 0,
+      "status_counts": {},
+      "reviewed_record_count": 0,
+      "pending_record_count": 0,
+      "valid_fact_count": 0,
+      "missing_fact_count": 0,
+      "complete": false
     },
+    "template_validation_status": "pending_manual_annotation",
+    "template_reviewed_record_count": 0,
+    "template_pending_record_count": 100,
+    "ready_for_formal_scoring": false
+  },
+  "gold_status": {
+    "record_count": 0,
+    "status_counts": {},
     "reviewed_record_count": 0,
-    "pending_record_count": 100,
+    "pending_record_count": 0,
     "valid_fact_count": 0,
     "missing_fact_count": 0,
     "complete": false
@@ -95,6 +112,7 @@
     }
   ],
   "missing_required_inputs": [
+    "frozen reviewed gold set at data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
     "completed manual gold annotations for 100 sampled advisories",
     "S1_llm_only predictions at data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
     "S2_llm_schema_slice predictions at data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
@@ -110,5 +128,5 @@
     "repair_success_rate",
     "manual_semantic_correctness"
   ],
-  "claim_boundary": "Formal metrics are descriptive until all four systems have predictions and manual gold annotations are complete."
+  "claim_boundary": "Formal metrics are descriptive until all four systems have predictions and the frozen reviewed gold set is available."
 }

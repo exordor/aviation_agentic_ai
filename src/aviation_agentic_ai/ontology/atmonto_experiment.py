@@ -2224,6 +2224,50 @@ def property_level_semantic_metrics(
     return rows
 
 
+def formal_scoring_gold_source(repo_root: Path, selected_ids: set[str]) -> dict[str, Any]:
+    reviewed_path = repo_root / GOLD_REVIEWED_PATH
+    template_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    template_validation = validate_gold_annotation_records(
+        gold_records=template_records,
+        selected_source_ids=selected_ids,
+    )
+    if not reviewed_path.exists():
+        return {
+            "source": "frozen_reviewed_gold_missing",
+            "path": project_relative_path(reviewed_path, repo_root),
+            "exists": False,
+            "sha256": None,
+            "records": [],
+            "gold_status": gold_annotation_status([]),
+            "template_validation_status": template_validation["status"],
+            "template_reviewed_record_count": template_validation["reviewed_record_count"],
+            "template_pending_record_count": template_validation["pending_record_count"],
+            "ready_for_formal_scoring": False,
+        }
+
+    reviewed_records = read_jsonl(reviewed_path)
+    reviewed_validation = validate_gold_annotation_records(
+        gold_records=reviewed_records,
+        selected_source_ids=selected_ids,
+    )
+    ready = reviewed_validation["status"] == "ready_for_scoring"
+    return {
+        "source": "frozen_reviewed_gold",
+        "path": project_relative_path(reviewed_path, repo_root),
+        "exists": True,
+        "sha256": file_sha256(reviewed_path),
+        "records": reviewed_records,
+        "gold_status": gold_annotation_status(reviewed_records),
+        "validation_status": reviewed_validation["status"],
+        "error_count": reviewed_validation["error_count"],
+        "warning_count": reviewed_validation["warning_count"],
+        "template_validation_status": template_validation["status"],
+        "template_reviewed_record_count": template_validation["reviewed_record_count"],
+        "template_pending_record_count": template_validation["pending_record_count"],
+        "ready_for_formal_scoring": ready,
+    }
+
+
 def score_system_predictions(
     *,
     system: SystemDefinition,
@@ -2286,11 +2330,12 @@ def build_formal_experiment_score_report(
 ) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
     manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
-    gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
     input_records = read_jsonl(repo_root / FORMAL_INPUT_RECORDS_PATH)
     schema_slice = read_json(repo_root / SCHEMA_SLICE_PATH)
     selected_ids = set(str(source_id) for source_id in manifest["selected_source_ids"])
-    gold_status = gold_annotation_status(gold_records)
+    gold_source = formal_scoring_gold_source(repo_root, selected_ids)
+    gold_records = gold_source["records"]
+    gold_status = gold_source["gold_status"]
     system_scores = [
         score_system_predictions(
             system=system,
@@ -2303,7 +2348,11 @@ def build_formal_experiment_score_report(
         for system in SYSTEMS
     ]
     missing_inputs: list[str] = []
-    if not gold_status["complete"]:
+    if not gold_source["ready_for_formal_scoring"]:
+        missing_inputs.append(
+            f"frozen reviewed gold set at {gold_source['path']}"
+        )
+    if gold_source["template_validation_status"] != "ready_for_scoring":
         missing_inputs.append("completed manual gold annotations for 100 sampled advisories")
     for score in system_scores:
         if not score["output_exists"]:
@@ -2315,6 +2364,11 @@ def build_formal_experiment_score_report(
         "source_family": "nasa_atmonto_formal_experiment_scoring",
         "status": "scored" if not missing_inputs else "pending_required_inputs",
         "protocol": "docs/experiment_protocol.md",
+        "gold_source": {
+            key: value
+            for key, value in gold_source.items()
+            if key != "records"
+        },
         "gold_status": gold_status,
         "systems": system_scores,
         "missing_required_inputs": missing_inputs,
@@ -2329,7 +2383,7 @@ def build_formal_experiment_score_report(
         ],
         "claim_boundary": (
             "Formal metrics are descriptive until all four systems have predictions and "
-            "manual gold annotations are complete."
+            "the frozen reviewed gold set is available."
         ),
     }
 
@@ -2340,6 +2394,14 @@ def score_report_markdown(report: dict[str, Any]) -> str:
         "",
         f"- Status: `{report['status']}`",
         f"- Protocol: `{report['protocol']}`",
+        "",
+        "## Gold Source",
+        "",
+        f"- Source: `{report['gold_source']['source']}`",
+        f"- Path: `{report['gold_source']['path']}`",
+        f"- Exists: `{report['gold_source']['exists']}`",
+        f"- Ready for scoring: `{report['gold_source']['ready_for_formal_scoring']}`",
+        f"- SHA-256: `{report['gold_source']['sha256']}`",
         "",
         "## Gold Status",
         "",

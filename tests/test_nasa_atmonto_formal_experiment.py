@@ -12,6 +12,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_review_worklist,
     build_prediction_output_validation_report,
     freeze_reviewed_gold_set,
+    formal_scoring_gold_source,
     parse_llm_prediction_payload,
     prepare_formal_experiment_inputs,
     property_level_semantic_metrics,
@@ -296,6 +297,9 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     report = build_formal_experiment_score_report(Path("."))
 
     assert report["status"] == "pending_required_inputs"
+    assert report["gold_source"]["source"] == "frozen_reviewed_gold_missing"
+    assert report["gold_source"]["ready_for_formal_scoring"] is False
+    assert any("frozen reviewed gold set" in item for item in report["missing_required_inputs"])
     s0 = next(score for score in report["systems"] if score["system_id"] == "S0_rule_only")
     assert s0["available"] is True
     assert s0["json_metrics"]["json_adherence"] == 1.0
@@ -308,6 +312,60 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     s1 = next(score for score in report["systems"] if score["system_id"] == "S1_llm_only")
     assert s1["available"] is False
     assert s1["reason"] == "prediction_output_missing"
+
+
+def test_formal_scoring_gold_source_prefers_frozen_reviewed_gold(tmp_path: Path) -> None:
+    manifest_path = tmp_path / "data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json"
+    template_path = tmp_path / "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl"
+    reviewed_path = tmp_path / "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(
+        json.dumps({"selected_source_ids": ["2026-05-14:001"]}) + "\n",
+        encoding="utf-8",
+    )
+    fact = {
+        "fact_id": "fact-1",
+        "fact_type": "datatype_property",
+        "subject": "urn:test",
+        "subject_class": "GroundStopTMI",
+        "predicate": "advisoryNumber",
+        "value": 1,
+        "datatype": "xsd:integer",
+        "evidence_text": "ATCSCC ADVZY 001",
+        "source_id": "2026-05-14:001",
+    }
+    reviewed_record = {
+        "sample_id": "ATCSCC-GOLD-001",
+        "source_id": "2026-05-14:001",
+        "source_text": "ATCSCC ADVZY 001 DCC TEST",
+        "candidate_facts": [fact],
+        "validator_results": [],
+        "gold_annotation": {
+            "annotation_status": "reviewed",
+            "annotator_id": "annotator-a",
+            "valid_facts": [fact],
+            "invalid_candidate_fact_ids": [],
+            "missing_facts": [],
+            "rejected_fact_adjudications": [],
+        },
+    }
+    template_path.write_text(
+        json.dumps({**reviewed_record, "gold_annotation": {"annotation_status": "pending_manual_gold_annotation"}})
+        + "\n",
+        encoding="utf-8",
+    )
+    reviewed_path.write_text(
+        json.dumps(reviewed_record, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    source = formal_scoring_gold_source(tmp_path, {"2026-05-14:001"})
+
+    assert source["source"] == "frozen_reviewed_gold"
+    assert source["ready_for_formal_scoring"] is True
+    assert source["gold_status"]["complete"] is True
+    assert source["sha256"]
+    assert len(source["records"]) == 1
 
 
 def test_property_level_semantic_metrics_group_by_predicate() -> None:
