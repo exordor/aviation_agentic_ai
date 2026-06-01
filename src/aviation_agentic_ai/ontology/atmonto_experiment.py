@@ -5744,6 +5744,7 @@ def claim_and_hypothesis_statuses(
 def formal_completion_audit(
     *,
     manifest: dict[str, Any],
+    protocol_text: str,
     gold_source: dict[str, Any],
     system_scores: list[dict[str, Any]],
     rejection_analysis: dict[str, Any],
@@ -5769,8 +5770,35 @@ def formal_completion_audit(
         status["status"] in terminal_statuses
         for status in [*claim_statuses, *hypothesis_statuses]
     )
+    pilot_positioning = all(
+        marker in protocol_text
+        for marker in [
+            "Prior stage: pilot / feasibility study",
+            "## Current Pilot Positioning",
+            "bronze_until_reviewed",
+            "structural validation is not semantic correctness",
+        ]
+    )
+    protocol_fixed = all(
+        marker in protocol_text
+        for marker in [
+            "## Research Claims",
+            "## Hypotheses And Falsification Criteria",
+            "## Baselines And Comparators",
+            "## Metrics",
+            "Falsified if",
+            "JSON Adherence",
+            "Manual Semantic Correctness",
+        ]
+    )
 
     requirements = [
+        {
+            "id": "R0",
+            "requirement": "Position the current NASA ATMONTO loop as pilot / feasibility evidence, not a completed formal experiment.",
+            "status": "satisfied" if pilot_positioning else "incomplete_claim_boundary",
+            "evidence": "docs/experiment_protocol.md contains pilot/feasibility boundary and bronze-until-reviewed language.",
+        },
         {
             "id": "R1",
             "requirement": "Sample 80-120 ATCSCC advisories for the formal gold set.",
@@ -5858,6 +5886,12 @@ def formal_completion_audit(
                 sort_keys=True,
             ),
         },
+        {
+            "id": "R10",
+            "requirement": "Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria.",
+            "status": "satisfied" if protocol_fixed else "incomplete_protocol",
+            "evidence": "docs/experiment_protocol.md",
+        },
     ]
     blockers = [
         requirement["id"]
@@ -5910,8 +5944,10 @@ def build_formal_experiment_score_report(
         rejection_analysis=rejection_analysis,
         rejection_adjudication=rejection_adjudication,
     )
+    protocol_text = (repo_root / "docs/experiment_protocol.md").read_text(encoding="utf-8")
     completion_audit = formal_completion_audit(
         manifest=manifest,
+        protocol_text=protocol_text,
         gold_source=gold_source,
         system_scores=system_scores,
         rejection_analysis=rejection_analysis,

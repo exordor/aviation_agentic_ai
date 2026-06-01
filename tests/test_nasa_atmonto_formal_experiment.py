@@ -727,11 +727,13 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     audit = report["completion_audit"]
     assert audit["overall_status"] == "formal_experiment_pending"
     by_requirement = {item["id"]: item for item in audit["requirements"]}
+    assert by_requirement["R0"]["status"] == "satisfied"
     assert by_requirement["R1"]["status"] == "satisfied"
     assert by_requirement["R2"]["status"] == "pending_manual_input"
     assert by_requirement["R4"]["status"] == "satisfied"
     assert by_requirement["R7"]["status"] == "satisfied"
     assert by_requirement["R8"]["status"] == "satisfied"
+    assert by_requirement["R10"]["status"] == "satisfied"
 
     claim_status = {item["id"]: item["status"] for item in report["claim_statuses"]}
     hypothesis_status = {item["id"]: item["status"] for item in report["hypothesis_statuses"]}
@@ -751,7 +753,9 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     assert "## Claim Status" in markdown
     assert "## Hypothesis Status" in markdown
     assert "## Completion Audit" in markdown
+    assert "`R0` Position the current NASA ATMONTO loop as pilot / feasibility evidence" in markdown
     assert "`R2` Freeze reviewed gold annotations before semantic scoring." in markdown
+    assert "`R10` Fix the protocol artifact" in markdown
 
 
 def test_formal_scoring_gold_source_prefers_frozen_reviewed_gold(tmp_path: Path) -> None:

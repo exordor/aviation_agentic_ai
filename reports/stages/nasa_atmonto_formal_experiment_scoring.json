@@ -359,6 +359,12 @@
     ],
     "requirements": [
       {
+        "id": "R0",
+        "requirement": "Position the current NASA ATMONTO loop as pilot / feasibility evidence, not a completed formal experiment.",
+        "status": "satisfied",
+        "evidence": "docs/experiment_protocol.md contains pilot/feasibility boundary and bronze-until-reviewed language."
+      },
+      {
         "id": "R1",
         "requirement": "Sample 80-120 ATCSCC advisories for the formal gold set.",
         "status": "satisfied",
@@ -411,6 +417,12 @@
         "requirement": "Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4.",
         "status": "pending_scoring",
         "evidence": "{\"C1\": \"supported_by_pilot\", \"C2\": \"supported_structural_only\", \"C3\": \"pending_manual_gold\", \"C4\": \"supported\", \"H1\": \"supported_structural_only\", \"H2\": \"pending_manual_gold\", \"H3\": \"pending_manual_gold\", \"H4\": \"supported\"}"
+      },
+      {
+        "id": "R10",
+        "requirement": "Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria.",
+        "status": "satisfied",
+        "evidence": "docs/experiment_protocol.md"
       }
     ],
     "claim_boundary": "A satisfied audit means the formal experiment can be reported; pending items must remain described as pilot/prepared-state evidence."

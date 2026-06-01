@@ -58,6 +58,7 @@
 
 | Requirement | Status | Evidence |
 | --- | --- | --- |
+| `R0` Position the current NASA ATMONTO loop as pilot / feasibility evidence, not a completed formal experiment. | `satisfied` | docs/experiment_protocol.md contains pilot/feasibility boundary and bronze-until-reviewed language. |
 | `R1` Sample 80-120 ATCSCC advisories for the formal gold set. | `satisfied` | sample_size=100; manifest=data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json |
 | `R2` Freeze reviewed gold annotations before semantic scoring. | `pending_manual_input` | gold_source=frozen_reviewed_gold_missing; template_reviewed=0; template_pending=100 |
 | `R3` Define the four systems: rule-only, LLM-only, schema slice, schema slice plus validator/repair. | `satisfied` | systems=S0_rule_only,S1_llm_only,S2_llm_schema_slice,S3_llm_schema_slice_validator_repair |
@@ -67,6 +68,7 @@
 | `R7` Account for all 288 pilot rejections in property-level error analysis. | `satisfied` | rejected_fact_count=288; grouped_fact_count=288 |
 | `R8` Finalize whether each rejection group is extractor bug, NASA ATMONTO profile gap, source ambiguity, or manual-review-only. | `satisfied` | {"extractor_bug": 13, "profile_gap": 275} |
 | `R9` Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4. | `pending_scoring` | {"C1": "supported_by_pilot", "C2": "supported_structural_only", "C3": "pending_manual_gold", "C4": "supported", "H1": "supported_structural_only", "H2": "pending_manual_gold", "H3": "pending_manual_gold", "H4": "supported"} |
+| `R10` Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria. | `satisfied` | docs/experiment_protocol.md |
 
 ## Missing Required Inputs
 

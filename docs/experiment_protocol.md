@@ -229,6 +229,19 @@ runner or from deterministic reprocessing of committed `raw_response` fields;
 they must not be fabricated or manually filled. The prediction-output validation
 report records whether every system has 100 usable records before scoring.
 
+## Baselines And Comparators
+
+The formal experiment uses four systems on the identical 100-record ATCSCC
+sample. S0 and S1 are baselines; S2 and S3 are ontology-constrained
+interventions.
+
+| System | Role | Comparator Question |
+| --- | --- | --- |
+| S0 rule-only | Deterministic parser baseline | How much can a low-cost rule extractor recover before LLMs? |
+| S1 LLM-only | Unconstrained LLM baseline | How much structural drift appears without ontology terms? |
+| S2 LLM + schema slice | Schema-guided extraction condition | Does a compact ATCSCC slice reduce unsupported terms? |
+| S3 LLM + schema slice + validator/repair | Full ontology-constrained loop | Does validation/repair improve accepted yield without semantic loss? |
+
 ### S0: Rule-Only
 
 The existing deterministic ATCSCC extractor runs without an LLM. It uses
