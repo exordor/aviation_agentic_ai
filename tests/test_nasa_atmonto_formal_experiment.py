@@ -8,6 +8,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_formal_experiment_score_report,
     build_formal_experiment_readiness,
     build_gold_annotation_validation_report,
+    build_gold_review_worklist,
     build_prediction_output_validation_report,
     prepare_formal_experiment_inputs,
     property_level_semantic_metrics,
@@ -329,3 +330,29 @@ def test_generated_prediction_output_validation_report_json_is_consistent() -> N
     assert report["status"] == "pending_required_outputs"
     assert report["selected_source_id_count"] == 100
     assert any(system["system_id"] == "S0_rule_only" for system in report["systems"])
+
+
+def test_gold_review_worklist_summarizes_human_annotation_queue() -> None:
+    worklist = build_gold_review_worklist(Path("."))
+
+    assert worklist["record_count"] == 100
+    assert worklist["selected_source_id_count"] == 100
+    assert worklist["records_with_rejections"] == 40
+    assert worklist["total_rejected_facts_to_adjudicate"] == 48
+    assert worklist["status_counts"] == {"pending_manual_gold_annotation": 100}
+    assert worklist["suggested_decision_counts"] == {
+        "extractor_normalization_bug_candidate": 8,
+        "nasa_atmonto_profile_gap_candidate": 40,
+    }
+
+    first_rejected = next(
+        fact
+        for record in worklist["records"]
+        for fact in record["rejected_facts_to_adjudicate"]
+    )
+    assert first_rejected["fact_id"]
+    assert first_rejected["predicate"]
+    assert first_rejected["suggested_decision"] in {
+        "extractor_normalization_bug_candidate",
+        "nasa_atmonto_profile_gap_candidate",
+    }

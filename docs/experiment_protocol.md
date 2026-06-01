@@ -13,6 +13,7 @@
 - Formal-study inputs prepared:
   - `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
   - `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
+  - `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
   - `docs/nasa_atmonto_gold_annotation_guide.md`
   - `data/experiments/nasa_atmonto/formal/input_records.jsonl`
   - `data/experiments/nasa_atmonto/formal/system_specs.json`
@@ -138,6 +139,7 @@ Prepared files:
 
 - Manifest: `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
 - Annotation template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
+- Review worklist: `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
 
 Current sample properties:
 
@@ -352,6 +354,8 @@ uv run python scripts/run_nasa_atmonto_formal_experiment.py
 
 4. Complete manual annotation in
    `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`.
+   Use `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md` as the
+   per-record review queue.
 
 5. Validate the gold annotations.
 

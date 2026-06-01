@@ -15,6 +15,9 @@ from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 
 GOLD_MANIFEST_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json")
 GOLD_TEMPLATE_PATH = Path("data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl")
+GOLD_REVIEW_WORKLIST_JSON = Path("data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.json")
+GOLD_REVIEW_WORKLIST_MD = Path("data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md")
+REJECTION_ANALYSIS_JSON = Path("reports/stages/nasa_atmonto_rejection_error_analysis.json")
 SCHEMA_SLICE_PATH = Path("data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json")
 EXTRACTION_SCHEMA_PATH = Path(
     "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json"
@@ -692,6 +695,199 @@ def run_gold_annotation_validation(repo_root: str | Path = PROJECT_ROOT) -> dict
         "status": report["status"],
         "error_count": report["error_count"],
         "warning_count": report["warning_count"],
+    }
+
+
+def rejection_group_lookup(rejection_analysis: dict[str, Any]) -> dict[tuple[str, tuple[str, ...]], dict[str, Any]]:
+    lookup: dict[tuple[str, tuple[str, ...]], dict[str, Any]] = {}
+    for group in rejection_analysis.get("groups", []):
+        if not isinstance(group, dict):
+            continue
+        predicate = str(group.get("predicate", ""))
+        errors = tuple(str(error) for error in group.get("errors", []))
+        lookup[(predicate, errors)] = group
+    return lookup
+
+
+def summarize_rejected_fact(
+    *,
+    record: dict[str, Any],
+    validator_result: dict[str, Any],
+    candidate_by_id: dict[str, dict[str, Any]],
+    group_lookup: dict[tuple[str, tuple[str, ...]], dict[str, Any]],
+) -> dict[str, Any]:
+    fact_id = str(validator_result.get("fact_id", ""))
+    candidate = candidate_by_id.get(fact_id, {})
+    errors = tuple(str(error) for error in validator_result.get("errors", []))
+    predicate = str(candidate.get("predicate", ""))
+    group = group_lookup.get((predicate, errors), {})
+    return {
+        "fact_id": fact_id,
+        "predicate": predicate,
+        "errors": list(errors),
+        "subject_class": candidate.get("subject_class"),
+        "object_class": candidate.get("object_class"),
+        "object": candidate.get("object"),
+        "value": candidate.get("value"),
+        "evidence_text": candidate.get("evidence_text"),
+        "suggested_decision": group.get("decision"),
+        "suggested_rationale": group.get("rationale"),
+        "suggested_action": group.get("recommended_action"),
+    }
+
+
+def build_gold_review_worklist(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    manifest = read_json(repo_root / GOLD_MANIFEST_PATH)
+    gold_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
+    rejection_analysis = read_json(repo_root / REJECTION_ANALYSIS_JSON)
+    group_lookup = rejection_group_lookup(rejection_analysis)
+
+    work_records: list[dict[str, Any]] = []
+    total_rejected_facts = 0
+    records_with_rejections = 0
+    class_counts: Counter[str] = Counter()
+    status_counts: Counter[str] = Counter()
+    suggested_decision_counts: Counter[str] = Counter()
+
+    for record in gold_records:
+        annotation = record.get("gold_annotation", {})
+        status = str(annotation.get("annotation_status", "missing_status"))
+        status_counts[status] += 1
+        class_name = str(record.get("candidate_subject_class", ""))
+        class_counts[class_name] += 1
+        candidate_by_id = {
+            str(candidate.get("fact_id")): candidate
+            for candidate in record.get("candidate_facts", [])
+            if isinstance(candidate, dict) and candidate.get("fact_id")
+        }
+        rejected = [
+            summarize_rejected_fact(
+                record=record,
+                validator_result=result,
+                candidate_by_id=candidate_by_id,
+                group_lookup=group_lookup,
+            )
+            for result in record.get("validator_results", [])
+            if isinstance(result, dict) and result.get("accepted") is False
+        ]
+        if rejected:
+            records_with_rejections += 1
+        total_rejected_facts += len(rejected)
+        for item in rejected:
+            if item.get("suggested_decision"):
+                suggested_decision_counts[str(item["suggested_decision"])] += 1
+        work_records.append(
+            {
+                "sample_id": record.get("sample_id"),
+                "source_id": record.get("source_id"),
+                "source_url": record.get("source_url"),
+                "advisory_date": record.get("advisory_date"),
+                "advisory_number": record.get("advisory_number"),
+                "candidate_subject_class": record.get("candidate_subject_class"),
+                "annotation_status": status,
+                "candidate_fact_count": record.get("candidate_fact_count", 0),
+                "accepted_fact_count": record.get("accepted_fact_count", 0),
+                "rejected_fact_count": len(rejected),
+                "source_text_excerpt": record.get("source_text_excerpt", ""),
+                "required_tasks": [
+                    "mark valid candidate facts",
+                    "mark invalid candidate fact IDs",
+                    "add missing gold facts with evidence_text",
+                    "adjudicate validator-rejected facts",
+                ],
+                "rejected_facts_to_adjudicate": rejected,
+            }
+        )
+
+    return {
+        "source_family": "nasa_atmonto_gold_review_worklist",
+        "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "gold_manifest": project_relative_path(repo_root / GOLD_MANIFEST_PATH, repo_root),
+        "annotation_guide": "docs/nasa_atmonto_gold_annotation_guide.md",
+        "selected_source_id_count": len(manifest["selected_source_ids"]),
+        "record_count": len(work_records),
+        "records_with_rejections": records_with_rejections,
+        "total_rejected_facts_to_adjudicate": total_rejected_facts,
+        "status_counts": dict(sorted(status_counts.items())),
+        "candidate_subject_class_counts": dict(sorted(class_counts.items())),
+        "suggested_decision_counts": dict(sorted(suggested_decision_counts.items())),
+        "records": work_records,
+        "completion_gate": (
+            "Use this worklist to complete reviewed gold annotations; scoring still requires "
+            "the JSONL template to pass gold annotation validation."
+        ),
+    }
+
+
+def gold_review_worklist_markdown(worklist: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Gold Annotation Review Worklist",
+        "",
+        f"- Gold template: `{worklist['gold_template']}`",
+        f"- Annotation guide: `{worklist['annotation_guide']}`",
+        f"- Records: {worklist['record_count']}",
+        f"- Records with validator rejections: {worklist['records_with_rejections']}",
+        f"- Rejected facts to adjudicate: {worklist['total_rejected_facts_to_adjudicate']}",
+        f"- Status counts: `{json.dumps(worklist['status_counts'], sort_keys=True)}`",
+        f"- Suggested decisions: `{json.dumps(worklist['suggested_decision_counts'], sort_keys=True)}`",
+        "",
+        "## Review Queue",
+        "",
+        "| Sample | Source | Class | Candidates | Accepted | Rejected | Status |",
+        "| --- | --- | --- | ---: | ---: | ---: | --- |",
+    ]
+    for record in worklist["records"]:
+        lines.append(
+            "| "
+            f"`{record['sample_id']}` | "
+            f"`{record['source_id']}` | "
+            f"`{record['candidate_subject_class']}` | "
+            f"{record['candidate_fact_count']} | "
+            f"{record['accepted_fact_count']} | "
+            f"{record['rejected_fact_count']} | "
+            f"`{record['annotation_status']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Rejected Facts Needing Adjudication",
+            "",
+            "| Sample | Fact | Predicate | Errors | Suggested decision | Evidence |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for record in worklist["records"]:
+        for fact in record["rejected_facts_to_adjudicate"]:
+            evidence = compact_text(fact.get("evidence_text"))[:140]
+            lines.append(
+                "| "
+                f"`{record['sample_id']}` | "
+                f"`{fact['fact_id']}` | "
+                f"`{fact['predicate']}` | "
+                f"`{', '.join(fact['errors'])}` | "
+                f"`{fact.get('suggested_decision')}` | "
+                f"{evidence} |"
+            )
+    lines.extend(["", "## Completion Gate", "", f"- {worklist['completion_gate']}"])
+    return "\n".join(lines) + "\n"
+
+
+def run_gold_review_worklist(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    worklist = build_gold_review_worklist(repo_root)
+    write_json(repo_root / GOLD_REVIEW_WORKLIST_JSON, worklist)
+    (repo_root / GOLD_REVIEW_WORKLIST_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_REVIEW_WORKLIST_MD).write_text(
+        gold_review_worklist_markdown(worklist),
+        encoding="utf-8",
+    )
+    return {
+        "worklist_json": project_relative_path(repo_root / GOLD_REVIEW_WORKLIST_JSON, repo_root),
+        "worklist_markdown": project_relative_path(repo_root / GOLD_REVIEW_WORKLIST_MD, repo_root),
+        "record_count": worklist["record_count"],
+        "records_with_rejections": worklist["records_with_rejections"],
+        "total_rejected_facts_to_adjudicate": worklist["total_rejected_facts_to_adjudicate"],
     }
 
 
@@ -1815,14 +2011,21 @@ def run_formal_experiment_readiness(
 ) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
     prepared = prepare_formal_experiment_inputs(repo_root) if prepare_inputs else None
+    gold_worklist = build_gold_review_worklist(repo_root)
     gold_validation = build_gold_annotation_validation_report(repo_root)
     prediction_validation = build_prediction_output_validation_report(repo_root)
     report = build_formal_experiment_readiness(repo_root)
     score_report = build_formal_experiment_score_report(repo_root)
+    write_json(repo_root / GOLD_REVIEW_WORKLIST_JSON, gold_worklist)
     write_json(repo_root / GOLD_VALIDATION_REPORT_JSON, gold_validation)
     write_json(repo_root / PREDICTION_OUTPUT_VALIDATION_REPORT_JSON, prediction_validation)
     write_json(repo_root / READINESS_REPORT_JSON, report)
     write_json(repo_root / SCORING_REPORT_JSON, score_report)
+    (repo_root / GOLD_REVIEW_WORKLIST_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_REVIEW_WORKLIST_MD).write_text(
+        gold_review_worklist_markdown(gold_worklist),
+        encoding="utf-8",
+    )
     (repo_root / GOLD_VALIDATION_REPORT_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / GOLD_VALIDATION_REPORT_MD).write_text(
         gold_validation_markdown(gold_validation),
@@ -1842,6 +2045,14 @@ def run_formal_experiment_readiness(
     )
     return {
         "prepared_inputs": prepared,
+        "gold_review_worklist_json": project_relative_path(
+            repo_root / GOLD_REVIEW_WORKLIST_JSON,
+            repo_root,
+        ),
+        "gold_review_worklist_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_WORKLIST_MD,
+            repo_root,
+        ),
         "gold_validation_report_json": project_relative_path(
             repo_root / GOLD_VALIDATION_REPORT_JSON,
             repo_root,
