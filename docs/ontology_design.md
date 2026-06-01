@@ -1,6 +1,6 @@
 # Explainable Ontology Design
 
-Last updated: 2026-05-19
+Last updated: 2026-06-01
 
 ## Purpose
 
@@ -11,6 +11,7 @@ The previous baseline ontology is kept as a historical reference. It is RDF-vali
 Reference patterns used for this design:
 
 - NASA ATM Ontology treats an aviation ontology as a conceptual model for information organization, querying, integration, and terminology standardization: https://ntrs.nasa.gov/citations/20170006095
+- ICARUS provides an aviation dataset ontology plus local NASA ATMONTO modules for external vocabulary alignment: `data/ontology/external/icarus_ontology/`
 - Aviation accident KG work uses a compact core-concept ontology diagram before information extraction: https://www.mdpi.com/2079-9292/13/19/3936
 - ATC KG work frames KG construction as part of a narrow-domain hybrid AI system: https://www.sciencedirect.com/science/article/pii/S2352146522006524
 - SWIM ontology work separates domain ontologies and reference-level semantic alignment: https://www.jstage.jst.go.jp/article/tjsai/36/1/36_36-1_WI2-F/_article/-char/en
@@ -148,6 +149,7 @@ Ontology storage:
 - Active ontology: `data/ontology/curated/06_phak_ch4_0.curated.ttl`
 - Historical baseline: `data/ontology/baseline/06_phak_ch4_0.ttl`
 - Generated candidates: `data/ontology/generated/`
+- External reference ontologies: `data/ontology/external/`
 
 KG storage:
 
