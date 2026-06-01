@@ -49,7 +49,7 @@ def test_extract_pages_skips_empty_pages_and_preserves_zero_based_numbers(monkey
 
     result = list(pdf_utils.extract_pages(Path("data/raw/handbook.pdf")))
 
-    assert opened_paths == ["data/raw/handbook.pdf"]
+    assert opened_paths == [str(Path("data/raw/handbook.pdf"))]
     assert fake_document.entered
     assert fake_document.closed
     assert [(page.page_number, page.text) for page in result] == [
