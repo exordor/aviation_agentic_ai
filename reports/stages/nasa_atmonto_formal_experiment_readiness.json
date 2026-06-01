@@ -1,12 +1,13 @@
 {
   "source_family": "nasa_atmonto_formal_experiment_readiness",
-  "status": "ready_for_manual_gold_review",
+  "status": "ready_for_scoring",
   "protocol": "docs/experiment_protocol.md",
   "gold_manifest": "data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json",
   "gold_template": "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl",
   "manual_review_artifacts": {
     "worklist": "data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md",
     "workload_plan": "reports/stages/nasa_atmonto_gold_review_workload_plan.md",
+    "semantic_groups": "reports/stages/nasa_atmonto_gold_semantic_groups.md",
     "session_plan": "reports/stages/nasa_atmonto_gold_review_session_plan.md",
     "priority_packets": "data/evaluation/nasa_atmonto/review_priority_packets/index.md",
     "batch_index": "data/evaluation/nasa_atmonto/review_batches/index.md",
@@ -14,15 +15,15 @@
     "progress": "data/evaluation/nasa_atmonto/gold_review_progress.md"
   },
   "manual_gold_review_kickoff": {
-    "status": "ready_for_manual_gold_review",
-    "reviewed_record_count": 0,
-    "pending_record_count": 100,
-    "decision_progress_status": "in_progress",
-    "ready_to_apply_record_count": 14,
-    "not_started_record_count": 86,
-    "completed_rejected_fact_decision_count": 22,
+    "status": "complete",
+    "reviewed_record_count": 100,
+    "pending_record_count": 0,
+    "decision_progress_status": "ready_to_apply",
+    "ready_to_apply_record_count": 100,
+    "not_started_record_count": 0,
+    "completed_rejected_fact_decision_count": 48,
     "rejected_fact_decision_count": 48,
-    "complete_batch_count": 0,
+    "complete_batch_count": 10,
     "batch_count": 10,
     "first_priority_lane": {
       "lane_id": "1_rejection_adjudication",
@@ -36,18 +37,7 @@
       "first_decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
       "first_batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
     },
-    "next_review_session": {
-      "session_id": "session_05",
-      "status": "pending_manual_review",
-      "record_count": 4,
-      "ready_to_apply_record_count": 0,
-      "remaining_record_count": 4,
-      "estimated_review_minutes": 87,
-      "pending_rejected_fact_decision_count": 4,
-      "first_sample_id": "ATCSCC-GOLD-030",
-      "first_source_id": "2026-05-16:027",
-      "session_plan_markdown": "reports/stages/nasa_atmonto_gold_review_session_plan.md"
-    },
+    "next_review_session": null,
     "next_commands": [
       "uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py",
       "uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py",
@@ -60,13 +50,13 @@
   "gold_status": {
     "record_count": 100,
     "status_counts": {
-      "pending_manual_gold_annotation": 100
+      "reviewed": 100
     },
-    "reviewed_record_count": 0,
-    "pending_record_count": 100,
-    "valid_fact_count": 0,
-    "missing_fact_count": 0,
-    "complete": false
+    "reviewed_record_count": 100,
+    "pending_record_count": 0,
+    "valid_fact_count": 462,
+    "missing_fact_count": 181,
+    "complete": true
   },
   "formal_input_status": {
     "input_records": "data/experiments/nasa_atmonto/formal/input_records.jsonl",
@@ -177,13 +167,42 @@
       "range_violation": 15
     },
     "semantic_metrics": {
-      "available": false,
-      "reason": "manual_gold_facts_missing",
-      "precision": null,
-      "recall": null,
-      "f1": null,
-      "manual_semantic_correctness": null,
-      "confidence_intervals": null
+      "available": true,
+      "predicted_fact_count": 566,
+      "gold_fact_count": 643,
+      "true_positive_count": 462,
+      "false_positive_count": 104,
+      "false_negative_count": 181,
+      "precision": 0.8162544169611308,
+      "recall": 0.71850699844479,
+      "f1": 0.7642679900744418,
+      "manual_semantic_correctness": 0.8162544169611308,
+      "confidence_intervals": {
+        "available": true,
+        "method": "record_bootstrap_by_source_id",
+        "level": 0.95,
+        "iterations": 200,
+        "seed": 1701,
+        "sampled_source_id_count": 100,
+        "intervals": {
+          "f1": {
+            "low": 0.712280701754386,
+            "high": 0.8097560975609756
+          },
+          "manual_semantic_correctness": {
+            "low": 0.7534246575342466,
+            "high": 0.8619329388560157
+          },
+          "precision": {
+            "low": 0.7534246575342466,
+            "high": 0.8619329388560157
+          },
+          "recall": {
+            "low": 0.6656200941915228,
+            "high": 0.7770992366412214
+          }
+        }
+      }
     }
   },
   "metrics_defined": [
@@ -196,8 +215,6 @@
     "repair_success_rate",
     "manual_semantic_correctness"
   ],
-  "missing_required_inputs": [
-    "completed manual gold annotations for 100 sampled advisories"
-  ],
+  "missing_required_inputs": [],
   "claim_boundary": "This readiness report does not claim formal extraction effectiveness until manual gold annotations are complete and all required system outputs are present."
 }

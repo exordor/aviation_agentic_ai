@@ -11,6 +11,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_annotation_validation_report,
     build_gold_review_priority_packets,
     build_gold_review_session_plan,
+    build_gold_semantic_groups,
     build_gold_review_worklist,
     build_gold_review_workload_plan,
     build_gold_review_batches,
@@ -38,6 +39,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     gold_review_progress_markdown,
     gold_review_session_plan_markdown,
     gold_review_workload_plan_markdown,
+    gold_semantic_groups_markdown,
     score_report_markdown,
     semantic_metrics,
     structural_metrics,
@@ -226,13 +228,18 @@ def test_semantic_metrics_keep_identical_facts_source_scoped() -> None:
 def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> None:
     report = build_formal_experiment_readiness(Path("."))
 
-    assert report["status"] == "ready_for_manual_gold_review"
+    assert report["status"] == "ready_for_scoring"
     assert report["gold_status"]["record_count"] == 100
-    assert report["gold_status"]["complete"] is False
+    assert report["gold_status"]["complete"] is True
+    assert report["gold_status"]["reviewed_record_count"] == 100
+    assert report["gold_status"]["pending_record_count"] == 0
     assert report["formal_input_status"]["input_records_exists"] is True
     assert report["formal_input_status"]["system_specs_exists"] is True
     assert report["manual_review_artifacts"]["workload_plan"].endswith(
         "nasa_atmonto_gold_review_workload_plan.md"
+    )
+    assert report["manual_review_artifacts"]["semantic_groups"].endswith(
+        "nasa_atmonto_gold_semantic_groups.md"
     )
     assert report["manual_review_artifacts"]["session_plan"].endswith(
         "nasa_atmonto_gold_review_session_plan.md"
@@ -241,20 +248,17 @@ def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> No
         "review_priority_packets/index.md"
     )
     kickoff = report["manual_gold_review_kickoff"]
-    assert kickoff["status"] == "ready_for_manual_gold_review"
-    assert kickoff["pending_record_count"] == 100
-    assert kickoff["ready_to_apply_record_count"] == 14
-    assert kickoff["not_started_record_count"] == 86
+    assert kickoff["status"] == "complete"
+    assert kickoff["pending_record_count"] == 0
+    assert kickoff["ready_to_apply_record_count"] == 100
+    assert kickoff["not_started_record_count"] == 0
+    assert kickoff["next_review_session"] is None
     assert kickoff["first_priority_lane"]["lane_id"] == "1_rejection_adjudication"
     assert kickoff["first_priority_lane"]["packet_markdown"].endswith(
         "review_priority_packets/1_rejection_adjudication.md"
     )
-    assert kickoff["next_review_session"]["session_id"] == "session_05"
-    assert kickoff["next_review_session"]["record_count"] == 4
-    assert kickoff["next_review_session"]["estimated_review_minutes"] == 87
     assert "suggested_* fields are work aids only" in kickoff["review_boundary"]
-    assert "completed manual gold annotations" in report["missing_required_inputs"][0]
-    assert not any("predictions" in item for item in report["missing_required_inputs"])
+    assert report["missing_required_inputs"] == []
 
 
 def test_generated_readiness_report_json_is_consistent() -> None:
@@ -264,8 +268,9 @@ def test_generated_readiness_report_json_is_consistent() -> None:
         )
     )
 
-    assert report["status"] == "ready_for_manual_gold_review"
-    assert report["gold_status"]["pending_record_count"] == 100
+    assert report["status"] == "ready_for_scoring"
+    assert report["gold_status"]["pending_record_count"] == 0
+    assert report["gold_status"]["reviewed_record_count"] == 100
     assert report["formal_input_status"]["input_records_exists"] is True
     assert report["manual_review_artifacts"]["workload_plan"].endswith(
         "nasa_atmonto_gold_review_workload_plan.md"
@@ -276,10 +281,10 @@ def test_generated_readiness_report_json_is_consistent() -> None:
     assert report["manual_review_artifacts"]["priority_packets"].endswith(
         "review_priority_packets/index.md"
     )
-    assert report["manual_gold_review_kickoff"]["decision_progress_status"] == "in_progress"
-    assert report["manual_gold_review_kickoff"]["ready_to_apply_record_count"] == 14
-    assert report["manual_gold_review_kickoff"]["not_started_record_count"] == 86
-    assert report["manual_gold_review_kickoff"]["next_review_session"]["session_id"] == "session_05"
+    assert report["manual_gold_review_kickoff"]["decision_progress_status"] == "ready_to_apply"
+    assert report["manual_gold_review_kickoff"]["ready_to_apply_record_count"] == 100
+    assert report["manual_gold_review_kickoff"]["not_started_record_count"] == 0
+    assert report["manual_gold_review_kickoff"]["next_review_session"] is None
     assert report["current_s0_rule_only_structural_metrics"]["attempted_record_count"] == 100
 
 
@@ -769,14 +774,16 @@ def test_llm_runner_checkpoints_and_resumes_existing_predictions(tmp_path: Path)
     assert metadata["run_status"] == "completed"
 
 
-def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
+def test_formal_score_report_scores_frozen_reviewed_gold() -> None:
     prepare_formal_experiment_inputs(Path("."))
     report = build_formal_experiment_score_report(Path("."))
 
-    assert report["status"] == "pending_required_inputs"
-    assert report["gold_source"]["source"] == "frozen_reviewed_gold_missing"
-    assert report["gold_source"]["ready_for_formal_scoring"] is False
-    assert any("frozen reviewed gold set" in item for item in report["missing_required_inputs"])
+    assert report["status"] == "scored"
+    assert report["gold_source"]["source"] == "frozen_reviewed_gold"
+    assert report["gold_source"]["ready_for_formal_scoring"] is True
+    assert report["gold_status"]["reviewed_record_count"] == 100
+    assert report["gold_status"]["pending_record_count"] == 0
+    assert report["missing_required_inputs"] == []
     s0 = next(score for score in report["systems"] if score["system_id"] == "S0_rule_only")
     assert s0["available"] is True
     assert s0["json_metrics"]["json_adherence"] == 1.0
@@ -784,8 +791,13 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     assert s0["structural_metrics"]["accepted_fact_count"] == 567
     assert s0["structural_metrics"]["rejected_fact_count"] == 48
     assert s0["structural_metrics"]["repair_success_rate"] is None
-    assert s0["semantic_metrics"]["available"] is False
-    assert s0["semantic_metrics"]["reason"] == "manual_gold_facts_missing"
+    assert s0["semantic_metrics"]["available"] is True
+    assert s0["semantic_metrics"]["gold_fact_count"] == 643
+    assert s0["semantic_metrics"]["true_positive_count"] == 462
+    assert len(s0["semantic_group_metrics"]) == 9
+    first_group = s0["semantic_group_metrics"][0]
+    assert first_group["group_id"] == "ground_stop_lifecycle"
+    assert first_group["semantic_metrics"]["available"] is True
 
     s1 = next(score for score in report["systems"] if score["system_id"] == "S1_llm_only")
     assert s1["available"] is True
@@ -793,7 +805,8 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     assert s1["structural_metrics"]["candidate_fact_count"] == 1211
     assert s1["structural_metrics"]["rejected_fact_count"] == 1211
     assert s1["structural_metrics"]["repair_success_rate"] is None
-    assert s1["semantic_metrics"]["reason"] == "manual_gold_facts_missing"
+    assert s1["semantic_metrics"]["available"] is True
+    assert s1["semantic_metrics"]["f1"] == 0.0
 
     s3 = next(
         score
@@ -804,11 +817,12 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     assert s3["structural_metrics"]["repair_success_rate"] == 286 / 396
 
     audit = report["completion_audit"]
-    assert audit["overall_status"] == "formal_experiment_pending"
+    assert audit["overall_status"] == "formal_experiment_complete"
+    assert audit["blocking_requirement_ids"] == []
     by_requirement = {item["id"]: item for item in audit["requirements"]}
     assert by_requirement["R0"]["status"] == "satisfied"
     assert by_requirement["R1"]["status"] == "satisfied"
-    assert by_requirement["R2"]["status"] == "pending_manual_input"
+    assert by_requirement["R2"]["status"] == "satisfied"
     assert by_requirement["R4"]["status"] == "satisfied"
     assert by_requirement["R7"]["status"] == "satisfied"
     assert by_requirement["R8"]["status"] == "satisfied"
@@ -817,9 +831,12 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
     claim_status = {item["id"]: item["status"] for item in report["claim_statuses"]}
     hypothesis_status = {item["id"]: item["status"] for item in report["hypothesis_statuses"]}
     assert claim_status["C1"] == "supported_by_pilot"
-    assert claim_status["C2"] == "supported_structural_only"
+    assert claim_status["C2"] == "supported"
+    assert claim_status["C3"] == "supported"
     assert claim_status["C4"] == "supported"
-    assert hypothesis_status["H1"] == "supported_structural_only"
+    assert hypothesis_status["H1"] == "supported"
+    assert hypothesis_status["H2"] == "supported"
+    assert hypothesis_status["H3"] == "supported"
     assert hypothesis_status["H4"] == "supported"
     assert report["rejection_adjudication"]["property_level_complete"] is True
     assert report["rejection_adjudication"]["decision_counts_by_fact"] == {
@@ -829,6 +846,7 @@ def test_formal_score_report_is_pending_but_scores_s0_structure() -> None:
 
     markdown = score_report_markdown(report)
     assert "## Rejection Adjudication" in markdown
+    assert "## Semantic Group Metrics" in markdown
     assert "## Claim Status" in markdown
     assert "## Hypothesis Status" in markdown
     assert "## Completion Audit" in markdown
@@ -927,15 +945,15 @@ def test_property_level_semantic_metrics_group_by_predicate() -> None:
     assert by_predicate["issuedTime"]["false_negative_count"] == 1
 
 
-def test_gold_annotation_validation_reports_current_template_pending() -> None:
+def test_gold_annotation_validation_reports_current_template_ready() -> None:
     report = build_gold_annotation_validation_report(Path("."))
 
-    assert report["status"] == "pending_manual_annotation"
+    assert report["status"] == "ready_for_scoring"
     assert report["record_count"] == 100
-    assert report["reviewed_record_count"] == 0
-    assert report["pending_record_count"] == 100
+    assert report["reviewed_record_count"] == 100
+    assert report["pending_record_count"] == 0
     assert report["error_count"] == 0
-    assert report["warning_count"] == 100
+    assert report["warning_count"] == 0
 
 
 def test_gold_annotation_validation_accepts_reviewed_record_with_rejection_decision() -> None:
@@ -986,13 +1004,15 @@ def test_gold_annotation_validation_accepts_reviewed_record_with_rejection_decis
     assert report["warning_count"] == 0
 
 
-def test_gold_freeze_status_blocks_current_pending_template() -> None:
+def test_gold_freeze_status_reports_current_frozen_template() -> None:
     report = build_gold_freeze_status(Path("."))
 
-    assert report["status"] == "blocked_pending_review"
-    assert report["validation_status"] == "pending_manual_annotation"
+    assert report["status"] == "frozen"
+    assert report["validation_status"] == "ready_for_scoring"
     assert report["record_count"] == 100
-    assert report["pending_record_count"] == 100
+    assert report["pending_record_count"] == 0
+    assert report["reviewed_record_count"] == 100
+    assert report["output_matches_template"] is True
     assert report["reviewed_gold_output"].endswith("atcscc_gold_v1.reviewed.jsonl")
 
 
@@ -1041,6 +1061,7 @@ def test_freeze_reviewed_gold_set_writes_only_valid_reviewed_gold(tmp_path: Path
     assert report["status"] == "frozen"
     assert report["validation_status"] == "ready_for_scoring"
     assert report["output_exists"] is True
+    assert report["output_matches_template"] is True
     assert report["output_sha256"]
     frozen = (
         tmp_path / "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl"
@@ -1085,7 +1106,7 @@ def test_gold_review_worklist_summarizes_human_annotation_queue() -> None:
     assert worklist["selected_source_id_count"] == 100
     assert worklist["records_with_rejections"] == 40
     assert worklist["total_rejected_facts_to_adjudicate"] == 48
-    assert worklist["status_counts"] == {"pending_manual_gold_annotation": 100}
+    assert worklist["status_counts"] == {"reviewed": 100}
     assert worklist["suggested_decision_counts"] == {
         "extractor_normalization_bug_candidate": 8,
         "nasa_atmonto_profile_gap_candidate": 40,
@@ -1132,14 +1153,54 @@ def test_gold_review_workload_plan_prioritizes_manual_review_queue() -> None:
     assert "does not create gold truth" in markdown
 
 
+def test_gold_semantic_groups_support_stratified_experiment_reporting() -> None:
+    report = build_gold_semantic_groups(Path("."))
+
+    assert report["status"] == "ready_for_stratified_reporting"
+    assert report["record_count"] == 100
+    assert report["semantic_group_count"] == 9
+    assert report["semantic_group_counts"] == {
+        "ground_stop_lifecycle": 26,
+        "reroute_or_route_constraint": 25,
+        "volcanic_activity_bulletin": 19,
+        "ground_delay_program_lifecycle": 12,
+        "airport_arrival_or_scheduling_delay": 10,
+        "hotline_or_webpage_status": 3,
+        "airport_diversion_recovery": 2,
+        "special_or_flow_constraint_fyi": 2,
+        "flight_plan_drop_time_status": 1,
+    }
+    assert report["candidate_subject_class_counts"] == {
+        "GroundDelayProgramTMI": 16,
+        "GroundStopTMI": 21,
+        "ReRouteTMI": 23,
+        "TrafficManagementInitiative": 40,
+    }
+
+    volcanic = next(
+        group for group in report["groups"] if group["group_id"] == "volcanic_activity_bulletin"
+    )
+    assert volcanic["candidate_subject_class_counts"] == {"TrafficManagementInitiative": 19}
+    assert "ATCSCC-GOLD-046" in volcanic["sample_ids"]
+
+    starship = next(record for record in report["records"] if record["sample_id"] == "ATCSCC-GOLD-045")
+    assert starship["semantic_group_id"] == "special_or_flow_constraint_fyi"
+    assert starship["candidate_subject_class"] == "ReRouteTMI"
+
+    markdown = gold_semantic_groups_markdown(report)
+    assert "Gold Semantic Groups" in markdown
+    assert "stratified analysis" in markdown
+    assert "not a train/dev/test split" in markdown
+
+
 def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
     plan = build_gold_review_session_plan(Path("."))
 
-    assert plan["status"] == "ready_for_manual_review"
+    assert plan["status"] == "ready_to_apply"
     assert plan["target_session_minutes"] == 90
-    assert plan["ready_to_apply_record_count"] == 14
-    assert plan["remaining_record_count"] == 86
-    assert plan["completed_session_count"] == 4
+    assert plan["ready_to_apply_record_count"] == 100
+    assert plan["remaining_record_count"] == 0
+    assert plan["completed_session_count"] == 22
     assert plan["session_count"] > 1
     assert "manual-review queues only" in plan["completion_gate"]
 
@@ -1153,13 +1214,13 @@ def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
     assert first_session["records"][0]["decision_template"].endswith(
         "review_decisions/batch_03.jsonl"
     )
-    assert plan["next_session"]["session_id"] == "session_05"
-    assert plan["next_session"]["records"][0]["sample_id"] == "ATCSCC-GOLD-030"
+    assert plan["next_session"] is None
 
     markdown = gold_review_session_plan_markdown(plan)
     assert "Gold Review Session Plan" in markdown
     assert "Next Session" in markdown
-    assert "Completed sessions: 4 /" in markdown
+    assert "No remaining review records" in markdown
+    assert "Completed sessions: 22 /" in markdown
     assert "Session plans are manual-review queues only" in markdown
 
 
@@ -1258,25 +1319,25 @@ def test_gold_review_progress_tracks_batch_completion_against_template() -> None
     batch_report = build_gold_review_batches(Path("."), candidate_review=candidate_review)
     report = build_gold_review_progress(Path("."), batch_report=batch_report)
 
-    assert report["status"] == "pending_manual_review"
+    assert report["status"] == "ready_for_freeze"
     assert report["record_count"] == 100
-    assert report["reviewed_record_count"] == 0
-    assert report["pending_record_count"] == 100
+    assert report["reviewed_record_count"] == 100
+    assert report["pending_record_count"] == 0
     assert report["batch_count"] == 10
-    assert report["complete_batch_count"] == 0
-    assert report["validation_status"] == "pending_manual_annotation"
-    assert all(batch["status"] == "not_started" for batch in report["batch_progress"])
+    assert report["complete_batch_count"] == 10
+    assert report["validation_status"] == "ready_for_scoring"
+    assert all(batch["status"] == "complete" for batch in report["batch_progress"])
 
     first = report["batch_progress"][0]
     assert first["batch_id"] == "batch_01"
     assert first["record_count"] == 10
-    assert first["pending_record_count"] == 10
+    assert first["pending_record_count"] == 0
     assert first["records"][0]["sample_id"] == "ATCSCC-GOLD-001"
-    assert first["records"][0]["annotation_status"] == "pending_manual_gold_annotation"
+    assert first["records"][0]["annotation_status"] == "reviewed"
 
     markdown = gold_review_progress_markdown(report)
     assert "Gold Review Progress" in markdown
-    assert "pending_manual_review" in markdown
+    assert "ready_for_freeze" in markdown
     assert "batch_01" in markdown
 
 
@@ -1328,30 +1389,33 @@ def test_gold_review_decision_progress_audits_editable_decision_files() -> None:
     batch_report = build_gold_review_batches(Path("."), candidate_review=candidate_review)
     report = build_gold_review_decision_progress(Path("."), batch_report=batch_report)
 
-    assert report["status"] == "in_progress"
+    assert report["status"] == "ready_to_apply"
     assert report["record_count"] == 100
     assert report["decision_record_count"] == 100
-    assert report["not_started_record_count"] == 86
-    assert report["ready_to_apply_record_count"] == 14
+    assert report["not_started_record_count"] == 0
+    assert report["ready_to_apply_record_count"] == 100
     assert report["suggested_valid_candidate_fact_count"] > 0
     assert report["rejected_fact_decision_count"] > 0
-    assert report["completed_rejected_fact_decision_count"] == 22
+    assert report["completed_rejected_fact_decision_count"] == 48
     assert report["pending_rejected_fact_decision_count"] == (
-        report["rejected_fact_decision_count"] - 22
+        report["rejected_fact_decision_count"] - 48
     )
 
     first_batch = report["batch_progress"][0]
     assert first_batch["batch_id"] == "batch_01"
-    assert first_batch["status"] == "in_progress"
-    assert first_batch["ready_to_apply_record_count"] == 5
-    assert first_batch["not_started_record_count"] == 5
+    assert first_batch["status"] == "ready_to_apply"
+    assert first_batch["ready_to_apply_record_count"] == 10
+    assert first_batch["not_started_record_count"] == 0
 
     markdown = gold_review_decision_progress_markdown(report)
     assert "Gold Review Decision Progress" in markdown
     assert "Suggested valid S0" in markdown
     assert "Records Needing Attention" in markdown
     assert "ATCSCC-GOLD-001" not in markdown
-    assert "ATCSCC-GOLD-002" in markdown
+    assert "ATCSCC-GOLD-002" not in markdown
+    assert "ATCSCC-GOLD-003" not in markdown
+    assert "ATCSCC-GOLD-033" not in markdown
+    assert "ATCSCC-GOLD-064" not in markdown
 
 
 def test_apply_gold_review_decisions_writes_reviewed_gold_draft(tmp_path: Path) -> None:

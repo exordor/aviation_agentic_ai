@@ -3,9 +3,8 @@
 ## Material Passport
 
 - Artifact: formal experiment protocol for the NASA ATMONTO ATCSCC KG extraction study.
-- Status: protocol and prepared-state audit with gold-sample template,
-  cross-system candidate review, S0-S3 prediction outputs, and rejection triage
-  artifacts prepared; semantic scoring remains pending reviewed gold.
+- Status: protocol, reviewed 100-record gold set, S0-S3 prediction outputs,
+  rejection triage, and formal scoring artifacts prepared.
 - Prior stage: pilot / feasibility study.
 - Pilot evidence:
   - `reports/stages/nasa_atmonto_minimal_loop_validation.md`
@@ -22,8 +21,10 @@
   - `data/evaluation/nasa_atmonto/gold_review_decision_progress.md`
   - `data/evaluation/nasa_atmonto/gold_review_progress.md`
   - `reports/stages/nasa_atmonto_gold_review_session_plan.md`
+  - `reports/stages/nasa_atmonto_gold_semantic_groups.md`
   - `docs/nasa_atmonto_gold_annotation_guide.md`
   - `reports/stages/nasa_atmonto_gold_freeze_status.md`
+  - `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
   - `data/experiments/nasa_atmonto/formal/input_records.jsonl`
   - `data/experiments/nasa_atmonto/formal/system_specs.json`
   - `data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl`
@@ -35,6 +36,7 @@
   - `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
   - `reports/stages/nasa_atmonto_rejection_error_analysis.md`
   - `reports/stages/nasa_atmonto_rejection_adjudication.md`
+  - `reports/stages/nasa_atmonto_gold_review_multiround_audit.md`
   - `reports/stages/nasa_atmonto_gold_annotation_validation.md`
   - `reports/stages/nasa_atmonto_prediction_output_validation.md`
   - `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
@@ -77,8 +79,9 @@ domain/range violations than an LLM-only extractor.
 
 - Evidence required: lower schema violation rate for `LLM + schema slice` than
   `LLM-only` on the same gold-sampled records.
-- Current status: supported as structural-only evidence on the prepared 100-record
-  sample; semantic precision/recall impact is pending reviewed gold.
+- Current status: supported by the formal scoring report for schema-violation
+  reduction; semantic precision/recall impact is reported descriptively and
+  should not be overgeneralized beyond this 100-record retrospective sample.
 
 ### C3: Validator/Repair Benefit
 
@@ -87,8 +90,9 @@ reducing manual semantic correctness below the LLM + schema-slice condition.
 
 - Evidence required: repair success rate, post-repair schema violation rate, and
   manual semantic correctness on the same gold sample.
-- Current status: structural repair evidence is available on the prepared
-  100-record sample; semantic preservation is pending reviewed gold.
+- Current status: supported on the reviewed 100-record sample: S3 improves
+  structural acceptance versus S2 and does not reduce manual semantic
+  correctness in the frozen-gold scoring report.
 
 ### C4: Rejection Analysis Utility
 
@@ -166,6 +170,9 @@ Prepared files:
 Current sample properties:
 
 - Sample size: 100 advisories.
+- Reviewed records: 100.
+- Frozen reviewed gold:
+  `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`.
 - Records with at least one rejected pilot candidate: 40.
 - Accepted-only pilot records: 60.
 - Candidate classes:
@@ -178,6 +185,28 @@ Current sample properties:
   - `extensionProbability`: 8
   - `impactingCondition`: 8
   - `impactingConditionMessage`: 17
+
+### Semantic Stratification
+
+The 100-record gold set is also grouped into operational semantic slices for
+stratified error analysis. These groups are reporting strata, not train/dev/test
+splits, and they do not create gold truth by themselves.
+
+| Group | Records | Primary purpose |
+| --- | ---: | --- |
+| `ground_stop_lifecycle` | 26 | CDM ground-stop creation, extension, and cancellation behavior. |
+| `reroute_or_route_constraint` | 25 | Route-required, CDR, SWAP, route-closure, and reroute-cancellation behavior. |
+| `volcanic_activity_bulletin` | 19 | Volcanic bulletin extraction, especially advisory signature time versus VA DTG time. |
+| `ground_delay_program_lifecycle` | 12 | GDP proposed/active/cancelled lifecycle records. |
+| `airport_arrival_or_scheduling_delay` | 10 | Airport arrival-delay and scheduling-delay advisories. |
+| `hotline_or_webpage_status` | 3 | Hotline/webpage activation and termination notices. |
+| `airport_diversion_recovery` | 2 | Diversion-recovery activation records. |
+| `special_or_flow_constraint_fyi` | 2 | Special mission or flow-constraint FYI notices. |
+| `flight_plan_drop_time_status` | 1 | Extended flight-plan drop-time status. |
+
+The authoritative grouping artifact is
+`reports/stages/nasa_atmonto_gold_semantic_groups.md`; the formal scoring report
+uses the same groups for per-system semantic precision/recall/F1 slices.
 
 ### Gold Annotation Task
 
@@ -206,8 +235,45 @@ For every reviewed record, validator-rejected candidate facts also need
 `source_ambiguity`, or `manual_review_only`. The annotation guide is
 `docs/nasa_atmonto_gold_annotation_guide.md`.
 
-The gold set is complete only after manual annotation and adjudication. The
-current JSONL is an annotation template, not completed gold truth.
+### Assisted Gold Adjudication Workflow
+
+The formal gold set is human-supervised and evidence-grounded, but it does not
+require the human assistant to act as an unaided aviation-domain expert. Each
+review session should use an assisted adjudication workflow:
+
+- Primary screening: Codex or a frontier model proposes accepted facts,
+  rejected-fact decisions, profile-gap candidates, and missing-fact candidates
+  from the source text plus S0-S3 candidate package.
+- Source-evidence review: an independent reviewer checks whether every accepted
+  fact has a specific advisory evidence span and whether any obvious
+  source-supported fact was omitted.
+- Adversarial ontology/profile review: a separate reviewer challenges
+  `extractor_bug` versus `profile_gap` labels, schema-valid cross-system facts,
+  proposed normalizations, and any implied NASA ATMONTO profile extension.
+- User adjudication: the user reviews only unresolved conflicts, low-confidence
+  calls, or proposed profile extensions, using short source snippets and
+  concrete accept/revise options.
+
+Gold truth is not created by model agreement alone. A record was marked ready only when
+the final JSONL decision is source-supported, passes the semantic rubric, has no
+unresolved adversarial-review issue, and has all `review_checklist` fields set to
+`true`. If reviewers disagree and the source evidence does not resolve the
+conflict, keep the record pending or use `source_ambiguity` /
+`manual_review_only` instead of forcing a gold fact.
+
+The review is intentionally multi-round and multi-perspective: source-only
+review catches evidence overreach, ontology/profile review catches boundary
+errors, and consistency review checks whether the same predicate pattern is
+handled the same way across sessions. For normalized facts, the accepted value
+must cite a reviewed normalization policy. In this protocol, the only approved
+enum normalization is `extensionProbability:MODERATE->MEDIUM`, and it must be
+entered as a corrected manual fact with `raw_value`, `value_normalization`, and a
+tight source evidence span rather than accepted solely from model output.
+
+The gold set is complete for this formal experiment after source review,
+multi-perspective adjudication, validation, and freezing. The frozen reviewed
+JSONL is the scoring source; future edits must create a new reviewed version
+rather than silently changing reported results.
 
 ## Systems Under Test
 

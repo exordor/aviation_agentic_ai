@@ -16,7 +16,7 @@
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=108
 - Candidate class: `ReRouteTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 42
 
 Source excerpt:
@@ -79,7 +79,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=53
 - Candidate class: `ReRouteTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 35
 
 Source excerpt:
@@ -135,7 +135,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=124
 - Candidate class: `ReRouteTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 31
 
 Source excerpt:
@@ -187,7 +187,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=104
 - Candidate class: `ReRouteTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 39
 
 Source excerpt:
@@ -247,7 +247,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=137
 - Candidate class: `ReRouteTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 32
 
 Source excerpt:
@@ -300,7 +300,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=78
 - Candidate class: `ReRouteTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 33
 
 Source excerpt:
@@ -354,7 +354,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=79
 - Candidate class: `GroundDelayProgramTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 33
 
 Source excerpt:
@@ -408,7 +408,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=74
 - Candidate class: `GroundDelayProgramTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 40
 
 Source excerpt:
@@ -469,7 +469,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05152026&advn=67
 - Candidate class: `GroundDelayProgramTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 37
 
 Source excerpt:
@@ -527,7 +527,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05152026&advn=84
 - Candidate class: `GroundDelayProgramTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 34
 
 Source excerpt:

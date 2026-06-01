@@ -1,0 +1,1795 @@
+{
+  "source_family": "nasa_atmonto_gold_semantic_groups",
+  "status": "ready_for_stratified_reporting",
+  "gold_template": "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl",
+  "workload_plan": "reports/stages/nasa_atmonto_gold_review_workload_plan.md",
+  "semantic_groups_json": "reports/stages/nasa_atmonto_gold_semantic_groups.json",
+  "semantic_groups_markdown": "reports/stages/nasa_atmonto_gold_semantic_groups.md",
+  "record_count": 100,
+  "semantic_group_count": 9,
+  "semantic_group_counts": {
+    "ground_stop_lifecycle": 26,
+    "reroute_or_route_constraint": 25,
+    "volcanic_activity_bulletin": 19,
+    "ground_delay_program_lifecycle": 12,
+    "airport_arrival_or_scheduling_delay": 10,
+    "hotline_or_webpage_status": 3,
+    "airport_diversion_recovery": 2,
+    "special_or_flow_constraint_fyi": 2,
+    "flight_plan_drop_time_status": 1
+  },
+  "candidate_subject_class_counts": {
+    "GroundDelayProgramTMI": 16,
+    "GroundStopTMI": 21,
+    "ReRouteTMI": 23,
+    "TrafficManagementInitiative": 40
+  },
+  "source_date_counts": {
+    "2026-05-14": 10,
+    "2026-05-15": 10,
+    "2026-05-16": 8,
+    "2026-05-17": 9,
+    "2026-05-18": 21,
+    "2026-05-19": 17,
+    "2026-05-20": 25
+  },
+  "minimum_semantic_group_count": 1,
+  "records": [
+    {
+      "sample_id": "ATCSCC-GOLD-001",
+      "source_id": "2026-05-19:032",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-002",
+      "source_id": "2026-05-15:063",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 063 SAN/ZLA 05/15/2026 SAN AIRPORT ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-003",
+      "source_id": "2026-05-18:069",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 069 LAS/ZLA 05/18/2026 LAS AIRPORT ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-004",
+      "source_id": "2026-05-14:059",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 059 PHLC/ZNY 05/14/2026 EWR AND SATELLITE AIRPORTS ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-005",
+      "source_id": "2026-05-19:059",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 059 DCC 05/19/2026 IAH HOU CDRS_FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-006",
+      "source_id": "2026-05-19:144",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "flight_plan_drop_time_status",
+      "semantic_group_label": "Flight plan drop time status",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains FLIGHT PLAN DROP TIMES",
+      "headline": "ATCSCC ADVZY 144 ZBW 05/19/2026 EXTENDED FLIGHT PLAN DROP TIMES IMPLEMENTED"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-007",
+      "source_id": "2026-05-16:051",
+      "advisory_date": "2026-05-16",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 051 DCC/ZDV 05/16/2026 DEN CDRS_FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-008",
+      "source_id": "2026-05-17:019",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 019 ZMA/DCC 05/17/2026 SOUTH FLORIDA AIRPORTS ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-009",
+      "source_id": "2026-05-20:040",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 040 DCC 05/20/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-010",
+      "source_id": "2026-05-20:053",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_01",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 053 DCC 05/20/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-011",
+      "source_id": "2026-05-19:108",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 108 DCC 05/19/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-012",
+      "source_id": "2026-05-18:053",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 053 DCC 05/18/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-013",
+      "source_id": "2026-05-18:124",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 124 DCC 05/18/2026 ROUTE RQD"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-014",
+      "source_id": "2026-05-18:104",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 104 DCC 05/18/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-015",
+      "source_id": "2026-05-20:137",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 137 DCC 05/20/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-016",
+      "source_id": "2026-05-20:078",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 078 DCC 05/20/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-017",
+      "source_id": "2026-05-19:079",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-018",
+      "source_id": "2026-05-19:074",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-019",
+      "source_id": "2026-05-15:067",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-020",
+      "source_id": "2026-05-15:084",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_02",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 084 SFO/ZOA 05/15/2026 CDM GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-021",
+      "source_id": "2026-05-14:089",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 089 BNA/ZME 05/14/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-022",
+      "source_id": "2026-05-15:064",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 064 BNA/ZME 05/15/2026 CDM PROPOSED GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-023",
+      "source_id": "2026-05-20:163",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 163 DEN/ZDV 05/20/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-024",
+      "source_id": "2026-05-18:136",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-025",
+      "source_id": "2026-05-18:144",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 144 DTW/ZOB 05/18/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-026",
+      "source_id": "2026-05-18:055",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 055 STL/ZKC 05/18/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-027",
+      "source_id": "2026-05-19:110",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 110 ORD/ZAU 05/19/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-028",
+      "source_id": "2026-05-18:123",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 123 MSP/ZMP 05/18/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-029",
+      "source_id": "2026-05-18:001",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 001 DEN/ZDV 05/18/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-030",
+      "source_id": "2026-05-16:027",
+      "advisory_date": "2026-05-16",
+      "batch_id": "batch_03",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 027 ORD/ZAU 05/16/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-031",
+      "source_id": "2026-05-19:011",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_04",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 011 SFO/ZOA 05/19/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-032",
+      "source_id": "2026-05-20:131",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_04",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 131 IAD/ZDC 05/20/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-033",
+      "source_id": "2026-05-18:025",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_04",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 025 LAS/ZLA 05/18/2026 CDM GROUND DELAY PROGRAM CNX"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-034",
+      "source_id": "2026-05-14:055",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_04",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "airport_diversion_recovery",
+      "semantic_group_label": "Airport diversion recovery",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains DIVERSION RECOVERY",
+      "headline": "ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-035",
+      "source_id": "2026-05-20:084",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_04",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 084 EWR/ZNY 05/20/2026 CDM PROPOSED GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-036",
+      "source_id": "2026-05-17:022",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_04",
+      "priority_lane": "2_high_cross_system_coverage",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 022 SFO/ZOA 05/17/2026 CDM PROPOSED GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-037",
+      "source_id": "2026-05-14:040",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_04",
+      "priority_lane": "2_high_cross_system_coverage",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 040 SFO/ZOA 05/14/2026 CDM GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-038",
+      "source_id": "2026-05-20:115",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_04",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 115 LGA/ZNY 05/20/2026 CDM GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-039",
+      "source_id": "2026-05-18:075",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_04",
+      "priority_lane": "2_high_cross_system_coverage",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 075 DCC/ZMA 05/18/2026 ZMA SWAP_FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-040",
+      "source_id": "2026-05-20:197",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_04",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-041",
+      "source_id": "2026-05-18:054",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-042",
+      "source_id": "2026-05-20:015",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 015 DCC 05/20/2026 OCEANIC ROUTE CLOSURE_RQD"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-043",
+      "source_id": "2026-05-19:008",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "hotline_or_webpage_status",
+      "semantic_group_label": "Hotline or webpage status",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains HOTLINE or WEB PAGE",
+      "headline": "ATCSCC ADVZY 008 DCC 05/19/2026 EN ROUTE TCA/HOTLINE WEB PAGE TERMINATION"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-044",
+      "source_id": "2026-05-16:026",
+      "advisory_date": "2026-05-16",
+      "batch_id": "batch_05",
+      "priority_lane": "2_high_cross_system_coverage",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 026 DCC/ZAU 05/16/2026 ZAU SWAP_FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-045",
+      "source_id": "2026-05-20:150",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "special_or_flow_constraint_fyi",
+      "semantic_group_label": "Special mission or flow-constraint FYI",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains STARSHIP or CAPPING TUNNELING",
+      "headline": "ATCSCC ADVZY 150 DCC/ZHU 05/20/2026 STARSHIP PRE-MISSION ADVISORY_FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-046",
+      "source_id": "2026-05-18:040",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 040 DCC 05/18/2026 VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-047",
+      "source_id": "2026-05-14:033",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 033 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - PURACE"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-048",
+      "source_id": "2026-05-17:003",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "hotline_or_webpage_status",
+      "semantic_group_label": "Hotline or webpage status",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains HOTLINE or WEB PAGE",
+      "headline": "ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-049",
+      "source_id": "2026-05-19:013",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-050",
+      "source_id": "2026-05-19:043",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_05",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-051",
+      "source_id": "2026-05-14:030",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_06",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 030 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - SANTA"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-052",
+      "source_id": "2026-05-20:119",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_06",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 119 IAD/ZDC 05/20/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-053",
+      "source_id": "2026-05-18:125",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_06",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 125 STL/ZKC 05/18/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-054",
+      "source_id": "2026-05-20:153",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_06",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 153 BWI/ZDC 05/20/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-055",
+      "source_id": "2026-05-20:179",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_06",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 179 PHL/ZNY 05/20/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-056",
+      "source_id": "2026-05-17:041",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_06",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 041 DCC 05/17/2026 MIA FLL CDRS_FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-057",
+      "source_id": "2026-05-14:007",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_06",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 007 DCA/ZDC 05/14/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-058",
+      "source_id": "2026-05-20:139",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_06",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 139 DCA/ZDC 05/20/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-059",
+      "source_id": "2026-05-14:086",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_06",
+      "priority_lane": "1_rejection_adjudication",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 086 MSP/ZMP 05/14/2026 MSP AIRPORT ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-060",
+      "source_id": "2026-05-17:050",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_06",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 050 DCA/ZDC 05/17/2026 CDM GS CNX"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-061",
+      "source_id": "2026-05-15:017",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 017 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-062",
+      "source_id": "2026-05-20:029",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-063",
+      "source_id": "2026-05-16:035",
+      "advisory_date": "2026-05-16",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 035 ORD/ZAU 05/16/2026 ORD AIRPORT ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-064",
+      "source_id": "2026-05-19:112",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 112 DFW/ZFW 05/19/2026 DFW AIRPORT ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-065",
+      "source_id": "2026-05-16:061",
+      "advisory_date": "2026-05-16",
+      "batch_id": "batch_07",
+      "priority_lane": "2_high_cross_system_coverage",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "special_or_flow_constraint_fyi",
+      "semantic_group_label": "Special mission or flow-constraint FYI",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains STARSHIP or CAPPING TUNNELING",
+      "headline": "ATCSCC ADVZY 061 DCC 05/16/2026 DEN CAPPING TUNNELING FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-066",
+      "source_id": "2026-05-17:011",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 011 DCC 05/17/2026 VOLCANIC ACTIVITY BULLETIN - REVENTADOR"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-067",
+      "source_id": "2026-05-15:030",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-068",
+      "source_id": "2026-05-18:126",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 126 STL/ZKC 05/18/2026 CDM GS CNX"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-069",
+      "source_id": "2026-05-20:192",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 192 PHL/ZNY 05/20/2026 CDM GS CNX"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-070",
+      "source_id": "2026-05-14:014",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_07",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 014 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-071",
+      "source_id": "2026-05-19:064",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 064 EWR/ZNY 05/19/2026 EWR AIRPORT ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-072",
+      "source_id": "2026-05-17:065",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-073",
+      "source_id": "2026-05-20:006",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 006 DFW/ZFW 05/20/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-074",
+      "source_id": "2026-05-14:073",
+      "advisory_date": "2026-05-14",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 073 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-075",
+      "source_id": "2026-05-18:119",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 119 DCC 05/18/2026 VOLCANIC ACTIVITY BULLETIN - PURACE"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-076",
+      "source_id": "2026-05-20:013",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 013 ORD/ZAU 05/20/2026 CDM GS CNX"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-077",
+      "source_id": "2026-05-19:001",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-078",
+      "source_id": "2026-05-20:026",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-079",
+      "source_id": "2026-05-15:051",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 051 DCC/ZNY/ZMA 05/15/2026 OCEANIC ROUTE CLOSURES_RQD"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-080",
+      "source_id": "2026-05-18:148",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_08",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 148 BNA/ZME 05/18/2026 CDM GS CNX"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-081",
+      "source_id": "2026-05-18:023",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 023 LAS/ZLA 05/18/2026 CDM GROUND DELAY PROGRAM"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-082",
+      "source_id": "2026-05-20:145",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_09",
+      "priority_lane": "2_high_cross_system_coverage",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 145 DCC 05/20/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-083",
+      "source_id": "2026-05-20:016",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 016 LGA/JFK/ZNY 05/20/2026 LGA/JFK GROUND STOP CANCELLATION FOR DAL AND SUBS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-084",
+      "source_id": "2026-05-17:017",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-085",
+      "source_id": "2026-05-19:009",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 009 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - REVENTADOR"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-086",
+      "source_id": "2026-05-16:046",
+      "advisory_date": "2026-05-16",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 046 DCC 05/16/2026 VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-087",
+      "source_id": "2026-05-18:107",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-088",
+      "source_id": "2026-05-18:021",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_delay_program_lifecycle",
+      "semantic_group_label": "Ground delay program lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND DELAY PROGRAM",
+      "headline": "ATCSCC ADVZY 021 SFO/ZOA 05/18/2026 CDM GROUND DELAY PROGRAM CNX"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-089",
+      "source_id": "2026-05-16:018",
+      "advisory_date": "2026-05-16",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "hotline_or_webpage_status",
+      "semantic_group_label": "Hotline or webpage status",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains HOTLINE or WEB PAGE",
+      "headline": "ATCSCC ADVZY 018 DCC 05/16/2026 EN ROUTE TCA/HOTLINE ISSUE REQUEST PAGE ACTIVATION"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-090",
+      "source_id": "2026-05-15:061",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_09",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 061 DCC 05/15/2026 REROUTE CANCELLATION"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-091",
+      "source_id": "2026-05-19:068",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundStopTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 068 IAH/ZHU 05/19/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-092",
+      "source_id": "2026-05-15:075",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "ground_stop_lifecycle",
+      "semantic_group_label": "Ground stop lifecycle",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains GROUND STOP or CDM GS CNX",
+      "headline": "ATCSCC ADVZY 075 BOS/ZBW 05/15/2026 CDM GROUND STOP"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-093",
+      "source_id": "2026-05-18:060",
+      "advisory_date": "2026-05-18",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "GroundDelayProgramTMI",
+      "semantic_group_id": "airport_diversion_recovery",
+      "semantic_group_label": "Airport diversion recovery",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains DIVERSION RECOVERY",
+      "headline": "ATCSCC ADVZY 060 STL/ZKC 05/18/2026 STL AIRPORT DIVERSION RECOVERY ACTIVATED"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-094",
+      "source_id": "2026-05-20:068",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 068 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - SHEVELUCH"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-095",
+      "source_id": "2026-05-19:047",
+      "advisory_date": "2026-05-19",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-096",
+      "source_id": "2026-05-15:087",
+      "advisory_date": "2026-05-15",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 087 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-097",
+      "source_id": "2026-05-16:067",
+      "advisory_date": "2026-05-16",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 067 DCC 05/16/2026 REROUTE CANCELLATION"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-098",
+      "source_id": "2026-05-20:100",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_10",
+      "priority_lane": "2_high_cross_system_coverage",
+      "candidate_subject_class": "ReRouteTMI",
+      "semantic_group_id": "reroute_or_route_constraint",
+      "semantic_group_label": "Reroute or route constraint",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains route, CDR, reroute, or SWAP language",
+      "headline": "ATCSCC ADVZY 100 DCC 05/20/2026 ROUTE RQD /FL"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-099",
+      "source_id": "2026-05-20:004",
+      "advisory_date": "2026-05-20",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "airport_arrival_or_scheduling_delay",
+      "semantic_group_label": "Airport arrival or scheduling delay",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains airport arrival/scheduling delay language",
+      "headline": "ATCSCC ADVZY 004 MEM/ZME 05/20/2026 MEM AIRPORT ARRIVAL DELAYS"
+    },
+    {
+      "sample_id": "ATCSCC-GOLD-100",
+      "source_id": "2026-05-17:071",
+      "advisory_date": "2026-05-17",
+      "batch_id": "batch_10",
+      "priority_lane": "3_standard_review",
+      "candidate_subject_class": "TrafficManagementInitiative",
+      "semantic_group_id": "volcanic_activity_bulletin",
+      "semantic_group_label": "Volcanic activity bulletin",
+      "classification_basis": "ATCSCC advisory headline heuristic",
+      "classification_rationale": "headline contains VOLCANIC ACTIVITY BULLETIN",
+      "headline": "ATCSCC ADVZY 071 DCC 05/17/2026 VOLCANIC ACTIVITY BULLETIN - REVENTADOR"
+    }
+  ],
+  "groups": [
+    {
+      "group_id": "ground_stop_lifecycle",
+      "label": "Ground stop lifecycle",
+      "description": "CDM ground-stop creation, extension, and cancellation notices.",
+      "record_count": 26,
+      "candidate_subject_class_counts": {
+        "GroundDelayProgramTMI": 1,
+        "GroundStopTMI": 20,
+        "TrafficManagementInitiative": 5
+      },
+      "source_date_counts": {
+        "2026-05-14": 2,
+        "2026-05-15": 1,
+        "2026-05-16": 1,
+        "2026-05-17": 1,
+        "2026-05-18": 8,
+        "2026-05-19": 3,
+        "2026-05-20": 10
+      },
+      "priority_lane_counts": {
+        "1_rejection_adjudication": 17,
+        "3_standard_review": 9
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-021",
+        "ATCSCC-GOLD-023",
+        "ATCSCC-GOLD-024",
+        "ATCSCC-GOLD-025",
+        "ATCSCC-GOLD-026",
+        "ATCSCC-GOLD-027",
+        "ATCSCC-GOLD-028",
+        "ATCSCC-GOLD-029",
+        "ATCSCC-GOLD-030",
+        "ATCSCC-GOLD-031",
+        "ATCSCC-GOLD-032",
+        "ATCSCC-GOLD-052",
+        "ATCSCC-GOLD-053",
+        "ATCSCC-GOLD-054",
+        "ATCSCC-GOLD-055",
+        "ATCSCC-GOLD-057",
+        "ATCSCC-GOLD-058",
+        "ATCSCC-GOLD-060",
+        "ATCSCC-GOLD-068",
+        "ATCSCC-GOLD-069",
+        "ATCSCC-GOLD-073",
+        "ATCSCC-GOLD-076",
+        "ATCSCC-GOLD-080",
+        "ATCSCC-GOLD-083",
+        "ATCSCC-GOLD-091",
+        "ATCSCC-GOLD-092"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-021",
+          "headline": "ATCSCC ADVZY 089 BNA/ZME 05/14/2026 CDM GROUND STOP"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-023",
+          "headline": "ATCSCC ADVZY 163 DEN/ZDV 05/20/2026 CDM GROUND STOP"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-024",
+          "headline": "ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-025",
+          "headline": "ATCSCC ADVZY 144 DTW/ZOB 05/18/2026 CDM GROUND STOP"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-026",
+          "headline": "ATCSCC ADVZY 055 STL/ZKC 05/18/2026 CDM GROUND STOP"
+        }
+      ]
+    },
+    {
+      "group_id": "reroute_or_route_constraint",
+      "label": "Reroute or route constraint",
+      "description": "Route-required, oceanic-route-closure, reroute-cancellation, CDR, or SWAP advisories.",
+      "record_count": 25,
+      "candidate_subject_class_counts": {
+        "GroundStopTMI": 1,
+        "ReRouteTMI": 20,
+        "TrafficManagementInitiative": 4
+      },
+      "source_date_counts": {
+        "2026-05-15": 2,
+        "2026-05-16": 3,
+        "2026-05-17": 3,
+        "2026-05-18": 5,
+        "2026-05-19": 4,
+        "2026-05-20": 8
+      },
+      "priority_lane_counts": {
+        "1_rejection_adjudication": 12,
+        "2_high_cross_system_coverage": 4,
+        "3_standard_review": 9
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-001",
+        "ATCSCC-GOLD-005",
+        "ATCSCC-GOLD-007",
+        "ATCSCC-GOLD-009",
+        "ATCSCC-GOLD-010",
+        "ATCSCC-GOLD-011",
+        "ATCSCC-GOLD-012",
+        "ATCSCC-GOLD-013",
+        "ATCSCC-GOLD-014",
+        "ATCSCC-GOLD-015",
+        "ATCSCC-GOLD-016",
+        "ATCSCC-GOLD-039",
+        "ATCSCC-GOLD-040",
+        "ATCSCC-GOLD-041",
+        "ATCSCC-GOLD-042",
+        "ATCSCC-GOLD-044",
+        "ATCSCC-GOLD-056",
+        "ATCSCC-GOLD-072",
+        "ATCSCC-GOLD-079",
+        "ATCSCC-GOLD-082",
+        "ATCSCC-GOLD-084",
+        "ATCSCC-GOLD-090",
+        "ATCSCC-GOLD-095",
+        "ATCSCC-GOLD-097",
+        "ATCSCC-GOLD-098"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-001",
+          "headline": "ATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-005",
+          "headline": "ATCSCC ADVZY 059 DCC 05/19/2026 IAH HOU CDRS_FYI"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-007",
+          "headline": "ATCSCC ADVZY 051 DCC/ZDV 05/16/2026 DEN CDRS_FYI"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-009",
+          "headline": "ATCSCC ADVZY 040 DCC 05/20/2026 ROUTE RQD /FL"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-010",
+          "headline": "ATCSCC ADVZY 053 DCC 05/20/2026 ROUTE RQD /FL"
+        }
+      ]
+    },
+    {
+      "group_id": "volcanic_activity_bulletin",
+      "label": "Volcanic activity bulletin",
+      "description": "Volcanic-ash advisories carried through ATCSCC as generic traffic-management notices.",
+      "record_count": 19,
+      "candidate_subject_class_counts": {
+        "TrafficManagementInitiative": 19
+      },
+      "source_date_counts": {
+        "2026-05-14": 4,
+        "2026-05-15": 3,
+        "2026-05-16": 1,
+        "2026-05-17": 2,
+        "2026-05-18": 2,
+        "2026-05-19": 4,
+        "2026-05-20": 3
+      },
+      "priority_lane_counts": {
+        "3_standard_review": 19
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-046",
+        "ATCSCC-GOLD-047",
+        "ATCSCC-GOLD-049",
+        "ATCSCC-GOLD-050",
+        "ATCSCC-GOLD-051",
+        "ATCSCC-GOLD-061",
+        "ATCSCC-GOLD-062",
+        "ATCSCC-GOLD-066",
+        "ATCSCC-GOLD-067",
+        "ATCSCC-GOLD-070",
+        "ATCSCC-GOLD-074",
+        "ATCSCC-GOLD-075",
+        "ATCSCC-GOLD-077",
+        "ATCSCC-GOLD-078",
+        "ATCSCC-GOLD-085",
+        "ATCSCC-GOLD-086",
+        "ATCSCC-GOLD-094",
+        "ATCSCC-GOLD-096",
+        "ATCSCC-GOLD-100"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-046",
+          "headline": "ATCSCC ADVZY 040 DCC 05/18/2026 VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-047",
+          "headline": "ATCSCC ADVZY 033 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - PURACE"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-049",
+          "headline": "ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-050",
+          "headline": "ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-051",
+          "headline": "ATCSCC ADVZY 030 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - SANTA"
+        }
+      ]
+    },
+    {
+      "group_id": "ground_delay_program_lifecycle",
+      "label": "Ground delay program lifecycle",
+      "description": "CDM ground-delay program, proposed GDP, and GDP cancellation notices.",
+      "record_count": 12,
+      "candidate_subject_class_counts": {
+        "GroundDelayProgramTMI": 12
+      },
+      "source_date_counts": {
+        "2026-05-14": 1,
+        "2026-05-15": 3,
+        "2026-05-17": 1,
+        "2026-05-18": 3,
+        "2026-05-19": 2,
+        "2026-05-20": 2
+      },
+      "priority_lane_counts": {
+        "1_rejection_adjudication": 5,
+        "2_high_cross_system_coverage": 2,
+        "3_standard_review": 5
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-017",
+        "ATCSCC-GOLD-018",
+        "ATCSCC-GOLD-019",
+        "ATCSCC-GOLD-020",
+        "ATCSCC-GOLD-022",
+        "ATCSCC-GOLD-033",
+        "ATCSCC-GOLD-035",
+        "ATCSCC-GOLD-036",
+        "ATCSCC-GOLD-037",
+        "ATCSCC-GOLD-038",
+        "ATCSCC-GOLD-081",
+        "ATCSCC-GOLD-088"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-017",
+          "headline": "ATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGRAM"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-018",
+          "headline": "ATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DELAY PROGRAM"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-019",
+          "headline": "ATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGRAM"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-020",
+          "headline": "ATCSCC ADVZY 084 SFO/ZOA 05/15/2026 CDM GROUND DELAY PROGRAM"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-022",
+          "headline": "ATCSCC ADVZY 064 BNA/ZME 05/15/2026 CDM PROPOSED GROUND DELAY PROGRAM"
+        }
+      ]
+    },
+    {
+      "group_id": "airport_arrival_or_scheduling_delay",
+      "label": "Airport arrival or scheduling delay",
+      "description": "Airport arrival-delay, airport-scheduling-delay, and compacted-demand notices.",
+      "record_count": 10,
+      "candidate_subject_class_counts": {
+        "TrafficManagementInitiative": 10
+      },
+      "source_date_counts": {
+        "2026-05-14": 2,
+        "2026-05-15": 1,
+        "2026-05-16": 1,
+        "2026-05-17": 1,
+        "2026-05-18": 2,
+        "2026-05-19": 2,
+        "2026-05-20": 1
+      },
+      "priority_lane_counts": {
+        "1_rejection_adjudication": 5,
+        "3_standard_review": 5
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-002",
+        "ATCSCC-GOLD-003",
+        "ATCSCC-GOLD-004",
+        "ATCSCC-GOLD-008",
+        "ATCSCC-GOLD-059",
+        "ATCSCC-GOLD-063",
+        "ATCSCC-GOLD-064",
+        "ATCSCC-GOLD-071",
+        "ATCSCC-GOLD-087",
+        "ATCSCC-GOLD-099"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-002",
+          "headline": "ATCSCC ADVZY 063 SAN/ZLA 05/15/2026 SAN AIRPORT ARRIVAL DELAYS"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-003",
+          "headline": "ATCSCC ADVZY 069 LAS/ZLA 05/18/2026 LAS AIRPORT ARRIVAL DELAYS"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-004",
+          "headline": "ATCSCC ADVZY 059 PHLC/ZNY 05/14/2026 EWR AND SATELLITE AIRPORTS ARRIVAL DELAYS"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-008",
+          "headline": "ATCSCC ADVZY 019 ZMA/DCC 05/17/2026 SOUTH FLORIDA AIRPORTS ARRIVAL DELAYS"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-059",
+          "headline": "ATCSCC ADVZY 086 MSP/ZMP 05/14/2026 MSP AIRPORT ARRIVAL DELAYS"
+        }
+      ]
+    },
+    {
+      "group_id": "hotline_or_webpage_status",
+      "label": "Hotline or webpage status",
+      "description": "TCA/hotline page activation or termination status messages.",
+      "record_count": 3,
+      "candidate_subject_class_counts": {
+        "ReRouteTMI": 2,
+        "TrafficManagementInitiative": 1
+      },
+      "source_date_counts": {
+        "2026-05-16": 1,
+        "2026-05-17": 1,
+        "2026-05-19": 1
+      },
+      "priority_lane_counts": {
+        "3_standard_review": 3
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-043",
+        "ATCSCC-GOLD-048",
+        "ATCSCC-GOLD-089"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-043",
+          "headline": "ATCSCC ADVZY 008 DCC 05/19/2026 EN ROUTE TCA/HOTLINE WEB PAGE TERMINATION"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-048",
+          "headline": "ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-089",
+          "headline": "ATCSCC ADVZY 018 DCC 05/16/2026 EN ROUTE TCA/HOTLINE ISSUE REQUEST PAGE ACTIVATION"
+        }
+      ]
+    },
+    {
+      "group_id": "airport_diversion_recovery",
+      "label": "Airport diversion recovery",
+      "description": "Airport diversion-recovery activation notices.",
+      "record_count": 2,
+      "candidate_subject_class_counts": {
+        "GroundDelayProgramTMI": 2
+      },
+      "source_date_counts": {
+        "2026-05-14": 1,
+        "2026-05-18": 1
+      },
+      "priority_lane_counts": {
+        "3_standard_review": 2
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-034",
+        "ATCSCC-GOLD-093"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-034",
+          "headline": "ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-093",
+          "headline": "ATCSCC ADVZY 060 STL/ZKC 05/18/2026 STL AIRPORT DIVERSION RECOVERY ACTIVATED"
+        }
+      ]
+    },
+    {
+      "group_id": "special_or_flow_constraint_fyi",
+      "label": "Special mission or flow-constraint FYI",
+      "description": "Planning-only or FYI notices that are not clean active reroute/GDP/GS events.",
+      "record_count": 2,
+      "candidate_subject_class_counts": {
+        "ReRouteTMI": 1,
+        "TrafficManagementInitiative": 1
+      },
+      "source_date_counts": {
+        "2026-05-16": 1,
+        "2026-05-20": 1
+      },
+      "priority_lane_counts": {
+        "2_high_cross_system_coverage": 1,
+        "3_standard_review": 1
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-045",
+        "ATCSCC-GOLD-065"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-045",
+          "headline": "ATCSCC ADVZY 150 DCC/ZHU 05/20/2026 STARSHIP PRE-MISSION ADVISORY_FYI"
+        },
+        {
+          "sample_id": "ATCSCC-GOLD-065",
+          "headline": "ATCSCC ADVZY 061 DCC 05/16/2026 DEN CAPPING TUNNELING FYI"
+        }
+      ]
+    },
+    {
+      "group_id": "flight_plan_drop_time_status",
+      "label": "Flight plan drop time status",
+      "description": "Extended flight-plan drop-time implementation notices.",
+      "record_count": 1,
+      "candidate_subject_class_counts": {
+        "GroundDelayProgramTMI": 1
+      },
+      "source_date_counts": {
+        "2026-05-19": 1
+      },
+      "priority_lane_counts": {
+        "1_rejection_adjudication": 1
+      },
+      "sample_ids": [
+        "ATCSCC-GOLD-006"
+      ],
+      "example_headlines": [
+        {
+          "sample_id": "ATCSCC-GOLD-006",
+          "headline": "ATCSCC ADVZY 144 ZBW 05/19/2026 EXTENDED FLIGHT PLAN DROP TIMES IMPLEMENTED"
+        }
+      ]
+    }
+  ],
+  "use_in_experiment": "Use these groups for stratified error analysis and per-group reporting. They are not train/dev/test splits and do not create gold truth by themselves.",
+  "limitations": [
+    "Grouping is based on deterministic headline heuristics, not domain-expert taxonomy.",
+    "Small groups should be merged or reported descriptively if confidence intervals are unstable.",
+    "Ontology candidate classes and operational semantic groups intentionally differ for status/cancellation/FYI notices."
+  ]
+}

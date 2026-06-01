@@ -1,15 +1,15 @@
 # NASA ATMONTO Gold Review Progress
 
-- Status: `pending_manual_review`
+- Status: `ready_for_freeze`
 - Gold template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
 - Batch index: `data/evaluation/nasa_atmonto/review_batches/index.md`
 - Records: 100
-- Reviewed records: 0
-- Pending records: 100
-- Complete batches: 0 / 10
-- Validation status: `pending_manual_annotation`
+- Reviewed records: 100
+- Pending records: 0
+- Complete batches: 10 / 10
+- Validation status: `ready_for_scoring`
 - Validation errors: 0
-- Validation warnings: 100
+- Validation warnings: 0
 
 ## Completion Gate
 
@@ -19,13 +19,13 @@
 
 | Batch | Status | Reviewed | Pending | Candidate clusters | File |
 | --- | --- | ---: | ---: | ---: | --- |
-| `batch_01` | `not_started` | 0 | 10 | 282 | `data/evaluation/nasa_atmonto/review_batches/batch_01.md` |
-| `batch_02` | `not_started` | 0 | 10 | 356 | `data/evaluation/nasa_atmonto/review_batches/batch_02.md` |
-| `batch_03` | `not_started` | 0 | 10 | 324 | `data/evaluation/nasa_atmonto/review_batches/batch_03.md` |
-| `batch_04` | `not_started` | 0 | 10 | 312 | `data/evaluation/nasa_atmonto/review_batches/batch_04.md` |
-| `batch_05` | `not_started` | 0 | 10 | 233 | `data/evaluation/nasa_atmonto/review_batches/batch_05.md` |
-| `batch_06` | `not_started` | 0 | 10 | 299 | `data/evaluation/nasa_atmonto/review_batches/batch_06.md` |
-| `batch_07` | `not_started` | 0 | 10 | 255 | `data/evaluation/nasa_atmonto/review_batches/batch_07.md` |
-| `batch_08` | `not_started` | 0 | 10 | 242 | `data/evaluation/nasa_atmonto/review_batches/batch_08.md` |
-| `batch_09` | `not_started` | 0 | 10 | 261 | `data/evaluation/nasa_atmonto/review_batches/batch_09.md` |
-| `batch_10` | `not_started` | 0 | 10 | 255 | `data/evaluation/nasa_atmonto/review_batches/batch_10.md` |
+| `batch_01` | `complete` | 10 | 0 | 282 | `data/evaluation/nasa_atmonto/review_batches/batch_01.md` |
+| `batch_02` | `complete` | 10 | 0 | 356 | `data/evaluation/nasa_atmonto/review_batches/batch_02.md` |
+| `batch_03` | `complete` | 10 | 0 | 324 | `data/evaluation/nasa_atmonto/review_batches/batch_03.md` |
+| `batch_04` | `complete` | 10 | 0 | 312 | `data/evaluation/nasa_atmonto/review_batches/batch_04.md` |
+| `batch_05` | `complete` | 10 | 0 | 233 | `data/evaluation/nasa_atmonto/review_batches/batch_05.md` |
+| `batch_06` | `complete` | 10 | 0 | 299 | `data/evaluation/nasa_atmonto/review_batches/batch_06.md` |
+| `batch_07` | `complete` | 10 | 0 | 255 | `data/evaluation/nasa_atmonto/review_batches/batch_07.md` |
+| `batch_08` | `complete` | 10 | 0 | 242 | `data/evaluation/nasa_atmonto/review_batches/batch_08.md` |
+| `batch_09` | `complete` | 10 | 0 | 261 | `data/evaluation/nasa_atmonto/review_batches/batch_09.md` |
+| `batch_10` | `complete` | 10 | 0 | 255 | `data/evaluation/nasa_atmonto/review_batches/batch_10.md` |

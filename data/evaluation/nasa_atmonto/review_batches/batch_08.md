@@ -16,7 +16,7 @@
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=64
 - Candidate class: `TrafficManagementInitiative`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 23
 
 Source excerpt:
@@ -60,7 +60,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05172026&advn=65
 - Candidate class: `TrafficManagementInitiative`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 26
 
 Source excerpt:
@@ -107,7 +107,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=6
 - Candidate class: `GroundStopTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 26
 
 Source excerpt:
@@ -154,7 +154,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05142026&advn=73
 - Candidate class: `TrafficManagementInitiative`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 32
 
 Source excerpt:
@@ -207,7 +207,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=119
 - Candidate class: `TrafficManagementInitiative`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 20
 
 Source excerpt:
@@ -248,7 +248,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=13
 - Candidate class: `TrafficManagementInitiative`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 23
 
 Source excerpt:
@@ -292,7 +292,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=1
 - Candidate class: `TrafficManagementInitiative`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 28
 
 Source excerpt:
@@ -341,7 +341,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=26
 - Candidate class: `TrafficManagementInitiative`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 22
 
 Source excerpt:
@@ -384,7 +384,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05152026&advn=51
 - Candidate class: `ReRouteTMI`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 23
 
 Source excerpt:
@@ -428,7 +428,7 @@ Review actions:
 
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=148
 - Candidate class: `TrafficManagementInitiative`
-- Current status: `pending_manual_gold_annotation`
+- Current status: `reviewed`
 - Candidate clusters: 19
 
 Source excerpt:

@@ -25,6 +25,29 @@ scored on the same 100 records. The gold set is the evaluation target for
 triple precision, recall, F1, and manual semantic correctness. NASA ATMONTO is
 the schema constraint, not the ground truth by itself.
 
+## Assisted Review Roles
+
+Use the gold review as an assisted adjudication process rather than an unaided
+aviation-expert task. The preferred workflow is:
+
+- Primary model screening: propose valid candidate IDs, invalid candidate IDs,
+  cross-system fact IDs, missing facts, and rejected-fact decisions from the
+  advisory text and candidate package.
+- Source-evidence audit: independently check that every accepted fact is
+  justified by a specific `source_text` excerpt and that the evidence is not
+  merely copied from a hallucinated or over-broad model output.
+- Adversarial ontology/profile audit: challenge every `extractor_bug` versus
+  `profile_gap` label, every normalized value, and every schema-valid
+  cross-system fact that may be semantically too broad.
+- User adjudication: escalate only conflicts, low-confidence facts, and
+  proposed profile extensions to the user with short evidence snippets and
+  explicit accept/revise choices.
+
+Model suggestions, reviewer agreement, and validator acceptance are review aids;
+none of them is gold truth by itself. A record should remain
+`pending_manual_gold_annotation` when the evidence auditors disagree or when the
+source text is too ambiguous for a stable fact.
+
 ## Record Status
 
 Use one of these statuses:
@@ -91,6 +114,28 @@ Use these review outcomes consistently:
 - Profile-gap candidate: the source supports the fact, but the current NASA
   ATMONTO runtime profile rejects it. Record the rejection decision, but do not
   count the fact as accepted gold unless a reviewed profile bridge is added.
+
+## Reviewed Normalization Policy
+
+Normalized gold facts are allowed only when the normalization is explicit,
+reviewed, and traceable to source text. The approved normalization for this
+ATCSCC gold set is:
+
+- `extensionProbability`: source `MODERATE` maps to canonical `MEDIUM`.
+
+When this mapping is used, do not directly accept a model-generated `MEDIUM`
+fact as gold merely because it passed the validator. Enter a corrected manual
+`missing_facts` item with:
+
+- `value`: `MEDIUM`
+- `raw_value`: `MODERATE`
+- `value_normalization`: `reviewed_enum_mapping_moderate_to_medium`
+- `normalization_policy`: `extensionProbability:MODERATE->MEDIUM`
+- tight `evidence_text`, such as `PROBABILITY OF EXTENSION: MODERATE`
+
+If a normalized value is plausible but not covered by this policy, keep the
+record pending or mark the rejected fact as `manual_review_only` until the
+mapping is reviewed.
 
 When in doubt, keep the record pending and add a note rather than marking it
 `reviewed`.

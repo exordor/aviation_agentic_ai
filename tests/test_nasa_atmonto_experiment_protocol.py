@@ -20,20 +20,19 @@ def test_nasa_atmonto_gold_sample_manifest_and_template_are_consistent() -> None
     assert manifest["sample_size"] == len(records)
     assert len(manifest["selected_source_ids"]) == len(records)
     assert {record["source_id"] for record in records} == set(manifest["selected_source_ids"])
-    assert all(
-        record["gold_annotation"]["annotation_status"] == "pending_manual_gold_annotation"
-        for record in records
-    )
+    assert all(record["gold_annotation"]["annotation_status"] == "reviewed" for record in records)
     assert all(
         record["gold_annotation"]["review_checklist"]
         == {
-            "source_text_checked": False,
-            "semantic_rubric_checked": False,
-            "profile_gap_boundary_checked": False,
-            "missing_facts_checked": False,
+            "source_text_checked": True,
+            "semantic_rubric_checked": True,
+            "profile_gap_boundary_checked": True,
+            "missing_facts_checked": True,
         }
         for record in records
     )
+    assert sum(len(record["gold_annotation"]["valid_facts"]) for record in records) == 462
+    assert sum(len(record["gold_annotation"]["missing_facts"]) for record in records) == 181
 
 
 def test_nasa_atmonto_rejection_analysis_covers_all_rejected_facts() -> None:
@@ -74,8 +73,16 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
         "Manual Semantic Correctness",
         "Falsified if",
         "reports/stages/nasa_atmonto_gold_review_session_plan.md",
+        "reports/stages/nasa_atmonto_gold_review_multiround_audit.md",
         "prepare_nasa_atmonto_gold_review_session_plan.py",
         "100 sampled advisories have reviewed gold annotations",
+        "Assisted Gold Adjudication Workflow",
+        "Adversarial ontology/profile review",
+        "Gold truth is not created by model agreement alone",
+        "multi-round and multi-perspective",
+        "extensionProbability:MODERATE->MEDIUM",
+        "raw_value",
+        "value_normalization",
     ]:
         assert required in protocol
 
@@ -83,8 +90,10 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
 def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
     protocol = Path("docs/experiment_protocol.md").read_text(encoding="utf-8")
 
-    assert "supported as structural-only evidence" in protocol
-    assert "semantic preservation is pending reviewed gold" in protocol
+    assert "supported by the formal scoring report" in protocol
+    assert "supported on the reviewed 100-record sample" in protocol
+    assert "Semantic Stratification" in protocol
+    assert "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl" in protocol
     assert "all 288 pilot rejections" in protocol
     assert "13 `extractor_bug` facts" in protocol
     assert "275 `profile_gap`" in protocol
@@ -122,5 +131,17 @@ def test_gold_annotation_guide_defines_manual_semantic_rubric() -> None:
         "review_checklist",
         "semantic_rubric_checked",
         "keep the record pending",
+        "Assisted Review Roles",
+        "Primary model screening",
+        "Source-evidence audit",
+        "Adversarial ontology/profile audit",
+        "User adjudication",
+        "none of them is gold truth by itself",
+        "Reviewed Normalization Policy",
+        "extensionProbability",
+        "MODERATE",
+        "MEDIUM",
+        "reviewed_enum_mapping_moderate_to_medium",
+        "normalization_policy",
     ]:
         assert required in guide

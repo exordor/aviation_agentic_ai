@@ -42,6 +42,8 @@ GOLD_REVIEW_WORKLOAD_PLAN_JSON = Path(
 GOLD_REVIEW_WORKLOAD_PLAN_MD = Path(
     "reports/stages/nasa_atmonto_gold_review_workload_plan.md"
 )
+GOLD_SEMANTIC_GROUPS_JSON = Path("reports/stages/nasa_atmonto_gold_semantic_groups.json")
+GOLD_SEMANTIC_GROUPS_MD = Path("reports/stages/nasa_atmonto_gold_semantic_groups.md")
 GOLD_REVIEW_SESSION_PLAN_JSON = Path(
     "reports/stages/nasa_atmonto_gold_review_session_plan.json"
 )
@@ -968,9 +970,16 @@ def build_gold_freeze_status(
     )
     ready = validation["status"] == "ready_for_scoring"
     output_file = repo_root / output
+    output_exists = output_file.exists()
+    output_matches_template = output_exists and read_jsonl(output_file) == gold_records
+    status = "blocked_pending_review"
+    if ready and output_matches_template:
+        status = "frozen"
+    elif ready:
+        status = "ready_to_freeze"
     return {
         "source_family": "nasa_atmonto_gold_freeze_status",
-        "status": "ready_to_freeze" if ready else "blocked_pending_review",
+        "status": status,
         "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
         "gold_manifest": project_relative_path(repo_root / GOLD_MANIFEST_PATH, repo_root),
         "reviewed_gold_output": project_relative_path(output_file, repo_root),
@@ -981,8 +990,9 @@ def build_gold_freeze_status(
         "pending_record_count": validation["pending_record_count"],
         "error_count": validation["error_count"],
         "warning_count": validation["warning_count"],
-        "output_exists": output_file.exists(),
-        "output_sha256": file_sha256(output_file) if output_file.exists() else None,
+        "output_exists": output_exists,
+        "output_matches_template": output_matches_template,
+        "output_sha256": file_sha256(output_file) if output_exists else None,
         "completion_gate": (
             "The reviewed gold JSONL may be frozen only when gold annotation validation "
             "status is ready_for_scoring."
@@ -1005,6 +1015,7 @@ def gold_freeze_status_markdown(report: dict[str, Any]) -> str:
             f"- Errors: {report['error_count']}",
             f"- Warnings: {report['warning_count']}",
             f"- Output exists: `{report['output_exists']}`",
+            f"- Output matches template: `{report['output_matches_template']}`",
             f"- Output SHA-256: `{report['output_sha256']}`",
             "",
             "## Completion Gate",
@@ -1837,6 +1848,255 @@ def review_priority_lane(record: dict[str, Any]) -> str:
     if record["complexity_tier"] == "heavy":
         return "2_high_cross_system_coverage"
     return "3_standard_review"
+
+
+SEMANTIC_GROUP_DEFINITIONS: dict[str, dict[str, str]] = {
+    "ground_stop_lifecycle": {
+        "label": "Ground stop lifecycle",
+        "description": "CDM ground-stop creation, extension, and cancellation notices.",
+    },
+    "reroute_or_route_constraint": {
+        "label": "Reroute or route constraint",
+        "description": "Route-required, oceanic-route-closure, reroute-cancellation, CDR, or SWAP advisories.",
+    },
+    "volcanic_activity_bulletin": {
+        "label": "Volcanic activity bulletin",
+        "description": "Volcanic-ash advisories carried through ATCSCC as generic traffic-management notices.",
+    },
+    "ground_delay_program_lifecycle": {
+        "label": "Ground delay program lifecycle",
+        "description": "CDM ground-delay program, proposed GDP, and GDP cancellation notices.",
+    },
+    "airport_arrival_or_scheduling_delay": {
+        "label": "Airport arrival or scheduling delay",
+        "description": "Airport arrival-delay, airport-scheduling-delay, and compacted-demand notices.",
+    },
+    "hotline_or_webpage_status": {
+        "label": "Hotline or webpage status",
+        "description": "TCA/hotline page activation or termination status messages.",
+    },
+    "airport_diversion_recovery": {
+        "label": "Airport diversion recovery",
+        "description": "Airport diversion-recovery activation notices.",
+    },
+    "special_or_flow_constraint_fyi": {
+        "label": "Special mission or flow-constraint FYI",
+        "description": "Planning-only or FYI notices that are not clean active reroute/GDP/GS events.",
+    },
+    "flight_plan_drop_time_status": {
+        "label": "Flight plan drop time status",
+        "description": "Extended flight-plan drop-time implementation notices.",
+    },
+    "other_tmi_status": {
+        "label": "Other TMI status",
+        "description": "Residual ATCSCC status notices not captured by a higher-precedence group.",
+    },
+}
+
+
+def atcscc_advisory_headline(source_text: object) -> str:
+    for line in str(source_text or "").splitlines():
+        headline = compact_text(line)
+        if headline.startswith("ATCSCC ADVZY"):
+            return headline
+    return ""
+
+
+def classify_atcscc_semantic_group(headline: str) -> tuple[str, str]:
+    text = headline.upper()
+    if "VOLCANIC ACTIVITY BULLETIN" in text:
+        return "volcanic_activity_bulletin", "headline contains VOLCANIC ACTIVITY BULLETIN"
+    if "GROUND DELAY PROGRAM" in text:
+        return "ground_delay_program_lifecycle", "headline contains GROUND DELAY PROGRAM"
+    if "GROUND STOP" in text or "CDM GS CNX" in text:
+        return "ground_stop_lifecycle", "headline contains GROUND STOP or CDM GS CNX"
+    if (
+        "AIRPORT ARRIVAL DELAYS" in text
+        or "AIRPORTS ARRIVAL DELAYS" in text
+        or "AIRPORT SCHEDULING DELAYS" in text
+    ):
+        return (
+            "airport_arrival_or_scheduling_delay",
+            "headline contains airport arrival/scheduling delay language",
+        )
+    if (
+        "ROUTE RQD" in text
+        or "ROUTE CLOSURE" in text
+        or "REROUTE" in text
+        or "CDRS" in text
+        or "SWAP" in text
+    ):
+        return "reroute_or_route_constraint", "headline contains route, CDR, reroute, or SWAP language"
+    if "DIVERSION RECOVERY" in text:
+        return "airport_diversion_recovery", "headline contains DIVERSION RECOVERY"
+    if "HOTLINE" in text or "WEB PAGE" in text:
+        return "hotline_or_webpage_status", "headline contains HOTLINE or WEB PAGE"
+    if "FLIGHT PLAN DROP TIMES" in text:
+        return "flight_plan_drop_time_status", "headline contains FLIGHT PLAN DROP TIMES"
+    if "STARSHIP" in text or "CAPPING TUNNELING" in text:
+        return "special_or_flow_constraint_fyi", "headline contains STARSHIP or CAPPING TUNNELING"
+    return "other_tmi_status", "no higher-precedence semantic headline rule matched"
+
+
+def build_gold_semantic_groups(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    workload_plan: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    workload_plan = workload_plan or build_gold_review_workload_plan(repo_root)
+    source_records = {record["sample_id"]: record for record in read_jsonl(repo_root / GOLD_TEMPLATE_PATH)}
+    group_records: list[dict[str, Any]] = []
+    group_counts: Counter[str] = Counter()
+    group_class_counts: dict[str, Counter[str]] = {}
+    group_date_counts: dict[str, Counter[str]] = {}
+    group_priority_counts: dict[str, Counter[str]] = {}
+    class_counts: Counter[str] = Counter()
+    date_counts: Counter[str] = Counter()
+
+    for review_record in workload_plan["records"]:
+        sample_id = str(review_record["sample_id"])
+        source_record = source_records[sample_id]
+        headline = atcscc_advisory_headline(source_record.get("source_text"))
+        group_id, rationale = classify_atcscc_semantic_group(headline)
+        candidate_class = str(review_record.get("candidate_subject_class") or "")
+        source_date = str(source_record.get("advisory_date") or str(review_record["source_id"]).split(":", 1)[0])
+        priority_lane = str(review_record.get("priority_lane") or "")
+        group_counts[group_id] += 1
+        class_counts[candidate_class] += 1
+        date_counts[source_date] += 1
+        group_class_counts.setdefault(group_id, Counter())[candidate_class] += 1
+        group_date_counts.setdefault(group_id, Counter())[source_date] += 1
+        group_priority_counts.setdefault(group_id, Counter())[priority_lane] += 1
+        group_records.append(
+            {
+                "sample_id": sample_id,
+                "source_id": review_record["source_id"],
+                "advisory_date": source_date,
+                "batch_id": review_record["batch_id"],
+                "priority_lane": priority_lane,
+                "candidate_subject_class": candidate_class,
+                "semantic_group_id": group_id,
+                "semantic_group_label": SEMANTIC_GROUP_DEFINITIONS[group_id]["label"],
+                "classification_basis": "ATCSCC advisory headline heuristic",
+                "classification_rationale": rationale,
+                "headline": headline,
+            }
+        )
+
+    groups = []
+    for group_id, count in group_counts.most_common():
+        records = [record for record in group_records if record["semantic_group_id"] == group_id]
+        groups.append(
+            {
+                "group_id": group_id,
+                "label": SEMANTIC_GROUP_DEFINITIONS[group_id]["label"],
+                "description": SEMANTIC_GROUP_DEFINITIONS[group_id]["description"],
+                "record_count": count,
+                "candidate_subject_class_counts": dict(sorted(group_class_counts[group_id].items())),
+                "source_date_counts": dict(sorted(group_date_counts[group_id].items())),
+                "priority_lane_counts": dict(sorted(group_priority_counts[group_id].items())),
+                "sample_ids": [record["sample_id"] for record in records],
+                "example_headlines": [
+                    {
+                        "sample_id": record["sample_id"],
+                        "headline": record["headline"],
+                    }
+                    for record in records[:5]
+                ],
+            }
+        )
+
+    min_group_count = min(group_counts.values()) if group_counts else 0
+    return {
+        "source_family": "nasa_atmonto_gold_semantic_groups",
+        "status": "ready_for_stratified_reporting",
+        "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "workload_plan": project_relative_path(repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD, repo_root),
+        "semantic_groups_json": project_relative_path(repo_root / GOLD_SEMANTIC_GROUPS_JSON, repo_root),
+        "semantic_groups_markdown": project_relative_path(repo_root / GOLD_SEMANTIC_GROUPS_MD, repo_root),
+        "record_count": len(group_records),
+        "semantic_group_count": len(groups),
+        "semantic_group_counts": dict(group_counts.most_common()),
+        "candidate_subject_class_counts": dict(sorted(class_counts.items())),
+        "source_date_counts": dict(sorted(date_counts.items())),
+        "minimum_semantic_group_count": min_group_count,
+        "records": group_records,
+        "groups": groups,
+        "use_in_experiment": (
+            "Use these groups for stratified error analysis and per-group reporting. "
+            "They are not train/dev/test splits and do not create gold truth by themselves."
+        ),
+        "limitations": [
+            "Grouping is based on deterministic headline heuristics, not domain-expert taxonomy.",
+            "Small groups should be merged or reported descriptively if confidence intervals are unstable.",
+            "Ontology candidate classes and operational semantic groups intentionally differ for status/cancellation/FYI notices.",
+        ],
+    }
+
+
+def gold_semantic_groups_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Gold Semantic Groups",
+        "",
+        "## Material Passport",
+        "",
+        "- Artifact: semantic grouping report for the 100-record ATCSCC gold-set candidate.",
+        f"- Gold template: `{report['gold_template']}`",
+        f"- Workload plan: `{report['workload_plan']}`",
+        "- Classification method: deterministic ATCSCC advisory headline heuristics.",
+        "- Boundary: grouping is for stratified analysis; it is not an annotation decision and not a train/dev/test split.",
+        "",
+        "## Summary",
+        "",
+        f"- Records: {report['record_count']}",
+        f"- Semantic groups: {report['semantic_group_count']}",
+        f"- Minimum group size: {report['minimum_semantic_group_count']}",
+        f"- Candidate class counts: `{json.dumps(report['candidate_subject_class_counts'], sort_keys=True)}`",
+        f"- Source-date counts: `{json.dumps(report['source_date_counts'], sort_keys=True)}`",
+        "",
+        "## Semantic Groups",
+        "",
+        "| Group | Label | Records | Candidate classes | Priority lanes | Example samples |",
+        "| --- | --- | ---: | --- | --- | --- |",
+    ]
+    for group in report["groups"]:
+        lines.append(
+            "| "
+            f"`{group['group_id']}` | "
+            f"{group['label']} | "
+            f"{group['record_count']} | "
+            f"`{json.dumps(group['candidate_subject_class_counts'], sort_keys=True)}` | "
+            f"`{json.dumps(group['priority_lane_counts'], sort_keys=True)}` | "
+            f"`{', '.join(group['sample_ids'][:8])}` |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Records",
+            "",
+            "| Sample | Source | Date | Batch | Candidate class | Semantic group | Headline |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for record in report["records"]:
+        lines.append(
+            "| "
+            f"`{record['sample_id']}` | "
+            f"`{record['source_id']}` | "
+            f"`{record['advisory_date']}` | "
+            f"`{record['batch_id']}` | "
+            f"`{record['candidate_subject_class']}` | "
+            f"`{record['semantic_group_id']}` | "
+            f"{record['headline']} |"
+        )
+    lines.extend(["", "## Use In Experiment", "", f"- {report['use_in_experiment']}", ""])
+    lines.append("## Limitations")
+    lines.append("")
+    for limitation in report["limitations"]:
+        lines.append(f"- {limitation}")
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def estimate_review_minutes(
@@ -5749,6 +6009,46 @@ def property_level_semantic_metrics(
     return rows
 
 
+def semantic_group_semantic_metrics(
+    *,
+    predictions: list[dict[str, Any]],
+    gold_records: list[dict[str, Any]],
+    semantic_groups: dict[str, Any],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    gold_by_source_id = {str(record.get("source_id")): record for record in gold_records}
+    for group in semantic_groups.get("groups", []):
+        source_ids = {
+            str(record.get("source_id"))
+            for record in semantic_groups.get("records", [])
+            if record.get("semantic_group_id") == group.get("group_id")
+        }
+        group_gold_records = [
+            gold_by_source_id[source_id]
+            for source_id in sorted(source_ids)
+            if source_id in gold_by_source_id
+        ]
+        group_predictions = [
+            fact for fact in predictions if str(fact.get("source_id")) in source_ids
+        ]
+        rows.append(
+            {
+                "group_id": group["group_id"],
+                "label": group["label"],
+                "record_count": group["record_count"],
+                "gold_fact_count": len(gold_fact_keys(group_gold_records)),
+                "predicted_fact_count": len(
+                    {canonical_fact_key(fact) for fact in group_predictions}
+                ),
+                "semantic_metrics": semantic_metrics(
+                    predictions=group_predictions,
+                    gold_records=group_gold_records,
+                ),
+            }
+        )
+    return rows
+
+
 def formal_scoring_gold_source(repo_root: Path, selected_ids: set[str]) -> dict[str, Any]:
     reviewed_path = repo_root / GOLD_REVIEWED_PATH
     template_records = read_jsonl(repo_root / GOLD_TEMPLATE_PATH)
@@ -5801,6 +6101,7 @@ def score_system_predictions(
     input_records: list[dict[str, Any]],
     gold_records: list[dict[str, Any]],
     schema_slice: dict[str, Any],
+    semantic_groups: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     output_path = repo_root / system.expected_output
     parse_result = read_jsonl_lenient(output_path)
@@ -5819,6 +6120,7 @@ def score_system_predictions(
             "structural_metrics": None,
             "semantic_metrics": None,
             "property_level_semantic_metrics": [],
+            "semantic_group_metrics": [],
         }
 
     json_metrics = prediction_json_metrics(parse_result=parse_result, selected_ids=selected_ids)
@@ -5848,6 +6150,15 @@ def score_system_predictions(
                 gold_records=gold_records,
             )
             if semantic["available"]
+            else []
+        ),
+        "semantic_group_metrics": (
+            semantic_group_semantic_metrics(
+                predictions=prediction_facts,
+                gold_records=gold_records,
+                semantic_groups=semantic_groups,
+            )
+            if semantic["available"] and semantic_groups
             else []
         ),
     }
@@ -6307,6 +6618,7 @@ def build_formal_experiment_score_report(
     gold_source = formal_scoring_gold_source(repo_root, selected_ids)
     gold_records = gold_source["records"]
     gold_status = gold_source["gold_status"]
+    semantic_groups = build_gold_semantic_groups(repo_root)
     system_scores = [
         score_system_predictions(
             system=system,
@@ -6315,6 +6627,7 @@ def build_formal_experiment_score_report(
             input_records=input_records,
             gold_records=gold_records,
             schema_slice=schema_slice,
+            semantic_groups=semantic_groups,
         )
         for system in SYSTEMS
     ]
@@ -6363,6 +6676,11 @@ def build_formal_experiment_score_report(
             if key != "records"
         },
         "gold_status": gold_status,
+        "semantic_groups": {
+            key: value
+            for key, value in semantic_groups.items()
+            if key != "records"
+        },
         "systems": system_scores,
         "rejection_adjudication": {
             key: value
@@ -6380,6 +6698,7 @@ def build_formal_experiment_score_report(
             "triple_precision",
             "triple_recall",
             "triple_f1",
+            "semantic_group_triple_precision_recall_f1",
             "repair_success_rate",
             "manual_semantic_correctness",
         ],
@@ -6468,6 +6787,37 @@ def score_report_markdown(report: dict[str, Any]) -> str:
                 f"{metric_interval_text(values['precision'])} | "
                 f"{metric_interval_text(values['recall'])} | "
                 f"{metric_interval_text(values['f1'])} |"
+            )
+    group_rows = [
+        (score["system_id"], row)
+        for score in report["systems"]
+        for row in score.get("semantic_group_metrics", [])
+        if (row.get("semantic_metrics") or {}).get("available")
+    ]
+    if group_rows:
+        lines.extend(
+            [
+                "",
+                "## Semantic Group Metrics",
+                "",
+                "- Semantic groups are stratified reporting slices, not train/dev/test splits.",
+                "",
+                "| System | Group | Records | Gold facts | Predicted facts | Precision | Recall | F1 |",
+                "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+            ]
+        )
+        for system_id, row in group_rows:
+            metrics = row["semantic_metrics"]
+            lines.append(
+                "| "
+                f"`{system_id}` | "
+                f"`{row['group_id']}` | "
+                f"{row['record_count']} | "
+                f"{row['gold_fact_count']} | "
+                f"{row['predicted_fact_count']} | "
+                f"{metric_value_text(metrics.get('precision'))} | "
+                f"{metric_value_text(metrics.get('recall'))} | "
+                f"{metric_value_text(metrics.get('f1'))} |"
             )
     adjudication = report["rejection_adjudication"]
     lines.extend(
@@ -6622,6 +6972,10 @@ def build_formal_experiment_readiness(
                 repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD,
                 repo_root,
             ),
+            "semantic_groups": project_relative_path(
+                repo_root / GOLD_SEMANTIC_GROUPS_MD,
+                repo_root,
+            ),
             "session_plan": project_relative_path(
                 repo_root / GOLD_REVIEW_SESSION_PLAN_MD,
                 repo_root,
@@ -6686,9 +7040,14 @@ def build_manual_gold_review_kickoff(
     lanes = priority_packets.get("lanes", [])
     first_lane = lanes[0] if lanes else {}
     first_record = (first_lane.get("records") or [{}])[0]
-    next_session = session_plan.get("next_session") or (session_plan.get("sessions") or [{}])[0]
+    complete = bool(gold_status.get("complete"))
+    next_session = (
+        None
+        if complete
+        else session_plan.get("next_session") or (session_plan.get("sessions") or [{}])[0]
+    )
     return {
-        "status": "ready_for_manual_gold_review" if not gold_status.get("complete") else "complete",
+        "status": "complete" if complete else "ready_for_manual_gold_review",
         "reviewed_record_count": gold_status.get("reviewed_record_count", 0),
         "pending_record_count": gold_status.get("pending_record_count", 0),
         "decision_progress_status": decision_progress.get("status"),
@@ -6712,7 +7071,9 @@ def build_manual_gold_review_kickoff(
             "first_decision_template": first_record.get("decision_template"),
             "first_batch_markdown": first_record.get("batch_markdown"),
         },
-        "next_review_session": {
+        "next_review_session": None
+        if complete
+        else {
             "session_id": next_session.get("session_id"),
             "status": next_session.get("status"),
             "record_count": next_session.get("record_count"),
@@ -6750,6 +7111,7 @@ def markdown_report(report: dict[str, Any]) -> str:
         f"- Gold manifest: `{report['gold_manifest']}`",
         f"- Gold template: `{report['gold_template']}`",
         f"- Workload plan: `{report['manual_review_artifacts']['workload_plan']}`",
+        f"- Semantic groups: `{report['manual_review_artifacts']['semantic_groups']}`",
         f"- Session plan: `{report['manual_review_artifacts']['session_plan']}`",
         f"- Priority packets: `{report['manual_review_artifacts']['priority_packets']}`",
         f"- Review progress: `{report['manual_review_artifacts']['progress']}`",
@@ -6789,19 +7151,28 @@ def markdown_report(report: dict[str, Any]) -> str:
             "- First sample: "
             f"`{first_lane['first_sample_id']}` / `{first_lane['first_source_id']}` "
             f"via `{first_lane['first_decision_template']}`",
-            "- Next review session: "
-            f"`{next_session['session_id']}` ({next_session['record_count']} records, "
-            f"{next_session['estimated_review_minutes']} est. min, "
-            f"status=`{next_session['status']}`) "
-            f"from `{next_session['session_plan_markdown']}`",
-            "- Next session sample: "
-            f"`{next_session['first_sample_id']}` / `{next_session['first_source_id']}`",
             f"- Boundary: {kickoff['review_boundary']}",
             "",
             "### Next Commands",
             "",
         ]
     )
+    if next_session:
+        lines.insert(
+            -3,
+            "- Next review session: "
+            f"`{next_session['session_id']}` ({next_session['record_count']} records, "
+            f"{next_session['estimated_review_minutes']} est. min, "
+            f"status=`{next_session['status']}`) "
+            f"from `{next_session['session_plan_markdown']}`",
+        )
+        lines.insert(
+            -3,
+            "- Next session sample: "
+            f"`{next_session['first_sample_id']}` / `{next_session['first_source_id']}`",
+        )
+    else:
+        lines.insert(-3, "- Next review session: `none`; gold review is complete.")
     for command in kickoff["next_commands"]:
         lines.append(f"- `{command}`")
     lines.extend(
@@ -6872,6 +7243,7 @@ def run_formal_experiment_readiness(
     candidate_review = build_system_candidate_review_package(repo_root)
     batch_report = build_gold_review_batches(repo_root, candidate_review=candidate_review)
     workload_plan = build_gold_review_workload_plan(repo_root)
+    semantic_groups = build_gold_semantic_groups(repo_root, workload_plan=workload_plan)
     priority_packets = build_gold_review_priority_packets(repo_root)
     existing_decision_root = repo_root / GOLD_REVIEW_DECISION_DIR
     existing_decisions = (
@@ -6896,6 +7268,7 @@ def run_formal_experiment_readiness(
     write_json(repo_root / REJECTION_ADJUDICATION_JSON, rejection_adjudication)
     write_json(repo_root / GOLD_REVIEW_PROGRESS_JSON, progress_report)
     write_json(repo_root / GOLD_REVIEW_WORKLOAD_PLAN_JSON, workload_plan)
+    write_json(repo_root / GOLD_SEMANTIC_GROUPS_JSON, semantic_groups)
     write_json(
         repo_root / GOLD_REVIEW_PRIORITY_PACKET_JSON,
         gold_review_priority_packet_summary(priority_packets),
@@ -6980,6 +7353,11 @@ def run_formal_experiment_readiness(
     (repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD).write_text(
         gold_review_workload_plan_markdown(workload_plan),
+        encoding="utf-8",
+    )
+    (repo_root / GOLD_SEMANTIC_GROUPS_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_SEMANTIC_GROUPS_MD).write_text(
+        gold_semantic_groups_markdown(semantic_groups),
         encoding="utf-8",
     )
     (repo_root / GOLD_REVIEW_PRIORITY_PACKET_DIR).mkdir(parents=True, exist_ok=True)
@@ -7077,6 +7455,14 @@ def run_formal_experiment_readiness(
         ),
         "gold_review_workload_plan_markdown": project_relative_path(
             repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD,
+            repo_root,
+        ),
+        "gold_semantic_groups_json": project_relative_path(
+            repo_root / GOLD_SEMANTIC_GROUPS_JSON,
+            repo_root,
+        ),
+        "gold_semantic_groups_markdown": project_relative_path(
+            repo_root / GOLD_SEMANTIC_GROUPS_MD,
             repo_root,
         ),
         "gold_review_session_plan_json": project_relative_path(
