@@ -12,6 +12,38 @@
     "decision_templates": "data/evaluation/nasa_atmonto/review_decisions/index.md",
     "progress": "data/evaluation/nasa_atmonto/gold_review_progress.md"
   },
+  "manual_gold_review_kickoff": {
+    "status": "ready_for_manual_gold_review",
+    "reviewed_record_count": 0,
+    "pending_record_count": 100,
+    "decision_progress_status": "not_started",
+    "ready_to_apply_record_count": 0,
+    "not_started_record_count": 100,
+    "completed_rejected_fact_decision_count": 0,
+    "rejected_fact_decision_count": 48,
+    "complete_batch_count": 0,
+    "batch_count": 10,
+    "first_priority_lane": {
+      "lane_id": "1_rejection_adjudication",
+      "label": "Rejected-fact adjudication first",
+      "record_count": 40,
+      "estimated_review_minutes": 808,
+      "packet_markdown": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md",
+      "first_sample_id": "ATCSCC-GOLD-024",
+      "first_source_id": "2026-05-18:136",
+      "first_batch_id": "batch_03",
+      "first_decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
+      "first_batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
+    },
+    "next_commands": [
+      "uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py",
+      "uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py",
+      "uv run python scripts/validate_nasa_atmonto_gold_annotations.py",
+      "uv run python scripts/freeze_nasa_atmonto_gold_set.py",
+      "uv run python scripts/run_nasa_atmonto_formal_experiment.py --skip-prepare-inputs"
+    ],
+    "review_boundary": "Priority packets and suggested_* fields are work aids only. A record becomes gold only after source review, completed review_checklist, confirmed decisions, validation, and frozen reviewed output."
+  },
   "gold_status": {
     "record_count": 100,
     "status_counts": {

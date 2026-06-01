@@ -181,6 +181,15 @@ def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> No
     assert report["manual_review_artifacts"]["priority_packets"].endswith(
         "review_priority_packets/index.md"
     )
+    kickoff = report["manual_gold_review_kickoff"]
+    assert kickoff["status"] == "ready_for_manual_gold_review"
+    assert kickoff["pending_record_count"] == 100
+    assert kickoff["ready_to_apply_record_count"] == 0
+    assert kickoff["first_priority_lane"]["lane_id"] == "1_rejection_adjudication"
+    assert kickoff["first_priority_lane"]["packet_markdown"].endswith(
+        "review_priority_packets/1_rejection_adjudication.md"
+    )
+    assert "suggested_* fields are work aids only" in kickoff["review_boundary"]
     assert "completed manual gold annotations" in report["missing_required_inputs"][0]
     assert not any("predictions" in item for item in report["missing_required_inputs"])
 
@@ -201,6 +210,8 @@ def test_generated_readiness_report_json_is_consistent() -> None:
     assert report["manual_review_artifacts"]["priority_packets"].endswith(
         "review_priority_packets/index.md"
     )
+    assert report["manual_gold_review_kickoff"]["decision_progress_status"] == "not_started"
+    assert report["manual_gold_review_kickoff"]["not_started_record_count"] == 100
     assert report["current_s0_rule_only_structural_metrics"]["attempted_record_count"] == 100
 
 

@@ -16,6 +16,26 @@
 - Complete: `False`
 - Status counts: `{"pending_manual_gold_annotation": 100}`
 
+## Manual Gold Review Kickoff
+
+- Status: `ready_for_manual_gold_review`
+- Reviewed / pending records: 0 / 100
+- Decision progress: `not_started`
+- Ready to apply / not started: 0 / 100
+- Rejected-fact decisions confirmed: 0 / 48
+- First priority lane: `1_rejection_adjudication` (40 records, 808 est. min)
+- Start packet: `data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md`
+- First sample: `ATCSCC-GOLD-024` / `2026-05-18:136` via `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
+- Boundary: Priority packets and suggested_* fields are work aids only. A record becomes gold only after source review, completed review_checklist, confirmed decisions, validation, and frozen reviewed output.
+
+### Next Commands
+
+- `uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py`
+- `uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py`
+- `uv run python scripts/validate_nasa_atmonto_gold_annotations.py`
+- `uv run python scripts/freeze_nasa_atmonto_gold_set.py`
+- `uv run python scripts/run_nasa_atmonto_formal_experiment.py --skip-prepare-inputs`
+
 ## Formal Inputs
 
 - Input records: `data/experiments/nasa_atmonto/formal/input_records.jsonl`

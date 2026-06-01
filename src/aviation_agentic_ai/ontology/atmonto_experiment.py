@@ -6187,6 +6187,7 @@ def build_formal_experiment_readiness(
         status = "ready_for_manual_gold_review"
     else:
         status = "ready_for_manual_gold_and_llm_runs"
+    review_kickoff = build_manual_gold_review_kickoff(repo_root, gold_status=gold_status)
 
     return {
         "source_family": "nasa_atmonto_formal_experiment_readiness",
@@ -6211,6 +6212,7 @@ def build_formal_experiment_readiness(
             ),
             "progress": project_relative_path(repo_root / GOLD_REVIEW_PROGRESS_MD, repo_root),
         },
+        "manual_gold_review_kickoff": review_kickoff,
         "gold_status": gold_status,
         "formal_input_status": formal_input_status,
         "systems": system_definitions(repo_root),
@@ -6238,6 +6240,61 @@ def build_formal_experiment_readiness(
     }
 
 
+def read_json_if_exists(path: Path) -> dict[str, Any]:
+    return read_json(path) if path.exists() else {}
+
+
+def build_manual_gold_review_kickoff(
+    repo_root: Path,
+    *,
+    gold_status: dict[str, Any],
+) -> dict[str, Any]:
+    priority_packets = read_json_if_exists(repo_root / GOLD_REVIEW_PRIORITY_PACKET_JSON)
+    decision_progress = read_json_if_exists(repo_root / GOLD_REVIEW_DECISION_PROGRESS_JSON)
+    review_progress = read_json_if_exists(repo_root / GOLD_REVIEW_PROGRESS_JSON)
+    lanes = priority_packets.get("lanes", [])
+    first_lane = lanes[0] if lanes else {}
+    first_record = (first_lane.get("records") or [{}])[0]
+    return {
+        "status": "ready_for_manual_gold_review" if not gold_status.get("complete") else "complete",
+        "reviewed_record_count": gold_status.get("reviewed_record_count", 0),
+        "pending_record_count": gold_status.get("pending_record_count", 0),
+        "decision_progress_status": decision_progress.get("status"),
+        "ready_to_apply_record_count": decision_progress.get("ready_to_apply_record_count"),
+        "not_started_record_count": decision_progress.get("not_started_record_count"),
+        "completed_rejected_fact_decision_count": decision_progress.get(
+            "completed_rejected_fact_decision_count"
+        ),
+        "rejected_fact_decision_count": decision_progress.get("rejected_fact_decision_count"),
+        "complete_batch_count": review_progress.get("complete_batch_count"),
+        "batch_count": review_progress.get("batch_count"),
+        "first_priority_lane": {
+            "lane_id": first_lane.get("lane_id"),
+            "label": first_lane.get("label"),
+            "record_count": first_lane.get("record_count"),
+            "estimated_review_minutes": first_lane.get("estimated_review_minutes"),
+            "packet_markdown": first_lane.get("path"),
+            "first_sample_id": first_record.get("sample_id"),
+            "first_source_id": first_record.get("source_id"),
+            "first_batch_id": first_record.get("batch_id"),
+            "first_decision_template": first_record.get("decision_template"),
+            "first_batch_markdown": first_record.get("batch_markdown"),
+        },
+        "next_commands": [
+            "uv run python scripts/prepare_nasa_atmonto_gold_review_decision_progress.py",
+            "uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py",
+            "uv run python scripts/validate_nasa_atmonto_gold_annotations.py",
+            "uv run python scripts/freeze_nasa_atmonto_gold_set.py",
+            "uv run python scripts/run_nasa_atmonto_formal_experiment.py --skip-prepare-inputs",
+        ],
+        "review_boundary": (
+            "Priority packets and suggested_* fields are work aids only. A record becomes "
+            "gold only after source review, completed review_checklist, confirmed decisions, "
+            "validation, and frozen reviewed output."
+        ),
+    }
+
+
 def markdown_report(report: dict[str, Any]) -> str:
     lines = [
         "# NASA ATMONTO Formal Experiment Readiness",
@@ -6261,6 +6318,39 @@ def markdown_report(report: dict[str, Any]) -> str:
             f"- Pending records: {gold['pending_record_count']}",
             f"- Complete: `{gold['complete']}`",
             f"- Status counts: `{json.dumps(gold['status_counts'], sort_keys=True)}`",
+            "",
+            "## Manual Gold Review Kickoff",
+            "",
+        ]
+    )
+    kickoff = report["manual_gold_review_kickoff"]
+    first_lane = kickoff["first_priority_lane"]
+    lines.extend(
+        [
+            f"- Status: `{kickoff['status']}`",
+            f"- Reviewed / pending records: {kickoff['reviewed_record_count']} / {kickoff['pending_record_count']}",
+            f"- Decision progress: `{kickoff['decision_progress_status']}`",
+            f"- Ready to apply / not started: {kickoff['ready_to_apply_record_count']} / {kickoff['not_started_record_count']}",
+            "- Rejected-fact decisions confirmed: "
+            f"{kickoff['completed_rejected_fact_decision_count']} / "
+            f"{kickoff['rejected_fact_decision_count']}",
+            "- First priority lane: "
+            f"`{first_lane['lane_id']}` ({first_lane['record_count']} records, "
+            f"{first_lane['estimated_review_minutes']} est. min)",
+            f"- Start packet: `{first_lane['packet_markdown']}`",
+            "- First sample: "
+            f"`{first_lane['first_sample_id']}` / `{first_lane['first_source_id']}` "
+            f"via `{first_lane['first_decision_template']}`",
+            f"- Boundary: {kickoff['review_boundary']}",
+            "",
+            "### Next Commands",
+            "",
+        ]
+    )
+    for command in kickoff["next_commands"]:
+        lines.append(f"- `{command}`")
+    lines.extend(
+        [
             "",
             "## Formal Inputs",
             "",
