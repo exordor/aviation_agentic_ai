@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
+import pytest
+
+import aviation_agentic_ai.ontology.atmonto_experiment as atmonto_experiment
 from aviation_agentic_ai.ontology.atmonto_experiment import (
     SYSTEMS,
     build_formal_experiment_score_report,
@@ -299,8 +303,39 @@ def test_generated_readiness_report_json_is_consistent() -> None:
     assert report["current_s0_rule_only_structural_metrics"]["attempted_record_count"] == 100
 
 
-def test_prepare_formal_experiment_inputs_generates_batches_and_s0_predictions() -> None:
-    result = prepare_formal_experiment_inputs(Path("."))
+def _setup_formal_experiment_fixture(
+    tmp_path: Path, *, include_scoring_data: bool = False
+) -> None:
+    """Copy minimal data files needed for formal experiment tests into tmp_path."""
+    repo = Path(__file__).resolve().parents[1]
+    for subdir in (
+        "data/evaluation",
+        "data/ontology/curated",
+        "data/processed",
+        "data/experiments",
+        "configs",
+    ):
+        src = repo / subdir
+        if src.is_dir():
+            dst = tmp_path / subdir
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+    if include_scoring_data:
+        rejection_src = repo / "reports/stages/nasa_atmonto_rejection_error_analysis.json"
+        if rejection_src.exists():
+            rejection_dst = tmp_path / "reports/stages/nasa_atmonto_rejection_error_analysis.json"
+            rejection_dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(rejection_src, rejection_dst)
+        protocol_src = repo / "docs/experiment_protocol.md"
+        if protocol_src.exists():
+            protocol_dst = tmp_path / "docs/experiment_protocol.md"
+            protocol_dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(protocol_src, protocol_dst)
+
+
+def test_prepare_formal_experiment_inputs_generates_batches_and_s0_predictions(tmp_path: Path) -> None:
+    _setup_formal_experiment_fixture(tmp_path)
+    result = prepare_formal_experiment_inputs(tmp_path)
 
     assert result["input_record_count"] == 100
     assert result["s0_prediction_record_count"] == 100
@@ -308,9 +343,8 @@ def test_prepare_formal_experiment_inputs_generates_batches_and_s0_predictions()
 
     s0_records = [
         json.loads(line)
-        for line in Path(
-            "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl"
-        ).read_text(encoding="utf-8").splitlines()
+        for line in (tmp_path / "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl")
+        .read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
     assert len(s0_records) == 100
@@ -785,9 +819,10 @@ def test_llm_runner_checkpoints_and_resumes_existing_predictions(tmp_path: Path)
     assert metadata["run_status"] == "completed"
 
 
-def test_formal_score_report_scores_frozen_reviewed_gold() -> None:
-    prepare_formal_experiment_inputs(Path("."))
-    report = build_formal_experiment_score_report(Path("."))
+def test_formal_score_report_scores_frozen_reviewed_gold(tmp_path: Path) -> None:
+    _setup_formal_experiment_fixture(tmp_path, include_scoring_data=True)
+    prepare_formal_experiment_inputs(tmp_path)
+    report = build_formal_experiment_score_report(tmp_path)
 
     assert report["status"] == "scored"
     assert report["gold_source"]["source"] == "frozen_reviewed_gold"
@@ -1116,9 +1151,10 @@ def test_freeze_reviewed_gold_set_writes_only_valid_reviewed_gold(tmp_path: Path
     assert "ATCSCC-GOLD-001" in frozen
 
 
-def test_prediction_output_validation_reports_all_systems_ready() -> None:
-    prepare_formal_experiment_inputs(Path("."))
-    report = build_prediction_output_validation_report(Path("."))
+def test_prediction_output_validation_reports_all_systems_ready(tmp_path: Path) -> None:
+    _setup_formal_experiment_fixture(tmp_path)
+    prepare_formal_experiment_inputs(tmp_path)
+    report = build_prediction_output_validation_report(tmp_path)
 
     assert report["status"] == "ready_for_scoring"
     s0 = next(system for system in report["systems"] if system["system_id"] == "S0_rule_only")
@@ -1150,23 +1186,20 @@ def test_prediction_output_validation_reports_all_systems_ready() -> None:
     assert s4["run_metadata"]["status"] == "ready"
 
 
-def test_prepare_formal_experiment_inputs_writes_s1b_and_s4_predictions() -> None:
-    prepare_formal_experiment_inputs(Path("."))
+def test_prepare_formal_experiment_inputs_writes_s1b_and_s4_predictions(tmp_path: Path) -> None:
+    _setup_formal_experiment_fixture(tmp_path)
+    prepare_formal_experiment_inputs(tmp_path)
 
     s1b_records = [
         json.loads(line)
-        for line in Path(
-            "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_predictions.jsonl"
-        )
+        for line in (tmp_path / "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_predictions.jsonl")
         .read_text(encoding="utf-8")
         .splitlines()
         if line.strip()
     ]
     s4_records = [
         json.loads(line)
-        for line in Path(
-            "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl"
-        )
+        for line in (tmp_path / "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl")
         .read_text(encoding="utf-8")
         .splitlines()
         if line.strip()
@@ -1733,3 +1766,56 @@ def test_rejection_adjudication_finalizes_property_level_decisions() -> None:
     assert "`extractor_bug`: 13" in markdown
     assert "`profile_gap`: 275" in markdown
     assert "does not automatically approve profile extensions" in markdown
+
+
+def test_run_llm_prediction_system_requires_llm_system(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="not an LLM prediction system"):
+        run_llm_prediction_system(system_id="S0_rule_only", repo_root=tmp_path)
+
+
+def test_run_llm_prediction_system_requires_prompt_batch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    missing_prompt_system = type(SYSTEMS[1])(
+        system_id="S_missing_prompt_batch",
+        label="Missing prompt batch",
+        description="Synthetic LLM system with no prompt batch.",
+        expected_output=Path("missing.jsonl"),
+        prompt_batch=None,
+        requires_llm=True,
+        uses_schema_slice=False,
+        uses_validator_repair=False,
+    )
+    monkeypatch.setattr(atmonto_experiment, "SYSTEMS", (*SYSTEMS, missing_prompt_system))
+    with pytest.raises(ValueError, match="does not define a prompt batch"):
+        run_llm_prediction_system(system_id="S_missing_prompt_batch", repo_root=tmp_path)
+
+
+def test_run_llm_prediction_system_rejects_invalid_limit(tmp_path: Path) -> None:
+    repo = Path(__file__).resolve().parents[1]
+    # Copy config and system specs
+    for subdir in ("configs",):
+        src = repo / subdir
+        dst = tmp_path / subdir
+        if src.exists():
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+    # Create minimal formal experiment inputs
+    formal_dir = tmp_path / "data" / "experiments" / "nasa_atmonto" / "formal"
+    formal_dir.mkdir(parents=True, exist_ok=True)
+    # Need system specs
+    src_specs = repo / "data" / "experiments" / "nasa_atmonto" / "formal" / "system_specs.json"
+    if src_specs.exists():
+        shutil.copy2(src_specs, formal_dir / "system_specs.json")
+    # Need the S1 prompt batch (just an empty file is fine)
+    (formal_dir / "s1_llm_only_prompt_batch.jsonl").touch()
+    with pytest.raises(ValueError, match="limit must be >= 1"):
+        run_llm_prediction_system(system_id="S1_llm_only", repo_root=tmp_path, limit=0)
+
+
+def test_structural_metrics_handles_empty_list() -> None:
+    result = structural_metrics([])
+    assert result["candidate_fact_count"] == 0
+    assert result["accepted_fact_count"] == 0
+    assert result["rejected_fact_count"] == 0
+    assert result.get("acceptance_rate") is None
+    assert result.get("schema_violation_rate") is None
