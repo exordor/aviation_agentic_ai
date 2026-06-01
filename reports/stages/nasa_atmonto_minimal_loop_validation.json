@@ -1,0 +1,266 @@
+{
+  "source_family": "nasa_atmonto_minimal_loop",
+  "records_processed": 718,
+  "schema_catalog": "data/ontology/curated/nasa_atmonto_schema_catalog.json",
+  "schema_slice": "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json",
+  "extraction_schema": "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json",
+  "candidate_facts": "data/processed/nasa_atmonto/extraction/2026-05-14/atcscc_schema_slice_candidates.jsonl",
+  "validated_facts": "data/processed/nasa_atmonto/extraction/2026-05-14/atcscc_schema_slice_validated.jsonl",
+  "schema_slice_counts": {
+    "classes": 18,
+    "object_properties": 11,
+    "datatype_properties": 11,
+    "class_hierarchy_axioms": 33,
+    "class_property_constraints": 17
+  },
+  "candidate_fact_count": 4429,
+  "validation_count": 4429,
+  "accepted_fact_count": 4141,
+  "rejected_fact_count": 288,
+  "repaired_fact_count": 4141,
+  "status_counts": {
+    "rejected_schema": 288,
+    "repaired_accepted": 4141
+  },
+  "error_counts": {
+    "allowed_value_violation": 22,
+    "domain_violation": 132,
+    "range_violation": 134
+  },
+  "repair_counts": {
+    "datatype_expansion": 3719,
+    "evidence_whitespace_normalization": 2175,
+    "identifier_expansion": 9568
+  },
+  "missing_schema_targets": {
+    "classes": [],
+    "object_properties": [],
+    "datatype_properties": []
+  },
+  "sample_accepted": [
+    {
+      "source_id": "2026-05-14:001",
+      "fact_id": "fact-a73f7616c407f0c2",
+      "candidate": {
+        "fact_id": "fact-a73f7616c407f0c2",
+        "source_id": "2026-05-14:001",
+        "fact_type": "datatype_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:001",
+        "subject_class": "ReRouteTMI",
+        "predicate": "advisoryNumber",
+        "value": 1,
+        "datatype": "xsd:integer",
+        "evidence_text": "ATCSCC ADVZY 001 DCC/ZDC 05/14/2026 ZDC NRP SUSPENSION_RQD",
+        "value_normalization": "source_json_integer",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "validated_fact": {
+        "fact_id": "fact-a73f7616c407f0c2",
+        "source_id": "2026-05-14:001",
+        "fact_type": "datatype_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:001",
+        "subject_class": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+        "predicate": "https://data.nasa.gov/ontologies/atmonto/ATM#advisoryNumber",
+        "value": 1,
+        "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+        "evidence_text": "ATCSCC ADVZY 001 DCC/ZDC 05/14/2026 ZDC NRP SUSPENSION_RQD",
+        "value_normalization": "source_json_integer",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "status": "repaired_accepted",
+      "accepted": true,
+      "repairs": [
+        "identifier_expansion:ReRouteTMI->atm:ReRouteTMI",
+        "identifier_expansion:advisoryNumber->atm:advisoryNumber",
+        "datatype_expansion:xsd:integer->http://www.w3.org/2001/XMLSchema#integer"
+      ],
+      "warnings": [],
+      "errors": [],
+      "review_status": "bronze_until_reviewed"
+    },
+    {
+      "source_id": "2026-05-14:001",
+      "fact_id": "fact-26cb3223b17723ff",
+      "candidate": {
+        "fact_id": "fact-26cb3223b17723ff",
+        "source_id": "2026-05-14:001",
+        "fact_type": "datatype_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:001",
+        "subject_class": "ReRouteTMI",
+        "predicate": "issuedTime",
+        "value": "2026-05-14T00:01:00Z",
+        "datatype": "xsd:dateTime",
+        "evidence_text": "SIGNATURE: 26/05/14 00:01",
+        "value_normalization": "aligned_interval_start",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "validated_fact": {
+        "fact_id": "fact-26cb3223b17723ff",
+        "source_id": "2026-05-14:001",
+        "fact_type": "datatype_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:001",
+        "subject_class": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+        "predicate": "https://data.nasa.gov/ontologies/atmonto/ATM#issuedTime",
+        "value": "2026-05-14T00:01:00Z",
+        "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "evidence_text": "SIGNATURE: 26/05/14 00:01",
+        "value_normalization": "aligned_interval_start",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "status": "repaired_accepted",
+      "accepted": true,
+      "repairs": [
+        "identifier_expansion:ReRouteTMI->atm:ReRouteTMI",
+        "identifier_expansion:issuedTime->atm:issuedTime",
+        "evidence_whitespace_normalization",
+        "datatype_expansion:xsd:dateTime->http://www.w3.org/2001/XMLSchema#dateTime"
+      ],
+      "warnings": [],
+      "errors": [],
+      "review_status": "bronze_until_reviewed"
+    },
+    {
+      "source_id": "2026-05-14:001",
+      "fact_id": "fact-5d5d4cd49ee8f78b",
+      "candidate": {
+        "fact_id": "fact-5d5d4cd49ee8f78b",
+        "source_id": "2026-05-14:001",
+        "fact_type": "datatype_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:001",
+        "subject_class": "ReRouteTMI",
+        "predicate": "effectiveStartTime",
+        "value": "2026-05-14T00:01:00Z",
+        "datatype": "xsd:dateTime",
+        "evidence_text": "EFFECTIVE TIME: 140001-150200",
+        "value_normalization": "aligned_effective_interval_start",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "validated_fact": {
+        "fact_id": "fact-5d5d4cd49ee8f78b",
+        "source_id": "2026-05-14:001",
+        "fact_type": "datatype_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:001",
+        "subject_class": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+        "predicate": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveStartTime",
+        "value": "2026-05-14T00:01:00Z",
+        "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "evidence_text": "EFFECTIVE TIME: 140001-150200",
+        "value_normalization": "aligned_effective_interval_start",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "status": "repaired_accepted",
+      "accepted": true,
+      "repairs": [
+        "identifier_expansion:ReRouteTMI->atm:ReRouteTMI",
+        "identifier_expansion:effectiveStartTime->atm:effectiveStartTime",
+        "evidence_whitespace_normalization",
+        "datatype_expansion:xsd:dateTime->http://www.w3.org/2001/XMLSchema#dateTime"
+      ],
+      "warnings": [],
+      "errors": [],
+      "review_status": "bronze_until_reviewed"
+    }
+  ],
+  "sample_rejected": [
+    {
+      "source_id": "2026-05-14:001",
+      "fact_id": "fact-268cbefb58a0c71f",
+      "candidate": {
+        "fact_id": "fact-268cbefb58a0c71f",
+        "source_id": "2026-05-14:001",
+        "fact_type": "object_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:001",
+        "subject_class": "ReRouteTMI",
+        "predicate": "controlledNASelement",
+        "object": "urn:aviation-agentic-ai:nas-element:ZDC",
+        "object_label": "ZDC",
+        "object_class": "ARTCC",
+        "evidence_text": "CONSTRAINED FACILITIES: ZDC",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "validated_fact": null,
+      "status": "rejected_schema",
+      "accepted": false,
+      "repairs": [
+        "identifier_expansion:ReRouteTMI->atm:ReRouteTMI",
+        "identifier_expansion:controlledNASelement->atm:controlledNASelement",
+        "identifier_expansion:ARTCC->nas:ARTCC"
+      ],
+      "warnings": [],
+      "errors": [
+        "range_violation"
+      ],
+      "review_status": "bronze_until_reviewed"
+    },
+    {
+      "source_id": "2026-05-14:002",
+      "fact_id": "fact-91ae306f3925aedf",
+      "candidate": {
+        "fact_id": "fact-91ae306f3925aedf",
+        "source_id": "2026-05-14:002",
+        "fact_type": "datatype_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:002",
+        "subject_class": "GroundStopTMI",
+        "predicate": "impactingConditionMessage",
+        "value": "WEATHER / THUNDERSTORMS",
+        "datatype": "xsd:string",
+        "evidence_text": "IMPACTING CONDITION: WEATHER / THUNDERSTORMS",
+        "value_normalization": "literal",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "validated_fact": null,
+      "status": "rejected_schema",
+      "accepted": false,
+      "repairs": [
+        "identifier_expansion:GroundStopTMI->atm:GroundStopTMI",
+        "identifier_expansion:impactingConditionMessage->atm:impactingConditionMessage",
+        "datatype_expansion:xsd:string->http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "warnings": [],
+      "errors": [
+        "domain_violation"
+      ],
+      "review_status": "bronze_until_reviewed"
+    },
+    {
+      "source_id": "2026-05-14:003",
+      "fact_id": "fact-22977ccedb8f57f5",
+      "candidate": {
+        "fact_id": "fact-22977ccedb8f57f5",
+        "source_id": "2026-05-14:003",
+        "fact_type": "datatype_property",
+        "subject": "urn:aviation-agentic-ai:atcscc-advisory:2026-05-14:003",
+        "subject_class": "GroundStopTMI",
+        "predicate": "impactingConditionMessage",
+        "value": "WEATHER / THUNDERSTORMS",
+        "datatype": "xsd:string",
+        "evidence_text": "IMPACTING CONDITION: WEATHER / THUNDERSTORMS",
+        "value_normalization": "literal",
+        "extraction_method": "schema_slice_rule_baseline",
+        "review_status": "bronze_until_reviewed"
+      },
+      "validated_fact": null,
+      "status": "rejected_schema",
+      "accepted": false,
+      "repairs": [
+        "identifier_expansion:GroundStopTMI->atm:GroundStopTMI",
+        "identifier_expansion:impactingConditionMessage->atm:impactingConditionMessage",
+        "datatype_expansion:xsd:string->http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "warnings": [],
+      "errors": [
+        "domain_violation"
+      ],
+      "review_status": "bronze_until_reviewed"
+    }
+  ],
+  "claim_boundary": "Structural schema validation and evidence anchoring only; accepted ATCSCC facts are bronze_until_reviewed and not operational ground truth."
+}

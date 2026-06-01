@@ -1,0 +1,1280 @@
+{
+  "schema_slice_id": "nasa_atmonto_atcscc_tmi_slice",
+  "source_catalog": "nasa_atmonto",
+  "selection_policy": {
+    "primary_source": "NASA ATMONTO OWL/XML TBox",
+    "source_family": "atcscc_advisories",
+    "selected_by": "exact local-name targets for ATCSCC TMI fields plus domain/range dependencies",
+    "boundary": "closed-world runtime validation slice derived from open-world OWL axioms"
+  },
+  "classes": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AirportSpec",
+      "prefixed_name": "atm:AirportSpec",
+      "local_name": "AirportSpec",
+      "label": "Airport spec",
+      "comment": "A specification of a set of airports.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AirspaceFlowProgramTMI",
+      "prefixed_name": "atm:AirspaceFlowProgramTMI",
+      "local_name": "AirspaceFlowProgramTMI",
+      "label": "Airspace Flow Program (AFP)",
+      "comment": "A subclass of Traffic Management Initiative involving control and metering of air traffic through specified airspace volumes.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#FlightSpec",
+      "prefixed_name": "atm:FlightSpec",
+      "local_name": "FlightSpec",
+      "label": "Flight spec",
+      "comment": "A specification describing a set of flights.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+      "prefixed_name": "atm:GroundDelayProgramTMI",
+      "local_name": "GroundDelayProgramTMI",
+      "label": "Ground Delay Program (GDP)",
+      "comment": "A Ground Delay Program (GDP) traffic management initiative (TMI). A Ground Delay Program (GDP) is a traffic management procedure where aircraft are delayed at their departure airport in order to manage demand and capacity at their arrival airport.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "prefixed_name": "atm:GroundStopTMI",
+      "local_name": "GroundStopTMI",
+      "label": "Ground Stop (GS)",
+      "comment": "A Ground Stop (GS) traffic management initiative (TMI). A ground stop is a procedure requiring aircraft that meet specific criteria to remain on the ground. The GS may be airport specific, related to a geographical area, or equipment related.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteSegment",
+      "prefixed_name": "atm:ReRouteSegment",
+      "local_name": "ReRouteSegment",
+      "label": "ReRoute segment",
+      "comment": "One of the route segment alternatives specified as part of a ReRoute traffic management initiative (TMI).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "prefixed_name": "atm:ReRouteTMI",
+      "local_name": "ReRouteTMI",
+      "label": "ReRoute",
+      "comment": "A ReRoute is a traffic management initiative (TMI) that mandates a change in the filed flight plan for a set of specified flights. There are multiple factors that might justify a reroute, including weather, traffic congestion, unusual airspace activity, etc. The substitute flight plans route air traffic around the airspace problem area.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TFMcontrolElement",
+      "prefixed_name": "atm:TFMcontrolElement",
+      "local_name": "TFMcontrolElement",
+      "label": "TFM control element",
+      "comment": "Any NAS entity that is potentially controlled via a TFM initiative.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "prefixed_name": "atm:TrafficManagementInitiative",
+      "local_name": "TrafficManagementInitiative",
+      "label": "Traffic management initiative",
+      "comment": "A Traffic Management Initiative (TMI) is an orchestrated air traffic management procedure implemented as needed to control the flow of air traffic in the NAS based on capacity and demand.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
+      "prefixed_name": "data:MeteorologicalCondition",
+      "local_name": "MeteorologicalCondition",
+      "label": "Meteorological condition",
+      "comment": "A superclass over the various types of meteorological conditions.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/data#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/data.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/data#WeatherCondition",
+      "prefixed_name": "data:WeatherCondition",
+      "local_name": "WeatherCondition",
+      "label": "Weather condition",
+      "comment": "The current or forecast weather conditions at a given airport or other reporting station.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/data#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/data.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCC",
+      "prefixed_name": "nas:ARTCC",
+      "local_name": "ARTCC",
+      "label": "ARTCC",
+      "comment": "Air Route Traffic Control Center (ARTCC or 'Center') facility",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl",
+        "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCCtier",
+      "prefixed_name": "nas:ARTCCtier",
+      "local_name": "ARTCCtier",
+      "label": "ARTCCtier",
+      "comment": "A donut-shaped geographical area surrounding a designated central ARTCC. The first tier includes all the ARTCCs that share a boundary with the designated ARTCC. The tier two ARTCCs includes the first tier ARTCCs plus those adjacent to the first tier ARCCCs. And so on.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl",
+        "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Airport",
+      "prefixed_name": "nas:Airport",
+      "local_name": "Airport",
+      "label": "Airport",
+      "comment": "A facility where regularly-scheduled aircraft arrive and depart.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl",
+        "data/ontology/external/icarus_ontology/NASA/NAS.owl",
+        "data/ontology/external/icarus_ontology/NASA/data.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
+      "prefixed_name": "nas:AirspaceInfrastructureComponent",
+      "local_name": "AirspaceInfrastructureComponent",
+      "label": "Airspace infrastructure component",
+      "comment": "A defined substructure of the airspace used to manage air traffic, including sectors, SIDs, STARs, routes, etc.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl",
+        "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+      "prefixed_name": "nas:AirspaceRoute",
+      "local_name": "AirspaceRoute",
+      "label": "",
+      "comment": "An ordered sequence of navigation elements specifying a path through the airspace.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl",
+        "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+      ]
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+      "prefixed_name": "nas:NASfacility",
+      "local_name": "NASfacility",
+      "label": "NAS facility",
+      "comment": "The set of FAA and airport facilities involved in operational air traffic management (e.g. Airport, Air Route Traffic Control Center, Air Traffic Control Tower, Terminal Radar Approach Control, etc.).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+      ]
+    },
+    {
+      "iri": "urn:absolute:icarus#FlightSpec",
+      "prefixed_name": "urn:absolute:icarus#FlightSpec",
+      "local_name": "FlightSpec",
+      "label": "Flight spec",
+      "comment": "A specification describing a set of flights.",
+      "namespace": "urn:absolute:icarus#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ]
+    }
+  ],
+  "object_properties": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#allowedRoute",
+      "prefixed_name": "atm:allowedRoute",
+      "local_name": "allowedRoute",
+      "label": "allowed route",
+      "comment": "In a reRoute traffic management initiative, there are multiple allowed routes specified between origin and destination. This property links a ReRouteTMI with its allowed routes.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI"
+      ],
+      "domain_set": [
+        "atm:ReRouteTMI"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteSegment"
+      ],
+      "range_set": [
+        "atm:ReRouteSegment"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#controlledNASelement",
+      "prefixed_name": "atm:controlledNASelement",
+      "local_name": "controlledNASelement",
+      "label": "controlled NASelement",
+      "comment": "Links a traffic management initiative (TMI) to the airspace element being controlled by the TMI (e.g., an airport).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative"
+      ],
+      "domain_set": [
+        "atm:TrafficManagementInitiative"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TFMcontrolElement"
+      ],
+      "range_set": [
+        "atm:TFMcontrolElement"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#departureScope",
+      "prefixed_name": "atm:departureScope",
+      "local_name": "departureScope",
+      "label": "departure scope",
+      "comment": "Links a Ground Delay Program (GDP) or a Ground Stop (GS) to a specification of the departure airport(s) participating in the traffic management initiative (TMI).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+        "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI"
+      ],
+      "domain_set": [
+        "atm:GroundDelayProgramTMI",
+        "atm:GroundStopTMI"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#AirportSpec"
+      ],
+      "range_set": [
+        "atm:AirportSpec"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#excludesARTCC",
+      "prefixed_name": "atm:excludesARTCC",
+      "local_name": "excludesARTCC",
+      "label": "excludes ARTCC",
+      "comment": "Links an airport specification to one of more ARTCCs (Centers) or ARTCC tiers (Centers radiating out from a give ARTCC). Any airport within the ARTCC or ARTCC tier is excluded from the set of airports covered by this airport specification.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#AirportSpec"
+      ],
+      "domain_set": [
+        "atm:AirportSpec"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCC",
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCCtier"
+      ],
+      "range_set": [
+        "nas:ARTCC",
+        "nas:ARTCCtier"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#excludesAirport",
+      "prefixed_name": "atm:excludesAirport",
+      "local_name": "excludesAirport",
+      "label": "excludes airport",
+      "comment": "Links an airport specification to one of more airports. Any airport linked is excluded from the set of airports covered by this airport specification.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#AirportSpec"
+      ],
+      "domain_set": [
+        "atm:AirportSpec"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#Airport"
+      ],
+      "range_set": [
+        "nas:Airport"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#flightExclusionSpec",
+      "prefixed_name": "atm:flightExclusionSpec",
+      "local_name": "flightExclusionSpec",
+      "label": "flight exclusion spec",
+      "comment": "Links a Ground Delay Program (GDP) or a Ground Stop (GS) to a specification of the flight(s) excluded from the traffic management initiative (TMI).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI"
+      ],
+      "domain_set": [
+        "atm:GroundDelayProgramTMI"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#FlightSpec"
+      ],
+      "range_set": [
+        "atm:FlightSpec"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#flightInclusionSpec",
+      "prefixed_name": "atm:flightInclusionSpec",
+      "local_name": "flightInclusionSpec",
+      "label": "flight inclusion spec",
+      "comment": "Links a Ground Delay Program (GDP) or a Ground Stop (GS) to a specification of the flight(s) included in the traffic management initiative (TMI).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+        "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI"
+      ],
+      "domain_set": [
+        "atm:GroundDelayProgramTMI",
+        "atm:GroundStopTMI"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#FlightSpec"
+      ],
+      "range_set": [
+        "atm:FlightSpec"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#includesAirport",
+      "prefixed_name": "atm:includesAirport",
+      "local_name": "includesAirport",
+      "label": "includes airport",
+      "comment": "Links an airport specification to one of more airports. Any airport linked is included in the set of airports covered by this airport specification. This property allows for explicit specification of a list of specific airports; the property atm:includesAirportType allows for the the implicit specification of an entire class of airports.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#AirportSpec"
+      ],
+      "domain_set": [
+        "atm:AirportSpec"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#Airport"
+      ],
+      "range_set": [
+        "nas:Airport"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#withinARTCC",
+      "prefixed_name": "atm:withinARTCC",
+      "local_name": "withinARTCC",
+      "label": "within ARTCC",
+      "comment": "Links an airport specification to an ARTCC or ARTCC tier. Only airports within the ARTCC or ARTCC tier are covered by the specification.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#AirportSpec"
+      ],
+      "domain_set": [
+        "atm:AirportSpec"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCC",
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCCtier"
+      ],
+      "range_set": [
+        "nas:ARTCC",
+        "nas:ARTCCtier"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#includesARTCC",
+      "prefixed_name": "nas:includesARTCC",
+      "local_name": "includesARTCC",
+      "label": "includes ARTCC",
+      "comment": "A link between an ARTCC tier and the ARTCCs included in the tier.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCCtier"
+      ],
+      "domain_set": [
+        "nas:ARTCCtier"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCC"
+      ],
+      "range_set": [
+        "nas:ARTCC"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/NAS#withinARTCC",
+      "prefixed_name": "nas:withinARTCC",
+      "local_name": "withinARTCC",
+      "label": "within ARTCC",
+      "comment": "Links the airport to the ARTCC within which it is located.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/NAS#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#Airport"
+      ],
+      "domain_set": [
+        "nas:Airport"
+      ],
+      "range_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCC"
+      ],
+      "range_set": [
+        "nas:ARTCC"
+      ],
+      "functional": false
+    }
+  ],
+  "datatype_properties": [
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#advisoryNumber",
+      "prefixed_name": "atm:advisoryNumber",
+      "local_name": "advisoryNumber",
+      "label": "advisory number",
+      "comment": "Advisory number as reported from the FAA Command Center database. it restarts at 001 on every new day UTC.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative"
+      ],
+      "domain_set": [
+        "atm:TrafficManagementInitiative"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#integer"
+      ],
+      "datatype_set": [
+        "xsd:integer"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveEndTime",
+      "prefixed_name": "atm:effectiveEndTime",
+      "local_name": "effectiveEndTime",
+      "label": "effective end time",
+      "comment": "The expected end time of the traffic management initiative (TMI).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative"
+      ],
+      "domain_set": [
+        "atm:TrafficManagementInitiative"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#dateTime"
+      ],
+      "datatype_set": [
+        "xsd:dateTime"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveStartTime",
+      "prefixed_name": "atm:effectiveStartTime",
+      "local_name": "effectiveStartTime",
+      "label": "effective start time",
+      "comment": "The expected start time of the traffic management initiative (TMI).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative"
+      ],
+      "domain_set": [
+        "atm:TrafficManagementInitiative"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#dateTime"
+      ],
+      "datatype_set": [
+        "xsd:dateTime"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+      "prefixed_name": "atm:extensionProbability",
+      "local_name": "extensionProbability",
+      "label": "extension probability",
+      "comment": "The probability that this traffic management initiative (TMI) will be extended: LOW, MEDIUM, or HIGH.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative"
+      ],
+      "domain_set": [
+        "atm:TrafficManagementInitiative"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "datatype_set": [
+        "xsd:string"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition",
+      "prefixed_name": "atm:impactingCondition",
+      "local_name": "impactingCondition",
+      "label": "impacting condition",
+      "comment": "Indicates the reason for initiating the Ground Delay Program: weather, volume, runway, equipment, other.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI"
+      ],
+      "domain_set": [
+        "atm:GroundDelayProgramTMI"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "datatype_set": [
+        "xsd:string"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#impactingConditionMessage",
+      "prefixed_name": "atm:impactingConditionMessage",
+      "local_name": "impactingConditionMessage",
+      "label": "impacting condition message",
+      "comment": "A free-text descriptoin elaborating on the reason for initiating the Ground Delay Program.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI"
+      ],
+      "domain_set": [
+        "atm:GroundDelayProgramTMI"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "datatype_set": [
+        "xsd:string"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#implementationStatus",
+      "prefixed_name": "atm:implementationStatus",
+      "local_name": "implementationStatus",
+      "label": "implementation status",
+      "comment": "Indicates the enforcement status of the ReRoute advisory: RQD (required), RMD (recommended), PLN (planned for implementation), FYI (informational only)",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI"
+      ],
+      "domain_set": [
+        "atm:ReRouteTMI"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "datatype_set": [
+        "xsd:string"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#initiativeComments",
+      "prefixed_name": "atm:initiativeComments",
+      "local_name": "initiativeComments",
+      "label": "",
+      "comment": "Provides any specific comments on the traffic management initiative (TMI) made by the issuing authority (e.g., ATCSCC, ARTCC).",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative"
+      ],
+      "domain_set": [
+        "atm:TrafficManagementInitiative"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "datatype_set": [
+        "xsd:string"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#issuedTime",
+      "prefixed_name": "atm:issuedTime",
+      "local_name": "issuedTime",
+      "label": "issued time",
+      "comment": "The time when the traffic management initiative (TMI) was issued.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative"
+      ],
+      "domain_set": [
+        "atm:TrafficManagementInitiative"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#dateTime"
+      ],
+      "datatype_set": [
+        "xsd:dateTime"
+      ],
+      "functional": true
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteReason",
+      "prefixed_name": "atm:reRouteReason",
+      "local_name": "reRouteReason",
+      "label": "reroute reason",
+      "comment": "Provides the reason for initiating a ReRoute: WEATHER , VOLUME , EQUIPMENT , RUNWAY/TAXIWAY , OTHER.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI"
+      ],
+      "domain_set": [
+        "atm:ReRouteTMI"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "datatype_set": [
+        "xsd:string"
+      ],
+      "functional": false
+    },
+    {
+      "iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteType",
+      "prefixed_name": "atm:reRouteType",
+      "local_name": "reRouteType",
+      "label": "ReRoute type",
+      "comment": "The ReRoute type encodes information about the type of ReRoute being initiated or the reason for the ReRoute. One of the following: ROUTE , PLAYBOOK , CDR, SPECIAL OPERATIONS, NRP SUSPENSIONS, VS , NAT, SHUTTLE ACTIVITY, FCA, FEA, INFORMATIONAL, MISCELLANEOUS.",
+      "namespace": "https://data.nasa.gov/ontologies/atmonto/ATM#",
+      "source_files": [
+        "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+      ],
+      "domain_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI"
+      ],
+      "domain_set": [
+        "atm:ReRouteTMI"
+      ],
+      "datatype_iri_set": [
+        "http://www.w3.org/2001/XMLSchema#string"
+      ],
+      "datatype_set": [
+        "xsd:string"
+      ],
+      "functional": true
+    }
+  ],
+  "class_hierarchy": [
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AirportSpec",
+      "subclass": "atm:AirportSpec",
+      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
+      "superclass": "urn:absolute:icarus#NASA_Ontology",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#AirspaceFlowProgramTMI",
+      "subclass": "atm:AirspaceFlowProgramTMI",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "superclass": "atm:TrafficManagementInitiative",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#FlightSpec",
+      "subclass": "atm:FlightSpec",
+      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
+      "superclass": "urn:absolute:icarus#NASA_Ontology",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+      "subclass": "atm:GroundDelayProgramTMI",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "superclass": "atm:TrafficManagementInitiative",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "subclass": "atm:GroundStopTMI",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "superclass": "atm:TrafficManagementInitiative",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#MilesInTrailTMI",
+      "subclass": "atm:MilesInTrailTMI",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "superclass": "atm:TrafficManagementInitiative",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationElement",
+      "subclass": "atm:NavigationElement",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TFMcontrolElement",
+      "superclass": "atm:TFMcontrolElement",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteSegment",
+      "subclass": "atm:ReRouteSegment",
+      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
+      "superclass": "urn:absolute:icarus#NASA_Ontology",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "subclass": "atm:ReRouteTMI",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "superclass": "atm:TrafficManagementInitiative",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TFMcontrolElement",
+      "subclass": "atm:TFMcontrolElement",
+      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
+      "superclass": "urn:absolute:icarus#NASA_Ontology",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "subclass": "atm:TrafficManagementInitiative",
+      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
+      "superclass": "urn:absolute:icarus#NASA_Ontology",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCC",
+      "subclass": "nas:ARTCC",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+      "superclass": "nas:NASfacility",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#ARTCCtier",
+      "subclass": "nas:ARTCCtier",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
+      "superclass": "nas:AirspaceInfrastructureComponent",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#ATCT",
+      "subclass": "nas:ATCT",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+      "superclass": "nas:NASfacility",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Airport",
+      "subclass": "nas:Airport",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationElement",
+      "superclass": "atm:NavigationElement",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Airport",
+      "subclass": "nas:Airport",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+      "superclass": "nas:NASfacility",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
+      "subclass": "nas:AirspaceInfrastructureComponent",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TFMcontrolElement",
+      "superclass": "atm:TFMcontrolElement",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
+      "subclass": "nas:AirspaceInfrastructureComponent",
+      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
+      "superclass": "urn:absolute:icarus#NASA_Ontology",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceLayer",
+      "subclass": "nas:AirspaceLayer",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
+      "superclass": "nas:AirspaceInfrastructureComponent",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+      "subclass": "nas:AirspaceRoute",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#NavigationPath",
+      "superclass": "atm:NavigationPath",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+      "subclass": "nas:AirspaceRoute",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
+      "superclass": "nas:AirspaceInfrastructureComponent",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#FederalAirway",
+      "subclass": "nas:FederalAirway",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+      "superclass": "nas:AirspaceRoute",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+      "subclass": "nas:NASfacility",
+      "superclass_iri": "urn:absolute:icarus#NASA_Ontology",
+      "superclass": "urn:absolute:icarus#NASA_Ontology",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#RadialRoute",
+      "subclass": "nas:RadialRoute",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+      "superclass": "nas:AirspaceRoute",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#SIDSTAR",
+      "subclass": "nas:SIDSTAR",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
+      "superclass": "nas:AirspaceInfrastructureComponent",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#SIDSTARroute",
+      "subclass": "nas:SIDSTARroute",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceRoute",
+      "superclass": "nas:AirspaceRoute",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Sector",
+      "subclass": "nas:Sector",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#AirspaceInfrastructureComponent",
+      "superclass": "nas:AirspaceInfrastructureComponent",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#TRACON",
+      "subclass": "nas:TRACON",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/NAS#NASfacility",
+      "superclass": "nas:NASfacility",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/NAS.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#SkyCondition",
+      "subclass": "data:SkyCondition",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
+      "superclass": "data:MeteorologicalCondition",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/data.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#SurfaceWindCondition",
+      "subclass": "data:SurfaceWindCondition",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
+      "superclass": "data:MeteorologicalCondition",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/data.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#VisibilityCondition",
+      "subclass": "data:VisibilityCondition",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
+      "superclass": "data:MeteorologicalCondition",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/data.owl"
+    },
+    {
+      "subclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#WeatherCondition",
+      "subclass": "data:WeatherCondition",
+      "superclass_iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalCondition",
+      "superclass": "data:MeteorologicalCondition",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/data.owl"
+    },
+    {
+      "subclass_iri": "urn:absolute:icarus#FlightSpec",
+      "subclass": "urn:absolute:icarus#FlightSpec",
+      "superclass_iri": "urn:absolute:icarus#Icarus_extra_properties",
+      "superclass": "urn:absolute:icarus#Icarus_extra_properties",
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    }
+  ],
+  "class_property_constraints": [
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#controlledNASelement",
+      "constraint_type": "objectExactCardinality",
+      "cardinality": "1",
+      "class_set": [],
+      "datatype_set": [],
+      "class": "atm:GroundDelayProgramTMI",
+      "property": "atm:controlledNASelement",
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#controlledNASelement",
+      "constraint_type": "object_all_values_from",
+      "class_set": [
+        "nas:Airport"
+      ],
+      "class": "atm:GroundDelayProgramTMI",
+      "property": "atm:controlledNASelement",
+      "class_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#Airport"
+      ],
+      "datatype_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundDelayProgramTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "equipment",
+        "other",
+        "runway",
+        "volume",
+        "weather"
+      ],
+      "class": "atm:GroundDelayProgramTMI",
+      "property": "atm:impactingCondition",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#controlledNASelement",
+      "constraint_type": "objectExactCardinality",
+      "cardinality": "1",
+      "class_set": [],
+      "datatype_set": [],
+      "class": "atm:GroundStopTMI",
+      "property": "atm:controlledNASelement",
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#controlledNASelement",
+      "constraint_type": "object_all_values_from",
+      "class_set": [
+        "nas:Airport"
+      ],
+      "class": "atm:GroundStopTMI",
+      "property": "atm:controlledNASelement",
+      "class_iri_set": [
+        "https://data.nasa.gov/ontologies/atmonto/NAS#Airport"
+      ],
+      "datatype_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+      "constraint_type": "dataExactCardinality",
+      "cardinality": "1",
+      "class_set": [],
+      "datatype_set": [],
+      "class": "atm:GroundStopTMI",
+      "property": "atm:extensionProbability",
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "HIGH",
+        "LOW",
+        "MEDIUM",
+        "NONE"
+      ],
+      "class": "atm:GroundStopTMI",
+      "property": "atm:extensionProbability",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "equipment",
+        "other",
+        "runway",
+        "volume",
+        "weather"
+      ],
+      "class": "atm:GroundStopTMI",
+      "property": "atm:impactingCondition",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+      "constraint_type": "dataExactCardinality",
+      "cardinality": "1",
+      "class_set": [],
+      "datatype_set": [],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:extensionProbability",
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "HIGH",
+        "LOW",
+        "MEDIUM",
+        "NONE"
+      ],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:extensionProbability",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#implementationStatus",
+      "constraint_type": "dataExactCardinality",
+      "cardinality": "1",
+      "class_set": [],
+      "datatype_set": [],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:implementationStatus",
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#implementationStatus",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "FYI",
+        "PLN",
+        "RMD",
+        "RQD"
+      ],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:implementationStatus",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteReason",
+      "constraint_type": "dataExactCardinality",
+      "cardinality": "1",
+      "class_set": [],
+      "datatype_set": [],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:reRouteReason",
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteReason",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "EQUIPMENT",
+        "OTHER",
+        "RUNWAY/TAXIWAY",
+        "VOLUME",
+        "WEATHER"
+      ],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:reRouteReason",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteType",
+      "constraint_type": "dataExactCardinality",
+      "cardinality": "1",
+      "class_set": [],
+      "datatype_set": [],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:reRouteType",
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#ReRouteTMI",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#reRouteType",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "CDR",
+        "FCA",
+        "FEA",
+        "INFORMATIONAL",
+        "MISCELLANEOUS",
+        "NAT",
+        "NRP SUSPENSIONS",
+        "PLAYBOOK",
+        "ROUTE",
+        "SHUTTLE ACTIVITY",
+        "SPECIAL OPERATIONS",
+        "VS"
+      ],
+      "class": "atm:ReRouteTMI",
+      "property": "atm:reRouteType",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    },
+    {
+      "class_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#TrafficManagementInitiative",
+      "property_iri": "https://data.nasa.gov/ontologies/atmonto/ATM#extensionProbability",
+      "constraint_type": "data_all_values_from",
+      "datatype_set": [],
+      "allowed_values": [
+        "HIGH",
+        "LOW",
+        "MEDIUM"
+      ],
+      "class": "atm:TrafficManagementInitiative",
+      "property": "atm:extensionProbability",
+      "class_set": [],
+      "class_iri_set": [],
+      "datatype_iri_set": [],
+      "source_file": "data/ontology/external/icarus_ontology/NASA/ATM.owl"
+    }
+  ],
+  "missing_targets": {
+    "classes": [],
+    "object_properties": [],
+    "datatype_properties": []
+  },
+  "counts": {
+    "classes": 18,
+    "object_properties": 11,
+    "datatype_properties": 11,
+    "class_hierarchy_axioms": 33,
+    "class_property_constraints": 17
+  }
+}
