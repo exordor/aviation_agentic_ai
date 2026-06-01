@@ -29,6 +29,7 @@
 - Start packet: `data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md`
 - First sample: `ATCSCC-GOLD-024` / `2026-05-18:136` via `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
 - Boundary: Priority packets and suggested_* fields are work aids only. A record becomes gold only after source review, completed review_checklist, confirmed decisions, validation, and frozen reviewed output.
+
 - Next review session: `none`; gold review is complete.
 
 ### Next Commands

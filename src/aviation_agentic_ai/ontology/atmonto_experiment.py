@@ -6937,11 +6937,7 @@ def consensus_sota_remediation_constraints() -> dict[str, Any]:
                 "effectiveEndTime",
                 "header/template fields",
             ],
-            "s3_s4_may_add_not_overwrite": [
-                "reRouteReason",
-                "reRouteType",
-                "implementationStatus",
-            ],
+            "s3_s4_may_add_not_overwrite": sorted(HYBRID_SEMANTIC_ENRICHMENT_PREDICATES),
             "quarantine_conditions": [
                 "conflict",
                 "unsupported span",

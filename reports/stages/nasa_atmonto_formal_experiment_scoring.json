@@ -642,9 +642,15 @@
         "header/template fields"
       ],
       "s3_s4_may_add_not_overwrite": [
+        "controlledNASelement",
+        "departureScope",
+        "extensionProbability",
+        "impactingCondition",
+        "impactingConditionMessage",
+        "implementationStatus",
+        "initiativeComments",
         "reRouteReason",
-        "reRouteType",
-        "implementationStatus"
+        "reRouteType"
       ],
       "quarantine_conditions": [
         "conflict",
@@ -4684,7 +4690,7 @@
       },
       {
         "id": "R7",
-        "requirement": "Account for all 288 pilot rejections in property-level error analysis.",
+        "requirement": "Account for all pilot rejections in property-level error analysis.",
         "status": "satisfied",
         "evidence": "rejected_fact_count=288; grouped_fact_count=288"
       },

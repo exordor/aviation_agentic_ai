@@ -52,7 +52,7 @@
 
 - S4 primary candidate: `S4_hybrid_backbone_enrichment`.
 - S0 owns deterministic fields: `advisoryNumber, issuedTime, effectiveStartTime, effectiveEndTime, header/template fields`.
-- S3/S4 may add but not overwrite semantic fields: `reRouteReason, reRouteType, implementationStatus`.
+- S3/S4 may add but not overwrite semantic fields: `controlledNASelement, departureScope, extensionProbability, impactingCondition, impactingConditionMessage, implementationStatus, initiativeComments, reRouteReason, reRouteType`.
 - Quarantine/review conditions: `conflict, unsupported span, fuzzy-only mapping, validator rejected fact, repair-only fact with semantic-change flag`.
 - Planned artifacts/TODO: `schema/atcscc_tmi_profile.yaml, predicate canonicalizer, enum canonicalizer, entity canonicalizer, time normalizer, repair trace, error taxonomy`.
 - Unverified search leads remain `requiring verification`: `OntoLogX, JSON-Schema-guided information extraction, Graphusion, RAKG, RAGAS, STaRK, Microsoft GraphRAG`.
@@ -174,7 +174,7 @@
 | `R4` Run all corrected-stage systems on the identical sampled records. | `satisfied` | {"S0_rule_only": true, "S1_llm_only": true, "S1b_llm_canonicalized": true, "S2_llm_schema_slice": true, "S3_llm_schema_slice_validator_repair": true, "S4_hybrid_backbone_enrichment": true} |
 | `R5` Define JSON, schema, semantic, repair, and manual-correctness metrics. | `satisfied` | docs/experiment_protocol.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json |
 | `R6` Report JSON adherence, schema violation rate, precision/recall/F1, repair success, and manual semantic correctness. | `satisfied` | all_system_outputs=True; all_semantic_metrics_available=True |
-| `R7` Account for all 288 pilot rejections in property-level error analysis. | `satisfied` | rejected_fact_count=288; grouped_fact_count=288 |
+| `R7` Account for all pilot rejections in property-level error analysis. | `satisfied` | rejected_fact_count=288; grouped_fact_count=288 |
 | `R8` Finalize whether each rejection group is extractor bug, NASA ATMONTO profile gap, source ambiguity, or manual-review-only. | `satisfied` | {"extractor_bug": 13, "profile_gap": 275} |
 | `R9` Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4. | `satisfied` | {"C1": "supported_by_pilot", "C2": "supported", "C3": "supported", "C4": "supported", "H1": "supported", "H2": "supported", "H3": "supported", "H4": "supported"} |
 | `R10` Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria. | `satisfied` | docs/experiment_protocol.md |
