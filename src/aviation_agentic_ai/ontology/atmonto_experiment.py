@@ -35,6 +35,12 @@ GOLD_REVIEW_BATCH_DIR = Path("data/evaluation/nasa_atmonto/review_batches")
 GOLD_REVIEW_BATCH_INDEX_MD = GOLD_REVIEW_BATCH_DIR / "index.md"
 GOLD_REVIEW_PROGRESS_JSON = Path("data/evaluation/nasa_atmonto/gold_review_progress.json")
 GOLD_REVIEW_PROGRESS_MD = Path("data/evaluation/nasa_atmonto/gold_review_progress.md")
+GOLD_REVIEW_WORKLOAD_PLAN_JSON = Path(
+    "reports/stages/nasa_atmonto_gold_review_workload_plan.json"
+)
+GOLD_REVIEW_WORKLOAD_PLAN_MD = Path(
+    "reports/stages/nasa_atmonto_gold_review_workload_plan.md"
+)
 GOLD_REVIEW_DECISION_DIR = Path("data/evaluation/nasa_atmonto/review_decisions")
 GOLD_REVIEW_DECISION_INDEX_MD = GOLD_REVIEW_DECISION_DIR / "index.md"
 GOLD_REVIEW_DECISION_DRAFT_PATH = Path(
@@ -190,6 +196,12 @@ def file_sha256(path: Path) -> str:
 
 def compact_text(value: object) -> str:
     return " ".join(str(value or "").split())
+
+
+def ceil_div(numerator: int, denominator: int) -> int:
+    if denominator <= 0:
+        raise ValueError("denominator must be positive")
+    return -(-numerator // denominator)
 
 
 def term_name(value: object) -> str:
@@ -1609,6 +1621,294 @@ def run_gold_review_batches(
         "record_count": report["record_count"],
         "candidate_cluster_count": report["candidate_cluster_count"],
         "batch_files": [batch["path"] for batch in report["batches"]],
+    }
+
+
+def record_cross_system_cluster_count(record: dict[str, Any]) -> int:
+    return sum(
+        1
+        for cluster in record.get("candidate_clusters", [])
+        if isinstance(cluster, dict)
+        and any(system != "S0_rule_only" for system in cluster.get("source_systems", []))
+    )
+
+
+def record_workload_score(
+    *,
+    candidate_cluster_count: int,
+    cross_system_cluster_count: int,
+    rejected_fact_count: int,
+    source_word_count: int,
+) -> int:
+    return (
+        candidate_cluster_count
+        + cross_system_cluster_count
+        + (rejected_fact_count * 3)
+        + (source_word_count // 80)
+    )
+
+
+def review_complexity_tier(workload_score: int) -> str:
+    if workload_score <= 40:
+        return "light"
+    if workload_score <= 65:
+        return "medium"
+    return "heavy"
+
+
+def review_priority_lane(record: dict[str, Any]) -> str:
+    if int(record["rejected_fact_count"]) > 0:
+        return "1_rejection_adjudication"
+    if record["complexity_tier"] == "heavy":
+        return "2_high_cross_system_coverage"
+    return "3_standard_review"
+
+
+def estimate_review_minutes(
+    *,
+    candidate_cluster_count: int,
+    cross_system_cluster_count: int,
+    rejected_fact_count: int,
+    source_word_count: int,
+) -> int:
+    return (
+        3
+        + ceil_div(candidate_cluster_count, 4)
+        + ceil_div(cross_system_cluster_count, 6)
+        + (rejected_fact_count * 2)
+        + ceil_div(source_word_count, 120)
+    )
+
+
+def build_gold_review_workload_plan(
+    repo_root: str | Path = PROJECT_ROOT,
+    *,
+    batch_size: int = 10,
+) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    worklist = build_gold_review_worklist(repo_root)
+    candidate_review = build_system_candidate_review_package(repo_root)
+    batch_report = build_gold_review_batches(
+        repo_root,
+        batch_size=batch_size,
+        candidate_review=candidate_review,
+    )
+    worklist_by_sample = {record["sample_id"]: record for record in worklist["records"]}
+    batch_by_sample: dict[str, str] = {}
+    for batch in batch_report["batches"]:
+        for record in batch["records"]:
+            batch_by_sample[str(record["sample_id"])] = str(batch["batch_id"])
+
+    workload_records: list[dict[str, Any]] = []
+    complexity_counts: Counter[str] = Counter()
+    lane_counts: Counter[str] = Counter()
+    class_counts: Counter[str] = Counter()
+
+    for candidate_record in candidate_review["records"]:
+        sample_id = str(candidate_record["sample_id"])
+        work_record = worklist_by_sample[sample_id]
+        candidate_cluster_count = int(candidate_record.get("candidate_cluster_count", 0))
+        cross_system_count = record_cross_system_cluster_count(candidate_record)
+        rejected_fact_count = int(work_record.get("rejected_fact_count", 0))
+        source_word_count = len(compact_text(candidate_record.get("source_text_excerpt")).split())
+        workload_score = record_workload_score(
+            candidate_cluster_count=candidate_cluster_count,
+            cross_system_cluster_count=cross_system_count,
+            rejected_fact_count=rejected_fact_count,
+            source_word_count=source_word_count,
+        )
+        estimated_minutes = estimate_review_minutes(
+            candidate_cluster_count=candidate_cluster_count,
+            cross_system_cluster_count=cross_system_count,
+            rejected_fact_count=rejected_fact_count,
+            source_word_count=source_word_count,
+        )
+        record = {
+            "sample_id": sample_id,
+            "source_id": candidate_record.get("source_id"),
+            "batch_id": batch_by_sample[sample_id],
+            "candidate_subject_class": candidate_record.get("candidate_subject_class"),
+            "annotation_status": work_record.get("annotation_status"),
+            "candidate_cluster_count": candidate_cluster_count,
+            "cross_system_candidate_cluster_count": cross_system_count,
+            "rejected_fact_count": rejected_fact_count,
+            "source_word_count": source_word_count,
+            "workload_score": workload_score,
+            "complexity_tier": review_complexity_tier(workload_score),
+            "estimated_review_minutes": estimated_minutes,
+        }
+        record["priority_lane"] = review_priority_lane(record)
+        complexity_counts[str(record["complexity_tier"])] += 1
+        lane_counts[str(record["priority_lane"])] += 1
+        class_counts[str(record["candidate_subject_class"])] += 1
+        workload_records.append(record)
+
+    records_by_sample = {record["sample_id"]: record for record in workload_records}
+    batch_summaries: list[dict[str, Any]] = []
+    for batch in batch_report["batches"]:
+        records = [records_by_sample[str(record["sample_id"])] for record in batch["records"]]
+        batch_summaries.append(
+            {
+                "batch_id": batch["batch_id"],
+                "path": batch["path"],
+                "record_count": len(records),
+                "first_sample_id": batch["first_sample_id"],
+                "last_sample_id": batch["last_sample_id"],
+                "candidate_cluster_count": sum(
+                    int(record["candidate_cluster_count"]) for record in records
+                ),
+                "cross_system_candidate_cluster_count": sum(
+                    int(record["cross_system_candidate_cluster_count"]) for record in records
+                ),
+                "rejected_fact_count": sum(int(record["rejected_fact_count"]) for record in records),
+                "estimated_review_minutes": sum(
+                    int(record["estimated_review_minutes"]) for record in records
+                ),
+                "complexity_counts": dict(
+                    sorted(Counter(str(record["complexity_tier"]) for record in records).items())
+                ),
+                "priority_lane_counts": dict(
+                    sorted(Counter(str(record["priority_lane"]) for record in records).items())
+                ),
+            }
+        )
+
+    review_order = sorted(
+        workload_records,
+        key=lambda record: (
+            str(record["priority_lane"]),
+            -int(record["rejected_fact_count"]),
+            -int(record["workload_score"]),
+            str(record["sample_id"]),
+        ),
+    )
+    total_minutes = sum(int(record["estimated_review_minutes"]) for record in workload_records)
+    return {
+        "source_family": "nasa_atmonto_gold_review_workload_plan",
+        "gold_template": worklist["gold_template"],
+        "worklist_markdown": project_relative_path(repo_root / GOLD_REVIEW_WORKLIST_MD, repo_root),
+        "candidate_review_jsonl": candidate_review["candidate_review_jsonl"],
+        "batch_index_markdown": batch_report["batch_index_markdown"],
+        "decision_templates": project_relative_path(repo_root / GOLD_REVIEW_DECISION_INDEX_MD, repo_root),
+        "progress_markdown": project_relative_path(repo_root / GOLD_REVIEW_PROGRESS_MD, repo_root),
+        "record_count": len(workload_records),
+        "batch_count": batch_report["batch_count"],
+        "records_with_rejections": worklist["records_with_rejections"],
+        "total_rejected_facts_to_adjudicate": worklist[
+            "total_rejected_facts_to_adjudicate"
+        ],
+        "estimated_total_review_minutes": total_minutes,
+        "estimated_total_review_hours": round(total_minutes / 60, 2),
+        "complexity_counts": dict(sorted(complexity_counts.items())),
+        "priority_lane_counts": dict(sorted(lane_counts.items())),
+        "candidate_subject_class_counts": dict(sorted(class_counts.items())),
+        "records": workload_records,
+        "recommended_review_order": review_order,
+        "batches": batch_summaries,
+        "completion_gate": (
+            "All 100 records still need source-reviewed decisions before semantic scoring; "
+            "this workload plan only prioritizes manual review and does not create gold truth."
+        ),
+    }
+
+
+def gold_review_workload_plan_markdown(plan: dict[str, Any]) -> str:
+    lines = [
+        "# NASA ATMONTO Gold Review Workload Plan",
+        "",
+        f"- Gold template: `{plan['gold_template']}`",
+        f"- Worklist: `{plan['worklist_markdown']}`",
+        f"- Candidate review: `{plan['candidate_review_jsonl']}`",
+        f"- Batch index: `{plan['batch_index_markdown']}`",
+        f"- Decision templates: `{plan['decision_templates']}`",
+        f"- Progress tracker: `{plan['progress_markdown']}`",
+        f"- Records: {plan['record_count']}",
+        f"- Batches: {plan['batch_count']}",
+        f"- Records with validator rejections: {plan['records_with_rejections']}",
+        f"- Rejected facts to adjudicate: {plan['total_rejected_facts_to_adjudicate']}",
+        f"- Estimated total review time: {plan['estimated_total_review_minutes']} minutes "
+        f"({plan['estimated_total_review_hours']} hours)",
+        f"- Complexity counts: `{json.dumps(plan['complexity_counts'], sort_keys=True)}`",
+        f"- Priority lanes: `{json.dumps(plan['priority_lane_counts'], sort_keys=True)}`",
+        "",
+        "## Priority Lanes",
+        "",
+        "| Lane | Meaning |",
+        "| --- | --- |",
+        "| `1_rejection_adjudication` | Review first: these records need both semantic gold decisions and rejected-fact adjudications. |",
+        "| `2_high_cross_system_coverage` | Review next: no pilot rejection, but many cross-system candidate alternatives need source checks. |",
+        "| `3_standard_review` | Complete after the higher-workload lanes; still required for final recall/F1. |",
+        "",
+        "## Batch Workload",
+        "",
+        "| Batch | Samples | Records | Clusters | Cross-system clusters | Rejected facts | Est. min | Complexity | Lanes | File |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |",
+    ]
+    for batch in plan["batches"]:
+        lines.append(
+            "| "
+            f"`{batch['batch_id']}` | "
+            f"`{batch['first_sample_id']}`-`{batch['last_sample_id']}` | "
+            f"{batch['record_count']} | "
+            f"{batch['candidate_cluster_count']} | "
+            f"{batch['cross_system_candidate_cluster_count']} | "
+            f"{batch['rejected_fact_count']} | "
+            f"{batch['estimated_review_minutes']} | "
+            f"`{json.dumps(batch['complexity_counts'], sort_keys=True)}` | "
+            f"`{json.dumps(batch['priority_lane_counts'], sort_keys=True)}` | "
+            f"`{batch['path']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Recommended Review Order",
+            "",
+            "| Order | Sample | Batch | Lane | Tier | Score | Est. min | Clusters | Cross-system | Rejected | Class |",
+            "| ---: | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for index, record in enumerate(plan["recommended_review_order"], start=1):
+        lines.append(
+            "| "
+            f"{index} | "
+            f"`{record['sample_id']}` | "
+            f"`{record['batch_id']}` | "
+            f"`{record['priority_lane']}` | "
+            f"`{record['complexity_tier']}` | "
+            f"{record['workload_score']} | "
+            f"{record['estimated_review_minutes']} | "
+            f"{record['candidate_cluster_count']} | "
+            f"{record['cross_system_candidate_cluster_count']} | "
+            f"{record['rejected_fact_count']} | "
+            f"`{record['candidate_subject_class']}` |"
+        )
+    lines.extend(["", "## Completion Gate", "", f"- {plan['completion_gate']}"])
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def run_gold_review_workload_plan(repo_root: str | Path = PROJECT_ROOT) -> dict[str, Any]:
+    repo_root = Path(repo_root).resolve()
+    plan = build_gold_review_workload_plan(repo_root)
+    write_json(repo_root / GOLD_REVIEW_WORKLOAD_PLAN_JSON, plan)
+    (repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD).write_text(
+        gold_review_workload_plan_markdown(plan),
+        encoding="utf-8",
+    )
+    return {
+        "workload_plan_json": project_relative_path(
+            repo_root / GOLD_REVIEW_WORKLOAD_PLAN_JSON,
+            repo_root,
+        ),
+        "workload_plan_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD,
+            repo_root,
+        ),
+        "record_count": plan["record_count"],
+        "batch_count": plan["batch_count"],
+        "estimated_total_review_minutes": plan["estimated_total_review_minutes"],
+        "complexity_counts": plan["complexity_counts"],
+        "priority_lane_counts": plan["priority_lane_counts"],
     }
 
 
@@ -4944,12 +5244,32 @@ def build_formal_experiment_readiness(
         if item["required_before_formal_scoring"] and not item["exists"]:
             missing_inputs.append(f"{item['system_id']} predictions at {item['expected_output']}")
 
+    if not missing_inputs:
+        status = "ready_for_scoring"
+    elif missing_inputs == ["completed manual gold annotations for 100 sampled advisories"]:
+        status = "ready_for_manual_gold_review"
+    else:
+        status = "ready_for_manual_gold_and_llm_runs"
+
     return {
         "source_family": "nasa_atmonto_formal_experiment_readiness",
-        "status": "ready_for_manual_gold_and_llm_runs" if missing_inputs else "ready_for_scoring",
+        "status": status,
         "protocol": "docs/experiment_protocol.md",
         "gold_manifest": project_relative_path(repo_root / GOLD_MANIFEST_PATH, repo_root),
         "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
+        "manual_review_artifacts": {
+            "worklist": project_relative_path(repo_root / GOLD_REVIEW_WORKLIST_MD, repo_root),
+            "workload_plan": project_relative_path(
+                repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD,
+                repo_root,
+            ),
+            "batch_index": project_relative_path(repo_root / GOLD_REVIEW_BATCH_INDEX_MD, repo_root),
+            "decision_templates": project_relative_path(
+                repo_root / GOLD_REVIEW_DECISION_INDEX_MD,
+                repo_root,
+            ),
+            "progress": project_relative_path(repo_root / GOLD_REVIEW_PROGRESS_MD, repo_root),
+        },
         "gold_status": gold_status,
         "formal_input_status": formal_input_status,
         "systems": system_definitions(repo_root),
@@ -4971,7 +5291,7 @@ def build_formal_experiment_readiness(
         "missing_required_inputs": missing_inputs,
         "claim_boundary": (
             "This readiness report does not claim formal extraction effectiveness until "
-            "manual gold annotations and S1-S3 outputs are present."
+            "manual gold annotations are complete and all required system outputs are present."
         ),
     }
 
@@ -4984,6 +5304,8 @@ def markdown_report(report: dict[str, Any]) -> str:
         f"- Protocol: `{report['protocol']}`",
         f"- Gold manifest: `{report['gold_manifest']}`",
         f"- Gold template: `{report['gold_template']}`",
+        f"- Workload plan: `{report['manual_review_artifacts']['workload_plan']}`",
+        f"- Review progress: `{report['manual_review_artifacts']['progress']}`",
         "",
         "## Gold Status",
         "",
@@ -5057,6 +5379,7 @@ def run_formal_experiment_readiness(
     prediction_validation = build_prediction_output_validation_report(repo_root)
     candidate_review = build_system_candidate_review_package(repo_root)
     batch_report = build_gold_review_batches(repo_root, candidate_review=candidate_review)
+    workload_plan = build_gold_review_workload_plan(repo_root)
     decision_report = build_gold_review_decision_templates(
         repo_root,
         batch_report=batch_report,
@@ -5073,6 +5396,7 @@ def run_formal_experiment_readiness(
     write_json(repo_root / READINESS_REPORT_JSON, report)
     write_json(repo_root / SCORING_REPORT_JSON, score_report)
     write_json(repo_root / GOLD_REVIEW_PROGRESS_JSON, progress_report)
+    write_json(repo_root / GOLD_REVIEW_WORKLOAD_PLAN_JSON, workload_plan)
     write_jsonl(repo_root / GOLD_CANDIDATE_REVIEW_JSONL, candidate_review["records"])
     (repo_root / GOLD_REVIEW_WORKLIST_MD).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / GOLD_REVIEW_WORKLIST_MD).write_text(
@@ -5118,6 +5442,11 @@ def run_formal_experiment_readiness(
     )
     (repo_root / GOLD_REVIEW_PROGRESS_MD).write_text(
         gold_review_progress_markdown(progress_report),
+        encoding="utf-8",
+    )
+    (repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD).write_text(
+        gold_review_workload_plan_markdown(workload_plan),
         encoding="utf-8",
     )
     (repo_root / REJECTION_ADJUDICATION_MD).parent.mkdir(parents=True, exist_ok=True)
@@ -5188,6 +5517,14 @@ def run_formal_experiment_readiness(
         ),
         "gold_review_progress_markdown": project_relative_path(
             repo_root / GOLD_REVIEW_PROGRESS_MD,
+            repo_root,
+        ),
+        "gold_review_workload_plan_json": project_relative_path(
+            repo_root / GOLD_REVIEW_WORKLOAD_PLAN_JSON,
+            repo_root,
+        ),
+        "gold_review_workload_plan_markdown": project_relative_path(
+            repo_root / GOLD_REVIEW_WORKLOAD_PLAN_MD,
             repo_root,
         ),
         "rejection_adjudication_json": project_relative_path(

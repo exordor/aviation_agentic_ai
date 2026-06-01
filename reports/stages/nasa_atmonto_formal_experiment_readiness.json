@@ -1,9 +1,16 @@
 {
   "source_family": "nasa_atmonto_formal_experiment_readiness",
-  "status": "ready_for_manual_gold_and_llm_runs",
+  "status": "ready_for_manual_gold_review",
   "protocol": "docs/experiment_protocol.md",
   "gold_manifest": "data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json",
   "gold_template": "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl",
+  "manual_review_artifacts": {
+    "worklist": "data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md",
+    "workload_plan": "reports/stages/nasa_atmonto_gold_review_workload_plan.md",
+    "batch_index": "data/evaluation/nasa_atmonto/review_batches/index.md",
+    "decision_templates": "data/evaluation/nasa_atmonto/review_decisions/index.md",
+    "progress": "data/evaluation/nasa_atmonto/gold_review_progress.md"
+  },
   "gold_status": {
     "record_count": 100,
     "status_counts": {
@@ -140,5 +147,5 @@
   "missing_required_inputs": [
     "completed manual gold annotations for 100 sampled advisories"
   ],
-  "claim_boundary": "This readiness report does not claim formal extraction effectiveness until manual gold annotations and S1-S3 outputs are present."
+  "claim_boundary": "This readiness report does not claim formal extraction effectiveness until manual gold annotations are complete and all required system outputs are present."
 }

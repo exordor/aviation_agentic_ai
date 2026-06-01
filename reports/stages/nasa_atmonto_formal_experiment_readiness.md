@@ -1,9 +1,11 @@
 # NASA ATMONTO Formal Experiment Readiness
 
-- Status: `ready_for_manual_gold_and_llm_runs`
+- Status: `ready_for_manual_gold_review`
 - Protocol: `docs/experiment_protocol.md`
 - Gold manifest: `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
 - Gold template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
+- Workload plan: `reports/stages/nasa_atmonto_gold_review_workload_plan.md`
+- Review progress: `data/evaluation/nasa_atmonto/gold_review_progress.md`
 
 ## Gold Status
 
@@ -44,4 +46,4 @@
 
 ## Boundary
 
-- This readiness report does not claim formal extraction effectiveness until manual gold annotations and S1-S3 outputs are present.
+- This readiness report does not claim formal extraction effectiveness until manual gold annotations are complete and all required system outputs are present.

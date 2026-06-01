@@ -150,6 +150,7 @@ Prepared files:
 - Manifest: `data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json`
 - Annotation template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
 - Review worklist: `data/evaluation/nasa_atmonto/atcscc_gold_review_worklist.md`
+- Review workload plan: `reports/stages/nasa_atmonto_gold_review_workload_plan.md`
 - Freeze status: `reports/stages/nasa_atmonto_gold_freeze_status.md`
 
 Current sample properties:
@@ -421,6 +422,7 @@ uv run python scripts/prepare_nasa_atmonto_system_candidate_review.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_batches.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_decisions.py
 uv run python scripts/prepare_nasa_atmonto_gold_review_progress.py
+uv run python scripts/prepare_nasa_atmonto_gold_review_workload_plan.py
 ```
 
 Use `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md` as a
@@ -445,6 +447,12 @@ candidate facts.
    smaller review units. The JSONL decision templates under
    `data/evaluation/nasa_atmonto/review_decisions/` are the structured inputs
    for applying reviewed decisions.
+
+   Use `reports/stages/nasa_atmonto_gold_review_workload_plan.md` to choose
+   review order. It prioritizes records needing rejected-fact adjudication,
+   then cross-system-heavy records, then standard records. This queue planning
+   artifact does not relax the requirement to manually review all 100 records
+   before precision, recall, F1, and manual semantic correctness are reported.
 
 ```bash
 uv run python scripts/apply_nasa_atmonto_gold_review_decisions.py

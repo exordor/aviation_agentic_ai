@@ -10,6 +10,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     build_gold_freeze_status,
     build_gold_annotation_validation_report,
     build_gold_review_worklist,
+    build_gold_review_workload_plan,
     build_gold_review_batches,
     build_gold_review_decision_templates,
     build_gold_review_progress,
@@ -29,6 +30,7 @@ from aviation_agentic_ai.ontology.atmonto_experiment import (
     gold_review_batch_markdown,
     gold_review_decision_index_markdown,
     gold_review_progress_markdown,
+    gold_review_workload_plan_markdown,
     score_report_markdown,
     semantic_metrics,
     structural_metrics,
@@ -133,11 +135,14 @@ def test_semantic_metrics_compute_precision_recall_f1_when_gold_exists() -> None
 def test_readiness_report_marks_manual_gold_as_pending_after_llm_outputs() -> None:
     report = build_formal_experiment_readiness(Path("."))
 
-    assert report["status"] == "ready_for_manual_gold_and_llm_runs"
+    assert report["status"] == "ready_for_manual_gold_review"
     assert report["gold_status"]["record_count"] == 100
     assert report["gold_status"]["complete"] is False
     assert report["formal_input_status"]["input_records_exists"] is True
     assert report["formal_input_status"]["system_specs_exists"] is True
+    assert report["manual_review_artifacts"]["workload_plan"].endswith(
+        "nasa_atmonto_gold_review_workload_plan.md"
+    )
     assert "completed manual gold annotations" in report["missing_required_inputs"][0]
     assert not any("predictions" in item for item in report["missing_required_inputs"])
 
@@ -149,9 +154,12 @@ def test_generated_readiness_report_json_is_consistent() -> None:
         )
     )
 
-    assert report["status"] == "ready_for_manual_gold_and_llm_runs"
+    assert report["status"] == "ready_for_manual_gold_review"
     assert report["gold_status"]["pending_record_count"] == 100
     assert report["formal_input_status"]["input_records_exists"] is True
+    assert report["manual_review_artifacts"]["workload_plan"].endswith(
+        "nasa_atmonto_gold_review_workload_plan.md"
+    )
     assert report["current_s0_rule_only_structural_metrics"]["attempted_record_count"] == 100
 
 
@@ -957,6 +965,34 @@ def test_gold_review_worklist_summarizes_human_annotation_queue() -> None:
         "extractor_normalization_bug_candidate",
         "nasa_atmonto_profile_gap_candidate",
     }
+
+
+def test_gold_review_workload_plan_prioritizes_manual_review_queue() -> None:
+    plan = build_gold_review_workload_plan(Path("."))
+
+    assert plan["record_count"] == 100
+    assert plan["batch_count"] == 10
+    assert plan["records_with_rejections"] == 40
+    assert plan["total_rejected_facts_to_adjudicate"] == 48
+    assert plan["estimated_total_review_minutes"] > 0
+    assert sum(plan["complexity_counts"].values()) == 100
+    assert sum(plan["priority_lane_counts"].values()) == 100
+    assert plan["priority_lane_counts"]["1_rejection_adjudication"] == 40
+
+    first = plan["recommended_review_order"][0]
+    assert first["priority_lane"] == "1_rejection_adjudication"
+    assert first["rejected_fact_count"] > 0
+    assert first["batch_id"].startswith("batch_")
+
+    first_batch = plan["batches"][0]
+    assert first_batch["batch_id"] == "batch_01"
+    assert first_batch["estimated_review_minutes"] > 0
+    assert sum(first_batch["complexity_counts"].values()) == first_batch["record_count"]
+
+    markdown = gold_review_workload_plan_markdown(plan)
+    assert "Gold Review Workload Plan" in markdown
+    assert "Recommended Review Order" in markdown
+    assert "does not create gold truth" in markdown
 
 
 def test_system_candidate_review_package_covers_all_prediction_systems() -> None:

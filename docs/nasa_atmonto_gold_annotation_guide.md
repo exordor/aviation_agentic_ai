@@ -9,6 +9,7 @@
 - Batch review index: `data/evaluation/nasa_atmonto/review_batches/index.md`
 - Decision templates: `data/evaluation/nasa_atmonto/review_decisions/index.md`
 - Progress tracker: `data/evaluation/nasa_atmonto/gold_review_progress.md`
+- Workload plan: `reports/stages/nasa_atmonto_gold_review_workload_plan.md`
 - Validation command: `uv run python scripts/validate_nasa_atmonto_gold_annotations.py`
 - Boundary: this guide creates a retrospective research gold set. It does not
   support live aviation operations, flight planning, ATC decisions, or safety
@@ -59,6 +60,11 @@ For review ergonomics, use
 `data/evaluation/nasa_atmonto/review_batches/index.md` to work through ten
 10-record Markdown batches. The batch files are checklists only; transfer final
 decisions back into the JSONL template before validation.
+
+Use `reports/stages/nasa_atmonto_gold_review_workload_plan.md` before starting
+manual review. It groups the 100 advisories into priority lanes based on
+validator rejections, cross-system candidate alternatives, and batch workload.
+The workload plan is only a queue planner; it does not create gold truth.
 
 For structured entry, edit the JSONL files under
 `data/evaluation/nasa_atmonto/review_decisions/`, then run
