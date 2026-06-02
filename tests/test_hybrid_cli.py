@@ -795,6 +795,49 @@ def test_cli_report_answer_eval_uses_mocked_writer(tmp_path: Path, monkeypatch) 
     assert "Evaluated 4 answers" in result.output
 
 
+def test_cli_report_nasa_atmonto_answer_generation_uses_mocked_writer(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from aviation_agentic_ai import cli_report_nasa
+
+    def fake_writer(*_args, **_kwargs):
+        json_path = tmp_path / "nasa_atmonto_answer_generation.json"
+        md_path = tmp_path / "nasa_atmonto_answer_generation.md"
+        benchmark_path = tmp_path / "atcscc_answer_eval_benchmark.json"
+        chapter_path = tmp_path / "nasa_atmonto_experiment_chapter_draft.md"
+        for path in (json_path, md_path, benchmark_path, chapter_path):
+            path.write_text("{}\n", encoding="utf-8")
+        return (
+            json_path,
+            md_path,
+            benchmark_path,
+            chapter_path,
+            {"metadata": {"benchmark_label_count": 6}, "critic_gate": {"rejected_fact_count": 1}},
+        )
+
+    monkeypatch.setattr(cli_report_nasa, "write_nasa_atmonto_answer_generation", fake_writer)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "report",
+            "nasa-atmonto-answer-generation",
+            "--output-dir",
+            str(tmp_path),
+            "--benchmark-path",
+            str(tmp_path / "benchmark.json"),
+            "--chapter-path",
+            str(tmp_path / "chapter.md"),
+            "--max-cases-per-template",
+            "1",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Generated 6 ATCSCC answer-eval labels" in result.output
+    assert "critic-gate rejected 1 S4 facts" in result.output
+
+
 def test_cli_report_sufficiency_and_triple_review_use_mocked_writers(
     tmp_path: Path,
     monkeypatch,

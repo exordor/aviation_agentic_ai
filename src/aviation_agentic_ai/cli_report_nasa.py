@@ -9,6 +9,9 @@ from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.nasa_atmonto_agentic_loop import (
     write_nasa_atmonto_agentic_loop,
 )
+from aviation_agentic_ai.reporting.nasa_atmonto_answer_generation import (
+    write_nasa_atmonto_answer_generation,
+)
 from aviation_agentic_ai.reporting.nasa_atmonto_cq import write_nasa_atmonto_cq_evaluation
 from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import (
     write_nasa_atmonto_cq_query_evaluation,
@@ -385,6 +388,94 @@ def register_nasa_report_commands(report: click.Group) -> None:
             click.echo(
                 f"Evaluated {result['metadata']['template_count']} CQ query templates "
                 f"against {result['metadata']['system_count']} systems."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
+
+    @report.command("nasa-atmonto-answer-generation")
+    @click.option(
+        "--gold-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Reviewed ATCSCC gold JSONL file.",
+    )
+    @click.option(
+        "--s4-predictions",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="S4 hybrid prediction JSONL file.",
+    )
+    @click.option(
+        "--query-manifest",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="ATCSCC CQ query manifest JSON.",
+    )
+    @click.option(
+        "--benchmark-path",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Output path for the ATCSCC answer-eval benchmark.",
+    )
+    @click.option(
+        "--chapter-path",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Output path for the experiment chapter draft.",
+    )
+    @click.option(
+        "--output-dir",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Directory for answer-generation report outputs.",
+    )
+    @click.option(
+        "--report-name",
+        default="nasa_atmonto_answer_generation",
+        show_default=True,
+        help="Output report stem.",
+    )
+    @click.option("--max-cases-per-template", default=3, show_default=True, type=int)
+    def report_nasa_atmonto_answer_generation(
+        gold_file: Path | None,
+        s4_predictions: Path | None,
+        query_manifest: Path | None,
+        benchmark_path: Path | None,
+        chapter_path: Path | None,
+        output_dir: Path | None,
+        report_name: str,
+        max_cases_per_template: int,
+    ) -> None:
+        """Generate ATCSCC answer-eval benchmark and deterministic GraphRAG answers."""
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            report_kwargs = {
+                "output_dir": report_dir,
+                "report_name": report_name,
+                "max_cases_per_template": max_cases_per_template,
+            }
+            if gold_file is not None:
+                report_kwargs["gold_path"] = gold_file
+            if s4_predictions is not None:
+                report_kwargs["s4_prediction_path"] = s4_predictions
+            if query_manifest is not None:
+                report_kwargs["query_manifest_path"] = query_manifest
+            if benchmark_path is not None:
+                report_kwargs["benchmark_path"] = benchmark_path
+            if chapter_path is not None:
+                report_kwargs["chapter_path"] = chapter_path
+            json_path, md_path, benchmark_json, chapter_md, result = (
+                write_nasa_atmonto_answer_generation(**report_kwargs)
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Wrote {project_relative_path(benchmark_json)}")
+            click.echo(f"Wrote {project_relative_path(chapter_md)}")
+            click.echo(
+                f"Generated {result['metadata']['benchmark_label_count']} "
+                "ATCSCC answer-eval labels; "
+                f"critic-gate rejected {result['critic_gate']['rejected_fact_count']} S4 facts."
             )
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc

@@ -1,0 +1,4651 @@
+{
+  "source_family": "nasa_atmonto_answer_generation",
+  "status": "answer_generation_evaluated",
+  "metadata": {
+    "gold_path": "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
+    "s4_prediction_path": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl",
+    "query_manifest_path": "data/evaluation/nasa_atmonto/atcscc_cq_query_templates.json",
+    "template_count": 6,
+    "benchmark_label_count": 18,
+    "modes": [
+      "source_only",
+      "vector_rag",
+      "graph_only",
+      "hybrid_graphrag"
+    ],
+    "generation_policy": "deterministic_answer_scaffold_no_live_llm",
+    "boundary": "Retrospective ATCSCC advisory GraphRAG answer evaluation only."
+  },
+  "benchmark": {
+    "source_family": "nasa_atmonto_answer_eval_benchmark",
+    "status": "ready",
+    "metadata": {
+      "template_count": 6,
+      "label_count": 18,
+      "max_cases_per_template": 3,
+      "selection_policy": "first_source_bounded_reviewed_case_per_template",
+      "boundary": "Retrospective ATCSCC advisory answer evaluation only; no live operational use."
+    },
+    "labels": [
+      {
+        "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-19:079",
+        "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-D02",
+          "CQ-E03"
+        ],
+        "source_id": "2026-05-19:079",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1851Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0359Z CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0359Z PROGRAM RATE: 28/28/28/24/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 106 AVERAGE DELAY: 54 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.\nEFFECTIVE TIME:\n191854-200459\nSIGNATURE:\n26/05/19 18:55\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+        "question": "Which airports, ARTCCs, routes, or other NAS elements are affected by the advisory?",
+        "question_type": "entity_set",
+        "predicates": [
+          "controlledNASelement"
+        ],
+        "expected_values": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA",
+            "text": "CTL ELEMENT: BNA",
+            "source_id": "2026-05-19:079"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "controlledNASelement=BNA"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "CTL ELEMENT: BNA",
+            "char_start": 252,
+            "char_end": 268
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-079-p1-c1"
+        ],
+        "answer_key": "controlledNASelement=BNA",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-19:074",
+        "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-D02",
+          "CQ-E03"
+        ],
+        "source_id": "2026-05-19:074",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1836Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0459Z ANTICIPATED CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0459Z ANTICIPATED PROGRAM RATE: 28/18/18/20/20/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME ANTICIPATED MAXIMUM DELAY: 175 ANTICIPATED AVERAGE DELAY: 109 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z\nEFFECTIVE TIME:\n191840-191959\nSIGNATURE:\n26/05/19 18:41\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+        "question": "Which airports, ARTCCs, routes, or other NAS elements are affected by the advisory?",
+        "question_type": "entity_set",
+        "predicates": [
+          "controlledNASelement"
+        ],
+        "expected_values": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA",
+            "text": "CTL ELEMENT: BNA",
+            "source_id": "2026-05-19:074"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "controlledNASelement=BNA"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "CTL ELEMENT: BNA",
+            "char_start": 261,
+            "char_end": 277
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-074-p1-c1"
+        ],
+        "answer_key": "controlledNASelement=BNA",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-15:067",
+        "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-D02",
+          "CQ-E03"
+        ],
+        "source_id": "2026-05-15:067",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1945Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 15/2200Z - 16/0029Z CUMULATIVE PROGRAM PERIOD: 15/2200Z - 16/0029Z PROGRAM RATE: 32 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: 1000 CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 59 AVERAGE DELAY: 29 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45\nEFFECTIVE TIME:\n151949-160129\nSIGNATURE:\n26/05/15 19:50\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+        "question": "Which airports, ARTCCs, routes, or other NAS elements are affected by the advisory?",
+        "question_type": "entity_set",
+        "predicates": [
+          "controlledNASelement"
+        ],
+        "expected_values": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA",
+            "text": "CTL ELEMENT: BNA",
+            "source_id": "2026-05-15:067"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "controlledNASelement=BNA"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "CTL ELEMENT: BNA",
+            "char_start": 252,
+            "char_end": 268
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-15-067-p1-c1"
+        ],
+        "answer_key": "controlledNASelement=BNA",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-TIME-WINDOW::2026-05-19:032",
+        "template_id": "QT-Q01-TIME-WINDOW",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-D03",
+          "CQ-O01"
+        ],
+        "source_id": "2026-05-19:032",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD\nMESSAGE:\nEVENT TIME: 19/1200 - 19/1600 CONSTRAINED FACILITIES: ZNY REPLACES ADVZY 027 ADDS L454 ZNY ADVISES THAT L452 / AR8 / L454 ARE CLOSED DUE TO SEVERE TURBULENCE. CUSTOMERS ARE ENCOURAGED TO FILE ALTERNATE ROUTES.\nEFFECTIVE TIME:\n191322-191630\nSIGNATURE:\n26/05/19 13:22\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+        "question": "What are the effective start and end times for the advisory?",
+        "question_type": "temporal_interval",
+        "predicates": [
+          "effectiveEndTime",
+          "effectiveStartTime"
+        ],
+        "expected_values": [
+          {
+            "predicate": "effectiveStartTime",
+            "value": "00Z"
+          },
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "effectiveStartTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 191322-191630",
+            "source_id": "2026-05-19:032"
+          },
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 191322-191630",
+            "source_id": "2026-05-19:032"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "effectiveStartTime=00Z",
+          "effectiveEndTime=00Z"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 191322-191630",
+            "char_start": null,
+            "char_end": null
+          },
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 191322-191630",
+            "char_start": null,
+            "char_end": null
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-032-p1-c1"
+        ],
+        "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-TIME-WINDOW::2026-05-15:063",
+        "template_id": "QT-Q01-TIME-WINDOW",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-D03",
+          "CQ-O01"
+        ],
+        "source_id": "2026-05-15:063",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 063 SAN/ZLA 05/15/2026 SAN AIRPORT ARRIVAL DELAYS\nMESSAGE:\nEVENT TIME: 15/1918 - 16/0000 CONSTRAINED FACILITIES: ZLA USERS CAN EXPECT ARRIVAL DELAYS / AIRBORNE HOLDING INTO SAN DIEGO AIRPORT OF UP TO 30 MINUTES DUE TO COMPACTED DEMAND. UPDATES WILL FOLLOW IF NECESSARY.\nEFFECTIVE TIME:\n151918-160030\nSIGNATURE:\n26/05/15 19:18\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+        "question": "What are the effective start and end times for the advisory?",
+        "question_type": "temporal_interval",
+        "predicates": [
+          "effectiveEndTime",
+          "effectiveStartTime"
+        ],
+        "expected_values": [
+          {
+            "predicate": "effectiveStartTime",
+            "value": "00Z"
+          },
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "effectiveStartTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 151918-160030",
+            "source_id": "2026-05-15:063"
+          },
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 151918-160030",
+            "source_id": "2026-05-15:063"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "effectiveStartTime=00Z",
+          "effectiveEndTime=00Z"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 151918-160030",
+            "char_start": null,
+            "char_end": null
+          },
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 151918-160030",
+            "char_start": null,
+            "char_end": null
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-15-063-p1-c1"
+        ],
+        "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-TIME-WINDOW::2026-05-18:069",
+        "template_id": "QT-Q01-TIME-WINDOW",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-D03",
+          "CQ-O01"
+        ],
+        "source_id": "2026-05-18:069",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 069 LAS/ZLA 05/18/2026 LAS AIRPORT ARRIVAL DELAYS\nMESSAGE:\nEVENT TIME: 18/1545 - 18/2000 CONSTRAINED FACILITIES: ZLA USERS CAN EXPECT ARRIVAL DELAYS / AIRBORNE HOLDING INTO LAS VEGAS AIRPORT OF UP TO 30 MINUTES DUE TO COMPACTED DEMAND. UPDATES WILL FOLLOW IF NECESSARY.\nEFFECTIVE TIME:\n181545-182030\nSIGNATURE:\n26/05/18 15:45\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+        "question": "What are the effective start and end times for the advisory?",
+        "question_type": "temporal_interval",
+        "predicates": [
+          "effectiveEndTime",
+          "effectiveStartTime"
+        ],
+        "expected_values": [
+          {
+            "predicate": "effectiveStartTime",
+            "value": "00Z"
+          },
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "effectiveStartTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 181545-182030",
+            "source_id": "2026-05-18:069"
+          },
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 181545-182030",
+            "source_id": "2026-05-18:069"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "effectiveStartTime=00Z",
+          "effectiveEndTime=00Z"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 181545-182030",
+            "char_start": null,
+            "char_end": null
+          },
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 181545-182030",
+            "char_start": null,
+            "char_end": null
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-18-069-p1-c1"
+        ],
+        "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-19:079",
+        "template_id": "QT-Q01-CAUSE-CONDITION",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E02"
+        ],
+        "source_id": "2026-05-19:079",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1851Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0359Z CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0359Z PROGRAM RATE: 28/28/28/24/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 106 AVERAGE DELAY: 54 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.\nEFFECTIVE TIME:\n191854-200459\nSIGNATURE:\n26/05/19 18:55\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+        "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
+        "question_type": "condition_set",
+        "predicates": [
+          "impactingCondition",
+          "impactingConditionMessage",
+          "reRouteReason"
+        ],
+        "expected_values": [
+          {
+            "predicate": "impactingConditionMessage",
+            "value": "STAFFING"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "impactingConditionMessage",
+            "value": "STAFFING",
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "source_id": "2026-05-19:079"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "impactingConditionMessage=STAFFING"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "char_start": 698,
+            "char_end": 738
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-079-p1-c1"
+        ],
+        "answer_key": "impactingConditionMessage=STAFFING",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-19:074",
+        "template_id": "QT-Q01-CAUSE-CONDITION",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E02"
+        ],
+        "source_id": "2026-05-19:074",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1836Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0459Z ANTICIPATED CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0459Z ANTICIPATED PROGRAM RATE: 28/18/18/20/20/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME ANTICIPATED MAXIMUM DELAY: 175 ANTICIPATED AVERAGE DELAY: 109 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z\nEFFECTIVE TIME:\n191840-191959\nSIGNATURE:\n26/05/19 18:41\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+        "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
+        "question_type": "condition_set",
+        "predicates": [
+          "impactingCondition",
+          "impactingConditionMessage",
+          "reRouteReason"
+        ],
+        "expected_values": [
+          {
+            "predicate": "impactingConditionMessage",
+            "value": "STAFFING"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "impactingConditionMessage",
+            "value": "STAFFING",
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "source_id": "2026-05-19:074"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "impactingConditionMessage=STAFFING"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "char_start": 759,
+            "char_end": 799
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-074-p1-c1"
+        ],
+        "answer_key": "impactingConditionMessage=STAFFING",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-15:067",
+        "template_id": "QT-Q01-CAUSE-CONDITION",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E02"
+        ],
+        "source_id": "2026-05-15:067",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1945Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 15/2200Z - 16/0029Z CUMULATIVE PROGRAM PERIOD: 15/2200Z - 16/0029Z PROGRAM RATE: 32 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: 1000 CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 59 AVERAGE DELAY: 29 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45\nEFFECTIVE TIME:\n151949-160129\nSIGNATURE:\n26/05/15 19:50\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+        "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
+        "question_type": "condition_set",
+        "predicates": [
+          "impactingCondition",
+          "impactingConditionMessage",
+          "reRouteReason"
+        ],
+        "expected_values": [
+          {
+            "predicate": "impactingConditionMessage",
+            "value": "STAFFING"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "impactingConditionMessage",
+            "value": "STAFFING",
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "source_id": "2026-05-15:067"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "impactingConditionMessage=STAFFING"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "char_start": 595,
+            "char_end": 635
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-15-067-p1-c1"
+        ],
+        "answer_key": "impactingConditionMessage=STAFFING",
+        "gold_level": "span",
+        "route": "graph_template"
+      },
+      {
+        "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:032",
+        "template_id": "QT-Q01-STATUS-ACTION",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E01"
+        ],
+        "source_id": "2026-05-19:032",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD\nMESSAGE:\nEVENT TIME: 19/1200 - 19/1600 CONSTRAINED FACILITIES: ZNY REPLACES ADVZY 027 ADDS L454 ZNY ADVISES THAT L452 / AR8 / L454 ARE CLOSED DUE TO SEVERE TURBULENCE. CUSTOMERS ARE ENCOURAGED TO FILE ALTERNATE ROUTES.\nEFFECTIVE TIME:\n191322-191630\nSIGNATURE:\n26/05/19 13:22\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+        "question": "What status or action is stated for the advisory?",
+        "question_type": "status_or_comment",
+        "predicates": [
+          "implementationStatus",
+          "initiativeComments"
+        ],
+        "expected_values": [
+          {
+            "predicate": "implementationStatus",
+            "value": "RQD"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "implementationStatus",
+            "value": "RQD",
+            "text": "_RQD",
+            "source_id": "2026-05-19:032"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "implementationStatus=RQD"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "_RQD",
+            "char_start": 236,
+            "char_end": 240
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-032-p1-c1"
+        ],
+        "answer_key": "implementationStatus=RQD",
+        "gold_level": "span",
+        "route": "hybrid_graph_plus_source_span"
+      },
+      {
+        "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:079",
+        "template_id": "QT-Q01-STATUS-ACTION",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E01"
+        ],
+        "source_id": "2026-05-19:079",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1851Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0359Z CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0359Z PROGRAM RATE: 28/28/28/24/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 106 AVERAGE DELAY: 54 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.\nEFFECTIVE TIME:\n191854-200459\nSIGNATURE:\n26/05/19 18:55\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+        "question": "What status or action is stated for the advisory?",
+        "question_type": "status_or_comment",
+        "predicates": [
+          "implementationStatus",
+          "initiativeComments"
+        ],
+        "expected_values": [
+          {
+            "predicate": "initiativeComments",
+            "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "initiativeComments",
+            "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
+            "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
+            "source_id": "2026-05-19:079"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
+            "char_start": 739,
+            "char_end": 801
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-079-p1-c1"
+        ],
+        "answer_key": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
+        "gold_level": "span",
+        "route": "hybrid_graph_plus_source_span"
+      },
+      {
+        "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:074",
+        "template_id": "QT-Q01-STATUS-ACTION",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E01"
+        ],
+        "source_id": "2026-05-19:074",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1836Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0459Z ANTICIPATED CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0459Z ANTICIPATED PROGRAM RATE: 28/18/18/20/20/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME ANTICIPATED MAXIMUM DELAY: 175 ANTICIPATED AVERAGE DELAY: 109 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z\nEFFECTIVE TIME:\n191840-191959\nSIGNATURE:\n26/05/19 18:41\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+        "question": "What status or action is stated for the advisory?",
+        "question_type": "status_or_comment",
+        "predicates": [
+          "implementationStatus",
+          "initiativeComments"
+        ],
+        "expected_values": [
+          {
+            "predicate": "initiativeComments",
+            "value": "1850Z"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "initiativeComments",
+            "value": "1850Z",
+            "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
+            "source_id": "2026-05-19:074"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "initiativeComments=1850Z"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
+            "char_start": 800,
+            "char_end": 927
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-074-p1-c1"
+        ],
+        "answer_key": "initiativeComments=1850Z",
+        "gold_level": "span",
+        "route": "hybrid_graph_plus_source_span"
+      },
+      {
+        "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:079",
+        "template_id": "QT-Q01-ROUTE-SEMANTICS",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E03",
+          "CQ-O02"
+        ],
+        "source_id": "2026-05-19:079",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1851Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0359Z CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0359Z PROGRAM RATE: 28/28/28/24/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 106 AVERAGE DELAY: 54 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.\nEFFECTIVE TIME:\n191854-200459\nSIGNATURE:\n26/05/19 18:55\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+        "question": "What reroute type, reroute reason, and constrained element are represented?",
+        "question_type": "route_constraint_tuple",
+        "predicates": [
+          "controlledNASelement",
+          "reRouteReason",
+          "reRouteType"
+        ],
+        "expected_values": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA",
+            "text": "CTL ELEMENT: BNA",
+            "source_id": "2026-05-19:079"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "controlledNASelement=BNA"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "CTL ELEMENT: BNA",
+            "char_start": 252,
+            "char_end": 268
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-079-p1-c1"
+        ],
+        "answer_key": "controlledNASelement=BNA",
+        "gold_level": "span",
+        "route": "hybrid_graph_plus_source_span"
+      },
+      {
+        "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:074",
+        "template_id": "QT-Q01-ROUTE-SEMANTICS",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E03",
+          "CQ-O02"
+        ],
+        "source_id": "2026-05-19:074",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1836Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0459Z ANTICIPATED CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0459Z ANTICIPATED PROGRAM RATE: 28/18/18/20/20/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME ANTICIPATED MAXIMUM DELAY: 175 ANTICIPATED AVERAGE DELAY: 109 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z\nEFFECTIVE TIME:\n191840-191959\nSIGNATURE:\n26/05/19 18:41\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+        "question": "What reroute type, reroute reason, and constrained element are represented?",
+        "question_type": "route_constraint_tuple",
+        "predicates": [
+          "controlledNASelement",
+          "reRouteReason",
+          "reRouteType"
+        ],
+        "expected_values": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA",
+            "text": "CTL ELEMENT: BNA",
+            "source_id": "2026-05-19:074"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "controlledNASelement=BNA"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "CTL ELEMENT: BNA",
+            "char_start": 261,
+            "char_end": 277
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-074-p1-c1"
+        ],
+        "answer_key": "controlledNASelement=BNA",
+        "gold_level": "span",
+        "route": "hybrid_graph_plus_source_span"
+      },
+      {
+        "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-15:067",
+        "template_id": "QT-Q01-ROUTE-SEMANTICS",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E03",
+          "CQ-O02"
+        ],
+        "source_id": "2026-05-15:067",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGRAM\nMESSAGE:\nCTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1945Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 15/2200Z - 16/0029Z CUMULATIVE PROGRAM PERIOD: 15/2200Z - 16/0029Z PROGRAM RATE: 32 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: 1000 CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 59 AVERAGE DELAY: 29 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45\nEFFECTIVE TIME:\n151949-160129\nSIGNATURE:\n26/05/15 19:50\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+        "question": "What reroute type, reroute reason, and constrained element are represented?",
+        "question_type": "route_constraint_tuple",
+        "predicates": [
+          "controlledNASelement",
+          "reRouteReason",
+          "reRouteType"
+        ],
+        "expected_values": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "controlledNASelement",
+            "value": "BNA",
+            "text": "CTL ELEMENT: BNA",
+            "source_id": "2026-05-15:067"
+          }
+        ],
+        "expected_abstention": false,
+        "absent_predicates": [],
+        "answer_set": [
+          "controlledNASelement=BNA"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "CTL ELEMENT: BNA",
+            "char_start": 252,
+            "char_end": 268
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-15-067-p1-c1"
+        ],
+        "answer_key": "controlledNASelement=BNA",
+        "gold_level": "span",
+        "route": "hybrid_graph_plus_source_span"
+      },
+      {
+        "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-19:032",
+        "template_id": "QT-A01-ABSTENTION-FIELDS",
+        "cq_ids": [
+          "CQ-A01"
+        ],
+        "source_id": "2026-05-19:032",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD\nMESSAGE:\nEVENT TIME: 19/1200 - 19/1600 CONSTRAINED FACILITIES: ZNY REPLACES ADVZY 027 ADDS L454 ZNY ADVISES THAT L452 / AR8 / L454 ARE CLOSED DUE TO SEVERE TURBULENCE. CUSTOMERS ARE ENCOURAGED TO FILE ALTERNATE ROUTES.\nEFFECTIVE TIME:\n191322-191630\nSIGNATURE:\n26/05/19 13:22\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+        "question": "Which expected fields are absent or unsupported and should trigger abstention?",
+        "question_type": "field_presence_and_abstention",
+        "predicates": [
+          "controlledNASelement",
+          "effectiveEndTime",
+          "extensionProbability",
+          "impactingCondition",
+          "reRouteReason"
+        ],
+        "expected_values": [
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 191322-191630",
+            "source_id": "2026-05-19:032"
+          }
+        ],
+        "expected_abstention": true,
+        "absent_predicates": [
+          "controlledNASelement",
+          "extensionProbability",
+          "impactingCondition",
+          "reRouteReason"
+        ],
+        "answer_set": [
+          "absent:controlledNASelement",
+          "absent:extensionProbability",
+          "absent:impactingCondition",
+          "absent:reRouteReason"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 191322-191630",
+            "char_start": null,
+            "char_end": null
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-19-032-p1-c1"
+        ],
+        "answer_key": "absent:controlledNASelement; absent:extensionProbability; absent:impactingCondition; absent:reRouteReason",
+        "gold_level": "no_answer",
+        "route": "critic_gate"
+      },
+      {
+        "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-15:063",
+        "template_id": "QT-A01-ABSTENTION-FIELDS",
+        "cq_ids": [
+          "CQ-A01"
+        ],
+        "source_id": "2026-05-15:063",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 063 SAN/ZLA 05/15/2026 SAN AIRPORT ARRIVAL DELAYS\nMESSAGE:\nEVENT TIME: 15/1918 - 16/0000 CONSTRAINED FACILITIES: ZLA USERS CAN EXPECT ARRIVAL DELAYS / AIRBORNE HOLDING INTO SAN DIEGO AIRPORT OF UP TO 30 MINUTES DUE TO COMPACTED DEMAND. UPDATES WILL FOLLOW IF NECESSARY.\nEFFECTIVE TIME:\n151918-160030\nSIGNATURE:\n26/05/15 19:18\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+        "question": "Which expected fields are absent or unsupported and should trigger abstention?",
+        "question_type": "field_presence_and_abstention",
+        "predicates": [
+          "controlledNASelement",
+          "effectiveEndTime",
+          "extensionProbability",
+          "impactingCondition",
+          "reRouteReason"
+        ],
+        "expected_values": [
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 151918-160030",
+            "source_id": "2026-05-15:063"
+          }
+        ],
+        "expected_abstention": true,
+        "absent_predicates": [
+          "controlledNASelement",
+          "extensionProbability",
+          "impactingCondition",
+          "reRouteReason"
+        ],
+        "answer_set": [
+          "absent:controlledNASelement",
+          "absent:extensionProbability",
+          "absent:impactingCondition",
+          "absent:reRouteReason"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 151918-160030",
+            "char_start": null,
+            "char_end": null
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-15-063-p1-c1"
+        ],
+        "answer_key": "absent:controlledNASelement; absent:extensionProbability; absent:impactingCondition; absent:reRouteReason",
+        "gold_level": "no_answer",
+        "route": "critic_gate"
+      },
+      {
+        "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-18:069",
+        "template_id": "QT-A01-ABSTENTION-FIELDS",
+        "cq_ids": [
+          "CQ-A01"
+        ],
+        "source_id": "2026-05-18:069",
+        "source_document": "ATCSCC advisory",
+        "source_page": 1,
+        "source_text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 069 LAS/ZLA 05/18/2026 LAS AIRPORT ARRIVAL DELAYS\nMESSAGE:\nEVENT TIME: 18/1545 - 18/2000 CONSTRAINED FACILITIES: ZLA USERS CAN EXPECT ARRIVAL DELAYS / AIRBORNE HOLDING INTO LAS VEGAS AIRPORT OF UP TO 30 MINUTES DUE TO COMPACTED DEMAND. UPDATES WILL FOLLOW IF NECESSARY.\nEFFECTIVE TIME:\n181545-182030\nSIGNATURE:\n26/05/18 15:45\nFAA.gov Home\n|\nPrivacy Policy\n|\nWeb Policies & Notices\n|\nContact Us\nReaders & Viewers:\nPDF Reader\n|\nMS Word Viewer\n|\nMS PowerPoint Viewer\n|\nMS Excel Viewer\n|\nWinZip",
+        "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+        "question": "Which expected fields are absent or unsupported and should trigger abstention?",
+        "question_type": "field_presence_and_abstention",
+        "predicates": [
+          "controlledNASelement",
+          "effectiveEndTime",
+          "extensionProbability",
+          "impactingCondition",
+          "reRouteReason"
+        ],
+        "expected_values": [
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z"
+          }
+        ],
+        "expected_evidence": [
+          {
+            "predicate": "effectiveEndTime",
+            "value": "00Z",
+            "text": "EFFECTIVE TIME: 181545-182030",
+            "source_id": "2026-05-18:069"
+          }
+        ],
+        "expected_abstention": true,
+        "absent_predicates": [
+          "controlledNASelement",
+          "extensionProbability",
+          "impactingCondition",
+          "reRouteReason"
+        ],
+        "answer_set": [
+          "absent:controlledNASelement",
+          "absent:extensionProbability",
+          "absent:impactingCondition",
+          "absent:reRouteReason"
+        ],
+        "evidence_spans": [
+          {
+            "page": 1,
+            "text": "EFFECTIVE TIME: 181545-182030",
+            "char_start": null,
+            "char_end": null
+          }
+        ],
+        "expected_chunk_ids": [
+          "atcscc-2026-05-18-069-p1-c1"
+        ],
+        "answer_key": "absent:controlledNASelement; absent:extensionProbability; absent:impactingCondition; absent:reRouteReason",
+        "gold_level": "no_answer",
+        "route": "critic_gate"
+      }
+    ]
+  },
+  "critic_gate": {
+    "policy": "reject known parser artifacts before graph/hybrid answer generation",
+    "rejected_fact_count": 20,
+    "rejected_values": [
+      "ADDS",
+      "ADVZY",
+      "ARE",
+      "CAN",
+      "INTO",
+      "THAT",
+      "USERS"
+    ],
+    "rejection_reasons": {
+      "controlled_nas_parser_artifact": 20
+    },
+    "examples": [
+      {
+        "source_id": "2026-05-19:032",
+        "predicate": "controlledNASelement",
+        "value": "ADVZY",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-19:032",
+        "predicate": "controlledNASelement",
+        "value": "ADDS",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-19:032",
+        "predicate": "controlledNASelement",
+        "value": "THAT",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-19:032",
+        "predicate": "controlledNASelement",
+        "value": "ARE",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-15:063",
+        "predicate": "controlledNASelement",
+        "value": "USERS",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-15:063",
+        "predicate": "controlledNASelement",
+        "value": "CAN",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-15:063",
+        "predicate": "controlledNASelement",
+        "value": "INTO",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-18:069",
+        "predicate": "controlledNASelement",
+        "value": "USERS",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-18:069",
+        "predicate": "controlledNASelement",
+        "value": "CAN",
+        "reason": "controlled_nas_parser_artifact"
+      },
+      {
+        "source_id": "2026-05-18:069",
+        "predicate": "controlledNASelement",
+        "value": "INTO",
+        "reason": "controlled_nas_parser_artifact"
+      }
+    ]
+  },
+  "records": [
+    {
+      "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-19:079",
+      "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+      "source_id": "2026-05-19:079",
+      "question": "Which airports, ARTCCs, routes, or other NAS elements are affected by the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "controlledNASelement=BNA. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGR"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-19:074",
+      "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+      "source_id": "2026-05-19:074",
+      "question": "Which airports, ARTCCs, routes, or other NAS elements are affected by the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "controlledNASelement=BNA. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DE"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-15:067",
+      "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+      "source_id": "2026-05-15:067",
+      "question": "Which airports, ARTCCs, routes, or other NAS elements are affected by the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            },
+            {
+              "predicate": "controlledNASelement",
+              "value": "Airport"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGR"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "Airport",
+              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            },
+            {
+              "predicate": "controlledNASelement",
+              "value": "Airport"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "Airport",
+              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-TIME-WINDOW::2026-05-19:032",
+      "template_id": "QT-Q01-TIME-WINDOW",
+      "source_id": "2026-05-19:032",
+      "question": "What are the effective start and end times for the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "effectiveStartTime=00Z",
+        "effectiveEndTime=00Z"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630 EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630 EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "predicate": "effectiveStartTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 191322-191630"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "predicate": "effectiveEndTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 191322-191630"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630 EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "predicate": "effectiveStartTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 191322-191630"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "predicate": "effectiveEndTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 191322-191630"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-TIME-WINDOW::2026-05-15:063",
+      "template_id": "QT-Q01-TIME-WINDOW",
+      "source_id": "2026-05-15:063",
+      "question": "What are the effective start and end times for the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "effectiveStartTime=00Z",
+        "effectiveEndTime=00Z"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030 EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030 EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 063 SAN/ZLA 05/15/2026 SAN AIRPORT ARRIVAL DE"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "predicate": "effectiveStartTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 151918-160030"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "predicate": "effectiveEndTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 151918-160030"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030 EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "predicate": "effectiveStartTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 151918-160030"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "predicate": "effectiveEndTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 151918-160030"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-063-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-063-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-063-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-063-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-TIME-WINDOW::2026-05-18:069",
+      "template_id": "QT-Q01-TIME-WINDOW",
+      "source_id": "2026-05-18:069",
+      "question": "What are the effective start and end times for the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "effectiveStartTime=00Z",
+        "effectiveEndTime=00Z"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030 EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030 EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 069 LAS/ZLA 05/18/2026 LAS AIRPORT ARRIVAL DE"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "predicate": "effectiveStartTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 181545-182030"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "predicate": "effectiveEndTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 181545-182030"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030 EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "predicate": "effectiveStartTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 181545-182030"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "predicate": "effectiveEndTime",
+              "object": "00Z",
+              "evidence_text": "EFFECTIVE TIME: 181545-182030"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-18-069-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-18-069-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-18-069-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-18-069-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-19:079",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "source_id": "2026-05-19:079",
+      "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
+      "expected_abstention": false,
+      "answer_set": [
+        "impactingConditionMessage=STAFFING"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGR"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-19:074",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "source_id": "2026-05-19:074",
+      "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
+      "expected_abstention": false,
+      "answer_set": [
+        "impactingConditionMessage=STAFFING"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DE"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-15:067",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "source_id": "2026-05-15:067",
+      "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
+      "expected_abstention": false,
+      "answer_set": [
+        "impactingConditionMessage=STAFFING"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "impactingConditionMessage=STAFFING; impactingCondition=other. Citations: t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "other"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGR"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "other",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "impactingConditionMessage=STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "other"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "other",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:032",
+      "template_id": "QT-Q01-STATUS-ACTION",
+      "source_id": "2026-05-19:032",
+      "question": "What status or action is stated for the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "implementationStatus=RQD"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "implementationStatus=RQD. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "implementationStatus",
+              "value": "RQD"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "_RQD"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "implementationStatus=RQD. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "implementationStatus",
+              "value": "RQD"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "_RQD"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "implementationStatus=RQD. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "implementationStatus",
+              "value": "RQD"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "predicate": "implementationStatus",
+              "object": "RQD",
+              "evidence_text": "_RQD"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "implementationStatus=RQD. Citations: atcscc-2026-05-19-032-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "implementationStatus",
+              "value": "RQD"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "_RQD"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "predicate": "implementationStatus",
+              "object": "RQD",
+              "evidence_text": "_RQD"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:079",
+      "template_id": "QT-Q01-STATUS-ACTION",
+      "source_id": "2026-05-19:079",
+      "question": "What status or action is stated for the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+      ],
+      "results": {
+        "source_only": {
+          "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGR"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "initiativeComments",
+              "object": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
+              "evidence_text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "initiativeComments",
+              "object": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
+              "evidence_text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:074",
+      "template_id": "QT-Q01-STATUS-ACTION",
+      "source_id": "2026-05-19:074",
+      "question": "What status or action is stated for the advisory?",
+      "expected_abstention": false,
+      "answer_set": [
+        "initiativeComments=1850Z"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "1850Z"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "1850Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "initiativeComments=1850Z. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "1850Z"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DE"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "initiativeComments",
+              "object": "1850Z",
+              "evidence_text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "1850Z"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "initiativeComments",
+              "object": "1850Z",
+              "evidence_text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:079",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:079",
+      "question": "What reroute type, reroute reason, and constrained element are represented?",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "controlledNASelement=BNA. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGR"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:074",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:074",
+      "question": "What reroute type, reroute reason, and constrained element are represented?",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "controlledNASelement=BNA. Citations: t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DE"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1"
+          ],
+          "detected_citations": [
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-15:067",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-15:067",
+      "question": "What reroute type, reroute reason, and constrained element are represented?",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            },
+            {
+              "predicate": "controlledNASelement",
+              "value": "Airport"
+            }
+          ],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGR"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "Airport",
+              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
+            }
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            },
+            {
+              "predicate": "controlledNASelement",
+              "value": "Airport"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "Airport",
+              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-19:032",
+      "template_id": "QT-A01-ABSTENTION-FIELDS",
+      "source_id": "2026-05-19:032",
+      "question": "Which expected fields are absent or unsupported and should trigger abstention?",
+      "expected_abstention": true,
+      "answer_set": [
+        "absent:controlledNASelement",
+        "absent:extensionProbability",
+        "absent:impactingCondition",
+        "absent:reRouteReason"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in source_only.",
+          "answer_values": [],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in vector_rag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in graph_only.",
+          "answer_values": [],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD"
+            }
+          ],
+          "graph_triples": []
+        },
+        "hybrid_graphrag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in hybrid_graphrag.",
+          "answer_values": [],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": []
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-15:063",
+      "template_id": "QT-A01-ABSTENTION-FIELDS",
+      "source_id": "2026-05-15:063",
+      "question": "Which expected fields are absent or unsupported and should trigger abstention?",
+      "expected_abstention": true,
+      "answer_set": [
+        "absent:controlledNASelement",
+        "absent:extensionProbability",
+        "absent:impactingCondition",
+        "absent:reRouteReason"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in source_only.",
+          "answer_values": [],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in vector_rag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in graph_only.",
+          "answer_values": [],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 063 SAN/ZLA 05/15/2026 SAN AIRPORT ARRIVAL DE"
+            }
+          ],
+          "graph_triples": []
+        },
+        "hybrid_graphrag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in hybrid_graphrag.",
+          "answer_values": [],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": []
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        }
+      }
+    },
+    {
+      "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-18:069",
+      "template_id": "QT-A01-ABSTENTION-FIELDS",
+      "source_id": "2026-05-18:069",
+      "question": "Which expected fields are absent or unsupported and should trigger abstention?",
+      "expected_abstention": true,
+      "answer_set": [
+        "absent:controlledNASelement",
+        "absent:extensionProbability",
+        "absent:impactingCondition",
+        "absent:reRouteReason"
+      ],
+      "results": {
+        "source_only": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in source_only.",
+          "answer_values": [],
+          "evidence_route": "source_span",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": []
+        },
+        "vector_rag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in vector_rag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": []
+        },
+        "graph_only": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in graph_only.",
+          "answer_values": [],
+          "evidence_route": "critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 069 LAS/ZLA 05/18/2026 LAS AIRPORT ARRIVAL DE"
+            }
+          ],
+          "graph_triples": []
+        },
+        "hybrid_graphrag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in hybrid_graphrag.",
+          "answer_values": [],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": []
+        }
+      },
+      "metrics": {
+        "source_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
+        },
+        "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
+        },
+        "graph_only": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
+        },
+        "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
+        }
+      }
+    }
+  ],
+  "answer_quality": {
+    "aggregate_by_mode": {
+      "source_only": {
+        "answers_total": 18,
+        "answer_correctness": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 0.4167,
+        "evidence_faithfulness": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": 1.0
+      },
+      "vector_rag": {
+        "answers_total": 18,
+        "answer_correctness": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 0.4167,
+        "evidence_faithfulness": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": 1.0
+      },
+      "graph_only": {
+        "answers_total": 18,
+        "answer_correctness": 0.8333,
+        "citation_precision": 1.0,
+        "citation_recall": 0.3333,
+        "evidence_faithfulness": 0.8333,
+        "unsupported_claim_rate": 0.0833,
+        "abstention_correctness": 1.0
+      },
+      "hybrid_graphrag": {
+        "answers_total": 18,
+        "answer_correctness": 0.8333,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5833,
+        "evidence_faithfulness": 0.8333,
+        "unsupported_claim_rate": 0.0833,
+        "abstention_correctness": 1.0
+      }
+    },
+    "secondary_metrics": {
+      "cost_latency": {
+        "provider": "none",
+        "model": "deterministic_scaffold",
+        "elapsed_seconds": 0.0233,
+        "questions_total": 18,
+        "cases_total": 18,
+        "chunks_path": null,
+        "chunks_size_bytes": null,
+        "kg_path": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl",
+        "kg_size_bytes": 2375543,
+        "index_dir": null,
+        "index_size_bytes": null,
+        "llm_token_usage": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    },
+    "metric_policy": "Answer correctness, evidence faithfulness, unsupported claim rate, citation precision/recall, and abstention correctness are reported separately."
+  },
+  "experiment_chapter_draft": {
+    "title": "ATMONTO-constrained advisory KG extraction and GraphRAG evaluation",
+    "claim_boundary": "The experiment is retrospective and source-bounded. It evaluates extraction, CQ queryability, and generated-answer behavior as separate layers; it does not make live operational decision-support claims.",
+    "experiments": [
+      {
+        "id": "A",
+        "heading": "Experiment A: ATMONTO-constrained KG extraction",
+        "summary": "Compare rule-only, schema-slice LLM, validator-repair, and hybrid S4 outputs against reviewed ATCSCC advisory facts."
+      },
+      {
+        "id": "B",
+        "heading": "Experiment B: CQ queryability / answer-set quality",
+        "summary": "Use six CQ query templates to measure whether graph outputs recover source-bounded answer sets with evidence."
+      },
+      {
+        "id": "C",
+        "heading": "Experiment C: GraphRAG answer generation",
+        "summary": "Generate deterministic source-only, vector proxy, graph-only, and hybrid GraphRAG answers over the answer-eval benchmark with a critic gate before S4 evidence enters graph/hybrid answers.",
+        "hybrid_answer_correctness": 0.8333,
+        "hybrid_evidence_faithfulness": 0.8333
+      }
+    ]
+  }
+}
