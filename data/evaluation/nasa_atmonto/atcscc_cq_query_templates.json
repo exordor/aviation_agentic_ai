@@ -1,0 +1,176 @@
+{
+  "source_family": "nasa_atmonto_cq_query_manifest",
+  "status": "query_templates_ready",
+  "metadata": {
+    "template_count": 6,
+    "boundary": "Retrospective FAA ATCSCC advisory KG queries only; no live operational use."
+  },
+  "templates": [
+    {
+      "id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+      "cq_ids": [
+        "CQ-Q01",
+        "CQ-D02",
+        "CQ-E03"
+      ],
+      "question": "Which airports, ARTCCs, routes, or other NAS elements are affected by the advisory?",
+      "predicates": [
+        "controlledNASelement"
+      ],
+      "answer_type": "entity_set",
+      "route": "graph_template",
+      "metric": "answer-set precision/recall/F1 plus evidence containment",
+      "pseudo_sparql": "SELECT ?advisory ?predicate ?answer ?evidence WHERE {\n  VALUES ?predicate { atm:controlledNASelement }\n  ?advisory ?predicate ?answer .\n  OPTIONAL { ?statement prov:wasDerivedFrom ?evidence . }\n}",
+      "graph_pattern": {
+        "subject": "ATCSCC advisory/TMI node",
+        "predicates": [
+          "atm:controlledNASelement"
+        ],
+        "object": "entity_set",
+        "required_provenance": true,
+        "route": "graph_template"
+      }
+    },
+    {
+      "id": "QT-Q01-TIME-WINDOW",
+      "cq_ids": [
+        "CQ-Q01",
+        "CQ-D03",
+        "CQ-O01"
+      ],
+      "question": "What are the effective start and end times for the advisory?",
+      "predicates": [
+        "effectiveStartTime",
+        "effectiveEndTime"
+      ],
+      "answer_type": "temporal_interval",
+      "route": "graph_template",
+      "metric": "time-field answer-set precision/recall/F1",
+      "pseudo_sparql": "SELECT ?advisory ?predicate ?answer ?evidence WHERE {\n  VALUES ?predicate { atm:effectiveStartTime atm:effectiveEndTime }\n  ?advisory ?predicate ?answer .\n  OPTIONAL { ?statement prov:wasDerivedFrom ?evidence . }\n}",
+      "graph_pattern": {
+        "subject": "ATCSCC advisory/TMI node",
+        "predicates": [
+          "atm:effectiveStartTime",
+          "atm:effectiveEndTime"
+        ],
+        "object": "temporal_interval",
+        "required_provenance": true,
+        "route": "graph_template"
+      }
+    },
+    {
+      "id": "QT-Q01-CAUSE-CONDITION",
+      "cq_ids": [
+        "CQ-Q01",
+        "CQ-E02"
+      ],
+      "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
+      "predicates": [
+        "impactingCondition",
+        "impactingConditionMessage",
+        "reRouteReason"
+      ],
+      "answer_type": "condition_set",
+      "route": "graph_template",
+      "metric": "condition/reason answer-set precision/recall/F1",
+      "pseudo_sparql": "SELECT ?advisory ?predicate ?answer ?evidence WHERE {\n  VALUES ?predicate { atm:impactingCondition atm:impactingConditionMessage atm:reRouteReason }\n  ?advisory ?predicate ?answer .\n  OPTIONAL { ?statement prov:wasDerivedFrom ?evidence . }\n}",
+      "graph_pattern": {
+        "subject": "ATCSCC advisory/TMI node",
+        "predicates": [
+          "atm:impactingCondition",
+          "atm:impactingConditionMessage",
+          "atm:reRouteReason"
+        ],
+        "object": "condition_set",
+        "required_provenance": true,
+        "route": "graph_template"
+      }
+    },
+    {
+      "id": "QT-Q01-STATUS-ACTION",
+      "cq_ids": [
+        "CQ-Q01",
+        "CQ-E01"
+      ],
+      "question": "What status or action is stated for the advisory?",
+      "predicates": [
+        "implementationStatus",
+        "initiativeComments"
+      ],
+      "answer_type": "status_or_comment",
+      "route": "hybrid_graph_plus_source_span",
+      "metric": "status/comment answer-set precision/recall/F1",
+      "pseudo_sparql": "SELECT ?advisory ?predicate ?answer ?evidence WHERE {\n  VALUES ?predicate { atm:implementationStatus atm:initiativeComments }\n  ?advisory ?predicate ?answer .\n  OPTIONAL { ?statement prov:wasDerivedFrom ?evidence . }\n}",
+      "graph_pattern": {
+        "subject": "ATCSCC advisory/TMI node",
+        "predicates": [
+          "atm:implementationStatus",
+          "atm:initiativeComments"
+        ],
+        "object": "status_or_comment",
+        "required_provenance": true,
+        "route": "hybrid_graph_plus_source_span"
+      }
+    },
+    {
+      "id": "QT-Q01-ROUTE-SEMANTICS",
+      "cq_ids": [
+        "CQ-Q01",
+        "CQ-E03",
+        "CQ-O02"
+      ],
+      "question": "What reroute type, reroute reason, and constrained element are represented?",
+      "predicates": [
+        "reRouteType",
+        "reRouteReason",
+        "controlledNASelement"
+      ],
+      "answer_type": "route_constraint_tuple",
+      "route": "hybrid_graph_plus_source_span",
+      "metric": "route predicate-family answer-set precision/recall/F1",
+      "pseudo_sparql": "SELECT ?advisory ?predicate ?answer ?evidence WHERE {\n  VALUES ?predicate { atm:reRouteType atm:reRouteReason atm:controlledNASelement }\n  ?advisory ?predicate ?answer .\n  OPTIONAL { ?statement prov:wasDerivedFrom ?evidence . }\n}",
+      "graph_pattern": {
+        "subject": "ATCSCC advisory/TMI node",
+        "predicates": [
+          "atm:reRouteType",
+          "atm:reRouteReason",
+          "atm:controlledNASelement"
+        ],
+        "object": "route_constraint_tuple",
+        "required_provenance": true,
+        "route": "hybrid_graph_plus_source_span"
+      }
+    },
+    {
+      "id": "QT-A01-ABSTENTION-FIELDS",
+      "cq_ids": [
+        "CQ-A01"
+      ],
+      "question": "Which expected fields are absent or unsupported and should trigger abstention?",
+      "predicates": [
+        "effectiveEndTime",
+        "extensionProbability",
+        "impactingCondition",
+        "reRouteReason",
+        "controlledNASelement"
+      ],
+      "answer_type": "field_presence_and_abstention",
+      "route": "critic_gate",
+      "metric": "false-positive count and abstention-readiness signal",
+      "pseudo_sparql": "SELECT ?advisory ?predicate ?answer ?evidence WHERE {\n  VALUES ?predicate { atm:effectiveEndTime atm:extensionProbability atm:impactingCondition atm:reRouteReason atm:controlledNASelement }\n  ?advisory ?predicate ?answer .\n  OPTIONAL { ?statement prov:wasDerivedFrom ?evidence . }\n}",
+      "graph_pattern": {
+        "subject": "ATCSCC advisory/TMI node",
+        "predicates": [
+          "atm:effectiveEndTime",
+          "atm:extensionProbability",
+          "atm:impactingCondition",
+          "atm:reRouteReason",
+          "atm:controlledNASelement"
+        ],
+        "object": "field_presence_and_abstention",
+        "required_provenance": true,
+        "route": "critic_gate"
+      }
+    }
+  ]
+}

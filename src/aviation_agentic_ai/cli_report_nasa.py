@@ -10,6 +10,9 @@ from aviation_agentic_ai.reporting.nasa_atmonto_agentic_loop import (
     write_nasa_atmonto_agentic_loop,
 )
 from aviation_agentic_ai.reporting.nasa_atmonto_cq import write_nasa_atmonto_cq_evaluation
+from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import (
+    write_nasa_atmonto_cq_query_evaluation,
+)
 from aviation_agentic_ai.reporting.nasa_sources import (
     DEFAULT_SEMANTIC_EMBEDDING_MODEL,
     write_cross_source_ontology_validation,
@@ -325,6 +328,63 @@ def register_nasa_report_commands(report: click.Group) -> None:
             click.echo(
                 f"Mapped {result['metadata']['cq_count']} CQs against "
                 f"{result['gold_summary']['reviewed_records']} reviewed ATCSCC gold records."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
+
+    @report.command("nasa-atmonto-cq-query-evaluation")
+    @click.option(
+        "--gold-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Reviewed ATCSCC gold JSONL file.",
+    )
+    @click.option(
+        "--manifest-path",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Output path for the CQ query manifest.",
+    )
+    @click.option(
+        "--output-dir",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Directory for CQ query evaluation report outputs.",
+    )
+    @click.option(
+        "--report-name",
+        default="nasa_atmonto_cq_query_evaluation",
+        show_default=True,
+        help="Output report stem.",
+    )
+    def report_nasa_atmonto_cq_query_evaluation(
+        gold_file: Path | None,
+        manifest_path: Path | None,
+        output_dir: Path | None,
+        report_name: str,
+    ) -> None:
+        """Materialize ATCSCC CQ query templates and deterministic answer-quality scoring."""
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            report_kwargs = {
+                "output_dir": report_dir,
+                "report_name": report_name,
+            }
+            if gold_file is not None:
+                report_kwargs["gold_path"] = gold_file
+            if manifest_path is not None:
+                report_kwargs["manifest_path"] = manifest_path
+            json_path, md_path, manifest_json, manifest_md, result = (
+                write_nasa_atmonto_cq_query_evaluation(**report_kwargs)
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(f"Wrote {project_relative_path(manifest_json)}")
+            click.echo(f"Wrote {project_relative_path(manifest_md)}")
+            click.echo(
+                f"Evaluated {result['metadata']['template_count']} CQ query templates "
+                f"against {result['metadata']['system_count']} systems."
             )
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc
