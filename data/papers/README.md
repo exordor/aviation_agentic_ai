@@ -7,6 +7,19 @@ Downloaded PDFs are intentionally kept local and ignored by Git. This keeps the
 repository lightweight and avoids redistributing paper files when the paper
 license is not part of the repository.
 
+## Default Analysis Workflow
+
+When a paper may affect the thesis route or experiment design, do not rely on
+the abstract alone. Follow `docs/research_paper_analysis_protocol.md`:
+
+```bash
+scripts/inspect_paper_pdf.sh <paper.pdf> <paper_slug>
+```
+
+This creates ignored inspection artifacts under `tmp/pdfs/<paper_slug>/`.
+Curated notes belong in `reports/stages/` and should use
+`templates/research_paper_analysis_report.md`.
+
 ## Current References
 
 - Title: "Towards Automated Ontology Generation from Unstructured Text: A
@@ -22,3 +35,82 @@ license is not part of the repository.
   competency questions to SRD, TIP, Turtle generation, and quality review.
 - Upstream implementation reference:
   https://github.com/brains-group/towards_automated_ontology_generation
+- Inspection artifacts:
+  `tmp/pdfs/automated_ontology_generation_multi_agent/`
+- Curated project adaptation:
+  `reports/stages/multi_agent_pipeline_method_adaptation.md`
+
+- Title: "Claim Knowledge Graph Construction and GraphRAG-Based
+  Question-Answering System"
+- Authors: Xinxue Wang and Jun Fang
+- Venue: Buildings 2026, 16, 845
+- DOI: https://doi.org/10.3390/buildings16040845
+- Local ignored PDF name:
+  `Claim_Knowledge_Graph_Construction_and_GraphRAG_Based_Question_Answering_System.pdf`
+- Use in this project: cross-domain method and figure-design reference for
+  ontology-to-KG-to-GraphRAG experiment presentation. It is not aviation
+  evidence.
+- Curated reports:
+  - `reports/stages/claim_kg_graphrag_paper_adaptation.md`
+  - `reports/stages/claim_kg_graphrag_figures_analysis.md`
+
+## arXiv Method Candidates Downloaded for Cross-Domain Transfer
+
+These PDFs were downloaded locally on 2026-06-02 as candidates for the
+ontology-build, KG-extraction, and GraphRAG method backbone. They are not yet
+curated evidence. Before using any paper to change the experiment plan, run the
+default PDF inspection workflow and write a curated stage report.
+
+- Title: "Accelerating Knowledge Graph and Ontology Engineering with Large
+  Language Models"
+- arXiv: https://arxiv.org/abs/2411.09601
+- arXiv PDF: https://arxiv.org/pdf/2411.09601
+- Local ignored PDF name:
+  `arxiv_2411.09601_accelerating_kg_ontology_engineering_llms.pdf`
+- Candidate use: LLM-assisted ontology/KG engineering process design.
+
+- Title: "Ontology-grounded Automatic Knowledge Graph Construction by LLM
+  under Wikidata schema"
+- arXiv: https://arxiv.org/abs/2412.20942
+- arXiv PDF: https://arxiv.org/pdf/2412.20942
+- Local ignored PDF name:
+  `arxiv_2412.20942_ontology_grounded_automatic_kg_construction_wikidata.pdf`
+- Candidate use: ontology-grounded KG construction and schema-constrained
+  extraction design.
+
+- Title: "Beyond Isolation: Multi-Agent Synergy for Improving Knowledge Graph
+  Construction"
+- arXiv: https://arxiv.org/abs/2312.03022
+- arXiv PDF: https://arxiv.org/pdf/2312.03022
+- Local ignored PDF name:
+  `arxiv_2312.03022_multi_agent_synergy_kg_construction.pdf`
+- Candidate use: multi-agent extraction/refinement/verification architecture.
+
+- Title: "When to use Graphs in RAG: A Comprehensive Analysis for Graph
+  Retrieval-Augmented Generation"
+- arXiv: https://arxiv.org/abs/2506.05690
+- arXiv PDF: https://arxiv.org/pdf/2506.05690
+- Local ignored PDF name:
+  `arxiv_2506.05690_when_to_use_graphs_in_rag.pdf`
+- Candidate use: deciding when GraphRAG is justified over vector-only RAG.
+
+- Title: "GraphRAG-Bench: Challenging Domain-Specific Reasoning for Evaluating
+  Graph Retrieval-Augmented Generation"
+- arXiv: https://arxiv.org/abs/2506.02404
+- arXiv PDF: https://arxiv.org/pdf/2506.02404
+- Local ignored PDF name: `arxiv_2506.02404_graphrag_bench.pdf`
+- Candidate use: benchmark design and domain-specific GraphRAG evaluation.
+
+- Title: "RAG vs. GraphRAG: A Systematic Evaluation and Key Insights"
+- arXiv: https://arxiv.org/abs/2502.11371
+- arXiv PDF: https://arxiv.org/pdf/2502.11371
+- Local ignored PDF name: `arxiv_2502.11371_rag_vs_graphrag.pdf`
+- Candidate use: experimental comparison protocol for RAG versus GraphRAG.
+
+- Title: "GRAG: Graph Retrieval-Augmented Generation"
+- arXiv: https://arxiv.org/abs/2405.16506
+- arXiv PDF: https://arxiv.org/pdf/2405.16506
+- Local ignored PDF name:
+  `arxiv_2405.16506_grag_graph_retrieval_augmented_generation.pdf`
+- Candidate use: graph/subgraph retrieval and graph-context generation method
+  reference.

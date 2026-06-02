@@ -11,6 +11,7 @@ Inputs:
 
 - `docs/thesis_positioning.md`
 - `docs/evaluation_protocol.md`
+- `docs/research_paper_analysis_protocol.md`
 
 Outputs:
 
@@ -23,6 +24,29 @@ whether an ontology-constrained GraphRAG pipeline improves evidence
 traceability, structured KG evidence coverage, and safety-aware abstention over
 scoped aviation training material. It does not assume that GraphRAG universally
 improves Recall@k.
+
+External papers can influence the experiment only after a full-text paper
+analysis report exists under `reports/stages/`. The default paper-analysis
+protocol requires inspecting methods, figures/tables, metrics, limitations, and
+transfer boundaries rather than relying on the abstract. This keeps literature
+review tied to concrete experiment design and prevents cross-domain claims from
+being imported as aviation evidence.
+
+Default agentic workflow rule:
+
+- use multi-agent methods as role-separated artifact handoffs, not as
+  unconstrained autonomous generation;
+- every agent or script must consume an explicit artifact and emit an explicit
+  artifact, such as source brief, CQ contract, Semantic Requirements Document,
+  Technical Implementation Plan, extraction plan, validation findings, evidence
+  critique, repair plan, graph-use plan, or evaluation report;
+- do not run extractor, repair, retrieval, or report-synthesis agents directly
+  from raw paper summaries or vague prompts;
+- bounded repair and failure logs are required whenever an agent revises KG
+  facts, ontology/profile files, prompts, or retrieval routing decisions.
+
+The method reference for this rule is
+`reports/stages/multi_agent_pipeline_method_adaptation.md`.
 
 ## Step 1: Source Corpus And Document Scope
 

@@ -1,6 +1,8 @@
 SNAPSHOT_DATE ?= 2026-06-01
+PAPER ?=
+SLUG ?=
 
-.PHONY: validate reports-core reports-main-experiments reports-review thesis-dashboard thesis-all airm-o sync-windows sync-windows-dry-run sync-windows-list
+.PHONY: validate reports-core reports-main-experiments reports-review thesis-dashboard thesis-all airm-o paper-inspect sync-windows sync-windows-dry-run sync-windows-list
 
 validate:
 	uv run ruff check .
@@ -34,6 +36,10 @@ thesis-dashboard:
 
 airm-o:
 	uv run python scripts/collect_airm_o_pipeline.py --snapshot-date $(SNAPSHOT_DATE)
+
+paper-inspect:
+	@test -n "$(PAPER)" || (echo "Usage: make paper-inspect PAPER=data/papers/example.pdf [SLUG=example_paper]" >&2; exit 2)
+	scripts/inspect_paper_pdf.sh "$(PAPER)" "$(SLUG)"
 
 sync-windows:
 	uv run python scripts/sync_windows_workspace.py

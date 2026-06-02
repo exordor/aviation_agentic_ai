@@ -76,7 +76,13 @@ REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
     {
         "module": "aviation_agentic_ai.cli_report_stage",
         "attribute": "register_stage_report_commands",
-        "commands": ("stages", "reviews", "generation-runs", "overnight", "hygiene"),
+        "commands": (
+            "stages",
+            "reviews",
+            "generation-runs",
+            "overnight",
+            "hygiene",
+        ),
     },
     {
         "module": "aviation_agentic_ai.cli_report_thesis",
@@ -143,6 +149,7 @@ REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
             "ontology-boundary-nasa",
             "nasa-benchmark-summary",
             "nasa-kg-validation",
+            "nasa-atmonto-cq-evaluation",
             "cross-source-ontology-validation",
             "multisource-retrieval-smoke",
         ),

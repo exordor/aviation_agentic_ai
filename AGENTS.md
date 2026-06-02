@@ -50,3 +50,14 @@ git push github <branch>
 
 After direct merges into `main`, push `main` to both remotes and verify that
 `origin/main`, `github/main`, and local `main` point to the intended commit.
+
+## Research Paper Analysis
+
+When a paper may influence the thesis route, experiment design, evaluation
+metrics, or report figures, do not rely on the abstract alone. Follow
+`docs/research_paper_analysis_protocol.md`: register the paper in
+`data/papers/README.md`, run `scripts/inspect_paper_pdf.sh` for local PDFs when
+available, visually inspect relevant figures/tables, and write a curated
+`reports/stages/*_paper_analysis.md`, `*_figures_analysis.md`, or
+`*_paper_adaptation.md` report before changing experiment plans or thesis
+claims.

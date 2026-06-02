@@ -1,0 +1,1721 @@
+{
+  "source_family": "nasa_atmonto_cq_evaluation",
+  "status": "cq_evaluation_mapping_ready",
+  "metadata": {
+    "cq_count": 12,
+    "gold_path": "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
+    "scoring_path": "reports/stages/nasa_atmonto_formal_experiment_scoring.json",
+    "semantic_groups_path": "reports/stages/nasa_atmonto_gold_semantic_groups.json",
+    "rejection_adjudication_path": "reports/stages/nasa_atmonto_rejection_adjudication.json",
+    "boundary": "Retrospective FAA ATCSCC advisory extraction only; no live operational use."
+  },
+  "evaluation_status_counts": {
+    "directly_measurable_now": 9,
+    "partially_measurable_now": 3
+  },
+  "gold_summary": {
+    "records_total": 100,
+    "reviewed_records": 100,
+    "candidate_subject_class_counts": {
+      "TrafficManagementInitiative": 40,
+      "ReRouteTMI": 23,
+      "GroundStopTMI": 21,
+      "GroundDelayProgramTMI": 16
+    },
+    "gold_fact_count": 643,
+    "accepted_gold_fact_count": 462,
+    "reviewed_missing_fact_count": 181,
+    "predicate_counts": {
+      "advisoryNumber": 100,
+      "effectiveEndTime": 98,
+      "effectiveStartTime": 98,
+      "issuedTime": 98,
+      "initiativeComments": 81,
+      "controlledNASelement": 46,
+      "extensionProbability": 30,
+      "impactingCondition": 22,
+      "implementationStatus": 21,
+      "reRouteReason": 20,
+      "reRouteType": 19,
+      "impactingConditionMessage": 10
+    },
+    "accepted_predicate_counts": {
+      "advisoryNumber": 92,
+      "effectiveEndTime": 91,
+      "effectiveStartTime": 91,
+      "issuedTime": 72,
+      "controlledNASelement": 36,
+      "initiativeComments": 24,
+      "extensionProbability": 21,
+      "impactingCondition": 19,
+      "impactingConditionMessage": 10,
+      "implementationStatus": 6
+    },
+    "reviewed_missing_predicate_counts": {
+      "initiativeComments": 57,
+      "issuedTime": 26,
+      "reRouteReason": 20,
+      "reRouteType": 19,
+      "implementationStatus": 15,
+      "controlledNASelement": 10,
+      "extensionProbability": 9,
+      "advisoryNumber": 8,
+      "effectiveEndTime": 7,
+      "effectiveStartTime": 7,
+      "impactingCondition": 3
+    },
+    "record_counts_by_predicate": {
+      "advisoryNumber": 100,
+      "controlledNASelement": 45,
+      "effectiveEndTime": 98,
+      "effectiveStartTime": 98,
+      "extensionProbability": 30,
+      "impactingCondition": 22,
+      "impactingConditionMessage": 10,
+      "implementationStatus": 21,
+      "initiativeComments": 81,
+      "issuedTime": 98,
+      "reRouteReason": 20,
+      "reRouteType": 19
+    },
+    "invalid_candidate_fact_count": 104,
+    "rejected_adjudication_count": 48,
+    "rejected_predicate_counts": {
+      "impactingConditionMessage": 17,
+      "controlledNASelement": 15,
+      "extensionProbability": 8,
+      "impactingCondition": 8
+    },
+    "evidence": {
+      "checked_fact_count": 643,
+      "contained_fact_count": 643,
+      "not_contained_fact_count": 0,
+      "missing_evidence_fact_count": 0,
+      "containment_rate": 1.0
+    }
+  },
+  "scoring_summary": {
+    "status": "scored",
+    "system_count": 6,
+    "overall_system_metrics": [
+      {
+        "system_id": "S0_rule_only",
+        "label": "Rule-only",
+        "available": true,
+        "precision": 0.8163,
+        "recall": 0.7185,
+        "f1": 0.7643,
+        "scoring_validity": "valid_target_schema_scoring"
+      },
+      {
+        "system_id": "S1_llm_only",
+        "label": "LLM-only",
+        "available": true,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "scoring_validity": "invalid_direct_schema_scoring"
+      },
+      {
+        "system_id": "S1b_llm_canonicalized",
+        "label": "LLM-only + post-hoc canonicalization",
+        "available": true,
+        "precision": 0.5081,
+        "recall": 0.1462,
+        "f1": 0.2271,
+        "scoring_validity": "valid_target_schema_scoring"
+      },
+      {
+        "system_id": "S2_llm_schema_slice",
+        "label": "LLM + schema slice",
+        "available": true,
+        "precision": 0.234,
+        "recall": 0.1306,
+        "f1": 0.1677,
+        "scoring_validity": "valid_target_schema_scoring"
+      },
+      {
+        "system_id": "S3_llm_schema_slice_validator_repair",
+        "label": "LLM + schema slice + validator/repair",
+        "available": true,
+        "precision": 0.2622,
+        "recall": 0.1166,
+        "f1": 0.1615,
+        "scoring_validity": "valid_target_schema_scoring"
+      },
+      {
+        "system_id": "S4_hybrid_backbone_enrichment",
+        "label": "Hybrid backbone + semantic enrichment",
+        "available": true,
+        "precision": 0.7168,
+        "recall": 0.7636,
+        "f1": 0.7395,
+        "scoring_validity": "valid_target_schema_scoring"
+      }
+    ]
+  },
+  "semantic_group_summary": {
+    "status": "ready_for_stratified_reporting",
+    "semantic_group_count": 9,
+    "record_count": 100,
+    "groups": [
+      {
+        "group_id": "ground_stop_lifecycle",
+        "label": "Ground stop lifecycle",
+        "record_count": 26
+      },
+      {
+        "group_id": "reroute_or_route_constraint",
+        "label": "Reroute or route constraint",
+        "record_count": 25
+      },
+      {
+        "group_id": "volcanic_activity_bulletin",
+        "label": "Volcanic activity bulletin",
+        "record_count": 19
+      },
+      {
+        "group_id": "ground_delay_program_lifecycle",
+        "label": "Ground delay program lifecycle",
+        "record_count": 12
+      },
+      {
+        "group_id": "airport_arrival_or_scheduling_delay",
+        "label": "Airport arrival or scheduling delay",
+        "record_count": 10
+      },
+      {
+        "group_id": "hotline_or_webpage_status",
+        "label": "Hotline or webpage status",
+        "record_count": 3
+      },
+      {
+        "group_id": "airport_diversion_recovery",
+        "label": "Airport diversion recovery",
+        "record_count": 2
+      },
+      {
+        "group_id": "special_or_flow_constraint_fyi",
+        "label": "Special mission or flow-constraint FYI",
+        "record_count": 2
+      },
+      {
+        "group_id": "flight_plan_drop_time_status",
+        "label": "Flight plan drop time status",
+        "record_count": 1
+      }
+    ]
+  },
+  "rejection_summary": {
+    "property_level_complete": true,
+    "rejected_fact_count": 288,
+    "pending_fact_count": 0,
+    "decision_counts_by_fact": {
+      "extractor_bug": 13,
+      "profile_gap": 275
+    }
+  },
+  "cq_evaluations": [
+    {
+      "id": "CQ-D01",
+      "role": "Domain typing",
+      "evaluation_status": "partially_measurable_now",
+      "coverage_scope": "records",
+      "predicates": [],
+      "gold_fields": [
+        "candidate_subject_class",
+        "subject_class",
+        "advisoryNumber"
+      ],
+      "metric": "primary type coverage plus advisory-number property metrics",
+      "gap": "Per-system primary-class accuracy is not yet scored as a first-class metric.",
+      "layer": "S0, S1b, S2, S3, S4, validator",
+      "gold_coverage": {
+        "coverage_scope": "records",
+        "predicates": [],
+        "gold_fact_count": 100,
+        "record_count": 100,
+        "predicate_counts": {
+          "records": 100
+        }
+      },
+      "system_metrics": [],
+      "best_system": null
+    },
+    {
+      "id": "CQ-D02",
+      "role": "Entity role",
+      "evaluation_status": "directly_measurable_now",
+      "predicates": [
+        "controlledNASelement"
+      ],
+      "gold_fields": [
+        "predicate",
+        "object",
+        "object_class",
+        "evidence_text",
+        "source_id"
+      ],
+      "metric": "role-aware controlled-element precision/recall/F1 and profile-gap rate",
+      "gap": "ARTCC controlled-element facts remain profile gaps until a reviewed bridge exists.",
+      "layer": "S0 parser, entity canonicalizer, S2/S4 enrichment, validator",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "controlledNASelement"
+        ],
+        "gold_fact_count": 46,
+        "record_count": null,
+        "predicate_record_count_sum": 45,
+        "predicate_counts": {
+          "controlledNASelement": 46
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement"
+          ],
+          "predicted_fact_count": 75,
+          "gold_fact_count": 46,
+          "true_positive_count": 36,
+          "false_positive_count": 39,
+          "false_negative_count": 10,
+          "precision": 0.48,
+          "recall": 0.7826,
+          "f1": 0.595
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 46,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 46,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement"
+          ],
+          "predicted_fact_count": 83,
+          "gold_fact_count": 46,
+          "true_positive_count": 16,
+          "false_positive_count": 67,
+          "false_negative_count": 30,
+          "precision": 0.1928,
+          "recall": 0.3478,
+          "f1": 0.2481
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement"
+          ],
+          "predicted_fact_count": 50,
+          "gold_fact_count": 46,
+          "true_positive_count": 0,
+          "false_positive_count": 50,
+          "false_negative_count": 46,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement"
+          ],
+          "predicted_fact_count": 30,
+          "gold_fact_count": 46,
+          "true_positive_count": 0,
+          "false_positive_count": 30,
+          "false_negative_count": 46,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement"
+          ],
+          "predicted_fact_count": 103,
+          "gold_fact_count": 46,
+          "true_positive_count": 36,
+          "false_positive_count": 67,
+          "false_negative_count": 10,
+          "precision": 0.3495,
+          "recall": 0.7826,
+          "f1": 0.4832
+        }
+      ],
+      "best_system": {
+        "system_id": "S0_rule_only",
+        "label": "Rule-only",
+        "precision": 0.48,
+        "recall": 0.7826,
+        "f1": 0.595
+      }
+    },
+    {
+      "id": "CQ-D03",
+      "role": "Temporal semantics",
+      "evaluation_status": "directly_measurable_now",
+      "predicates": [
+        "issuedTime",
+        "effectiveStartTime",
+        "effectiveEndTime"
+      ],
+      "gold_fields": [
+        "normalized_value",
+        "raw_time_string",
+        "evidence_text",
+        "source_id"
+      ],
+      "metric": "normalized-time precision/recall/F1 and fabricated-time false positives",
+      "gap": "The report can score exact values but does not yet isolate rollover-specific errors.",
+      "layer": "S0 time normalizer, S1b canonicalizer, S2/S3/S4",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "issuedTime",
+          "effectiveStartTime",
+          "effectiveEndTime"
+        ],
+        "gold_fact_count": 294,
+        "record_count": null,
+        "predicate_record_count_sum": 294,
+        "predicate_counts": {
+          "issuedTime": 98,
+          "effectiveStartTime": 98,
+          "effectiveEndTime": 98
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 294,
+          "gold_fact_count": 294,
+          "true_positive_count": 254,
+          "false_positive_count": 40,
+          "false_negative_count": 40,
+          "precision": 0.8639,
+          "recall": 0.8639,
+          "f1": 0.8639
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 294,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 294,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 294,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 294,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 126,
+          "gold_fact_count": 294,
+          "true_positive_count": 27,
+          "false_positive_count": 99,
+          "false_negative_count": 267,
+          "precision": 0.2143,
+          "recall": 0.0918,
+          "f1": 0.1285
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 91,
+          "gold_fact_count": 294,
+          "true_positive_count": 11,
+          "false_positive_count": 80,
+          "false_negative_count": 283,
+          "precision": 0.1209,
+          "recall": 0.0374,
+          "f1": 0.0571
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 294,
+          "gold_fact_count": 294,
+          "true_positive_count": 254,
+          "false_positive_count": 40,
+          "false_negative_count": 40,
+          "precision": 0.8639,
+          "recall": 0.8639,
+          "f1": 0.8639
+        }
+      ],
+      "best_system": {
+        "system_id": "S4_hybrid_backbone_enrichment",
+        "label": "Hybrid backbone + semantic enrichment",
+        "precision": 0.8639,
+        "recall": 0.8639,
+        "f1": 0.8639
+      }
+    },
+    {
+      "id": "CQ-E01",
+      "role": "Status/action",
+      "evaluation_status": "directly_measurable_now",
+      "predicates": [
+        "implementationStatus",
+        "initiativeComments"
+      ],
+      "gold_fields": [
+        "status_value",
+        "action_cue",
+        "initiativeComments",
+        "evidence_text"
+      ],
+      "metric": "status/action predicate F1 and active-overclaim false positives",
+      "gap": "Status labels are sparse, so comments evidence remains important context.",
+      "layer": "S0, S2, S3, S4",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "implementationStatus",
+          "initiativeComments"
+        ],
+        "gold_fact_count": 102,
+        "record_count": null,
+        "predicate_record_count_sum": 102,
+        "predicate_counts": {
+          "implementationStatus": 21,
+          "initiativeComments": 81
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "implementationStatus",
+            "initiativeComments"
+          ],
+          "predicted_fact_count": 44,
+          "gold_fact_count": 102,
+          "true_positive_count": 30,
+          "false_positive_count": 14,
+          "false_negative_count": 72,
+          "precision": 0.6818,
+          "recall": 0.2941,
+          "f1": 0.4109
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "implementationStatus",
+            "initiativeComments"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 102,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 102,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "implementationStatus",
+            "initiativeComments"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 102,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 102,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "implementationStatus",
+            "initiativeComments"
+          ],
+          "predicted_fact_count": 64,
+          "gold_fact_count": 102,
+          "true_positive_count": 10,
+          "false_positive_count": 54,
+          "false_negative_count": 92,
+          "precision": 0.1562,
+          "recall": 0.098,
+          "f1": 0.1204
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "implementationStatus",
+            "initiativeComments"
+          ],
+          "predicted_fact_count": 57,
+          "gold_fact_count": 102,
+          "true_positive_count": 23,
+          "false_positive_count": 34,
+          "false_negative_count": 79,
+          "precision": 0.4035,
+          "recall": 0.2255,
+          "f1": 0.2893
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "implementationStatus",
+            "initiativeComments"
+          ],
+          "predicted_fact_count": 81,
+          "gold_fact_count": 102,
+          "true_positive_count": 42,
+          "false_positive_count": 39,
+          "false_negative_count": 60,
+          "precision": 0.5185,
+          "recall": 0.4118,
+          "f1": 0.459
+        }
+      ],
+      "best_system": {
+        "system_id": "S4_hybrid_backbone_enrichment",
+        "label": "Hybrid backbone + semantic enrichment",
+        "precision": 0.5185,
+        "recall": 0.4118,
+        "f1": 0.459
+      }
+    },
+    {
+      "id": "CQ-E02",
+      "role": "Cause/condition",
+      "evaluation_status": "directly_measurable_now",
+      "predicates": [
+        "impactingCondition",
+        "impactingConditionMessage",
+        "initiativeComments",
+        "reRouteReason"
+      ],
+      "gold_fields": [
+        "condition_label",
+        "raw_cause_text",
+        "evidence_text",
+        "comments"
+      ],
+      "metric": "cause/condition macro-F1 and unsupported-cause rate",
+      "gap": "Some source-supported causes remain outside the current controlled vocabulary.",
+      "layer": "S2/S3/S4 enrichment, enum canonicalizer, gold review",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "impactingCondition",
+          "impactingConditionMessage",
+          "initiativeComments",
+          "reRouteReason"
+        ],
+        "gold_fact_count": 133,
+        "record_count": null,
+        "predicate_record_count_sum": 133,
+        "predicate_counts": {
+          "impactingCondition": 22,
+          "impactingConditionMessage": 10,
+          "initiativeComments": 81,
+          "reRouteReason": 20
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "impactingCondition",
+            "impactingConditionMessage",
+            "initiativeComments",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 68,
+          "gold_fact_count": 133,
+          "true_positive_count": 53,
+          "false_positive_count": 15,
+          "false_negative_count": 80,
+          "precision": 0.7794,
+          "recall": 0.3985,
+          "f1": 0.5274
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "impactingCondition",
+            "impactingConditionMessage",
+            "initiativeComments",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 133,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 133,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "impactingCondition",
+            "impactingConditionMessage",
+            "initiativeComments",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 133,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 133,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "impactingCondition",
+            "impactingConditionMessage",
+            "initiativeComments",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 86,
+          "gold_fact_count": 133,
+          "true_positive_count": 18,
+          "false_positive_count": 68,
+          "false_negative_count": 115,
+          "precision": 0.2093,
+          "recall": 0.1353,
+          "f1": 0.1644
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "impactingCondition",
+            "impactingConditionMessage",
+            "initiativeComments",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 80,
+          "gold_fact_count": 133,
+          "true_positive_count": 27,
+          "false_positive_count": 53,
+          "false_negative_count": 106,
+          "precision": 0.3375,
+          "recall": 0.203,
+          "f1": 0.2535
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "impactingCondition",
+            "impactingConditionMessage",
+            "initiativeComments",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 122,
+          "gold_fact_count": 133,
+          "true_positive_count": 65,
+          "false_positive_count": 57,
+          "false_negative_count": 68,
+          "precision": 0.5328,
+          "recall": 0.4887,
+          "f1": 0.5098
+        }
+      ],
+      "best_system": {
+        "system_id": "S0_rule_only",
+        "label": "Rule-only",
+        "precision": 0.7794,
+        "recall": 0.3985,
+        "f1": 0.5274
+      }
+    },
+    {
+      "id": "CQ-E03",
+      "role": "Route/airspace semantics",
+      "evaluation_status": "directly_measurable_now",
+      "predicates": [
+        "reRouteType",
+        "reRouteReason",
+        "controlledNASelement",
+        "initiativeComments"
+      ],
+      "gold_fields": [
+        "primary_type",
+        "route_element",
+        "reRouteType",
+        "reRouteReason",
+        "evidence_text"
+      ],
+      "metric": "reroute predicate-family F1 and constrained-element F1",
+      "gap": "AFP/CTOP semantics remain deferred unless the profile and sample support them.",
+      "layer": "S2/S3/S4, validator/repair",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "reRouteType",
+          "reRouteReason",
+          "controlledNASelement",
+          "initiativeComments"
+        ],
+        "gold_fact_count": 166,
+        "record_count": null,
+        "predicate_record_count_sum": 165,
+        "predicate_counts": {
+          "reRouteType": 19,
+          "reRouteReason": 20,
+          "controlledNASelement": 46,
+          "initiativeComments": 81
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "initiativeComments",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 112,
+          "gold_fact_count": 166,
+          "true_positive_count": 60,
+          "false_positive_count": 52,
+          "false_negative_count": 106,
+          "precision": 0.5357,
+          "recall": 0.3614,
+          "f1": 0.4316
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "initiativeComments",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 166,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 166,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "initiativeComments",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 83,
+          "gold_fact_count": 166,
+          "true_positive_count": 16,
+          "false_positive_count": 67,
+          "false_negative_count": 150,
+          "precision": 0.1928,
+          "recall": 0.0964,
+          "f1": 0.1285
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "initiativeComments",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 130,
+          "gold_fact_count": 166,
+          "true_positive_count": 17,
+          "false_positive_count": 113,
+          "false_negative_count": 149,
+          "precision": 0.1308,
+          "recall": 0.1024,
+          "f1": 0.1149
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "initiativeComments",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 102,
+          "gold_fact_count": 166,
+          "true_positive_count": 32,
+          "false_positive_count": 70,
+          "false_negative_count": 134,
+          "precision": 0.3137,
+          "recall": 0.1928,
+          "f1": 0.2388
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "initiativeComments",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 187,
+          "gold_fact_count": 166,
+          "true_positive_count": 77,
+          "false_positive_count": 110,
+          "false_negative_count": 89,
+          "precision": 0.4118,
+          "recall": 0.4639,
+          "f1": 0.4363
+        }
+      ],
+      "best_system": {
+        "system_id": "S4_hybrid_backbone_enrichment",
+        "label": "Hybrid backbone + semantic enrichment",
+        "precision": 0.4118,
+        "recall": 0.4639,
+        "f1": 0.4363
+      }
+    },
+    {
+      "id": "CQ-O01",
+      "role": "Core conformance",
+      "evaluation_status": "directly_measurable_now",
+      "predicates": [
+        "advisoryNumber",
+        "issuedTime",
+        "effectiveStartTime",
+        "effectiveEndTime"
+      ],
+      "gold_fields": [
+        "fact_id",
+        "predicate",
+        "datatype",
+        "evidence_text",
+        "validator_status"
+      ],
+      "metric": "schema violation rate, repair success, and required-core-field coverage",
+      "gap": "Schema conformance is separate from semantic support and must not be treated as truth.",
+      "layer": "validator/repair, S3, S4",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "advisoryNumber",
+          "issuedTime",
+          "effectiveStartTime",
+          "effectiveEndTime"
+        ],
+        "gold_fact_count": 394,
+        "record_count": null,
+        "predicate_record_count_sum": 394,
+        "predicate_counts": {
+          "advisoryNumber": 100,
+          "issuedTime": 98,
+          "effectiveStartTime": 98,
+          "effectiveEndTime": 98
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "advisoryNumber",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 394,
+          "gold_fact_count": 394,
+          "true_positive_count": 346,
+          "false_positive_count": 48,
+          "false_negative_count": 48,
+          "precision": 0.8782,
+          "recall": 0.8782,
+          "f1": 0.8782
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "advisoryNumber",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 394,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 394,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "advisoryNumber",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 84,
+          "gold_fact_count": 394,
+          "true_positive_count": 60,
+          "false_positive_count": 24,
+          "false_negative_count": 334,
+          "precision": 0.7143,
+          "recall": 0.1523,
+          "f1": 0.2511
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "advisoryNumber",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 164,
+          "gold_fact_count": 394,
+          "true_positive_count": 46,
+          "false_positive_count": 118,
+          "false_negative_count": 348,
+          "precision": 0.2805,
+          "recall": 0.1168,
+          "f1": 0.1649
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "advisoryNumber",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 115,
+          "gold_fact_count": 394,
+          "true_positive_count": 20,
+          "false_positive_count": 95,
+          "false_negative_count": 374,
+          "precision": 0.1739,
+          "recall": 0.0508,
+          "f1": 0.0786
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "advisoryNumber",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "issuedTime"
+          ],
+          "predicted_fact_count": 394,
+          "gold_fact_count": 394,
+          "true_positive_count": 346,
+          "false_positive_count": 48,
+          "false_negative_count": 48,
+          "precision": 0.8782,
+          "recall": 0.8782,
+          "f1": 0.8782
+        }
+      ],
+      "best_system": {
+        "system_id": "S4_hybrid_backbone_enrichment",
+        "label": "Hybrid backbone + semantic enrichment",
+        "precision": 0.8782,
+        "recall": 0.8782,
+        "f1": 0.8782
+      }
+    },
+    {
+      "id": "CQ-O02",
+      "role": "Type-specific conformance",
+      "evaluation_status": "directly_measurable_now",
+      "predicates": [
+        "extensionProbability",
+        "reRouteType",
+        "reRouteReason",
+        "impactingConditionMessage"
+      ],
+      "gold_fields": [
+        "primary_type",
+        "typed_predicates",
+        "raw_value",
+        "validator_errors"
+      ],
+      "metric": "type-specific violation rate and profile-gap count",
+      "gap": "Accepted profile extensions require reviewed ontology/profile changes.",
+      "layer": "schema-slice LLM, validator/repair, S4",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "extensionProbability",
+          "reRouteType",
+          "reRouteReason",
+          "impactingConditionMessage"
+        ],
+        "gold_fact_count": 79,
+        "record_count": null,
+        "predicate_record_count_sum": 79,
+        "predicate_counts": {
+          "extensionProbability": 30,
+          "reRouteType": 19,
+          "reRouteReason": 20,
+          "impactingConditionMessage": 10
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "extensionProbability",
+            "impactingConditionMessage",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 33,
+          "gold_fact_count": 79,
+          "true_positive_count": 31,
+          "false_positive_count": 2,
+          "false_negative_count": 48,
+          "precision": 0.9394,
+          "recall": 0.3924,
+          "f1": 0.5536
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "extensionProbability",
+            "impactingConditionMessage",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 79,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 79,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "extensionProbability",
+            "impactingConditionMessage",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 18,
+          "gold_fact_count": 79,
+          "true_positive_count": 18,
+          "false_positive_count": 0,
+          "false_negative_count": 61,
+          "precision": 1.0,
+          "recall": 0.2278,
+          "f1": 0.3711
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "extensionProbability",
+            "impactingConditionMessage",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 54,
+          "gold_fact_count": 79,
+          "true_positive_count": 20,
+          "false_positive_count": 34,
+          "false_negative_count": 59,
+          "precision": 0.3704,
+          "recall": 0.2532,
+          "f1": 0.3008
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "extensionProbability",
+            "impactingConditionMessage",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 59,
+          "gold_fact_count": 79,
+          "true_positive_count": 27,
+          "false_positive_count": 32,
+          "false_negative_count": 52,
+          "precision": 0.4576,
+          "recall": 0.3418,
+          "f1": 0.3913
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "extensionProbability",
+            "impactingConditionMessage",
+            "reRouteReason",
+            "reRouteType"
+          ],
+          "predicted_fact_count": 69,
+          "gold_fact_count": 79,
+          "true_positive_count": 46,
+          "false_positive_count": 23,
+          "false_negative_count": 33,
+          "precision": 0.6667,
+          "recall": 0.5823,
+          "f1": 0.6216
+        }
+      ],
+      "best_system": {
+        "system_id": "S4_hybrid_backbone_enrichment",
+        "label": "Hybrid backbone + semantic enrichment",
+        "precision": 0.6667,
+        "recall": 0.5823,
+        "f1": 0.6216
+      }
+    },
+    {
+      "id": "CQ-P01",
+      "role": "Evidence coverage",
+      "evaluation_status": "directly_measurable_now",
+      "coverage_scope": "all_gold_facts",
+      "predicates": [],
+      "gold_fields": [
+        "source_id",
+        "evidence_text",
+        "source_system_id",
+        "fact_id"
+      ],
+      "metric": "evidence containment coverage for accepted and reviewed missing facts",
+      "gap": "The current contract stores evidence text, not stable character offsets.",
+      "layer": "S0/S2/S3/S4, evidence checker",
+      "gold_coverage": {
+        "coverage_scope": "all_gold_facts",
+        "predicates": [],
+        "gold_fact_count": 643,
+        "record_count": 100,
+        "predicate_counts": {
+          "all_gold_facts": 643
+        }
+      },
+      "system_metrics": [],
+      "best_system": null
+    },
+    {
+      "id": "CQ-P02",
+      "role": "Evidence support",
+      "evaluation_status": "directly_measurable_now",
+      "coverage_scope": "all_gold_facts",
+      "predicates": [],
+      "gold_fields": [
+        "target_value",
+        "evidence_text",
+        "invalid_candidate_fact_ids"
+      ],
+      "metric": "semantic precision, unsupported-triple rate, and rejected-fact adjudication counts",
+      "gap": "Value-support judgement remains a reviewed semantic metric, not pure SHACL validation.",
+      "layer": "gold review, adversarial validator review, S4 diagnostics",
+      "gold_coverage": {
+        "coverage_scope": "all_gold_facts",
+        "predicates": [],
+        "gold_fact_count": 643,
+        "record_count": 100,
+        "predicate_counts": {
+          "all_gold_facts": 643
+        }
+      },
+      "system_metrics": [],
+      "best_system": null
+    },
+    {
+      "id": "CQ-Q01",
+      "role": "Source-bounded queryability",
+      "evaluation_status": "partially_measurable_now",
+      "predicates": [
+        "controlledNASelement",
+        "impactingCondition",
+        "effectiveStartTime",
+        "effectiveEndTime",
+        "implementationStatus"
+      ],
+      "gold_fields": [
+        "query_target_fields",
+        "returned_advisory_ids",
+        "citations",
+        "evidence_text"
+      ],
+      "metric": "query-field coverage now; answer-set precision/recall after query materialization",
+      "gap": "Template graph queries over the frozen KG are not yet materialized as a scored artifact.",
+      "layer": "graph materialization, graph query, later GraphRAG layer",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "controlledNASelement",
+          "impactingCondition",
+          "effectiveStartTime",
+          "effectiveEndTime",
+          "implementationStatus"
+        ],
+        "gold_fact_count": 285,
+        "record_count": null,
+        "predicate_record_count_sum": 284,
+        "predicate_counts": {
+          "controlledNASelement": 46,
+          "impactingCondition": 22,
+          "effectiveStartTime": 98,
+          "effectiveEndTime": 98,
+          "implementationStatus": 21
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "impactingCondition",
+            "implementationStatus"
+          ],
+          "predicted_fact_count": 298,
+          "gold_fact_count": 285,
+          "true_positive_count": 243,
+          "false_positive_count": 55,
+          "false_negative_count": 42,
+          "precision": 0.8154,
+          "recall": 0.8526,
+          "f1": 0.8336
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "impactingCondition",
+            "implementationStatus"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 285,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 285,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "impactingCondition",
+            "implementationStatus"
+          ],
+          "predicted_fact_count": 83,
+          "gold_fact_count": 285,
+          "true_positive_count": 16,
+          "false_positive_count": 67,
+          "false_negative_count": 269,
+          "precision": 0.1928,
+          "recall": 0.0561,
+          "f1": 0.0869
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "impactingCondition",
+            "implementationStatus"
+          ],
+          "predicted_fact_count": 172,
+          "gold_fact_count": 285,
+          "true_positive_count": 23,
+          "false_positive_count": 149,
+          "false_negative_count": 262,
+          "precision": 0.1337,
+          "recall": 0.0807,
+          "f1": 0.1006
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "impactingCondition",
+            "implementationStatus"
+          ],
+          "predicted_fact_count": 128,
+          "gold_fact_count": 285,
+          "true_positive_count": 19,
+          "false_positive_count": 109,
+          "false_negative_count": 266,
+          "precision": 0.1484,
+          "recall": 0.0667,
+          "f1": 0.092
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "effectiveStartTime",
+            "impactingCondition",
+            "implementationStatus"
+          ],
+          "predicted_fact_count": 352,
+          "gold_fact_count": 285,
+          "true_positive_count": 252,
+          "false_positive_count": 100,
+          "false_negative_count": 33,
+          "precision": 0.7159,
+          "recall": 0.8842,
+          "f1": 0.7912
+        }
+      ],
+      "best_system": {
+        "system_id": "S0_rule_only",
+        "label": "Rule-only",
+        "precision": 0.8154,
+        "recall": 0.8526,
+        "f1": 0.8336
+      }
+    },
+    {
+      "id": "CQ-A01",
+      "role": "Abstention",
+      "evaluation_status": "partially_measurable_now",
+      "predicates": [
+        "effectiveEndTime",
+        "extensionProbability",
+        "impactingCondition",
+        "reRouteReason",
+        "controlledNASelement"
+      ],
+      "gold_fields": [
+        "field_present",
+        "explicitness_label",
+        "evidence_text",
+        "missing_fact_notes"
+      ],
+      "metric": "absent-field false positives and abstention correctness",
+      "gap": "The gold set exposes false positives, but explicit absent-field labels need a follow-up pass.",
+      "layer": "S1b/S2/S3/S4, sufficiency/abstention layer",
+      "gold_coverage": {
+        "coverage_scope": "predicates",
+        "predicates": [
+          "effectiveEndTime",
+          "extensionProbability",
+          "impactingCondition",
+          "reRouteReason",
+          "controlledNASelement"
+        ],
+        "gold_fact_count": 216,
+        "record_count": null,
+        "predicate_record_count_sum": 215,
+        "predicate_counts": {
+          "effectiveEndTime": 98,
+          "extensionProbability": 30,
+          "impactingCondition": 22,
+          "reRouteReason": 20,
+          "controlledNASelement": 46
+        }
+      },
+      "system_metrics": [
+        {
+          "system_id": "S0_rule_only",
+          "label": "Rule-only",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "extensionProbability",
+            "impactingCondition",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 215,
+          "gold_fact_count": 216,
+          "true_positive_count": 167,
+          "false_positive_count": 48,
+          "false_negative_count": 49,
+          "precision": 0.7767,
+          "recall": 0.7731,
+          "f1": 0.7749
+        },
+        {
+          "system_id": "S1_llm_only",
+          "label": "LLM-only",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "extensionProbability",
+            "impactingCondition",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 0,
+          "gold_fact_count": 216,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 216,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null
+        },
+        {
+          "system_id": "S1b_llm_canonicalized",
+          "label": "LLM-only + post-hoc canonicalization",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "extensionProbability",
+            "impactingCondition",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 101,
+          "gold_fact_count": 216,
+          "true_positive_count": 34,
+          "false_positive_count": 67,
+          "false_negative_count": 182,
+          "precision": 0.3366,
+          "recall": 0.1574,
+          "f1": 0.2145
+        },
+        {
+          "system_id": "S2_llm_schema_slice",
+          "label": "LLM + schema slice",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "extensionProbability",
+            "impactingCondition",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 149,
+          "gold_fact_count": 216,
+          "true_positive_count": 26,
+          "false_positive_count": 123,
+          "false_negative_count": 190,
+          "precision": 0.1745,
+          "recall": 0.1204,
+          "f1": 0.1425
+        },
+        {
+          "system_id": "S3_llm_schema_slice_validator_repair",
+          "label": "LLM + schema slice + validator/repair",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "extensionProbability",
+            "impactingCondition",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 124,
+          "gold_fact_count": 216,
+          "true_positive_count": 23,
+          "false_positive_count": 101,
+          "false_negative_count": 193,
+          "precision": 0.1855,
+          "recall": 0.1065,
+          "f1": 0.1353
+        },
+        {
+          "system_id": "S4_hybrid_backbone_enrichment",
+          "label": "Hybrid backbone + semantic enrichment",
+          "available": true,
+          "predicates_evaluated": [
+            "controlledNASelement",
+            "effectiveEndTime",
+            "extensionProbability",
+            "impactingCondition",
+            "reRouteReason"
+          ],
+          "predicted_fact_count": 284,
+          "gold_fact_count": 216,
+          "true_positive_count": 177,
+          "false_positive_count": 107,
+          "false_negative_count": 39,
+          "precision": 0.6232,
+          "recall": 0.8194,
+          "f1": 0.708
+        }
+      ],
+      "best_system": {
+        "system_id": "S0_rule_only",
+        "label": "Rule-only",
+        "precision": 0.7767,
+        "recall": 0.7731,
+        "f1": 0.7749
+      }
+    }
+  ],
+  "next_steps": [
+    "Add primary-class accuracy scoring for CQ-D01 instead of relying on class coverage.",
+    "Materialize frozen-snapshot template queries for CQ-Q01 and score answer-set precision/recall.",
+    "Add explicit absent-field labels or derived negative examples for CQ-A01 abstention correctness.",
+    "Keep ARTCC controlled-element profile gaps separate from accepted facts until a reviewed bridge exists."
+  ]
+}

@@ -89,6 +89,7 @@ data/papers/             Related research papers and reading notes
 data/ontology/           Baseline and generated ontology artifacts
 data/kg/                 Future KG/ABox artifacts
 reports/                 Stage and final research reports
+templates/               Reusable report templates for research workflows
 src/aviation_agentic_ai/ Project package and CLI implementation
 tests/                   Unit and integration tests
 ```
@@ -384,6 +385,21 @@ failure-mode summary, and thesis-ready claim summary. It does not recompute
 experiments, fabricate human review results, or produce a mixed overall score.
 `all_passed=false` can be expected while model-based benchmark, triple, answer,
 or path review remains pending; automated consistency is reported separately.
+
+## Research Paper Analysis Protocol
+
+External papers should not shape the thesis route from abstracts alone. The
+default workflow is documented in `docs/research_paper_analysis_protocol.md`:
+
+```bash
+scripts/inspect_paper_pdf.sh data/papers/example.pdf example_paper
+```
+
+This creates ignored PDF evidence artifacts under `tmp/pdfs/example_paper/`.
+Curated paper analysis should then be written under `reports/stages/` using
+`templates/research_paper_analysis_report.md`. A paper is project-usable only
+after the report covers full-text methods, figure/table design, metrics,
+limitations, transferable ideas, and claim-safety boundaries.
 
 ## Thesis Positioning And Claim Safety
 

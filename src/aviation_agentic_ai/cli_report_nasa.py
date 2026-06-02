@@ -6,6 +6,7 @@ import click
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.nasa_atmonto_cq import write_nasa_atmonto_cq_evaluation
 from aviation_agentic_ai.reporting.nasa_sources import (
     DEFAULT_SEMANTIC_EMBEDDING_MODEL,
     write_cross_source_ontology_validation,
@@ -250,6 +251,77 @@ def register_nasa_report_commands(report: click.Group) -> None:
             click.echo(
                 f"Validated {result['valid_triples']} of "
                 f"{result['triples_total']} NASA KG triples."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
+
+    @report.command("nasa-atmonto-cq-evaluation")
+    @click.option(
+        "--gold-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Reviewed ATCSCC gold JSONL file.",
+    )
+    @click.option(
+        "--scoring-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Formal experiment scoring JSON report.",
+    )
+    @click.option(
+        "--semantic-groups-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Gold semantic groups JSON report.",
+    )
+    @click.option(
+        "--rejection-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Rejection adjudication JSON report.",
+    )
+    @click.option(
+        "--output-dir",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Directory for CQ evaluation report outputs.",
+    )
+    @click.option(
+        "--report-name",
+        default="nasa_atmonto_cq_evaluation",
+        show_default=True,
+        help="Output report stem.",
+    )
+    def report_nasa_atmonto_cq_evaluation(
+        gold_file: Path | None,
+        scoring_file: Path | None,
+        semantic_groups_file: Path | None,
+        rejection_file: Path | None,
+        output_dir: Path | None,
+        report_name: str,
+    ) -> None:
+        """Build NASA ATMONTO competency-question evaluation reports."""
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            report_kwargs = {
+                "output_dir": report_dir,
+                "report_name": report_name,
+            }
+            if gold_file is not None:
+                report_kwargs["gold_path"] = gold_file
+            if scoring_file is not None:
+                report_kwargs["scoring_path"] = scoring_file
+            if semantic_groups_file is not None:
+                report_kwargs["semantic_groups_path"] = semantic_groups_file
+            if rejection_file is not None:
+                report_kwargs["rejection_adjudication_path"] = rejection_file
+            json_path, md_path, result = write_nasa_atmonto_cq_evaluation(**report_kwargs)
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"Mapped {result['metadata']['cq_count']} CQs against "
+                f"{result['gold_summary']['reviewed_records']} reviewed ATCSCC gold records."
             )
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc
