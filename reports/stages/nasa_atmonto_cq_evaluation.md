@@ -64,8 +64,8 @@
 - `S0_rule_only`: precision=0.8163, recall=0.7185, f1=0.7643, validity=`valid_target_schema_scoring`
 - `S1_llm_only`: precision=0.0, recall=0.0, f1=0.0, validity=`invalid_direct_schema_scoring`
 - `S1b_llm_canonicalized`: precision=0.5081, recall=0.1462, f1=0.2271, validity=`valid_target_schema_scoring`
-- `S2_llm_schema_slice`: precision=0.234, recall=0.1306, f1=0.1677, validity=`valid_target_schema_scoring`
-- `S3_llm_schema_slice_validator_repair`: precision=0.2622, recall=0.1166, f1=0.1615, validity=`valid_target_schema_scoring`
+- `S2_llm_schema_slice`: precision=0.2062, recall=0.1866, f1=0.1959, validity=`valid_target_schema_scoring`
+- `S3_llm_schema_slice_validator_repair`: precision=0.2423, recall=0.1337, f1=0.1723, validity=`valid_target_schema_scoring`
 - `S4_hybrid_backbone_enrichment`: precision=0.7168, recall=0.7636, f1=0.7395, validity=`valid_target_schema_scoring`
 
 ## Rejection Boundary

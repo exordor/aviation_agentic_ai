@@ -119,9 +119,9 @@
     "2026-05-20:197"
   ],
   "parse_error_count": 0,
-  "schema_valid_record_count": 68,
+  "schema_valid_record_count": 83,
   "repair_attempted_record_count": 85,
-  "repair_success_record_count": 53,
+  "repair_success_record_count": 68,
   "limit": null,
   "claim_boundary": "LLM predictions are experiment outputs only; formal extraction effectiveness still requires reviewed gold annotations and scoring.",
   "normalizer_version": "schema_object_flattening_v1",

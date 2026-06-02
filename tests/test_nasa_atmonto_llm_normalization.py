@@ -24,6 +24,7 @@ def _schema_slice() -> dict[str, object]:
                 "iri": f"{atm}controlledNASelement",
                 "prefixed_name": "atm:controlledNASelement",
                 "local_name": "controlledNASelement",
+                "domain_set": ["atm:ReRouteTMI"],
                 "range_set": ["atm:TFMcontrolElement"],
             }
         ],
@@ -32,12 +33,14 @@ def _schema_slice() -> dict[str, object]:
                 "iri": f"{atm}advisoryNumber",
                 "prefixed_name": "atm:advisoryNumber",
                 "local_name": "advisoryNumber",
+                "domain_set": ["atm:ReRouteTMI"],
                 "datatype_set": ["xsd:integer"],
             },
             {
                 "iri": f"{atm}issuedTime",
                 "prefixed_name": "atm:issuedTime",
                 "local_name": "issuedTime",
+                "domain_set": ["atm:ReRouteTMI"],
                 "datatype_set": ["xsd:dateTime"],
             },
         ],
@@ -110,3 +113,28 @@ def test_normalize_llm_fact_uses_schema_range_for_object_property_dict_payload()
     assert fact["object"] == "ZNY"
     assert fact["object_class"] == "atm:TFMcontrolElement"
     assert fact["object_label"] == "ZNY"
+
+
+def test_normalize_llm_fact_uses_single_schema_domain_when_subject_class_missing() -> None:
+    facts, skipped = normalize_llm_facts(
+        payload={
+            "facts": [
+                {
+                    "predicate": "atm:issuedTime",
+                    "subject": "advisory",
+                    "value": "2026-05-19T13:22:00Z",
+                    "evidence_text": "SIGNATURE: 26/05/19 13:22",
+                }
+            ]
+        },
+        task=_task(),
+        schema_slice=_schema_slice(),
+    )
+
+    assert skipped == 0
+    assert len(facts) == 1
+    fact = facts[0]
+    assert fact["fact_type"] == "datatype_property"
+    assert fact["subject"] == "advisory"
+    assert fact["subject_class"] == "atm:ReRouteTMI"
+    assert fact["datatype"] == "xsd:dateTime"

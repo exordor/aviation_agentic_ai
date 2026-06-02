@@ -5413,6 +5413,7 @@ def schema_property_specs(schema_slice: dict[str, Any] | None) -> dict[str, dict
             spec = {
                 "fact_type": fact_type,
                 "predicate": row.get("prefixed_name") or row.get("local_name") or row.get("iri"),
+                "domain": row.get("domain_set", []),
                 "datatype": None,
                 "range": row.get("range_set", []),
             }
@@ -5457,6 +5458,13 @@ def first_schema_range(spec: dict[str, Any]) -> str | None:
     ranges = spec.get("range") or []
     if isinstance(ranges, list) and len(ranges) == 1:
         return str(ranges[0])
+    return None
+
+
+def first_schema_domain(spec: dict[str, Any]) -> str | None:
+    domains = spec.get("domain") or []
+    if isinstance(domains, list) and len(domains) == 1:
+        return str(domains[0])
     return None
 
 
@@ -5522,7 +5530,7 @@ def flattened_schema_property_fact(
         "source_id": task["source_id"],
         "source_family": task.get("source_family", "atcscc_advisories"),
         "subject": raw_fact.get("subject") or f"urn:aviation-agentic-ai:tmi:{task['source_id']}",
-        "subject_class": fact_subject_class(raw_fact),
+        "subject_class": fact_subject_class(raw_fact) or first_schema_domain(spec),
         "predicate": spec["predicate"],
         "fact_type": spec["fact_type"],
         "evidence_text": evidence_text,
@@ -5631,6 +5639,7 @@ def normalize_flat_llm_fact(
     spec = schema_property_spec(normalized.get("predicate"), property_specs or {})
     if spec:
         normalized["fact_type"] = spec["fact_type"]
+        normalized.setdefault("subject_class", first_schema_domain(spec))
         if spec["fact_type"] == "datatype_property":
             raw_value = normalized.pop("object", normalized.get("value"))
             value, datatype = literal_value_parts(raw_value)

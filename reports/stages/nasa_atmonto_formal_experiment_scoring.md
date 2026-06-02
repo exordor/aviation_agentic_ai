@@ -70,8 +70,8 @@
 | `S0_rule_only` | `True` | 1.0 | 615 | 567 | 48 | 0.9219512195121952 | 0.07804878048780488 | n/a | P=0.8162544169611308, R=0.71850699844479, F1=0.7642679900744418 |
 | `S1_llm_only` | `True` | 1.0 | 1211 | 0 | 1211 | 0.0 | 1.0 | n/a | `invalid_direct_schema_scoring`; diagnostic P=0.0, R=0.0, F1=0.0 |
 | `S1b_llm_canonicalized` | `True` | 1.0 | 454 | 185 | 269 | 0.40748898678414097 | 0.5925110132158591 | n/a | P=0.5081081081081081, R=0.14618973561430793, F1=0.22705314009661837 |
-| `S2_llm_schema_slice` | `True` | 1.0 | 708 | 361 | 347 | 0.5098870056497176 | 0.4901129943502825 | n/a | P=0.233983286908078, R=0.13063763608087092, F1=0.16766467065868265 |
-| `S3_llm_schema_slice_validator_repair` | `True` | 1.0 | 396 | 286 | 110 | 0.7222222222222222 | 0.2777777777777778 | 0.7222222222222222 | P=0.26223776223776224, R=0.1166407465007776, F1=0.16146393972012918 |
+| `S2_llm_schema_slice` | `True` | 1.0 | 708 | 584 | 124 | 0.8248587570621468 | 0.1751412429378531 | n/a | P=0.20618556701030927, R=0.18662519440124417, F1=0.19591836734693877 |
+| `S3_llm_schema_slice_validator_repair` | `True` | 1.0 | 396 | 355 | 41 | 0.8964646464646465 | 0.10353535353535354 | 0.8964646464646465 | P=0.24225352112676057, R=0.13374805598755832, F1=0.1723446893787575 |
 | `S4_hybrid_backbone_enrichment` | `True` | 1.0 | 686 | 686 | 0 | 1.0 | 0.0 | 1.0 | P=0.7167883211678832, R=0.7636080870917574, F1=0.7394578313253012 |
 
 ## Semantic Confidence Intervals
@@ -80,8 +80,8 @@
 | --- | --- | ---: | ---: | ---: |
 | `S0_rule_only` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.7534246575342466 - 0.8619329388560157 | 0.6656200941915228 - 0.7770992366412214 | 0.712280701754386 - 0.8097560975609756 |
 | `S1b_llm_canonicalized` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.4271356783919598 - 0.6086956521739131 | 0.121765601217656 - 0.1696969696969697 | 0.18698224852071005 - 0.25806451612903225 |
-| `S2_llm_schema_slice` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.17086834733893558 - 0.3011049723756906 | 0.08605341246290801 - 0.17425431711145997 | 0.11391018619934283 - 0.21448730009407338 |
-| `S3_llm_schema_slice_validator_repair` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.1791044776119403 - 0.3432203389830508 | 0.07258064516129033 - 0.1529051987767584 | 0.10238907849829351 - 0.20972972972972972 |
+| `S2_llm_schema_slice` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.15081967213114755 - 0.25244618395303325 | 0.13746223564954682 - 0.23390894819466249 | 0.14519906323185014 - 0.24108658743633277 |
+| `S3_llm_schema_slice_validator_repair` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.17064846416382254 - 0.29941860465116277 | 0.08589951377633712 - 0.16790490341753342 | 0.11397849462365592 - 0.21359223300970873 |
 | `S4_hybrid_backbone_enrichment` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.664756446991404 - 0.7591463414634146 | 0.709375 - 0.8108527131782945 | 0.6923076923076923 - 0.7757216876387862 |
 
 ## Semantic Group Metrics
@@ -108,20 +108,20 @@
 | `S1b_llm_canonicalized` | `airport_diversion_recovery` | 2 | 12 | 2 | 0.0 | 0.0 | 0.0 |
 | `S1b_llm_canonicalized` | `special_or_flow_constraint_fyi` | 2 | 10 | 0 | 0.0 | 0.0 | 0.0 |
 | `S1b_llm_canonicalized` | `flight_plan_drop_time_status` | 1 | 4 | 1 | 1.0 | 0.25 | 0.4 |
-| `S2_llm_schema_slice` | `ground_stop_lifecycle` | 26 | 183 | 99 | 0.31313131313131315 | 0.16939890710382513 | 0.2198581560283688 |
-| `S2_llm_schema_slice` | `reroute_or_route_constraint` | 25 | 183 | 130 | 0.18461538461538463 | 0.13114754098360656 | 0.15335463258785942 |
-| `S2_llm_schema_slice` | `volcanic_activity_bulletin` | 19 | 95 | 38 | 0.5263157894736842 | 0.21052631578947367 | 0.3007518796992481 |
-| `S2_llm_schema_slice` | `ground_delay_program_lifecycle` | 12 | 86 | 33 | 0.030303030303030304 | 0.011627906976744186 | 0.01680672268907563 |
-| `S2_llm_schema_slice` | `airport_arrival_or_scheduling_delay` | 10 | 55 | 34 | 0.08823529411764706 | 0.05454545454545454 | 0.06741573033707865 |
-| `S2_llm_schema_slice` | `hotline_or_webpage_status` | 3 | 15 | 13 | 0.15384615384615385 | 0.13333333333333333 | 0.14285714285714288 |
-| `S2_llm_schema_slice` | `airport_diversion_recovery` | 2 | 12 | 6 | 0.5 | 0.25 | 0.3333333333333333 |
-| `S2_llm_schema_slice` | `special_or_flow_constraint_fyi` | 2 | 10 | 0 | 0.0 | 0.0 | 0.0 |
+| `S2_llm_schema_slice` | `ground_stop_lifecycle` | 26 | 183 | 167 | 0.2275449101796407 | 0.20765027322404372 | 0.21714285714285714 |
+| `S2_llm_schema_slice` | `reroute_or_route_constraint` | 25 | 183 | 187 | 0.1711229946524064 | 0.17486338797814208 | 0.17297297297297298 |
+| `S2_llm_schema_slice` | `volcanic_activity_bulletin` | 19 | 95 | 71 | 0.4788732394366197 | 0.35789473684210527 | 0.40963855421686746 |
+| `S2_llm_schema_slice` | `ground_delay_program_lifecycle` | 12 | 86 | 66 | 0.045454545454545456 | 0.03488372093023256 | 0.03947368421052632 |
+| `S2_llm_schema_slice` | `airport_arrival_or_scheduling_delay` | 10 | 55 | 35 | 0.08571428571428572 | 0.05454545454545454 | 0.06666666666666667 |
+| `S2_llm_schema_slice` | `hotline_or_webpage_status` | 3 | 15 | 17 | 0.29411764705882354 | 0.3333333333333333 | 0.3125 |
+| `S2_llm_schema_slice` | `airport_diversion_recovery` | 2 | 12 | 11 | 0.2727272727272727 | 0.25 | 0.2608695652173913 |
+| `S2_llm_schema_slice` | `special_or_flow_constraint_fyi` | 2 | 10 | 22 | 0.09090909090909091 | 0.2 | 0.12500000000000003 |
 | `S2_llm_schema_slice` | `flight_plan_drop_time_status` | 1 | 4 | 6 | 0.0 | 0.0 | 0.0 |
-| `S3_llm_schema_slice_validator_repair` | `ground_stop_lifecycle` | 26 | 183 | 67 | 0.2537313432835821 | 0.09289617486338798 | 0.136 |
-| `S3_llm_schema_slice_validator_repair` | `reroute_or_route_constraint` | 25 | 183 | 103 | 0.3786407766990291 | 0.21311475409836064 | 0.2727272727272727 |
-| `S3_llm_schema_slice_validator_repair` | `volcanic_activity_bulletin` | 19 | 95 | 12 | 0.5 | 0.06315789473684211 | 0.11214953271028039 |
-| `S3_llm_schema_slice_validator_repair` | `ground_delay_program_lifecycle` | 12 | 86 | 48 | 0.125 | 0.06976744186046512 | 0.08955223880597014 |
-| `S3_llm_schema_slice_validator_repair` | `airport_arrival_or_scheduling_delay` | 10 | 55 | 26 | 0.11538461538461539 | 0.05454545454545454 | 0.07407407407407408 |
+| `S3_llm_schema_slice_validator_repair` | `ground_stop_lifecycle` | 26 | 183 | 91 | 0.1978021978021978 | 0.09836065573770492 | 0.13138686131386862 |
+| `S3_llm_schema_slice_validator_repair` | `reroute_or_route_constraint` | 25 | 183 | 136 | 0.33088235294117646 | 0.2459016393442623 | 0.28213166144200624 |
+| `S3_llm_schema_slice_validator_repair` | `volcanic_activity_bulletin` | 19 | 95 | 17 | 0.47058823529411764 | 0.08421052631578947 | 0.14285714285714282 |
+| `S3_llm_schema_slice_validator_repair` | `ground_delay_program_lifecycle` | 12 | 86 | 50 | 0.14 | 0.08139534883720931 | 0.10294117647058824 |
+| `S3_llm_schema_slice_validator_repair` | `airport_arrival_or_scheduling_delay` | 10 | 55 | 31 | 0.12903225806451613 | 0.07272727272727272 | 0.09302325581395349 |
 | `S3_llm_schema_slice_validator_repair` | `hotline_or_webpage_status` | 3 | 15 | 11 | 0.0 | 0.0 | 0.0 |
 | `S3_llm_schema_slice_validator_repair` | `airport_diversion_recovery` | 2 | 12 | 11 | 0.36363636363636365 | 0.3333333333333333 | 0.34782608695652173 |
 | `S3_llm_schema_slice_validator_repair` | `special_or_flow_constraint_fyi` | 2 | 10 | 5 | 0.0 | 0.0 | 0.0 |

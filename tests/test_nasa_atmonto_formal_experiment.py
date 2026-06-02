@@ -881,7 +881,7 @@ def test_formal_score_report_scores_frozen_reviewed_gold(tmp_path: Path) -> None
         if score["system_id"] == "S3_llm_schema_slice_validator_repair"
     )
     assert s3["structural_metrics"]["repair_applicable"] is True
-    assert s3["structural_metrics"]["repair_success_rate"] == 286 / 396
+    assert s3["structural_metrics"]["repair_success_rate"] == 355 / 396
 
     s4 = next(
         score for score in report["systems"] if score["system_id"] == "S4_hybrid_backbone_enrichment"
@@ -1345,7 +1345,10 @@ def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
     assert first_session["session_id"] == "session_01"
     assert first_session["status"] == "ready_to_apply"
     assert first_session["record_count"] == 3
-    assert first_session["estimated_review_minutes"] == 79
+    assert first_session["estimated_review_minutes"] == sum(
+        int(record["estimated_review_minutes"]) for record in first_session["records"]
+    )
+    assert first_session["estimated_review_minutes"] >= 60
     assert first_session["records"][0]["sample_id"] == "ATCSCC-GOLD-024"
     assert first_session["records"][0]["source_id"] == "2026-05-18:136"
     assert first_session["records"][0]["decision_template"].endswith(

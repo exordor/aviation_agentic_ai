@@ -129,18 +129,18 @@
         "system_id": "S2_llm_schema_slice",
         "label": "LLM + schema slice",
         "available": true,
-        "precision": 0.234,
-        "recall": 0.1306,
-        "f1": 0.1677,
+        "precision": 0.2062,
+        "recall": 0.1866,
+        "f1": 0.1959,
         "scoring_validity": "valid_target_schema_scoring"
       },
       {
         "system_id": "S3_llm_schema_slice_validator_repair",
         "label": "LLM + schema slice + validator/repair",
         "available": true,
-        "precision": 0.2622,
-        "recall": 0.1166,
-        "f1": 0.1615,
+        "precision": 0.2423,
+        "recall": 0.1337,
+        "f1": 0.1723,
         "scoring_validity": "valid_target_schema_scoring"
       },
       {
@@ -327,10 +327,10 @@
           "predicates_evaluated": [
             "controlledNASelement"
           ],
-          "predicted_fact_count": 50,
+          "predicted_fact_count": 76,
           "gold_fact_count": 46,
           "true_positive_count": 0,
-          "false_positive_count": 50,
+          "false_positive_count": 76,
           "false_negative_count": 46,
           "precision": 0.0,
           "recall": 0.0,
@@ -343,10 +343,10 @@
           "predicates_evaluated": [
             "controlledNASelement"
           ],
-          "predicted_fact_count": 30,
+          "predicted_fact_count": 41,
           "gold_fact_count": 46,
           "true_positive_count": 0,
-          "false_positive_count": 30,
+          "false_positive_count": 41,
           "false_negative_count": 46,
           "precision": 0.0,
           "recall": 0.0,
@@ -475,14 +475,14 @@
             "effectiveStartTime",
             "issuedTime"
           ],
-          "predicted_fact_count": 126,
+          "predicted_fact_count": 209,
           "gold_fact_count": 294,
-          "true_positive_count": 27,
-          "false_positive_count": 99,
-          "false_negative_count": 267,
-          "precision": 0.2143,
-          "recall": 0.0918,
-          "f1": 0.1285
+          "true_positive_count": 42,
+          "false_positive_count": 167,
+          "false_negative_count": 252,
+          "precision": 0.201,
+          "recall": 0.1429,
+          "f1": 0.167
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -493,14 +493,14 @@
             "effectiveStartTime",
             "issuedTime"
           ],
-          "predicted_fact_count": 91,
+          "predicted_fact_count": 107,
           "gold_fact_count": 294,
-          "true_positive_count": 11,
-          "false_positive_count": 80,
-          "false_negative_count": 283,
-          "precision": 0.1209,
-          "recall": 0.0374,
-          "f1": 0.0571
+          "true_positive_count": 13,
+          "false_positive_count": 94,
+          "false_negative_count": 281,
+          "precision": 0.1215,
+          "recall": 0.0442,
+          "f1": 0.0648
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -620,14 +620,14 @@
             "implementationStatus",
             "initiativeComments"
           ],
-          "predicted_fact_count": 64,
+          "predicted_fact_count": 104,
           "gold_fact_count": 102,
-          "true_positive_count": 10,
-          "false_positive_count": 54,
-          "false_negative_count": 92,
-          "precision": 0.1562,
-          "recall": 0.098,
-          "f1": 0.1204
+          "true_positive_count": 13,
+          "false_positive_count": 91,
+          "false_negative_count": 89,
+          "precision": 0.125,
+          "recall": 0.1275,
+          "f1": 0.1262
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -637,14 +637,14 @@
             "implementationStatus",
             "initiativeComments"
           ],
-          "predicted_fact_count": 57,
+          "predicted_fact_count": 77,
           "gold_fact_count": 102,
-          "true_positive_count": 23,
-          "false_positive_count": 34,
-          "false_negative_count": 79,
-          "precision": 0.4035,
-          "recall": 0.2255,
-          "f1": 0.2893
+          "true_positive_count": 26,
+          "false_positive_count": 51,
+          "false_negative_count": 76,
+          "precision": 0.3377,
+          "recall": 0.2549,
+          "f1": 0.2905
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -777,14 +777,14 @@
             "initiativeComments",
             "reRouteReason"
           ],
-          "predicted_fact_count": 86,
+          "predicted_fact_count": 137,
           "gold_fact_count": 133,
-          "true_positive_count": 18,
-          "false_positive_count": 68,
-          "false_negative_count": 115,
-          "precision": 0.2093,
-          "recall": 0.1353,
-          "f1": 0.1644
+          "true_positive_count": 21,
+          "false_positive_count": 116,
+          "false_negative_count": 112,
+          "precision": 0.1533,
+          "recall": 0.1579,
+          "f1": 0.1556
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -796,14 +796,14 @@
             "initiativeComments",
             "reRouteReason"
           ],
-          "predicted_fact_count": 80,
+          "predicted_fact_count": 104,
           "gold_fact_count": 133,
-          "true_positive_count": 27,
-          "false_positive_count": 53,
-          "false_negative_count": 106,
-          "precision": 0.3375,
-          "recall": 0.203,
-          "f1": 0.2535
+          "true_positive_count": 28,
+          "false_positive_count": 76,
+          "false_negative_count": 105,
+          "precision": 0.2692,
+          "recall": 0.2105,
+          "f1": 0.2363
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -939,14 +939,14 @@
             "reRouteReason",
             "reRouteType"
           ],
-          "predicted_fact_count": 130,
+          "predicted_fact_count": 202,
           "gold_fact_count": 166,
-          "true_positive_count": 17,
-          "false_positive_count": 113,
-          "false_negative_count": 149,
-          "precision": 0.1308,
-          "recall": 0.1024,
-          "f1": 0.1149
+          "true_positive_count": 20,
+          "false_positive_count": 182,
+          "false_negative_count": 146,
+          "precision": 0.099,
+          "recall": 0.1205,
+          "f1": 0.1087
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -958,14 +958,14 @@
             "reRouteReason",
             "reRouteType"
           ],
-          "predicted_fact_count": 102,
+          "predicted_fact_count": 136,
           "gold_fact_count": 166,
-          "true_positive_count": 32,
-          "false_positive_count": 70,
-          "false_negative_count": 134,
-          "precision": 0.3137,
-          "recall": 0.1928,
-          "f1": 0.2388
+          "true_positive_count": 34,
+          "false_positive_count": 102,
+          "false_negative_count": 132,
+          "precision": 0.25,
+          "recall": 0.2048,
+          "f1": 0.2252
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -1101,14 +1101,14 @@
             "effectiveStartTime",
             "issuedTime"
           ],
-          "predicted_fact_count": 164,
+          "predicted_fact_count": 272,
           "gold_fact_count": 394,
-          "true_positive_count": 46,
-          "false_positive_count": 118,
-          "false_negative_count": 348,
-          "precision": 0.2805,
-          "recall": 0.1168,
-          "f1": 0.1649
+          "true_positive_count": 72,
+          "false_positive_count": 200,
+          "false_negative_count": 322,
+          "precision": 0.2647,
+          "recall": 0.1827,
+          "f1": 0.2162
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -1120,14 +1120,14 @@
             "effectiveStartTime",
             "issuedTime"
           ],
-          "predicted_fact_count": 115,
+          "predicted_fact_count": 134,
           "gold_fact_count": 394,
-          "true_positive_count": 20,
-          "false_positive_count": 95,
-          "false_negative_count": 374,
-          "precision": 0.1739,
-          "recall": 0.0508,
-          "f1": 0.0786
+          "true_positive_count": 24,
+          "false_positive_count": 110,
+          "false_negative_count": 370,
+          "precision": 0.1791,
+          "recall": 0.0609,
+          "f1": 0.0909
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -1262,14 +1262,14 @@
             "reRouteReason",
             "reRouteType"
           ],
-          "predicted_fact_count": 54,
+          "predicted_fact_count": 81,
           "gold_fact_count": 79,
-          "true_positive_count": 20,
-          "false_positive_count": 34,
-          "false_negative_count": 59,
-          "precision": 0.3704,
-          "recall": 0.2532,
-          "f1": 0.3008
+          "true_positive_count": 25,
+          "false_positive_count": 56,
+          "false_negative_count": 54,
+          "precision": 0.3086,
+          "recall": 0.3165,
+          "f1": 0.3125
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -1281,14 +1281,14 @@
             "reRouteReason",
             "reRouteType"
           ],
-          "predicted_fact_count": 59,
+          "predicted_fact_count": 70,
           "gold_fact_count": 79,
-          "true_positive_count": 27,
-          "false_positive_count": 32,
-          "false_negative_count": 52,
-          "precision": 0.4576,
-          "recall": 0.3418,
-          "f1": 0.3913
+          "true_positive_count": 30,
+          "false_positive_count": 40,
+          "false_negative_count": 49,
+          "precision": 0.4286,
+          "recall": 0.3797,
+          "f1": 0.4027
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -1483,14 +1483,14 @@
             "impactingCondition",
             "implementationStatus"
           ],
-          "predicted_fact_count": 172,
+          "predicted_fact_count": 273,
           "gold_fact_count": 285,
-          "true_positive_count": 23,
-          "false_positive_count": 149,
-          "false_negative_count": 262,
-          "precision": 0.1337,
-          "recall": 0.0807,
-          "f1": 0.1006
+          "true_positive_count": 31,
+          "false_positive_count": 242,
+          "false_negative_count": 254,
+          "precision": 0.1136,
+          "recall": 0.1088,
+          "f1": 0.1111
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -1503,14 +1503,14 @@
             "impactingCondition",
             "implementationStatus"
           ],
-          "predicted_fact_count": 128,
+          "predicted_fact_count": 156,
           "gold_fact_count": 285,
-          "true_positive_count": 19,
-          "false_positive_count": 109,
-          "false_negative_count": 266,
-          "precision": 0.1484,
-          "recall": 0.0667,
-          "f1": 0.092
+          "true_positive_count": 24,
+          "false_positive_count": 132,
+          "false_negative_count": 261,
+          "precision": 0.1538,
+          "recall": 0.0842,
+          "f1": 0.1088
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -1653,13 +1653,13 @@
             "impactingCondition",
             "reRouteReason"
           ],
-          "predicted_fact_count": 149,
+          "predicted_fact_count": 233,
           "gold_fact_count": 216,
-          "true_positive_count": 26,
-          "false_positive_count": 123,
-          "false_negative_count": 190,
-          "precision": 0.1745,
-          "recall": 0.1204,
+          "true_positive_count": 32,
+          "false_positive_count": 201,
+          "false_negative_count": 184,
+          "precision": 0.1373,
+          "recall": 0.1481,
           "f1": 0.1425
         },
         {
@@ -1673,14 +1673,14 @@
             "impactingCondition",
             "reRouteReason"
           ],
-          "predicted_fact_count": 124,
+          "predicted_fact_count": 152,
           "gold_fact_count": 216,
-          "true_positive_count": 23,
-          "false_positive_count": 101,
-          "false_negative_count": 193,
-          "precision": 0.1855,
-          "recall": 0.1065,
-          "f1": 0.1353
+          "true_positive_count": 25,
+          "false_positive_count": 127,
+          "false_negative_count": 191,
+          "precision": 0.1645,
+          "recall": 0.1157,
+          "f1": 0.1359
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
