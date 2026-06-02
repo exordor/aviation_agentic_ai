@@ -6,6 +6,9 @@ import click
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.paths import project_relative_path
+from aviation_agentic_ai.reporting.nasa_atmonto_agentic_loop import (
+    write_nasa_atmonto_agentic_loop,
+)
 from aviation_agentic_ai.reporting.nasa_atmonto_cq import write_nasa_atmonto_cq_evaluation
 from aviation_agentic_ai.reporting.nasa_sources import (
     DEFAULT_SEMANTIC_EMBEDDING_MODEL,
@@ -322,6 +325,104 @@ def register_nasa_report_commands(report: click.Group) -> None:
             click.echo(
                 f"Mapped {result['metadata']['cq_count']} CQs against "
                 f"{result['gold_summary']['reviewed_records']} reviewed ATCSCC gold records."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
+
+    @report.command("nasa-atmonto-agentic-loop")
+    @click.option(
+        "--gold-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Reviewed ATCSCC gold JSONL file.",
+    )
+    @click.option(
+        "--scoring-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Formal experiment scoring JSON report.",
+    )
+    @click.option(
+        "--semantic-groups-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Gold semantic groups JSON report.",
+    )
+    @click.option(
+        "--rejection-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Rejection adjudication JSON report.",
+    )
+    @click.option(
+        "--cq-manifest",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="ATCSCC CQ query manifest.",
+    )
+    @click.option(
+        "--prediction-validation-file",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Prediction output validation JSON report.",
+    )
+    @click.option(
+        "--extraction-schema",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="ATCSCC extraction JSON schema.",
+    )
+    @click.option(
+        "--output-dir",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Directory for agentic loop report outputs.",
+    )
+    @click.option(
+        "--report-name",
+        default="nasa_atmonto_agentic_loop",
+        show_default=True,
+        help="Output report stem.",
+    )
+    def report_nasa_atmonto_agentic_loop(
+        gold_file: Path | None,
+        scoring_file: Path | None,
+        semantic_groups_file: Path | None,
+        rejection_file: Path | None,
+        cq_manifest: Path | None,
+        prediction_validation_file: Path | None,
+        extraction_schema: Path | None,
+        output_dir: Path | None,
+        report_name: str,
+    ) -> None:
+        """Build the ATCSCC/ATMONTO agentic extraction-validation loop reports."""
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            report_kwargs = {
+                "output_dir": report_dir,
+                "report_name": report_name,
+            }
+            if gold_file is not None:
+                report_kwargs["gold_path"] = gold_file
+            if scoring_file is not None:
+                report_kwargs["scoring_path"] = scoring_file
+            if semantic_groups_file is not None:
+                report_kwargs["semantic_groups_path"] = semantic_groups_file
+            if rejection_file is not None:
+                report_kwargs["rejection_adjudication_path"] = rejection_file
+            if cq_manifest is not None:
+                report_kwargs["cq_manifest_path"] = cq_manifest
+            if prediction_validation_file is not None:
+                report_kwargs["prediction_validation_path"] = prediction_validation_file
+            if extraction_schema is not None:
+                report_kwargs["extraction_schema_path"] = extraction_schema
+            json_path, md_path, result = write_nasa_atmonto_agentic_loop(**report_kwargs)
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"Agentic loop status: {result['status']} with "
+                f"{len(result['code_review_triggers'])} code-review trigger(s)."
             )
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc

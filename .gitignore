@@ -12,6 +12,8 @@ data/chunks/
 data/kg/*.tmp
 data/kg/*.cache
 reports/**/*.tmp
+reports/stages/*_run.log
+reports/stages/pytest_*.log
 reports/archive/
 logs/
 outputs/

@@ -150,6 +150,7 @@ REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
             "nasa-benchmark-summary",
             "nasa-kg-validation",
             "nasa-atmonto-cq-evaluation",
+            "nasa-atmonto-agentic-loop",
             "cross-source-ontology-validation",
             "multisource-retrieval-smoke",
         ),

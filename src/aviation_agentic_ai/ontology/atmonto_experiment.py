@@ -5596,19 +5596,55 @@ def flatten_schema_object_fact(
     return flattened
 
 
-def normalize_flat_llm_fact(fact: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
+def subject_value_and_class(fact: dict[str, Any]) -> tuple[object | None, object | None]:
+    subject = fact.get("subject")
+    if isinstance(subject, dict):
+        value = (
+            subject.get("value")
+            or subject.get("id")
+            or subject.get("uri")
+            or subject.get("label")
+            or subject.get("name")
+        )
+        subject_class = (
+            subject.get("subject_class")
+            or subject.get("type")
+            or subject.get("class")
+        )
+        return value, subject_class
+    return subject, fact_subject_class(fact)
+
+
+def normalize_flat_llm_fact(
+    fact: dict[str, Any],
+    task: dict[str, Any],
+    property_specs: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     normalized = dict(fact)
     normalized.setdefault("source_id", task["source_id"])
     normalized.setdefault("source_family", task.get("source_family", "atcscc_advisories"))
-    normalized.setdefault(
-        "subject",
-        f"urn:aviation-agentic-ai:tmi:{task['source_id']}",
-    )
+    subject, subject_class = subject_value_and_class(normalized)
+    normalized["subject"] = subject or f"urn:aviation-agentic-ai:tmi:{task['source_id']}"
     if "subject_class" not in normalized:
-        subject_class = fact_subject_class(normalized)
         if subject_class:
             normalized["subject_class"] = subject_class
-    if "fact_type" not in normalized:
+    spec = schema_property_spec(normalized.get("predicate"), property_specs or {})
+    if spec:
+        normalized["fact_type"] = spec["fact_type"]
+        if spec["fact_type"] == "datatype_property":
+            raw_value = normalized.pop("object", normalized.get("value"))
+            value, datatype = literal_value_parts(raw_value)
+            normalized["value"] = value
+            normalized["datatype"] = normalized.get("datatype") or datatype or spec.get("datatype")
+            normalized.pop("object_class", None)
+        elif spec["fact_type"] == "object_property" and "object" in normalized:
+            object_value, object_class, object_label = object_value_parts(normalized["object"], spec)
+            normalized["object"] = object_value
+            if object_class and not normalized.get("object_class"):
+                normalized["object_class"] = object_class
+            if object_label and not normalized.get("object_label"):
+                normalized["object_label"] = object_label
+    elif "fact_type" not in normalized:
         if "value" in normalized:
             normalized["fact_type"] = "datatype_property"
         elif "object" in normalized:
@@ -5632,7 +5668,7 @@ def normalize_llm_facts(
         if not isinstance(fact, dict):
             skipped += 1
             continue
-        normalized_items = [normalize_flat_llm_fact(fact, task)]
+        normalized_items = [normalize_flat_llm_fact(fact, task, property_specs)]
         flattened_items = flatten_schema_object_fact(
             fact=fact,
             property_specs=property_specs,
