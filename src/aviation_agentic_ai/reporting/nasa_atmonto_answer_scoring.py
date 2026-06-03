@@ -35,9 +35,13 @@ CONTROLLED_NAS_ARTIFACT_VALUES = {
     "ADDS",
     "ADVZY",
     "ARE",
+    "AIRPORT",
+    "APT",
     "CAN",
+    "FACILITY",
     "INTO",
     "THAT",
+    "TFMCONTROLELEMENT",
     "USERS",
 }
 
@@ -73,6 +77,13 @@ def gate_s4_facts(
 def critic_gate_decision(fact: dict[str, Any]) -> dict[str, Any]:
     predicate = predicate_name(fact.get("predicate"))
     value = answer_value(fact)
+    if predicate == "controlledNASelement" and looks_like_structured_metadata(value):
+        return {
+            "accepted": False,
+            "reason": "controlled_nas_metadata_artifact",
+            "predicate": predicate,
+            "value": value,
+        }
     if predicate == "controlledNASelement" and value.upper() in CONTROLLED_NAS_ARTIFACT_VALUES:
         return {
             "accepted": False,
@@ -89,6 +100,13 @@ def critic_gate_decision(fact: dict[str, Any]) -> dict[str, Any]:
             "value": value,
         }
     return {"accepted": True, "reason": "accepted", "predicate": predicate, "value": value}
+
+
+def looks_like_structured_metadata(value: str) -> bool:
+    stripped = value.strip()
+    return (stripped.startswith("{") and stripped.endswith("}")) or (
+        stripped.startswith("[") and stripped.endswith("]")
+    )
 
 
 def critic_summary(rejected: list[dict[str, Any]]) -> dict[str, Any]:
@@ -411,7 +429,9 @@ def evaluate_result(label: dict[str, Any], result: dict[str, Any]) -> dict[str, 
         for item in result.get("answer_values", [])
         if isinstance(item, dict)
     }
-    actual_abstention = bool(metrics["insufficient_evidence_abstention"])
+    actual_abstention = bool(result.get("abstain")) or bool(
+        metrics["insufficient_evidence_abstention"]
+    )
     expected_abstention = bool(label.get("expected_abstention"))
     if expected_abstention:
         answer_correctness = actual_abstention

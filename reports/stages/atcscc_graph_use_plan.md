@@ -65,8 +65,8 @@ The fixed-budget LLM check evaluates:
 
 | Mode | Purpose | Current status |
 | --- | --- | --- |
-| `routed_token_matched_live_tfidf_graphrag` | Token-matched routed GraphRAG over live lexical source retrieval. | Evaluated on 12 selected cases, two per CQ template. |
-| `routed_token_matched_dense_graphrag` | Token-matched routed GraphRAG over dense source retrieval. | Evaluated on 12 selected cases, two per CQ template. |
+| `routed_token_matched_live_tfidf_graphrag` | Token-matched routed GraphRAG over live lexical source retrieval. | Evaluated on 30 selected cases, five per CQ template. |
+| `routed_token_matched_dense_graphrag` | Token-matched routed GraphRAG over dense source retrieval. | Evaluated on 30 selected cases, five per CQ template. |
 
 The current gate is intentionally conservative. The live retrieval layer now
 includes both a lexical TF-IDF source index and a local dense embedding index
@@ -226,29 +226,31 @@ From `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`:
 
 | Mode | Selected | Answered | Correctness | Citation recall | Evidence faithful | Unsupported claim rate | Abstention correct | Avg context tokens |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `routed_token_matched_live_tfidf_graphrag` | 12 | 12 | 1.0 | 0.5556 | 1.0 | 0.0 | 1.0 | 28.25 |
-| `routed_token_matched_dense_graphrag` | 12 | 12 | 1.0 | 0.5833 | 1.0 | 0.0 | 1.0 | 28.25 |
+| `routed_token_matched_live_tfidf_graphrag` | 30 | 30 | 0.9667 | 0.6084 | 0.9667 | 0.0167 | 1.0 | 33.03 |
+| `routed_token_matched_dense_graphrag` | 30 | 30 | 0.9333 | 0.5945 | 0.9333 | 0.0333 | 1.0 | 33.03 |
 
 Interpretation:
 
 - the small LLM run is useful as a SOTA-facing sanity check because it replaces
   deterministic answer strings with model-generated answers over frozen
-  retrieved contexts and reports two cases per CQ template for each routed mode;
+  retrieved contexts and reports five cases per CQ template for each routed mode;
 - the sample is deliberately bounded, so it supports cautious comparison and
   error discovery, not expert certification;
-- after adding the source-local dense guard, the selected dense route no longer
-  fails the time-window and abstention cases that were caused by wrong-source
-  retrieval;
+- after adding the source-local dense guard and controlled-element artifact
+  gate, the selected dense route no longer fails due to wrong-source temporal
+  context or metadata/type values such as `Airport`;
 - after promoting the route-semantics partial-answer contract into the targeted
-  v3 prompt, both routed live lexical and guarded dense modes have no scored
-  failures in the bounded 24-case run;
-- the 24-case run is still diagnostic and should be scaled before making a
-  broad GraphRAG or dense-retrieval claim.
+  v3 prompt, no route-semantics failures remain in the 60-case rerun;
+- the remaining scored failures are concentrated in `QT-Q01-CAUSE-CONDITION`,
+  where the LLM over-answers by returning both a canonical condition label and
+  the literal `impactingConditionMessage` while the current benchmark label
+  only accepts the literal message field.
 
 Manual failure review in
-`reports/stages/nasa_atmonto_s7_llm_failure_review.md` shows that the previous
-dense source-miss, wrong-context abstention, and compound route-semantics
-partial-answer failures are addressed in the current selected v3 rerun.
+`reports/stages/nasa_atmonto_s7_llm_failure_review.md` now records both the
+resolved retrieval/route-contract failures and the remaining cause-condition
+over-answer boundary. `reports/stages/nasa_atmonto_s7_human_review_candidates.md`
+packages these failures plus coverage successes for external review.
 
 ### Route-Semantics Partial-Answer Ablation
 
@@ -276,7 +278,7 @@ route evaluation, live lexical-vector retrieval, dense retrieval, graph
 path-support reporting, materialized graph traversal, tokenizer-backed
 token-budget controls, latency reporting, deterministic generated-answer
 evaluation over routed live retrieval contexts, graph-health diagnostics by CQ
-group, and a 24-case fixed-budget LLM-generated answer check. It also produces two
+group, and a 60-case fixed-budget LLM-generated answer check. It also produces two
 qualified results:
 graph context is not automatically better in the current scaffold, and dense
 retrieval only becomes competitive after explicit source-local guarding for
@@ -295,7 +297,8 @@ This does not yet prove:
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to scale the v3 bounded LLM check beyond two cases per
-CQ template and add a small human/expert review pass for sampled answers. Keep
-the partial-answer ablation as the provenance for why the route-semantics
-contract changed.
+The next SOTA upgrade is to run the small human/expert review pass using
+`reports/stages/nasa_atmonto_s7_human_review_candidates.md`. Keep the
+partial-answer ablation as the provenance for why the route-semantics contract
+changed, and keep the remaining cause-condition failures as review targets
+rather than silently changing the metric.

@@ -222,6 +222,7 @@ def llm_answer_record(
             "llm_status": "answered",
             "answer": result["answer"],
             "answer_values": result["answer_values"],
+            "abstain": result["abstain"],
             "metrics": metrics,
             "raw_response": raw_response,
             "runtime": {"answer_latency_ms": round((perf_counter() - started) * 1000, 4)},
@@ -328,6 +329,7 @@ def result_from_llm_payload(
     return {
         "answer": answer,
         "answer_values": answer_values,
+        "abstain": abstain,
         "requested_mode": mode_result.get("requested_mode"),
         "underlying_mode": mode_result.get("underlying_mode"),
         "evidence_route": mode_result.get("evidence_route"),
@@ -399,7 +401,7 @@ def normalize_llm_answer_values(
         if canonical_time_window:
             normalized.extend(canonical_time_window)
             continue
-        normalized.append(item)
+        normalized.append(normalize_non_temporal_answer_value(item))
     evidence_time_window = canonical_atcscc_time_window_from_evidence(
         mode_result,
         source_id=source_id,
@@ -408,6 +410,16 @@ def normalize_llm_answer_values(
         non_time_values = [item for item in normalized if not is_time_answer_value(item)]
         return [*non_time_values, *evidence_time_window]
     return normalized
+
+
+def normalize_non_temporal_answer_value(item: dict[str, str]) -> dict[str, str]:
+    predicate = str(item.get("predicate") or "")
+    value = str(item.get("value") or "")
+    if predicate == "impactingCondition" and "/" in value:
+        condition = value.split("/", 1)[0].strip().lower()
+        if condition:
+            return {"predicate": predicate, "value": condition}
+    return {"predicate": predicate, "value": value}
 
 
 def canonical_atcscc_time_window_from_evidence(

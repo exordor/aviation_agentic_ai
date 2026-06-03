@@ -19,9 +19,10 @@ Generate deterministic source-only, vector proxy, graph-only, and hybrid GraphRA
 - Hybrid answer correctness: 0.8333
 - Hybrid evidence faithfulness: 0.8333
 - S7 deterministic routed live lexical GraphRAG correctness: 0.6435 under the stricter timestamp-preserving answer-value scorer.
-- S7 fixed-budget LLM v3 live lexical route correctness: 1.0 on 12 selected cases; source-local guarded dense route correctness: 1.0 on 12 selected cases.
+- S7 fixed-budget LLM v3 live lexical route correctness: 0.9667 on 30 selected cases; source-local guarded dense route correctness: 0.9333 on 30 selected cases.
 - S7 graph-health diagnostic: routed GraphRAG uses graph context in 39.75% of cases, preserves target-source hit rate at 1.0, and reaches answer-set F1 0.9833 while avoiding graph context for abstention/time-window templates.
 - S7 source-local dense guard: deterministic S7 dense routed answer correctness increased from 0.3344 to 0.6215, with target-source hit rate increasing from 0.4069 to 0.9685 and guard rate 0.5615. This should be interpreted as metadata/source-bounded guarded dense retrieval, not pure dense embedding superiority.
-- S7 LLM failure review: previous dense source-miss, wrong-context abstention, and compound route-semantics partial-answer failures were addressed in the selected v3 rerun.
+- S7 LLM failure review: previous dense source-miss, wrong-context abstention, controlled-element metadata leakage, and compound route-semantics partial-answer failures were addressed; the remaining 3 failures are cause-condition over-answer/profile-boundary cases.
 - S7 route-semantics partial-answer ablation: on the four selected route-semantics cases, both routed live lexical and guarded dense modes reached strict correctness 1.0, partial contract satisfaction 1.0, value F1 1.0, abstain rate 0.0, and unsupported rate 0.0 when prompted to return supported fields and list missing `reRouteType` / `reRouteReason` separately; this motivated the targeted v3 primary prompt.
+- S7 human-review candidate package: 9 generated-answer cases were packaged for review, including all 3 current failures and 6 coverage-success examples. This is a review queue, not reviewed evidence.
 - Boundary: S7 LLM results include deterministic JSON/schema repair for abstention and ATCSCC time-window normalization. They are diagnostic and source-bounded, not human review or operational ATC certification.

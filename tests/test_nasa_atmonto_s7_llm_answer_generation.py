@@ -308,6 +308,8 @@ def test_result_from_llm_payload_clears_answer_values_when_abstaining() -> None:
     )
 
     assert result["answer_values"] == []
+    assert result["abstain"] is True
+    assert "Insufficient evidence" in result["answer"]
 
 
 def test_result_from_llm_payload_accepts_object_shaped_values_and_citations() -> None:
@@ -324,6 +326,27 @@ def test_result_from_llm_payload_accepts_object_shaped_values_and_citations() ->
 
     assert result["answer_values"] == [{"predicate": "controlledNASelement", "value": "BNA"}]
     assert "Citations: atcscc-2026-05-19-074-p1-c1" in result["answer"]
+
+
+def test_result_from_llm_payload_normalizes_impacting_condition_literal() -> None:
+    result = result_from_llm_payload(
+        {},
+        {
+            "answer": "STAFFING / STAFFING",
+            "answer_values": [
+                {"predicate": "impactingCondition", "value": "STAFFING / STAFFING"},
+                {"predicate": "impactingConditionMessage", "value": "STAFFING / STAFFING"},
+            ],
+            "abstain": False,
+            "citations": ["atcscc-2026-05-15-067-p1-c1"],
+        },
+        source_id="2026-05-15:067",
+    )
+
+    assert result["answer_values"] == [
+        {"predicate": "impactingCondition", "value": "staffing"},
+        {"predicate": "impactingConditionMessage", "value": "STAFFING / STAFFING"},
+    ]
 
 
 def test_s7_llm_prompt_requests_atcscc_time_window_normalization() -> None:

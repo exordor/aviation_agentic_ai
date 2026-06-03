@@ -10,6 +10,7 @@ from aviation_agentic_ai.reporting.nasa_atmonto_answer_generation import (
 )
 from aviation_agentic_ai.reporting.nasa_atmonto_answer_benchmark import answer_value
 from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import build_cq_query_manifest
+from aviation_agentic_ai.reporting.nasa_atmonto_answer_scoring import evaluate_result
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -121,6 +122,14 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
                         "validator_status": "repaired_accepted",
                     },
                     {
+                        "fact_id": "fact-metadata-extra",
+                        "predicate": "atm:controlledNASelement",
+                        "object_label": '{"@type": "nas:Airport"}',
+                        "source_id": "2026-05-19:032",
+                        "evidence_text": "CTL ELEMENT: ZNY ELEMENT TYPE: APT",
+                        "validator_status": "repaired_accepted",
+                    },
+                    {
                         "fact_id": "fact-start",
                         "predicate": "atm:effectiveStartTime",
                         "value": "2026-05-19T13:22:00Z",
@@ -175,6 +184,17 @@ def test_answer_value_preserves_iso_datetimes() -> None:
     assert answer_value({"predicate": "atm:effectiveStartTime", "value": "13:22"}) == "13:22"
 
 
+def test_evaluate_result_accepts_structured_abstain_flag() -> None:
+    metrics = evaluate_result(
+        {"expected_abstention": True, "expected_values": []},
+        {"answer": "", "answer_values": [], "abstain": True},
+    )
+
+    assert metrics["answer_correctness"] is True
+    assert metrics["abstention_correctness"] is True
+    assert metrics["actual_abstention"] is True
+
+
 def test_build_nasa_atmonto_answer_generation_materializes_benchmark_modes_and_metrics(
     tmp_path: Path,
 ) -> None:
@@ -213,13 +233,14 @@ def test_build_nasa_atmonto_answer_generation_materializes_benchmark_modes_and_m
         ]
         == "hybrid_graphrag"
     )
-    assert "Airport" in affected["results"]["graph_only"]["answer"]
-    assert affected["metrics"]["graph_only"]["unsupported_claim_rate"] > 0
-    assert affected["metrics"]["graph_only"]["answer_correctness"] is False
+    assert "Airport" not in affected["results"]["graph_only"]["answer"]
+    assert "@type" not in affected["results"]["graph_only"]["answer"]
+    assert affected["metrics"]["graph_only"]["unsupported_claim_rate"] == 0
+    assert affected["metrics"]["graph_only"]["answer_correctness"] is True
 
     critic = result["critic_gate"]
-    assert critic["rejected_fact_count"] == 1
-    assert critic["rejected_values"] == ["ADVZY"]
+    assert critic["rejected_fact_count"] == 3
+    assert critic["rejected_values"] == ["ADVZY", "Airport", '{"@type": "nas:Airport"}']
 
     aggregate = result["answer_quality"]["aggregate_by_mode"]
     for mode in ANSWER_MODES:
