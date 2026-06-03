@@ -20,7 +20,7 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
-def _write_all_evidence(tmp_path: Path) -> None:
+def _write_all_evidence(tmp_path: Path, *, human_review_completed: bool = False) -> None:
     for requirement in SOTA_REQUIREMENTS:
         for rel_path in requirement["evidence"]:
             path = tmp_path / rel_path
@@ -30,7 +30,7 @@ def _write_all_evidence(tmp_path: Path) -> None:
                 _write_text(path)
     _write_json(
         tmp_path / "reports/stages/nasa_atmonto_formal_experiment_scoring.json",
-        {"status": "formal_scoring_ready"},
+        {"status": "scored"},
     )
     _write_json(
         tmp_path / "reports/stages/nasa_atmonto_s5_s6_agentic_loop.json",
@@ -62,10 +62,14 @@ def _write_all_evidence(tmp_path: Path) -> None:
     _write_json(
         tmp_path / "reports/stages/nasa_atmonto_s7_answer_review_decisions.json",
         {
-            "status": "s7_answer_review_decisions_pending",
+            "status": (
+                "s7_answer_review_decisions_completed"
+                if human_review_completed
+                else "s7_answer_review_decisions_pending"
+            ),
             "metadata": {
-                "completed_case_count": 0,
-                "human_review_completed": False,
+                "completed_case_count": 60 if human_review_completed else 0,
+                "human_review_completed": human_review_completed,
             },
         },
     )
@@ -86,7 +90,7 @@ def test_sota_goal_audit_maps_requirements_to_present_evidence(tmp_path: Path) -
     assert result["status"] == "sota_goal_audit_created"
     assert result["completion_claim"] == "active_not_complete"
     assert result["metadata"]["requirement_count"] == len(SOTA_REQUIREMENTS)
-    assert result["metadata"]["formal_scoring_status"] == "formal_scoring_ready"
+    assert result["metadata"]["formal_scoring_status"] == "scored"
     assert result["metadata"]["s5_s6_status"] == "s5_s6_agentic_evidence_gate_scored"
     assert result["metadata"]["s5_s6_independent_status"] == "s5_s6_independent_agentic_run_scored"
     assert result["metadata"]["s5_s6_live_pilot_status"] == "s5_s6_live_agentic_pilot_scored"
@@ -105,6 +109,11 @@ def test_sota_goal_audit_maps_requirements_to_present_evidence(tmp_path: Path) -
     assert all(item["missing_evidence"] == [] for item in result["requirements"])
     assert "External human/expert answer-review decisions" in result["remaining_blockers"][0]
     assert len(result["remaining_blockers"]) == 1
+    assert result["completion_gate"]["passed"] is False
+    assert result["completion_gate"]["failed_criteria"] == [
+        "no_remaining_blockers",
+        "s7_answer_review_completed",
+    ]
 
 
 def test_write_sota_goal_audit_outputs_json_and_markdown(tmp_path: Path) -> None:
@@ -126,5 +135,22 @@ def test_write_sota_goal_audit_outputs_json_and_markdown(tmp_path: Path) -> None
     assert "full 100-record live LLM" not in markdown
     assert "S7 broad review packet cases: 60" in markdown
     assert "S7 answer review decision status: `s7_answer_review_decisions_pending`" in markdown
+    assert "Completion gate passed: `False`" in markdown
+    assert "s7_answer_review_completed" in markdown
     assert "Second-domain transfer status: `second_domain_transfer_pilot_created`" in markdown
     assert "External human/expert answer-review decisions" in markdown
+
+
+def test_sota_goal_completion_gate_passes_when_review_decisions_are_complete(
+    tmp_path: Path,
+) -> None:
+    _write_all_evidence(tmp_path, human_review_completed=True)
+
+    result = build_nasa_atmonto_sota_goal_audit(repo_root=tmp_path)
+
+    assert result["completion_claim"] == "sota_goal_completed"
+    assert result["remaining_blockers"] == []
+    assert result["completion_gate"]["passed"] is True
+    assert result["completion_gate"]["failed_criteria"] == []
+    assert result["metadata"]["s7_answer_review_completed_case_count"] == 60
+    assert result["metadata"]["s7_answer_review_human_completed"] is True

@@ -18,6 +18,7 @@
 - S7 answer review human completed: `False`
 - Second-domain transfer status: `second_domain_transfer_pilot_created`
 - Second-domain transfer domain: NASA Beginner's Guide to Aerodynamics
+- Completion gate passed: `False`
 
 ## Requirement Evidence
 
@@ -88,6 +89,21 @@
 - `present` `reports/stages/nasa_bga_domain_transfer_pilot.md`
 - `present` `templates/agentic_artifact_contract.md`
 
+
+## Completion Gate
+
+| Criterion | Passed | Expected | Observed |
+| --- | --- | --- | --- |
+| `all_evidence_present` | `True` | no missing evidence | [] |
+| `no_remaining_blockers` | `False` | [] | External human/expert answer-review decisions are not yet complete. |
+| `formal_scoring_scored` | `True` | `scored` | scored |
+| `live_s5_s6_full_run_scored` | `True` | `s5_s6_live_agentic_full_run_scored` | s5_s6_live_agentic_full_run_scored |
+| `s7_llm_answer_generation_evaluated` | `True` | `s7_llm_answer_generation_evaluated` | s7_llm_answer_generation_evaluated |
+| `s7_broad_review_packet_60_cases` | `True` | `broad_answer_review_packet_created` with 60 cases | status=broad_answer_review_packet_created, case_count=60 |
+| `s7_answer_review_completed` | `False` | `s7_answer_review_decisions_completed` with 60 human-reviewed cases | status=s7_answer_review_decisions_pending, completed_case_count=0, human_review_completed=False |
+| `second_domain_transfer_pilot_created` | `True` | `second_domain_transfer_pilot_created` | second_domain_transfer_pilot_created |
+
+- Failed criteria: `no_remaining_blockers`, `s7_answer_review_completed`
 
 ## Remaining Blockers
 

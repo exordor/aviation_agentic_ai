@@ -166,35 +166,40 @@ def build_nasa_atmonto_sota_goal_audit(
         s7_review_decisions,
         second_domain_transfer,
     )
+    metadata = {
+        "requirement_count": len(requirements),
+        "status_counts": dict(sorted(status_counts.items())),
+        "formal_scoring_status": scoring.get("status"),
+        "s5_s6_status": s5_s6.get("status"),
+        "s5_s6_independent_status": s5_s6_independent.get("status"),
+        "s5_s6_live_pilot_status": s5_s6_live.get("status"),
+        "s5_s6_live_full_run_status": s5_s6_live_full.get("status"),
+        "s7_llm_status": s7_llm.get("status"),
+        "s7_broad_review_packet_status": s7_broad_review.get("status"),
+        "s7_broad_review_case_count": s7_broad_review.get("metadata", {}).get("case_count"),
+        "s7_answer_review_decision_status": s7_review_decisions.get("status"),
+        "s7_answer_review_completed_case_count": s7_review_decisions.get("metadata", {}).get(
+            "completed_case_count"
+        ),
+        "s7_answer_review_human_completed": s7_review_decisions.get("metadata", {}).get(
+            "human_review_completed"
+        ),
+        "second_domain_transfer_status": second_domain_transfer.get("status"),
+        "second_domain_transfer_domain": second_domain_transfer.get("metadata", {}).get(
+            "transfer_domain"
+        ),
+    }
+    completion_gate = _completion_gate(requirements, metadata, remaining_blockers)
     return {
         "source_family": "nasa_atmonto_sota_goal_audit",
         "status": "sota_goal_audit_created",
-        "completion_claim": "active_not_complete",
-        "metadata": {
-            "requirement_count": len(requirements),
-            "status_counts": dict(sorted(status_counts.items())),
-            "formal_scoring_status": scoring.get("status"),
-            "s5_s6_status": s5_s6.get("status"),
-            "s5_s6_independent_status": s5_s6_independent.get("status"),
-            "s5_s6_live_pilot_status": s5_s6_live.get("status"),
-            "s5_s6_live_full_run_status": s5_s6_live_full.get("status"),
-            "s7_llm_status": s7_llm.get("status"),
-            "s7_broad_review_packet_status": s7_broad_review.get("status"),
-            "s7_broad_review_case_count": s7_broad_review.get("metadata", {}).get("case_count"),
-            "s7_answer_review_decision_status": s7_review_decisions.get("status"),
-            "s7_answer_review_completed_case_count": s7_review_decisions.get("metadata", {}).get(
-                "completed_case_count"
-            ),
-            "s7_answer_review_human_completed": s7_review_decisions.get("metadata", {}).get(
-                "human_review_completed"
-            ),
-            "second_domain_transfer_status": second_domain_transfer.get("status"),
-            "second_domain_transfer_domain": second_domain_transfer.get("metadata", {}).get(
-                "transfer_domain"
-            ),
-        },
+        "completion_claim": (
+            "sota_goal_completed" if completion_gate["passed"] else "active_not_complete"
+        ),
+        "metadata": metadata,
         "requirements": requirements,
         "remaining_blockers": remaining_blockers,
+        "completion_gate": completion_gate,
         "claim_safe_summary": (
             "The current project is SOTA-comparable as a layered retrospective ATCSCC "
             "case study, but it is not complete enough for claims of universal GraphRAG "
@@ -238,6 +243,7 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- S7 answer review human completed: `{result['metadata']['s7_answer_review_human_completed']}`",
         f"- Second-domain transfer status: `{result['metadata']['second_domain_transfer_status']}`",
         f"- Second-domain transfer domain: {result['metadata']['second_domain_transfer_domain']}",
+        f"- Completion gate passed: `{result['completion_gate']['passed']}`",
         "",
         "## Requirement Evidence",
         "",
@@ -260,6 +266,26 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
             missing = ", ".join(f"`{path}`" for path in item["missing_evidence"])
             lines.append(f"- Missing evidence: {missing}")
         lines.append("")
+    lines.extend(["", "## Completion Gate", ""])
+    lines.extend(
+        [
+            "| Criterion | Passed | Expected | Observed |",
+            "| --- | --- | --- | --- |",
+        ]
+    )
+    for criterion in result["completion_gate"]["criteria"]:
+        lines.append(
+            f"| `{criterion['id']}` | `{criterion['passed']}` | "
+            f"{criterion['expected']} | {criterion['observed']} |"
+        )
+    lines.append("")
+    if result["completion_gate"]["failed_criteria"]:
+        failed = ", ".join(
+            f"`{criterion}`" for criterion in result["completion_gate"]["failed_criteria"]
+        )
+        lines.append(f"- Failed criteria: {failed}")
+    else:
+        lines.append("- Failed criteria: none")
     lines.extend(["", "## Remaining Blockers", ""])
     lines.extend(f"- {blocker}" for blocker in result["remaining_blockers"])
     lines.extend(["", "## Claim-Safe Summary", "", result["claim_safe_summary"], ""])
@@ -312,6 +338,94 @@ def _remaining_blockers(
     if second_domain_transfer.get("status") != "second_domain_transfer_pilot_created":
         blockers.append("Second-domain transfer is not yet executed.")
     return blockers
+
+
+def _completion_gate(
+    requirements: list[dict[str, Any]],
+    metadata: dict[str, Any],
+    remaining_blockers: list[str],
+) -> dict[str, Any]:
+    missing_evidence = [
+        path
+        for requirement in requirements
+        for path in requirement["missing_evidence"]
+    ]
+    criteria = [
+        _criterion("all_evidence_present", not missing_evidence, "no missing evidence", missing_evidence),
+        _criterion("no_remaining_blockers", not remaining_blockers, "[]", remaining_blockers),
+        _criterion(
+            "formal_scoring_scored",
+            metadata.get("formal_scoring_status") == "scored",
+            "`scored`",
+            metadata.get("formal_scoring_status"),
+        ),
+        _criterion(
+            "live_s5_s6_full_run_scored",
+            metadata.get("s5_s6_live_full_run_status") == "s5_s6_live_agentic_full_run_scored",
+            "`s5_s6_live_agentic_full_run_scored`",
+            metadata.get("s5_s6_live_full_run_status"),
+        ),
+        _criterion(
+            "s7_llm_answer_generation_evaluated",
+            metadata.get("s7_llm_status") == "s7_llm_answer_generation_evaluated",
+            "`s7_llm_answer_generation_evaluated`",
+            metadata.get("s7_llm_status"),
+        ),
+        _criterion(
+            "s7_broad_review_packet_60_cases",
+            metadata.get("s7_broad_review_packet_status") == "broad_answer_review_packet_created"
+            and metadata.get("s7_broad_review_case_count") == 60,
+            "`broad_answer_review_packet_created` with 60 cases",
+            {
+                "status": metadata.get("s7_broad_review_packet_status"),
+                "case_count": metadata.get("s7_broad_review_case_count"),
+            },
+        ),
+        _criterion(
+            "s7_answer_review_completed",
+            metadata.get("s7_answer_review_decision_status") == "s7_answer_review_decisions_completed"
+            and metadata.get("s7_answer_review_completed_case_count") == 60
+            and metadata.get("s7_answer_review_human_completed") is True,
+            "`s7_answer_review_decisions_completed` with 60 human-reviewed cases",
+            {
+                "status": metadata.get("s7_answer_review_decision_status"),
+                "completed_case_count": metadata.get("s7_answer_review_completed_case_count"),
+                "human_review_completed": metadata.get("s7_answer_review_human_completed"),
+            },
+        ),
+        _criterion(
+            "second_domain_transfer_pilot_created",
+            metadata.get("second_domain_transfer_status") == "second_domain_transfer_pilot_created",
+            "`second_domain_transfer_pilot_created`",
+            metadata.get("second_domain_transfer_status"),
+        ),
+    ]
+    return {
+        "passed": all(criterion["passed"] for criterion in criteria),
+        "failed_criteria": [
+            criterion["id"] for criterion in criteria if not criterion["passed"]
+        ],
+        "criteria": criteria,
+    }
+
+
+def _criterion(id_: str, passed: bool, expected: Any, observed: Any) -> dict[str, Any]:
+    return {
+        "id": id_,
+        "passed": bool(passed),
+        "expected": _compact(expected),
+        "observed": _compact(observed),
+    }
+
+
+def _compact(value: Any) -> str:
+    if value in (None, ""):
+        return "n/a"
+    if isinstance(value, list):
+        return ", ".join(str(item) for item in value) if value else "[]"
+    if isinstance(value, dict):
+        return ", ".join(f"{key}={item}" for key, item in value.items())
+    return str(value)
 
 
 def _format_status_counts(status_counts: dict[str, int]) -> str:

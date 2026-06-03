@@ -266,5 +266,62 @@
   "remaining_blockers": [
     "External human/expert answer-review decisions are not yet complete."
   ],
+  "completion_gate": {
+    "passed": false,
+    "failed_criteria": [
+      "no_remaining_blockers",
+      "s7_answer_review_completed"
+    ],
+    "criteria": [
+      {
+        "id": "all_evidence_present",
+        "passed": true,
+        "expected": "no missing evidence",
+        "observed": "[]"
+      },
+      {
+        "id": "no_remaining_blockers",
+        "passed": false,
+        "expected": "[]",
+        "observed": "External human/expert answer-review decisions are not yet complete."
+      },
+      {
+        "id": "formal_scoring_scored",
+        "passed": true,
+        "expected": "`scored`",
+        "observed": "scored"
+      },
+      {
+        "id": "live_s5_s6_full_run_scored",
+        "passed": true,
+        "expected": "`s5_s6_live_agentic_full_run_scored`",
+        "observed": "s5_s6_live_agentic_full_run_scored"
+      },
+      {
+        "id": "s7_llm_answer_generation_evaluated",
+        "passed": true,
+        "expected": "`s7_llm_answer_generation_evaluated`",
+        "observed": "s7_llm_answer_generation_evaluated"
+      },
+      {
+        "id": "s7_broad_review_packet_60_cases",
+        "passed": true,
+        "expected": "`broad_answer_review_packet_created` with 60 cases",
+        "observed": "status=broad_answer_review_packet_created, case_count=60"
+      },
+      {
+        "id": "s7_answer_review_completed",
+        "passed": false,
+        "expected": "`s7_answer_review_decisions_completed` with 60 human-reviewed cases",
+        "observed": "status=s7_answer_review_decisions_pending, completed_case_count=0, human_review_completed=False"
+      },
+      {
+        "id": "second_domain_transfer_pilot_created",
+        "passed": true,
+        "expected": "`second_domain_transfer_pilot_created`",
+        "observed": "second_domain_transfer_pilot_created"
+      }
+    ]
+  },
   "claim_safe_summary": "The current project is SOTA-comparable as a layered retrospective ATCSCC case study, but it is not complete enough for claims of universal GraphRAG superiority, full ATMONTO coverage, operational readiness, or domain-general validation."
 }
