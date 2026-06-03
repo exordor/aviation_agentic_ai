@@ -94,10 +94,9 @@ Use this wording in thesis or defense material:
 > behavior and a qualified source-local guarded dense result under the same
 > frozen context policy. It does not claim live operational readiness, pure
 > dense embedding superiority, or universal GraphRAG superiority. The remaining
-> SOTA gap is deciding whether the partial-answer contract becomes the primary
-> route-semantics policy, scaling the LLM check, and adding human/expert answer
-> review while preserving citation, unsupported-claim, token, guard-rate, and
-> latency reporting.
+> SOTA gap is scaling the v3 LLM check and adding human/expert answer review
+> while preserving citation, unsupported-claim, token, guard-rate, and latency
+> reporting.
 
 Avoid these claims:
 
@@ -112,7 +111,7 @@ Avoid these claims:
 The next executable upgrade should target the remaining GraphRAG gaps in this
 order:
 
-1. Decide whether to promote the route-semantics partial-answer contract or
-   split `QT-Q01-ROUTE-SEMANTICS` into field-level CQs.
+1. Scale the v3 S7 LLM check beyond two cases per CQ template.
 2. Keep graph-health, guard-rate, and LLM CQ-group breakdowns as the thesis-facing
    diagnostic tables.
+3. Add a small human/expert review pass for sampled generated answers.

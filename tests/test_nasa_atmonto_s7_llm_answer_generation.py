@@ -92,6 +92,48 @@ def _source_report() -> dict:
     }
 
 
+def _route_source_record() -> dict:
+    return {
+        "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:074",
+        "template_id": "QT-Q01-ROUTE-SEMANTICS",
+        "source_id": "2026-05-19:074",
+        "question": "What reroute type, reroute reason, and constrained element are represented?",
+        "expected_abstention": False,
+        "answer_set": ["controlledNASelement=BNA"],
+        "results": {
+            "routed_token_matched_live_tfidf_graphrag": {
+                "requested_mode": "routed_token_matched_live_tfidf_graphrag",
+                "underlying_mode": "hybrid_graphrag",
+                "evidence_route": "source_span_plus_critic_gated_s4_graph",
+                "answer": "controlledNASelement=BNA. Citations: c1, t1.",
+                "answer_values": [{"predicate": "controlledNASelement", "value": "BNA"}],
+                "fused_chunks": [
+                    {
+                        "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+                        "page": 1,
+                        "text": "CTL ELEMENT: BNA",
+                        "source_id": "2026-05-19:074",
+                    }
+                ],
+                "graph_triples": [
+                    {
+                        "triple_id": "t1",
+                        "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+                        "page": 1,
+                        "predicate": "controlledNASelement",
+                        "object": "BNA",
+                        "evidence_text": "CTL ELEMENT: BNA",
+                        "source_id": "2026-05-19:074",
+                    }
+                ],
+                "context_budget": {"estimated_context_tokens": 10},
+                "runtime": {"retrieval_latency_ms": 0.1},
+                "target_source_retrieved": True,
+            }
+        },
+    }
+
+
 def _fake_runner(
     _system_prompt: str,
     _user_prompt: str,
@@ -268,8 +310,43 @@ def test_result_from_llm_payload_clears_answer_values_when_abstaining() -> None:
     assert result["answer_values"] == []
 
 
+def test_result_from_llm_payload_accepts_object_shaped_values_and_citations() -> None:
+    result = result_from_llm_payload(
+        {},
+        {
+            "answer": "Only the constrained element is supported.",
+            "answer_values": {"controlledNASelement": "BNA"},
+            "abstain": False,
+            "citations": [{"chunk_id": "atcscc-2026-05-19-074-p1-c1"}],
+        },
+        source_id="2026-05-19:074",
+    )
+
+    assert result["answer_values"] == [{"predicate": "controlledNASelement", "value": "BNA"}]
+    assert "Citations: atcscc-2026-05-19-074-p1-c1" in result["answer"]
+
+
 def test_s7_llm_prompt_requests_atcscc_time_window_normalization() -> None:
     _, user_prompt = build_s7_llm_answer_prompt(_source_report()["records"][0], {}, "mode")
 
     assert "normalize raw DDHHMM-DDHHMM" in user_prompt
     assert "effectiveStartTime and effectiveEndTime" in user_prompt
+
+
+def test_s7_llm_prompt_adds_route_semantics_partial_contract_only_for_route_template() -> None:
+    _system_prompt, route_user_prompt = build_s7_llm_answer_prompt(
+        _route_source_record(),
+        _route_source_record()["results"]["routed_token_matched_live_tfidf_graphrag"],
+        "routed_token_matched_live_tfidf_graphrag",
+    )
+    _system_prompt, non_route_user_prompt = build_s7_llm_answer_prompt(
+        _source_report()["records"][0],
+        {},
+        "routed_token_matched_live_tfidf_graphrag",
+    )
+
+    assert "controlled partial-answer contract" in route_user_prompt
+    assert "missing_predicates" in route_user_prompt
+    assert "Never invent reroute type or reroute reason values" in route_user_prompt
+    assert "requested_predicates" in route_user_prompt
+    assert "controlled partial-answer contract" not in non_route_user_prompt

@@ -25,8 +25,14 @@ S7_LLM_ANSWER_MODES: tuple[str, ...] = (
     "routed_token_matched_live_tfidf_graphrag",
     "routed_token_matched_dense_graphrag",
 )
-LLM_ANSWER_PROMPT_VERSION = "nasa_atmonto_s7_llm_answer_v2"
+LLM_ANSWER_PROMPT_VERSION = "nasa_atmonto_s7_llm_answer_v3_route_partial"
 LLMAnswerRunner = Callable[[str, str, float, int], str]
+ROUTE_SEMANTICS_TEMPLATE_ID = "QT-Q01-ROUTE-SEMANTICS"
+ROUTE_SEMANTICS_REQUESTED_PREDICATES: tuple[str, ...] = (
+    "reRouteType",
+    "reRouteReason",
+    "controlledNASelement",
+)
 ATCSCC_SOURCE_DATE_RE = re.compile(r"^(?P<year>\d{4})-(?P<month>\d{2})-\d{2}:")
 ATCSCC_TIME_RANGE_RE = re.compile(
     r"\b(?P<start_day>\d{2})/?(?P<start_hour>\d{2})(?P<start_minute>\d{2})Z?"
@@ -250,14 +256,28 @@ def build_s7_llm_answer_prompt(
         "source_chunks": mode_result.get("fused_chunks", []),
         "graph_triples": mode_result.get("graph_triples", []),
     }
+    route_semantics_instruction = ""
+    if str(source_record.get("template_id") or "") == ROUTE_SEMANTICS_TEMPLATE_ID:
+        evidence["requested_predicates"] = list(ROUTE_SEMANTICS_REQUESTED_PREDICATES)
+        route_semantics_instruction = (
+            "For QT-Q01-ROUTE-SEMANTICS, this is a controlled partial-answer "
+            "contract: if at least one requested predicate is directly supported by "
+            "the evidence, set abstain=false and return only supported predicate/value "
+            "pairs in answer_values. List unsupported requested predicates in "
+            "missing_predicates or the rationale. Set abstain=true only when no "
+            "requested predicate is supported. Never invent reroute type or reroute "
+            "reason values.\n"
+        )
     user_prompt = (
-        "Return JSON with keys: answer, answer_values, abstain, citations, rationale.\n"
+        "Return JSON with keys: answer, answer_values, abstain, citations, rationale. "
+        "You may include missing_predicates when requested fields are unsupported.\n"
         "answer_values must be a list of objects with predicate and value. Use exact "
         "predicate names visible in the evidence when possible. citations must contain "
         "chunk_id or triple_id values that appear in the evidence. For ATCSCC time "
         "windows, normalize raw DDHHMM-DDHHMM or DD/HHMMZ-DD/HHMMZ ranges into "
         "effectiveStartTime and effectiveEndTime ISO-8601 UTC values using source_id "
-        "for the year and month.\n\n"
+        "for the year and month.\n"
+        f"{route_semantics_instruction}\n"
         f"<s7_answer_task>\n{json.dumps(evidence, indent=2, sort_keys=True)}\n</s7_answer_task>"
     )
     return system_prompt, user_prompt
@@ -294,17 +314,13 @@ def result_from_llm_payload(
 ) -> dict[str, Any]:
     abstain = bool(payload.get("abstain"))
     answer_values = normalize_llm_answer_values(
-        [
-            {"predicate": str(item.get("predicate") or ""), "value": str(item.get("value") or "")}
-            for item in payload.get("answer_values", [])
-            if isinstance(item, dict) and (item.get("predicate") or item.get("value"))
-        ],
+        answer_value_items(payload.get("answer_values")),
         source_id=source_id,
         mode_result=mode_result,
         abstain=abstain,
     )
     answer = str(payload.get("answer") or "").strip()
-    citations = [str(item) for item in payload.get("citations", []) if str(item).strip()]
+    citations = citation_items(payload.get("citations"))
     if citations and "citations:" not in answer.lower():
         answer = f"{answer.rstrip()} Citations: {', '.join(citations)}."
     if abstain and "insufficient" not in answer.lower():
@@ -321,6 +337,45 @@ def result_from_llm_payload(
         "runtime": mode_result.get("runtime", {}),
         "target_source_retrieved": mode_result.get("target_source_retrieved"),
     }
+
+
+def answer_value_items(raw_items: Any) -> list[dict[str, str]]:
+    if isinstance(raw_items, dict):
+        return [
+            {"predicate": str(predicate), "value": str(value)}
+            for predicate, value in raw_items.items()
+            if str(predicate).strip() and str(value).strip()
+        ]
+    if not isinstance(raw_items, list):
+        return []
+    normalized: list[dict[str, str]] = []
+    for item in raw_items:
+        if isinstance(item, dict):
+            predicate = item.get("predicate")
+            value = item.get("value")
+            if predicate is None and len(item) == 1:
+                predicate, value = next(iter(item.items()))
+            if predicate or value:
+                normalized.append({"predicate": str(predicate or ""), "value": str(value or "")})
+    return normalized
+
+
+def citation_items(raw_items: Any) -> list[str]:
+    if not isinstance(raw_items, list):
+        return []
+    citations: list[str] = []
+    for item in raw_items:
+        if isinstance(item, dict):
+            for key in ("chunk_id", "triple_id", "citation"):
+                value = item.get(key)
+                if value:
+                    citations.append(str(value))
+                    break
+            continue
+        text = str(item).strip()
+        if text:
+            citations.append(text)
+    return citations
 
 
 def normalize_llm_answer_values(
@@ -609,6 +664,7 @@ def write_nasa_atmonto_s7_llm_answer_generation_markdown(
         "",
         f"- Status: `{result['status']}`",
         f"- Reviewer model: `{result['metadata']['reviewer_model']}`",
+        f"- Prompt version: `{result['metadata']['prompt_version']}`",
         f"- Run LLM requested: {result['metadata']['run_llm_requested']}",
         f"- LLM runtime available: {result['metadata']['llm_runtime_available']}",
         f"- Selected cases: {result['metadata']['selected_case_count']}",
@@ -664,7 +720,7 @@ def write_nasa_atmonto_s7_llm_answer_generation_markdown(
             "",
             "- This is a fixed-budget model run over existing S7 contexts, not human review.",
             "- Missing or failed LLM calls are counted separately from answered cases.",
-            "- Dense retrieval should remain framed as negative/qualified unless answered cases show a defensible benefit.",
+            "- Dense results should be framed as source-local guarded and source-bounded, not as pure dense embedding superiority.",
             "",
             "## Claim Boundary",
             "",

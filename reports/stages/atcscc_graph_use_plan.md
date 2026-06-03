@@ -226,8 +226,8 @@ From `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`:
 
 | Mode | Selected | Answered | Correctness | Citation recall | Evidence faithful | Unsupported claim rate | Abstention correct | Avg context tokens |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `routed_token_matched_live_tfidf_graphrag` | 12 | 12 | 0.9167 | 0.6111 | 0.9167 | 0.0833 | 0.9167 | 28.25 |
-| `routed_token_matched_dense_graphrag` | 12 | 12 | 0.8333 | 0.6111 | 0.8333 | 0.1667 | 0.8333 | 28.25 |
+| `routed_token_matched_live_tfidf_graphrag` | 12 | 12 | 1.0 | 0.5556 | 1.0 | 0.0 | 1.0 | 28.25 |
+| `routed_token_matched_dense_graphrag` | 12 | 12 | 1.0 | 0.5833 | 1.0 | 0.0 | 1.0 | 28.25 |
 
 Interpretation:
 
@@ -239,16 +239,16 @@ Interpretation:
 - after adding the source-local dense guard, the selected dense route no longer
   fails the time-window and abstention cases that were caused by wrong-source
   retrieval;
-- the remaining LLM failures are concentrated in `QT-Q01-ROUTE-SEMANTICS`,
-  where the model abstains because reroute type/reason are unsupported even
-  though the scored `controlledNASelement=BNA` value is supported.
+- after promoting the route-semantics partial-answer contract into the targeted
+  v3 prompt, both routed live lexical and guarded dense modes have no scored
+  failures in the bounded 24-case run;
+- the 24-case run is still diagnostic and should be scaled before making a
+  broad GraphRAG or dense-retrieval claim.
 
 Manual failure review in
 `reports/stages/nasa_atmonto_s7_llm_failure_review.md` shows that the previous
-dense source-miss and wrong-context abstention failures were addressed in the
-selected post-guard rerun. The remaining failures are compound route-semantics
-partial-answer cases where the evidence supports `controlledNASelement=BNA` but
-the LLM abstains because reroute type/reason are unsupported.
+dense source-miss, wrong-context abstention, and compound route-semantics
+partial-answer failures are addressed in the current selected v3 rerun.
 
 ### Route-Semantics Partial-Answer Ablation
 
@@ -266,8 +266,8 @@ Interpretation:
 - when the prompt explicitly asks for supported route fields and lists missing
   requested predicates separately, both routed live lexical and guarded dense
   modes recover the supported value without unsupported claims;
-- this ablation should remain separate from the main S7 LLM report until it is
-  either scaled or converted into a revised primary answer contract.
+- this ablation motivated the targeted v3 primary S7 LLM prompt; the main S7 LLM
+  report now uses that route-semantics contract.
 
 ## What This Proves
 
@@ -295,9 +295,7 @@ This does not yet prove:
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to decide whether the route-semantics partial-answer
-contract should become the primary S7 answer contract or remain a diagnostic
-ablation. If it becomes primary, rerun the bounded LLM check with the revised
-contract and then scale beyond two cases per CQ template. If it remains
-diagnostic, split `QT-Q01-ROUTE-SEMANTICS` into separately scored field-level
-CQs before expanding the sample.
+The next SOTA upgrade is to scale the v3 bounded LLM check beyond two cases per
+CQ template and add a small human/expert review pass for sampled answers. Keep
+the partial-answer ablation as the provenance for why the route-semantics
+contract changed.

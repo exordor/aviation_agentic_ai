@@ -41,7 +41,7 @@ bounded and does not replace expert review.
 | Profile-gap/rejection analysis | satisfied | 288 rejected facts adjudicated as extractor bugs or profile gaps | profile-gap explanations need thesis wording | summarize as application-profile boundary |
 | CQ answer-set queryability | satisfied for pre-generation | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | deterministic answer-set scoring is not natural-language answer quality | keep as graph/queryability layer |
 | Natural-language answer generation | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/nasa_atmonto_answer_generation.md`, 18-label pilot; `reports/stages/nasa_atmonto_s7_answer_generation.md`, 317-label S7 rerun; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`, 24-case fixed-budget LLM check; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md` | larger human answer labels and broader LLM runs remain future work | keep deterministic S7 as reproducible thesis benchmark and LLM S7 as diagnostic supplement |
-| Graph-use gate | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md` | broad LLM/human answer evaluation and primary compound CQ policy remain future work | report routed lexical and source-local guarded dense results conservatively |
+| Graph-use gate | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md` | broad LLM/human answer evaluation remains future work | report routed lexical and source-local guarded dense results conservatively |
 | Token-matched vector baseline | satisfied for deterministic S7 | `token_matched_vector_rag`; `token_matched_vector_proxy`; `token_matched_live_tfidf_vector`; `token_matched_dense_embedding_vector`; `routed_token_matched_live_tfidf_graphrag`; `routed_token_matched_dense_graphrag` | no current deterministic S7 gap | preserve token-matched comparisons in thesis tables |
 | Graph health/path support | mostly satisfied for S7 diagnostics | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` | graph health is diagnostic rather than semantic truth certification | preserve graph health by CQ group in thesis tables |
 | Multi-agent loop | partial | `reports/stages/atcscc_agentic_artifact_contract.md` | contract exists, but SRD/TIP/extraction/validation/evidence artifacts are incomplete | write artifacts before claiming agentic pipeline |
@@ -119,14 +119,14 @@ That version is not supported because:
 
 ## Next Executable Experiment
 
-The next experiment should choose how to operationalize the partial-answer
-finding before extending the bounded LLM S7 check:
+The next experiment should scale and review the v3 S7 LLM check:
 
-1. Either promote the explicit partial-answer contract into the primary S7 LLM
-   answer prompt or split `QT-Q01-ROUTE-SEMANTICS` into separately scored fields.
+1. Rerun the S7 LLM check with more than two selected cases per CQ template
+   while preserving the targeted `QT-Q01-ROUTE-SEMANTICS` partial-answer
+   contract.
 2. Keep the source-local dense guard and report its guard rate whenever dense
    results are compared against lexical or graph-routed modes.
 3. Keep graph-health diagnostics by CQ group in the thesis tables, but describe
    them as diagnostic path/context evidence rather than semantic truth.
-4. Keep dense retrieval framed as guarded and source-bounded unless a
-   defensible unguarded dense benefit appears.
+4. Add a small human/expert review pass for sampled generated answers before
+   upgrading the claim from diagnostic LLM evidence to answer-quality evidence.
