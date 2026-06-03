@@ -153,9 +153,11 @@ is sufficient to evaluate route policy, graph path support, abstention behavior,
 live source-retrieval behavior, tokenizer-backed context budgets, and generated
 answer behavior over retrieved contexts. A small fixed-budget LLM check now
 generates answers over the routed token-matched live lexical and dense GraphRAG
-contexts. This is still not a broad online LLM GraphRAG benchmark or live
-operational GraphRAG system. Graph modes traverse a materialized ATCSCC
-source-predicate-fact graph built from critic-gated S4 facts.
+contexts and reports CQ-template breakdowns. A graph-health report summarizes
+topology, graph-context availability, path support, answer-set recovery, and
+abstention behavior by CQ group. This is still not a broad online LLM GraphRAG
+benchmark or live operational GraphRAG system. Graph modes traverse a
+materialized ATCSCC source-predicate-fact graph built from critic-gated S4 facts.
 
 The Extract-Define-Canonicalize design separates open extraction from
 target-schema scoring. Ontology-guided short-text KGC motivates 10-20

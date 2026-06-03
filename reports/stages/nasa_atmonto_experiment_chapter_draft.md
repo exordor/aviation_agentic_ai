@@ -20,4 +20,5 @@ Generate deterministic source-only, vector proxy, graph-only, and hybrid GraphRA
 - Hybrid evidence faithfulness: 0.8333
 - S7 deterministic routed live lexical GraphRAG correctness: 0.6435 under the stricter timestamp-preserving answer-value scorer.
 - S7 fixed-budget LLM live lexical route correctness: 0.8333 on 6 selected cases; dense route correctness: 0.5 on 6 selected cases.
+- S7 graph-health diagnostic: routed GraphRAG uses graph context in 39.75% of cases, preserves target-source hit rate at 1.0, and reaches answer-set F1 0.9833 while avoiding graph context for abstention/time-window templates.
 - Boundary: S7 LLM results are diagnostic and source-bounded, not human review or operational ATC certification.

@@ -43,7 +43,7 @@ bounded and does not replace expert review.
 | Natural-language answer generation | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/nasa_atmonto_answer_generation.md`, 18-label pilot; `reports/stages/nasa_atmonto_s7_answer_generation.md`, 317-label S7 rerun; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`, 12-case fixed-budget LLM check | larger human answer labels and broader LLM runs remain future work | keep deterministic S7 as reproducible thesis benchmark and LLM S7 as diagnostic supplement |
 | Graph-use gate | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md` | broad LLM/human answer evaluation remains future work | report routed lexical and dense results conservatively |
 | Token-matched vector baseline | satisfied for deterministic S7 | `token_matched_vector_rag`; `token_matched_vector_proxy`; `token_matched_live_tfidf_vector`; `token_matched_dense_embedding_vector`; `routed_token_matched_live_tfidf_graphrag`; `routed_token_matched_dense_graphrag` | no current deterministic S7 gap | preserve token-matched comparisons in thesis tables |
-| Graph health/path support | partial | `reports/stages/nasa_atmonto_s7_retrieval.md` | route-level path support exists; full graph component/connectivity diagnostics remain limited | add graph health by CQ group |
+| Graph health/path support | mostly satisfied for S7 diagnostics | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` | graph health is diagnostic rather than semantic truth certification | preserve graph health by CQ group in thesis tables |
 | Multi-agent loop | partial | `reports/stages/atcscc_agentic_artifact_contract.md` | contract exists, but SRD/TIP/extraction/validation/evidence artifacts are incomplete | write artifacts before claiming agentic pipeline |
 | Domain-agnostic methodology | partial | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md` | only validated in ATM so far | keep second-domain transfer as future work |
 
@@ -72,13 +72,15 @@ The strongest parts of the project are:
    live lexical-vector retrieval, dense retrieval, materialized graph traversal,
    latency reporting, tokenizer-backed context budgets, deterministic answer
    generation over live retrieved contexts, and a 12-case fixed-budget LLM
-   answer-generation check. It still lacks broad human-reviewed answer labels
-   and large-scale LLM reruns by CQ group.
+   answer-generation check, and graph-health diagnostics by CQ group. It still
+   lacks broad human-reviewed answer labels and larger LLM reruns.
 2. **Answer-generation evidence is source-bounded.** The 317-label S7 rerun is
    useful for a reproducible thesis benchmark, but it is not a broad human QA
    benchmark or an operational ATC evaluation.
-3. **Graph-path diagnostics are partial.** Queryability metrics and S7 route
-   path support exist, but graph health by CQ group is not complete.
+3. **Graph-path diagnostics are diagnostic, not semantic certification.** S7
+   graph health now reports topology, graph-context availability, path support,
+   and answer-set recovery by CQ group, but these metrics do not prove semantic
+   truth or expert usefulness.
 4. **The multi-agent method is not yet executable.** The contract exists, but
    the actual SRD/TIP/validation/evidence-critique/repair artifacts need to be
    produced and wired into runs.
@@ -116,11 +118,10 @@ That version is not supported because:
 
 The next experiment should extend the bounded LLM S7 check:
 
-1. Expand or stratify the fixed-budget LLM sample by CQ template while keeping
-   the same frozen S7 contexts.
-2. Report answer correctness, citation recall, unsupported-claim rate, answer
-   token budget, and latency by CQ group against the existing S7 labels.
-3. Add graph-health diagnostics by route so graph support is visible beyond
-   aggregate path-support rate.
+1. Expand the fixed-budget LLM sample beyond one case per CQ template while
+   keeping the same frozen S7 contexts.
+2. Add human/manual review for the highest-impact LLM answer failures.
+3. Keep graph-health diagnostics by CQ group in the thesis tables, but describe
+   them as diagnostic path/context evidence rather than semantic truth.
 4. Keep the dense retrieval result framed as negative/qualified unless a
    defensible downstream benefit appears.

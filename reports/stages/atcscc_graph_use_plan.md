@@ -35,6 +35,8 @@ layer:
   `reports/stages/nasa_atmonto_s7_answer_generation.md`
 - S7 fixed-budget LLM answer-generation report:
   `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`
+- S7 graph-health by CQ group report:
+  `reports/stages/nasa_atmonto_s7_graph_health.md`
 
 The core retrieval implementation is in
 `src/aviation_agentic_ai/reporting/nasa_atmonto_s7_retrieval.py`.
@@ -42,6 +44,8 @@ The S7 answer-generation rerun is in
 `src/aviation_agentic_ai/reporting/nasa_atmonto_s7_answer_generation.py`.
 The fixed-budget S7 LLM check is in
 `src/aviation_agentic_ai/reporting/nasa_atmonto_s7_llm_answer_generation.py`.
+The graph-health CQ-group diagnostics are in
+`src/aviation_agentic_ai/reporting/nasa_atmonto_s7_graph_health.py`.
 
 Two new answer modes are now reported:
 
@@ -185,6 +189,28 @@ Interpretation:
 - dense retrieval remains a negative/qualified result for direct source-bounded
   advisory questions, especially abstention and entity/route templates.
 
+### S7 Graph Health by CQ Group
+
+From `reports/stages/nasa_atmonto_s7_graph_health.md`:
+
+| Mode | Cases | Graph-context rate | Path support | Answer F1 | Abstention correct | Target hit |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `graph_only` | 317 | 0.9968 | 1.0 | 0.5205 | 0.01 | 0.9968 |
+| `hybrid_graphrag` | 317 | 0.9968 | 1.0 | 0.5205 | 0.01 | 1.0 |
+| `routed_graphrag` | 317 | 0.3975 | 1.0 | 0.9833 | 1.0 | 1.0 |
+| `routed_token_matched_live_tfidf_graphrag` | 317 | 0.3975 | 1.0 | 0.8534 | 1.0 | 1.0 |
+| `routed_token_matched_dense_graphrag` | 317 | 0.3975 | 1.0 | 0.1933 | 0.02 | 0.4069 |
+
+Interpretation:
+
+- graph context is available for graph-worthy CQ templates, but routing avoids
+  graph context for time-window and abstention templates where source evidence
+  is the safer context;
+- `graph_only` and always-hybrid modes have high graph availability but fail
+  expected abstention cases, which explains their low aggregate answer F1;
+- routed graph use is therefore a query-policy result, not a claim that more
+  graph context is always better.
+
 ### Fixed-Budget LLM Answer-Generation Check
 
 From `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`:
@@ -198,7 +224,7 @@ Interpretation:
 
 - the small LLM run is useful as a SOTA-facing sanity check because it replaces
   deterministic answer strings with model-generated answers over frozen
-  retrieved contexts;
+  retrieved contexts and reports one case per CQ template for each routed mode;
 - the sample is deliberately bounded, so it supports cautious comparison and
   error discovery, not expert certification;
 - the live lexical route remains stronger than the dense route in this sample,
@@ -211,8 +237,9 @@ This proves that the project now has an explicit graph-use gate, retrieval-only
 route evaluation, live lexical-vector retrieval, dense retrieval, graph
 path-support reporting, materialized graph traversal, tokenizer-backed
 token-budget controls, latency reporting, deterministic generated-answer
-evaluation over routed live retrieval contexts, and a small fixed-budget
-LLM-generated answer check. It also produces two negative/qualified results:
+evaluation over routed live retrieval contexts, graph-health diagnostics by CQ
+group, and a small fixed-budget LLM-generated answer check. It also produces two
+negative/qualified results:
 graph context is not automatically better in the current scaffold, and dense
 retrieval is not automatically better than lexical/source-bounded retrieval for
 generic ATCSCC CQs.
@@ -230,6 +257,6 @@ This does not yet prove:
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to extend the fixed-budget LLM check by reporting
-metrics by CQ group, adding graph-health diagnostics by route, and adding
-human/manual review for the highest-impact answer failures.
+The next SOTA upgrade is to extend the fixed-budget LLM check beyond one case
+per CQ template and add human/manual review for the highest-impact answer
+failures.

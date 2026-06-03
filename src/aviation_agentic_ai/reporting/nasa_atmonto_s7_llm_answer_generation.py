@@ -66,6 +66,7 @@ def build_nasa_atmonto_s7_llm_answer_generation(
         for source_record, mode in selected
     ]
     aggregate_by_mode = aggregate_llm_answer_records(records, modes)
+    aggregate_by_template = aggregate_llm_answer_records_by_template(records, modes)
     elapsed_seconds = perf_counter() - started
     return {
         "source_family": "nasa_atmonto_s7_llm_answer_generation",
@@ -92,6 +93,7 @@ def build_nasa_atmonto_s7_llm_answer_generation(
         },
         "answer_quality": {
             "aggregate_by_mode": aggregate_by_mode,
+            "aggregate_by_template": aggregate_by_template,
             "secondary_metrics": {
                 "cost_latency": {
                     "provider": "configured_llm" if run_llm and runtime_available else "none",
@@ -329,6 +331,24 @@ def aggregate_llm_answer_records(
     return {mode: aggregate_llm_answer_mode(by_mode.get(mode, [])) for mode in modes}
 
 
+def aggregate_llm_answer_records_by_template(
+    records: list[dict[str, Any]],
+    modes: tuple[str, ...],
+) -> dict[str, dict[str, dict[str, Any]]]:
+    by_template: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for record in records:
+        by_template[str(record.get("template_id") or "")].append(record)
+    return {
+        template_id: {
+            mode: aggregate_llm_answer_mode(
+                [record for record in items if str(record.get("mode") or "") == mode]
+            )
+            for mode in modes
+        }
+        for template_id, items in sorted(by_template.items())
+    }
+
+
 def aggregate_llm_answer_mode(records: list[dict[str, Any]]) -> dict[str, Any]:
     status_counts = Counter(str(record.get("llm_status") or "unknown") for record in records)
     scored = [record for record in records if isinstance(record.get("metrics"), dict)]
@@ -424,6 +444,28 @@ def write_nasa_atmonto_s7_llm_answer_generation_markdown(
             f"{_display_metric(metrics['abstention_correctness'])} | "
             f"{metrics['avg_estimated_context_tokens']} |"
         )
+    lines.extend(
+        [
+            "",
+            "## CQ Template Breakdown",
+            "",
+            (
+                "| Template | Mode | Selected | Answered | Correctness | Citation R | "
+                "Unsupported claim rate | Abstention correct |"
+            ),
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for template_id, modes in result["answer_quality"].get("aggregate_by_template", {}).items():
+        for mode, metrics in modes.items():
+            lines.append(
+                f"| `{template_id}` | `{mode}` | {metrics['selected_total']} | "
+                f"{metrics['llm_answered_total']} | "
+                f"{_display_metric(metrics['answer_correctness'])} | "
+                f"{_display_metric(metrics['citation_recall'])} | "
+                f"{_display_metric(metrics['unsupported_claim_rate'])} | "
+                f"{_display_metric(metrics['abstention_correctness'])} |"
+            )
     lines.extend(
         [
             "",

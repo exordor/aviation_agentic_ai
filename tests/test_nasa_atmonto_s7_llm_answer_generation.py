@@ -129,6 +129,10 @@ def test_build_nasa_atmonto_s7_llm_answer_generation_scores_runner_output(
         assert metrics["answer_correctness"] == 1.0
         assert metrics["citation_precision"] == 1.0
         assert metrics["unsupported_claim_rate"] == 0.0
+    by_template = result["answer_quality"]["aggregate_by_template"]
+    assert by_template["QT-Q01-AFFECTED-NAS-ELEMENTS"][
+        "routed_token_matched_live_tfidf_graphrag"
+    ]["llm_answered_total"] == 1
 
 
 def test_write_nasa_atmonto_s7_llm_answer_generation_records_not_run(
@@ -155,4 +159,5 @@ def test_write_nasa_atmonto_s7_llm_answer_generation_records_not_run(
     ]["not_run_total"] == 1
     markdown = md_path.read_text(encoding="utf-8")
     assert "Fixed-Budget LLM Answer Generation" in markdown
+    assert "CQ Template Breakdown" in markdown
     assert "Run LLM requested: False" in markdown

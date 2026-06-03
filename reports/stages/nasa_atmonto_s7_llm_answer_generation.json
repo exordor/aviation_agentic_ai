@@ -74,7 +74,213 @@
         }
       }
     },
-    "metric_policy": "LLM answer text is scored against source-bounded S7 labels. Answer correctness, citation precision/recall, evidence faithfulness, unsupported claim rate, abstention correctness, and failure/not-run counts are reported separately."
+    "metric_policy": "LLM answer text is scored against source-bounded S7 labels. Answer correctness, citation precision/recall, evidence faithfulness, unsupported claim rate, abstention correctness, and failure/not-run counts are reported separately.",
+    "aggregate_by_template": {
+      "QT-A01-ABSTENTION-FIELDS": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 1.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 56.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 0.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": 0.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 0.0,
+          "avg_estimated_context_tokens": 56.0
+        }
+      },
+      "QT-Q01-AFFECTED-NAS-ELEMENTS": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 10.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 10.0
+        }
+      },
+      "QT-Q01-CAUSE-CONDITION": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 24.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 24.0
+        }
+      },
+      "QT-Q01-ROUTE-SEMANTICS": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 0.0,
+          "avg_estimated_context_tokens": 10.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 0.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 0.0,
+          "unsupported_claim_rate": 1.0,
+          "abstention_correctness": 0.0,
+          "avg_estimated_context_tokens": 10.0
+        }
+      },
+      "QT-Q01-STATUS-ACTION": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 6.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 6.0
+        }
+      },
+      "QT-Q01-TIME-WINDOW": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 0.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": 0.0,
+          "unsupported_claim_rate": 1.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 32.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 1,
+          "llm_answered_total": 1,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 1
+          },
+          "answer_correctness": 0.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": 0.0,
+          "unsupported_claim_rate": 1.0,
+          "abstention_correctness": 0.0,
+          "avg_estimated_context_tokens": 32.0
+        }
+      }
+    }
   },
   "records": [
     {
