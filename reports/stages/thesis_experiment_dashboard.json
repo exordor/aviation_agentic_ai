@@ -686,6 +686,26 @@
       "report_name": "benchmark_review_pack"
     },
     {
+      "dataset_used": "not_dataset_specific",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [],
+      "path": "reports/stages/nasa_atmonto_s5_s6_agentic_loop.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s5_s6_agentic_loop"
+    },
+    {
+      "dataset_used": "not_dataset_specific",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [],
+      "path": "reports/stages/nasa_atmonto_sota_goal_audit.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_sota_goal_audit"
+    },
+    {
       "dataset_used": "atcscc_s7_source_bounded_60",
       "human_review_present": false,
       "llm_review_available": true,

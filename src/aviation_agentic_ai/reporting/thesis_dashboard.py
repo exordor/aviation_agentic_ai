@@ -53,6 +53,12 @@ REPORT_SOURCES: dict[str, str] = {
     "answer_evaluation": "reports/stages/answer_evaluation.json",
     "robustness_evaluation": "reports/stages/robustness_evaluation.json",
     "benchmark_review_pack": "reports/stages/benchmark_review_pack.json",
+    "nasa_atmonto_s5_s6_agentic_loop": (
+        "reports/stages/nasa_atmonto_s5_s6_agentic_loop.json"
+    ),
+    "nasa_atmonto_sota_goal_audit": (
+        "reports/stages/nasa_atmonto_sota_goal_audit.json"
+    ),
     "nasa_atmonto_s7_llm_answer_generation": (
         "reports/stages/nasa_atmonto_s7_llm_answer_generation.json"
     ),

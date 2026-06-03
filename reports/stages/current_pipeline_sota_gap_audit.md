@@ -86,9 +86,10 @@ The strongest parts of the project are:
    and answer-set recovery by CQ group, while candidate adjudication and the
    profile-decision what-if record profile/gold-boundary failures. These
    metrics do not prove semantic truth or expert usefulness.
-4. **The multi-agent method is not yet executable.** The contract exists, but
-   the actual SRD/TIP/validation/evidence-critique/repair artifacts need to be
-   produced and wired into runs.
+4. **The multi-agent method is executable only as a bounded wrapper.** The
+   SRD/TIP/extraction-plan/validation/evidence-critique/repair/graph-use
+   artifact chain exists, and S5/S6 now routes and evidence-gates S4 outputs.
+   It is still not an independent autonomous extractor/critic/refiner run.
 5. **Transferability is still a thesis direction.** The domain-agnostic
    methodology is credible, but it is not validated outside ATCSCC yet.
 
@@ -125,16 +126,20 @@ That version is not supported because:
 The deterministic S7 adjudication has now been converted into
 `reports/stages/nasa_atmonto_s7_profile_decision.md`, a what-if profile-policy
 analysis that corrects the three STAFFING boundary records under a predicate
-whitelist while keeping strict main S7 metrics unchanged. The next experiment
-should turn that what-if into a reviewed profile/gold decision:
+whitelist while keeping strict main S7 metrics unchanged. The S5/S6 artifact
+chain has also been converted into
+`reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`, a bounded CQ/module routing
+and evidence-gating wrapper over S4 outputs. The next experiments should:
 
-1. Use `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
+1. promote the S5/S6 wrapper into an independent extractor/validator/critic/refiner run;
+2. use `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
    `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` for a small
    human/supervisor review pass over the 3 failures plus coverage successes.
-2. Decide whether STAFFING should become a reviewed `impactingCondition`
+3. decide whether STAFFING should become a reviewed `impactingCondition`
    profile extension, or whether cause-condition scoring should remain scoped
    to `impactingConditionMessage` for this profile.
-3. Keep the source-local dense guard and report its guard rate whenever dense
-   results are compared against lexical or graph-routed modes.
-4. Keep graph-health diagnostics by CQ group in the thesis tables, but describe
-   them as diagnostic path/context evidence rather than semantic truth.
+4. run a second-domain transfer using the same artifact contract.
+
+Keep the source-local dense guard, graph-health diagnostics, guard rate, and
+CQ-group breakdowns as thesis-facing diagnostic tables, but describe them as
+diagnostic path/context evidence rather than semantic truth.

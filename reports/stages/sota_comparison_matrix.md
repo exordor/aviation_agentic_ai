@@ -81,12 +81,17 @@ The project is only partially SOTA-comparable at the **GraphRAG** layer:
   the reported benchmark;
 - external human/expert answer review remains incomplete.
 
-The project is currently a planned, not completed, example of the **multi-agent
-artifact pipeline**:
+The project is now a bounded executable example of the **multi-agent artifact
+pipeline**:
 
 - the role contract exists;
 - the SRD/TIP/extraction-plan/validation/evidence-critique/repair/graph-use
-  artifacts still need to be written and connected to executable runs.
+  artifacts exist;
+- the S5/S6 wrapper routes and evidence-gates S4 outputs.
+
+It is still not a fully autonomous multi-agent extractor because the current
+S5/S6 layer wraps already scored S4 output rather than running separate live
+extractor, validator, critic, and refiner agents.
 
 ## Claim-Safe SOTA Wording
 
@@ -120,13 +125,15 @@ Avoid these claims:
 
 ## Next SOTA Upgrade
 
-The next executable upgrade should target the remaining GraphRAG gaps in this
+The next executable upgrade should target the remaining SOTA gaps in this
 order:
 
-1. Run the human/expert review pass using
+1. Promote the bounded S5/S6 wrapper into an independent extractor/validator/critic/refiner run.
+2. Run the human/expert review pass using
    `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
    `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`.
-2. Keep graph-health, guard-rate, and LLM CQ-group breakdowns as the thesis-facing
+3. Keep graph-health, guard-rate, and LLM CQ-group breakdowns as the thesis-facing
    diagnostic tables.
-3. Use the profile-decision what-if as the evidence package for deciding whether
+4. Use the profile-decision what-if as the evidence package for deciding whether
    STAFFING becomes a reviewed profile extension or remains message-only scoring.
+5. Execute a second-domain transfer with the same domain-agnostic artifact contract.

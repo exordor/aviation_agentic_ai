@@ -1,0 +1,231 @@
+{
+  "source_family": "nasa_atmonto_sota_goal_audit",
+  "status": "sota_goal_audit_created",
+  "completion_claim": "active_not_complete",
+  "metadata": {
+    "requirement_count": 9,
+    "status_counts": {
+      "mostly_satisfied": 4,
+      "partial": 1,
+      "satisfied": 4
+    },
+    "formal_scoring_status": "scored",
+    "s5_s6_status": "s5_s6_agentic_evidence_gate_scored",
+    "s7_llm_status": "s7_llm_answer_generation_evaluated"
+  },
+  "requirements": [
+    {
+      "id": "R1",
+      "requirement": "Literature-derived SOTA criteria are consolidated.",
+      "status": "satisfied",
+      "evidence": [
+        {
+          "path": "reports/stages/agentic_ontology_graphrag_mainline_literature_search.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/sota_comparison_matrix.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md",
+          "present": true
+        }
+      ],
+      "limitation": "The mapping is thesis-scoped and should not be treated as a full systematic review.",
+      "evidence_count": 3,
+      "present_evidence_count": 3,
+      "missing_evidence": []
+    },
+    {
+      "id": "R2",
+      "requirement": "The ATCSCC data source and event-centric extraction target are explicit.",
+      "status": "satisfied",
+      "evidence": [
+        {
+          "path": "reports/stages/atcscc_data_format_and_processing_flow.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/atcscc_event_centric_extraction_framing.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/atcscc_source_brief.md",
+          "present": true
+        }
+      ],
+      "limitation": "The source family is retrospective ATCSCC advisories, not live operations.",
+      "evidence_count": 3,
+      "present_evidence_count": 3,
+      "missing_evidence": []
+    },
+    {
+      "id": "R3",
+      "requirement": "NASA ATMONTO is used as an application-profile constraint, not full truth.",
+      "status": "satisfied",
+      "evidence": [
+        {
+          "path": "reports/stages/atcscc_ontology_profile_overview.md",
+          "present": true
+        },
+        {
+          "path": "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_rejection_adjudication.md",
+          "present": true
+        }
+      ],
+      "limitation": "Completeness and correctness are profile-relative and CQ-relative.",
+      "evidence_count": 3,
+      "present_evidence_count": 3,
+      "missing_evidence": []
+    },
+    {
+      "id": "R4",
+      "requirement": "Ontology-guided KG extraction is scored with schema and semantic layers separated.",
+      "status": "satisfied",
+      "evidence": [
+        {
+          "path": "reports/stages/nasa_atmonto_formal_experiment_scoring.json",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_prediction_output_validation.json",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_cq_evaluation.md",
+          "present": true
+        }
+      ],
+      "limitation": "S4 is the current strongest scored extraction system; not all LLM systems perform well.",
+      "evidence_count": 3,
+      "present_evidence_count": 3,
+      "missing_evidence": []
+    },
+    {
+      "id": "R5",
+      "requirement": "Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics.",
+      "status": "mostly_satisfied",
+      "evidence": [
+        {
+          "path": "reports/stages/atcscc_agentic_artifact_contract.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_agentic_loop.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_s5_s6_agentic_loop.md",
+          "present": true
+        }
+      ],
+      "limitation": "S5/S6 currently wraps S4 output; it is not yet an autonomous extractor/critic/refiner run.",
+      "evidence_count": 3,
+      "present_evidence_count": 3,
+      "missing_evidence": []
+    },
+    {
+      "id": "R6",
+      "requirement": "Graph-use gate, token-matched retrieval, and graph health are evaluated.",
+      "status": "mostly_satisfied",
+      "evidence": [
+        {
+          "path": "reports/stages/atcscc_graph_use_plan.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_s7_retrieval.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_s7_graph_health.md",
+          "present": true
+        }
+      ],
+      "limitation": "Graph health is diagnostic evidence, not certification of semantic truth.",
+      "evidence_count": 3,
+      "present_evidence_count": 3,
+      "missing_evidence": []
+    },
+    {
+      "id": "R7",
+      "requirement": "Answer generation and failure analysis are source-bounded and reported.",
+      "status": "mostly_satisfied",
+      "evidence": [
+        {
+          "path": "reports/stages/nasa_atmonto_s7_answer_generation.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_s7_llm_answer_generation.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_s7_candidate_adjudication.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_s7_profile_decision.md",
+          "present": true
+        }
+      ],
+      "limitation": "Broad human/expert answer review remains future work.",
+      "evidence_count": 4,
+      "present_evidence_count": 4,
+      "missing_evidence": []
+    },
+    {
+      "id": "R8",
+      "requirement": "Completeness, correctness, limitations, and story claims are thesis-ready.",
+      "status": "mostly_satisfied",
+      "evidence": [
+        {
+          "path": "reports/stages/current_pipeline_sota_gap_audit.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/thesis_experiment_dashboard.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_experiment_chapter_draft.md",
+          "present": true
+        }
+      ],
+      "limitation": "The final thesis should keep the claim wording profile-relative and retrospective.",
+      "evidence_count": 3,
+      "present_evidence_count": 3,
+      "missing_evidence": []
+    },
+    {
+      "id": "R9",
+      "requirement": "The method can be described as domain-independent and transferable.",
+      "status": "partial",
+      "evidence": [
+        {
+          "path": "reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md",
+          "present": true
+        },
+        {
+          "path": "templates/agentic_artifact_contract.md",
+          "present": true
+        }
+      ],
+      "limitation": "No second-domain transfer run has been executed yet.",
+      "evidence_count": 2,
+      "present_evidence_count": 2,
+      "missing_evidence": []
+    }
+  ],
+  "remaining_blockers": [
+    "Independent autonomous S5/S6 extractor/validator/critic/refiner run is not yet scored.",
+    "Broad human/expert answer review is not yet complete.",
+    "Second-domain transfer is not yet executed."
+  ],
+  "claim_safe_summary": "The current project is SOTA-comparable as a layered retrospective ATCSCC case study, but it is not complete enough for claims of universal GraphRAG superiority, full ATMONTO coverage, operational readiness, or domain-general validation."
+}
