@@ -187,23 +187,23 @@
       "expected_values": [
         {
           "predicate": "effectiveStartTime",
-          "value": "00Z"
+          "value": "2026-05-19T13:22:00Z"
         },
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z"
+          "value": "2026-05-19T16:30:00Z"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "effectiveStartTime",
-          "value": "00Z",
+          "value": "2026-05-19T13:22:00Z",
           "text": "EFFECTIVE TIME: 191322-191630",
           "source_id": "2026-05-19:032"
         },
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z",
+          "value": "2026-05-19T16:30:00Z",
           "text": "EFFECTIVE TIME: 191322-191630",
           "source_id": "2026-05-19:032"
         }
@@ -211,8 +211,8 @@
       "expected_abstention": false,
       "absent_predicates": [],
       "answer_set": [
-        "effectiveStartTime=00Z",
-        "effectiveEndTime=00Z"
+        "effectiveStartTime=2026-05-19T13:22:00Z",
+        "effectiveEndTime=2026-05-19T16:30:00Z"
       ],
       "evidence_spans": [
         {
@@ -231,7 +231,7 @@
       "expected_chunk_ids": [
         "atcscc-2026-05-19-032-p1-c1"
       ],
-      "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+      "answer_key": "effectiveStartTime=2026-05-19T13:22:00Z; effectiveEndTime=2026-05-19T16:30:00Z",
       "gold_level": "span",
       "route": "graph_template"
     },
@@ -257,23 +257,23 @@
       "expected_values": [
         {
           "predicate": "effectiveStartTime",
-          "value": "00Z"
+          "value": "2026-05-15T19:18:00Z"
         },
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z"
+          "value": "2026-05-16T00:30:00Z"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "effectiveStartTime",
-          "value": "00Z",
+          "value": "2026-05-15T19:18:00Z",
           "text": "EFFECTIVE TIME: 151918-160030",
           "source_id": "2026-05-15:063"
         },
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z",
+          "value": "2026-05-16T00:30:00Z",
           "text": "EFFECTIVE TIME: 151918-160030",
           "source_id": "2026-05-15:063"
         }
@@ -281,8 +281,8 @@
       "expected_abstention": false,
       "absent_predicates": [],
       "answer_set": [
-        "effectiveStartTime=00Z",
-        "effectiveEndTime=00Z"
+        "effectiveStartTime=2026-05-15T19:18:00Z",
+        "effectiveEndTime=2026-05-16T00:30:00Z"
       ],
       "evidence_spans": [
         {
@@ -301,7 +301,7 @@
       "expected_chunk_ids": [
         "atcscc-2026-05-15-063-p1-c1"
       ],
-      "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+      "answer_key": "effectiveStartTime=2026-05-15T19:18:00Z; effectiveEndTime=2026-05-16T00:30:00Z",
       "gold_level": "span",
       "route": "graph_template"
     },
@@ -327,23 +327,23 @@
       "expected_values": [
         {
           "predicate": "effectiveStartTime",
-          "value": "00Z"
+          "value": "2026-05-18T15:45:00Z"
         },
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z"
+          "value": "2026-05-18T20:30:00Z"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "effectiveStartTime",
-          "value": "00Z",
+          "value": "2026-05-18T15:45:00Z",
           "text": "EFFECTIVE TIME: 181545-182030",
           "source_id": "2026-05-18:069"
         },
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z",
+          "value": "2026-05-18T20:30:00Z",
           "text": "EFFECTIVE TIME: 181545-182030",
           "source_id": "2026-05-18:069"
         }
@@ -351,8 +351,8 @@
       "expected_abstention": false,
       "absent_predicates": [],
       "answer_set": [
-        "effectiveStartTime=00Z",
-        "effectiveEndTime=00Z"
+        "effectiveStartTime=2026-05-18T15:45:00Z",
+        "effectiveEndTime=2026-05-18T20:30:00Z"
       ],
       "evidence_spans": [
         {
@@ -371,7 +371,7 @@
       "expected_chunk_ids": [
         "atcscc-2026-05-18-069-p1-c1"
       ],
-      "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+      "answer_key": "effectiveStartTime=2026-05-18T15:45:00Z; effectiveEndTime=2026-05-18T20:30:00Z",
       "gold_level": "span",
       "route": "graph_template"
     },
@@ -397,13 +397,13 @@
       "expected_values": [
         {
           "predicate": "impactingConditionMessage",
-          "value": "STAFFING"
+          "value": "STAFFING / STAFFING"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "impactingConditionMessage",
-          "value": "STAFFING",
+          "value": "STAFFING / STAFFING",
           "text": "IMPACTING CONDITION: STAFFING / STAFFING",
           "source_id": "2026-05-19:079"
         }
@@ -411,7 +411,7 @@
       "expected_abstention": false,
       "absent_predicates": [],
       "answer_set": [
-        "impactingConditionMessage=STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING"
       ],
       "evidence_spans": [
         {
@@ -424,7 +424,7 @@
       "expected_chunk_ids": [
         "atcscc-2026-05-19-079-p1-c1"
       ],
-      "answer_key": "impactingConditionMessage=STAFFING",
+      "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
       "gold_level": "span",
       "route": "graph_template"
     },
@@ -450,13 +450,13 @@
       "expected_values": [
         {
           "predicate": "impactingConditionMessage",
-          "value": "STAFFING"
+          "value": "STAFFING / STAFFING"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "impactingConditionMessage",
-          "value": "STAFFING",
+          "value": "STAFFING / STAFFING",
           "text": "IMPACTING CONDITION: STAFFING / STAFFING",
           "source_id": "2026-05-19:074"
         }
@@ -464,7 +464,7 @@
       "expected_abstention": false,
       "absent_predicates": [],
       "answer_set": [
-        "impactingConditionMessage=STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING"
       ],
       "evidence_spans": [
         {
@@ -477,7 +477,7 @@
       "expected_chunk_ids": [
         "atcscc-2026-05-19-074-p1-c1"
       ],
-      "answer_key": "impactingConditionMessage=STAFFING",
+      "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
       "gold_level": "span",
       "route": "graph_template"
     },
@@ -503,13 +503,13 @@
       "expected_values": [
         {
           "predicate": "impactingConditionMessage",
-          "value": "STAFFING"
+          "value": "STAFFING / STAFFING"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "impactingConditionMessage",
-          "value": "STAFFING",
+          "value": "STAFFING / STAFFING",
           "text": "IMPACTING CONDITION: STAFFING / STAFFING",
           "source_id": "2026-05-15:067"
         }
@@ -517,7 +517,7 @@
       "expected_abstention": false,
       "absent_predicates": [],
       "answer_set": [
-        "impactingConditionMessage=STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING"
       ],
       "evidence_spans": [
         {
@@ -530,7 +530,7 @@
       "expected_chunk_ids": [
         "atcscc-2026-05-15-067-p1-c1"
       ],
-      "answer_key": "impactingConditionMessage=STAFFING",
+      "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
       "gold_level": "span",
       "route": "graph_template"
     },
@@ -659,13 +659,13 @@
       "expected_values": [
         {
           "predicate": "initiativeComments",
-          "value": "1850Z"
+          "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "initiativeComments",
-          "value": "1850Z",
+          "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
           "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
           "source_id": "2026-05-19:074"
         }
@@ -673,7 +673,7 @@
       "expected_abstention": false,
       "absent_predicates": [],
       "answer_set": [
-        "initiativeComments=1850Z"
+        "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
       ],
       "evidence_spans": [
         {
@@ -686,7 +686,7 @@
       "expected_chunk_ids": [
         "atcscc-2026-05-19-074-p1-c1"
       ],
-      "answer_key": "initiativeComments=1850Z",
+      "answer_key": "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
       "gold_level": "span",
       "route": "hybrid_graph_plus_source_span"
     },
@@ -875,13 +875,13 @@
       "expected_values": [
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z"
+          "value": "2026-05-19T16:30:00Z"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z",
+          "value": "2026-05-19T16:30:00Z",
           "text": "EFFECTIVE TIME: 191322-191630",
           "source_id": "2026-05-19:032"
         }
@@ -937,13 +937,13 @@
       "expected_values": [
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z"
+          "value": "2026-05-16T00:30:00Z"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z",
+          "value": "2026-05-16T00:30:00Z",
           "text": "EFFECTIVE TIME: 151918-160030",
           "source_id": "2026-05-15:063"
         }
@@ -999,13 +999,13 @@
       "expected_values": [
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z"
+          "value": "2026-05-18T20:30:00Z"
         }
       ],
       "expected_evidence": [
         {
           "predicate": "effectiveEndTime",
-          "value": "00Z",
+          "value": "2026-05-18T20:30:00Z",
           "text": "EFFECTIVE TIME: 181545-182030",
           "source_id": "2026-05-18:069"
         }

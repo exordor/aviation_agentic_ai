@@ -8,6 +8,7 @@ from aviation_agentic_ai.reporting.nasa_atmonto_answer_generation import (
     build_nasa_atmonto_answer_generation,
     write_nasa_atmonto_answer_generation,
 )
+from aviation_agentic_ai.reporting.nasa_atmonto_answer_benchmark import answer_value
 from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import build_cq_query_manifest
 
 
@@ -166,6 +167,12 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
     manifest_path = tmp_path / "templates.json"
     _write_json(manifest_path, build_cq_query_manifest())
     return {"gold": gold_path, "s4": s4_path, "manifest": manifest_path}
+
+
+def test_answer_value_preserves_iso_datetimes() -> None:
+    assert answer_value({"value": "2026-05-19T13:22:00Z"}) == "2026-05-19T13:22:00Z"
+    assert answer_value({"object": "urn:aviation-agentic-ai:nas-element:BNA"}) == "BNA"
+    assert answer_value({"predicate": "atm:effectiveStartTime", "value": "13:22"}) == "13:22"
 
 
 def test_build_nasa_atmonto_answer_generation_materializes_benchmark_modes_and_metrics(

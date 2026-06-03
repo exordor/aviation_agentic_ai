@@ -8,7 +8,8 @@ planning report, not a scored experiment.
 ## Direct Assessment
 
 The current pipeline is **complete enough for a KG extraction case study** and
-**not yet complete enough for a full SOTA GraphRAG claim**.
+**SOTA-comparable as a layered, retrospective GraphRAG evaluation**, but it is
+**not yet complete enough for a broad GraphRAG superiority claim**.
 
 The strongest defensible story is:
 
@@ -21,9 +22,10 @@ The current story should not be:
 
 > GraphRAG is generally superior to vector RAG for aviation question answering.
 
-That claim still needs an LLM-backed answer-generation run, broader human QA
-labels, and evidence that graph routing improves answers beyond this
-source-bounded deterministic scaffold.
+That claim still needs broader human QA labels and evidence that graph routing
+improves answers beyond this source-bounded setting. A small fixed-budget
+LLM-backed S7 answer-generation check now exists, but it is intentionally
+bounded and does not replace expert review.
 
 ## Pipeline Audit
 
@@ -38,8 +40,8 @@ source-bounded deterministic scaffold.
 | KG extraction systems | satisfied | S0/S1/S1b/S2/S3/S4 scoring in `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | no new gap for S0-S4 extraction | preserve S4 as current strongest system |
 | Profile-gap/rejection analysis | satisfied | 288 rejected facts adjudicated as extractor bugs or profile gaps | profile-gap explanations need thesis wording | summarize as application-profile boundary |
 | CQ answer-set queryability | satisfied for pre-generation | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | deterministic answer-set scoring is not natural-language answer quality | keep as graph/queryability layer |
-| Natural-language answer generation | mostly satisfied for deterministic S7 | `reports/stages/nasa_atmonto_answer_generation.md`, 18-label pilot; `reports/stages/nasa_atmonto_s7_answer_generation.md`, 317-label S7 rerun | online/offline LLM generation and larger human answer labels remain future work | keep deterministic S7 as reproducible thesis benchmark |
-| Graph-use gate | mostly satisfied for deterministic S7 | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md` | full LLM answer-generation rerun remains future work | report routed lexical and dense results conservatively |
+| Natural-language answer generation | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/nasa_atmonto_answer_generation.md`, 18-label pilot; `reports/stages/nasa_atmonto_s7_answer_generation.md`, 317-label S7 rerun; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`, 12-case fixed-budget LLM check | larger human answer labels and broader LLM runs remain future work | keep deterministic S7 as reproducible thesis benchmark and LLM S7 as diagnostic supplement |
+| Graph-use gate | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md` | broad LLM/human answer evaluation remains future work | report routed lexical and dense results conservatively |
 | Token-matched vector baseline | satisfied for deterministic S7 | `token_matched_vector_rag`; `token_matched_vector_proxy`; `token_matched_live_tfidf_vector`; `token_matched_dense_embedding_vector`; `routed_token_matched_live_tfidf_graphrag`; `routed_token_matched_dense_graphrag` | no current deterministic S7 gap | preserve token-matched comparisons in thesis tables |
 | Graph health/path support | partial | `reports/stages/nasa_atmonto_s7_retrieval.md` | route-level path support exists; full graph component/connectivity diagnostics remain limited | add graph health by CQ group |
 | Multi-agent loop | partial | `reports/stages/atcscc_agentic_artifact_contract.md` | contract exists, but SRD/TIP/extraction/validation/evidence artifacts are incomplete | write artifacts before claiming agentic pipeline |
@@ -65,12 +67,13 @@ The strongest parts of the project are:
 
 ## Main Weaknesses Against SOTA
 
-1. **GraphRAG fairness is still deterministic.** The project now has
+1. **GraphRAG fairness is bounded, not final.** The project now has
    graph/vector/hybrid, token-matched-vector, routed answer/retrieval modes,
    live lexical-vector retrieval, dense retrieval, materialized graph traversal,
-   latency reporting, tokenizer-backed context budgets, and deterministic answer
-   generation over live retrieved contexts. It still lacks an online/offline LLM
-   answer-generation rerun.
+   latency reporting, tokenizer-backed context budgets, deterministic answer
+   generation over live retrieved contexts, and a 12-case fixed-budget LLM
+   answer-generation check. It still lacks broad human-reviewed answer labels
+   and large-scale LLM reruns by CQ group.
 2. **Answer-generation evidence is source-bounded.** The 317-label S7 rerun is
    useful for a reproducible thesis benchmark, but it is not a broad human QA
    benchmark or an operational ATC evaluation.
@@ -105,18 +108,19 @@ That version is not supported because:
 
 - the ontology is a profile slice, not all ATMONTO;
 - ATCSCC advisories expose a narrow event ABox, not the whole NAS;
-- graph answer generation is deterministic, not an online operational LLM run;
+- graph answer generation is source-bounded and only partially LLM-tested, not
+  an online operational LLM run;
 - dense retrieval underperforms in this source-bounded setting.
 
 ## Next Executable Experiment
 
-The next experiment should be an LLM-backed S7 answer-generation rerun:
+The next experiment should extend the bounded LLM S7 check:
 
-1. Reuse the deterministic S7 contexts from
-   `routed_token_matched_live_tfidf_graphrag` and
-   `routed_token_matched_dense_graphrag`.
-2. Generate answers with a small fixed model/configuration budget.
-3. Judge answer correctness, citation recall, unsupported-claim rate, token
-   budget, and latency by CQ group against the existing S7 labels.
+1. Expand or stratify the fixed-budget LLM sample by CQ template while keeping
+   the same frozen S7 contexts.
+2. Report answer correctness, citation recall, unsupported-claim rate, answer
+   token budget, and latency by CQ group against the existing S7 labels.
+3. Add graph-health diagnostics by route so graph support is visible beyond
+   aggregate path-support rate.
 4. Keep the dense retrieval result framed as negative/qualified unless a
    defensible downstream benefit appears.

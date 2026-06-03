@@ -12,22 +12,22 @@
 
 ## Aggregate Retrieval Metrics
 
-| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | Abstention correct | Path support | Avg tokens | Target tokens | Avg latency ms |
+| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | Abstention correct | Path support | Avg context tokens | Target tokens | Avg latency ms |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `source_oracle` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a | 0.0027 |
 | `vector_rag_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a | 0.0018 |
-| `token_matched_vector_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | 38.37 | 0.0017 |
-| `live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.8935 | 1.0 | 0.9438 | 1.0 | None | 2001.44 | n/a | 0.24 |
-| `token_matched_live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.8935 | 1.0 | 0.9438 | 1.0 | None | 38.37 | 38.37 | 0.4396 |
-| `dense_embedding_vector` | 0.0379 | 0.3533 | 0.0473 | 0.855 | 0.3467 | 0.4934 | 0.09 | None | 1327.38 | n/a | 10.9841 |
-| `token_matched_dense_embedding_vector` | 0.0032 | 0.3186 | 0.0095 | 0.839 | 0.3065 | 0.449 | 0.02 | None | 38.37 | 38.37 | 10.2902 |
-| `graph_only` | 0.6845 | 1.0 | 0.9968 | 0.5618 | 0.4923 | 0.5248 | 0.01 | 1.0 | 24.49 | n/a | 0.0027 |
-| `hybrid_graphrag` | 0.6845 | 1.0 | 1.0 | 0.5618 | 0.4923 | 0.5248 | 0.01 | 1.0 | 38.37 | n/a | 0.0051 |
-| `routed_graphrag` | 0.6845 | 1.0 | 1.0 | 0.9773 | 1.0 | 0.9885 | 1.0 | 1.0 | 24.29 | n/a | 0.0026 |
-| `routed_live_tfidf_graphrag` | 0.6845 | 1.0 | 1.0 | 0.9773 | 1.0 | 0.9885 | 1.0 | 1.0 | 1325.95 | n/a | 0.1406 |
-| `routed_token_matched_live_tfidf_graphrag` | 0.6845 | 1.0 | 1.0 | 0.9773 | 1.0 | 0.9885 | 1.0 | 1.0 | 38.37 | 38.37 | 0.2838 |
-| `routed_dense_graphrag` | 0.4101 | 0.7256 | 0.4385 | 0.9586 | 0.5372 | 0.6885 | 0.09 | 1.0 | 783.03 | n/a | 6.0347 |
-| `routed_token_matched_dense_graphrag` | 0.4006 | 0.7161 | 0.4069 | 0.9554 | 0.4969 | 0.6538 | 0.02 | 1.0 | 38.37 | 38.37 | 6.2177 |
+| `token_matched_vector_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | 38.96 | 0.0017 |
+| `live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.6999 | 1.0 | 0.8235 | 1.0 | None | 2001.44 | n/a | 0.2237 |
+| `token_matched_live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.6999 | 1.0 | 0.8235 | 1.0 | None | 38.96 | 38.96 | 0.4404 |
+| `dense_embedding_vector` | 0.0379 | 0.3533 | 0.0473 | 0.0647 | 0.0836 | 0.0729 | 0.09 | None | 1327.38 | n/a | 10.5925 |
+| `token_matched_dense_embedding_vector` | 0.0032 | 0.3186 | 0.0095 | 0.0346 | 0.0433 | 0.0385 | 0.02 | None | 38.96 | 38.96 | 10.169 |
+| `graph_only` | 0.6845 | 1.0 | 0.9968 | 0.5521 | 0.4923 | 0.5205 | 0.01 | 1.0 | 25.18 | n/a | 0.0026 |
+| `hybrid_graphrag` | 0.6845 | 1.0 | 1.0 | 0.5521 | 0.4923 | 0.5205 | 0.01 | 1.0 | 38.96 | n/a | 0.0052 |
+| `routed_graphrag` | 0.6845 | 1.0 | 1.0 | 0.9671 | 1.0 | 0.9833 | 1.0 | 1.0 | 24.82 | n/a | 0.0027 |
+| `routed_live_tfidf_graphrag` | 0.6845 | 1.0 | 1.0 | 0.7442 | 1.0 | 0.8534 | 1.0 | 1.0 | 1326.48 | n/a | 0.13 |
+| `routed_token_matched_live_tfidf_graphrag` | 0.6845 | 1.0 | 1.0 | 0.7442 | 1.0 | 0.8534 | 1.0 | 1.0 | 38.96 | 38.96 | 0.2848 |
+| `routed_dense_graphrag` | 0.4101 | 0.7256 | 0.4385 | 0.1879 | 0.274 | 0.2229 | 0.09 | 1.0 | 783.56 | n/a | 6.0621 |
+| `routed_token_matched_dense_graphrag` | 0.4006 | 0.7161 | 0.4069 | 0.1648 | 0.2337 | 0.1933 | 0.02 | 1.0 | 38.96 | 38.96 | 6.1636 |
 
 Method note: Answer-set F1 treats a correct expected abstention as recovering the no-answer label. `Abstention correct` is computed only over expected abstention cases and should be read separately from non-abstention answer recovery.
 

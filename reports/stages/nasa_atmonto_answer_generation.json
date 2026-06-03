@@ -207,23 +207,23 @@
         "expected_values": [
           {
             "predicate": "effectiveStartTime",
-            "value": "00Z"
+            "value": "2026-05-19T13:22:00Z"
           },
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z"
+            "value": "2026-05-19T16:30:00Z"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "effectiveStartTime",
-            "value": "00Z",
+            "value": "2026-05-19T13:22:00Z",
             "text": "EFFECTIVE TIME: 191322-191630",
             "source_id": "2026-05-19:032"
           },
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z",
+            "value": "2026-05-19T16:30:00Z",
             "text": "EFFECTIVE TIME: 191322-191630",
             "source_id": "2026-05-19:032"
           }
@@ -231,8 +231,8 @@
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "effectiveStartTime=00Z",
-          "effectiveEndTime=00Z"
+          "effectiveStartTime=2026-05-19T13:22:00Z",
+          "effectiveEndTime=2026-05-19T16:30:00Z"
         ],
         "evidence_spans": [
           {
@@ -251,7 +251,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-19-032-p1-c1"
         ],
-        "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+        "answer_key": "effectiveStartTime=2026-05-19T13:22:00Z; effectiveEndTime=2026-05-19T16:30:00Z",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -277,23 +277,23 @@
         "expected_values": [
           {
             "predicate": "effectiveStartTime",
-            "value": "00Z"
+            "value": "2026-05-15T19:18:00Z"
           },
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z"
+            "value": "2026-05-16T00:30:00Z"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "effectiveStartTime",
-            "value": "00Z",
+            "value": "2026-05-15T19:18:00Z",
             "text": "EFFECTIVE TIME: 151918-160030",
             "source_id": "2026-05-15:063"
           },
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z",
+            "value": "2026-05-16T00:30:00Z",
             "text": "EFFECTIVE TIME: 151918-160030",
             "source_id": "2026-05-15:063"
           }
@@ -301,8 +301,8 @@
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "effectiveStartTime=00Z",
-          "effectiveEndTime=00Z"
+          "effectiveStartTime=2026-05-15T19:18:00Z",
+          "effectiveEndTime=2026-05-16T00:30:00Z"
         ],
         "evidence_spans": [
           {
@@ -321,7 +321,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-15-063-p1-c1"
         ],
-        "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+        "answer_key": "effectiveStartTime=2026-05-15T19:18:00Z; effectiveEndTime=2026-05-16T00:30:00Z",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -347,23 +347,23 @@
         "expected_values": [
           {
             "predicate": "effectiveStartTime",
-            "value": "00Z"
+            "value": "2026-05-18T15:45:00Z"
           },
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z"
+            "value": "2026-05-18T20:30:00Z"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "effectiveStartTime",
-            "value": "00Z",
+            "value": "2026-05-18T15:45:00Z",
             "text": "EFFECTIVE TIME: 181545-182030",
             "source_id": "2026-05-18:069"
           },
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z",
+            "value": "2026-05-18T20:30:00Z",
             "text": "EFFECTIVE TIME: 181545-182030",
             "source_id": "2026-05-18:069"
           }
@@ -371,8 +371,8 @@
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "effectiveStartTime=00Z",
-          "effectiveEndTime=00Z"
+          "effectiveStartTime=2026-05-18T15:45:00Z",
+          "effectiveEndTime=2026-05-18T20:30:00Z"
         ],
         "evidence_spans": [
           {
@@ -391,7 +391,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-18-069-p1-c1"
         ],
-        "answer_key": "effectiveStartTime=00Z; effectiveEndTime=00Z",
+        "answer_key": "effectiveStartTime=2026-05-18T15:45:00Z; effectiveEndTime=2026-05-18T20:30:00Z",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -417,13 +417,13 @@
         "expected_values": [
           {
             "predicate": "impactingConditionMessage",
-            "value": "STAFFING"
+            "value": "STAFFING / STAFFING"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "impactingConditionMessage",
-            "value": "STAFFING",
+            "value": "STAFFING / STAFFING",
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
             "source_id": "2026-05-19:079"
           }
@@ -431,7 +431,7 @@
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "impactingConditionMessage=STAFFING"
+          "impactingConditionMessage=STAFFING / STAFFING"
         ],
         "evidence_spans": [
           {
@@ -444,7 +444,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-19-079-p1-c1"
         ],
-        "answer_key": "impactingConditionMessage=STAFFING",
+        "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -470,13 +470,13 @@
         "expected_values": [
           {
             "predicate": "impactingConditionMessage",
-            "value": "STAFFING"
+            "value": "STAFFING / STAFFING"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "impactingConditionMessage",
-            "value": "STAFFING",
+            "value": "STAFFING / STAFFING",
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
             "source_id": "2026-05-19:074"
           }
@@ -484,7 +484,7 @@
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "impactingConditionMessage=STAFFING"
+          "impactingConditionMessage=STAFFING / STAFFING"
         ],
         "evidence_spans": [
           {
@@ -497,7 +497,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-19-074-p1-c1"
         ],
-        "answer_key": "impactingConditionMessage=STAFFING",
+        "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -523,13 +523,13 @@
         "expected_values": [
           {
             "predicate": "impactingConditionMessage",
-            "value": "STAFFING"
+            "value": "STAFFING / STAFFING"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "impactingConditionMessage",
-            "value": "STAFFING",
+            "value": "STAFFING / STAFFING",
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
             "source_id": "2026-05-15:067"
           }
@@ -537,7 +537,7 @@
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "impactingConditionMessage=STAFFING"
+          "impactingConditionMessage=STAFFING / STAFFING"
         ],
         "evidence_spans": [
           {
@@ -550,7 +550,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-15-067-p1-c1"
         ],
-        "answer_key": "impactingConditionMessage=STAFFING",
+        "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -679,13 +679,13 @@
         "expected_values": [
           {
             "predicate": "initiativeComments",
-            "value": "1850Z"
+            "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "initiativeComments",
-            "value": "1850Z",
+            "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
             "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
             "source_id": "2026-05-19:074"
           }
@@ -693,7 +693,7 @@
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "initiativeComments=1850Z"
+          "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
         ],
         "evidence_spans": [
           {
@@ -706,7 +706,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-19-074-p1-c1"
         ],
-        "answer_key": "initiativeComments=1850Z",
+        "answer_key": "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
         "gold_level": "span",
         "route": "hybrid_graph_plus_source_span"
       },
@@ -895,13 +895,13 @@
         "expected_values": [
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z"
+            "value": "2026-05-19T16:30:00Z"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z",
+            "value": "2026-05-19T16:30:00Z",
             "text": "EFFECTIVE TIME: 191322-191630",
             "source_id": "2026-05-19:032"
           }
@@ -957,13 +957,13 @@
         "expected_values": [
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z"
+            "value": "2026-05-16T00:30:00Z"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z",
+            "value": "2026-05-16T00:30:00Z",
             "text": "EFFECTIVE TIME: 151918-160030",
             "source_id": "2026-05-15:063"
           }
@@ -1019,13 +1019,13 @@
         "expected_values": [
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z"
+            "value": "2026-05-18T20:30:00Z"
           }
         ],
         "expected_evidence": [
           {
             "predicate": "effectiveEndTime",
-            "value": "00Z",
+            "value": "2026-05-18T20:30:00Z",
             "text": "EFFECTIVE TIME: 181545-182030",
             "source_id": "2026-05-18:069"
           }
@@ -2250,20 +2250,20 @@
       "question": "What are the effective start and end times for the advisory?",
       "expected_abstention": false,
       "answer_set": [
-        "effectiveStartTime=00Z",
-        "effectiveEndTime=00Z"
+        "effectiveStartTime=2026-05-19T13:22:00Z",
+        "effectiveEndTime=2026-05-19T16:30:00Z"
       ],
       "results": {
         "source_only": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-19T13:22:00Z; effectiveEndTime=2026-05-19T16:30:00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-19T13:22:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-19T16:30:00Z"
             }
           ],
           "evidence_route": "source_span",
@@ -2289,15 +2289,15 @@
           }
         },
         "vector_rag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-19T13:22:00Z; effectiveEndTime=2026-05-19T16:30:00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-19T13:22:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-19T16:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -2323,15 +2323,15 @@
           }
         },
         "token_matched_vector_rag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-19T13:22:00Z; effectiveEndTime=2026-05-19T16:30:00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-19T13:22:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-19T16:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -2361,15 +2361,15 @@
           }
         },
         "graph_only": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
+          "answer": "effectiveStartTime=2026-05-19T13:22:00Z; effectiveEndTime=2026-05-19T16:30:00Z. Citations: t1, t2.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-19T13:22:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-19T16:30:00Z"
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
@@ -2393,7 +2393,7 @@
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
               "page": 1,
               "predicate": "effectiveStartTime",
-              "object": "00Z",
+              "object": "2026-05-19T13:22:00Z",
               "evidence_text": "EFFECTIVE TIME: 191322-191630"
             },
             {
@@ -2401,7 +2401,7 @@
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
               "page": 1,
               "predicate": "effectiveEndTime",
-              "object": "00Z",
+              "object": "2026-05-19T16:30:00Z",
               "evidence_text": "EFFECTIVE TIME: 191322-191630"
             }
           ],
@@ -2412,15 +2412,15 @@
           }
         },
         "hybrid_graphrag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1, t1, t2.",
+          "answer": "effectiveStartTime=2026-05-19T13:22:00Z; effectiveEndTime=2026-05-19T16:30:00Z. Citations: atcscc-2026-05-19-032-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-19T13:22:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-19T16:30:00Z"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -2444,7 +2444,7 @@
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
               "page": 1,
               "predicate": "effectiveStartTime",
-              "object": "00Z",
+              "object": "2026-05-19T13:22:00Z",
               "evidence_text": "EFFECTIVE TIME: 191322-191630"
             },
             {
@@ -2452,7 +2452,7 @@
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
               "page": 1,
               "predicate": "effectiveEndTime",
-              "object": "00Z",
+              "object": "2026-05-19T16:30:00Z",
               "evidence_text": "EFFECTIVE TIME: 191322-191630"
             }
           ],
@@ -2463,15 +2463,15 @@
           }
         },
         "routed_graphrag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-19T13:22:00Z; effectiveEndTime=2026-05-19T16:30:00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-19T13:22:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-19T16:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -2638,20 +2638,20 @@
       "question": "What are the effective start and end times for the advisory?",
       "expected_abstention": false,
       "answer_set": [
-        "effectiveStartTime=00Z",
-        "effectiveEndTime=00Z"
+        "effectiveStartTime=2026-05-15T19:18:00Z",
+        "effectiveEndTime=2026-05-16T00:30:00Z"
       ],
       "results": {
         "source_only": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-15T19:18:00Z; effectiveEndTime=2026-05-16T00:30:00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-15T19:18:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-16T00:30:00Z"
             }
           ],
           "evidence_route": "source_span",
@@ -2677,15 +2677,15 @@
           }
         },
         "vector_rag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-15T19:18:00Z; effectiveEndTime=2026-05-16T00:30:00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-15T19:18:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-16T00:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -2711,15 +2711,15 @@
           }
         },
         "token_matched_vector_rag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-15T19:18:00Z; effectiveEndTime=2026-05-16T00:30:00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-15T19:18:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-16T00:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -2749,15 +2749,15 @@
           }
         },
         "graph_only": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
+          "answer": "effectiveStartTime=2026-05-15T19:18:00Z; effectiveEndTime=2026-05-16T00:30:00Z. Citations: t1, t2.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-15T19:18:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-16T00:30:00Z"
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
@@ -2781,7 +2781,7 @@
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
               "page": 1,
               "predicate": "effectiveStartTime",
-              "object": "00Z",
+              "object": "2026-05-15T19:18:00Z",
               "evidence_text": "EFFECTIVE TIME: 151918-160030"
             },
             {
@@ -2789,7 +2789,7 @@
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
               "page": 1,
               "predicate": "effectiveEndTime",
-              "object": "00Z",
+              "object": "2026-05-16T00:30:00Z",
               "evidence_text": "EFFECTIVE TIME: 151918-160030"
             }
           ],
@@ -2800,15 +2800,15 @@
           }
         },
         "hybrid_graphrag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1, t1, t2.",
+          "answer": "effectiveStartTime=2026-05-15T19:18:00Z; effectiveEndTime=2026-05-16T00:30:00Z. Citations: atcscc-2026-05-15-063-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-15T19:18:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-16T00:30:00Z"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -2832,7 +2832,7 @@
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
               "page": 1,
               "predicate": "effectiveStartTime",
-              "object": "00Z",
+              "object": "2026-05-15T19:18:00Z",
               "evidence_text": "EFFECTIVE TIME: 151918-160030"
             },
             {
@@ -2840,7 +2840,7 @@
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
               "page": 1,
               "predicate": "effectiveEndTime",
-              "object": "00Z",
+              "object": "2026-05-16T00:30:00Z",
               "evidence_text": "EFFECTIVE TIME: 151918-160030"
             }
           ],
@@ -2851,15 +2851,15 @@
           }
         },
         "routed_graphrag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-15T19:18:00Z; effectiveEndTime=2026-05-16T00:30:00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-15T19:18:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-16T00:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3026,20 +3026,20 @@
       "question": "What are the effective start and end times for the advisory?",
       "expected_abstention": false,
       "answer_set": [
-        "effectiveStartTime=00Z",
-        "effectiveEndTime=00Z"
+        "effectiveStartTime=2026-05-18T15:45:00Z",
+        "effectiveEndTime=2026-05-18T20:30:00Z"
       ],
       "results": {
         "source_only": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-18T15:45:00Z; effectiveEndTime=2026-05-18T20:30:00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-18T15:45:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-18T20:30:00Z"
             }
           ],
           "evidence_route": "source_span",
@@ -3065,15 +3065,15 @@
           }
         },
         "vector_rag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-18T15:45:00Z; effectiveEndTime=2026-05-18T20:30:00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-18T15:45:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-18T20:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3099,15 +3099,15 @@
           }
         },
         "token_matched_vector_rag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-18T15:45:00Z; effectiveEndTime=2026-05-18T20:30:00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-18T15:45:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-18T20:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3137,15 +3137,15 @@
           }
         },
         "graph_only": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
+          "answer": "effectiveStartTime=2026-05-18T15:45:00Z; effectiveEndTime=2026-05-18T20:30:00Z. Citations: t1, t2.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-18T15:45:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-18T20:30:00Z"
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
@@ -3169,7 +3169,7 @@
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
               "page": 1,
               "predicate": "effectiveStartTime",
-              "object": "00Z",
+              "object": "2026-05-18T15:45:00Z",
               "evidence_text": "EFFECTIVE TIME: 181545-182030"
             },
             {
@@ -3177,7 +3177,7 @@
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
               "page": 1,
               "predicate": "effectiveEndTime",
-              "object": "00Z",
+              "object": "2026-05-18T20:30:00Z",
               "evidence_text": "EFFECTIVE TIME: 181545-182030"
             }
           ],
@@ -3188,15 +3188,15 @@
           }
         },
         "hybrid_graphrag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1, t1, t2.",
+          "answer": "effectiveStartTime=2026-05-18T15:45:00Z; effectiveEndTime=2026-05-18T20:30:00Z. Citations: atcscc-2026-05-18-069-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-18T15:45:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-18T20:30:00Z"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3220,7 +3220,7 @@
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
               "page": 1,
               "predicate": "effectiveStartTime",
-              "object": "00Z",
+              "object": "2026-05-18T15:45:00Z",
               "evidence_text": "EFFECTIVE TIME: 181545-182030"
             },
             {
@@ -3228,7 +3228,7 @@
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
               "page": 1,
               "predicate": "effectiveEndTime",
-              "object": "00Z",
+              "object": "2026-05-18T20:30:00Z",
               "evidence_text": "EFFECTIVE TIME: 181545-182030"
             }
           ],
@@ -3239,15 +3239,15 @@
           }
         },
         "routed_graphrag": {
-          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
+          "answer": "effectiveStartTime=2026-05-18T15:45:00Z; effectiveEndTime=2026-05-18T20:30:00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
           "answer_values": [
             {
               "predicate": "effectiveStartTime",
-              "value": "00Z"
+              "value": "2026-05-18T15:45:00Z"
             },
             {
               "predicate": "effectiveEndTime",
-              "value": "00Z"
+              "value": "2026-05-18T20:30:00Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3414,15 +3414,15 @@
       "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
       "expected_abstention": false,
       "answer_set": [
-        "impactingConditionMessage=STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING"
       ],
       "results": {
         "source_only": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_span",
@@ -3448,11 +3448,11 @@
           }
         },
         "vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3478,11 +3478,11 @@
           }
         },
         "token_matched_vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3506,17 +3506,17 @@
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 12,
-            "estimated_padding_tokens": 7,
+            "target_estimated_context_tokens": 14,
+            "estimated_padding_tokens": 9,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
         "graph_only": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: t1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
@@ -3540,22 +3540,22 @@
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 47,
+            "estimated_context_tokens": 49,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
         },
         "hybrid_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3579,22 +3579,22 @@
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 12,
+            "estimated_context_tokens": 14,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
         },
         "routed_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3619,12 +3619,12 @@
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 12,
+            "estimated_context_tokens": 14,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
@@ -3767,15 +3767,15 @@
       "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
       "expected_abstention": false,
       "answer_set": [
-        "impactingConditionMessage=STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING"
       ],
       "results": {
         "source_only": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_span",
@@ -3801,11 +3801,11 @@
           }
         },
         "vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3831,11 +3831,11 @@
           }
         },
         "token_matched_vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3859,17 +3859,17 @@
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 12,
-            "estimated_padding_tokens": 7,
+            "target_estimated_context_tokens": 14,
+            "estimated_padding_tokens": 9,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
         "graph_only": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: t1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
@@ -3893,22 +3893,22 @@
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 47,
+            "estimated_context_tokens": 49,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
         },
         "hybrid_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3932,22 +3932,22 @@
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 12,
+            "estimated_context_tokens": 14,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
         },
         "routed_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3972,12 +3972,12 @@
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 12,
+            "estimated_context_tokens": 14,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
@@ -4120,15 +4120,15 @@
       "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
       "expected_abstention": false,
       "answer_set": [
-        "impactingConditionMessage=STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING"
       ],
       "results": {
         "source_only": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_span",
@@ -4154,11 +4154,11 @@
           }
         },
         "vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -4184,11 +4184,11 @@
           }
         },
         "token_matched_vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -4212,17 +4212,17 @@
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 30,
-            "estimated_padding_tokens": 25,
+            "target_estimated_context_tokens": 32,
+            "estimated_padding_tokens": 27,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
         "graph_only": {
-          "answer": "impactingConditionMessage=STAFFING; impactingCondition=other. Citations: t1, t2.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=other. Citations: t1, t2.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             },
             {
               "predicate": "impactingCondition",
@@ -4250,7 +4250,7 @@
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             },
             {
@@ -4263,17 +4263,17 @@
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 65,
+            "estimated_context_tokens": 67,
             "fused_chunk_count": 1,
             "graph_triple_count": 2
           }
         },
         "hybrid_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             },
             {
               "predicate": "impactingCondition",
@@ -4301,7 +4301,7 @@
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             },
             {
@@ -4314,17 +4314,17 @@
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 30,
+            "estimated_context_tokens": 32,
             "fused_chunk_count": 1,
             "graph_triple_count": 2
           }
         },
         "routed_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
-              "value": "STAFFING"
+              "value": "STAFFING / STAFFING"
             },
             {
               "predicate": "impactingCondition",
@@ -4353,7 +4353,7 @@
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
               "page": 1,
               "predicate": "impactingConditionMessage",
-              "object": "STAFFING",
+              "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             },
             {
@@ -4366,7 +4366,7 @@
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 30,
+            "estimated_context_tokens": 32,
             "fused_chunk_count": 1,
             "graph_triple_count": 2
           }
@@ -5224,15 +5224,15 @@
       "question": "What status or action is stated for the advisory?",
       "expected_abstention": false,
       "answer_set": [
-        "initiativeComments=1850Z"
+        "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
       ],
       "results": {
         "source_only": {
-          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "initiativeComments",
-              "value": "1850Z"
+              "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "evidence_route": "source_span",
@@ -5258,11 +5258,11 @@
           }
         },
         "vector_rag": {
-          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "initiativeComments",
-              "value": "1850Z"
+              "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -5288,11 +5288,11 @@
           }
         },
         "token_matched_vector_rag": {
-          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "initiativeComments",
-              "value": "1850Z"
+              "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -5316,17 +5316,17 @@
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 44,
-            "estimated_padding_tokens": 23,
+            "target_estimated_context_tokens": 63,
+            "estimated_padding_tokens": 42,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
         "graph_only": {
-          "answer": "initiativeComments=1850Z. Citations: t1.",
+          "answer": "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z. Citations: t1.",
           "answer_values": [
             {
               "predicate": "initiativeComments",
-              "value": "1850Z"
+              "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
@@ -5350,22 +5350,22 @@
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
               "predicate": "initiativeComments",
-              "object": "1850Z",
+              "object": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
               "evidence_text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 63,
+            "estimated_context_tokens": 82,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
         },
         "hybrid_graphrag": {
-          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer": "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "initiativeComments",
-              "value": "1850Z"
+              "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -5389,22 +5389,22 @@
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
               "predicate": "initiativeComments",
-              "object": "1850Z",
+              "object": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
               "evidence_text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 44,
+            "estimated_context_tokens": 63,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
         },
         "routed_graphrag": {
-          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer": "initiativeComments=BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "initiativeComments",
-              "value": "1850Z"
+              "value": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -5429,12 +5429,12 @@
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
               "predicate": "initiativeComments",
-              "object": "1850Z",
+              "object": "BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z",
               "evidence_text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 44,
+            "estimated_context_tokens": 63,
             "fused_chunk_count": 1,
             "graph_triple_count": 1
           }
@@ -7517,8 +7517,8 @@
         "abstention_correctness": 1.0,
         "avg_estimated_context_tokens": 5.11,
         "max_estimated_context_tokens": 21,
-        "avg_target_context_tokens": 14.06,
-        "avg_estimated_padding_tokens": 8.94
+        "avg_target_context_tokens": 15.44,
+        "avg_estimated_padding_tokens": 10.33
       },
       "graph_only": {
         "answers_total": 18,
@@ -7528,8 +7528,8 @@
         "evidence_faithfulness": 0.8333,
         "unsupported_claim_rate": 0.0833,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 48.78,
-        "max_estimated_context_tokens": 65,
+        "avg_estimated_context_tokens": 50.17,
+        "max_estimated_context_tokens": 82,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
       },
@@ -7541,8 +7541,8 @@
         "evidence_faithfulness": 0.8333,
         "unsupported_claim_rate": 0.0833,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 14.06,
-        "max_estimated_context_tokens": 44,
+        "avg_estimated_context_tokens": 15.44,
+        "max_estimated_context_tokens": 63,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
       },
@@ -7554,8 +7554,8 @@
         "evidence_faithfulness": 0.8333,
         "unsupported_claim_rate": 0.0833,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 12.39,
-        "max_estimated_context_tokens": 44,
+        "avg_estimated_context_tokens": 13.78,
+        "max_estimated_context_tokens": 63,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
       }
@@ -7564,7 +7564,7 @@
       "cost_latency": {
         "provider": "none",
         "model": "deterministic_scaffold",
-        "elapsed_seconds": 0.0231,
+        "elapsed_seconds": 0.0218,
         "questions_total": 18,
         "cases_total": 18,
         "chunks_path": null,

@@ -467,7 +467,7 @@ def write_nasa_atmonto_s7_answer_generation_markdown(
         "",
         (
             "| Mode | Answers | Correctness | Citation P | Citation R | Evidence faithful | "
-            "Unsupported claim rate | Abstention correct | Avg tokens | Target tokens |"
+            "Unsupported claim rate | Abstention correct | Avg context tokens | Target tokens |"
         ),
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
@@ -485,7 +485,7 @@ def write_nasa_atmonto_s7_answer_generation_markdown(
             "",
             "## CQ Template Breakdown",
             "",
-            "| Template | Mode | Correctness | Unsupported claim rate | Avg tokens |",
+            "| Template | Mode | Correctness | Unsupported claim rate | Avg context tokens |",
             "| --- | --- | ---: | ---: | ---: |",
         ]
     )

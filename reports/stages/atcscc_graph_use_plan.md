@@ -3,11 +3,13 @@
 Date: 2026-06-03
 
 Status: S7 deterministic proxies implemented for answer generation and CQ
-queryability. Retrieval-only S7 now includes live TF-IDF lexical-vector
+queryability, plus a small fixed-budget LLM answer-generation check over frozen
+S7 contexts. Retrieval-only S7 now includes live TF-IDF lexical-vector
 retrieval, materialized ATCSCC fact-graph traversal, tokenizer-backed
 token-matched controls, dense embedding retrieval, and latency reporting. The
-S7 answer-generation rerun now evaluates deterministic answers over routed live
-lexical and dense retrieval contexts.
+S7 answer-generation rerun evaluates deterministic answers over routed live
+lexical and dense retrieval contexts, and the LLM check tests the same routed
+token-matched live/dense contexts on a bounded sample.
 
 ## Purpose
 
@@ -22,7 +24,8 @@ query-level decision.
 
 ## Current Implementation
 
-The current implementation has three deterministic layers:
+The current implementation has three deterministic layers and one bounded model
+layer:
 
 - answer-generation proxy: `reports/stages/nasa_atmonto_answer_generation.md`
 - CQ answer-set queryability proxy: `reports/stages/nasa_atmonto_cq_query_evaluation.md`
@@ -30,11 +33,15 @@ The current implementation has three deterministic layers:
   `reports/stages/nasa_atmonto_s7_retrieval.md`
 - S7 live-retrieval answer-generation report:
   `reports/stages/nasa_atmonto_s7_answer_generation.md`
+- S7 fixed-budget LLM answer-generation report:
+  `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`
 
 The core retrieval implementation is in
 `src/aviation_agentic_ai/reporting/nasa_atmonto_s7_retrieval.py`.
 The S7 answer-generation rerun is in
 `src/aviation_agentic_ai/reporting/nasa_atmonto_s7_answer_generation.py`.
+The fixed-budget S7 LLM check is in
+`src/aviation_agentic_ai/reporting/nasa_atmonto_s7_llm_answer_generation.py`.
 
 Two new answer modes are now reported:
 
@@ -42,6 +49,13 @@ Two new answer modes are now reported:
 | --- | --- | --- |
 | `token_matched_vector_rag` | Vector/source-text control with the hybrid context budget recorded as target. | Implemented as deterministic answer-generation proxy; retrieval-only report now includes token-matched live lexical-vector control. |
 | `routed_graphrag` | Uses the graph-use gate to choose vector/source or hybrid graph context by CQ template. | Implemented as deterministic proxy over the 18-label answer benchmark. |
+
+The fixed-budget LLM check evaluates:
+
+| Mode | Purpose | Current status |
+| --- | --- | --- |
+| `routed_token_matched_live_tfidf_graphrag` | Token-matched routed GraphRAG over live lexical source retrieval. | Evaluated on 6 selected cases. |
+| `routed_token_matched_dense_graphrag` | Token-matched routed GraphRAG over dense source retrieval. | Evaluated on 6 selected cases. |
 
 The current gate is intentionally conservative. The live retrieval layer now
 includes both a lexical TF-IDF source index and a local dense embedding index
@@ -110,20 +124,22 @@ existing best answer-set score, but it does not yet show a queryability gain.
 
 From `reports/stages/nasa_atmonto_s7_retrieval.md`:
 
-| Mode | Target hit | Answer F1 | Abstention correct | Path support | Avg tokens | Token target |
+| Mode | Target hit | Answer F1 | Abstention correct | Path support | Avg context tokens | Token target |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `source_oracle` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | n/a |
 | `vector_rag_proxy` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | n/a |
-| `token_matched_vector_proxy` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | 38.37 |
-| `live_tfidf_vector` | 1.0 | 0.9438 | 1.0 | n/a | 2001.44 | n/a |
-| `token_matched_live_tfidf_vector` | 1.0 | 0.9438 | 1.0 | n/a | 38.37 | 38.37 |
-| `dense_embedding_vector` | 0.0473 | 0.4934 | 0.09 | n/a | 1327.38 | n/a |
-| `token_matched_dense_embedding_vector` | 0.0095 | 0.449 | 0.02 | n/a | 38.37 | 38.37 |
-| `graph_only` | 0.9968 | 0.5248 | 0.01 | 1.0 | 24.49 | n/a |
-| `hybrid_graphrag` | 1.0 | 0.5248 | 0.01 | 1.0 | 38.37 | n/a |
-| `routed_graphrag` | 1.0 | 0.9885 | 1.0 | 1.0 | 24.29 | n/a |
-| `routed_token_matched_live_tfidf_graphrag` | 1.0 | 0.9885 | 1.0 | 1.0 | 38.37 | 38.37 |
-| `routed_token_matched_dense_graphrag` | 0.4069 | 0.6538 | 0.02 | 1.0 | 38.37 | 38.37 |
+| `token_matched_vector_proxy` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | 38.96 |
+| `live_tfidf_vector` | 1.0 | 0.8235 | 1.0 | n/a | 2001.44 | n/a |
+| `token_matched_live_tfidf_vector` | 1.0 | 0.8235 | 1.0 | n/a | 38.96 | 38.96 |
+| `dense_embedding_vector` | 0.0473 | 0.0729 | 0.09 | n/a | 1327.38 | n/a |
+| `token_matched_dense_embedding_vector` | 0.0095 | 0.0385 | 0.02 | n/a | 38.96 | 38.96 |
+| `graph_only` | 0.9968 | 0.5205 | 0.01 | 1.0 | 25.18 | n/a |
+| `hybrid_graphrag` | 1.0 | 0.5205 | 0.01 | 1.0 | 38.96 | n/a |
+| `routed_graphrag` | 1.0 | 0.9833 | 1.0 | 1.0 | 24.82 | n/a |
+| `routed_live_tfidf_graphrag` | 1.0 | 0.8534 | 1.0 | 1.0 | 1326.48 | n/a |
+| `routed_token_matched_live_tfidf_graphrag` | 1.0 | 0.8534 | 1.0 | 1.0 | 38.96 | 38.96 |
+| `routed_dense_graphrag` | 0.4385 | 0.2229 | 0.09 | 1.0 | 783.56 | n/a |
+| `routed_token_matched_dense_graphrag` | 0.4069 | 0.1933 | 0.02 | 1.0 | 38.96 | 38.96 |
 
 Interpretation:
 
@@ -148,32 +164,58 @@ From `reports/stages/nasa_atmonto_s7_answer_generation.md`:
 | Mode | Correctness | Citation recall | Evidence faithful | Unsupported claim rate | Abstention correct | Avg context tokens |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `source_oracle` | 1.0 | 0.3423 | 1.0 | 0.0 | 1.0 | 19.78 |
-| `hybrid_graphrag` | 0.9527 | 0.4603 | 0.9527 | 0.0237 | 1.0 | 38.37 |
-| `routed_graphrag` | 0.9527 | 0.4125 | 0.9527 | 0.0237 | 1.0 | 24.29 |
-| `token_matched_live_tfidf_vector` | 0.8297 | 0.4564 | 0.8297 | 0.0954 | 1.0 | 38.37 |
-| `routed_token_matched_live_tfidf_graphrag` | 0.9527 | 0.4603 | 0.9527 | 0.0237 | 1.0 | 38.37 |
-| `token_matched_dense_embedding_vector` | 0.3123 | 0.2166 | 0.3186 | 0.3722 | 0.4385 | 38.37 |
-| `routed_token_matched_dense_graphrag` | 0.6435 | 0.413 | 0.6435 | 0.0237 | 0.6909 | 38.37 |
+| `hybrid_graphrag` | 0.9306 | 0.4611 | 0.9306 | 0.0347 | 1.0 | 38.96 |
+| `routed_graphrag` | 0.9306 | 0.4133 | 0.9306 | 0.0347 | 1.0 | 24.82 |
+| `token_matched_live_tfidf_vector` | 0.5426 | 0.4564 | 0.5426 | 0.2435 | 1.0 | 38.96 |
+| `routed_token_matched_live_tfidf_graphrag` | 0.6435 | 0.4611 | 0.6435 | 0.1828 | 1.0 | 38.96 |
+| `token_matched_dense_embedding_vector` | 0.0252 | 0.2166 | 0.0315 | 0.6546 | 0.4385 | 38.96 |
+| `routed_token_matched_dense_graphrag` | 0.3344 | 0.4138 | 0.3344 | 0.317 | 0.6909 | 38.96 |
 
 Interpretation:
 
-- routed live lexical GraphRAG preserves the hybrid answer correctness under the
-  token-matched budget;
-- always-live lexical retrieval is weaker than routed GraphRAG because some
-  graph-worthy templates need critic-gated graph facts;
+- after preserving ISO timestamp values during answer-value normalization, this
+  rerun is stricter than the earlier table that collapsed time values such as
+  `2026-05-19T13:22:00Z` to `00Z`;
+- routed live lexical GraphRAG no longer preserves always-hybrid correctness
+  under the token-matched budget, but still improves over token-matched lexical
+  vector-only retrieval on this stricter answer-generation metric;
+- always-live lexical retrieval is weaker than routed GraphRAG for some
+  graph-worthy templates, while source-oracle and always-hybrid remain important
+  upper/control bounds;
 - dense retrieval remains a negative/qualified result for direct source-bounded
   advisory questions, especially abstention and entity/route templates.
+
+### Fixed-Budget LLM Answer-Generation Check
+
+From `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`:
+
+| Mode | Selected | Answered | Correctness | Citation recall | Evidence faithful | Unsupported claim rate | Abstention correct | Avg context tokens |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `routed_token_matched_live_tfidf_graphrag` | 6 | 6 | 0.8333 | 0.6111 | 0.8333 | 0.3333 | 0.8333 | 23.0 |
+| `routed_token_matched_dense_graphrag` | 6 | 6 | 0.5 | 0.6111 | 0.5 | 0.3333 | 0.5 | 23.0 |
+
+Interpretation:
+
+- the small LLM run is useful as a SOTA-facing sanity check because it replaces
+  deterministic answer strings with model-generated answers over frozen
+  retrieved contexts;
+- the sample is deliberately bounded, so it supports cautious comparison and
+  error discovery, not expert certification;
+- the live lexical route remains stronger than the dense route in this sample,
+  while both modes still produce unsupported claims that need stronger evidence
+  gating or manual review.
 
 ## What This Proves
 
 This proves that the project now has an explicit graph-use gate, retrieval-only
 route evaluation, live lexical-vector retrieval, dense retrieval, graph
 path-support reporting, materialized graph traversal, tokenizer-backed
-token-budget controls, latency reporting, and deterministic generated-answer
-evaluation over routed live retrieval contexts. It also produces two
-negative/qualified results: graph context is not automatically better in the
-current scaffold, and dense retrieval is not automatically better than
-lexical/source-bounded retrieval for generic ATCSCC CQs.
+token-budget controls, latency reporting, deterministic generated-answer
+evaluation over routed live retrieval contexts, and a small fixed-budget
+LLM-generated answer check. It also produces two negative/qualified results:
+graph context is not automatically better in the current scaffold, and dense
+retrieval is not automatically better than lexical/source-bounded retrieval for
+generic ATCSCC CQs.
 
 At the CQ answer-set layer, it proves that the gate can be evaluated over the
 existing queryability benchmark and preserves the current best S4 aggregate.
@@ -182,12 +224,12 @@ existing queryability benchmark and preserves the current best S4 aggregate.
 
 This does not yet prove:
 
-- graph superiority with online LLM generation;
+- graph superiority with broad online LLM generation;
+- human or domain-expert answer-quality certification;
 - operational decision-support readiness for live ATCSCC use.
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to replace the deterministic answer scaffold with a
-small, reproducible online/offline LLM answer-generation run over the same S7
-retrieved contexts, then judge unsupported claims and citation behavior with the
-same source-bounded labels.
+The next SOTA upgrade is to extend the fixed-budget LLM check by reporting
+metrics by CQ group, adding graph-health diagnostics by route, and adding
+human/manual review for the highest-impact answer failures.

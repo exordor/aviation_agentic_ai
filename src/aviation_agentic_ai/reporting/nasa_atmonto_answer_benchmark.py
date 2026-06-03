@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 from aviation_agentic_ai.paths import project_relative_path
@@ -35,9 +36,16 @@ def read_jsonl_objects(path: Path) -> list[dict[str, Any]]:
 
 def local_name(value: object) -> str:
     text = str(value or "").strip()
-    for separator in ("#", ":", "/"):
-        if separator in text:
-            text = text.rsplit(separator, 1)[1]
+    if "#" in text:
+        return text.rsplit("#", 1)[1]
+    if text.startswith("urn:") and ":" in text:
+        return text.rsplit(":", 1)[1]
+    if "/" in text and ("://" in text or text.startswith("urn:")):
+        return text.rstrip("/").rsplit("/", 1)[1]
+    if ":" in text:
+        prefix, suffix = text.rsplit(":", 1)
+        if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]*", prefix) and suffix:
+            return suffix
     return text
 
 

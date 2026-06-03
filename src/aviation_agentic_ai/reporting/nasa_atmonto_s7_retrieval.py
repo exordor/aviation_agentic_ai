@@ -783,7 +783,7 @@ def write_nasa_atmonto_s7_retrieval_markdown(result: dict[str, Any], output_path
         "",
         (
             "| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | "
-            "Abstention correct | Path support | Avg tokens | Target tokens | Avg latency ms |"
+            "Abstention correct | Path support | Avg context tokens | Target tokens | Avg latency ms |"
         ),
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
