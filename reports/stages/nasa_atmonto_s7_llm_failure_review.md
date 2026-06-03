@@ -45,7 +45,7 @@ The remaining failures are not retrieval misses. They are concentrated in
 
 | Current category | Current cases | Interpretation |
 | --- | ---: | --- |
-| Cause-condition over-answer | 3 | The LLM returns `impactingCondition` plus `impactingConditionMessage`, while the current label only accepts the literal message field. This should be reviewed as a profile/label-boundary case before changing the metric. |
+| Cause-condition over-answer | 3 | The LLM returns `impactingCondition` plus `impactingConditionMessage`, while the current label only accepts the literal message field. `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` classifies these as profile/gold-boundary cases without changing the strict metric. |
 
 The intermediate partial-answer ablation in
 `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md` tested the route
@@ -65,7 +65,9 @@ The current bounded LLM result supports a narrower claim:
 - controlled-element metadata artifacts should be filtered before graph/hybrid
   answer contexts because type labels are not NAS elements;
 - remaining cause-condition failures are useful evidence of over-answer risk,
-  not a reason to loosen the scoring metric without human review.
+  not a reason to loosen the scoring metric without human review;
+- deterministic candidate adjudication records the likely profile/gold boundary,
+  but it is not expert review and does not change the main S7 score.
 
 The result does not prove broad GraphRAG superiority or operational readiness.
 It is still a 60-case fixed-budget check over frozen S7 contexts.
@@ -74,7 +76,8 @@ It is still a 60-case fixed-budget check over frozen S7 contexts.
 
 Review rather than adding another prompt patch:
 
-1. Use `reports/stages/nasa_atmonto_s7_human_review_candidates.md` for a small
+1. Use `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
+   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` for a small
    human/expert review pass over failures plus coverage successes.
 2. Decide whether `impactingCondition` should be treated as a valid canonical
    answer when `impactingConditionMessage` is the only current gold label.

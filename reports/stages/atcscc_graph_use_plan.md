@@ -250,7 +250,10 @@ Manual failure review in
 `reports/stages/nasa_atmonto_s7_llm_failure_review.md` now records both the
 resolved retrieval/route-contract failures and the remaining cause-condition
 over-answer boundary. `reports/stages/nasa_atmonto_s7_human_review_candidates.md`
-packages these failures plus coverage successes for external review.
+packages these failures plus coverage successes for external review, and
+`reports/stages/nasa_atmonto_s7_candidate_adjudication.md` deterministically
+classifies the three failures as profile/gold-boundary cases without changing
+the strict main S7 metrics.
 
 ### Route-Semantics Partial-Answer Ablation
 
@@ -278,7 +281,8 @@ route evaluation, live lexical-vector retrieval, dense retrieval, graph
 path-support reporting, materialized graph traversal, tokenizer-backed
 token-budget controls, latency reporting, deterministic generated-answer
 evaluation over routed live retrieval contexts, graph-health diagnostics by CQ
-group, and a 60-case fixed-budget LLM-generated answer check. It also produces two
+group, a 60-case fixed-budget LLM-generated answer check, and candidate
+adjudication for the remaining failures. It also produces two
 qualified results:
 graph context is not automatically better in the current scaffold, and dense
 retrieval only becomes competitive after explicit source-local guarding for
@@ -297,8 +301,10 @@ This does not yet prove:
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to run the small human/expert review pass using
-`reports/stages/nasa_atmonto_s7_human_review_candidates.md`. Keep the
+The next SOTA upgrade is to turn the deterministic candidate adjudication into a
+reviewed profile/gold decision using
+`reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
+`reports/stages/nasa_atmonto_s7_candidate_adjudication.md`. Keep the
 partial-answer ablation as the provenance for why the route-semantics contract
-changed, and keep the remaining cause-condition failures as review targets
-rather than silently changing the metric.
+changed, and keep the cause-condition failures as review targets rather than
+silently changing the metric.

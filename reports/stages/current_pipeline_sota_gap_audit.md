@@ -40,7 +40,7 @@ bounded and does not replace expert review.
 | KG extraction systems | satisfied | S0/S1/S1b/S2/S3/S4 scoring in `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | no new gap for S0-S4 extraction | preserve S4 as current strongest system |
 | Profile-gap/rejection analysis | satisfied | 288 rejected facts adjudicated as extractor bugs or profile gaps | profile-gap explanations need thesis wording | summarize as application-profile boundary |
 | CQ answer-set queryability | satisfied for pre-generation | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | deterministic answer-set scoring is not natural-language answer quality | keep as graph/queryability layer |
-| Natural-language answer generation | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/nasa_atmonto_answer_generation.md`, 18-label pilot; `reports/stages/nasa_atmonto_s7_answer_generation.md`, 317-label S7 rerun; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`, 60-case fixed-budget LLM check; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md`; `reports/stages/nasa_atmonto_s7_human_review_candidates.md` | larger human answer labels and external review remain future work | keep deterministic S7 as reproducible thesis benchmark and LLM S7 as diagnostic supplement |
+| Natural-language answer generation | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/nasa_atmonto_answer_generation.md`, 18-label pilot; `reports/stages/nasa_atmonto_s7_answer_generation.md`, 317-label S7 rerun; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`, 60-case fixed-budget LLM check; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md`; `reports/stages/nasa_atmonto_s7_human_review_candidates.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` | larger human answer labels and external review remain future work | keep deterministic S7 as reproducible thesis benchmark and LLM S7 as diagnostic supplement |
 | Graph-use gate | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md` | broad LLM/human answer evaluation remains future work | report routed lexical and source-local guarded dense results conservatively |
 | Token-matched vector baseline | satisfied for deterministic S7 | `token_matched_vector_rag`; `token_matched_vector_proxy`; `token_matched_live_tfidf_vector`; `token_matched_dense_embedding_vector`; `routed_token_matched_live_tfidf_graphrag`; `routed_token_matched_dense_graphrag` | no current deterministic S7 gap | preserve token-matched comparisons in thesis tables |
 | Graph health/path support | mostly satisfied for S7 diagnostics | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` | graph health is diagnostic rather than semantic truth certification | preserve graph health by CQ group in thesis tables |
@@ -74,15 +74,17 @@ The strongest parts of the project are:
    context budgets, deterministic answer generation over live retrieved
    contexts, a 60-case fixed-budget LLM answer-generation check, a 4-case
    route-semantics partial-answer ablation, graph-health diagnostics by CQ
-   group, and a human-review candidate package. It still lacks externally
-   reviewed answer labels and a second-domain transfer run.
+   group, a human-review candidate package, and deterministic candidate
+   adjudication. It still lacks externally reviewed answer labels and a
+   second-domain transfer run.
 2. **Answer-generation evidence is source-bounded.** The 317-label S7 rerun is
    useful for a reproducible thesis benchmark, but it is not a broad human QA
    benchmark or an operational ATC evaluation.
 3. **Graph-path diagnostics are diagnostic, not semantic certification.** S7
    graph health now reports topology, graph-context availability, path support,
-   and answer-set recovery by CQ group, but these metrics do not prove semantic
-   truth or expert usefulness.
+   and answer-set recovery by CQ group, while candidate adjudication records
+   profile/gold-boundary failures. These metrics do not prove semantic truth or
+   expert usefulness.
 4. **The multi-agent method is not yet executable.** The contract exists, but
    the actual SRD/TIP/validation/evidence-critique/repair artifacts need to be
    produced and wired into runs.
@@ -119,10 +121,12 @@ That version is not supported because:
 
 ## Next Executable Experiment
 
-The next experiment should review and harden the scaled v3 S7 LLM check:
+The next experiment should convert the deterministic S7 adjudication into a
+reviewed profile/gold decision:
 
-1. Use `reports/stages/nasa_atmonto_s7_human_review_candidates.md` for a small
-   human/expert review pass over the 3 failures plus coverage successes.
+1. Use `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
+   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` for a small
+   human/supervisor review pass over the 3 failures plus coverage successes.
 2. Decide whether cause-condition labels should accept canonical
    `impactingCondition` values when the current benchmark only expects
    `impactingConditionMessage`.

@@ -28,11 +28,11 @@ source-bounded answer tests.
 | Evidence-grounded extraction | OBIE, claim KG, and GraphRAG evaluation practice | Every accepted fact has source ID and evidence span or explicit support record | `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied for scored extraction |
 | Schema validity separated from semantic correctness | KG quality and ontology evaluation practice | Report schema violations, semantic P/R/F1, evidence support, and profile gaps separately | `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied |
 | Multi-agent artifact pipeline | Multi-agent ontology-generation paper | Source brief, SRD, TIP, extraction plan, validation findings, evidence critique, repair plan, graph-use plan | `reports/stages/atcscc_agentic_artifact_contract.md` | planned, contract exists but artifacts are incomplete |
-| Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md` | mostly satisfied for deterministic S7 plus bounded LLM check; broad human/LLM answer evaluation remains future work |
+| Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, failure analysis, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` | mostly satisfied for deterministic S7 plus bounded LLM check; broad human/LLM answer evaluation remains future work |
 | Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Retrieval and answer-generation reports now include source/vector/token-matched-vector/live lexical-vector/dense-vector/source-local guarded dense/materialized graph/hybrid/routed modes, plus a 60-case fixed-budget LLM run over routed live/dense GraphRAG contexts | mostly satisfied for deterministic S7; bounded LLM evidence is diagnostic, not final |
 | Queryability rather than ontological purity | KG quality for RAG-oriented systems | CQ answer-set precision/recall/F1 by predicate and question type | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | satisfied for pre-generation answer sets |
 | Graph health and path support | GraphRAG pipeline evaluation | Node/edge coverage, component/connectivity diagnostics, path support rate for graph-worthy CQs | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` reports topology, graph-context availability, path support, answer recovery, and abstention behavior by CQ group | mostly satisfied as diagnostic graph-health evidence |
-| Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | mostly satisfied for deterministic S7 plus bounded LLM check; needs broader human/expert answer review |
+| Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, candidate adjudication, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | mostly satisfied for deterministic S7 plus bounded LLM check; needs broader human/expert answer review |
 | Cost and reproducibility reporting | Fair retrieval/GraphRAG benchmarking | Token budget, latency, deterministic source scope, frozen data version, rerunnable commands | frozen source/gold scope exists; S7 retrieval and answer-generation reports use tokenizer-backed token budgets and latency reporting | mostly satisfied for deterministic S7 |
 | Transferability to another domain | Domain-agnostic ontology/KG/GraphRAG methodology | Same artifact contract applied to a non-ATM corpus with only domain artifacts changed | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md` | planned |
 
@@ -73,6 +73,9 @@ The project is only partially SOTA-comparable at the **GraphRAG** layer:
   issue;
 - a human-review candidate package now exists for the remaining failures and
   coverage-success examples;
+- deterministic candidate adjudication classifies the three remaining
+  cause-condition failures as profile/gold-boundary cases without changing the
+  strict S7 metrics;
 - external human/expert answer review remains incomplete.
 
 The project is currently a planned, not completed, example of the **multi-agent
@@ -95,11 +98,12 @@ Use this wording in thesis or defense material:
 > group. The 60-case fixed-budget LLM check shows strong live lexical routed
 > behavior and a qualified source-local guarded dense result under the same
 > frozen context policy, with remaining failures concentrated in
-> cause-condition over-answer/profile-boundary cases. It does not claim live
+> cause-condition over-answer/profile-boundary cases that have been
+> deterministically adjudicated but not human-reviewed. It does not claim live
 > operational readiness, pure dense embedding superiority, or universal GraphRAG
 > superiority. The remaining SOTA gap is human/expert answer review and
 > second-domain transfer while preserving citation, unsupported-claim, token,
-> guard-rate, and latency reporting.
+> guard-rate, failure-adjudication, and latency reporting.
 
 Avoid these claims:
 
@@ -115,7 +119,8 @@ The next executable upgrade should target the remaining GraphRAG gaps in this
 order:
 
 1. Run the human/expert review pass using
-   `reports/stages/nasa_atmonto_s7_human_review_candidates.md`.
+   `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
+   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`.
 2. Keep graph-health, guard-rate, and LLM CQ-group breakdowns as the thesis-facing
    diagnostic tables.
 3. Decide whether cause-condition canonical labels should be part of the scored
