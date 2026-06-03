@@ -27,6 +27,9 @@ def main() -> int:
                 "automated_review_completed": result["metadata"][
                     "automated_review_completed"
                 ],
+                "automated_consistency_diagnostic_completed": result["metadata"][
+                    "automated_consistency_diagnostic_completed"
+                ],
             },
             indent=2,
         )

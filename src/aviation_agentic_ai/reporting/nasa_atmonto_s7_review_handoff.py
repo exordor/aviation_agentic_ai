@@ -46,9 +46,14 @@ ARTIFACTS: tuple[tuple[str, str, str], ...] = (
         "Reviewer procedure, fields, allowed values, and completion gate.",
     ),
     (
-        "automated_adversarial_review",
+        "automated_consistency_diagnostic",
         "reports/stages/nasa_atmonto_s7_automated_adversarial_review.md",
-        "Automated multi-role answer-layer evidence, citation, CQ, and profile audit.",
+        "Automated consistency diagnostic for answer-layer evidence, citation, CQ, and profile checks.",
+    ),
+    (
+        "reviewer_defense_audit",
+        "reports/stages/nasa_atmonto_reviewer_defense_audit.md",
+        "Reviewer-perspective claim-boundary and defensive experiment audit.",
     ),
     (
         "import_gate",
@@ -117,6 +122,9 @@ def build_nasa_atmonto_s7_review_handoff(
             "automated_review_completed": automated_review.get("metadata", {}).get(
                 "automated_review_completed"
             ),
+            "automated_consistency_diagnostic_completed": automated_review.get(
+                "metadata", {}
+            ).get("automated_consistency_diagnostic_completed"),
             "automated_review_accepted_case_count": automated_review.get(
                 "metadata", {}
             ).get("accepted_case_count"),
@@ -127,6 +135,13 @@ def build_nasa_atmonto_s7_review_handoff(
             "failed_completion_criteria": completion_gate.get("failed_criteria", []),
             "review_completion_mode": sota_audit.get("metadata", {}).get(
                 "s7_review_completion_mode"
+            ),
+            "completion_scope": sota_audit.get("metadata", {}).get("s7_completion_scope"),
+            "human_answer_review_completed": sota_audit.get("metadata", {}).get(
+                "s7_human_answer_review_completed"
+            ),
+            "expert_certification_completed": sota_audit.get("metadata", {}).get(
+                "s7_expert_certification_completed"
             ),
             "present_artifact_count": sum(1 for artifact in artifacts if artifact["present"]),
             "artifact_count": len(artifacts),
@@ -157,14 +172,18 @@ def build_nasa_atmonto_s7_review_handoff(
             {
                 "step": 4,
                 "action": (
-                    "Either validate and import the human/expert reviewed CSV, or run "
-                    "the automated adversarial review report for all 60 cases."
+                    "For internal diagnostics, run the automated consistency diagnostic "
+                    "for all 60 cases. For human/expert claims, validate and import the "
+                    "reviewed CSV."
                 ),
                 "artifact": "reports/stages/nasa_atmonto_s7_answer_review_import.md",
             },
             {
                 "step": 5,
-                "action": "Regenerate the SOTA audit and require the completion gate to pass.",
+                "action": (
+                    "Regenerate the SOTA audit and verify the intended claim scope "
+                    "instead of treating internal diagnostics as human review."
+                ),
                 "artifact": "reports/stages/nasa_atmonto_sota_goal_audit.md",
             },
         ],
@@ -180,18 +199,25 @@ def build_nasa_atmonto_s7_review_handoff(
                 "--import-if-valid"
             ),
             "refresh_sota_audit": "uv run python scripts/build_nasa_atmonto_sota_goal_audit.py",
-            "run_automated_adversarial_review": (
+            "run_automated_consistency_diagnostic": (
                 "uv run python scripts/build_nasa_atmonto_s7_automated_adversarial_review.py"
             ),
             "require_sota_complete": (
                 "uv run python scripts/build_nasa_atmonto_sota_goal_audit.py --require-complete"
+            ),
+            "require_human_review": (
+                "uv run python scripts/build_nasa_atmonto_sota_goal_audit.py --require-human-review"
+            ),
+            "build_reviewer_defense_audit": (
+                "uv run python scripts/build_nasa_atmonto_reviewer_defense_audit.py"
             ),
         },
         "claim_boundary": (
             "This handoff is a reviewer-facing work aid. It does not certify answer "
             "correctness, expert review, operational readiness, or SOTA completion. "
             "Human/expert claims remain blocked unless the reviewed CSV is validly "
-            "imported. Automated adversarial completion must be labelled separately."
+            "imported. Automated consistency diagnostics must be labelled separately "
+            "as internal error-discovery evidence."
         ),
     }
 
@@ -235,6 +261,10 @@ def write_nasa_atmonto_s7_review_handoff_markdown(
         f"- Automated review cases: {metadata['automated_review_case_count']}",
         f"- Automated review completed: `{metadata['automated_review_completed']}`",
         (
+            "- Automated consistency diagnostic completed: "
+            f"`{metadata['automated_consistency_diagnostic_completed']}`"
+        ),
+        (
             "- Automated review accepted/rejected cases: "
             f"{metadata['automated_review_accepted_case_count']}/"
             f"{metadata['automated_review_rejected_case_count']}"
@@ -242,6 +272,9 @@ def write_nasa_atmonto_s7_review_handoff_markdown(
         f"- SOTA completion gate passed: `{metadata['completion_gate_passed']}`",
         f"- Failed completion criteria: `{metadata['failed_completion_criteria']}`",
         f"- S7 review completion mode: `{metadata['review_completion_mode']}`",
+        f"- S7 completion scope: `{metadata['completion_scope']}`",
+        f"- Human answer review completed: `{metadata['human_answer_review_completed']}`",
+        f"- Expert certification completed: `{metadata['expert_certification_completed']}`",
         "",
         "## Artifact Checklist",
         "",
@@ -262,10 +295,10 @@ def write_nasa_atmonto_s7_review_handoff_markdown(
         lines.append(f"- {label}: `{command}`")
     lines.extend(["", "## Completion Rule", ""])
     lines.append(
-        "S7 answer-layer review can complete through either a 60-case human/expert "
-        "CSV path or a 60-case automated adversarial path. The SOTA audit "
-        "`--require-complete` command must exit 0, and the completion mode must "
-        "remain visible in the report."
+        "The `--require-complete` command checks the internal diagnostic package. "
+        "Human/expert answer-quality claims require the separate `--require-human-review` "
+        "gate and a valid reviewed CSV import. Automated consistency diagnostics "
+        "must not be described as human review or external expert certification."
     )
     lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")

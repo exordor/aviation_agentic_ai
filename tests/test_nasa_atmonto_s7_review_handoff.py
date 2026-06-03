@@ -62,12 +62,17 @@ def _write_fixture_reports(tmp_path: Path) -> None:
     _write_json(
         tmp_path / "reports/stages/nasa_atmonto_sota_goal_audit.json",
         {
-            "metadata": {"s7_review_completion_mode": "none"},
+            "metadata": {
+                "s7_review_completion_mode": "none",
+                "s7_completion_scope": "pending",
+                "s7_human_answer_review_completed": False,
+                "s7_expert_certification_completed": False,
+            },
             "completion_gate": {
                 "passed": False,
                 "failed_criteria": [
                     "no_remaining_blockers",
-                    "s7_answer_review_completed",
+                    "s7_internal_answer_diagnostic_completed",
                 ],
             },
         },
@@ -89,10 +94,13 @@ def test_s7_review_handoff_summarizes_pending_review_state(tmp_path: Path) -> No
     assert result["metadata"]["pending_case_count"] == 60
     assert result["metadata"]["automated_review_status"] is None
     assert result["metadata"]["review_completion_mode"] == "none"
+    assert result["metadata"]["completion_scope"] == "pending"
+    assert result["metadata"]["human_answer_review_completed"] is False
+    assert result["metadata"]["expert_certification_completed"] is False
     assert result["metadata"]["completion_gate_passed"] is False
     assert result["metadata"]["failed_completion_criteria"] == [
         "no_remaining_blockers",
-        "s7_answer_review_completed",
+        "s7_internal_answer_diagnostic_completed",
     ]
     assert result["metadata"]["present_artifact_count"] == result["metadata"]["artifact_count"]
     assert all(artifact["present"] for artifact in result["artifacts"])
@@ -115,5 +123,6 @@ def test_write_s7_review_handoff_outputs_json_and_markdown(tmp_path: Path) -> No
     assert "reports/stages/nasa_atmonto_s7_answer_review_worksheet.html" in markdown
     assert "failure-priority cases first" in markdown
     assert "build_nasa_atmonto_sota_goal_audit.py --require-complete" in markdown
+    assert "build_nasa_atmonto_sota_goal_audit.py --require-human-review" in markdown
     assert "This handoff is a reviewer-facing work aid" in markdown
-    assert "automated adversarial path" in markdown
+    assert "Automated consistency diagnostics" in markdown

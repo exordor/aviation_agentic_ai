@@ -15,7 +15,7 @@ ROLE_IDS = (
     "citation_auditor",
     "cq_contract_validator",
     "ontology_profile_validator",
-    "adversarial_critic",
+    "consistency_critic",
 )
 
 
@@ -37,15 +37,16 @@ def build_nasa_atmonto_s7_automated_adversarial_review(
     return {
         "source_family": "nasa_atmonto_s7_automated_adversarial_review",
         "status": (
-            "automated_adversarial_review_completed"
+            "automated_consistency_diagnostic_completed"
             if completed
-            else "automated_adversarial_review_incomplete"
+            else "automated_consistency_diagnostic_incomplete"
         ),
         "metadata": {
             "packet_path": project_relative_path(source, root),
             "expected_case_count": expected_case_count,
             "reviewed_case_count": case_count,
             "automated_review_completed": completed,
+            "automated_consistency_diagnostic_completed": completed,
             "role_count": len(ROLE_IDS),
             "role_ids": list(ROLE_IDS),
             "human_review_completed": False,
@@ -59,10 +60,10 @@ def build_nasa_atmonto_s7_automated_adversarial_review(
         },
         "case_reviews": reviewed_cases,
         "claim_boundary": (
-            "This is an automated multi-angle adversarial review. It can replace the "
-            "manual review workflow as an automated reviewer path for experiment "
-            "execution, but it is not human review, external expert certification, "
-            "or operational decision support."
+            "This is an automated multi-angle consistency diagnostic over the S7 "
+            "answer-review packet. It is useful as an internal error-discovery and "
+            "claim-boundary check, but it cannot replace human answer review, "
+            "external expert certification, or operational decision support."
         ),
     }
 
@@ -82,7 +83,7 @@ def write_nasa_atmonto_s7_automated_adversarial_review_markdown(
     path.parent.mkdir(parents=True, exist_ok=True)
     metadata = result["metadata"]
     lines = [
-        "# NASA ATMONTO S7 Automated Adversarial Review",
+        "# NASA ATMONTO S7 Automated Consistency Diagnostic",
         "",
         "## Boundary",
         "",
@@ -95,7 +96,11 @@ def write_nasa_atmonto_s7_automated_adversarial_review_markdown(
         f"- Expected cases: {metadata['expected_case_count']}",
         f"- Reviewed cases: {metadata['reviewed_case_count']}",
         f"- Automated review completed: `{metadata['automated_review_completed']}`",
-        f"- Reviewer roles: `{metadata['role_ids']}`",
+        (
+            "- Automated consistency diagnostic completed: "
+            f"`{metadata['automated_consistency_diagnostic_completed']}`"
+        ),
+        f"- Diagnostic check modules: `{metadata['role_ids']}`",
         f"- Human review completed: `{metadata['human_review_completed']}`",
         f"- External expert certified: `{metadata['external_expert_certified']}`",
         f"- Unresolved conflicts: {metadata['unresolved_conflict_count']}",
@@ -105,15 +110,15 @@ def write_nasa_atmonto_s7_automated_adversarial_review_markdown(
         f"- Verdict counts: `{metadata['verdict_counts']}`",
         f"- Role fail counts: `{metadata['role_fail_counts']}`",
         "",
-        "## Role Checks",
+        "## Diagnostic Checks",
         "",
-        "| Role | Check |",
+        "| Check module | Rule |",
         "| --- | --- |",
         "| `evidence_verifier` | Evidence faithfulness is true and unsupported claim rate is zero. |",
         "| `citation_auditor` | Citation precision is exact and at least one valid citation is detected. |",
         "| `cq_contract_validator` | Answer values match the CQ expected answer set and abstention is correct. |",
         "| `ontology_profile_validator` | Returned predicates stay inside the expected profile predicate set. |",
-        "| `adversarial_critic` | Flags any case rejected by a preceding role. |",
+        "| `consistency_critic` | Flags any case rejected by a preceding module. |",
         "",
         "## Flagged Or Rejected Cases",
         "",
@@ -256,7 +261,7 @@ def _ontology_profile_review(case: dict[str, Any]) -> dict[str, Any]:
 def _critic_review(role_reviews: list[dict[str, Any]]) -> dict[str, Any]:
     failed_roles = [role["role"] for role in role_reviews if role["verdict"] != "pass"]
     return {
-        "role": "adversarial_critic",
+        "role": "consistency_critic",
         "verdict": "fail" if failed_roles else "pass",
         "reason": (
             f"critic escalated failed roles: {failed_roles}"

@@ -103,21 +103,28 @@ def test_sota_goal_audit_maps_requirements_to_present_evidence(tmp_path: Path) -
     assert result["metadata"]["s7_answer_review_human_completed"] is False
     assert result["metadata"]["s7_automated_adversarial_review_status"] is None
     assert result["metadata"]["s7_automated_adversarial_review_completed"] is False
+    assert result["metadata"]["s7_automated_consistency_diagnostic_completed"] is False
     assert result["metadata"]["s7_review_completion_mode"] == "none"
+    assert result["metadata"]["s7_completion_scope"] == "pending"
     assert result["metadata"]["s7_answer_review_completed"] is False
+    assert result["metadata"]["s7_expert_certification_completed"] is False
     assert result["metadata"]["second_domain_transfer_status"] == "second_domain_transfer_pilot_created"
     assert result["metadata"]["second_domain_transfer_domain"] == "NASA Beginner's Guide to Aerodynamics"
     assert result["metadata"]["status_counts"]["satisfied"] == 5
     assert result["metadata"]["status_counts"]["mostly_satisfied"] == 4
     assert "partial" not in result["metadata"]["status_counts"]
     assert all(item["missing_evidence"] == [] for item in result["requirements"])
-    assert "Neither external human/expert answer review" in result["remaining_blockers"][0]
+    assert "Neither human answer review nor automated consistency diagnostic" in (
+        result["remaining_blockers"][0]
+    )
     assert len(result["remaining_blockers"]) == 1
     assert result["completion_gate"]["passed"] is False
     assert result["completion_gate"]["failed_criteria"] == [
         "no_remaining_blockers",
-        "s7_answer_review_completed",
+        "s7_internal_answer_diagnostic_completed",
     ]
+    assert result["claim_scope_gates"][2]["id"] == "human_answer_quality_review"
+    assert result["claim_scope_gates"][2]["passed"] is False
 
 
 def test_write_sota_goal_audit_outputs_json_and_markdown(tmp_path: Path) -> None:
@@ -140,10 +147,12 @@ def test_write_sota_goal_audit_outputs_json_and_markdown(tmp_path: Path) -> None
     assert "S7 broad review packet cases: 60" in markdown
     assert "S7 answer review decision status: `s7_answer_review_decisions_pending`" in markdown
     assert "S7 review completion mode: `none`" in markdown
+    assert "S7 completion scope: `pending`" in markdown
     assert "Completion gate passed: `False`" in markdown
-    assert "s7_answer_review_completed" in markdown
+    assert "s7_internal_answer_diagnostic_completed" in markdown
+    assert "Claim Scope Gates" in markdown
     assert "Second-domain transfer status: `second_domain_transfer_pilot_created`" in markdown
-    assert "Neither external human/expert answer review" in markdown
+    assert "Neither human answer review nor automated consistency diagnostic" in markdown
 
 
 def test_sota_goal_completion_gate_passes_when_review_decisions_are_complete(
@@ -153,13 +162,17 @@ def test_sota_goal_completion_gate_passes_when_review_decisions_are_complete(
 
     result = build_nasa_atmonto_sota_goal_audit(repo_root=tmp_path)
 
-    assert result["completion_claim"] == "sota_goal_completed_human_reviewed"
+    assert (
+        result["completion_claim"]
+        == "sota_comparable_retrospective_case_study_human_reviewed"
+    )
     assert result["remaining_blockers"] == []
     assert result["completion_gate"]["passed"] is True
     assert result["completion_gate"]["failed_criteria"] == []
     assert result["metadata"]["s7_answer_review_completed_case_count"] == 60
     assert result["metadata"]["s7_answer_review_human_completed"] is True
     assert result["metadata"]["s7_review_completion_mode"] == "human"
+    assert result["metadata"]["s7_completion_scope"] == "human_review"
     assert result["metadata"]["s7_answer_review_completed"] is True
 
 
@@ -170,10 +183,11 @@ def test_sota_goal_completion_gate_passes_when_automated_review_is_complete(
     _write_json(
         tmp_path / "reports/stages/nasa_atmonto_s7_automated_adversarial_review.json",
         {
-            "status": "automated_adversarial_review_completed",
+            "status": "automated_consistency_diagnostic_completed",
             "metadata": {
                 "reviewed_case_count": 60,
                 "automated_review_completed": True,
+                "automated_consistency_diagnostic_completed": True,
                 "human_review_completed": False,
                 "external_expert_certified": False,
                 "unresolved_conflict_count": 0,
@@ -185,11 +199,18 @@ def test_sota_goal_completion_gate_passes_when_automated_review_is_complete(
 
     result = build_nasa_atmonto_sota_goal_audit(repo_root=tmp_path)
 
-    assert result["completion_claim"] == "sota_goal_completed_automated_adversarial_reviewed"
+    assert result["completion_claim"] == "internal_diagnostic_package_complete"
     assert result["remaining_blockers"] == []
     assert result["completion_gate"]["passed"] is True
     assert result["completion_gate"]["failed_criteria"] == []
     assert result["metadata"]["s7_answer_review_human_completed"] is False
     assert result["metadata"]["s7_automated_adversarial_review_completed"] is True
-    assert result["metadata"]["s7_review_completion_mode"] == "automated_adversarial"
-    assert result["metadata"]["s7_answer_review_completed"] is True
+    assert result["metadata"]["s7_automated_consistency_diagnostic_completed"] is True
+    assert result["metadata"]["s7_review_completion_mode"] == "automated_diagnostic"
+    assert result["metadata"]["s7_completion_scope"] == "internal_diagnostic"
+    assert result["metadata"]["s7_answer_review_completed"] is False
+    assert result["metadata"]["s7_expert_certification_completed"] is False
+    assert result["claim_scope_gates"][0]["id"] == "internal_diagnostic_package"
+    assert result["claim_scope_gates"][0]["passed"] is True
+    assert result["claim_scope_gates"][2]["id"] == "human_answer_quality_review"
+    assert result["claim_scope_gates"][2]["passed"] is False

@@ -2,7 +2,7 @@
 
 ## Completion Claim
 
-- Goal status: `sota_goal_completed_automated_adversarial_reviewed`
+- Goal status: `internal_diagnostic_package_complete`
 - Requirement count: 9
 - Status counts: `mostly_satisfied`=4, `satisfied`=5
 - Formal scoring status: `scored`
@@ -16,12 +16,15 @@
 - S7 answer review decision status: `s7_answer_review_decisions_pending`
 - S7 answer review completed cases: 0
 - S7 answer review human completed: `False`
-- S7 automated adversarial review status: `automated_adversarial_review_completed`
-- S7 automated adversarial review cases: 60
-- S7 automated adversarial review completed: `True`
-- S7 automated adversarial review accepted/rejected cases: 57/3
-- S7 review completion mode: `automated_adversarial`
-- S7 answer-review completed: `True`
+- S7 automated consistency diagnostic status: `automated_consistency_diagnostic_completed`
+- S7 automated consistency diagnostic cases: 60
+- S7 automated consistency diagnostic legacy-completed flag: `True`
+- S7 automated consistency diagnostic completed: `True`
+- S7 automated consistency diagnostic accepted/rejected cases: 57/3
+- S7 review completion mode: `automated_diagnostic`
+- S7 completion scope: `internal_diagnostic`
+- S7 answer-review completed: `False`
+- S7 expert certification completed: `False`
 - Second-domain transfer status: `second_domain_transfer_pilot_created`
 - Second-domain transfer domain: NASA Beginner's Guide to Aerodynamics
 - Completion gate passed: `True`
@@ -36,8 +39,8 @@
 | `R4` | `satisfied` | Ontology-guided KG extraction is scored with schema and semantic layers separated. | 3/3 | S4 is the current strongest scored extraction system; not all LLM systems perform well. |
 | `R5` | `satisfied` | Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics. | 6/6 | Live S5/S6 evidence is still extraction-layer evidence; answer-layer review and cross-domain transfer remain separate claims. |
 | `R6` | `mostly_satisfied` | Graph-use gate, token-matched retrieval, and graph health are evaluated. | 3/3 | Graph health is diagnostic evidence, not certification of semantic truth. |
-| `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 11/11 | A broad 60-case reviewer packet, worksheet, protocol, handoff, automated adversarial review, import status, and decision-status report exist. The automated path is not human or expert review. |
-| `R8` | `mostly_satisfied` | Completeness, correctness, limitations, and story claims are thesis-ready. | 3/3 | The final thesis should keep the claim wording profile-relative and retrospective. |
+| `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 11/11 | A broad 60-case reviewer packet, worksheet, protocol, handoff, automated consistency diagnostic, import status, and decision-status report exist. The automated diagnostic path is not human or expert review. |
+| `R8` | `mostly_satisfied` | Completeness, correctness, limitations, and story claims are thesis-ready. | 4/4 | The final thesis should keep the claim wording profile-relative and retrospective. |
 | `R9` | `mostly_satisfied` | The method can be described as domain-independent and transferable. | 3/3 | A bounded NASA BGA second-source-family pilot exists, but it is concept-centric, seed-labelled, and not a full cross-domain GraphRAG answer-generation benchmark. |
 
 ## Evidence Index
@@ -92,6 +95,7 @@
 - `present` `reports/stages/current_pipeline_sota_gap_audit.md`
 - `present` `reports/stages/thesis_experiment_dashboard.md`
 - `present` `reports/stages/nasa_atmonto_experiment_chapter_draft.md`
+- `present` `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 
 ### R9: The method can be described as domain-independent and transferable.
 - `present` `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md`
@@ -109,10 +113,20 @@
 | `live_s5_s6_full_run_scored` | `True` | `s5_s6_live_agentic_full_run_scored` | s5_s6_live_agentic_full_run_scored |
 | `s7_llm_answer_generation_evaluated` | `True` | `s7_llm_answer_generation_evaluated` | s7_llm_answer_generation_evaluated |
 | `s7_broad_review_packet_60_cases` | `True` | `broad_answer_review_packet_created` with 60 cases | status=broad_answer_review_packet_created, case_count=60 |
-| `s7_answer_review_completed` | `True` | human review completed OR automated adversarial review completed | human_status=s7_answer_review_decisions_pending, human_completed_case_count=0, human_review_completed=False, automated_status=automated_adversarial_review_completed, automated_case_count=60, automated_review_completed=True, review_completion_mode=automated_adversarial |
+| `s7_internal_answer_diagnostic_completed` | `True` | human review completed OR automated consistency diagnostic completed | human_status=s7_answer_review_decisions_pending, human_completed_case_count=0, human_review_completed=False, automated_status=automated_consistency_diagnostic_completed, automated_case_count=60, automated_diagnostic_completed=True, review_completion_mode=automated_diagnostic |
 | `second_domain_transfer_pilot_created` | `True` | `second_domain_transfer_pilot_created` | second_domain_transfer_pilot_created |
 
 - Failed criteria: none
+
+## Claim Scope Gates
+
+| Claim scope | Passed | Status | Blocked by |
+| --- | --- | --- | --- |
+| `internal_diagnostic_package` | `True` | Complete for internal thesis diagnostics. | none |
+| `retrospective_sota_comparable_case_study` | `True` | Defensible only as a source-bounded retrospective case study. | none |
+| `human_answer_quality_review` | `False` | Human answer review remains incomplete. | reviewed S7 answer CSV is not complete |
+| `external_expert_certification` | `False` | External aviation/domain expert certification remains incomplete. | no external expert certification artifact |
+| `operational_decision_support` | `False` | Out of scope: retrospective educational/research evaluation only. | no live operational validation, not an FAA/ATC decision-support system |
 
 ## Remaining Blockers
 
@@ -120,4 +134,4 @@
 
 ## Claim-Safe Summary
 
-The current project is SOTA-comparable as a layered retrospective ATCSCC case study. If completed through the automated adversarial path, the answer-review layer is model-based diagnostic evidence, not human or external expert certification.
+The current project is defensible as a layered retrospective ATCSCC case study with an internal automated consistency diagnostic. The strongest claims are profile-relative structural conformance, evidence traceability, retrieval/answer diagnostics, and abstention behavior. It is not human answer review, external expert certification, domain-general proof, or operational aviation decision support.

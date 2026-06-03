@@ -61,6 +61,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - ATCSCC event-centric extraction framing: `reports/stages/atcscc_event_centric_extraction_framing.md`
 - SOTA comparison matrix for ATCSCC / NASA ATMONTO: `reports/stages/sota_comparison_matrix.md`
 - Current pipeline SOTA gap audit: `reports/stages/current_pipeline_sota_gap_audit.md`
+- NASA ATMONTO reviewer defense audit: `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 - NASA ATMONTO agentic extraction-validation loop: `reports/stages/nasa_atmonto_agentic_loop.md`
 - ATCSCC source brief: `reports/stages/atcscc_source_brief.md`
 - ATCSCC semantic requirements: `reports/stages/atcscc_semantic_requirements.md`

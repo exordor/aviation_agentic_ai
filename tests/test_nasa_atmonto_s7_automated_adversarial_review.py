@@ -59,8 +59,9 @@ def test_automated_adversarial_review_scores_role_verdicts(tmp_path: Path) -> No
 
     result = build_nasa_atmonto_s7_automated_adversarial_review(repo_root=tmp_path)
 
-    assert result["status"] == "automated_adversarial_review_completed"
+    assert result["status"] == "automated_consistency_diagnostic_completed"
     assert result["metadata"]["automated_review_completed"] is True
+    assert result["metadata"]["automated_consistency_diagnostic_completed"] is True
     assert result["metadata"]["human_review_completed"] is False
     assert result["metadata"]["external_expert_certified"] is False
     assert result["metadata"]["accepted_case_count"] == 1
@@ -76,7 +77,7 @@ def test_automated_adversarial_review_scores_role_verdicts(tmp_path: Path) -> No
         "evidence_verifier",
         "cq_contract_validator",
         "ontology_profile_validator",
-        "adversarial_critic",
+        "consistency_critic",
     }
 
 
@@ -93,8 +94,8 @@ def test_write_automated_adversarial_review_outputs_reports(tmp_path: Path) -> N
 
     assert json_path.exists()
     assert md_path.exists()
-    assert result["status"] == "automated_adversarial_review_completed"
+    assert result["status"] == "automated_consistency_diagnostic_completed"
     markdown = md_path.read_text(encoding="utf-8")
-    assert "NASA ATMONTO S7 Automated Adversarial Review" in markdown
-    assert "not human review" in markdown
+    assert "NASA ATMONTO S7 Automated Consistency Diagnostic" in markdown
+    assert "cannot replace human answer review" in markdown
     assert "S7-BR-002" in markdown

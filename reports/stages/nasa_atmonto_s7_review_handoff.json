@@ -14,16 +14,20 @@
     "pending_case_count": 60,
     "invalid_case_count": 0,
     "human_review_completed": false,
-    "automated_review_status": "automated_adversarial_review_completed",
+    "automated_review_status": "automated_consistency_diagnostic_completed",
     "automated_review_case_count": 60,
     "automated_review_completed": true,
+    "automated_consistency_diagnostic_completed": true,
     "automated_review_accepted_case_count": 57,
     "automated_review_rejected_case_count": 3,
     "completion_gate_passed": true,
     "failed_completion_criteria": [],
-    "review_completion_mode": "automated_adversarial",
-    "present_artifact_count": 11,
-    "artifact_count": 11
+    "review_completion_mode": "automated_diagnostic",
+    "completion_scope": "internal_diagnostic",
+    "human_answer_review_completed": false,
+    "expert_certification_completed": false,
+    "present_artifact_count": 12,
+    "artifact_count": 12
   },
   "artifacts": [
     {
@@ -69,10 +73,16 @@
       "purpose": "Reviewer procedure, fields, allowed values, and completion gate."
     },
     {
-      "label": "automated_adversarial_review",
+      "label": "automated_consistency_diagnostic",
       "path": "reports/stages/nasa_atmonto_s7_automated_adversarial_review.md",
       "present": true,
-      "purpose": "Automated multi-role answer-layer evidence, citation, CQ, and profile audit."
+      "purpose": "Automated consistency diagnostic for answer-layer evidence, citation, CQ, and profile checks."
+    },
+    {
+      "label": "reviewer_defense_audit",
+      "path": "reports/stages/nasa_atmonto_reviewer_defense_audit.md",
+      "present": true,
+      "purpose": "Reviewer-perspective claim-boundary and defensive experiment audit."
     },
     {
       "label": "import_gate",
@@ -111,12 +121,12 @@
     },
     {
       "step": 4,
-      "action": "Either validate and import the human/expert reviewed CSV, or run the automated adversarial review report for all 60 cases.",
+      "action": "For internal diagnostics, run the automated consistency diagnostic for all 60 cases. For human/expert claims, validate and import the reviewed CSV.",
       "artifact": "reports/stages/nasa_atmonto_s7_answer_review_import.md"
     },
     {
       "step": 5,
-      "action": "Regenerate the SOTA audit and require the completion gate to pass.",
+      "action": "Regenerate the SOTA audit and verify the intended claim scope instead of treating internal diagnostics as human review.",
       "artifact": "reports/stages/nasa_atmonto_sota_goal_audit.md"
     }
   ],
@@ -125,8 +135,10 @@
     "validate_reviewed_csv": "uv run python scripts/build_nasa_atmonto_s7_answer_review_decisions.py --review-csv reports/stages/nasa_atmonto_s7_broad_answer_review_packet.reviewed.csv",
     "import_reviewed_csv": "uv run python scripts/import_nasa_atmonto_s7_reviewed_csv.py reports/stages/nasa_atmonto_s7_broad_answer_review_packet.reviewed.csv --import-if-valid",
     "refresh_sota_audit": "uv run python scripts/build_nasa_atmonto_sota_goal_audit.py",
-    "run_automated_adversarial_review": "uv run python scripts/build_nasa_atmonto_s7_automated_adversarial_review.py",
-    "require_sota_complete": "uv run python scripts/build_nasa_atmonto_sota_goal_audit.py --require-complete"
+    "run_automated_consistency_diagnostic": "uv run python scripts/build_nasa_atmonto_s7_automated_adversarial_review.py",
+    "require_sota_complete": "uv run python scripts/build_nasa_atmonto_sota_goal_audit.py --require-complete",
+    "require_human_review": "uv run python scripts/build_nasa_atmonto_sota_goal_audit.py --require-human-review",
+    "build_reviewer_defense_audit": "uv run python scripts/build_nasa_atmonto_reviewer_defense_audit.py"
   },
-  "claim_boundary": "This handoff is a reviewer-facing work aid. It does not certify answer correctness, expert review, operational readiness, or SOTA completion. Human/expert claims remain blocked unless the reviewed CSV is validly imported. Automated adversarial completion must be labelled separately."
+  "claim_boundary": "This handoff is a reviewer-facing work aid. It does not certify answer correctness, expert review, operational readiness, or SOTA completion. Human/expert claims remain blocked unless the reviewed CSV is validly imported. Automated consistency diagnostics must be labelled separately as internal error-discovery evidence."
 }

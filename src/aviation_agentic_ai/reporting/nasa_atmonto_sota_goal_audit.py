@@ -101,8 +101,8 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
         ],
         "limitation": (
             "A broad 60-case reviewer packet, worksheet, protocol, handoff, "
-            "automated adversarial review, import status, and decision-status "
-            "report exist. The automated path is not human or expert review."
+            "automated consistency diagnostic, import status, and decision-status "
+            "report exist. The automated diagnostic path is not human or expert review."
         ),
     },
     {
@@ -113,6 +113,7 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
             "reports/stages/current_pipeline_sota_gap_audit.md",
             "reports/stages/thesis_experiment_dashboard.md",
             "reports/stages/nasa_atmonto_experiment_chapter_draft.md",
+            "reports/stages/nasa_atmonto_reviewer_defense_audit.md",
         ],
         "limitation": "The final thesis should keep the claim wording profile-relative and retrospective.",
     },
@@ -175,6 +176,7 @@ def build_nasa_atmonto_sota_goal_audit(
     )
     s7_human_review_completed = _s7_human_review_completed(s7_review_decisions)
     s7_automated_review_completed = _s7_automated_review_completed(s7_automated_review)
+    s7_expert_certification_completed = False
     s7_review_completion_mode = _s7_review_completion_mode(
         human_completed=s7_human_review_completed,
         automated_completed=s7_automated_review_completed,
@@ -197,11 +199,13 @@ def build_nasa_atmonto_sota_goal_audit(
         "s7_answer_review_human_completed": s7_review_decisions.get("metadata", {}).get(
             "human_review_completed"
         ),
+        "s7_human_answer_review_completed": s7_human_review_completed,
         "s7_automated_adversarial_review_status": s7_automated_review.get("status"),
         "s7_automated_adversarial_review_case_count": s7_automated_review.get(
             "metadata", {}
         ).get("reviewed_case_count"),
         "s7_automated_adversarial_review_completed": s7_automated_review_completed,
+        "s7_automated_consistency_diagnostic_completed": s7_automated_review_completed,
         "s7_automated_adversarial_review_accepted_case_count": s7_automated_review.get(
             "metadata", {}
         ).get("accepted_case_count"),
@@ -209,9 +213,9 @@ def build_nasa_atmonto_sota_goal_audit(
             "metadata", {}
         ).get("rejected_case_count"),
         "s7_review_completion_mode": s7_review_completion_mode,
-        "s7_answer_review_completed": (
-            s7_human_review_completed or s7_automated_review_completed
-        ),
+        "s7_completion_scope": _s7_completion_scope(s7_review_completion_mode),
+        "s7_answer_review_completed": s7_human_review_completed,
+        "s7_expert_certification_completed": s7_expert_certification_completed,
         "second_domain_transfer_status": second_domain_transfer.get("status"),
         "second_domain_transfer_domain": second_domain_transfer.get("metadata", {}).get(
             "transfer_domain"
@@ -219,6 +223,7 @@ def build_nasa_atmonto_sota_goal_audit(
     }
     completion_gate = _completion_gate(requirements, metadata, remaining_blockers)
     completion_claim = _completion_claim(completion_gate, s7_review_completion_mode)
+    claim_scope_gates = _claim_scope_gates(completion_gate, metadata, remaining_blockers)
     return {
         "source_family": "nasa_atmonto_sota_goal_audit",
         "status": "sota_goal_audit_created",
@@ -227,11 +232,14 @@ def build_nasa_atmonto_sota_goal_audit(
         "requirements": requirements,
         "remaining_blockers": remaining_blockers,
         "completion_gate": completion_gate,
+        "claim_scope_gates": claim_scope_gates,
         "claim_safe_summary": (
-            "The current project is SOTA-comparable as a layered retrospective ATCSCC "
-            "case study. If completed through the automated adversarial path, the "
-            "answer-review layer is model-based diagnostic evidence, not human or "
-            "external expert certification."
+            "The current project is defensible as a layered retrospective ATCSCC "
+            "case study with an internal automated consistency diagnostic. The "
+            "strongest claims are profile-relative structural conformance, evidence "
+            "traceability, retrieval/answer diagnostics, and abstention behavior. "
+            "It is not human answer review, external expert certification, domain-general "
+            "proof, or operational aviation decision support."
         ),
     }
 
@@ -269,24 +277,30 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- S7 answer review completed cases: {result['metadata']['s7_answer_review_completed_case_count']}",
         f"- S7 answer review human completed: `{result['metadata']['s7_answer_review_human_completed']}`",
         (
-            "- S7 automated adversarial review status: "
+            "- S7 automated consistency diagnostic status: "
             f"`{result['metadata']['s7_automated_adversarial_review_status']}`"
         ),
         (
-            "- S7 automated adversarial review cases: "
+            "- S7 automated consistency diagnostic cases: "
             f"{result['metadata']['s7_automated_adversarial_review_case_count']}"
         ),
         (
-            "- S7 automated adversarial review completed: "
+            "- S7 automated consistency diagnostic legacy-completed flag: "
             f"`{result['metadata']['s7_automated_adversarial_review_completed']}`"
         ),
         (
-            "- S7 automated adversarial review accepted/rejected cases: "
+            "- S7 automated consistency diagnostic completed: "
+            f"`{result['metadata']['s7_automated_consistency_diagnostic_completed']}`"
+        ),
+        (
+            "- S7 automated consistency diagnostic accepted/rejected cases: "
             f"{result['metadata']['s7_automated_adversarial_review_accepted_case_count']}/"
             f"{result['metadata']['s7_automated_adversarial_review_rejected_case_count']}"
         ),
         f"- S7 review completion mode: `{result['metadata']['s7_review_completion_mode']}`",
+        f"- S7 completion scope: `{result['metadata']['s7_completion_scope']}`",
         f"- S7 answer-review completed: `{result['metadata']['s7_answer_review_completed']}`",
+        f"- S7 expert certification completed: `{result['metadata']['s7_expert_certification_completed']}`",
         f"- Second-domain transfer status: `{result['metadata']['second_domain_transfer_status']}`",
         f"- Second-domain transfer domain: {result['metadata']['second_domain_transfer_domain']}",
         f"- Completion gate passed: `{result['completion_gate']['passed']}`",
@@ -332,6 +346,18 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         lines.append(f"- Failed criteria: {failed}")
     else:
         lines.append("- Failed criteria: none")
+    lines.extend(["", "## Claim Scope Gates", ""])
+    lines.extend(
+        [
+            "| Claim scope | Passed | Status | Blocked by |",
+            "| --- | --- | --- | --- |",
+        ]
+    )
+    for gate in result["claim_scope_gates"]:
+        blocked_by = ", ".join(gate["blocked_by"]) if gate["blocked_by"] else "none"
+        lines.append(
+            f"| `{gate['id']}` | `{gate['passed']}` | {gate['status']} | {blocked_by} |"
+        )
     lines.extend(["", "## Remaining Blockers", ""])
     if result["remaining_blockers"]:
         lines.extend(f"- {blocker}" for blocker in result["remaining_blockers"])
@@ -388,8 +414,8 @@ def _remaining_blockers(
         or _s7_automated_review_completed(s7_automated_review)
     ):
         blockers.append(
-            "Neither external human/expert answer review nor automated adversarial "
-            "answer review is complete."
+            "Neither human answer review nor automated consistency diagnostic answer "
+            "audit is complete."
         )
     if second_domain_transfer.get("status") != "second_domain_transfer_pilot_created":
         blockers.append("Second-domain transfer is not yet executed.")
@@ -407,10 +433,18 @@ def _s7_human_review_completed(s7_review_decisions: dict[str, Any]) -> bool:
 
 def _s7_automated_review_completed(s7_automated_review: dict[str, Any]) -> bool:
     metadata = s7_automated_review.get("metadata", {})
+    status = s7_automated_review.get("status")
     return (
-        s7_automated_review.get("status") == "automated_adversarial_review_completed"
+        status
+        in {
+            "automated_adversarial_review_completed",
+            "automated_consistency_diagnostic_completed",
+        }
         and metadata.get("reviewed_case_count") == 60
-        and metadata.get("automated_review_completed") is True
+        and (
+            metadata.get("automated_review_completed") is True
+            or metadata.get("automated_consistency_diagnostic_completed") is True
+        )
         and metadata.get("unresolved_conflict_count", 0) == 0
         and metadata.get("human_review_completed") is False
         and metadata.get("external_expert_certified") is False
@@ -425,18 +459,84 @@ def _s7_review_completion_mode(
     if human_completed:
         return "human"
     if automated_completed:
-        return "automated_adversarial"
+        return "automated_diagnostic"
     return "none"
+
+
+def _s7_completion_scope(review_completion_mode: str) -> str:
+    if review_completion_mode == "human":
+        return "human_review"
+    if review_completion_mode == "automated_diagnostic":
+        return "internal_diagnostic"
+    return "pending"
 
 
 def _completion_claim(completion_gate: dict[str, Any], review_completion_mode: str) -> str:
     if not completion_gate["passed"]:
         return "active_not_complete"
     if review_completion_mode == "human":
-        return "sota_goal_completed_human_reviewed"
-    if review_completion_mode == "automated_adversarial":
-        return "sota_goal_completed_automated_adversarial_reviewed"
-    return "sota_goal_completed"
+        return "sota_comparable_retrospective_case_study_human_reviewed"
+    if review_completion_mode == "automated_diagnostic":
+        return "internal_diagnostic_package_complete"
+    return "internal_diagnostic_package_complete"
+
+
+def _claim_scope_gates(
+    completion_gate: dict[str, Any],
+    metadata: dict[str, Any],
+    remaining_blockers: list[str],
+) -> list[dict[str, Any]]:
+    human_completed = metadata.get("s7_human_answer_review_completed") is True
+    expert_completed = metadata.get("s7_expert_certification_completed") is True
+    internal_passed = completion_gate["passed"]
+    return [
+        {
+            "id": "internal_diagnostic_package",
+            "passed": internal_passed,
+            "status": (
+                "Complete for internal thesis diagnostics."
+                if internal_passed
+                else "Blocked for internal diagnostics."
+            ),
+            "blocked_by": list(remaining_blockers),
+        },
+        {
+            "id": "retrospective_sota_comparable_case_study",
+            "passed": internal_passed,
+            "status": (
+                "Defensible only as a source-bounded retrospective case study."
+                if internal_passed
+                else "Not yet defensible as a complete retrospective case study."
+            ),
+            "blocked_by": list(remaining_blockers),
+        },
+        {
+            "id": "human_answer_quality_review",
+            "passed": human_completed,
+            "status": (
+                "Human answer review completed."
+                if human_completed
+                else "Human answer review remains incomplete."
+            ),
+            "blocked_by": [] if human_completed else ["reviewed S7 answer CSV is not complete"],
+        },
+        {
+            "id": "external_expert_certification",
+            "passed": expert_completed,
+            "status": (
+                "External expert certification completed."
+                if expert_completed
+                else "External aviation/domain expert certification remains incomplete."
+            ),
+            "blocked_by": [] if expert_completed else ["no external expert certification artifact"],
+        },
+        {
+            "id": "operational_decision_support",
+            "passed": False,
+            "status": "Out of scope: retrospective educational/research evaluation only.",
+            "blocked_by": ["no live operational validation", "not an FAA/ATC decision-support system"],
+        },
+    ]
 
 
 def _completion_gate(
@@ -481,23 +581,24 @@ def _completion_gate(
             },
         ),
         _criterion(
-            "s7_answer_review_completed",
-            metadata.get("s7_answer_review_completed") is True,
-            "human review completed OR automated adversarial review completed",
+            "s7_internal_answer_diagnostic_completed",
+            metadata.get("s7_human_answer_review_completed") is True
+            or metadata.get("s7_automated_consistency_diagnostic_completed") is True,
+            "human review completed OR automated consistency diagnostic completed",
             {
                 "human_status": metadata.get("s7_answer_review_decision_status"),
                 "human_completed_case_count": metadata.get(
                     "s7_answer_review_completed_case_count"
                 ),
-                "human_review_completed": metadata.get("s7_answer_review_human_completed"),
+                "human_review_completed": metadata.get("s7_human_answer_review_completed"),
                 "automated_status": metadata.get(
                     "s7_automated_adversarial_review_status"
                 ),
                 "automated_case_count": metadata.get(
                     "s7_automated_adversarial_review_case_count"
                 ),
-                "automated_review_completed": metadata.get(
-                    "s7_automated_adversarial_review_completed"
+                "automated_diagnostic_completed": metadata.get(
+                    "s7_automated_consistency_diagnostic_completed"
                 ),
                 "review_completion_mode": metadata.get("s7_review_completion_mode"),
             },

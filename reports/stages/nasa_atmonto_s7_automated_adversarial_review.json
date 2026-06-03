@@ -1,18 +1,19 @@
 {
   "source_family": "nasa_atmonto_s7_automated_adversarial_review",
-  "status": "automated_adversarial_review_completed",
+  "status": "automated_consistency_diagnostic_completed",
   "metadata": {
     "packet_path": "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.json",
     "expected_case_count": 60,
     "reviewed_case_count": 60,
     "automated_review_completed": true,
+    "automated_consistency_diagnostic_completed": true,
     "role_count": 5,
     "role_ids": [
       "evidence_verifier",
       "citation_auditor",
       "cq_contract_validator",
       "ontology_profile_validator",
-      "adversarial_critic"
+      "consistency_critic"
     ],
     "human_review_completed": false,
     "external_expert_certified": false,
@@ -25,7 +26,7 @@
       "rejected": 3
     },
     "role_fail_counts": {
-      "adversarial_critic": 3,
+      "consistency_critic": 3,
       "cq_contract_validator": 3,
       "evidence_verifier": 3,
       "ontology_profile_validator": 3
@@ -60,7 +61,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -95,7 +96,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -130,7 +131,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -165,7 +166,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -200,7 +201,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -235,7 +236,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -270,7 +271,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -305,7 +306,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -340,7 +341,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -375,7 +376,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -410,7 +411,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -445,7 +446,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -480,7 +481,7 @@
           "reason": "answer predicates exceed the expected profile predicate set (actual=['impactingCondition', 'impactingConditionMessage'], expected=['impactingConditionMessage'])"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "fail",
           "reason": "critic escalated failed roles: ['evidence_verifier', 'cq_contract_validator', 'ontology_profile_validator']"
         }
@@ -520,7 +521,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -555,7 +556,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -590,7 +591,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -625,7 +626,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -660,7 +661,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -695,7 +696,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -730,7 +731,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -765,7 +766,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -800,7 +801,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -835,7 +836,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -870,7 +871,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -905,7 +906,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -940,7 +941,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -975,7 +976,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1010,7 +1011,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1045,7 +1046,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1080,7 +1081,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1115,7 +1116,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1150,7 +1151,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1185,7 +1186,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1220,7 +1221,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1255,7 +1256,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1290,7 +1291,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1325,7 +1326,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1360,7 +1361,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1395,7 +1396,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1430,7 +1431,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1465,7 +1466,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1500,7 +1501,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1535,7 +1536,7 @@
           "reason": "answer predicates exceed the expected profile predicate set (actual=['impactingCondition', 'impactingConditionMessage'], expected=['impactingConditionMessage'])"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "fail",
           "reason": "critic escalated failed roles: ['evidence_verifier', 'cq_contract_validator', 'ontology_profile_validator']"
         }
@@ -1575,7 +1576,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1610,7 +1611,7 @@
           "reason": "answer predicates exceed the expected profile predicate set (actual=['impactingCondition', 'impactingConditionMessage'], expected=['impactingConditionMessage'])"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "fail",
           "reason": "critic escalated failed roles: ['evidence_verifier', 'cq_contract_validator', 'ontology_profile_validator']"
         }
@@ -1650,7 +1651,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1685,7 +1686,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1720,7 +1721,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1755,7 +1756,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1790,7 +1791,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1825,7 +1826,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1860,7 +1861,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1895,7 +1896,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1930,7 +1931,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -1965,7 +1966,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -2000,7 +2001,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -2035,7 +2036,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -2070,7 +2071,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -2105,7 +2106,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -2140,7 +2141,7 @@
           "reason": "answer predicates stay within the expected ontology/profile predicate set"
         },
         {
-          "role": "adversarial_critic",
+          "role": "consistency_critic",
           "verdict": "pass",
           "reason": "critic found no role-level failures"
         }
@@ -2148,5 +2149,5 @@
       "notes": []
     }
   ],
-  "claim_boundary": "This is an automated multi-angle adversarial review. It can replace the manual review workflow as an automated reviewer path for experiment execution, but it is not human review, external expert certification, or operational decision support."
+  "claim_boundary": "This is an automated multi-angle consistency diagnostic over the S7 answer-review packet. It is useful as an internal error-discovery and claim-boundary check, but it cannot replace human answer review, external expert certification, or operational decision support."
 }

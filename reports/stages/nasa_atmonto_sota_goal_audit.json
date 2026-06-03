@@ -1,7 +1,7 @@
 {
   "source_family": "nasa_atmonto_sota_goal_audit",
   "status": "sota_goal_audit_created",
-  "completion_claim": "sota_goal_completed_automated_adversarial_reviewed",
+  "completion_claim": "internal_diagnostic_package_complete",
   "metadata": {
     "requirement_count": 9,
     "status_counts": {
@@ -19,13 +19,17 @@
     "s7_answer_review_decision_status": "s7_answer_review_decisions_pending",
     "s7_answer_review_completed_case_count": 0,
     "s7_answer_review_human_completed": false,
-    "s7_automated_adversarial_review_status": "automated_adversarial_review_completed",
+    "s7_human_answer_review_completed": false,
+    "s7_automated_adversarial_review_status": "automated_consistency_diagnostic_completed",
     "s7_automated_adversarial_review_case_count": 60,
     "s7_automated_adversarial_review_completed": true,
+    "s7_automated_consistency_diagnostic_completed": true,
     "s7_automated_adversarial_review_accepted_case_count": 57,
     "s7_automated_adversarial_review_rejected_case_count": 3,
-    "s7_review_completion_mode": "automated_adversarial",
-    "s7_answer_review_completed": true,
+    "s7_review_completion_mode": "automated_diagnostic",
+    "s7_completion_scope": "internal_diagnostic",
+    "s7_answer_review_completed": false,
+    "s7_expert_certification_completed": false,
     "second_domain_transfer_status": "second_domain_transfer_pilot_created",
     "second_domain_transfer_domain": "NASA Beginner's Guide to Aerodynamics"
   },
@@ -230,7 +234,7 @@
           "present": true
         }
       ],
-      "limitation": "A broad 60-case reviewer packet, worksheet, protocol, handoff, automated adversarial review, import status, and decision-status report exist. The automated path is not human or expert review.",
+      "limitation": "A broad 60-case reviewer packet, worksheet, protocol, handoff, automated consistency diagnostic, import status, and decision-status report exist. The automated diagnostic path is not human or expert review.",
       "evidence_count": 11,
       "present_evidence_count": 11,
       "missing_evidence": []
@@ -251,11 +255,15 @@
         {
           "path": "reports/stages/nasa_atmonto_experiment_chapter_draft.md",
           "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_reviewer_defense_audit.md",
+          "present": true
         }
       ],
       "limitation": "The final thesis should keep the claim wording profile-relative and retrospective.",
-      "evidence_count": 3,
-      "present_evidence_count": 3,
+      "evidence_count": 4,
+      "present_evidence_count": 4,
       "missing_evidence": []
     },
     {
@@ -324,10 +332,10 @@
         "observed": "status=broad_answer_review_packet_created, case_count=60"
       },
       {
-        "id": "s7_answer_review_completed",
+        "id": "s7_internal_answer_diagnostic_completed",
         "passed": true,
-        "expected": "human review completed OR automated adversarial review completed",
-        "observed": "human_status=s7_answer_review_decisions_pending, human_completed_case_count=0, human_review_completed=False, automated_status=automated_adversarial_review_completed, automated_case_count=60, automated_review_completed=True, review_completion_mode=automated_adversarial"
+        "expected": "human review completed OR automated consistency diagnostic completed",
+        "observed": "human_status=s7_answer_review_decisions_pending, human_completed_case_count=0, human_review_completed=False, automated_status=automated_consistency_diagnostic_completed, automated_case_count=60, automated_diagnostic_completed=True, review_completion_mode=automated_diagnostic"
       },
       {
         "id": "second_domain_transfer_pilot_created",
@@ -337,5 +345,44 @@
       }
     ]
   },
-  "claim_safe_summary": "The current project is SOTA-comparable as a layered retrospective ATCSCC case study. If completed through the automated adversarial path, the answer-review layer is model-based diagnostic evidence, not human or external expert certification."
+  "claim_scope_gates": [
+    {
+      "id": "internal_diagnostic_package",
+      "passed": true,
+      "status": "Complete for internal thesis diagnostics.",
+      "blocked_by": []
+    },
+    {
+      "id": "retrospective_sota_comparable_case_study",
+      "passed": true,
+      "status": "Defensible only as a source-bounded retrospective case study.",
+      "blocked_by": []
+    },
+    {
+      "id": "human_answer_quality_review",
+      "passed": false,
+      "status": "Human answer review remains incomplete.",
+      "blocked_by": [
+        "reviewed S7 answer CSV is not complete"
+      ]
+    },
+    {
+      "id": "external_expert_certification",
+      "passed": false,
+      "status": "External aviation/domain expert certification remains incomplete.",
+      "blocked_by": [
+        "no external expert certification artifact"
+      ]
+    },
+    {
+      "id": "operational_decision_support",
+      "passed": false,
+      "status": "Out of scope: retrospective educational/research evaluation only.",
+      "blocked_by": [
+        "no live operational validation",
+        "not an FAA/ATC decision-support system"
+      ]
+    }
+  ],
+  "claim_safe_summary": "The current project is defensible as a layered retrospective ATCSCC case study with an internal automated consistency diagnostic. The strongest claims are profile-relative structural conformance, evidence traceability, retrieval/answer diagnostics, and abstention behavior. It is not human answer review, external expert certification, domain-general proof, or operational aviation decision support."
 }

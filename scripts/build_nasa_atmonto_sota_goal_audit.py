@@ -16,7 +16,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--require-complete",
         action="store_true",
-        help="Exit with status 1 unless the SOTA completion gate passes.",
+        help="Exit with status 1 unless the internal diagnostic completion gate passes.",
+    )
+    parser.add_argument(
+        "--require-human-review",
+        action="store_true",
+        help="Exit with status 1 unless the S7 human answer-review gate is complete.",
     )
     return parser.parse_args()
 
@@ -33,7 +38,14 @@ def main() -> int:
                 "markdown_path": str(md_path),
                 "status": result["status"],
                 "completion_claim": result["completion_claim"],
+                "completion_scope": result["metadata"]["s7_completion_scope"],
                 "completion_gate_passed": result["completion_gate"]["passed"],
+                "human_answer_review_completed": result["metadata"][
+                    "s7_human_answer_review_completed"
+                ],
+                "expert_certification_completed": result["metadata"][
+                    "s7_expert_certification_completed"
+                ],
                 "failed_criteria": result["completion_gate"]["failed_criteria"],
                 "remaining_blockers": result["remaining_blockers"],
                 "status_counts": result["metadata"]["status_counts"],
@@ -42,6 +54,8 @@ def main() -> int:
         )
     )
     if args.require_complete and not result["completion_gate"]["passed"]:
+        return 1
+    if args.require_human_review and not result["metadata"]["s7_human_answer_review_completed"]:
         return 1
     return 0
 
