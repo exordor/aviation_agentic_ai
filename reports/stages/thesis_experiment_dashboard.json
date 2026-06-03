@@ -129,10 +129,10 @@
       ]
     },
     {
-      "can_support_thesis_main_claim": "partial_source_generalization_evidence",
+      "can_support_thesis_main_claim": "bounded_second_source_family_transfer",
       "dataset": "NASA Lessons in Aerodynamics subset",
-      "evidence_role": "source_expansion_experiment",
-      "limitations": "internal educational-source experiment; no external aviation certification or operational readiness",
+      "evidence_role": "domain_transfer_pilot",
+      "limitations": "bounded concept-centric educational-source transfer pilot; no external aviation certification, no human review, no operational readiness, and no full S7-style answer-generation ablation",
       "purpose": "source-expansion experiment for ontology boundary, chunking, KG, and seed QA",
       "used_in_reports": [
         "nasa_chunking_summary",
@@ -140,7 +140,8 @@
         "nasa_kg_validation",
         "nasa_benchmark_summary",
         "cross_source_ontology_validation",
-        "multisource_retrieval_smoke"
+        "multisource_retrieval_smoke",
+        "nasa_bga_domain_transfer_pilot"
       ]
     },
     {
@@ -617,6 +618,22 @@
       "present": true,
       "questions_count": 25,
       "report_name": "multisource_retrieval_smoke"
+    },
+    {
+      "dataset_used": "nasa_bga_aerodynamics_reference_transfer",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "source_expansion",
+        "ontology_kg",
+        "evaluation_protocol",
+        "transfer_pilot",
+        "claim_safety"
+      ],
+      "path": "reports/stages/nasa_bga_domain_transfer_pilot.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_bga_domain_transfer_pilot"
     },
     {
       "dataset_used": "not_dataset_specific",

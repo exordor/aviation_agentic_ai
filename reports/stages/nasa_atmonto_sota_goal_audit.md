@@ -4,7 +4,7 @@
 
 - Goal status: `active_not_complete`
 - Requirement count: 9
-- Status counts: `mostly_satisfied`=3, `partial`=1, `satisfied`=5
+- Status counts: `mostly_satisfied`=4, `satisfied`=5
 - Formal scoring status: `scored`
 - S5/S6 status: `s5_s6_agentic_evidence_gate_scored`
 - Independent S5/S6 status: `s5_s6_independent_agentic_run_scored`
@@ -13,6 +13,8 @@
 - S7 LLM status: `s7_llm_answer_generation_evaluated`
 - S7 broad review packet status: `broad_answer_review_packet_created`
 - S7 broad review packet cases: 60
+- Second-domain transfer status: `second_domain_transfer_pilot_created`
+- Second-domain transfer domain: NASA Beginner's Guide to Aerodynamics
 
 ## Requirement Evidence
 
@@ -26,7 +28,7 @@
 | `R6` | `mostly_satisfied` | Graph-use gate, token-matched retrieval, and graph health are evaluated. | 3/3 | Graph health is diagnostic evidence, not certification of semantic truth. |
 | `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 5/5 | A broad 60-case reviewer packet exists, but external human/expert decisions have not been recorded. |
 | `R8` | `mostly_satisfied` | Completeness, correctness, limitations, and story claims are thesis-ready. | 3/3 | The final thesis should keep the claim wording profile-relative and retrospective. |
-| `R9` | `partial` | The method can be described as domain-independent and transferable. | 2/2 | No second-domain transfer run has been executed yet. |
+| `R9` | `mostly_satisfied` | The method can be described as domain-independent and transferable. | 3/3 | A bounded NASA BGA second-source-family pilot exists, but it is concept-centric, seed-labelled, and not a full cross-domain GraphRAG answer-generation benchmark. |
 
 ## Evidence Index
 
@@ -77,13 +79,13 @@
 
 ### R9: The method can be described as domain-independent and transferable.
 - `present` `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md`
+- `present` `reports/stages/nasa_bga_domain_transfer_pilot.md`
 - `present` `templates/agentic_artifact_contract.md`
 
 
 ## Remaining Blockers
 
 - External human/expert answer-review decisions are not yet complete.
-- Second-domain transfer is not yet executed.
 
 ## Claim-Safe Summary
 

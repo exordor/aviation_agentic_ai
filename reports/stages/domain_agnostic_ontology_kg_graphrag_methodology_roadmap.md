@@ -110,7 +110,7 @@ Important constraints:
 | Extraction systems | Compare unconstrained, schema-constrained, repaired, and hybrid systems. | S0-S4 ATMONTO extraction suite. | Same suite adapted to new schema/corpus. |
 | Validation | Distinguish schema conformance, evidence containment, and semantic support. | SHACL/profile checks plus source evidence review. | Domain constraints, provenance checks, expert support labels. |
 | GraphRAG evaluation | Test when graph retrieval helps versus vector retrieval. | CQ query manifest and planned answer-set gold. | Domain query manifest and source-bounded QA benchmark. |
-| Transfer report | Explain what transferred, failed, or required domain-specific change. | ATMONTO stage reports. | Per-domain adaptation report. |
+| Transfer report | Explain what transferred, failed, or required domain-specific change. | ATMONTO stage reports plus `reports/stages/nasa_bga_domain_transfer_pilot.md`. | Per-domain adaptation report. |
 
 ## End-To-End Artifact Contract
 
@@ -229,7 +229,7 @@ ATM should be treated as the first controlled case study:
 | M3 | Implement S5 module/CQ-routed extraction. | Demonstrates whether modular ontology prompting improves evidence support or schema validity. |
 | M4 | Implement S6 evidence verifier and bounded repair. | Shows whether evidence critique catches unsupported triples beyond schema/profile validation. |
 | M5 | Implement S7 graph-use gate. | Shows per-CQ routing beats or explains always-vector/always-graph baselines. |
-| M6 | Run a second small domain pilot. | Same pipeline works on a non-ATM corpus with limited changes to domain artifacts. |
+| M6 | Run a second small domain pilot. | Bounded NASA BGA source-family pilot exists; stronger claims require reviewed labels and full answer-generation ablations. |
 | M7 | Write methodology chapter. | Thesis/report presents the method first and ATM as case study. |
 
 ## Immediate Changes To Project Direction
@@ -275,4 +275,6 @@ artifacts and scripts in a way that preserves the generic pattern:
 4. keep the deterministic S5/S6 run as the reproducible non-LLM control;
 5. document which parts are domain-specific adapters and which parts are
    reusable pipeline logic;
-6. only after the ATM case is stable, choose one second-domain pilot.
+6. use the NASA BGA pilot as bounded second-source-family evidence, and reserve
+   stronger domain-general claims for a future reviewed, preferably non-aviation
+   event-source transfer.

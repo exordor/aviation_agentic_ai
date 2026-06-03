@@ -75,6 +75,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - NASA ATMONTO S5/S6 live agentic full run: `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.md`
 - NASA ATMONTO S5/S6 live agentic full run diagnostic: `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md`
 - NASA ATMONTO SOTA goal completion audit: `reports/stages/nasa_atmonto_sota_goal_audit.md`
+- NASA BGA bounded domain transfer pilot: `reports/stages/nasa_bga_domain_transfer_pilot.md`
 - ATCSCC S7 graph-use gate plan: `reports/stages/atcscc_graph_use_plan.md`
 - NASA ATMONTO S7 retrieval-only graph-use gate: `reports/stages/nasa_atmonto_s7_retrieval.md`
 - NASA ATMONTO S7 graph health by CQ group: `reports/stages/nasa_atmonto_s7_graph_health.md`

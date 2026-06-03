@@ -112,12 +112,17 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
     {
         "id": "R9",
         "requirement": "The method can be described as domain-independent and transferable.",
-        "status": "partial",
+        "status": "mostly_satisfied",
         "evidence": [
             "reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md",
+            "reports/stages/nasa_bga_domain_transfer_pilot.md",
             "templates/agentic_artifact_contract.md",
         ],
-        "limitation": "No second-domain transfer run has been executed yet.",
+        "limitation": (
+            "A bounded NASA BGA second-source-family pilot exists, but it is "
+            "concept-centric, seed-labelled, and not a full cross-domain "
+            "GraphRAG answer-generation benchmark."
+        ),
     },
 )
 
@@ -143,10 +148,13 @@ def build_nasa_atmonto_sota_goal_audit(
     s7_broad_review = read_json_object_or_empty(
         root / "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.json"
     )
+    second_domain_transfer = read_json_object_or_empty(
+        root / "reports/stages/nasa_bga_domain_transfer_pilot.json"
+    )
     status_counts: dict[str, int] = {}
     for item in requirements:
         status_counts[item["status"]] = status_counts.get(item["status"], 0) + 1
-    remaining_blockers = _remaining_blockers(s5_s6_live_full)
+    remaining_blockers = _remaining_blockers(s5_s6_live_full, second_domain_transfer)
     return {
         "source_family": "nasa_atmonto_sota_goal_audit",
         "status": "sota_goal_audit_created",
@@ -162,6 +170,10 @@ def build_nasa_atmonto_sota_goal_audit(
             "s7_llm_status": s7_llm.get("status"),
             "s7_broad_review_packet_status": s7_broad_review.get("status"),
             "s7_broad_review_case_count": s7_broad_review.get("metadata", {}).get("case_count"),
+            "second_domain_transfer_status": second_domain_transfer.get("status"),
+            "second_domain_transfer_domain": second_domain_transfer.get("metadata", {}).get(
+                "transfer_domain"
+            ),
         },
         "requirements": requirements,
         "remaining_blockers": remaining_blockers,
@@ -203,6 +215,8 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- S7 LLM status: `{result['metadata']['s7_llm_status']}`",
         f"- S7 broad review packet status: `{result['metadata']['s7_broad_review_packet_status']}`",
         f"- S7 broad review packet cases: {result['metadata']['s7_broad_review_case_count']}",
+        f"- Second-domain transfer status: `{result['metadata']['second_domain_transfer_status']}`",
+        f"- Second-domain transfer domain: {result['metadata']['second_domain_transfer_domain']}",
         "",
         "## Requirement Evidence",
         "",
@@ -262,18 +276,18 @@ def _requirement_status(root: Path, item: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _remaining_blockers(s5_s6_live_full: dict[str, Any]) -> list[str]:
+def _remaining_blockers(
+    s5_s6_live_full: dict[str, Any],
+    second_domain_transfer: dict[str, Any],
+) -> list[str]:
     blockers = []
     if s5_s6_live_full.get("status") != "s5_s6_live_agentic_full_run_scored":
         blockers.append(
             "A full 100-record live LLM extractor/validator/critic/refiner S5/S6 run is not yet complete."
         )
-    blockers.extend(
-        [
-            "External human/expert answer-review decisions are not yet complete.",
-            "Second-domain transfer is not yet executed.",
-        ]
-    )
+    blockers.append("External human/expert answer-review decisions are not yet complete.")
+    if second_domain_transfer.get("status") != "second_domain_transfer_pilot_created":
+        blockers.append("Second-domain transfer is not yet executed.")
     return blockers
 
 

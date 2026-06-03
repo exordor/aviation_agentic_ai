@@ -44,6 +44,9 @@ REPORT_SOURCES: dict[str, str] = {
     "nasa_benchmark_summary": "reports/stages/nasa_benchmark_summary.json",
     "cross_source_ontology_validation": "reports/stages/cross_source_ontology_validation.json",
     "multisource_retrieval_smoke": "reports/stages/multisource_retrieval_smoke.json",
+    "nasa_bga_domain_transfer_pilot": (
+        "reports/stages/nasa_bga_domain_transfer_pilot.json"
+    ),
     "deepseek_v4pro_implementation_remediation": (
         "reports/reviews/deepseek_v4pro_implementation_remediation.json"
     ),
@@ -176,6 +179,13 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "nasa_benchmark_summary": ("source_expansion", "benchmark_validation"),
         "cross_source_ontology_validation": ("source_expansion", "ontology_kg"),
         "multisource_retrieval_smoke": ("source_expansion", "retrieval"),
+        "nasa_bga_domain_transfer_pilot": (
+            "source_expansion",
+            "ontology_kg",
+            "evaluation_protocol",
+            "transfer_pilot",
+            "claim_safety",
+        ),
         "deepseek_v4pro_implementation_remediation": (
             "implementation_review",
             "claim_safety",
@@ -261,6 +271,7 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "nasa_benchmark_summary": "nasa_bga_lessons_seed_50",
         "cross_source_ontology_validation": "faa_phak_nasa_cross_source_seed_30",
         "multisource_retrieval_smoke": "faa_phak_nasa_smoke_35",
+        "nasa_bga_domain_transfer_pilot": "nasa_bga_aerodynamics_reference_transfer",
         "deepseek_v4pro_implementation_remediation": "not_dataset_specific",
         "answer_evaluation": "10_cq_answer_subset",
         "robustness_evaluation": "robustness_10_cases",
@@ -1078,13 +1089,15 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
                 "nasa_benchmark_summary",
                 "cross_source_ontology_validation",
                 "multisource_retrieval_smoke",
+                "nasa_bga_domain_transfer_pilot",
             ],
             "limitations": (
-                "internal educational-source experiment; no external aviation certification "
-                "or operational readiness"
+                "bounded concept-centric educational-source transfer pilot; no external "
+                "aviation certification, no human review, no operational readiness, and "
+                "no full S7-style answer-generation ablation"
             ),
-            "can_support_thesis_main_claim": "partial_source_generalization_evidence",
-            "evidence_role": "source_expansion_experiment",
+            "can_support_thesis_main_claim": "bounded_second_source_family_transfer",
+            "evidence_role": "domain_transfer_pilot",
         },
         {
             "dataset": "answer-eval subset",

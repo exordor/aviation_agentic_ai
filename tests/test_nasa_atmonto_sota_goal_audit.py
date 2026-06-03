@@ -59,6 +59,13 @@ def _write_all_evidence(tmp_path: Path) -> None:
             "metadata": {"case_count": 60},
         },
     )
+    _write_json(
+        tmp_path / "reports/stages/nasa_bga_domain_transfer_pilot.json",
+        {
+            "status": "second_domain_transfer_pilot_created",
+            "metadata": {"transfer_domain": "NASA Beginner's Guide to Aerodynamics"},
+        },
+    )
 
 
 def test_sota_goal_audit_maps_requirements_to_present_evidence(tmp_path: Path) -> None:
@@ -77,12 +84,14 @@ def test_sota_goal_audit_maps_requirements_to_present_evidence(tmp_path: Path) -
     assert result["metadata"]["s7_llm_status"] == "s7_llm_answer_generation_evaluated"
     assert result["metadata"]["s7_broad_review_packet_status"] == "broad_answer_review_packet_created"
     assert result["metadata"]["s7_broad_review_case_count"] == 60
+    assert result["metadata"]["second_domain_transfer_status"] == "second_domain_transfer_pilot_created"
+    assert result["metadata"]["second_domain_transfer_domain"] == "NASA Beginner's Guide to Aerodynamics"
     assert result["metadata"]["status_counts"]["satisfied"] == 5
-    assert result["metadata"]["status_counts"]["mostly_satisfied"] == 3
-    assert result["metadata"]["status_counts"]["partial"] == 1
+    assert result["metadata"]["status_counts"]["mostly_satisfied"] == 4
+    assert "partial" not in result["metadata"]["status_counts"]
     assert all(item["missing_evidence"] == [] for item in result["requirements"])
     assert "External human/expert answer-review decisions" in result["remaining_blockers"][0]
-    assert "Second-domain transfer" in result["remaining_blockers"][1]
+    assert len(result["remaining_blockers"]) == 1
 
 
 def test_write_sota_goal_audit_outputs_json_and_markdown(tmp_path: Path) -> None:
@@ -96,11 +105,12 @@ def test_write_sota_goal_audit_outputs_json_and_markdown(tmp_path: Path) -> None
 
     assert json_path.exists()
     assert md_path.exists()
-    assert result["metadata"]["status_counts"]["partial"] == 1
+    assert "partial" not in result["metadata"]["status_counts"]
     markdown = md_path.read_text(encoding="utf-8")
     assert "NASA ATMONTO SOTA Goal Completion Audit" in markdown
     assert "Requirement Evidence" in markdown
     assert "active_not_complete" in markdown
     assert "full 100-record live LLM" not in markdown
     assert "S7 broad review packet cases: 60" in markdown
+    assert "Second-domain transfer status: `second_domain_transfer_pilot_created`" in markdown
     assert "External human/expert answer-review decisions" in markdown

@@ -46,7 +46,7 @@ review decisions.
 | Token-matched vector baseline | satisfied for deterministic S7 | `token_matched_vector_rag`; `token_matched_vector_proxy`; `token_matched_live_tfidf_vector`; `token_matched_dense_embedding_vector`; `routed_token_matched_live_tfidf_graphrag`; `routed_token_matched_dense_graphrag` | no current deterministic S7 gap | preserve token-matched comparisons in thesis tables |
 | Graph health/path support | mostly satisfied for S7 diagnostics | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` | graph health is diagnostic rather than semantic truth certification | preserve graph health by CQ group in thesis tables |
 | Multi-agent loop | full-set live LLM diagnostic plus deterministic controls | `reports/stages/atcscc_agentic_artifact_contract.md`; `reports/stages/nasa_atmonto_agentic_loop.md`; `reports/stages/atcscc_source_brief.md`; `reports/stages/atcscc_semantic_requirements.md`; `reports/stages/atcscc_technical_implementation_plan.md`; `reports/stages/atcscc_extraction_plan.md`; `reports/stages/atcscc_validation_findings.md`; `reports/stages/atcscc_evidence_support_findings.md`; `reports/stages/atcscc_repair_plan.md`; `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`; `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md`; `reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md`; `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.md`; `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md` | S5/S6 now has an S4-wrapper diagnostic, an independent source-derived deterministic run, a 3-sample live pilot, and a 100-record live LLM run; the live run is a negative diagnostic because S6 F1 0.4557 is far below deterministic S6 F1 0.7778 | frame live agents as executable/auditable but not superior to deterministic extraction on semi-structured ATCSCC data |
-| Domain-agnostic methodology | partial | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md` | only validated in ATM so far | keep second-domain transfer as future work |
+| Domain-agnostic methodology | mostly satisfied as bounded pilot | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md`; `reports/stages/nasa_bga_domain_transfer_pilot.md` | BGA transfer is concept-centric, seed-labelled, and not a full S7-style answer-generation ablation | use it as second-source-family transfer evidence, not broad domain-general proof |
 
 ## What Is Already Strong
 
@@ -78,7 +78,8 @@ The strongest parts of the project are:
    graph-health diagnostics by CQ group, a human-review candidate package,
    deterministic candidate adjudication, and a profile-decision what-if that
    leaves strict metrics unchanged. It still lacks externally reviewed answer
-   labels and a second-domain transfer run.
+   labels and a full cross-domain answer-generation benchmark beyond the
+   bounded BGA transfer pilot.
 2. **Answer-generation evidence is source-bounded.** The 317-label S7 rerun is
    useful for a reproducible thesis benchmark, but it is not a broad human QA
    benchmark or an operational ATC evaluation.
@@ -96,8 +97,11 @@ The strongest parts of the project are:
    ontology/evidence gates. It completed without failed records, but S6 F1 is
    0.4557 versus 0.7778 for the deterministic independent S6 control, so it is
    evidence for auditable orchestration rather than autonomous-agent superiority.
-5. **Transferability is still a thesis direction.** The domain-agnostic
-   methodology is credible, but it is not validated outside ATCSCC yet.
+5. **Transferability now has bounded pilot evidence.** The NASA BGA transfer
+   pilot applies the artifact contract to a non-ATM NASA educational reference
+   source family with source, CQ, chunking, KG, and validation artifacts. It is
+   not a second event-centric operational domain and does not include full
+   answer-generation ablations.
 
 ## Claim-Safe Story
 
@@ -155,7 +159,9 @@ experiments should:
 3. decide whether STAFFING should become a reviewed `impactingCondition`
    profile extension, or whether cause-condition scoring should remain scoped
    to `impactingConditionMessage` for this profile.
-4. run a second-domain transfer using the same artifact contract.
+4. decide whether the NASA BGA transfer pilot is enough for a methodology
+   appendix, or whether the thesis needs a stronger truly non-aviation
+   event-source transfer.
 
 Keep the source-local dense guard, graph-health diagnostics, guard rate, and
 CQ-group breakdowns as thesis-facing diagnostic tables, but describe them as

@@ -181,6 +181,22 @@ def _write_dashboard_fixture(root: Path) -> None:
         },
     )
     _write_json(
+        stages / "nasa_bga_domain_transfer_pilot.json",
+        {
+            "status": "second_domain_transfer_pilot_created",
+            "metadata": {
+                "transfer_domain": "NASA Beginner's Guide to Aerodynamics",
+                "non_atm_source_family": True,
+                "event_centric": False,
+                "human_review": False,
+            },
+            "contract_coverage": [
+                {"step": "source_snapshot", "status": "satisfied"},
+                {"step": "retrieval_or_graphrag_smoke", "status": "partial"},
+            ],
+        },
+    )
+    _write_json(
         stages / "nasa_atmonto_s7_llm_answer_generation.json",
         {
             "status": "s7_llm_answer_generation_evaluated",

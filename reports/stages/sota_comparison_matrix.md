@@ -34,7 +34,7 @@ source-bounded answer tests.
 | Graph health and path support | GraphRAG pipeline evaluation | Node/edge coverage, component/connectivity diagnostics, path support rate for graph-worthy CQs | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` reports topology, graph-context availability, path support, answer recovery, and abstention behavior by CQ group | mostly satisfied as diagnostic graph-health evidence |
 | Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, candidate adjudication, profile-decision sensitivity, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`; `reports/stages/nasa_atmonto_s7_profile_decision.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | mostly satisfied for deterministic S7 plus bounded LLM check; needs external human/expert answer-review decisions |
 | Cost and reproducibility reporting | Fair retrieval/GraphRAG benchmarking | Token budget, latency, deterministic source scope, frozen data version, rerunnable commands | frozen source/gold scope exists; S7 retrieval and answer-generation reports use tokenizer-backed token budgets and latency reporting | mostly satisfied for deterministic S7 |
-| Transferability to another domain | Domain-agnostic ontology/KG/GraphRAG methodology | Same artifact contract applied to a non-ATM corpus with only domain artifacts changed | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md` | planned |
+| Transferability to another domain | Domain-agnostic ontology/KG/GraphRAG methodology | Same artifact contract applied to a non-ATM corpus with only domain artifacts changed | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md`; `reports/stages/nasa_bga_domain_transfer_pilot.md` | mostly satisfied as a bounded NASA BGA source-family transfer pilot; not broad domain-general proof |
 
 ## Current SOTA Position
 
@@ -79,7 +79,8 @@ The project is only partially SOTA-comparable at the **GraphRAG** layer:
 - a profile-decision what-if now shows that a predicate-whitelist policy would
   correct those three selected records while preserving strict main metrics as
   the reported benchmark;
-- external human/expert answer review remains incomplete.
+- bounded second-source-family transfer evidence now exists through the NASA BGA
+  transfer pilot, while external human/expert answer review remains incomplete.
 
 The project is now a bounded executable example of the **multi-agent artifact
 pipeline**:
@@ -114,9 +115,11 @@ Use this wording in thesis or defense material:
 > predicate-whitelist sensitivity but does not replace strict metrics. It does
 > not claim live
 > operational readiness, pure dense embedding superiority, or universal GraphRAG
-> superiority. The remaining SOTA gap is external human/expert answer-review decisions and
-> second-domain transfer while preserving citation, unsupported-claim, token,
-> guard-rate, failure-adjudication, and latency reporting.
+> superiority. The remaining SOTA gap is external human/expert answer-review
+> decisions; the NASA BGA transfer pilot should be described as bounded
+> second-source-family evidence rather than broad domain-general proof, while
+> preserving citation, unsupported-claim, token, guard-rate,
+> failure-adjudication, and latency reporting.
 
 Avoid these claims:
 
@@ -140,4 +143,5 @@ order:
    diagnostic tables.
 4. Use the profile-decision what-if as the evidence package for deciding whether
    STAFFING becomes a reviewed profile extension or remains message-only scoring.
-5. Execute a second-domain transfer with the same domain-agnostic artifact contract.
+5. Decide whether the NASA BGA transfer pilot is sufficient for the thesis
+   methodology appendix, or run a stronger non-aviation event-source transfer.

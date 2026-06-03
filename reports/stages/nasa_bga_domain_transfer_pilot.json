@@ -1,0 +1,120 @@
+{
+  "source_family": "nasa_bga_aerodynamics",
+  "status": "second_domain_transfer_pilot_created",
+  "metadata": {
+    "transfer_domain": "NASA Beginner's Guide to Aerodynamics",
+    "transfer_type": "second_source_family_non_atm_reference_pilot",
+    "source_type": "nasa_web_educational_page",
+    "source_authority": "NASA Glenn Research Center",
+    "non_atm_source_family": true,
+    "event_centric": false,
+    "concept_centric_reference_domain": true,
+    "human_review": false,
+    "external_aviation_expert_certified": false,
+    "operational_readiness_claimed": false
+  },
+  "source_snapshot": {
+    "pages_total": 90,
+    "valid_pages": 89,
+    "invalid_pages": 1,
+    "experiment_subset_pages": 8,
+    "source_report": "reports/stages/nasa_source_ingestion.json"
+  },
+  "cq_contract": {
+    "labels_total": 50,
+    "supported_total": 45,
+    "no_answer_total": 5,
+    "label_distribution": {
+      "concept_factual": 25,
+      "equation_formula": 5,
+      "insufficient_evidence": 5,
+      "paraphrase_terminology": 5,
+      "relation_causal": 10
+    },
+    "review_status": "llm_or_project_seed_not_expert_certified",
+    "seed_path": "data/cqs/nasa_bga_aerodynamics.seed.gold.json"
+  },
+  "kg_contract": {
+    "chunks_total": 32,
+    "triples_total": 134,
+    "valid_triples": 134,
+    "errors_total": 0,
+    "evidence_in_source_rate": 1.0,
+    "provenance_completeness": 1.0,
+    "rejected_triple_count": 0,
+    "unsupported_class_count": 0,
+    "unsupported_property_count": 0,
+    "predicate_counts": {
+      "affects": 35,
+      "causes": 61,
+      "hasComponent": 18,
+      "hasCondition": 20
+    },
+    "source_documents_with_triples": 8,
+    "kg_path": "data/kg/nasa_bga_aerodynamics.structure_aware_large.kg.jsonl"
+  },
+  "contract_coverage": [
+    {
+      "step": "source_snapshot",
+      "status": "satisfied",
+      "evidence": [
+        "reports/stages/nasa_source_ingestion.json"
+      ],
+      "limitation": "educational NASA pages, not operational event advisories"
+    },
+    {
+      "step": "ontology_profile_boundary",
+      "status": "satisfied",
+      "evidence": [
+        "reports/stages/ontology_boundary_nasa.json"
+      ],
+      "limitation": "uses an existing curated aviation profile, not a new reviewed domain ontology"
+    },
+    {
+      "step": "competency_question_contract",
+      "status": "satisfied",
+      "evidence": [
+        "data/cqs/nasa_bga_aerodynamics.seed.gold.json",
+        "reports/stages/nasa_benchmark_summary.json"
+      ],
+      "limitation": "seed labels are project/LLM generated and not human reviewed"
+    },
+    {
+      "step": "chunking_and_indexable_units",
+      "status": "satisfied",
+      "evidence": [
+        "data/chunks/nasa_bga_aerodynamics.structure_aware_large.jsonl",
+        "reports/stages/nasa_chunking_summary.json"
+      ],
+      "limitation": "chunking is diagnostic and not optimized for this second domain"
+    },
+    {
+      "step": "kg_construction_and_validation",
+      "status": "satisfied",
+      "evidence": [
+        "data/kg/nasa_bga_aerodynamics.structure_aware_large.kg.jsonl",
+        "reports/stages/nasa_kg_validation.json"
+      ],
+      "limitation": "schema-valid triples do not prove semantic correctness"
+    },
+    {
+      "step": "retrieval_or_graphrag_smoke",
+      "status": "partial",
+      "evidence": [
+        "reports/stages/multisource_retrieval_smoke.json"
+      ],
+      "limitation": "retrieval smoke exists, but S7-style answer-generation ablations are not run"
+    }
+  ],
+  "transfer_interpretation": [
+    "Artifact contract coverage: 5 satisfied, 1 partial, 0 missing.",
+    "The transfer evidence is sufficient to replace the previous 'no second-domain run' gap with a bounded source-family transfer pilot.",
+    "The evidence is not sufficient for a broad domain-general GraphRAG claim because the pilot is concept-centric, seed-labelled, and lacks full answer-generation ablations."
+  ],
+  "claim_boundary": "This pilot shows that the artifact contract can be applied to a second NASA source family with source, CQ, chunking, KG, and validation artifacts. It is not a second event-centric operational domain, not human-reviewed, and not a full GraphRAG answer-generation ablation.",
+  "next_actions": [
+    "Add reviewed answer labels if this reference-domain pilot becomes a thesis chapter.",
+    "Run retrieval and answer-generation ablations only after the seed labels are reviewed.",
+    "Use a truly non-aviation event source for stronger domain-general claims."
+  ]
+}

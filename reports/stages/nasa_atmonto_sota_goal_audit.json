@@ -5,8 +5,7 @@
   "metadata": {
     "requirement_count": 9,
     "status_counts": {
-      "mostly_satisfied": 3,
-      "partial": 1,
+      "mostly_satisfied": 4,
       "satisfied": 5
     },
     "formal_scoring_status": "scored",
@@ -16,7 +15,9 @@
     "s5_s6_live_full_run_status": "s5_s6_live_agentic_full_run_scored",
     "s7_llm_status": "s7_llm_answer_generation_evaluated",
     "s7_broad_review_packet_status": "broad_answer_review_packet_created",
-    "s7_broad_review_case_count": 60
+    "s7_broad_review_case_count": 60,
+    "second_domain_transfer_status": "second_domain_transfer_pilot_created",
+    "second_domain_transfer_domain": "NASA Beginner's Guide to Aerodynamics"
   },
   "requirements": [
     {
@@ -226,10 +227,14 @@
     {
       "id": "R9",
       "requirement": "The method can be described as domain-independent and transferable.",
-      "status": "partial",
+      "status": "mostly_satisfied",
       "evidence": [
         {
           "path": "reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md",
+          "present": true
+        },
+        {
+          "path": "reports/stages/nasa_bga_domain_transfer_pilot.md",
           "present": true
         },
         {
@@ -237,15 +242,14 @@
           "present": true
         }
       ],
-      "limitation": "No second-domain transfer run has been executed yet.",
-      "evidence_count": 2,
-      "present_evidence_count": 2,
+      "limitation": "A bounded NASA BGA second-source-family pilot exists, but it is concept-centric, seed-labelled, and not a full cross-domain GraphRAG answer-generation benchmark.",
+      "evidence_count": 3,
+      "present_evidence_count": 3,
       "missing_evidence": []
     }
   ],
   "remaining_blockers": [
-    "External human/expert answer-review decisions are not yet complete.",
-    "Second-domain transfer is not yet executed."
+    "External human/expert answer-review decisions are not yet complete."
   ],
   "claim_safe_summary": "The current project is SOTA-comparable as a layered retrospective ATCSCC case study, but it is not complete enough for claims of universal GraphRAG superiority, full ATMONTO coverage, operational readiness, or domain-general validation."
 }

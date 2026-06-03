@@ -41,6 +41,7 @@
 | `nasa_benchmark_summary` | True | nasa_bga_lessons_seed_50 | 50 | source_expansion, benchmark_validation | False | False |
 | `cross_source_ontology_validation` | True | faa_phak_nasa_cross_source_seed_30 | 30 | source_expansion, ontology_kg | False | False |
 | `multisource_retrieval_smoke` | True | faa_phak_nasa_smoke_35 | 25 | source_expansion, retrieval | False | False |
+| `nasa_bga_domain_transfer_pilot` | True | nasa_bga_aerodynamics_reference_transfer | n/a | source_expansion, ontology_kg, evaluation_protocol, transfer_pilot, claim_safety | False | False |
 | `deepseek_v4pro_implementation_remediation` | True | not_dataset_specific | n/a | implementation_review, claim_safety | False | False |
 | `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False | False |
 | `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False | False |
@@ -82,7 +83,7 @@
 | benchmark reviewed subset 60 | model-based review scaffold for high-value labels | llm_review_scaffold | pending_llm_review | review scaffold only; no human review or external aviation expert certification |
 | LLM review artifacts | model-based benchmark, triple, graph-path, answer, and consistency review | llm_judge | internal_llm_review_only | model-based internal review; no human or external expert certification |
 | NASA BGA full landing-page corpus | second authoritative educational source collection from NASA Glenn BGA | source_collection | source_collection_only | collected as educational web evidence; interactive pages may expose limited text |
-| NASA Lessons in Aerodynamics subset | source-expansion experiment for ontology boundary, chunking, KG, and seed QA | source_expansion_experiment | partial_source_generalization_evidence | internal educational-source experiment; no external aviation certification or operational readiness |
+| NASA Lessons in Aerodynamics subset | source-expansion experiment for ontology boundary, chunking, KG, and seed QA | domain_transfer_pilot | bounded_second_source_family_transfer | bounded concept-centric educational-source transfer pilot; no external aviation certification, no human review, no operational readiness, and no full S7-style answer-generation ablation |
 | answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | stratified subset; deterministic heuristic scores unless annotated |
 | ATCSCC S7 source-bounded answer set | SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts | s7_graphrag_answer_generation | source_bounded_diagnostic | bounded retrospective LLM run; broad 60-case reviewer packet exists but external review decisions remain incomplete; profile-decision what-if does not replace strict main metrics or completed human review |
 | ATCSCC S5/S6 live agentic pilot 3 | bounded live extractor/validator/critic/refiner pilot over reviewed ATCSCC advisory samples | s5_s6_live_agentic_pilot | bounded_method_pilot | 3-sample live LLM pilot; useful for method evidence but not a full autonomous-agent benchmark |
