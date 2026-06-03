@@ -278,6 +278,21 @@ def _write_dashboard_fixture(root: Path) -> None:
         },
     )
     _write_json(
+        stages / "nasa_atmonto_s7_answer_review_import.json",
+        {
+            "status": "review_import_rejected",
+            "metadata": {
+                "can_import": False,
+                "imported": False,
+                "decision_status": "s7_answer_review_decisions_pending",
+                "completed_case_count": 0,
+                "pending_case_count": 0,
+                "invalid_case_count": 0,
+            },
+            "failure_reasons": ["reviewed CSV does not exist"],
+        },
+    )
+    _write_json(
         stages / "nasa_atmonto_s7_candidate_adjudication.json",
         {
             "status": "candidate_adjudication_created",
@@ -397,6 +412,8 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     assert "ATCSCC S7 source-bounded answer set" in {
         row["dataset"] for row in result["dataset_usage_matrix"]
     }
+    source_names = {row["report_name"] for row in result["experiment_inventory"]}
+    assert "nasa_atmonto_s7_answer_review_import" in source_names
     assert result["primary_results"]["llm_review_status"]["human_review"] is False
     remediation = result["primary_results"]["implementation_review_remediation"]
     assert remediation["implemented_items"] == 1

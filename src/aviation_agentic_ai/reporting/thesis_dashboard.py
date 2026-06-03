@@ -86,6 +86,9 @@ REPORT_SOURCES: dict[str, str] = {
     "nasa_atmonto_s7_answer_review_decisions": (
         "reports/stages/nasa_atmonto_s7_answer_review_decisions.json"
     ),
+    "nasa_atmonto_s7_answer_review_import": (
+        "reports/stages/nasa_atmonto_s7_answer_review_import.json"
+    ),
     "nasa_atmonto_s7_candidate_adjudication": (
         "reports/stages/nasa_atmonto_s7_candidate_adjudication.json"
     ),
@@ -236,6 +239,11 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
             "claim_safety",
             "failure_analysis",
         ),
+        "nasa_atmonto_s7_answer_review_import": (
+            "answer_generation",
+            "human_review_scaffold",
+            "claim_safety",
+        ),
         "nasa_atmonto_s7_candidate_adjudication": (
             "answer_generation",
             "failure_analysis",
@@ -293,6 +301,7 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "nasa_atmonto_s7_human_review_candidates": "atcscc_s7_review_candidate_queue_9",
         "nasa_atmonto_s7_broad_answer_review_packet": "atcscc_s7_source_bounded_60",
         "nasa_atmonto_s7_answer_review_decisions": "atcscc_s7_source_bounded_60",
+        "nasa_atmonto_s7_answer_review_import": "atcscc_s7_source_bounded_60",
         "nasa_atmonto_s7_candidate_adjudication": "atcscc_s7_review_candidate_queue_9",
         "nasa_atmonto_s7_profile_decision": "atcscc_s7_profile_decision_what_if_3",
     }
@@ -1129,14 +1138,15 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
                 "nasa_atmonto_s7_human_review_candidates",
                 "nasa_atmonto_s7_broad_answer_review_packet",
                 "nasa_atmonto_s7_answer_review_decisions",
+                "nasa_atmonto_s7_answer_review_import",
                 "nasa_atmonto_s7_candidate_adjudication",
                 "nasa_atmonto_s7_profile_decision",
             ],
             "limitations": (
-                "bounded retrospective LLM run; broad 60-case reviewer packet and "
-                "decision-status report exist but external review decisions remain "
-                "incomplete; profile-decision what-if does not replace strict main "
-                "metrics or completed human review"
+                "bounded retrospective LLM run; broad 60-case reviewer packet, "
+                "reviewed-CSV import gate, and decision-status report exist but "
+                "external review decisions remain incomplete; profile-decision "
+                "what-if does not replace strict main metrics or completed human review"
             ),
             "can_support_thesis_main_claim": "source_bounded_diagnostic",
             "evidence_role": "s7_graphrag_answer_generation",
@@ -1262,6 +1272,7 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 "robustness_evaluation",
                 "nasa_atmonto_s7_llm_answer_generation",
                 "nasa_atmonto_s7_human_review_candidates",
+                "nasa_atmonto_s7_answer_review_import",
                 "nasa_atmonto_s7_candidate_adjudication",
                 "nasa_atmonto_s7_profile_decision",
             ],
