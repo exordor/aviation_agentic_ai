@@ -957,7 +957,13 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             "adjudication classifies "
             f"{s7_answer.get('profile_or_gold_boundary_failures')} failures as "
             "profile/gold-boundary cases; strict main metrics changed="
-            f"{s7_answer.get('strict_main_metrics_changed_by_adjudication')}.",
+            f"{s7_answer.get('strict_main_metrics_changed_by_adjudication')}. "
+            "Profile-decision what-if corrected records="
+            f"{s7_answer.get('profile_decision_corrected_record_count')}, "
+            "gold/profile changed="
+            f"{s7_answer.get('profile_decision_gold_or_profile_changed')}, "
+            "what-if replaces main="
+            f"{s7_answer.get('profile_decision_what_if_metrics_replace_main')}.",
             "",
             "## RQ5: NASA source generalization and ontology boundary validation",
             "",
@@ -1028,7 +1034,11 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             "profile/gold-boundary failures="
             f"{s7_answer.get('profile_or_gold_boundary_failures')}. This candidate queue "
             "is prepared for later human or supervisor review and is not itself completed "
-            "human review; deterministic adjudication did not change the main metrics.",
+            "human review; deterministic adjudication did not change the main metrics. "
+            "The profile-decision what-if corrects "
+            f"{s7_answer.get('profile_decision_corrected_record_count')} records under a "
+            "predicate-whitelist sensitivity policy, but it does not replace strict S7 "
+            "metrics and does not change gold/profile artifacts.",
             "",
             "## Model-Based Review Instead of Human Review",
             "",

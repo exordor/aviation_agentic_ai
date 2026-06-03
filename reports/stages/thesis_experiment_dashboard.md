@@ -51,6 +51,7 @@
 | `nasa_atmonto_s7_llm_answer_generation` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, graph_paths, safety_abstention | False | True |
 | `nasa_atmonto_s7_human_review_candidates` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, llm_review_scaffold, failure_analysis | False | False |
 | `nasa_atmonto_s7_candidate_adjudication` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, failure_analysis, claim_safety | False | False |
+| `nasa_atmonto_s7_profile_decision` | True | atcscc_s7_profile_decision_what_if_3 | n/a | answer_generation, failure_analysis, claim_safety, evaluation_protocol | False | False |
 
 ## RQ-To-Evidence Matrix
 
@@ -59,7 +60,7 @@
 | RQ1 ontology constraint | curated_ontology_evaluation, kg_extraction_comparison, kg_validation | RDF/OWL parse validity, label/comment coverage, unsupported class/property count, provenance completeness | strong | Triple semantic correctness is absent or LLM-estimated only. |
 | RQ2 evidence traceability | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation, nasa_atmonto_s7_llm_answer_generation | KG evidence coverage, citation completeness, citation precision, citation recall | moderate | S7 LLM results are retrospective diagnostics and must remain separate from human review or external aviation certification. |
 | RQ3 graph evidence vs vector sufficiency | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, chunking_comparison_benchmark_v2, chunking_comparison_benchmark_v2_budget, chunking_topk_sensitivity_benchmark_v2, chunking_category_analysis_benchmark_v2 | Recall@5, Recall@10, MRR@5, NDCG@10, Path Recall@5, Path Precision@5, Fixed-budget chunking Recall@5 | moderate | Path relevance is heuristic or model-reviewed, not human-validated. |
-| RQ4 safety-aware abstention | sufficiency_evaluation, robustness_evaluation, nasa_atmonto_s7_llm_answer_generation, nasa_atmonto_s7_human_review_candidates, nasa_atmonto_s7_candidate_adjudication | Abstention Accuracy, False Answer Rate, False Abstention Rate, Risk Category Accuracy, Unsupported Claim Rate, Abstention Correctness | moderate | Sufficiency can create false abstentions on supported questions; S7 cause-condition over-answer cases still require human or supervisor review before any profile/gold update. |
+| RQ4 safety-aware abstention | sufficiency_evaluation, robustness_evaluation, nasa_atmonto_s7_llm_answer_generation, nasa_atmonto_s7_human_review_candidates, nasa_atmonto_s7_candidate_adjudication, nasa_atmonto_s7_profile_decision | Abstention Accuracy, False Answer Rate, False Abstention Rate, Risk Category Accuracy, Unsupported Claim Rate, Abstention Correctness | moderate | Sufficiency can create false abstentions on supported questions; STAFFING as a profile extension still requires human or supervisor review before any ontology/profile/gold update. |
 | RQ5 source generalization | nasa_source_discovery, nasa_source_ingestion, nasa_source_validation, nasa_chunking_summary, ontology_boundary_nasa, nasa_kg_validation, nasa_benchmark_summary, cross_source_ontology_validation, multisource_retrieval_smoke | NASA landing-page URL coverage, full-corpus valid page count, Lessons in Aerodynamics experiment page count, candidate ontology additions, NASA KG provenance/evidence validation, multi-source lexical smoke Recall@5 | provisional | NASA labels and KG triples are deterministic scaffolds; no human or external aviation expert certification is present. |
 
 ## Dataset Usage Matrix
@@ -76,7 +77,7 @@
 | NASA BGA full landing-page corpus | second authoritative educational source collection from NASA Glenn BGA | source_collection | source_collection_only | collected as educational web evidence; interactive pages may expose limited text |
 | NASA Lessons in Aerodynamics subset | source-expansion experiment for ontology boundary, chunking, KG, and seed QA | source_expansion_experiment | partial_source_generalization_evidence | internal educational-source experiment; no external aviation certification or operational readiness |
 | answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | stratified subset; deterministic heuristic scores unless annotated |
-| ATCSCC S7 source-bounded answer set | SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts | s7_graphrag_answer_generation | source_bounded_diagnostic | bounded retrospective LLM run; candidate package is a review queue, not completed human review |
+| ATCSCC S7 source-bounded answer set | SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts | s7_graphrag_answer_generation | source_bounded_diagnostic | bounded retrospective LLM run; candidate package is a review queue, profile-decision what-if does not replace strict main metrics or completed human review |
 | triple semantic review sample | KG semantic correctness review template | llm_review_pending | partial | review fields pending until model-based review is run; no expert correctness claimed |
 
 ## Primary Results
@@ -90,7 +91,7 @@
 | robustness | Abstention Correctness=1.0, False Answer Rate=0.0, Boundary Violations=0 |
 | benchmark reviewed subset | Labels=60, Review Status=llm_review_pending_not_human_certified, External Expert Certified=False |
 | answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=45, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |
-| ATCSCC S7 LLM answer generation | Selected=60, Best mode=routed_token_matched_live_tfidf_graphrag, Correctness=0.9667, Citation precision=1.0, Citation recall=0.6084, Unsupported claim rate=0.0167, Human-review candidates=9 (queue only; no human review), Adjudicated profile/gold-boundary failures=3, Strict metrics changed=False |
+| ATCSCC S7 LLM answer generation | Selected=60, Best mode=routed_token_matched_live_tfidf_graphrag, Correctness=0.9667, Citation precision=1.0, Citation recall=0.6084, Unsupported claim rate=0.0167, Human-review candidates=9 (queue only; no human review), Adjudicated profile/gold-boundary failures=3, Strict metrics changed=False, Profile-decision what-if corrected records=3, Profile/gold changed=False, What-if replaces main=False |
 | chunking benchmark v2 | Top-k best=structure_aware_large (Recall@5=0.85), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |
 | PDF extraction backend | Recommended=hybrid_docling_pymupdf (candidate_default_not_final), legacy false headings=113, Docling heading recall=1.0, hybrid repairs=14, hybrid Recall@5=0.77 |
 | KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |
@@ -156,6 +157,7 @@
 - `s7_llm_answer_generation_available`: True
 - `s7_human_review_candidates_available`: True
 - `s7_candidate_adjudication_available`: True
+- `s7_profile_decision_what_if_available`: True
 - `reviewed_subset_llm_review_pending`: True
 - `safety_reports_have_no_boundary_violations`: True
 - `robustness_false_answer_rate_zero`: True

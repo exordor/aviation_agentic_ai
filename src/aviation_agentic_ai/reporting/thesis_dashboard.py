@@ -62,6 +62,9 @@ REPORT_SOURCES: dict[str, str] = {
     "nasa_atmonto_s7_candidate_adjudication": (
         "reports/stages/nasa_atmonto_s7_candidate_adjudication.json"
     ),
+    "nasa_atmonto_s7_profile_decision": (
+        "reports/stages/nasa_atmonto_s7_profile_decision.json"
+    ),
 }
 
 UNSAFE_PATTERNS = (
@@ -177,6 +180,12 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
             "failure_analysis",
             "claim_safety",
         ),
+        "nasa_atmonto_s7_profile_decision": (
+            "answer_generation",
+            "failure_analysis",
+            "claim_safety",
+            "evaluation_protocol",
+        ),
     }
     dataset_map = {
         "benchmark_v2_summary": "benchmark_v2_120",
@@ -218,6 +227,7 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "nasa_atmonto_s7_llm_answer_generation": "atcscc_s7_source_bounded_60",
         "nasa_atmonto_s7_human_review_candidates": "atcscc_s7_review_candidate_queue_9",
         "nasa_atmonto_s7_candidate_adjudication": "atcscc_s7_review_candidate_queue_9",
+        "nasa_atmonto_s7_profile_decision": "atcscc_s7_profile_decision_what_if_3",
     }
     inventory = []
     for name, rel_path in REPORT_SOURCES.items():
@@ -302,6 +312,7 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     s7_llm_answers = reports.get("nasa_atmonto_s7_llm_answer_generation", {})
     s7_review_candidates = reports.get("nasa_atmonto_s7_human_review_candidates", {})
     s7_candidate_adjudication = reports.get("nasa_atmonto_s7_candidate_adjudication", {})
+    s7_profile_decision = reports.get("nasa_atmonto_s7_profile_decision", {})
 
     vector = _scenario_metrics(retrieval, "vector_hops2_v5_h8")
     hybrid = _scenario_metrics(retrieval, "hybrid_hops2_v5_h8")
@@ -456,6 +467,48 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 "metadata",
                 "strict_main_metrics_changed",
                 default=False,
+            ),
+            "profile_decision_status": s7_profile_decision.get("status", "not_present"),
+            "profile_decision_corrected_record_count": _metric(
+                s7_profile_decision,
+                "metadata",
+                "corrected_record_count",
+                default=0,
+            ),
+            "profile_decision_strict_main_metrics_changed": _metric(
+                s7_profile_decision,
+                "metadata",
+                "strict_main_metrics_changed",
+                default=False,
+            ),
+            "profile_decision_gold_or_profile_changed": _metric(
+                s7_profile_decision,
+                "metadata",
+                "gold_or_profile_changed",
+                default=False,
+            ),
+            "profile_decision_what_if_metrics_replace_main": _metric(
+                s7_profile_decision,
+                "metadata",
+                "what_if_metrics_replace_main",
+                default=False,
+            ),
+            "profile_decision_corrected_record_count_by_mode": _metric(
+                s7_profile_decision,
+                "summary",
+                "corrected_record_count_by_mode",
+                default={},
+            ),
+            "profile_decision_what_if_aggregate_by_mode": _metric(
+                s7_profile_decision,
+                "summary",
+                "what_if_aggregate_by_mode",
+                default={},
+            ),
+            "profile_decision_recommended_policy": _metric(
+                s7_profile_decision,
+                "summary",
+                "recommended_policy",
             ),
             "coverage_candidate_count": _metric(
                 s7_review_candidates,
@@ -1006,10 +1059,12 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
                 "nasa_atmonto_s7_llm_answer_generation",
                 "nasa_atmonto_s7_human_review_candidates",
                 "nasa_atmonto_s7_candidate_adjudication",
+                "nasa_atmonto_s7_profile_decision",
             ],
             "limitations": (
                 "bounded retrospective LLM run; candidate package is a review queue, "
-                "not completed human review"
+                "profile-decision what-if does not replace strict main metrics or "
+                "completed human review"
             ),
             "can_support_thesis_main_claim": "source_bounded_diagnostic",
             "evidence_role": "s7_graphrag_answer_generation",
@@ -1108,6 +1163,7 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 "nasa_atmonto_s7_llm_answer_generation",
                 "nasa_atmonto_s7_human_review_candidates",
                 "nasa_atmonto_s7_candidate_adjudication",
+                "nasa_atmonto_s7_profile_decision",
             ],
             "primary_metrics": [
                 "Abstention Accuracy",
@@ -1127,13 +1183,17 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 f"{primary['s7_llm_answer_generation']['failure_candidate_count']} "
                 "failure candidates queued for review; "
                 f"{primary['s7_llm_answer_generation']['profile_or_gold_boundary_failures']} "
-                "are deterministically adjudicated as profile/gold-boundary cases."
+                "are deterministically adjudicated as profile/gold-boundary cases. "
+                "A profile-decision sensitivity report corrects "
+                f"{primary['s7_llm_answer_generation']['profile_decision_corrected_record_count']} "
+                "records under a predicate-whitelist what-if while leaving strict main "
+                "metrics unchanged."
             ),
             "claim_strength": "moderate",
             "remaining_gaps": (
                 "Sufficiency can create false abstentions on supported questions; "
-                "S7 cause-condition over-answer cases still require human or supervisor "
-                "review before any profile/gold update."
+                "STAFFING as a profile extension still requires human or supervisor "
+                "review before any ontology/profile/gold update."
             ),
         },
         {
@@ -1330,6 +1390,19 @@ def _consistency_checks(
         "profile_or_gold_boundary_failures",
         default=0,
     )
+    s7_profile_decision = reports.get("nasa_atmonto_s7_profile_decision", {})
+    s7_profile_decision_corrected = _metric(
+        s7_profile_decision,
+        "metadata",
+        "corrected_record_count",
+        default=0,
+    )
+    s7_profile_decision_replaces_main = _metric(
+        s7_profile_decision,
+        "metadata",
+        "what_if_metrics_replace_main",
+        default=True,
+    )
     checks = {
         "every_rq_has_evidence_report": all(row["evidence_reports"] for row in rq_matrix),
         "primary_thesis_metrics_have_report_evidence": not primary_metric_gaps,
@@ -1350,6 +1423,9 @@ def _consistency_checks(
         "s7_llm_answer_generation_available": s7_llm_selected > 0,
         "s7_human_review_candidates_available": s7_review_candidates > 0,
         "s7_candidate_adjudication_available": s7_adjudication_failures > 0,
+        "s7_profile_decision_what_if_available": (
+            s7_profile_decision_corrected > 0 and not s7_profile_decision_replaces_main
+        ),
         "reviewed_subset_llm_review_pending": reviewed_subset_pending,
         "safety_reports_have_no_boundary_violations": (
             sufficiency_boundary == 0 and robustness_boundary == 0
@@ -1560,7 +1636,13 @@ def write_thesis_experiment_dashboard_markdown(
                 "Adjudicated profile/gold-boundary failures="
                 f"{primary['s7_llm_answer_generation']['profile_or_gold_boundary_failures']}, "
                 "Strict metrics changed="
-                f"{primary['s7_llm_answer_generation']['strict_main_metrics_changed_by_adjudication']} |"
+                f"{primary['s7_llm_answer_generation']['strict_main_metrics_changed_by_adjudication']}, "
+                "Profile-decision what-if corrected records="
+                f"{primary['s7_llm_answer_generation']['profile_decision_corrected_record_count']}, "
+                "Profile/gold changed="
+                f"{primary['s7_llm_answer_generation']['profile_decision_gold_or_profile_changed']}, "
+                "What-if replaces main="
+                f"{primary['s7_llm_answer_generation']['profile_decision_what_if_metrics_replace_main']} |"
             ),
             (
                 "| chunking benchmark v2 | "

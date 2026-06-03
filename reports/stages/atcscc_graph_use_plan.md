@@ -253,7 +253,10 @@ over-answer boundary. `reports/stages/nasa_atmonto_s7_human_review_candidates.md
 packages these failures plus coverage successes for external review, and
 `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` deterministically
 classifies the three failures as profile/gold-boundary cases without changing
-the strict main S7 metrics.
+the strict main S7 metrics. `reports/stages/nasa_atmonto_s7_profile_decision.md`
+then records the bounded what-if: a predicate whitelist would correct the three
+selected STAFFING boundary records, but this sensitivity result does not replace
+strict S7 metrics and does not change gold/profile artifacts.
 
 ### Route-Semantics Partial-Answer Ablation
 
@@ -282,7 +285,8 @@ path-support reporting, materialized graph traversal, tokenizer-backed
 token-budget controls, latency reporting, deterministic generated-answer
 evaluation over routed live retrieval contexts, graph-health diagnostics by CQ
 group, a 60-case fixed-budget LLM-generated answer check, and candidate
-adjudication for the remaining failures. It also produces two
+adjudication plus profile-decision sensitivity for the remaining failures. It
+also produces two
 qualified results:
 graph context is not automatically better in the current scaffold, and dense
 retrieval only becomes competitive after explicit source-local guarding for
@@ -301,10 +305,10 @@ This does not yet prove:
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to turn the deterministic candidate adjudication into a
-reviewed profile/gold decision using
+The next SOTA upgrade is to turn the deterministic candidate adjudication and
+profile-decision what-if into a reviewed profile/gold decision using
 `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
-`reports/stages/nasa_atmonto_s7_candidate_adjudication.md`. Keep the
-partial-answer ablation as the provenance for why the route-semantics contract
-changed, and keep the cause-condition failures as review targets rather than
-silently changing the metric.
+`reports/stages/nasa_atmonto_s7_candidate_adjudication.md`. Keep
+`reports/stages/nasa_atmonto_s7_profile_decision.md` as the sensitivity package:
+it supports discussion of STAFFING as a profile-extension candidate, but it does
+not silently change the strict metric.

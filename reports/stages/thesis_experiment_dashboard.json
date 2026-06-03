@@ -20,6 +20,7 @@
     "s7_candidate_adjudication_available": true,
     "s7_human_review_candidates_available": true,
     "s7_llm_answer_generation_available": true,
+    "s7_profile_decision_what_if_available": true,
     "safety_reports_have_no_boundary_violations": true,
     "triple_semantic_llm_review_available": true,
     "unsafe_hits": []
@@ -157,13 +158,14 @@
       "can_support_thesis_main_claim": "source_bounded_diagnostic",
       "dataset": "ATCSCC S7 source-bounded answer set",
       "evidence_role": "s7_graphrag_answer_generation",
-      "limitations": "bounded retrospective LLM run; candidate package is a review queue, not completed human review",
+      "limitations": "bounded retrospective LLM run; candidate package is a review queue, profile-decision what-if does not replace strict main metrics or completed human review",
       "purpose": "SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts",
       "used_in_reports": [
         "nasa_atmonto_s7_answer_generation",
         "nasa_atmonto_s7_llm_answer_generation",
         "nasa_atmonto_s7_human_review_candidates",
-        "nasa_atmonto_s7_candidate_adjudication"
+        "nasa_atmonto_s7_candidate_adjudication",
+        "nasa_atmonto_s7_profile_decision"
       ]
     },
     {
@@ -724,6 +726,21 @@
       "present": true,
       "questions_count": "n/a",
       "report_name": "nasa_atmonto_s7_candidate_adjudication"
+    },
+    {
+      "dataset_used": "atcscc_s7_profile_decision_what_if_3",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "answer_generation",
+        "failure_analysis",
+        "claim_safety",
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/nasa_atmonto_s7_profile_decision.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s7_profile_decision"
     }
   ],
   "failure_mode_summary": {
@@ -1085,6 +1102,50 @@
         "routed_token_matched_live_tfidf_graphrag",
         "routed_token_matched_dense_graphrag"
       ],
+      "profile_decision_corrected_record_count": 3,
+      "profile_decision_corrected_record_count_by_mode": {
+        "routed_token_matched_dense_graphrag": 2,
+        "routed_token_matched_live_tfidf_graphrag": 1
+      },
+      "profile_decision_gold_or_profile_changed": false,
+      "profile_decision_recommended_policy": "Keep strict S7 metrics unchanged. Report the predicate-whitelist what-if as a sensitivity analysis, and treat STAFFING as a proposed profile extension that requires human or supervisor approval before changing gold/profile artifacts.",
+      "profile_decision_status": "profile_decision_what_if_created",
+      "profile_decision_strict_main_metrics_changed": false,
+      "profile_decision_what_if_aggregate_by_mode": {
+        "routed_token_matched_dense_graphrag": {
+          "abstention_correctness": 1.0,
+          "answer_correctness": 1.0,
+          "avg_estimated_context_tokens": 33.03,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5945,
+          "evidence_faithfulness": 1.0,
+          "failed_total": 0,
+          "llm_answered_total": 30,
+          "not_run_total": 0,
+          "selected_total": 30,
+          "status_counts": {
+            "answered": 30
+          },
+          "unsupported_claim_rate": 0.0
+        },
+        "routed_token_matched_live_tfidf_graphrag": {
+          "abstention_correctness": 1.0,
+          "answer_correctness": 1.0,
+          "avg_estimated_context_tokens": 33.03,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6084,
+          "evidence_faithfulness": 1.0,
+          "failed_total": 0,
+          "llm_answered_total": 30,
+          "not_run_total": 0,
+          "selected_total": 30,
+          "status_counts": {
+            "answered": 30
+          },
+          "unsupported_claim_rate": 0.0
+        }
+      },
+      "profile_decision_what_if_metrics_replace_main": false,
       "profile_or_gold_boundary_failures": 3,
       "prompt_version": "nasa_atmonto_s7_llm_answer_v3_route_partial",
       "reviewer_model": "gpt-5.4-mini",
@@ -1294,13 +1355,14 @@
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible. S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review; 3 are deterministically adjudicated as profile/gold-boundary cases.",
+      "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible. S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review; 3 are deterministically adjudicated as profile/gold-boundary cases. A profile-decision sensitivity report corrects 3 records under a predicate-whitelist what-if while leaving strict main metrics unchanged.",
       "evidence_reports": [
         "sufficiency_evaluation",
         "robustness_evaluation",
         "nasa_atmonto_s7_llm_answer_generation",
         "nasa_atmonto_s7_human_review_candidates",
-        "nasa_atmonto_s7_candidate_adjudication"
+        "nasa_atmonto_s7_candidate_adjudication",
+        "nasa_atmonto_s7_profile_decision"
       ],
       "primary_metrics": [
         "Abstention Accuracy",
@@ -1310,7 +1372,7 @@
         "Unsupported Claim Rate",
         "Abstention Correctness"
       ],
-      "remaining_gaps": "Sufficiency can create false abstentions on supported questions; S7 cause-condition over-answer cases still require human or supervisor review before any profile/gold update.",
+      "remaining_gaps": "Sufficiency can create false abstentions on supported questions; STAFFING as a profile extension still requires human or supervisor review before any ontology/profile/gold update.",
       "rq": "RQ4 safety-aware abstention"
     },
     {

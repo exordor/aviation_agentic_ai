@@ -20,7 +20,7 @@ Scope boundary: This system is for aviation learning and decision-support only. 
 - **NASA BGA full landing-page corpus**: second authoritative educational source collection from NASA Glenn BGA; evidence role=`source_collection`; thesis main claim support=source_collection_only; limitations: collected as educational web evidence; interactive pages may expose limited text.
 - **NASA Lessons in Aerodynamics subset**: source-expansion experiment for ontology boundary, chunking, KG, and seed QA; evidence role=`source_expansion_experiment`; thesis main claim support=partial_source_generalization_evidence; limitations: internal educational-source experiment; no external aviation certification or operational readiness.
 - **answer-eval subset**: answer citation and faithfulness heuristics; evidence role=`pilot`; thesis main claim support=partial; limitations: stratified subset; deterministic heuristic scores unless annotated.
-- **ATCSCC S7 source-bounded answer set**: SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts; evidence role=`s7_graphrag_answer_generation`; thesis main claim support=source_bounded_diagnostic; limitations: bounded retrospective LLM run; candidate package is a review queue, not completed human review.
+- **ATCSCC S7 source-bounded answer set**: SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts; evidence role=`s7_graphrag_answer_generation`; thesis main claim support=source_bounded_diagnostic; limitations: bounded retrospective LLM run; candidate package is a review queue, profile-decision what-if does not replace strict main metrics or completed human review.
 - **triple semantic review sample**: KG semantic correctness review template; evidence role=`llm_review_pending`; thesis main claim support=partial; limitations: review fields pending until model-based review is run; no expert correctness claimed.
 
 Benchmark v2 is the main thesis retrieval and safety benchmark. The 10-CQ and 35-question sets remain pilot/demo evidence and must not be presented as the main thesis benchmark.
@@ -53,7 +53,7 @@ PDF extraction backend evidence: recommended candidate backend=hybrid_docling_py
 
 Benchmark v2 safety metrics: Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29, Risk Category Accuracy=1.0. Sufficiency diagnostics show strong abstention on benchmark v2 no-answer labels, while robustness must also remain visible: false answer rate=0.0, boundary violations=0.
 
-S7 answer-generation safety diagnostics: unsupported claim rate=0.0167, abstention correctness=1.0, human-review candidates=9 including 3 failure candidates. Deterministic adjudication classifies 3 failures as profile/gold-boundary cases; strict main metrics changed=False.
+S7 answer-generation safety diagnostics: unsupported claim rate=0.0167, abstention correctness=1.0, human-review candidates=9 including 3 failure candidates. Deterministic adjudication classifies 3 failures as profile/gold-boundary cases; strict main metrics changed=False. Profile-decision what-if corrected records=3, gold/profile changed=False, what-if replaces main=False.
 
 ## RQ5: NASA source generalization and ontology boundary validation
 
@@ -69,7 +69,7 @@ NASA benchmark and smoke evidence: seed labels=50, review status=llm_or_project_
 
 Benchmark reviewed subset: labels=60, status=llm_review_pending_not_human_certified, external aviation expert certification completed=False. Answer-evaluation benchmark subset: answers=0, status=pending_answer_generation, unmatched gold labels=45, hybrid faithfulness=0.0, score method=deterministic_heuristic. These are not human review results.
 
-ATCSCC S7 LLM answer-generation diagnostic: selected cases=60, best-mode correctness=0.9667, best-mode unsupported claim rate=0.0167, review candidates=9, adjudicated profile/gold-boundary failures=3. This candidate queue is prepared for later human or supervisor review and is not itself completed human review; deterministic adjudication did not change the main metrics.
+ATCSCC S7 LLM answer-generation diagnostic: selected cases=60, best-mode correctness=0.9667, best-mode unsupported claim rate=0.0167, review candidates=9, adjudicated profile/gold-boundary failures=3. This candidate queue is prepared for later human or supervisor review and is not itself completed human review; deterministic adjudication did not change the main metrics. The profile-decision what-if corrects 3 records under a predicate-whitelist sensitivity policy, but it does not replace strict S7 metrics and does not change gold/profile artifacts.
 
 ## Model-Based Review Instead of Human Review
 
@@ -139,6 +139,7 @@ Benchmark v2 is thesis/course-project evidence, not external aviation expert cer
 - `s7_candidate_adjudication_available`: True
 - `s7_human_review_candidates_available`: True
 - `s7_llm_answer_generation_available`: True
+- `s7_profile_decision_what_if_available`: True
 - `safety_reports_have_no_boundary_violations`: True
 - `triple_semantic_llm_review_available`: True
 
@@ -147,5 +148,5 @@ Benchmark v2 is thesis/course-project evidence, not external aviation expert cer
 - **RQ1 ontology constraint**: reports=['curated_ontology_evaluation', 'kg_extraction_comparison', 'kg_validation']; metrics=['RDF/OWL parse validity', 'label/comment coverage', 'unsupported class/property count', 'provenance completeness']; claim strength=strong; gaps=Triple semantic correctness is absent or LLM-estimated only..
 - **RQ2 evidence traceability**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2', 'answer_evaluation', 'nasa_atmonto_s7_llm_answer_generation']; metrics=['KG evidence coverage', 'citation completeness', 'citation precision', 'citation recall']; claim strength=moderate; gaps=S7 LLM results are retrospective diagnostics and must remain separate from human review or external aviation certification..
 - **RQ3 graph evidence vs vector sufficiency**: reports=['retrieval_ablation_benchmark_v2', 'graph_traversal_ablation_benchmark_v2', 'chunking_comparison_benchmark_v2', 'chunking_comparison_benchmark_v2_budget', 'chunking_topk_sensitivity_benchmark_v2', 'chunking_category_analysis_benchmark_v2']; metrics=['Recall@5', 'Recall@10', 'MRR@5', 'NDCG@10', 'Path Recall@5', 'Path Precision@5', 'Fixed-budget chunking Recall@5']; claim strength=moderate; gaps=Path relevance is heuristic or model-reviewed, not human-validated..
-- **RQ4 safety-aware abstention**: reports=['sufficiency_evaluation', 'robustness_evaluation', 'nasa_atmonto_s7_llm_answer_generation', 'nasa_atmonto_s7_human_review_candidates', 'nasa_atmonto_s7_candidate_adjudication']; metrics=['Abstention Accuracy', 'False Answer Rate', 'False Abstention Rate', 'Risk Category Accuracy', 'Unsupported Claim Rate', 'Abstention Correctness']; claim strength=moderate; gaps=Sufficiency can create false abstentions on supported questions; S7 cause-condition over-answer cases still require human or supervisor review before any profile/gold update..
+- **RQ4 safety-aware abstention**: reports=['sufficiency_evaluation', 'robustness_evaluation', 'nasa_atmonto_s7_llm_answer_generation', 'nasa_atmonto_s7_human_review_candidates', 'nasa_atmonto_s7_candidate_adjudication', 'nasa_atmonto_s7_profile_decision']; metrics=['Abstention Accuracy', 'False Answer Rate', 'False Abstention Rate', 'Risk Category Accuracy', 'Unsupported Claim Rate', 'Abstention Correctness']; claim strength=moderate; gaps=Sufficiency can create false abstentions on supported questions; STAFFING as a profile extension still requires human or supervisor review before any ontology/profile/gold update..
 - **RQ5 source generalization**: reports=['nasa_source_discovery', 'nasa_source_ingestion', 'nasa_source_validation', 'nasa_chunking_summary', 'ontology_boundary_nasa', 'nasa_kg_validation', 'nasa_benchmark_summary', 'cross_source_ontology_validation', 'multisource_retrieval_smoke']; metrics=['NASA landing-page URL coverage', 'full-corpus valid page count', 'Lessons in Aerodynamics experiment page count', 'candidate ontology additions', 'NASA KG provenance/evidence validation', 'multi-source lexical smoke Recall@5']; claim strength=provisional; gaps=NASA labels and KG triples are deterministic scaffolds; no human or external aviation expert certification is present..

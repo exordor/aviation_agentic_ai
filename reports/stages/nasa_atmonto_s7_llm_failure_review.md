@@ -45,7 +45,7 @@ The remaining failures are not retrieval misses. They are concentrated in
 
 | Current category | Current cases | Interpretation |
 | --- | ---: | --- |
-| Cause-condition over-answer | 3 | The LLM returns `impactingCondition` plus `impactingConditionMessage`, while the current label only accepts the literal message field. `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` classifies these as profile/gold-boundary cases without changing the strict metric. |
+| Cause-condition over-answer | 3 | The LLM returns `impactingCondition` plus `impactingConditionMessage`, while the current label only accepts the literal message field. `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` classifies these as profile/gold-boundary cases, and `reports/stages/nasa_atmonto_s7_profile_decision.md` reports a predicate-whitelist what-if without changing the strict metric. |
 
 The intermediate partial-answer ablation in
 `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md` tested the route
@@ -67,7 +67,8 @@ The current bounded LLM result supports a narrower claim:
 - remaining cause-condition failures are useful evidence of over-answer risk,
   not a reason to loosen the scoring metric without human review;
 - deterministic candidate adjudication records the likely profile/gold boundary,
-  but it is not expert review and does not change the main S7 score.
+  and profile-decision sensitivity records the corrected what-if, but neither is
+  expert review and neither changes the main S7 score.
 
 The result does not prove broad GraphRAG superiority or operational readiness.
 It is still a 60-case fixed-budget check over frozen S7 contexts.
@@ -76,10 +77,12 @@ It is still a 60-case fixed-budget check over frozen S7 contexts.
 
 Review rather than adding another prompt patch:
 
-1. Use `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
-   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` for a small
+1. Use `reports/stages/nasa_atmonto_s7_human_review_candidates.md`,
+   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`, and
+   `reports/stages/nasa_atmonto_s7_profile_decision.md` for a small
    human/expert review pass over failures plus coverage successes.
-2. Decide whether `impactingCondition` should be treated as a valid canonical
-   answer when `impactingConditionMessage` is the only current gold label.
+2. Decide whether STAFFING should become a reviewed `impactingCondition`
+   profile extension, or whether `impactingConditionMessage` remains the only
+   scored cause-condition label for this profile.
 3. Keep source-local dense guard rate, citation precision/recall, unsupported
    claim rate, and abstention correctness as separate thesis-facing metrics.

@@ -24658,7 +24658,7 @@
       "present": true
     }
   },
-  "generated_at": "2026-06-03T04:37:36.748570+00:00",
+  "generated_at": "2026-06-03T04:51:33.934895+00:00",
   "goals": {
     "excerpt": "# Project Goals\n\nLast updated: 2026-05-30\n\nThis file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.\n\n## Goal vs Task\n\n- A goal describes an outcome the project must achieve.\n- A task describes a concrete action that can be completed and checked off.\n- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.\n- Reports under `reports/` provide evidence that a goal has been met.\n\n## G1 - Course Objective And Project Rationale\n\nBuild a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.\n\nSuccess criteria:\n\n- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.\n- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.\n- The project can explain where GraphRAG adds evidence traceability beyond plain LLM prompting or vector-only RAG, and where vector retrieval is sufficient.\n- The project uses FAA aviation handbook material as the starting source corpus.\n- The report clearly connects implementation choices to the course objective.\n\nCurrent status: in progress.\n\n## G2 - Ontology-Grounded KG Deliverable\n\nDeliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.\n\nRationale:\n\n- The KG is a project deliverable, not only an intermediate cache.\n- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.\n- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.\n\nSuccess criteria:\n\n- A baseline or generated TBox ontology exists and can be validated.\n- The extraction profile maps focused aviation classes/properties back to the ontology design.\n- Focused ABox/KG triples are extracted only when supported by source chunks.\n- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.\n- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.\n\nCurrent status: active curated ontology is available; focused KG was extracted and validated against the curated schema.\n\n## G3 - GraphRAG Core Pipeline\n\nImplement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.\n\nTarget pipeline:\n\n```text\nPDF -> chunks -> ontology-constrained KG/ABox\n    -> Chroma vector index\n    -> graph retrieval + vector retrieval\n    -> reciprocal-rank hybrid fusion\n    -> grounded LLM answer with citations\n```\n\nSuccess criteria:\n\n- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.\n- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.\n- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.\n- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.\n- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.\n\nCurrent status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 in the 10-question run while preserving KG evidence coverage. The expanded 35-question ablation shows vector Recall@5 can be higher than default hybrid Recall@5, so GraphRAG is defended as structured evidence support rather than a universal Recall winner.\n\n## G4 - Evaluation An",
     "path": "GOALS.md",
@@ -73954,7 +73954,7 @@
       "present": true
     },
     "thesis_experiment_dashboard": {
-      "excerpt": "# Thesis Experiment Dashboard\n\n- Source policy: aggregate existing reports; do not recompute experiments unnecessarily.\n- Scoring policy: layered metrics; no mixed overall score.\n- Advisory boundary: Aviation learning and decision support only; does not replace POH/AFM, approved checklists, ATC instructions, instructor guidance, regulations, or pilot judgment.\n\n## Experiment Inventory\n\n| Report | Present | Dataset | Questions | Layers | Human review present | LLM review available |\n| --- | ---: | --- | ---: | --- | ---: | ---: |\n| `thesis_claims_review` | True | not_dataset_specific | n/a | claim_safety | False | False |\n| `evaluation_protocol_review` | True | not_dataset_specific | n/a | evaluation_protocol | False | False |\n| `benchmark_v2_summary` | True | benchmark_v2_120 | 120 | benchmark_validation | False | False |\n| `retrieval_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, kg_evidence | False | False |\n| `graph_traversal_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, graph_paths | False | False |\n| `sufficiency_evaluation` | True | benchmark_v2_120 | 120 | safety_abstention | False | False |\n| `benchmark_reviewed_subset_summary` | True | benchmark_v2_reviewed_subset_60 | 60 | benchmark_llm_review_scaffold | False | False |\n| `benchmark_llm_review` | True | benchmark_v2_reviewed_subset_or_v2 | n/a | benchmark_llm_review, llm_judge | False | True |\n| `benchmark_llm_rewrite_proposals` | True | benchmark_v2_reviewed_subset_or_v2 | n/a | benchmark_llm_review | False | True |\n| `answer_evaluation_benchmark_subset` | True | answer_eval_subset | n/a | answer_generation, safety_abstention | False | False |\n| `answer_generation_benchmark_subset` | True | answer_eval_subset | 3 | answer_generation | False | False |\n| `answer_llm_judge` | True | answer_eval_subset | n/a | answer_generation, llm_judge | False | True |\n| `triple_semantic_llm_review` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_judge | False | True |\n| `graph_path_llm_review` | True | benchmark_v2_120 | n/a | graph_paths, llm_judge | False | True |\n| `llm_review_consistency` | True | llm_review_artifacts | n/a | llm_judge, claim_safety | False | True |\n| `chunking_implementation_audit` | True | benchmark_v2_120 | n/a | retrieval, evaluation_protocol | False | False |\n| `chunking_comparison_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_comparison_benchmark_v2_budget` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_topk_sensitivity_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_category_analysis_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_failure_cards_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval, failure_analysis | False | False |\n| `pdf_extraction_comparison` | True | phak_ch4_pdf_first_pages_heading_sample | n/a | pdf_extraction, claim_safety | False | False |\n| `pdf_hybrid_repair_report` | True | phak_ch4_pdf_docling_items | n/a | pdf_extraction, text_fidelity | False | False |\n| `pdf_backend_chunking_comparison` | True | benchmark_v2_120 | 120 | pdf_extraction, retrieval | False | False |\n| `nasa_source_discovery` | True | nasa_bga_aerodynamics_full_landing_page_manifest | n/a | source_expansion, claim_safety | False | False |\n| `nasa_source_ingestion` | True | nasa_bga_aerodynamics_full_corpus | n/a | source_expansion | False | False |\n| `nasa_source_validation` | True | nasa_bga_aerodynamics_full_corpus | n/a | source_expansion, claim_safety | False | False |\n| `nasa_chunking_summary` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, retrieval | False | False |\n| `ontology_boundary_nasa` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, ontology_kg | False | False |\n| `nasa_kg_validation` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, ontology_kg | False | False |\n| `nasa_benchmark_summary` | True | nasa_bga_lessons_seed_50 | 50 | source_expansion, benchmark_validation | False | False |\n| `cross_source_ontology_validation` | True | faa_phak_nasa_cross_source_seed_30 | 30 | source_expansion, ontology_kg | False | False |\n| `multisource_retrieval_smoke` | True | faa_phak_nasa_smoke_35 | 25 | source_expansion, retrieval | False | False |\n| `deepseek_v4pro_implementation_remediation` | True | not_dataset_specific | n/a | implementation_review, claim_safety | False | False |\n| `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False | False |\n| `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False | False |\n| `triple_semantic_review_sample` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_review_scaffold | False | False |\n| `answer_evaluation` | True | 10_cq_answer_subset | n/a | answer_generation, safety_abstention | False | False |\n| `robustness_evaluation` | True | robustness_10_cases | n/a | safety_abstention, robustness | False | False |\n| `benchmark_review_pack` | True | not_dataset_specific | 120 | benchmark_llm_review_scaffold | False | False |\n| `nasa_atmonto_s7_llm_answer_generation` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, graph_paths, safety_abstention | False | True |\n| `nasa_atmonto_s7_human_review_candidates` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, llm_review_scaffold, failure_analysis | False | False |\n| `nasa_atmonto_s7_candidate_adjudication` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, failure_analysis, claim_safety | False | False |\n\n## RQ-To-Evidence Matrix\n\n| RQ | Evidence reports | Primary metrics | Claim strength | Remaining gaps |\n| --- | --- | --- | --- | --- |\n| RQ1 ontology constraint | curated_ontology_evaluation, kg_extraction_comparison, kg_validation | RDF/OWL parse validity, label/comment coverage, unsupported class/property count, provenance completeness | strong | Triple semantic correctness is absent or LLM-estimated only. |\n| RQ2 evidence traceability | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation, nasa_atmonto_s7_llm_answer_generation | KG evidence coverage, citation completeness, citation precision, citation recall | moderate | S7 LLM results are retrospective diagnostics and must remain separate from human review or external aviation certification. |\n| RQ3 graph evidence vs vector sufficiency | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, chunking_comparison_benchmark_v2, chunking_comparison_benchmark_v2_budget, chunking_topk_sensitivity_benchmark_v2, chunking_category_analysis_benchmark_v2 | Recall@5, Recall@10, MRR@5, NDCG@10, Path Recall@5, Path Precision@5, Fixed-budget chunking Recall@5 | moderate | Path relevance is heuristic or model-reviewed, not human-validated. |\n| RQ4 safety-aware abstention | sufficiency_evaluation, robustness_evaluation, nasa_atmonto_s7_llm_answer_generation, nasa_atmonto_s7_human_review_candidates, nasa_atmonto_s7_candidate_adjudication | Abstention Accuracy, False Answer Rate, False Abstention Rate, Risk Category Accuracy, Unsupported Claim Rate, Abstention Correctness | moderate | Sufficiency can create false abstentions on supported questions; S7 cause-condition over-answer cases still require human or supervisor review before any profile/gold update. |\n| RQ5 source generalization | nasa_source_discovery, nasa_source_ingestion, nasa_source_validation, nasa_chunking_summary, ontology_boundary_nasa, nasa_kg_validation, nasa_benchmark_summary, cross_source_ontology_validation, multisource_retrieval_smoke | NASA landing-page URL coverage, full-corpus valid page count, Lessons in Aerodynamics experiment page count, candidate ontology additions, NASA KG provenance/evidence validation, multi-source lexical smoke Recall@5 | provisional | NASA labels and KG triples are deterministic scaffolds; no huma",
+      "excerpt": "# Thesis Experiment Dashboard\n\n- Source policy: aggregate existing reports; do not recompute experiments unnecessarily.\n- Scoring policy: layered metrics; no mixed overall score.\n- Advisory boundary: Aviation learning and decision support only; does not replace POH/AFM, approved checklists, ATC instructions, instructor guidance, regulations, or pilot judgment.\n\n## Experiment Inventory\n\n| Report | Present | Dataset | Questions | Layers | Human review present | LLM review available |\n| --- | ---: | --- | ---: | --- | ---: | ---: |\n| `thesis_claims_review` | True | not_dataset_specific | n/a | claim_safety | False | False |\n| `evaluation_protocol_review` | True | not_dataset_specific | n/a | evaluation_protocol | False | False |\n| `benchmark_v2_summary` | True | benchmark_v2_120 | 120 | benchmark_validation | False | False |\n| `retrieval_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, kg_evidence | False | False |\n| `graph_traversal_ablation_benchmark_v2` | True | benchmark_v2_120 | 120 | retrieval, graph_paths | False | False |\n| `sufficiency_evaluation` | True | benchmark_v2_120 | 120 | safety_abstention | False | False |\n| `benchmark_reviewed_subset_summary` | True | benchmark_v2_reviewed_subset_60 | 60 | benchmark_llm_review_scaffold | False | False |\n| `benchmark_llm_review` | True | benchmark_v2_reviewed_subset_or_v2 | n/a | benchmark_llm_review, llm_judge | False | True |\n| `benchmark_llm_rewrite_proposals` | True | benchmark_v2_reviewed_subset_or_v2 | n/a | benchmark_llm_review | False | True |\n| `answer_evaluation_benchmark_subset` | True | answer_eval_subset | n/a | answer_generation, safety_abstention | False | False |\n| `answer_generation_benchmark_subset` | True | answer_eval_subset | 3 | answer_generation | False | False |\n| `answer_llm_judge` | True | answer_eval_subset | n/a | answer_generation, llm_judge | False | True |\n| `triple_semantic_llm_review` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_judge | False | True |\n| `graph_path_llm_review` | True | benchmark_v2_120 | n/a | graph_paths, llm_judge | False | True |\n| `llm_review_consistency` | True | llm_review_artifacts | n/a | llm_judge, claim_safety | False | True |\n| `chunking_implementation_audit` | True | benchmark_v2_120 | n/a | retrieval, evaluation_protocol | False | False |\n| `chunking_comparison_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_comparison_benchmark_v2_budget` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_topk_sensitivity_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_category_analysis_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval | False | False |\n| `chunking_failure_cards_benchmark_v2` | True | benchmark_v2_120 | n/a | retrieval, failure_analysis | False | False |\n| `pdf_extraction_comparison` | True | phak_ch4_pdf_first_pages_heading_sample | n/a | pdf_extraction, claim_safety | False | False |\n| `pdf_hybrid_repair_report` | True | phak_ch4_pdf_docling_items | n/a | pdf_extraction, text_fidelity | False | False |\n| `pdf_backend_chunking_comparison` | True | benchmark_v2_120 | 120 | pdf_extraction, retrieval | False | False |\n| `nasa_source_discovery` | True | nasa_bga_aerodynamics_full_landing_page_manifest | n/a | source_expansion, claim_safety | False | False |\n| `nasa_source_ingestion` | True | nasa_bga_aerodynamics_full_corpus | n/a | source_expansion | False | False |\n| `nasa_source_validation` | True | nasa_bga_aerodynamics_full_corpus | n/a | source_expansion, claim_safety | False | False |\n| `nasa_chunking_summary` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, retrieval | False | False |\n| `ontology_boundary_nasa` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, ontology_kg | False | False |\n| `nasa_kg_validation` | True | nasa_bga_lessons_in_aerodynamics_subset | n/a | source_expansion, ontology_kg | False | False |\n| `nasa_benchmark_summary` | True | nasa_bga_lessons_seed_50 | 50 | source_expansion, benchmark_validation | False | False |\n| `cross_source_ontology_validation` | True | faa_phak_nasa_cross_source_seed_30 | 30 | source_expansion, ontology_kg | False | False |\n| `multisource_retrieval_smoke` | True | faa_phak_nasa_smoke_35 | 25 | source_expansion, retrieval | False | False |\n| `deepseek_v4pro_implementation_remediation` | True | not_dataset_specific | n/a | implementation_review, claim_safety | False | False |\n| `kg_extraction_comparison` | True | 35_question_expanded | n/a | ontology_kg | False | False |\n| `curated_ontology_evaluation` | True | not_dataset_specific | n/a | ontology_kg | False | False |\n| `triple_semantic_review_sample` | True | triple_semantic_review_sample | n/a | ontology_kg, llm_review_scaffold | False | False |\n| `answer_evaluation` | True | 10_cq_answer_subset | n/a | answer_generation, safety_abstention | False | False |\n| `robustness_evaluation` | True | robustness_10_cases | n/a | safety_abstention, robustness | False | False |\n| `benchmark_review_pack` | True | not_dataset_specific | 120 | benchmark_llm_review_scaffold | False | False |\n| `nasa_atmonto_s7_llm_answer_generation` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, graph_paths, safety_abstention | False | True |\n| `nasa_atmonto_s7_human_review_candidates` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, llm_review_scaffold, failure_analysis | False | False |\n| `nasa_atmonto_s7_candidate_adjudication` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, failure_analysis, claim_safety | False | False |\n| `nasa_atmonto_s7_profile_decision` | True | atcscc_s7_profile_decision_what_if_3 | n/a | answer_generation, failure_analysis, claim_safety, evaluation_protocol | False | False |\n\n## RQ-To-Evidence Matrix\n\n| RQ | Evidence reports | Primary metrics | Claim strength | Remaining gaps |\n| --- | --- | --- | --- | --- |\n| RQ1 ontology constraint | curated_ontology_evaluation, kg_extraction_comparison, kg_validation | RDF/OWL parse validity, label/comment coverage, unsupported class/property count, provenance completeness | strong | Triple semantic correctness is absent or LLM-estimated only. |\n| RQ2 evidence traceability | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, answer_evaluation, nasa_atmonto_s7_llm_answer_generation | KG evidence coverage, citation completeness, citation precision, citation recall | moderate | S7 LLM results are retrospective diagnostics and must remain separate from human review or external aviation certification. |\n| RQ3 graph evidence vs vector sufficiency | retrieval_ablation_benchmark_v2, graph_traversal_ablation_benchmark_v2, chunking_comparison_benchmark_v2, chunking_comparison_benchmark_v2_budget, chunking_topk_sensitivity_benchmark_v2, chunking_category_analysis_benchmark_v2 | Recall@5, Recall@10, MRR@5, NDCG@10, Path Recall@5, Path Precision@5, Fixed-budget chunking Recall@5 | moderate | Path relevance is heuristic or model-reviewed, not human-validated. |\n| RQ4 safety-aware abstention | sufficiency_evaluation, robustness_evaluation, nasa_atmonto_s7_llm_answer_generation, nasa_atmonto_s7_human_review_candidates, nasa_atmonto_s7_candidate_adjudication, nasa_atmonto_s7_profile_decision | Abstention Accuracy, False Answer Rate, False Abstention Rate, Risk Category Accuracy, Unsupported Claim Rate, Abstention Correctness | moderate | Sufficiency can create false abstentions on supported questions; STAFFING as a profile extension still requires human or supervisor review before any ontology/profile/gold update. |\n| RQ5 source generalization | nasa_source_discovery, nasa_source_ingestion, nasa_source_validation, nasa_chunking_summary, ontology_boundary_nasa, nasa_kg_validation, nasa_benchmark_summary, cross_source_ontology_validation, multisource_retrieval_smoke | NASA landing-page URL coverage, full-corpus valid page count, Lessons in Ae",
       "path": "reports/stages/thesis_experiment_dashboard.md",
       "present": true,
       "truncated": true
@@ -73983,6 +73983,7 @@
           "s7_candidate_adjudication_available": true,
           "s7_human_review_candidates_available": true,
           "s7_llm_answer_generation_available": true,
+          "s7_profile_decision_what_if_available": true,
           "safety_reports_have_no_boundary_violations": true,
           "triple_semantic_llm_review_available": true,
           "unsafe_hits": []
@@ -74120,13 +74121,14 @@
             "can_support_thesis_main_claim": "source_bounded_diagnostic",
             "dataset": "ATCSCC S7 source-bounded answer set",
             "evidence_role": "s7_graphrag_answer_generation",
-            "limitations": "bounded retrospective LLM run; candidate package is a review queue, not completed human review",
+            "limitations": "bounded retrospective LLM run; candidate package is a review queue, profile-decision what-if does not replace strict main metrics or completed human review",
             "purpose": "SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts",
             "used_in_reports": [
               "nasa_atmonto_s7_answer_generation",
               "nasa_atmonto_s7_llm_answer_generation",
               "nasa_atmonto_s7_human_review_candidates",
-              "nasa_atmonto_s7_candidate_adjudication"
+              "nasa_atmonto_s7_candidate_adjudication",
+              "nasa_atmonto_s7_profile_decision"
             ]
           },
           {
@@ -74687,6 +74689,21 @@
             "present": true,
             "questions_count": "n/a",
             "report_name": "nasa_atmonto_s7_candidate_adjudication"
+          },
+          {
+            "dataset_used": "atcscc_s7_profile_decision_what_if_3",
+            "human_review_present": false,
+            "llm_review_available": false,
+            "metric_layers_covered": [
+              "answer_generation",
+              "failure_analysis",
+              "claim_safety",
+              "evaluation_protocol"
+            ],
+            "path": "reports/stages/nasa_atmonto_s7_profile_decision.json",
+            "present": true,
+            "questions_count": "n/a",
+            "report_name": "nasa_atmonto_s7_profile_decision"
           }
         ],
         "failure_mode_summary": {
@@ -75048,6 +75065,50 @@
               "routed_token_matched_live_tfidf_graphrag",
               "routed_token_matched_dense_graphrag"
             ],
+            "profile_decision_corrected_record_count": 3,
+            "profile_decision_corrected_record_count_by_mode": {
+              "routed_token_matched_dense_graphrag": 2,
+              "routed_token_matched_live_tfidf_graphrag": 1
+            },
+            "profile_decision_gold_or_profile_changed": false,
+            "profile_decision_recommended_policy": "Keep strict S7 metrics unchanged. Report the predicate-whitelist what-if as a sensitivity analysis, and treat STAFFING as a proposed profile extension that requires human or supervisor approval before changing gold/profile artifacts.",
+            "profile_decision_status": "profile_decision_what_if_created",
+            "profile_decision_strict_main_metrics_changed": false,
+            "profile_decision_what_if_aggregate_by_mode": {
+              "routed_token_matched_dense_graphrag": {
+                "abstention_correctness": 1.0,
+                "answer_correctness": 1.0,
+                "avg_estimated_context_tokens": 33.03,
+                "citation_precision": 1.0,
+                "citation_recall": 0.5945,
+                "evidence_faithfulness": 1.0,
+                "failed_total": 0,
+                "llm_answered_total": 30,
+                "not_run_total": 0,
+                "selected_total": 30,
+                "status_counts": {
+                  "answered": 30
+                },
+                "unsupported_claim_rate": 0.0
+              },
+              "routed_token_matched_live_tfidf_graphrag": {
+                "abstention_correctness": 1.0,
+                "answer_correctness": 1.0,
+                "avg_estimated_context_tokens": 33.03,
+                "citation_precision": 1.0,
+                "citation_recall": 0.6084,
+                "evidence_faithfulness": 1.0,
+                "failed_total": 0,
+                "llm_answered_total": 30,
+                "not_run_total": 0,
+                "selected_total": 30,
+                "status_counts": {
+                  "answered": 30
+                },
+                "unsupported_claim_rate": 0.0
+              }
+            },
+            "profile_decision_what_if_metrics_replace_main": false,
             "profile_or_gold_boundary_failures": 3,
             "prompt_version": "nasa_atmonto_s7_llm_answer_v3_route_partial",
             "reviewer_model": "gpt-5.4-mini",
@@ -75257,13 +75318,14 @@
           },
           {
             "claim_strength": "moderate",
-            "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible. S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review; 3 are deterministically adjudicated as profile/gold-boundary cases.",
+            "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible. S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review; 3 are deterministically adjudicated as profile/gold-boundary cases. A profile-decision sensitivity report corrects 3 records under a predicate-whitelist what-if while leaving strict main metrics unchanged.",
             "evidence_reports": [
               "sufficiency_evaluation",
               "robustness_evaluation",
               "nasa_atmonto_s7_llm_answer_generation",
               "nasa_atmonto_s7_human_review_candidates",
-              "nasa_atmonto_s7_candidate_adjudication"
+              "nasa_atmonto_s7_candidate_adjudication",
+              "nasa_atmonto_s7_profile_decision"
             ],
             "primary_metrics": [
               "Abstention Accuracy",
@@ -75273,7 +75335,7 @@
               "Unsupported Claim Rate",
               "Abstention Correctness"
             ],
-            "remaining_gaps": "Sufficiency can create false abstentions on supported questions; S7 cause-condition over-answer cases still require human or supervisor review before any profile/gold update.",
+            "remaining_gaps": "Sufficiency can create false abstentions on supported questions; STAFFING as a profile extension still requires human or supervisor review before any ontology/profile/gold update.",
             "rq": "RQ4 safety-aware abstention"
           },
           {
