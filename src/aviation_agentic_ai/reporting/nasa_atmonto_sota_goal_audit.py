@@ -64,10 +64,11 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
             "reports/stages/nasa_atmonto_s5_s6_agentic_loop.md",
             "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md",
             "reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md",
+            "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.md",
         ],
         "limitation": (
-            "The live LLM S5/S6 run is currently a 3-sample pilot; full-scale live "
-            "agent scoring remains future work."
+            "Live S5/S6 evidence is still extraction-layer evidence; answer-layer "
+            "review and cross-domain transfer remain separate claims."
         ),
     },
     {
@@ -131,10 +132,14 @@ def build_nasa_atmonto_sota_goal_audit(
     s5_s6_live = read_json_object_or_empty(
         root / "reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.json"
     )
+    s5_s6_live_full = read_json_object_or_empty(
+        root / "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.json"
+    )
     s7_llm = read_json_object_or_empty(root / "reports/stages/nasa_atmonto_s7_llm_answer_generation.json")
     status_counts: dict[str, int] = {}
     for item in requirements:
         status_counts[item["status"]] = status_counts.get(item["status"], 0) + 1
+    remaining_blockers = _remaining_blockers(s5_s6_live_full)
     return {
         "source_family": "nasa_atmonto_sota_goal_audit",
         "status": "sota_goal_audit_created",
@@ -146,14 +151,11 @@ def build_nasa_atmonto_sota_goal_audit(
             "s5_s6_status": s5_s6.get("status"),
             "s5_s6_independent_status": s5_s6_independent.get("status"),
             "s5_s6_live_pilot_status": s5_s6_live.get("status"),
+            "s5_s6_live_full_run_status": s5_s6_live_full.get("status"),
             "s7_llm_status": s7_llm.get("status"),
         },
         "requirements": requirements,
-        "remaining_blockers": [
-            "A full 100-record live LLM extractor/validator/critic/refiner S5/S6 run is not yet complete.",
-            "Broad human/expert answer review is not yet complete.",
-            "Second-domain transfer is not yet executed.",
-        ],
+        "remaining_blockers": remaining_blockers,
         "claim_safe_summary": (
             "The current project is SOTA-comparable as a layered retrospective ATCSCC "
             "case study, but it is not complete enough for claims of universal GraphRAG "
@@ -188,6 +190,7 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- S5/S6 status: `{result['metadata']['s5_s6_status']}`",
         f"- Independent S5/S6 status: `{result['metadata']['s5_s6_independent_status']}`",
         f"- Live S5/S6 pilot status: `{result['metadata']['s5_s6_live_pilot_status']}`",
+        f"- Live S5/S6 full-run status: `{result['metadata']['s5_s6_live_full_run_status']}`",
         f"- S7 LLM status: `{result['metadata']['s7_llm_status']}`",
         "",
         "## Requirement Evidence",
@@ -246,6 +249,21 @@ def _requirement_status(root: Path, item: dict[str, Any]) -> dict[str, Any]:
         "present_evidence_count": sum(1 for entry in evidence if entry["present"]),
         "missing_evidence": [entry["path"] for entry in evidence if not entry["present"]],
     }
+
+
+def _remaining_blockers(s5_s6_live_full: dict[str, Any]) -> list[str]:
+    blockers = []
+    if s5_s6_live_full.get("status") != "s5_s6_live_agentic_full_run_scored":
+        blockers.append(
+            "A full 100-record live LLM extractor/validator/critic/refiner S5/S6 run is not yet complete."
+        )
+    blockers.extend(
+        [
+            "Broad human/expert answer review is not yet complete.",
+            "Second-domain transfer is not yet executed.",
+        ]
+    )
+    return blockers
 
 
 def _format_status_counts(status_counts: dict[str, int]) -> str:

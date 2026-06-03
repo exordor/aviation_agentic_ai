@@ -179,6 +179,16 @@
       ]
     },
     {
+      "can_support_thesis_main_claim": "full_extraction_layer_method_evidence",
+      "dataset": "ATCSCC S5/S6 live agentic full run 100",
+      "evidence_role": "s5_s6_live_agentic_full_run",
+      "limitations": "full extraction-layer run; still not human-reviewed answer quality, operational decision support, or cross-domain validation",
+      "purpose": "full reviewed-set live extractor/validator/critic/refiner run over ATCSCC advisory samples",
+      "used_in_reports": [
+        "nasa_atmonto_s5_s6_live_agentic_full_run"
+      ]
+    },
+    {
       "can_support_thesis_main_claim": "partial",
       "dataset": "triple semantic review sample",
       "evidence_role": "llm_review_pending",
@@ -728,6 +738,35 @@
       "present": true,
       "questions_count": "n/a",
       "report_name": "nasa_atmonto_s5_s6_live_agentic_pilot"
+    },
+    {
+      "dataset_used": "atcscc_s5_s6_live_agentic_full_run_100",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "ontology_kg",
+        "llm_agents",
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s5_s6_live_agentic_full_run"
+    },
+    {
+      "dataset_used": "atcscc_s5_s6_live_agentic_full_run_100",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "ontology_kg",
+        "llm_agents",
+        "failure_analysis",
+        "claim_safety"
+      ],
+      "path": "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic"
     },
     {
       "dataset_used": "not_dataset_specific",

@@ -46,6 +46,13 @@ DEFAULT_PREDICTION_OUTPUT_PATH = Path(
 DEFAULT_RUN_METADATA_PATH = Path(
     "data/experiments/nasa_atmonto/formal/s5_s6_live_agentic_pilot_run_metadata.json"
 )
+FULL_RUN_REPORT_NAME = "nasa_atmonto_s5_s6_live_agentic_full_run"
+FULL_RUN_PREDICTION_OUTPUT_PATH = Path(
+    "data/experiments/nasa_atmonto/formal/s5_s6_live_agentic_full_run_predictions.jsonl"
+)
+FULL_RUN_METADATA_PATH = Path(
+    "data/experiments/nasa_atmonto/formal/s5_s6_live_agentic_full_run_metadata.json"
+)
 
 
 @dataclass(frozen=True)
@@ -69,10 +76,13 @@ def write_nasa_atmonto_s5_s6_live_agentic_pilot(
     limit: int = 5,
     temperature: float = 0.0,
     max_tokens: int = 1400,
+    run_scope: str = "pilot",
     invoker: AgentInvoker | None = None,
     invoker_label: str | None = None,
     progress: bool = False,
 ) -> tuple[Path, Path, dict[str, Any]]:
+    if run_scope not in {"pilot", "full_run"}:
+        raise ValueError("run_scope must be 'pilot' or 'full_run'")
     artifacts = _build_artifacts(
         repo_root=repo_root,
         input_records_path=input_records_path,
@@ -84,6 +94,7 @@ def write_nasa_atmonto_s5_s6_live_agentic_pilot(
         limit=limit,
         temperature=temperature,
         max_tokens=max_tokens,
+        run_scope=run_scope,
         invoker=invoker,
         invoker_label=invoker_label,
         progress=progress,
@@ -116,6 +127,7 @@ def _build_artifacts(
     limit: int,
     temperature: float,
     max_tokens: int,
+    run_scope: str,
     invoker: AgentInvoker | None,
     invoker_label: str | None,
     progress: bool,
@@ -134,18 +146,28 @@ def _build_artifacts(
     )
     label = invoker_label or ("live_llm" if invoker is None else "custom_invoker")
     started_at = utc_timestamp()
-    prediction_records = [
-        run_live_agentic_record(
-            record=record,
-            schema_slice=schema_slice,
-            route_map=route_map,
-            invoker=effective_invoker,
-            progress=progress,
-            index=index,
-            total=len(records),
-        )
-        for index, record in enumerate(records, start=1)
-    ]
+    prediction_records = []
+    for index, record in enumerate(records, start=1):
+        try:
+            prediction_records.append(
+                run_live_agentic_record(
+                    record=record,
+                    schema_slice=schema_slice,
+                    route_map=route_map,
+                    invoker=effective_invoker,
+                    progress=progress,
+                    index=index,
+                    total=len(records),
+                )
+            )
+        except Exception as exc:
+            prediction_records.append(
+                _failed_prediction_record(
+                    record=record,
+                    run_scope=run_scope,
+                    exception=exc,
+                )
+            )
     completed_at = utc_timestamp()
     selected_source_ids = {str(record["source_id"]) for record in records}
     scoped_gold_records = [
@@ -175,6 +197,7 @@ def _build_artifacts(
         limit=limit,
         temperature=temperature,
         max_tokens=max_tokens,
+        run_scope=run_scope,
         label=label,
         started_at=started_at,
         completed_at=completed_at,
@@ -203,19 +226,17 @@ def _build_report(
     limit: int,
     temperature: float,
     max_tokens: int,
+    run_scope: str,
     label: str,
     started_at: str,
     completed_at: str,
 ) -> dict[str, Any]:
+    scope_config = _scope_config(run_scope=run_scope, record_count=len(prediction_records))
     report = {
-        "source_family": "nasa_atmonto_s5_s6_live_agentic_pilot",
-        "status": "s5_s6_live_agentic_pilot_scored",
-        "claim_boundary": (
-            "This is a bounded live multi-agent LLM pilot over reviewed ATCSCC samples. "
-            "It exercises extractor, deterministic validator, live critic, and live refiner "
-            "roles under hard ontology/evidence gates. It is not a full 100-record formal run "
-            "and must not be cited as operational decision support."
-        ),
+        "source_family": scope_config["source_family"],
+        "status": scope_config["status"],
+        "display_name": scope_config["display_name"],
+        "claim_boundary": scope_config["claim_boundary"],
         "metadata": _metadata(
             root=root,
             input_records_path=input_records_path,
@@ -228,6 +249,7 @@ def _build_report(
             limit=limit,
             temperature=temperature,
             max_tokens=max_tokens,
+            run_scope=run_scope,
             label=label,
             s5_fact_count=len(s5_facts),
             s6_fact_count=len(s6_facts),
@@ -250,7 +272,7 @@ def _build_report(
         "quality_counters": quality_counters(prediction_records),
         "quarantine_summary": quarantine_summary(quarantine),
         "routing_summary": routing_summary(prediction_records),
-        "sota_interpretation": _sota_interpretation(),
+        "sota_interpretation": _sota_interpretation(run_scope),
     }
     report["metrics"]["delta_s6_minus_s5"] = metric_delta(
         report["metrics"]["s6_live_refined_semantic_metrics"],
@@ -272,6 +294,7 @@ def _metadata(
     limit: int,
     temperature: float,
     max_tokens: int,
+    run_scope: str,
     label: str,
     s5_fact_count: int,
     s6_fact_count: int,
@@ -291,6 +314,7 @@ def _metadata(
         "limit": limit,
         "temperature": temperature,
         "max_tokens": max_tokens,
+        "run_scope": run_scope,
         "prompt_version": PROMPT_VERSION,
         "invoker_label": label,
         "provider": configured_llm_provider() if label == "live_llm" else label,
@@ -315,9 +339,9 @@ def _run_metadata(
     quarantine: list[dict[str, Any]],
 ) -> dict[str, Any]:
     return {
-        "system_id": "S5_S6_live_agentic_pilot",
+        "system_id": report["source_family"],
         "run_status": "completed",
-        "runner": "live_extractor_validator_critic_refiner_pilot",
+        "runner": report["source_family"],
         "requires_llm": True,
         "live_llm_run": report["metadata"]["live_llm_run"],
         "provider": report["metadata"]["provider"],
@@ -333,7 +357,105 @@ def _run_metadata(
     }
 
 
-def _sota_interpretation() -> dict[str, str]:
+def _failed_prediction_record(
+    *,
+    record: dict[str, Any],
+    run_scope: str,
+    exception: Exception,
+) -> dict[str, Any]:
+    return {
+        "system_id": (
+            "S5_S6_live_agentic_full_run"
+            if run_scope == "full_run"
+            else "S5_S6_live_agentic_pilot"
+        ),
+        "run_status": "failed",
+        "sample_id": record.get("sample_id"),
+        "source_id": str(record["source_id"]),
+        "source_family": record.get("source_family", "atcscc_advisories"),
+        "json_adherence": False,
+        "schema_valid": False,
+        "candidate_fact_count": 0,
+        "validator_accepted_fact_count": 0,
+        "validator_rejected_fact_count": 0,
+        "critic_quarantined_fact_count": 0,
+        "accepted_fact_count": 0,
+        "facts": [],
+        "s5_facts": [],
+        "validator_results": [],
+        "critic_results": [],
+        "live_critic_payload": {
+            "raw_response": "",
+            "payload": {},
+            "parse_error": "record_failed_before_or_during_critic",
+            "drop_fact_ids": [],
+        },
+        "critic_quarantine": [],
+        "refiner_results": {
+            "raw_response": "",
+            "json_adherence": False,
+            "parse_error": "record_failed_before_or_during_refiner",
+            "contract_failed": False,
+            "fallback_used": False,
+        },
+        "failure": {
+            "exception_type": type(exception).__name__,
+            "message": str(exception),
+        },
+        "agent_call_counts": {
+            "extractor": 0,
+            "validator": 0,
+            "critic": 0,
+            "refiner": 0,
+        },
+    }
+
+
+def _scope_config(*, run_scope: str, record_count: int) -> dict[str, str]:
+    if run_scope == "full_run":
+        return {
+            "source_family": "nasa_atmonto_s5_s6_live_agentic_full_run",
+            "status": "s5_s6_live_agentic_full_run_scored",
+            "display_name": "NASA ATMONTO S5/S6 Live Agentic Full Run",
+            "claim_boundary": (
+                f"This is a live multi-agent LLM run over {record_count} reviewed ATCSCC "
+                "samples. It exercises extractor, deterministic validator, live critic, "
+                "and live refiner roles under hard ontology/evidence gates. It supports "
+                "method-level evaluation of event-centric semantic KG extraction, but it "
+                "must not be cited as operational decision support."
+            ),
+        }
+    return {
+        "source_family": "nasa_atmonto_s5_s6_live_agentic_pilot",
+        "status": "s5_s6_live_agentic_pilot_scored",
+        "display_name": "NASA ATMONTO S5/S6 Live Agentic Pilot",
+        "claim_boundary": (
+            "This is a bounded live multi-agent LLM pilot over reviewed ATCSCC samples. "
+            "It exercises extractor, deterministic validator, live critic, and live refiner "
+            "roles under hard ontology/evidence gates. It is not a full 100-record formal run "
+            "and must not be cited as operational decision support."
+        ),
+    }
+
+
+def _sota_interpretation(run_scope: str) -> dict[str, str]:
+    if run_scope == "full_run":
+        return {
+            "what_is_satisfied": (
+                "The project has a live LLM multi-agent S5/S6 run over the full reviewed "
+                "ATCSCC input set, using the same ATMONTO profile, evidence gates, and "
+                "semantic scoring layer as the deterministic controls."
+            ),
+            "remaining_gap": (
+                "A full SOTA claim still requires cost/latency accounting, answer-layer "
+                "human review, and ideally transfer to a second event-centric domain."
+            ),
+            "claim_use": (
+                "Use this artifact as full-set live-agent evidence for the extraction "
+                "method. Do not present it as operational readiness or as proof of "
+                "general-domain transfer."
+            ),
+        }
     return {
         "what_is_satisfied": (
             "The project now has a bounded live LLM multi-agent S5/S6 pilot that "

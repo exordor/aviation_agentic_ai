@@ -51,6 +51,8 @@
 | `nasa_atmonto_s5_s6_agentic_loop` | True | not_dataset_specific | n/a |  | False | False |
 | `nasa_atmonto_s5_s6_independent_agentic_run` | True | not_dataset_specific | n/a |  | False | False |
 | `nasa_atmonto_s5_s6_live_agentic_pilot` | True | atcscc_s5_s6_live_agentic_pilot_3 | n/a | ontology_kg, llm_agents, evaluation_protocol | False | False |
+| `nasa_atmonto_s5_s6_live_agentic_full_run` | True | atcscc_s5_s6_live_agentic_full_run_100 | n/a | ontology_kg, llm_agents, evaluation_protocol | False | False |
+| `nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic` | True | atcscc_s5_s6_live_agentic_full_run_100 | n/a | ontology_kg, llm_agents, failure_analysis, claim_safety | False | False |
 | `nasa_atmonto_sota_goal_audit` | True | not_dataset_specific | n/a |  | False | False |
 | `nasa_atmonto_s7_llm_answer_generation` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, graph_paths, safety_abstention | False | True |
 | `nasa_atmonto_s7_human_review_candidates` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, llm_review_scaffold, failure_analysis | False | False |
@@ -83,6 +85,7 @@
 | answer-eval subset | answer citation and faithfulness heuristics | pilot | partial | stratified subset; deterministic heuristic scores unless annotated |
 | ATCSCC S7 source-bounded answer set | SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts | s7_graphrag_answer_generation | source_bounded_diagnostic | bounded retrospective LLM run; candidate package is a review queue, profile-decision what-if does not replace strict main metrics or completed human review |
 | ATCSCC S5/S6 live agentic pilot 3 | bounded live extractor/validator/critic/refiner pilot over reviewed ATCSCC advisory samples | s5_s6_live_agentic_pilot | bounded_method_pilot | 3-sample live LLM pilot; useful for method evidence but not a full autonomous-agent benchmark |
+| ATCSCC S5/S6 live agentic full run 100 | full reviewed-set live extractor/validator/critic/refiner run over ATCSCC advisory samples | s5_s6_live_agentic_full_run | full_extraction_layer_method_evidence | full extraction-layer run; still not human-reviewed answer quality, operational decision support, or cross-domain validation |
 | triple semantic review sample | KG semantic correctness review template | llm_review_pending | partial | review fields pending until model-based review is run; no expert correctness claimed |
 
 ## Primary Results

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections import Counter
 from collections.abc import Callable
 from typing import Any
 
@@ -168,8 +169,15 @@ def run_live_agentic_record(
 
 
 def quality_counters(records: list[dict[str, Any]]) -> dict[str, Any]:
+    failure_types = Counter(
+        str(record.get("failure", {}).get("exception_type"))
+        for record in records
+        if record.get("run_status") == "failed"
+    )
     return {
         "record_count": len(records),
+        "failed_record_count": sum(1 for record in records if record.get("run_status") == "failed"),
+        "failure_type_counts": dict(sorted(failure_types.items())),
         "extractor_json_adherence_count": sum(1 for record in records if record.get("json_adherence")),
         "final_schema_valid_record_count": sum(1 for record in records if record.get("schema_valid")),
         "refiner_fallback_count": sum(

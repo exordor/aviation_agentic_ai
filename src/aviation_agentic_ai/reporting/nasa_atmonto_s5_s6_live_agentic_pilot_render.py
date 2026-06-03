@@ -12,7 +12,7 @@ def write_nasa_atmonto_s5_s6_live_agentic_pilot_markdown(
     path.parent.mkdir(parents=True, exist_ok=True)
     metrics = result["metrics"]
     lines = [
-        "# NASA ATMONTO S5/S6 Live Agentic Pilot",
+        f"# {result.get('display_name', 'NASA ATMONTO S5/S6 Live Agentic Pilot')}",
         "",
         "## Boundary",
         "",
@@ -26,6 +26,7 @@ def write_nasa_atmonto_s5_s6_live_agentic_pilot_markdown(
         f"- Live LLM run: `{result['metadata']['live_llm_run']}`",
         f"- Provider/model: `{result['metadata']['provider']}` / `{result['metadata']['model']}`",
         f"- Prompt version: `{result['metadata']['prompt_version']}`",
+        f"- Run scope: `{result['metadata']['run_scope']}`",
         f"- S5 accepted facts: {result['metadata']['s5_fact_count']}",
         f"- S6 refined facts: {result['metadata']['s6_fact_count']}",
         f"- Quarantined facts: {result['metadata']['quarantined_fact_count']}",
@@ -46,6 +47,8 @@ def write_nasa_atmonto_s5_s6_live_agentic_pilot_markdown(
             "",
             "## Quality Counters",
             "",
+            f"- Failed records: {result['quality_counters']['failed_record_count']}",
+            f"- Failure type counts: `{result['quality_counters']['failure_type_counts']}`",
             f"- Extractor JSON adherence: {result['quality_counters']['extractor_json_adherence_count']}",
             f"- Final schema-valid records: {result['quality_counters']['final_schema_valid_record_count']}",
             f"- Refiner fallback count: {result['quality_counters']['refiner_fallback_count']}",

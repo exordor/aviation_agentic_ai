@@ -197,6 +197,10 @@ def _fake_invoker(messages: list[dict[str, str]]) -> str:
     raise AssertionError(f"Unexpected prompt: {system}")
 
 
+def _failing_invoker(_messages: list[dict[str, str]]) -> str:
+    raise TimeoutError("simulated timeout")
+
+
 def test_live_agentic_pilot_runs_extractor_validator_critic_refiner(
     tmp_path: Path,
 ) -> None:
@@ -224,6 +228,28 @@ def test_live_agentic_pilot_runs_extractor_validator_critic_refiner(
     assert result["metrics"]["s6_live_refined_semantic_metrics"]["f1"] == 1.0
 
 
+def test_live_agentic_pilot_records_failures_without_crashing(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture_paths(tmp_path)
+
+    _json_path, md_path, result = write_nasa_atmonto_s5_s6_live_agentic_pilot(
+        output_dir=tmp_path / "reports",
+        repo_root=tmp_path,
+        invoker=_failing_invoker,
+        invoker_label="test_invoker",
+        **paths,
+    )
+
+    assert result["quality_counters"]["failed_record_count"] == 1
+    assert result["quality_counters"]["failure_type_counts"] == {"TimeoutError": 1}
+    assert result["metrics"]["s6_live_refined_semantic_metrics"]["predicted_fact_count"] == 0
+    assert result["metrics"]["s6_live_refined_semantic_metrics"]["f1"] == 0.0
+    records = paths["prediction_output_path"].read_text(encoding="utf-8").splitlines()
+    assert '"run_status": "failed"' in records[0]
+    assert "Failed records: 1" in md_path.read_text(encoding="utf-8")
+
+
 def test_live_agentic_pilot_writes_outputs(
     tmp_path: Path,
 ) -> None:
@@ -242,3 +268,32 @@ def test_live_agentic_pilot_writes_outputs(
     assert paths["run_metadata_output_path"].exists()
     assert "Live Agentic Pilot" in md_path.read_text(encoding="utf-8")
     assert result["metadata"]["prediction_output"].endswith("predictions.jsonl")
+
+
+def test_live_agentic_full_run_scope_writes_distinct_claim_boundary(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture_paths(tmp_path)
+    json_path, md_path, result = write_nasa_atmonto_s5_s6_live_agentic_pilot(
+        output_dir=tmp_path / "reports",
+        report_name="full_run",
+        repo_root=tmp_path,
+        prediction_output_path=tmp_path / "full_predictions.jsonl",
+        run_metadata_output_path=tmp_path / "full_metadata.json",
+        invoker=_fake_invoker,
+        invoker_label="test_invoker",
+        run_scope="full_run",
+        **{
+            key: value
+            for key, value in paths.items()
+            if key not in {"prediction_output_path", "run_metadata_output_path"}
+        },
+    )
+
+    assert result["status"] == "s5_s6_live_agentic_full_run_scored"
+    assert result["source_family"] == "nasa_atmonto_s5_s6_live_agentic_full_run"
+    assert result["metadata"]["run_scope"] == "full_run"
+    assert result["metadata"]["prediction_output"].endswith("full_predictions.jsonl")
+    assert "full 100-record formal run" not in result["claim_boundary"]
+    assert "Live Agentic Full Run" in md_path.read_text(encoding="utf-8")
+    assert json_path.name == "full_run.json"

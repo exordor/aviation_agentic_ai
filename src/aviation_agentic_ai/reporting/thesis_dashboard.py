@@ -62,6 +62,12 @@ REPORT_SOURCES: dict[str, str] = {
     "nasa_atmonto_s5_s6_live_agentic_pilot": (
         "reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.json"
     ),
+    "nasa_atmonto_s5_s6_live_agentic_full_run": (
+        "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.json"
+    ),
+    "nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic": (
+        "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.json"
+    ),
     "nasa_atmonto_sota_goal_audit": (
         "reports/stages/nasa_atmonto_sota_goal_audit.json"
     ),
@@ -182,6 +188,17 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
             "llm_agents",
             "evaluation_protocol",
         ),
+        "nasa_atmonto_s5_s6_live_agentic_full_run": (
+            "ontology_kg",
+            "llm_agents",
+            "evaluation_protocol",
+        ),
+        "nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic": (
+            "ontology_kg",
+            "llm_agents",
+            "failure_analysis",
+            "claim_safety",
+        ),
         "nasa_atmonto_s7_llm_answer_generation": (
             "answer_generation",
             "graph_paths",
@@ -242,6 +259,8 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "kg_extraction_comparison": "35_question_expanded",
         "triple_semantic_review_sample": "triple_semantic_review_sample",
         "nasa_atmonto_s5_s6_live_agentic_pilot": "atcscc_s5_s6_live_agentic_pilot_3",
+        "nasa_atmonto_s5_s6_live_agentic_full_run": "atcscc_s5_s6_live_agentic_full_run_100",
+        "nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic": "atcscc_s5_s6_live_agentic_full_run_100",
         "nasa_atmonto_s7_llm_answer_generation": "atcscc_s7_source_bounded_60",
         "nasa_atmonto_s7_human_review_candidates": "atcscc_s7_review_candidate_queue_9",
         "nasa_atmonto_s7_candidate_adjudication": "atcscc_s7_review_candidate_queue_9",
@@ -1100,6 +1119,20 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
             ),
             "can_support_thesis_main_claim": "bounded_method_pilot",
             "evidence_role": "s5_s6_live_agentic_pilot",
+        },
+        {
+            "dataset": "ATCSCC S5/S6 live agentic full run 100",
+            "purpose": (
+                "full reviewed-set live extractor/validator/critic/refiner run over "
+                "ATCSCC advisory samples"
+            ),
+            "used_in_reports": ["nasa_atmonto_s5_s6_live_agentic_full_run"],
+            "limitations": (
+                "full extraction-layer run; still not human-reviewed answer quality, "
+                "operational decision support, or cross-domain validation"
+            ),
+            "can_support_thesis_main_claim": "full_extraction_layer_method_evidence",
+            "evidence_role": "s5_s6_live_agentic_full_run",
         },
         {
             "dataset": "triple semantic review sample",
