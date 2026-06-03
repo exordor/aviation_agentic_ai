@@ -102,6 +102,7 @@ This is a broad reviewer packet over every selected S7 LLM answer case. It conta
 2. Verify that each returned value is supported by the source chunk or graph triple.
 3. Mark profile-boundary cases separately from retrieval or generation errors.
 4. Fill the CSV review columns; do not edit automatic metric columns.
+5. For browser-based review, use `reports/stages/nasa_atmonto_s7_answer_review_worksheet.html`.
 
 ## Claim Boundary
 

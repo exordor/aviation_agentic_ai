@@ -191,6 +191,10 @@
           "present": true
         },
         {
+          "path": "reports/stages/nasa_atmonto_s7_answer_review_worksheet.html",
+          "present": true
+        },
+        {
           "path": "reports/stages/nasa_atmonto_s7_answer_review_decisions.md",
           "present": true
         },
@@ -203,9 +207,9 @@
           "present": true
         }
       ],
-      "limitation": "A broad 60-case reviewer packet and decision-status report exist, but external human/expert decisions must be recorded before this layer is complete.",
-      "evidence_count": 6,
-      "present_evidence_count": 6,
+      "limitation": "A broad 60-case reviewer packet, worksheet, and decision-status report exist, but external human/expert decisions must be recorded before this layer is complete.",
+      "evidence_count": 7,
+      "present_evidence_count": 7,
       "missing_evidence": []
     },
     {
