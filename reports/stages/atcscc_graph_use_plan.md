@@ -9,7 +9,10 @@ retrieval, materialized ATCSCC fact-graph traversal, tokenizer-backed
 token-matched controls, dense embedding retrieval, and latency reporting. The
 S7 answer-generation rerun evaluates deterministic answers over routed live
 lexical and dense retrieval contexts, and the LLM check tests the same routed
-token-matched live/dense contexts on a bounded sample.
+token-matched live/dense contexts on a bounded sample. Dense retrieval now
+includes an explicit source-local target-source guard for source-local CQ
+templates; its guard rate is reported and should be interpreted as a metadata
+source-bounding control, not pure dense embedding performance.
 
 ## Purpose
 
@@ -130,22 +133,22 @@ existing best answer-set score, but it does not yet show a queryability gain.
 
 From `reports/stages/nasa_atmonto_s7_retrieval.md`:
 
-| Mode | Target hit | Answer F1 | Abstention correct | Path support | Avg context tokens | Token target |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `source_oracle` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | n/a |
-| `vector_rag_proxy` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | n/a |
-| `token_matched_vector_proxy` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | 38.96 |
-| `live_tfidf_vector` | 1.0 | 0.8235 | 1.0 | n/a | 2001.44 | n/a |
-| `token_matched_live_tfidf_vector` | 1.0 | 0.8235 | 1.0 | n/a | 38.96 | 38.96 |
-| `dense_embedding_vector` | 0.0473 | 0.0729 | 0.09 | n/a | 1327.38 | n/a |
-| `token_matched_dense_embedding_vector` | 0.0095 | 0.0385 | 0.02 | n/a | 38.96 | 38.96 |
-| `graph_only` | 0.9968 | 0.5205 | 0.01 | 1.0 | 25.18 | n/a |
-| `hybrid_graphrag` | 1.0 | 0.5205 | 0.01 | 1.0 | 38.96 | n/a |
-| `routed_graphrag` | 1.0 | 0.9833 | 1.0 | 1.0 | 24.82 | n/a |
-| `routed_live_tfidf_graphrag` | 1.0 | 0.8534 | 1.0 | 1.0 | 1326.48 | n/a |
-| `routed_token_matched_live_tfidf_graphrag` | 1.0 | 0.8534 | 1.0 | 1.0 | 38.96 | 38.96 |
-| `routed_dense_graphrag` | 0.4385 | 0.2229 | 0.09 | 1.0 | 783.56 | n/a |
-| `routed_token_matched_dense_graphrag` | 0.4069 | 0.1933 | 0.02 | 1.0 | 38.96 | 38.96 |
+| Mode | Target hit | Answer F1 | Abstention correct | Path support | Guard rate | Avg context tokens | Token target |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `source_oracle` | 1.0 | 1.0 | 1.0 | n/a | 0.0 | 19.78 | n/a |
+| `vector_rag_proxy` | 1.0 | 1.0 | 1.0 | n/a | 0.0 | 19.78 | n/a |
+| `token_matched_vector_proxy` | 1.0 | 1.0 | 1.0 | n/a | 0.0 | 19.78 | 38.96 |
+| `live_tfidf_vector` | 1.0 | 0.8235 | 1.0 | n/a | 0.0 | 2001.44 | n/a |
+| `token_matched_live_tfidf_vector` | 1.0 | 0.8235 | 1.0 | n/a | 0.0 | 38.96 | 38.96 |
+| `dense_embedding_vector` | 0.6088 | 0.5364 | 1.0 | n/a | 0.5615 | 1532.91 | n/a |
+| `token_matched_dense_embedding_vector` | 0.571 | 0.5166 | 0.93 | n/a | 0.5615 | 38.96 | 38.96 |
+| `graph_only` | 0.9968 | 0.5205 | 0.01 | 1.0 | 0.0 | 25.18 | n/a |
+| `hybrid_graphrag` | 1.0 | 0.5205 | 0.01 | 1.0 | 0.0 | 38.96 | n/a |
+| `routed_graphrag` | 1.0 | 0.9833 | 1.0 | 1.0 | 0.0 | 24.82 | n/a |
+| `routed_live_tfidf_graphrag` | 1.0 | 0.8534 | 1.0 | 1.0 | 0.0 | 1326.48 | n/a |
+| `routed_token_matched_live_tfidf_graphrag` | 1.0 | 0.8534 | 1.0 | 1.0 | 0.0 | 38.96 | 38.96 |
+| `routed_dense_graphrag` | 1.0 | 0.6281 | 1.0 | 1.0 | 0.5615 | 989.09 | n/a |
+| `routed_token_matched_dense_graphrag` | 0.9685 | 0.6105 | 0.93 | 1.0 | 0.5615 | 38.96 | 38.96 |
 
 Interpretation:
 
@@ -159,9 +162,10 @@ Interpretation:
   budget exactly and keeps graph triples disabled;
 - the graph modes now traverse a materialized source-predicate-fact graph with
   100 source nodes, 666 fact nodes, and 1332 edges;
-- dense embedding retrieval is a negative result in this benchmark because the
-  CQs are source-bounded and generic; without explicit metadata filtering, dense
-  semantic similarity often retrieves plausible but wrong advisories.
+- unguarded dense embedding retrieval was a negative result in this benchmark
+  because the CQs are source-bounded and generic; the new source-local guard
+  corrects many target-source misses, so dense results must be reported as
+  guarded/source-bounded rather than pure dense similarity results.
 
 ### S7 Live-Retrieval Answer-Generation Rerun
 
@@ -174,8 +178,8 @@ From `reports/stages/nasa_atmonto_s7_answer_generation.md`:
 | `routed_graphrag` | 0.9306 | 0.4133 | 0.9306 | 0.0347 | 1.0 | 24.82 |
 | `token_matched_live_tfidf_vector` | 0.5426 | 0.4564 | 0.5426 | 0.2435 | 1.0 | 38.96 |
 | `routed_token_matched_live_tfidf_graphrag` | 0.6435 | 0.4611 | 0.6435 | 0.1828 | 1.0 | 38.96 |
-| `token_matched_dense_embedding_vector` | 0.0252 | 0.2166 | 0.0315 | 0.6546 | 0.4385 | 38.96 |
-| `routed_token_matched_dense_graphrag` | 0.3344 | 0.4138 | 0.3344 | 0.317 | 0.6909 | 38.96 |
+| `token_matched_dense_embedding_vector` | 0.3123 | 0.2624 | 0.3186 | 0.6024 | 0.7256 | 38.96 |
+| `routed_token_matched_dense_graphrag` | 0.6215 | 0.4595 | 0.6215 | 0.2648 | 0.9779 | 38.96 |
 
 Interpretation:
 
@@ -188,8 +192,9 @@ Interpretation:
 - always-live lexical retrieval is weaker than routed GraphRAG for some
   graph-worthy templates, while source-oracle and always-hybrid remain important
   upper/control bounds;
-- dense retrieval remains a negative/qualified result for direct source-bounded
-  advisory questions, especially abstention and entity/route templates.
+- guarded dense retrieval is now a qualified positive control for source-local
+  CQs, but it should remain labeled as guarded because the improvement depends
+  on the explicit target-source guard.
 
 ### S7 Graph Health by CQ Group
 
@@ -201,7 +206,7 @@ From `reports/stages/nasa_atmonto_s7_graph_health.md`:
 | `hybrid_graphrag` | 317 | 0.9968 | 1.0 | 0.5205 | 0.01 | 1.0 |
 | `routed_graphrag` | 317 | 0.3975 | 1.0 | 0.9833 | 1.0 | 1.0 |
 | `routed_token_matched_live_tfidf_graphrag` | 317 | 0.3975 | 1.0 | 0.8534 | 1.0 | 1.0 |
-| `routed_token_matched_dense_graphrag` | 317 | 0.3975 | 1.0 | 0.1933 | 0.02 | 0.4069 |
+| `routed_token_matched_dense_graphrag` | 317 | 0.3975 | 1.0 | 0.6105 | 0.93 | 0.9685 |
 
 Interpretation:
 
@@ -219,8 +224,8 @@ From `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`:
 
 | Mode | Selected | Answered | Correctness | Citation recall | Evidence faithful | Unsupported claim rate | Abstention correct | Avg context tokens |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `routed_token_matched_live_tfidf_graphrag` | 12 | 12 | 1.0 | 0.6111 | 1.0 | 0.0 | 1.0 | 28.25 |
-| `routed_token_matched_dense_graphrag` | 12 | 12 | 0.5 | 0.6111 | 0.5 | 0.3333 | 0.5 | 28.25 |
+| `routed_token_matched_live_tfidf_graphrag` | 12 | 12 | 0.9167 | 0.6111 | 0.9167 | 0.0833 | 0.9167 | 28.25 |
+| `routed_token_matched_dense_graphrag` | 12 | 12 | 0.8333 | 0.6111 | 0.8333 | 0.1667 | 0.8333 | 28.25 |
 
 Interpretation:
 
@@ -229,21 +234,19 @@ Interpretation:
   retrieved contexts and reports two cases per CQ template for each routed mode;
 - the sample is deliberately bounded, so it supports cautious comparison and
   error discovery, not expert certification;
-- the live lexical route answers all selected cases correctly after deterministic
-  schema/time-window repair, while the dense route remains a negative result
-  with failures concentrated in time-window, abstention, and route-semantics
-  questions.
+- after adding the source-local dense guard, the selected dense route no longer
+  fails the time-window and abstention cases that were caused by wrong-source
+  retrieval;
+- the remaining LLM failures are concentrated in `QT-Q01-ROUTE-SEMANTICS`,
+  where the model abstains because reroute type/reason are unsupported even
+  though the scored `controlledNASelement=BNA` value is supported.
 
 Manual failure review in
-`reports/stages/nasa_atmonto_s7_llm_failure_review.md` classifies the dense
-failures as:
-
-- two dense source misses on source-local time-window CQs;
-- two wrong-context abstentions where the scorer correctly requires target-source
-  retrieval before abstention can count as correct;
-- two compound route-semantics partial-answer failures where the evidence
-  supports `controlledNASelement=BNA` but the LLM abstains because reroute
-  type/reason are unsupported.
+`reports/stages/nasa_atmonto_s7_llm_failure_review.md` shows that the previous
+dense source-miss and wrong-context abstention failures were addressed in the
+selected post-guard rerun. The remaining failures are compound route-semantics
+partial-answer cases where the evidence supports `controlledNASelement=BNA` but
+the LLM abstains because reroute type/reason are unsupported.
 
 ## What This Proves
 
@@ -253,9 +256,9 @@ path-support reporting, materialized graph traversal, tokenizer-backed
 token-budget controls, latency reporting, deterministic generated-answer
 evaluation over routed live retrieval contexts, graph-health diagnostics by CQ
 group, and a 24-case fixed-budget LLM-generated answer check. It also produces two
-negative/qualified results:
+qualified results:
 graph context is not automatically better in the current scaffold, and dense
-retrieval is not automatically better than lexical/source-bounded retrieval for
+retrieval only becomes competitive after explicit source-local guarding for
 generic ATCSCC CQs.
 
 At the CQ answer-set layer, it proves that the gate can be evaluated over the
@@ -271,6 +274,7 @@ This does not yet prove:
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to add deterministic dense-retrieval guards for
-source-local CQs and refine the route-semantics CQ contract before expanding the
-LLM sample beyond two cases per CQ template.
+The next SOTA upgrade is to refine the route-semantics CQ contract before
+expanding the LLM sample beyond two cases per CQ template. The two feasible
+options are to split `QT-Q01-ROUTE-SEMANTICS` into separately scored fields, or
+to add a controlled partial-answer ablation with explicit expected semantics.

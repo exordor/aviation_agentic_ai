@@ -12,22 +12,22 @@
 
 ## Aggregate Retrieval Metrics
 
-| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | Abstention correct | Path support | Avg context tokens | Target tokens | Avg latency ms |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `source_oracle` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a | 0.0027 |
-| `vector_rag_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a | 0.0018 |
-| `token_matched_vector_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | 38.96 | 0.0017 |
-| `live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.6999 | 1.0 | 0.8235 | 1.0 | None | 2001.44 | n/a | 0.2237 |
-| `token_matched_live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.6999 | 1.0 | 0.8235 | 1.0 | None | 38.96 | 38.96 | 0.4404 |
-| `dense_embedding_vector` | 0.0379 | 0.3533 | 0.0473 | 0.0647 | 0.0836 | 0.0729 | 0.09 | None | 1327.38 | n/a | 10.5925 |
-| `token_matched_dense_embedding_vector` | 0.0032 | 0.3186 | 0.0095 | 0.0346 | 0.0433 | 0.0385 | 0.02 | None | 38.96 | 38.96 | 10.169 |
-| `graph_only` | 0.6845 | 1.0 | 0.9968 | 0.5521 | 0.4923 | 0.5205 | 0.01 | 1.0 | 25.18 | n/a | 0.0026 |
-| `hybrid_graphrag` | 0.6845 | 1.0 | 1.0 | 0.5521 | 0.4923 | 0.5205 | 0.01 | 1.0 | 38.96 | n/a | 0.0052 |
-| `routed_graphrag` | 0.6845 | 1.0 | 1.0 | 0.9671 | 1.0 | 0.9833 | 1.0 | 1.0 | 24.82 | n/a | 0.0027 |
-| `routed_live_tfidf_graphrag` | 0.6845 | 1.0 | 1.0 | 0.7442 | 1.0 | 0.8534 | 1.0 | 1.0 | 1326.48 | n/a | 0.13 |
-| `routed_token_matched_live_tfidf_graphrag` | 0.6845 | 1.0 | 1.0 | 0.7442 | 1.0 | 0.8534 | 1.0 | 1.0 | 38.96 | 38.96 | 0.2848 |
-| `routed_dense_graphrag` | 0.4101 | 0.7256 | 0.4385 | 0.1879 | 0.274 | 0.2229 | 0.09 | 1.0 | 783.56 | n/a | 6.0621 |
-| `routed_token_matched_dense_graphrag` | 0.4006 | 0.7161 | 0.4069 | 0.1648 | 0.2337 | 0.1933 | 0.02 | 1.0 | 38.96 | 38.96 | 6.1636 |
+| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | Abstention correct | Path support | Avg context tokens | Target tokens | Guard rate | Avg latency ms |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `source_oracle` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a | 0.0 | 0.0027 |
+| `vector_rag_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a | 0.0 | 0.0018 |
+| `token_matched_vector_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | 38.96 | 0.0 | 0.0017 |
+| `live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.6999 | 1.0 | 0.8235 | 1.0 | None | 2001.44 | n/a | 0.0 | 0.2199 |
+| `token_matched_live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.6999 | 1.0 | 0.8235 | 1.0 | None | 38.96 | 38.96 | 0.0 | 0.4382 |
+| `dense_embedding_vector` | 0.3123 | 0.6278 | 0.6088 | 0.4011 | 0.8096 | 0.5364 | 1.0 | None | 1532.91 | n/a | 0.5615 | 10.5932 |
+| `token_matched_dense_embedding_vector` | 0.2776 | 0.5931 | 0.571 | 0.3889 | 0.7693 | 0.5166 | 0.93 | None | 38.96 | 38.96 | 0.5615 | 10.1492 |
+| `graph_only` | 0.6845 | 1.0 | 0.9968 | 0.5521 | 0.4923 | 0.5205 | 0.01 | 1.0 | 25.18 | n/a | 0.0 | 0.0026 |
+| `hybrid_graphrag` | 0.6845 | 1.0 | 1.0 | 0.5521 | 0.4923 | 0.5205 | 0.01 | 1.0 | 38.96 | n/a | 0.0 | 0.0051 |
+| `routed_graphrag` | 0.6845 | 1.0 | 1.0 | 0.9671 | 1.0 | 0.9833 | 1.0 | 1.0 | 24.82 | n/a | 0.0 | 0.0027 |
+| `routed_live_tfidf_graphrag` | 0.6845 | 1.0 | 1.0 | 0.7442 | 1.0 | 0.8534 | 1.0 | 1.0 | 1326.48 | n/a | 0.0 | 0.1308 |
+| `routed_token_matched_live_tfidf_graphrag` | 0.6845 | 1.0 | 1.0 | 0.7442 | 1.0 | 0.8534 | 1.0 | 1.0 | 38.96 | 38.96 | 0.0 | 0.2852 |
+| `routed_dense_graphrag` | 0.6845 | 1.0 | 1.0 | 0.4578 | 1.0 | 0.6281 | 1.0 | 1.0 | 989.09 | n/a | 0.5615 | 6.0642 |
+| `routed_token_matched_dense_graphrag` | 0.6751 | 0.9905 | 0.9685 | 0.4477 | 0.9598 | 0.6105 | 0.93 | 1.0 | 38.96 | 38.96 | 0.5615 | 6.1463 |
 
 Method note: Answer-set F1 treats a correct expected abstention as recovering the no-answer label. `Abstention correct` is computed only over expected abstention cases and should be read separately from non-abstention answer recovery.
 

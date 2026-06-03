@@ -18,8 +18,8 @@
 | `routed_graphrag` | 317 | 0.9306 | 1.0 | 0.4133 | 0.9306 | 0.0347 | 1.0 | 24.82 | n/a |
 | `token_matched_live_tfidf_vector` | 317 | 0.5426 | 1.0 | 0.4564 | 0.5426 | 0.2435 | 1.0 | 38.96 | 38.96 |
 | `routed_token_matched_live_tfidf_graphrag` | 317 | 0.6435 | 1.0 | 0.4611 | 0.6435 | 0.1828 | 1.0 | 38.96 | 38.96 |
-| `token_matched_dense_embedding_vector` | 317 | 0.0252 | 1.0 | 0.2166 | 0.0315 | 0.6546 | 0.4385 | 38.96 | 38.96 |
-| `routed_token_matched_dense_graphrag` | 317 | 0.3344 | 1.0 | 0.4138 | 0.3344 | 0.317 | 0.6909 | 38.96 | 38.96 |
+| `token_matched_dense_embedding_vector` | 317 | 0.3123 | 1.0 | 0.2624 | 0.3186 | 0.6024 | 0.7256 | 38.96 | 38.96 |
+| `routed_token_matched_dense_graphrag` | 317 | 0.6215 | 1.0 | 0.4595 | 0.6215 | 0.2648 | 0.9779 | 38.96 | 38.96 |
 
 ## CQ Template Breakdown
 
@@ -37,8 +37,8 @@
 | `QT-Q01-TIME-WINDOW` | `routed_graphrag` | 1.0 | 0.0 | 21.0 |
 | `QT-Q01-TIME-WINDOW` | `token_matched_live_tfidf_vector` | 0.0 | 0.5158 | 32.0 |
 | `QT-Q01-TIME-WINDOW` | `routed_token_matched_live_tfidf_graphrag` | 0.0 | 0.5158 | 32.0 |
-| `QT-Q01-TIME-WINDOW` | `token_matched_dense_embedding_vector` | 0.0 | 0.9835 | 32.0 |
-| `QT-Q01-TIME-WINDOW` | `routed_token_matched_dense_graphrag` | 0.0 | 0.9835 | 32.0 |
+| `QT-Q01-TIME-WINDOW` | `token_matched_dense_embedding_vector` | 0.0 | 0.8017 | 32.0 |
+| `QT-Q01-TIME-WINDOW` | `routed_token_matched_dense_graphrag` | 0.0 | 0.8017 | 32.0 |
 | `QT-Q01-CAUSE-CONDITION` | `source_oracle` | 1.0 | 0.0 | 14.21 |
 | `QT-Q01-CAUSE-CONDITION` | `hybrid_graphrag` | 0.9167 | 0.0417 | 28.5 |
 | `QT-Q01-CAUSE-CONDITION` | `routed_graphrag` | 0.9167 | 0.0417 | 28.5 |
@@ -65,14 +65,14 @@
 | `QT-A01-ABSTENTION-FIELDS` | `routed_graphrag` | 1.0 | 0.0 | 31.32 |
 | `QT-A01-ABSTENTION-FIELDS` | `token_matched_live_tfidf_vector` | 1.0 | 0.0 | 66.11 |
 | `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_live_tfidf_graphrag` | 1.0 | 0.0 | 66.11 |
-| `QT-A01-ABSTENTION-FIELDS` | `token_matched_dense_embedding_vector` | 0.02 | 0.0 | 66.11 |
-| `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_dense_graphrag` | 0.02 | 0.0 | 66.11 |
+| `QT-A01-ABSTENTION-FIELDS` | `token_matched_dense_embedding_vector` | 0.93 | 0.0 | 66.11 |
+| `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_dense_graphrag` | 0.93 | 0.0 | 66.11 |
 
 ## Cost and Latency
 
 - Provider: none
 - Model: deterministic_s7_answer_scaffold
-- Elapsed seconds: 9.3826
+- Elapsed seconds: 9.4968
 
 ## Critic Gate
 

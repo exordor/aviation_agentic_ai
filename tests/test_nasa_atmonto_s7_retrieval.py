@@ -23,6 +23,18 @@ def _fake_dense_encoder(texts: list[str]) -> list[list[float]]:
     return [[1.0 if "2026-05-19:032" in text else 0.0, 1.0] for text in texts]
 
 
+def _misleading_dense_encoder(texts: list[str]) -> list[list[float]]:
+    vectors: list[list[float]] = []
+    for text in texts:
+        if text.startswith("2026-05-19:032") or "Which" in text or "expected fields" in text:
+            vectors.append([1.0, 0.0])
+        elif "2026-05-18:021" in text:
+            vectors.append([1.0, 0.0])
+        else:
+            vectors.append([0.0, 1.0])
+    return vectors
+
+
 def _write_fixture(tmp_path: Path) -> dict[str, Path]:
     source_text = (
         "ATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD. "
@@ -175,6 +187,23 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
     return {"gold": gold_path, "s4": s4_path, "source": source_path, "manifest": manifest_path}
 
 
+def _append_misleading_source(source_path: Path) -> None:
+    with source_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            json.dumps(
+                {
+                    "sample_id": "ATCSCC-GOLD-OTHER",
+                    "source_id": "2026-05-18:021",
+                    "advisory_date": "2026-05-18",
+                    "advisory_number": 21,
+                    "source_text": "ATCSCC Advisory FAA Home Products Site Map metadata only.",
+                    "source_url": "https://example.test/advisory/021",
+                }
+            )
+            + "\n"
+        )
+
+
 def test_build_nasa_atmonto_s7_retrieval_reports_modes_and_gate(tmp_path: Path) -> None:
     paths = _write_fixture(tmp_path)
 
@@ -214,6 +243,33 @@ def test_build_nasa_atmonto_s7_retrieval_reports_modes_and_gate(tmp_path: Path) 
     route_summary = result["route_summary"]["by_template"]
     assert route_summary["QT-Q01-TIME-WINDOW"]["underlying_mode"] == "vector_rag"
     assert route_summary["QT-Q01-ROUTE-SEMANTICS"]["underlying_mode"] == "hybrid_graphrag"
+
+
+def test_source_local_dense_guard_injects_target_source_when_dense_misses(
+    tmp_path: Path,
+) -> None:
+    paths = _write_fixture(tmp_path)
+    _append_misleading_source(paths["source"])
+
+    result = build_nasa_atmonto_s7_retrieval(
+        repo_root=tmp_path,
+        gold_path=paths["gold"],
+        s4_prediction_path=paths["s4"],
+        source_record_path=paths["source"],
+        query_manifest_path=paths["manifest"],
+        max_cases_per_template=1,
+        live_top_k=1,
+        dense_encoder=_misleading_dense_encoder,
+    )
+
+    time_window = next(
+        record for record in result["records"] if record["template_id"] == "QT-Q01-TIME-WINDOW"
+    )
+    dense_result = time_window["modes"]["dense_embedding_vector"]
+
+    assert dense_result["target_source_retrieved"] is True
+    assert dense_result["retrieval_guards"] == ["source_local_target_source_guard"]
+    assert result["aggregate_by_mode"]["dense_embedding_vector"]["retrieval_guard_count"] >= 1
 
 
 def test_write_nasa_atmonto_s7_retrieval_outputs_reports(tmp_path: Path) -> None:

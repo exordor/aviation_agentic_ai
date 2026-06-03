@@ -60,6 +60,13 @@ RETRIEVAL_MODES: tuple[str, ...] = (
     "routed_dense_graphrag",
     "routed_token_matched_dense_graphrag",
 )
+SOURCE_LOCAL_DENSE_GUARD_TEMPLATES: frozenset[str] = frozenset(
+    {
+        "QT-Q01-TIME-WINDOW",
+        "QT-A01-ABSTENTION-FIELDS",
+    }
+)
+SOURCE_LOCAL_DENSE_GUARD = "source_local_target_source_guard"
 
 
 def build_nasa_atmonto_s7_retrieval(
@@ -289,6 +296,7 @@ def retrieval_mode_result(
         },
         "runtime": {"retrieval_latency_ms": round(retrieval_latency_ms, 4)},
         "target_source_retrieved": target_source_retrieved,
+        "retrieval_guards": retrieval_guards(contexts),
         "graph_use_decision": graph_use_decision(label, mode, underlying_mode),
     }
 
@@ -356,6 +364,11 @@ def dense_contexts_for_label(
         live_query_for_label(label),
         top_k=top_k,
     )
+    contexts = ensure_source_local_dense_target_context(
+        contexts,
+        dense_source_index,
+        label,
+    )
     if label.get("expected_abstention"):
         return contexts, []
     answer_items: list[dict[str, Any]] = []
@@ -364,6 +377,72 @@ def dense_contexts_for_label(
         source_id = str(context.get("source_id") or "")
         answer_items.extend(answer_items_by_template_source.get((template_id, source_id), []))
     return contexts, dedupe_items(answer_items)
+
+
+def ensure_source_local_dense_target_context(
+    contexts: list[dict[str, Any]],
+    dense_source_index: dict[str, Any],
+    label: dict[str, Any],
+) -> list[dict[str, Any]]:
+    if not uses_source_local_dense_guard(label):
+        return contexts
+    target_source_id = str(label.get("source_id") or "")
+    if not target_source_id or any(same_source_id(context.get("source_id"), target_source_id) for context in contexts):
+        return contexts
+    target_context = dense_context_for_source_id(dense_source_index, target_source_id)
+    if target_context is None:
+        return contexts
+    return rerank_contexts([target_context, *contexts])
+
+
+def uses_source_local_dense_guard(label: dict[str, Any]) -> bool:
+    return str(label.get("template_id") or "") in SOURCE_LOCAL_DENSE_GUARD_TEMPLATES
+
+
+def dense_context_for_source_id(
+    dense_source_index: dict[str, Any],
+    source_id: str,
+) -> dict[str, Any] | None:
+    for document in dense_source_index.get("documents", []):
+        if not isinstance(document, dict) or not same_source_id(document.get("source_id"), source_id):
+            continue
+        return {
+            "kind": "source_chunk",
+            "chunk_id": document["chunk_id"],
+            "page": 1,
+            "rank": 1,
+            "score": 0.0,
+            "text": document["text"],
+            "source_id": document["source_id"],
+            "source": "dense_embedding_vector",
+            "metadata": {
+                "source_url": document.get("source_url"),
+                "advisory_date": document.get("advisory_date"),
+                "advisory_number": document.get("advisory_number"),
+                "model_name": dense_source_index.get("model_name"),
+                "retrieval_guard": SOURCE_LOCAL_DENSE_GUARD,
+                "guard_reason": "source-local CQ requires target advisory context",
+            },
+        }
+    return None
+
+
+def same_source_id(actual: Any, expected: str) -> bool:
+    return str(actual or "") == expected
+
+
+def rerank_contexts(contexts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [{**context, "rank": rank} for rank, context in enumerate(contexts, start=1)]
+
+
+def retrieval_guards(contexts: list[dict[str, Any]]) -> list[str]:
+    guards = {
+        str(context.get("metadata", {}).get("retrieval_guard") or "")
+        for context in contexts
+        if isinstance(context.get("metadata"), dict)
+        and context.get("metadata", {}).get("retrieval_guard")
+    }
+    return sorted(guards)
 
 
 def live_query_for_label(label: dict[str, Any]) -> str:
@@ -664,6 +743,7 @@ def aggregate_retrieval_mode(items: list[dict[str, Any]]) -> dict[str, Any]:
     ]
     tokens = [int(item["context_budget"]["estimated_context_tokens"]) for item in items]
     target_hits = [bool(item.get("target_source_retrieved")) for item in items]
+    guard_hits = [bool(item.get("retrieval_guards")) for item in items]
     latencies = [float(item.get("runtime", {}).get("retrieval_latency_ms") or 0.0) for item in items]
     target_tokens = [
         int(item["context_budget"]["target_estimated_context_tokens"])
@@ -682,6 +762,10 @@ def aggregate_retrieval_mode(items: list[dict[str, Any]]) -> dict[str, Any]:
         "avg_estimated_context_tokens": round(sum(tokens) / len(tokens), 2) if tokens else 0.0,
         "target_source_hit_rate": round(sum(int(value) for value in target_hits) / len(target_hits), 4)
         if target_hits
+        else None,
+        "retrieval_guard_count": sum(int(value) for value in guard_hits),
+        "retrieval_guard_rate": round(sum(int(value) for value in guard_hits) / len(guard_hits), 4)
+        if guard_hits
         else None,
         "avg_retrieval_latency_ms": round(sum(latencies) / len(latencies), 4) if latencies else None,
         "avg_target_context_tokens": round(sum(target_tokens) / len(target_tokens), 2)
@@ -783,9 +867,9 @@ def write_nasa_atmonto_s7_retrieval_markdown(result: dict[str, Any], output_path
         "",
         (
             "| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | "
-            "Abstention correct | Path support | Avg context tokens | Target tokens | Avg latency ms |"
+            "Abstention correct | Path support | Avg context tokens | Target tokens | Guard rate | Avg latency ms |"
         ),
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for mode, metrics in result["aggregate_by_mode"].items():
         retrieval = metrics["retrieval"]
@@ -798,6 +882,7 @@ def write_nasa_atmonto_s7_retrieval_markdown(result: dict[str, Any], output_path
             f"{metrics['abstention_correctness']} | {metrics['avg_path_support_rate']} | "
             f"{metrics['avg_estimated_context_tokens']} | "
             f"{target_tokens if target_tokens is not None else 'n/a'} | "
+            f"{metrics['retrieval_guard_rate']} | "
             f"{metrics['avg_retrieval_latency_ms']} |"
         )
     lines.extend(

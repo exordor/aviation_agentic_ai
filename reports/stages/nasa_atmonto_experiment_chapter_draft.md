@@ -19,7 +19,8 @@ Generate deterministic source-only, vector proxy, graph-only, and hybrid GraphRA
 - Hybrid answer correctness: 0.8333
 - Hybrid evidence faithfulness: 0.8333
 - S7 deterministic routed live lexical GraphRAG correctness: 0.6435 under the stricter timestamp-preserving answer-value scorer.
-- S7 fixed-budget LLM live lexical route correctness: 1.0 on 12 selected cases; dense route correctness: 0.5 on 12 selected cases.
+- S7 fixed-budget LLM live lexical route correctness: 0.9167 on 12 selected cases; source-local guarded dense route correctness: 0.8333 on 12 selected cases.
 - S7 graph-health diagnostic: routed GraphRAG uses graph context in 39.75% of cases, preserves target-source hit rate at 1.0, and reaches answer-set F1 0.9833 while avoiding graph context for abstention/time-window templates.
-- S7 LLM failure review: dense failures split into source-local dense misses, wrong-context abstentions, and compound route-semantics partial-answer ambiguity.
+- S7 source-local dense guard: deterministic S7 dense routed answer correctness increased from 0.3344 to 0.6215, with target-source hit rate increasing from 0.4069 to 0.9685 and guard rate 0.5615. This should be interpreted as metadata/source-bounded guarded dense retrieval, not pure dense embedding superiority.
+- S7 LLM failure review: previous dense source-miss and wrong-context abstention failures were addressed in the selected post-guard rerun; remaining failures are compound route-semantics partial-answer ambiguity.
 - Boundary: S7 LLM results include deterministic JSON/schema repair for abstention and ATCSCC time-window normalization. They are diagnostic and source-bounded, not human review or operational ATC certification.

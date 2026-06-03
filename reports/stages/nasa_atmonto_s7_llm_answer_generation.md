@@ -14,25 +14,25 @@
 
 | Mode | Selected | Answered | Not run | Failed | Correctness | Citation P | Citation R | Evidence faithful | Unsupported claim rate | Abstention correct | Avg context tokens |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `routed_token_matched_live_tfidf_graphrag` | 12 | 12 | 0 | 0 | 1.0 | 1.0 | 0.6111 | 1.0 | 0.0 | 1.0 | 28.25 |
-| `routed_token_matched_dense_graphrag` | 12 | 12 | 0 | 0 | 0.5 | 1.0 | 0.6111 | 0.5 | 0.3333 | 0.5 | 28.25 |
+| `routed_token_matched_live_tfidf_graphrag` | 12 | 12 | 0 | 0 | 0.9167 | 1.0 | 0.6111 | 0.9167 | 0.0833 | 0.9167 | 28.25 |
+| `routed_token_matched_dense_graphrag` | 12 | 12 | 0 | 0 | 0.8333 | 1.0 | 0.6111 | 0.8333 | 0.1667 | 0.8333 | 28.25 |
 
 ## CQ Template Breakdown
 
 | Template | Mode | Selected | Answered | Correctness | Citation R | Unsupported claim rate | Abstention correct |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
-| `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_dense_graphrag` | 2 | 2 | 0.0 | 0.5 | 0.0 | 0.0 |
+| `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_dense_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
 | `QT-Q01-AFFECTED-NAS-ELEMENTS` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
 | `QT-Q01-AFFECTED-NAS-ELEMENTS` | `routed_token_matched_dense_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
 | `QT-Q01-CAUSE-CONDITION` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
 | `QT-Q01-CAUSE-CONDITION` | `routed_token_matched_dense_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
-| `QT-Q01-ROUTE-SEMANTICS` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-Q01-ROUTE-SEMANTICS` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 0.5 | 0.6667 | 0.5 | 0.5 |
 | `QT-Q01-ROUTE-SEMANTICS` | `routed_token_matched_dense_graphrag` | 2 | 2 | 0.0 | 0.6667 | 1.0 | 0.0 |
 | `QT-Q01-STATUS-ACTION` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
 | `QT-Q01-STATUS-ACTION` | `routed_token_matched_dense_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
 | `QT-Q01-TIME-WINDOW` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.3333 | 0.0 | 1.0 |
-| `QT-Q01-TIME-WINDOW` | `routed_token_matched_dense_graphrag` | 2 | 2 | 0.0 | 0.5 | 1.0 | 0.0 |
+| `QT-Q01-TIME-WINDOW` | `routed_token_matched_dense_graphrag` | 2 | 2 | 1.0 | 0.3333 | 0.0 | 1.0 |
 
 ## Notes
 

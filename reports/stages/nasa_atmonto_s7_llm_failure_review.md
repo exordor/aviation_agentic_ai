@@ -2,8 +2,9 @@
 
 Date: 2026-06-03
 
-Status: manual review of the bounded 24-case S7 LLM answer-generation check.
-This is a diagnostic review, not human certification of answer quality.
+Status: manual review of the bounded 24-case S7 LLM answer-generation check
+after adding the source-local dense retrieval guard. This is a diagnostic
+review, not human certification of answer quality.
 
 ## Scope
 
@@ -12,132 +13,100 @@ Reviewed artifact:
 
 The reviewed run uses prompt version `nasa_atmonto_s7_llm_answer_v2`, with
 12 selected cases per routed mode and two selected cases per CQ template.
+The dense retrieval path now applies `source_local_target_source_guard` to
+source-local CQ templates when the dense hit list misses the target advisory.
 
 Aggregate result:
 
 | Mode | Selected | Correctness | Citation precision | Citation recall | Evidence faithful | Unsupported claim rate | Abstention correct |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `routed_token_matched_live_tfidf_graphrag` | 12 | 1.0 | 1.0 | 0.6111 | 1.0 | 0.0 | 1.0 |
-| `routed_token_matched_dense_graphrag` | 12 | 0.5 | 1.0 | 0.6111 | 0.5 | 0.3333 | 0.5 |
+| `routed_token_matched_live_tfidf_graphrag` | 12 | 0.9167 | 1.0 | 0.6111 | 0.9167 | 0.0833 | 0.9167 |
+| `routed_token_matched_dense_graphrag` | 12 | 0.8333 | 1.0 | 0.6111 | 0.8333 | 0.1667 | 0.8333 |
 
-## Failure Taxonomy
+## Guard Effect
+
+The previous bounded LLM run had three dense-route failure types:
+
+| Previous category | Previous cases | Post-guard status |
+| --- | ---: | --- |
+| Dense source miss on source-local temporal CQs | 2 | Addressed in the selected 24-case rerun. |
+| Wrong-context abstention on source-local abstention CQs | 2 | Addressed in the selected 24-case rerun. |
+| Compound CQ partial-answer ambiguity | 2 | Still present. |
+
+The deterministic S7 rerun shows the same direction at the full 317-case scale:
+`routed_token_matched_dense_graphrag` answer correctness increased from 0.3344
+to 0.6215, target-source hit rate increased from 0.4069 to 0.9685, and the
+guard fired on 178 of 317 cases. This improvement should be described as a
+source-bounded dense retrieval guard, not as evidence that pure dense retrieval
+alone is sufficient for ATCSCC advisory CQs.
+
+## Current Failure Taxonomy
 
 | Category | Cases | Affected templates | Root cause | Claim impact | Recommended action |
 | --- | ---: | --- | --- | --- | --- |
-| Dense source miss on source-local temporal CQs | 2 | `QT-Q01-TIME-WINDOW` | Dense retrieval selected the wrong advisory metadata chunk, so the LLM correctly abstained from insufficient evidence but failed the source-bounded answer task. | This is a dense retrieval failure, not an ontology or time-normalization failure. | Add source-id/date metadata filtering or source-family lexical prefiltering before dense retrieval for source-local CQs. |
-| Wrong-context abstention under source-bounded scoring | 2 | `QT-A01-ABSTENTION-FIELDS` | Dense retrieval selected an unrelated metadata/header chunk. The LLM abstained, but the scorer marks this incorrect because target-source retrieval is required for live retrieval modes. | The abstention policy is intentionally strict; otherwise any wrong-context abstention could appear correct. | Keep the strict target-source guard; improve dense retrieval before treating abstention accuracy as meaningful. |
-| Compound CQ partial-answer ambiguity | 2 | `QT-Q01-ROUTE-SEMANTICS` | The retrieved target source and graph triple support `controlledNASelement=BNA`, but the LLM abstained because reroute type/reason were unsupported. | This is a CQ/prompt granularity issue, not a source retrieval miss. | Split route-semantics CQs into separately scored fields, or add a controlled partial-answer policy and evaluate it as a separate ablation. |
+| Compound CQ partial-answer ambiguity | 3 | `QT-Q01-ROUTE-SEMANTICS` | The retrieved target source and graph triple support `controlledNASelement=BNA`, but the LLM abstains because reroute type/reason are unsupported. | This is a CQ/prompt granularity issue, not a source retrieval miss. | Split route-semantics CQs into separately scored fields, or add a controlled partial-answer policy and evaluate it as a separate ablation. |
 
 ## Reviewed Failure Cards
 
-### F1. Time Window Dense Miss: `2026-05-19:032`
-
-- Template: `QT-Q01-TIME-WINDOW`
-- Expected values:
-  `effectiveStartTime=2026-05-19T13:22:00Z`,
-  `effectiveEndTime=2026-05-19T16:30:00Z`
-- Dense routed context:
-  `atcscc-2026-05-19-144-p1-c1`, source `2026-05-19:144`
-- LLM behavior: abstained because the supplied evidence did not contain a time
-  range.
-- Live lexical comparison: retrieved `atcscc-2026-05-19-032-p1-c1` containing
-  `EFFECTIVE TIME: 191322-191630`, normalized to the expected ISO values.
-
-Assessment: dense retrieval missed the target advisory.
-
-### F2. Time Window Dense Miss: `2026-05-15:063`
-
-- Template: `QT-Q01-TIME-WINDOW`
-- Expected values:
-  `effectiveStartTime=2026-05-15T19:18:00Z`,
-  `effectiveEndTime=2026-05-16T00:30:00Z`
-- Dense routed context:
-  `atcscc-2026-05-19-144-p1-c1`, source `2026-05-19:144`
-- LLM behavior: abstained because the supplied evidence did not contain a time
-  range.
-- Live lexical comparison: retrieved `atcscc-2026-05-15-063-p1-c1` containing
-  `EFFECTIVE TIME: 151918-160030`, normalized to the expected ISO values.
-
-Assessment: dense retrieval missed the target advisory.
-
-### F3. Route Semantics Partial Answer: `2026-05-19:079`
+### F1. Route Semantics Partial Answer: Live Lexical, `2026-05-19:074`
 
 - Template: `QT-Q01-ROUTE-SEMANTICS`
 - Expected value: `controlledNASelement=BNA`
-- Dense routed context:
-  `atcscc-2026-05-19-079-p1-c1`, text `CTL ELEMENT: BNA`
+- Retrieved target context:
+  `atcscc-2026-05-19-074-p1-c1`, text `CTL ELEMENT: BNA`
 - Graph triple: `t1`, predicate `controlledNASelement`, object `BNA`
 - LLM behavior: abstained because reroute type and reroute reason were not
-  supported, even though the controlled NAS element was supported.
-- Live lexical comparison: returned the supported `controlledNASelement=BNA`
-  value and noted the unsupported route fields.
+  supported, even though the scored field was supported.
 
 Assessment: this is a partial-answer policy mismatch for a compound CQ. The
 retrieval context was sufficient for the scored field.
 
-### F4. Route Semantics Partial Answer: `2026-05-19:074`
+### F2. Route Semantics Partial Answer: Dense, `2026-05-19:079`
 
 - Template: `QT-Q01-ROUTE-SEMANTICS`
 - Expected value: `controlledNASelement=BNA`
-- Dense routed context:
+- Retrieved target context:
+  `atcscc-2026-05-19-079-p1-c1`, text `CTL ELEMENT: BNA`
+- Graph triple: `t1`, predicate `controlledNASelement`, object `BNA`
+- LLM behavior: abstained because reroute type and reroute reason were not
+  supported.
+
+Assessment: the dense retrieval guard removed the previous source-miss problem;
+the remaining failure is the same compound-CQ partial-answer issue.
+
+### F3. Route Semantics Partial Answer: Dense, `2026-05-19:074`
+
+- Template: `QT-Q01-ROUTE-SEMANTICS`
+- Expected value: `controlledNASelement=BNA`
+- Retrieved target context:
   `atcscc-2026-05-19-074-p1-c1`, text `CTL ELEMENT: BNA`
 - Graph triple: `t1`, predicate `controlledNASelement`, object `BNA`
 - LLM behavior: abstained because reroute type and reroute reason were not
   supported.
-- Live lexical comparison: returned the supported `controlledNASelement=BNA`
-  value and noted unsupported route fields.
 
-Assessment: this is the same compound-CQ partial-answer issue as F3.
-
-### F5. Abstention Dense Miss: `2026-05-19:032`
-
-- Template: `QT-A01-ABSTENTION-FIELDS`
-- Expected behavior: abstain on unsupported expected fields, but only after
-  retrieving the target advisory source context.
-- Dense routed context:
-  `atcscc-2026-05-18-021-p1-c1`, source `2026-05-18:021`
-- LLM behavior: abstained from unrelated metadata/header evidence.
-- Scoring behavior: incorrect, because live/dense retrieval modes must retrieve
-  the target source before abstention can count as correct.
-
-Assessment: wrong-context abstention should remain a failure.
-
-### F6. Abstention Dense Miss: `2026-05-15:063`
-
-- Template: `QT-A01-ABSTENTION-FIELDS`
-- Expected behavior: abstain on unsupported expected fields, but only after
-  retrieving the target advisory source context.
-- Dense routed context:
-  `atcscc-2026-05-18-021-p1-c1`, source `2026-05-18:021`
-- LLM behavior: abstained from unrelated metadata/header evidence.
-- Scoring behavior: incorrect, because live/dense retrieval modes must retrieve
-  the target source before abstention can count as correct.
-
-Assessment: wrong-context abstention should remain a failure.
+Assessment: same compound-CQ partial-answer issue as F1/F2.
 
 ## Implications for SOTA Story
 
-1. The 24-case LLM check supports the current claim that live lexical routed
-   context is stronger than dense retrieval for source-bounded ATCSCC advisory
-   questions.
-2. The dense result should be framed as a negative retrieval result under the
-   current source-bounded setup, not as evidence that dense retrieval is
-   generally weak.
-3. The route-semantics failures show that compound CQs need either finer field
-   decomposition or an explicit partial-answer policy. This is a methodology
-   refinement, not evidence that graph context is unavailable.
-4. The abstention failures validate the strict source-bounded scoring rule:
-   abstention is only correct when the target source context was actually
-   retrieved.
+1. The dense retrieval guard converts an earlier negative dense result into a
+   qualified, source-bounded improvement. It should be reported with its guard
+   rate because the improvement depends on metadata/source constraints.
+2. The remaining LLM failures are concentrated in `QT-Q01-ROUTE-SEMANTICS`.
+   This is evidence that compound CQs need a clearer answer contract, not that
+   graph context is unavailable.
+3. The live lexical and guarded dense routed modes are now close on the bounded
+   24-case LLM check, but the sample is still diagnostic and should not be used
+   as a broad GraphRAG superiority claim.
+4. Strict abstention scoring remains necessary: abstention is correct only when
+   the target source context was actually retrieved or deliberately injected by
+   an explicit source-local guard.
 
 ## Next Engineering Step
 
-Prioritize a deterministic dense-retrieval guard before increasing LLM sample
-size:
+Do not expand the LLM sample until the route-semantics contract is explicit:
 
-1. Add source-family/date/advisory-number metadata filtering for dense retrieval
-   when the CQ is source-local or the question includes a source identifier.
-2. Split `QT-Q01-ROUTE-SEMANTICS` into separately scored fields, or add a
+1. Split `QT-Q01-ROUTE-SEMANTICS` into separately scored fields, or add a
    controlled partial-answer ablation with explicit expected semantics.
-3. Rerun the 24-case S7 LLM check only after the retrieval and CQ-contract
-   changes are explicit.
+2. Keep the source-local dense guard and report its guard rate in retrieval and
+   answer-generation tables.
+3. Rerun the 24-case and then larger S7 LLM checks after the CQ-contract change.
