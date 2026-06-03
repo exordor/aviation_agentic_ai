@@ -69,6 +69,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - ATCSCC validation findings: `reports/stages/atcscc_validation_findings.md`
 - ATCSCC evidence support findings: `reports/stages/atcscc_evidence_support_findings.md`
 - ATCSCC repair plan: `reports/stages/atcscc_repair_plan.md`
+- NASA ATMONTO S5/S6 agentic evidence loop: `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`
 - ATCSCC S7 graph-use gate plan: `reports/stages/atcscc_graph_use_plan.md`
 - NASA ATMONTO S7 retrieval-only graph-use gate: `reports/stages/nasa_atmonto_s7_retrieval.md`
 - NASA ATMONTO S7 graph health by CQ group: `reports/stages/nasa_atmonto_s7_graph_health.md`

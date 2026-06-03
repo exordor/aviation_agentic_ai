@@ -148,8 +148,8 @@ The current S0-S4 suite can become the reusable baseline template:
 | `S2_schema_slice_llm` | LLM prompted with a schema slice/profile. | ATCSCC schema-slice extraction. |
 | `S3_validator_repair` | Schema validation and constrained repair. | Validator/repair of ATMONTO facts. |
 | `S4_hybrid_backbone_enrichment` | Deterministic backbone plus semantic enrichment. | Current strongest ATCSCC system. |
-| `S5_agentic_cq_module_routed_extraction` | Planned extension: use SRD/TIP and CQ/module routing before extraction. | Planned ATMONTO advisory-type and CQ-routed extraction. |
-| `S6_agentic_evidence_verifier_repair` | Planned extension: separate schema validation from evidence critique and bounded repair. | Planned CQ-specific evidence verifier over ATCSCC spans. |
+| `S5_agentic_cq_module_routed_extraction` | Bounded current wrapper: use SRD/TIP and CQ/module routing over S4 outputs before independent extraction. | `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md` routes 686 S4 facts into CQ/module buckets. |
+| `S6_agentic_evidence_verifier_repair` | Bounded current wrapper: separate schema validation from evidence containment and quarantine unsupported facts. | `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md` verifies all 686 S5 facts against ATCSCC source text, with 0 quarantined in the current S4 input. |
 | `S7_agentic_graph_use_gate` | Planned extension: route retrieval by query type, graph need, and cost boundary. | Planned CQ route: vector, graph, hybrid, abstain. |
 
 Current ATCSCC starter contract:
@@ -164,8 +164,9 @@ The ATCSCC stage-1 artifact chain is now instantiated in:
 `reports/stages/atcscc_evidence_support_findings.md`,
 `reports/stages/atcscc_repair_plan.md`, and
 `reports/stages/atcscc_graph_use_plan.md`. This satisfies the artifact
-handoff requirement, but it is not yet a scored S5/S6 multi-agent extraction
-run.
+handoff requirement. `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`
+adds a scored S5/S6 wrapper over the current S4 output. This is an executable
+bridge, not yet an independent autonomous extractor/critic/refiner run.
 
 ## Research Contributions That Generalize
 
@@ -261,9 +262,9 @@ The next concrete step is to keep building the ATMONTO case study, but name
 artifacts and scripts in a way that preserves the generic pattern:
 
 1. preserve the completed ATCSCC artifact chain as the S5/S6 contract;
-2. implement S5 CQ/module-routed extraction using that contract;
-3. implement S6 evidence-verifier repair with bounded repair cycles;
-4. compare S5/S6 against S0-S4 and S7 retrieval/answer-generation layers;
+2. promote the current S5/S6 wrapper into an independent CQ/module-routed extraction run;
+3. promote the current evidence gate into a separate evidence-verifier repair agent;
+4. compare independent S5/S6 against S0-S4 and S7 retrieval/answer-generation layers;
 5. document which parts are domain-specific adapters and which parts are
    reusable pipeline logic;
 6. only after the ATM case is stable, choose one second-domain pilot.
