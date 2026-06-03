@@ -144,12 +144,13 @@ The next rerun should follow a nine-stage pipeline:
 8. Graph materialization.
 9. Layered evaluation.
 
-The first S7 graph-use gate now includes a deterministic retrieval-only proxy
-over 317 CQ-derived cases. It reports source/vector proxy, token-matched vector
-proxy, graph-only, hybrid, and routed GraphRAG modes. This is sufficient to
-evaluate route policy, graph path support, abstention behavior, and context
-budget proxies, but it is not yet a live vector-index or tokenizer-backed
-retrieval benchmark.
+The first S7 graph-use gate now includes a retrieval-only run over 317
+CQ-derived cases. It reports source/vector proxy, token-matched vector proxy,
+live TF-IDF lexical-vector retrieval, token-matched live lexical-vector
+retrieval, graph-only, hybrid, and routed GraphRAG modes. This is sufficient to
+evaluate route policy, graph path support, abstention behavior, live
+source-retrieval behavior, and tokenizer-backed context budgets. It is not yet a
+dense embedding retrieval benchmark or live operational GraphRAG system.
 
 The Extract-Define-Canonicalize design separates open extraction from
 target-schema scoring. Ontology-guided short-text KGC motivates 10-20

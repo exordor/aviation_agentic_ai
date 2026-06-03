@@ -152,9 +152,23 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
             }
         ],
     )
+    source_path = tmp_path / "input_records.jsonl"
+    _write_jsonl(
+        source_path,
+        [
+            {
+                "sample_id": "ATCSCC-GOLD-001",
+                "source_id": "2026-05-19:032",
+                "advisory_date": "2026-05-19",
+                "advisory_number": 32,
+                "source_text": source_text,
+                "source_url": "https://example.test/advisory/032",
+            }
+        ],
+    )
     manifest_path = tmp_path / "templates.json"
     _write_json(manifest_path, build_cq_query_manifest())
-    return {"gold": gold_path, "s4": s4_path, "manifest": manifest_path}
+    return {"gold": gold_path, "s4": s4_path, "source": source_path, "manifest": manifest_path}
 
 
 def test_build_nasa_atmonto_s7_retrieval_reports_modes_and_gate(tmp_path: Path) -> None:
@@ -164,15 +178,20 @@ def test_build_nasa_atmonto_s7_retrieval_reports_modes_and_gate(tmp_path: Path) 
         repo_root=tmp_path,
         gold_path=paths["gold"],
         s4_prediction_path=paths["s4"],
+        source_record_path=paths["source"],
         query_manifest_path=paths["manifest"],
         max_cases_per_template=1,
     )
 
-    assert result["status"] == "s7_retrieval_proxy_evaluated"
+    assert result["status"] == "s7_retrieval_gate_evaluated"
     assert result["metadata"]["modes"] == list(RETRIEVAL_MODES)
+    assert "live_tfidf_vector" in result["metadata"]["modes"]
     assert result["metadata"]["retrieval_case_count"] == 6
+    assert result["metadata"]["live_source_document_count"] == 1
     assert result["critic_gate"]["rejected_values"] == ["ADVZY"]
     assert result["aggregate_by_mode"]["token_matched_vector_proxy"]["avg_target_context_tokens"]
+    assert result["aggregate_by_mode"]["token_matched_live_tfidf_vector"]["avg_target_context_tokens"]
+    assert result["aggregate_by_mode"]["live_tfidf_vector"]["target_source_hit_rate"] == 1.0
     assert result["aggregate_by_mode"]["hybrid_graphrag"]["avg_path_support_rate"] is not None
     assert result["aggregate_by_mode"]["source_oracle"]["abstention_correctness"] == 1.0
     assert result["aggregate_by_mode"]["vector_rag_proxy"]["abstention_correctness"] == 1.0
@@ -192,6 +211,7 @@ def test_write_nasa_atmonto_s7_retrieval_outputs_reports(tmp_path: Path) -> None
         repo_root=tmp_path,
         gold_path=paths["gold"],
         s4_prediction_path=paths["s4"],
+        source_record_path=paths["source"],
         query_manifest_path=paths["manifest"],
         max_cases_per_template=1,
     )
@@ -202,4 +222,6 @@ def test_write_nasa_atmonto_s7_retrieval_outputs_reports(tmp_path: Path) -> None
     markdown = md_path.read_text(encoding="utf-8")
     assert "S7 Retrieval-Only Graph-Use Gate" in markdown
     assert "token_matched_vector_proxy" in markdown
+    assert "live_tfidf_vector" in markdown
+    assert "Target hit" in markdown
     assert result["claim_boundary"]

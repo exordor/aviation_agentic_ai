@@ -2,9 +2,11 @@
 
 Date: 2026-06-03
 
-Status: S7 deterministic proxies implemented for answer generation,
-CQ queryability, and retrieval-only graph-use evaluation. True live vector-index
-retrieval and tokenizer-backed token matching remain planned extensions.
+Status: S7 deterministic proxies implemented for answer generation and CQ
+queryability. Retrieval-only S7 now also includes live TF-IDF lexical-vector
+retrieval and tokenizer-backed token-matched controls. Dense embedding retrieval,
+materialized graph traversal, and answer generation over live retrieved contexts
+remain planned extensions.
 
 ## Purpose
 
@@ -23,7 +25,8 @@ The current implementation has three deterministic layers:
 
 - answer-generation proxy: `reports/stages/nasa_atmonto_answer_generation.md`
 - CQ answer-set queryability proxy: `reports/stages/nasa_atmonto_cq_query_evaluation.md`
-- retrieval-only graph-use proxy: `reports/stages/nasa_atmonto_s7_retrieval.md`
+- retrieval-only graph-use and live lexical-vector report:
+  `reports/stages/nasa_atmonto_s7_retrieval.md`
 
 The core retrieval implementation is in
 `src/aviation_agentic_ai/reporting/nasa_atmonto_s7_retrieval.py`.
@@ -32,12 +35,13 @@ Two new answer modes are now reported:
 
 | Mode | Purpose | Current status |
 | --- | --- | --- |
-| `token_matched_vector_rag` | Vector/source-text control with the hybrid context budget recorded as target. | Implemented as deterministic proxy; no live vector index rerun. |
+| `token_matched_vector_rag` | Vector/source-text control with the hybrid context budget recorded as target. | Implemented as deterministic answer-generation proxy; retrieval-only report now includes token-matched live lexical-vector control. |
 | `routed_graphrag` | Uses the graph-use gate to choose vector/source or hybrid graph context by CQ template. | Implemented as deterministic proxy over the 18-label answer benchmark. |
 
-The current gate is intentionally conservative. It does not claim live retriever
-performance; it evaluates whether the routing policy improves or preserves
-answer behavior inside the source-bounded scaffold.
+The current gate is intentionally conservative. The live retrieval layer is a
+lexical TF-IDF source index over the frozen ATCSCC records, not a dense embedding
+index. It evaluates whether the routing policy improves or preserves answer
+behavior inside the source-bounded scaffold.
 
 ## Route Policy
 
@@ -101,14 +105,16 @@ existing best answer-set score, but it does not yet show a queryability gain.
 
 From `reports/stages/nasa_atmonto_s7_retrieval.md`:
 
-| Mode | Answer F1 | Abstention correct | Path support | Avg tokens | Token target |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `source_oracle` | 1.0 | 1.0 | n/a | 7.65 | n/a |
-| `vector_rag_proxy` | 1.0 | 1.0 | n/a | 7.65 | n/a |
-| `token_matched_vector_proxy` | 1.0 | 1.0 | n/a | 7.65 | 14.88 |
-| `graph_only` | 0.5248 | 0.01 | 1.0 | 9.32 | n/a |
-| `hybrid_graphrag` | 0.5248 | 0.01 | 1.0 | 14.88 | n/a |
-| `routed_graphrag` | 0.9885 | 1.0 | 1.0 | 9.9 | n/a |
+| Mode | Target hit | Answer F1 | Abstention correct | Path support | Avg tokens | Token target |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `source_oracle` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | n/a |
+| `vector_rag_proxy` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | n/a |
+| `token_matched_vector_proxy` | 1.0 | 1.0 | 1.0 | n/a | 19.78 | 38.37 |
+| `live_tfidf_vector` | 1.0 | 0.9438 | 1.0 | n/a | 2001.44 | n/a |
+| `token_matched_live_tfidf_vector` | 1.0 | 0.9438 | 1.0 | n/a | 38.37 | 38.37 |
+| `graph_only` | 0.9968 | 0.5248 | 0.01 | 1.0 | 24.49 | n/a |
+| `hybrid_graphrag` | 1.0 | 0.5248 | 0.01 | 1.0 | 38.37 | n/a |
+| `routed_graphrag` | 1.0 | 0.9885 | 1.0 | 1.0 | 24.29 | n/a |
 
 Interpretation:
 
@@ -116,15 +122,18 @@ Interpretation:
   for missing-field/abstention questions;
 - graph path support is available for graph-worthy questions, but this does not
   imply that graph-only retrieval is safe for all templates;
-- the token-matched vector proxy records the hybrid token target without using
-  graph triples, giving the next live retrieval run a fair control target.
+- live lexical-vector retrieval can locate the source records in this
+  source-bounded setup, but it uses much larger contexts unless token-matched;
+- the token-matched live lexical-vector control matches the hybrid context
+  budget exactly and keeps graph triples disabled.
 
 ## What This Proves
 
-This proves that the project now has an explicit graph-use gate, a retrieval-only
-route evaluation, graph path-support reporting, and a token-budget control field.
-It also produces a negative/qualified result: graph context is not automatically
-better in the current scaffold.
+This proves that the project now has an explicit graph-use gate, retrieval-only
+route evaluation, live lexical-vector retrieval, graph path-support reporting,
+and tokenizer-backed token-budget controls. It also produces a
+negative/qualified result: graph context is not automatically better in the
+current scaffold.
 
 At the CQ answer-set layer, it proves that the gate can be evaluated over the
 existing queryability benchmark and preserves the current best S4 aggregate.
@@ -133,19 +142,16 @@ existing queryability benchmark and preserves the current best S4 aggregate.
 
 This does not yet prove:
 
-- real vector retrieval performance over a live ATCSCC text index;
+- dense embedding retrieval performance over a live ATCSCC text index;
 - real graph traversal retrieval performance over a materialized ATCSCC KG;
-- token-matched retrieval with actual model tokenizer counts;
 - graph superiority on natural-language ATCSCC questions.
 
 ## Next Implementation Step
 
-The next SOTA upgrade is a live retrieval S7 run:
+The next SOTA upgrade is a dense/vector + materialized-graph S7 run:
 
-1. materialize a live ATCSCC text index and graph traversal layer;
-2. rerun vector-only, graph-only, hybrid, routed, and token-matched vector
-   retrieval over the same query set;
-3. replace whitespace token estimates with tokenizer-backed counts and add
-   latency;
+1. replace the TF-IDF lexical source index with a dense embedding index;
+2. add materialized graph traversal over the ATCSCC KG facts;
+3. add latency reporting;
 4. only then re-run natural-language answer generation on the routed retrieval
    outputs.

@@ -28,12 +28,12 @@ source-bounded answer tests.
 | Evidence-grounded extraction | OBIE, claim KG, and GraphRAG evaluation practice | Every accepted fact has source ID and evidence span or explicit support record | `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied for scored extraction |
 | Schema validity separated from semantic correctness | KG quality and ontology evaluation practice | Report schema violations, semantic P/R/F1, evidence support, and profile gaps separately | `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied |
 | Multi-agent artifact pipeline | Multi-agent ontology-generation paper | Source brief, SRD, TIP, extraction plan, validation findings, evidence critique, repair plan, graph-use plan | `reports/stages/atcscc_agentic_artifact_contract.md` | planned, contract exists but artifacts are incomplete |
-| Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md` | partial, deterministic retrieval proxy now exists |
-| Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Answer generation and retrieval-only reports now include source/vector/token-matched-vector/graph/hybrid/routed modes; live vector index and tokenizer-backed token matching are still incomplete | partial |
+| Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md` | partial, retrieval-only gate now includes live lexical-vector controls |
+| Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Answer generation and retrieval-only reports now include source/vector/token-matched-vector/live lexical-vector/graph/hybrid/routed modes; dense vector and materialized graph traversal are still incomplete | partial |
 | Queryability rather than ontological purity | KG quality for RAG-oriented systems | CQ answer-set precision/recall/F1 by predicate and question type | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | satisfied for pre-generation answer sets |
 | Graph health and path support | GraphRAG pipeline evaluation | Node/edge coverage, component/connectivity diagnostics, path support rate for graph-worthy CQs | `reports/stages/nasa_atmonto_s7_retrieval.md` reports route-level path support; broader graph health diagnostics remain KG-validation-level | partial |
 | Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | partial, needs larger answer benchmark |
-| Cost and reproducibility reporting | Fair retrieval/GraphRAG benchmarking | Token budget, latency, deterministic source scope, frozen data version, rerunnable commands | frozen source/gold scope exists; answer-generation scaffold reports estimated context tokens; live retrieval token/latency reporting is incomplete | partial |
+| Cost and reproducibility reporting | Fair retrieval/GraphRAG benchmarking | Token budget, latency, deterministic source scope, frozen data version, rerunnable commands | frozen source/gold scope exists; S7 retrieval uses tokenizer-backed token budgets; latency reporting remains incomplete | partial |
 | Transferability to another domain | Domain-agnostic ontology/KG/GraphRAG methodology | Same artifact contract applied to a non-ATM corpus with only domain artifacts changed | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md` | planned |
 
 ## Current SOTA Position
@@ -56,8 +56,9 @@ The project is only partially SOTA-comparable at the **GraphRAG** layer:
 - deterministic CQ answer-set evaluation exists;
 - a small source/vector/graph/hybrid answer-generation pilot exists;
 - a retrieval-only S7 graph-use gate exists over 317 CQ-derived cases;
-- live vector-index retrieval, tokenizer-backed token matching, latency
-  reporting, and broader answer-generation labels remain incomplete.
+- live lexical-vector retrieval and tokenizer-backed token matching exist;
+- dense embedding retrieval, materialized graph traversal, latency reporting,
+  and broader answer-generation labels remain incomplete.
 
 The project is currently a planned, not completed, example of the **multi-agent
 artifact pipeline**:
@@ -75,8 +76,9 @@ Use this wording in thesis or defense material:
 > its use of competency questions, a NASA ATMONTO-derived application profile,
 > reviewed gold facts, evidence-span grounding, schema validation, and layered
 > KG/query/answer evaluation. It does not claim live operational readiness or
-> universal GraphRAG superiority. The next SOTA gap is fair graph-use evaluation
-> with token-matched vector controls and query-level routing.
+> universal GraphRAG superiority. The next SOTA gap is replacing lexical
+> retrieval proxies with dense retrieval/materialized graph traversal and then
+> rerunning answer generation over routed contexts.
 
 Avoid these claims:
 
@@ -90,9 +92,8 @@ Avoid these claims:
 
 The next executable upgrade should target the GraphRAG gaps in this order:
 
-1. Replace the deterministic S7 retrieval proxy with a live vector-index and
-   graph-traversal run.
-2. Add tokenizer-backed token matching and latency reporting.
+1. Replace the live TF-IDF lexical source index with dense embedding retrieval.
+2. Add materialized graph traversal and latency reporting.
 3. Use routed retrieval outputs for the natural-language answer-generation
    rerun.
 4. Report retrieval, answer, citation, unsupported-claim, token, and latency

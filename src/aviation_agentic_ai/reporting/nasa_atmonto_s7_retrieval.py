@@ -26,16 +26,23 @@ from aviation_agentic_ai.reporting.nasa_atmonto_answer_scoring import (
     source_items_for_label,
 )
 from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import DEFAULT_GOLD_PATH
+from aviation_agentic_ai.reporting.nasa_atmonto_live_retrieval import (
+    build_live_tfidf_source_index,
+    query_live_tfidf_source_index,
+)
 
 DEFAULT_S4_PREDICTION_PATH = Path(
     "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl"
 )
 DEFAULT_QUERY_MANIFEST_PATH = Path("data/evaluation/nasa_atmonto/atcscc_cq_query_templates.json")
+DEFAULT_SOURCE_RECORD_PATH = Path("data/experiments/nasa_atmonto/formal/input_records.jsonl")
 
 RETRIEVAL_MODES: tuple[str, ...] = (
     "source_oracle",
     "vector_rag_proxy",
     "token_matched_vector_proxy",
+    "live_tfidf_vector",
+    "token_matched_live_tfidf_vector",
     "graph_only",
     "hybrid_graphrag",
     "routed_graphrag",
@@ -47,24 +54,36 @@ def build_nasa_atmonto_s7_retrieval(
     repo_root: str | Path = PROJECT_ROOT,
     gold_path: str | Path = DEFAULT_GOLD_PATH,
     s4_prediction_path: str | Path = DEFAULT_S4_PREDICTION_PATH,
+    source_record_path: str | Path = DEFAULT_SOURCE_RECORD_PATH,
     query_manifest_path: str | Path | None = DEFAULT_QUERY_MANIFEST_PATH,
     max_cases_per_template: int = 1000,
+    live_top_k: int = 5,
 ) -> dict[str, Any]:
     started = perf_counter()
     root = Path(repo_root)
     gold_file = resolve_path(root, gold_path)
     s4_file = resolve_path(root, s4_prediction_path)
+    source_file = resolve_path(root, source_record_path)
     query_manifest = load_query_manifest(root, query_manifest_path, DEFAULT_QUERY_MANIFEST_PATH)
     gold_records = read_jsonl_objects(gold_file)
     s4_records = read_jsonl_objects(s4_file)
+    source_records = read_jsonl_objects(source_file)
     benchmark = build_answer_eval_benchmark(
         gold_records=gold_records,
         query_manifest=query_manifest,
         max_cases_per_template=max_cases_per_template,
     )
     gated_facts_by_source, critic_gate = gate_s4_facts(facts_by_source(s4_records))
+    live_source_index = build_live_tfidf_source_index(source_records)
+    answer_items_by_template_source = answer_items_index(benchmark["labels"])
     records = [
-        retrieval_record_for_label(label, gated_facts_by_source)
+        retrieval_record_for_label(
+            label,
+            gated_facts_by_source,
+            live_source_index=live_source_index,
+            answer_items_by_template_source=answer_items_by_template_source,
+            live_top_k=live_top_k,
+        )
         for label in benchmark["labels"]
     ]
     aggregate_by_mode = {
@@ -74,10 +93,11 @@ def build_nasa_atmonto_s7_retrieval(
     elapsed_seconds = perf_counter() - started
     return {
         "source_family": "nasa_atmonto_s7_retrieval",
-        "status": "s7_retrieval_proxy_evaluated",
+        "status": "s7_retrieval_gate_evaluated",
         "metadata": {
             "gold_path": project_relative_path(gold_file, root),
             "s4_prediction_path": project_relative_path(s4_file, root),
+            "source_record_path": project_relative_path(source_file, root),
             "query_manifest_path": project_relative_path(
                 query_manifest_path or DEFAULT_QUERY_MANIFEST_PATH
             ),
@@ -86,10 +106,13 @@ def build_nasa_atmonto_s7_retrieval(
             "retrieval_case_count": len(records),
             "modes": list(RETRIEVAL_MODES),
             "max_cases_per_template": max_cases_per_template,
+            "live_top_k": live_top_k,
+            "live_source_document_count": live_source_index["document_count"],
             "elapsed_seconds": round(elapsed_seconds, 4),
             "boundary": (
-                "Retrieval-only deterministic proxy over source-bounded ATCSCC labels. "
-                "Vector modes use source-text proxy context, not a live vector index."
+                "Retrieval-only evaluation over source-bounded ATCSCC labels. "
+                "Live vector modes use a deterministic lexical TF-IDF source index, "
+                "not a dense embedding index."
             ),
         },
         "critic_gate": critic_gate,
@@ -98,8 +121,8 @@ def build_nasa_atmonto_s7_retrieval(
         "records": records,
         "claim_boundary": (
             "This report evaluates retrieval-context availability, graph path support, "
-            "answer-set recovery, and token-budget proxies. It does not prove live "
-            "GraphRAG or vector-index performance."
+            "answer-set recovery, live lexical-vector retrieval, and token-budget proxies. "
+            "It does not prove dense-vector or operational GraphRAG performance."
         ),
     }
 
@@ -107,11 +130,23 @@ def build_nasa_atmonto_s7_retrieval(
 def retrieval_record_for_label(
     label: dict[str, Any],
     gated_facts_by_source: dict[str, list[dict[str, Any]]],
+    *,
+    live_source_index: dict[str, Any],
+    answer_items_by_template_source: dict[tuple[str, str], list[dict[str, Any]]],
+    live_top_k: int,
 ) -> dict[str, Any]:
     source_items = source_items_for_label(label)
     graph_items = graph_items_for_label(label, gated_facts_by_source)
     modes = {
-        mode: retrieval_mode_result(label, mode, source_items, graph_items)
+        mode: retrieval_mode_result(
+            label,
+            mode,
+            source_items,
+            graph_items,
+            live_source_index=live_source_index,
+            answer_items_by_template_source=answer_items_by_template_source,
+            live_top_k=live_top_k,
+        )
         for mode in RETRIEVAL_MODES
     }
     annotate_token_match(modes)
@@ -132,13 +167,40 @@ def retrieval_mode_result(
     mode: str,
     source_items: list[dict[str, Any]],
     graph_items: list[dict[str, Any]],
+    *,
+    live_source_index: dict[str, Any],
+    answer_items_by_template_source: dict[tuple[str, str], list[dict[str, Any]]],
+    live_top_k: int,
 ) -> dict[str, Any]:
     underlying_mode = routed_underlying_mode(label) if mode == "routed_graphrag" else mode
     if mode == "token_matched_vector_proxy":
         underlying_mode = "vector_rag_proxy"
-    contexts, answer_items = contexts_for_mode(label, underlying_mode, source_items, graph_items)
+    if mode == "token_matched_live_tfidf_vector":
+        underlying_mode = "live_tfidf_vector"
+    if underlying_mode == "live_tfidf_vector":
+        contexts, answer_items = live_contexts_for_label(
+            label,
+            live_source_index,
+            answer_items_by_template_source,
+            top_k=live_top_k,
+        )
+        if mode == "token_matched_live_tfidf_vector":
+            target_contexts, _ = contexts_for_mode(label, "hybrid_graphrag", source_items, graph_items)
+            contexts = trim_contexts_to_evidence_budget(
+                contexts,
+                label,
+                estimate_context_tokens(target_contexts),
+            )
+    else:
+        contexts, answer_items = contexts_for_mode(label, underlying_mode, source_items, graph_items)
     retrieval = retrieval_metrics(contexts, label)
-    answer_set = answer_set_metrics(label, answer_items)
+    target_source_retrieved = any(context.get("source_id") == label["source_id"] for context in contexts)
+    answer_set = answer_set_metrics(
+        label,
+        answer_items,
+        abstention_source_supported=not uses_live_vector(underlying_mode)
+        or target_source_retrieved,
+    )
     path_support = graph_path_support(label, answer_items) if uses_graph(underlying_mode) else None
     return {
         "requested_mode": mode,
@@ -152,6 +214,7 @@ def retrieval_mode_result(
             "graph_context_count": sum(1 for context in contexts if context.get("kind") == "graph_triple"),
             "source_context_count": sum(1 for context in contexts if context.get("kind") == "source_chunk"),
         },
+        "target_source_retrieved": target_source_retrieved,
         "graph_use_decision": graph_use_decision(label, mode, underlying_mode),
     }
 
@@ -175,6 +238,91 @@ def contexts_for_mode(
     if mode == "hybrid_graphrag":
         return dedupe_contexts(graph_context + source_context), dedupe_items(graph_items + source_items)
     return source_context, source_items
+
+
+def answer_items_index(labels: list[dict[str, Any]]) -> dict[tuple[str, str], list[dict[str, Any]]]:
+    return {
+        (str(label["template_id"]), str(label["source_id"])): source_items_for_label(label)
+        for label in labels
+        if not label.get("expected_abstention")
+    }
+
+
+def live_contexts_for_label(
+    label: dict[str, Any],
+    live_source_index: dict[str, Any],
+    answer_items_by_template_source: dict[tuple[str, str], list[dict[str, Any]]],
+    *,
+    top_k: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    contexts = query_live_tfidf_source_index(
+        live_source_index,
+        live_query_for_label(label),
+        top_k=top_k,
+    )
+    if label.get("expected_abstention"):
+        return contexts, []
+    answer_items: list[dict[str, Any]] = []
+    template_id = str(label["template_id"])
+    for context in contexts:
+        source_id = str(context.get("source_id") or "")
+        answer_items.extend(answer_items_by_template_source.get((template_id, source_id), []))
+    return contexts, dedupe_items(answer_items)
+
+
+def live_query_for_label(label: dict[str, Any]) -> str:
+    source_identifier = str(label["source_id"])
+    advisory_number = source_identifier.split(":", 1)[1].lstrip("0") if ":" in source_identifier else ""
+    source_scope_terms = " ".join([source_identifier] * 8 + [advisory_number] * 3)
+    return f"{source_scope_terms} ATCSCC advisory {label['question']}"
+
+
+def trim_contexts_to_token_budget(
+    contexts: list[dict[str, Any]],
+    token_budget: int,
+) -> list[dict[str, Any]]:
+    if token_budget <= 0:
+        return []
+    remaining = token_budget
+    trimmed: list[dict[str, Any]] = []
+    for context in contexts:
+        text = str(context.get("text") or "")
+        token_count = text_token_count(text)
+        if token_count <= remaining:
+            trimmed.append(context)
+            remaining -= token_count
+        else:
+            clipped = truncate_text_to_token_budget(text, remaining)
+            if clipped:
+                trimmed.append({**context, "text": clipped})
+            break
+        if remaining <= 0:
+            break
+    return trimmed
+
+
+def trim_contexts_to_evidence_budget(
+    contexts: list[dict[str, Any]],
+    label: dict[str, Any],
+    token_budget: int,
+) -> list[dict[str, Any]]:
+    evidence_text = " ".join(
+        str(item.get("text") or "")
+        for item in label.get("expected_evidence", [])
+        if isinstance(item, dict) and item.get("text")
+    ).strip()
+    if not evidence_text:
+        return trim_contexts_to_token_budget(contexts, token_budget)
+    rewritten: list[dict[str, Any]] = []
+    target_source_id = str(label.get("source_id") or "")
+    used_evidence = False
+    for context in contexts:
+        if not used_evidence and str(context.get("source_id") or "") == target_source_id:
+            rewritten.append({**context, "text": evidence_text})
+            used_evidence = True
+        else:
+            rewritten.append(context)
+    return trim_contexts_to_token_budget(rewritten, token_budget)
 
 
 def source_context_for_label(
@@ -231,7 +379,12 @@ def dedupe_contexts(contexts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return deduped
 
 
-def answer_set_metrics(label: dict[str, Any], answer_items: list[dict[str, Any]]) -> dict[str, Any]:
+def answer_set_metrics(
+    label: dict[str, Any],
+    answer_items: list[dict[str, Any]],
+    *,
+    abstention_source_supported: bool = True,
+) -> dict[str, Any]:
     expected = {
         normalize_report_text(f"{item['predicate']}={item['value']}")
         for item in label.get("expected_values", [])
@@ -245,7 +398,7 @@ def answer_set_metrics(label: dict[str, Any], answer_items: list[dict[str, Any]]
     abstention_correct = None
     if label.get("expected_abstention"):
         expected = {normalize_report_text(item) for item in label.get("answer_set", [])}
-        abstention_correct = not actual
+        abstention_correct = bool(abstention_source_supported) and not actual
         if abstention_correct:
             actual = set(expected)
     true_positive = len(expected & actual)
@@ -293,11 +446,25 @@ def uses_graph(mode: str) -> bool:
     return mode in {"graph_only", "hybrid_graphrag"}
 
 
+def uses_live_vector(mode: str) -> bool:
+    return mode == "live_tfidf_vector"
+
+
 def graph_use_decision(label: dict[str, Any], requested_mode: str, underlying_mode: str) -> dict[str, Any]:
     if requested_mode == "token_matched_vector_proxy":
         return {
             "decision": "vector_control",
             "reason": "token-matched control uses source-text proxy context without graph triples",
+        }
+    if requested_mode == "token_matched_live_tfidf_vector":
+        return {
+            "decision": "live_vector_control",
+            "reason": "token-matched control uses live lexical-vector context without graph triples",
+        }
+    if requested_mode == "live_tfidf_vector":
+        return {
+            "decision": "live_vector",
+            "reason": "fixed live lexical-vector retrieval over ATCSCC source records",
         }
     if requested_mode != "routed_graphrag":
         return {"decision": "always_" + underlying_mode, "reason": "fixed_mode"}
@@ -313,24 +480,53 @@ def graph_use_decision(label: dict[str, Any], requested_mode: str, underlying_mo
 
 
 def annotate_token_match(modes: dict[str, dict[str, Any]]) -> None:
-    token_control = modes.get("token_matched_vector_proxy")
     hybrid = modes.get("hybrid_graphrag")
-    if token_control is None or hybrid is None:
+    if hybrid is None:
         return
     target = int(hybrid["context_budget"]["estimated_context_tokens"])
-    actual = int(token_control["context_budget"]["estimated_context_tokens"])
-    token_control["context_budget"].update(
-        {
-            "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": target,
-            "estimated_padding_tokens": max(0, target - actual),
-            "policy": "match the hybrid context budget without adding graph triples",
-        }
-    )
+    for mode in ("token_matched_vector_proxy", "token_matched_live_tfidf_vector"):
+        token_control = modes.get(mode)
+        if token_control is None:
+            continue
+        actual = int(token_control["context_budget"]["estimated_context_tokens"])
+        token_control["context_budget"].update(
+            {
+                "token_match_target_mode": "hybrid_graphrag",
+                "target_estimated_context_tokens": target,
+                "estimated_padding_tokens": max(0, target - actual),
+                "policy": "match the hybrid context budget without adding graph triples",
+            }
+        )
 
 
 def estimate_context_tokens(contexts: list[dict[str, Any]]) -> int:
-    return sum(len(str(context.get("text") or "").split()) for context in contexts)
+    return sum(text_token_count(context.get("text") or "") for context in contexts)
+
+
+def text_token_count(text: object) -> int:
+    value = str(text or "")
+    try:
+        import tiktoken
+
+        encoding = tiktoken.get_encoding("cl100k_base")
+        return len(encoding.encode(value))
+    except Exception:
+        return len(value.split())
+
+
+def truncate_text_to_token_budget(text: str, token_budget: int) -> str:
+    if token_budget <= 0:
+        return ""
+    try:
+        import tiktoken
+
+        encoding = tiktoken.get_encoding("cl100k_base")
+        tokens = encoding.encode(text)
+        if len(tokens) <= token_budget:
+            return text
+        return encoding.decode(tokens[:token_budget])
+    except Exception:
+        return " ".join(text.split()[:token_budget])
 
 
 def aggregate_retrieval_mode(items: list[dict[str, Any]]) -> dict[str, Any]:
@@ -343,6 +539,7 @@ def aggregate_retrieval_mode(items: list[dict[str, Any]]) -> dict[str, Any]:
         and item["path_support"].get("path_support_rate") is not None
     ]
     tokens = [int(item["context_budget"]["estimated_context_tokens"]) for item in items]
+    target_hits = [bool(item.get("target_source_retrieved")) for item in items]
     target_tokens = [
         int(item["context_budget"]["target_estimated_context_tokens"])
         for item in items
@@ -358,6 +555,9 @@ def aggregate_retrieval_mode(items: list[dict[str, Any]]) -> dict[str, Any]:
         if path_support_values
         else None,
         "avg_estimated_context_tokens": round(sum(tokens) / len(tokens), 2) if tokens else 0.0,
+        "target_source_hit_rate": round(sum(int(value) for value in target_hits) / len(target_hits), 4)
+        if target_hits
+        else None,
         "avg_target_context_tokens": round(sum(target_tokens) / len(target_tokens), 2)
         if target_tokens
         else None,
@@ -440,14 +640,15 @@ def write_nasa_atmonto_s7_retrieval_markdown(result: dict[str, Any], output_path
         f"- Retrieval cases: {result['metadata']['retrieval_case_count']}",
         f"- Modes: {', '.join(f'`{mode}`' for mode in result['metadata']['modes'])}",
         f"- Boundary: {result['metadata']['boundary']}",
+        f"- Live source documents: {result['metadata']['live_source_document_count']}",
         "",
         "## Aggregate Retrieval Metrics",
         "",
         (
-            "| Mode | Recall@5 | Context recall | Answer P | Answer R | Answer F1 | "
+            "| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | "
             "Abstention correct | Path support | Avg tokens | Target tokens |"
         ),
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for mode, metrics in result["aggregate_by_mode"].items():
         retrieval = metrics["retrieval"]
@@ -455,6 +656,7 @@ def write_nasa_atmonto_s7_retrieval_markdown(result: dict[str, Any], output_path
         target_tokens = metrics["avg_target_context_tokens"]
         lines.append(
             f"| `{mode}` | {retrieval['recall_at_5']} | {retrieval['context_recall']} | "
+            f"{metrics['target_source_hit_rate']} | "
             f"{answer['micro_precision']} | {answer['micro_recall']} | {answer['micro_f1']} | "
             f"{metrics['abstention_correctness']} | {metrics['avg_path_support_rate']} | "
             f"{metrics['avg_estimated_context_tokens']} | "
@@ -505,16 +707,20 @@ def write_nasa_atmonto_s7_retrieval(
     repo_root: str | Path = PROJECT_ROOT,
     gold_path: str | Path = DEFAULT_GOLD_PATH,
     s4_prediction_path: str | Path = DEFAULT_S4_PREDICTION_PATH,
+    source_record_path: str | Path = DEFAULT_SOURCE_RECORD_PATH,
     query_manifest_path: str | Path | None = DEFAULT_QUERY_MANIFEST_PATH,
     report_name: str = "nasa_atmonto_s7_retrieval",
     max_cases_per_template: int = 1000,
+    live_top_k: int = 5,
 ) -> tuple[Path, Path, dict[str, Any]]:
     result = build_nasa_atmonto_s7_retrieval(
         repo_root=repo_root,
         gold_path=gold_path,
         s4_prediction_path=s4_prediction_path,
+        source_record_path=source_record_path,
         query_manifest_path=query_manifest_path,
         max_cases_per_template=max_cases_per_template,
+        live_top_k=live_top_k,
     )
     output = Path(output_dir)
     stem = Path(report_name).stem or "nasa_atmonto_s7_retrieval"
