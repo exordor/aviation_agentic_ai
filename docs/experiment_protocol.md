@@ -150,7 +150,9 @@ live TF-IDF lexical-vector retrieval, token-matched live lexical-vector
 retrieval, graph-only, hybrid, and routed GraphRAG modes. This is sufficient to
 evaluate route policy, graph path support, abstention behavior, live
 source-retrieval behavior, and tokenizer-backed context budgets. It is not yet a
-dense embedding retrieval benchmark or live operational GraphRAG system.
+dense embedding retrieval benchmark or live operational GraphRAG system. Graph
+modes traverse a materialized ATCSCC source-predicate-fact graph built from
+critic-gated S4 facts.
 
 The Extract-Define-Canonicalize design separates open extraction from
 target-schema scoring. Ontology-guided short-text KGC motivates 10-20

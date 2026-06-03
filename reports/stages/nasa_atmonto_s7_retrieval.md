@@ -7,19 +7,20 @@
 - Modes: `source_oracle`, `vector_rag_proxy`, `token_matched_vector_proxy`, `live_tfidf_vector`, `token_matched_live_tfidf_vector`, `graph_only`, `hybrid_graphrag`, `routed_graphrag`
 - Boundary: Retrieval-only evaluation over source-bounded ATCSCC labels. Live vector modes use a deterministic lexical TF-IDF source index, not a dense embedding index.
 - Live source documents: 100
+- Materialized graph: 100 source nodes, 666 fact nodes, 1332 edges
 
 ## Aggregate Retrieval Metrics
 
-| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | Abstention correct | Path support | Avg tokens | Target tokens |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `source_oracle` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a |
-| `vector_rag_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a |
-| `token_matched_vector_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | 38.37 |
-| `live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.8935 | 1.0 | 0.9438 | 1.0 | None | 2001.44 | n/a |
-| `token_matched_live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.8935 | 1.0 | 0.9438 | 1.0 | None | 38.37 | 38.37 |
-| `graph_only` | 0.6845 | 1.0 | 0.9968 | 0.5618 | 0.4923 | 0.5248 | 0.01 | 1.0 | 24.49 | n/a |
-| `hybrid_graphrag` | 0.6845 | 1.0 | 1.0 | 0.5618 | 0.4923 | 0.5248 | 0.01 | 1.0 | 38.37 | n/a |
-| `routed_graphrag` | 0.6845 | 1.0 | 1.0 | 0.9773 | 1.0 | 0.9885 | 1.0 | 1.0 | 24.29 | n/a |
+| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | Abstention correct | Path support | Avg tokens | Target tokens | Avg latency ms |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `source_oracle` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a | 0.0014 |
+| `vector_rag_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | n/a | 0.0013 |
+| `token_matched_vector_proxy` | 0.6845 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | None | 19.78 | 38.37 | 0.0012 |
+| `live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.8935 | 1.0 | 0.9438 | 1.0 | None | 2001.44 | n/a | 0.1458 |
+| `token_matched_live_tfidf_vector` | 0.6845 | 1.0 | 1.0 | 0.8935 | 1.0 | 0.9438 | 1.0 | None | 38.37 | 38.37 | 0.4376 |
+| `graph_only` | 0.6845 | 1.0 | 0.9968 | 0.5618 | 0.4923 | 0.5248 | 0.01 | 1.0 | 24.49 | n/a | 0.0015 |
+| `hybrid_graphrag` | 0.6845 | 1.0 | 1.0 | 0.5618 | 0.4923 | 0.5248 | 0.01 | 1.0 | 38.37 | n/a | 0.0037 |
+| `routed_graphrag` | 0.6845 | 1.0 | 1.0 | 0.9773 | 1.0 | 0.9885 | 1.0 | 1.0 | 24.29 | n/a | 0.0022 |
 
 Method note: Answer-set F1 treats a correct expected abstention as recovering the no-answer label. `Abstention correct` is computed only over expected abstention cases and should be read separately from non-abstention answer recovery.
 

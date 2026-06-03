@@ -4,9 +4,9 @@ Date: 2026-06-03
 
 Status: S7 deterministic proxies implemented for answer generation and CQ
 queryability. Retrieval-only S7 now also includes live TF-IDF lexical-vector
-retrieval and tokenizer-backed token-matched controls. Dense embedding retrieval,
-materialized graph traversal, and answer generation over live retrieved contexts
-remain planned extensions.
+retrieval, materialized ATCSCC fact-graph traversal, tokenizer-backed
+token-matched controls, and latency reporting. Dense embedding retrieval and
+answer generation over live retrieved contexts remain planned extensions.
 
 ## Purpose
 
@@ -125,15 +125,17 @@ Interpretation:
 - live lexical-vector retrieval can locate the source records in this
   source-bounded setup, but it uses much larger contexts unless token-matched;
 - the token-matched live lexical-vector control matches the hybrid context
-  budget exactly and keeps graph triples disabled.
+  budget exactly and keeps graph triples disabled;
+- the graph modes now traverse a materialized source-predicate-fact graph with
+  100 source nodes, 666 fact nodes, and 1332 edges.
 
 ## What This Proves
 
 This proves that the project now has an explicit graph-use gate, retrieval-only
 route evaluation, live lexical-vector retrieval, graph path-support reporting,
-and tokenizer-backed token-budget controls. It also produces a
-negative/qualified result: graph context is not automatically better in the
-current scaffold.
+materialized graph traversal, tokenizer-backed token-budget controls, and
+latency reporting. It also produces a negative/qualified result: graph context
+is not automatically better in the current scaffold.
 
 At the CQ answer-set layer, it proves that the gate can be evaluated over the
 existing queryability benchmark and preserves the current best S4 aggregate.
@@ -143,15 +145,14 @@ existing queryability benchmark and preserves the current best S4 aggregate.
 This does not yet prove:
 
 - dense embedding retrieval performance over a live ATCSCC text index;
-- real graph traversal retrieval performance over a materialized ATCSCC KG;
 - graph superiority on natural-language ATCSCC questions.
 
 ## Next Implementation Step
 
-The next SOTA upgrade is a dense/vector + materialized-graph S7 run:
+The next SOTA upgrade is a dense/vector + live-answer S7 run:
 
 1. replace the TF-IDF lexical source index with a dense embedding index;
-2. add materialized graph traversal over the ATCSCC KG facts;
-3. add latency reporting;
-4. only then re-run natural-language answer generation on the routed retrieval
+2. compare dense vector retrieval against the existing lexical vector and
+   materialized graph traversal controls;
+3. re-run natural-language answer generation on the routed retrieval
    outputs.

@@ -188,10 +188,15 @@ def test_build_nasa_atmonto_s7_retrieval_reports_modes_and_gate(tmp_path: Path) 
     assert "live_tfidf_vector" in result["metadata"]["modes"]
     assert result["metadata"]["retrieval_case_count"] == 6
     assert result["metadata"]["live_source_document_count"] == 1
+    assert result["metadata"]["graph_source_node_count"] == 1
+    assert result["metadata"]["graph_fact_node_count"] == 6
+    assert result["metadata"]["graph_edge_count"] == 12
     assert result["critic_gate"]["rejected_values"] == ["ADVZY"]
     assert result["aggregate_by_mode"]["token_matched_vector_proxy"]["avg_target_context_tokens"]
     assert result["aggregate_by_mode"]["token_matched_live_tfidf_vector"]["avg_target_context_tokens"]
     assert result["aggregate_by_mode"]["live_tfidf_vector"]["target_source_hit_rate"] == 1.0
+    assert result["aggregate_by_mode"]["live_tfidf_vector"]["avg_retrieval_latency_ms"] is not None
+    assert result["aggregate_by_mode"]["graph_only"]["avg_retrieval_latency_ms"] is not None
     assert result["aggregate_by_mode"]["hybrid_graphrag"]["avg_path_support_rate"] is not None
     assert result["aggregate_by_mode"]["source_oracle"]["abstention_correctness"] == 1.0
     assert result["aggregate_by_mode"]["vector_rag_proxy"]["abstention_correctness"] == 1.0
@@ -224,4 +229,6 @@ def test_write_nasa_atmonto_s7_retrieval_outputs_reports(tmp_path: Path) -> None
     assert "token_matched_vector_proxy" in markdown
     assert "live_tfidf_vector" in markdown
     assert "Target hit" in markdown
+    assert "Materialized graph" in markdown
+    assert "Avg latency ms" in markdown
     assert result["claim_boundary"]

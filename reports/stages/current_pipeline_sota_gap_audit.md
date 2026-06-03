@@ -37,8 +37,8 @@ answer-generation benchmark.
 | KG extraction systems | satisfied | S0/S1/S1b/S2/S3/S4 scoring in `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | no new gap for S0-S4 extraction | preserve S4 as current strongest system |
 | Profile-gap/rejection analysis | satisfied | 288 rejected facts adjudicated as extractor bugs or profile gaps | profile-gap explanations need thesis wording | summarize as application-profile boundary |
 | CQ answer-set queryability | satisfied for pre-generation | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | deterministic answer-set scoring is not natural-language answer quality | keep as graph/queryability layer |
-| Natural-language answer generation | partial | `reports/stages/nasa_atmonto_answer_generation.md`, 18 labels | small label count; not yet rerun over live retrieved contexts | expand benchmark after dense/materialized S7 retrieval |
-| Graph-use gate | partial | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md` | live lexical-vector gate exists; dense vector and materialized graph traversal remain incomplete | implement dense/vector + materialized graph route gate |
+| Natural-language answer generation | partial | `reports/stages/nasa_atmonto_answer_generation.md`, 18 labels | small label count; not yet rerun over live retrieved contexts | expand benchmark after dense S7 retrieval |
+| Graph-use gate | partial | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md` | live lexical-vector gate and materialized graph traversal exist; dense vector retrieval remains incomplete | implement dense vector route gate |
 | Token-matched vector baseline | partial | `token_matched_vector_rag`; `token_matched_vector_proxy`; `token_matched_live_tfidf_vector` | tokenizer-backed lexical-vector control exists; dense vector control remains incomplete | add dense vector control with comparable live context budget |
 | Graph health/path support | partial | `reports/stages/nasa_atmonto_s7_retrieval.md` | route-level path support exists; full graph component/connectivity diagnostics remain limited | add graph health by CQ group |
 | Multi-agent loop | partial | `reports/stages/atcscc_agentic_artifact_contract.md` | contract exists, but SRD/TIP/extraction/validation/evidence artifacts are incomplete | write artifacts before claiming agentic pipeline |
@@ -66,9 +66,9 @@ The strongest parts of the project are:
 
 1. **GraphRAG fairness is incomplete.** The project now has graph/vector/hybrid,
    token-matched-vector, routed answer/retrieval modes, live lexical-vector
-   retrieval, and tokenizer-backed context budgets, but still needs dense
-   retrieval plus materialized graph traversal before making a strong GraphRAG
-   comparison.
+   retrieval, materialized graph traversal, latency reporting, and
+   tokenizer-backed context budgets, but still needs dense retrieval before
+   making a strong GraphRAG comparison.
 2. **Answer-generation evidence is small.** Eighteen labels are useful for a
    pilot, but not enough for a thesis-level answer-generation superiority
    claim.
@@ -104,19 +104,17 @@ That version is not supported because:
 - the ontology is a profile slice, not all ATMONTO;
 - ATCSCC advisories expose a narrow event ABox, not the whole NAS;
 - graph answer generation is currently a small pilot;
-- dense retrieval and materialized graph traversal baselines are not complete.
+- dense retrieval baselines are not complete.
 
 ## Next Executable Experiment
 
-The next experiment should be dense/materialized `S7_graph_use_gate`:
+The next experiment should be dense `S7_graph_use_gate`:
 
 1. Reuse the deterministic CQ route manifest with `vector`, `graph`, `hybrid`,
    and `abstain` labels.
 2. Replace lexical TF-IDF retrieval with dense embedding retrieval over the
    same ATCSCC source scope.
-3. Materialize graph traversal over accepted ATCSCC KG facts and add latency
-   measurement.
-4. Compare routed retrieval against source/vector, graph-only, hybrid, and
+3. Compare routed retrieval against source/vector, graph-only, hybrid, and
    token-matched-vector controls.
-5. Only then run natural-language answer generation over the routed retrieval
+4. Only then run natural-language answer generation over the routed retrieval
    outputs.

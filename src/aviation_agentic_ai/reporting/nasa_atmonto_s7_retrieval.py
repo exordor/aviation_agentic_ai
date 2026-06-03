@@ -21,11 +21,14 @@ from aviation_agentic_ai.reporting.nasa_atmonto_answer_benchmark import (
 from aviation_agentic_ai.reporting.nasa_atmonto_answer_scoring import (
     facts_by_source,
     gate_s4_facts,
-    graph_items_for_label,
     routed_underlying_mode,
     source_items_for_label,
 )
 from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import DEFAULT_GOLD_PATH
+from aviation_agentic_ai.reporting.nasa_atmonto_graph_retrieval import (
+    build_materialized_atcscc_fact_graph,
+    traverse_materialized_graph_for_label,
+)
 from aviation_agentic_ai.reporting.nasa_atmonto_live_retrieval import (
     build_live_tfidf_source_index,
     query_live_tfidf_source_index,
@@ -75,11 +78,12 @@ def build_nasa_atmonto_s7_retrieval(
     )
     gated_facts_by_source, critic_gate = gate_s4_facts(facts_by_source(s4_records))
     live_source_index = build_live_tfidf_source_index(source_records)
+    materialized_graph = build_materialized_atcscc_fact_graph(gated_facts_by_source)
     answer_items_by_template_source = answer_items_index(benchmark["labels"])
     records = [
         retrieval_record_for_label(
             label,
-            gated_facts_by_source,
+            materialized_graph,
             live_source_index=live_source_index,
             answer_items_by_template_source=answer_items_by_template_source,
             live_top_k=live_top_k,
@@ -108,6 +112,9 @@ def build_nasa_atmonto_s7_retrieval(
             "max_cases_per_template": max_cases_per_template,
             "live_top_k": live_top_k,
             "live_source_document_count": live_source_index["document_count"],
+            "graph_source_node_count": materialized_graph["source_node_count"],
+            "graph_fact_node_count": materialized_graph["fact_node_count"],
+            "graph_edge_count": materialized_graph["edge_count"],
             "elapsed_seconds": round(elapsed_seconds, 4),
             "boundary": (
                 "Retrieval-only evaluation over source-bounded ATCSCC labels. "
@@ -129,14 +136,14 @@ def build_nasa_atmonto_s7_retrieval(
 
 def retrieval_record_for_label(
     label: dict[str, Any],
-    gated_facts_by_source: dict[str, list[dict[str, Any]]],
+    materialized_graph: dict[str, Any],
     *,
     live_source_index: dict[str, Any],
     answer_items_by_template_source: dict[tuple[str, str], list[dict[str, Any]]],
     live_top_k: int,
 ) -> dict[str, Any]:
     source_items = source_items_for_label(label)
-    graph_items = graph_items_for_label(label, gated_facts_by_source)
+    graph_items = traverse_materialized_graph_for_label(materialized_graph, label)
     modes = {
         mode: retrieval_mode_result(
             label,
@@ -172,6 +179,7 @@ def retrieval_mode_result(
     answer_items_by_template_source: dict[tuple[str, str], list[dict[str, Any]]],
     live_top_k: int,
 ) -> dict[str, Any]:
+    started = perf_counter()
     underlying_mode = routed_underlying_mode(label) if mode == "routed_graphrag" else mode
     if mode == "token_matched_vector_proxy":
         underlying_mode = "vector_rag_proxy"
@@ -193,6 +201,7 @@ def retrieval_mode_result(
             )
     else:
         contexts, answer_items = contexts_for_mode(label, underlying_mode, source_items, graph_items)
+    retrieval_latency_ms = (perf_counter() - started) * 1000
     retrieval = retrieval_metrics(contexts, label)
     target_source_retrieved = any(context.get("source_id") == label["source_id"] for context in contexts)
     answer_set = answer_set_metrics(
@@ -214,6 +223,7 @@ def retrieval_mode_result(
             "graph_context_count": sum(1 for context in contexts if context.get("kind") == "graph_triple"),
             "source_context_count": sum(1 for context in contexts if context.get("kind") == "source_chunk"),
         },
+        "runtime": {"retrieval_latency_ms": round(retrieval_latency_ms, 4)},
         "target_source_retrieved": target_source_retrieved,
         "graph_use_decision": graph_use_decision(label, mode, underlying_mode),
     }
@@ -357,6 +367,7 @@ def graph_contexts_for_items(label: dict[str, Any], graph_items: list[dict[str, 
             "predicate": item.get("predicate"),
             "value": item.get("value"),
             "fact_id": item.get("fact_id"),
+            "graph_path": item.get("graph_path"),
         }
         for item in graph_items
         if item.get("evidence_text") or item.get("value")
@@ -540,6 +551,7 @@ def aggregate_retrieval_mode(items: list[dict[str, Any]]) -> dict[str, Any]:
     ]
     tokens = [int(item["context_budget"]["estimated_context_tokens"]) for item in items]
     target_hits = [bool(item.get("target_source_retrieved")) for item in items]
+    latencies = [float(item.get("runtime", {}).get("retrieval_latency_ms") or 0.0) for item in items]
     target_tokens = [
         int(item["context_budget"]["target_estimated_context_tokens"])
         for item in items
@@ -558,6 +570,7 @@ def aggregate_retrieval_mode(items: list[dict[str, Any]]) -> dict[str, Any]:
         "target_source_hit_rate": round(sum(int(value) for value in target_hits) / len(target_hits), 4)
         if target_hits
         else None,
+        "avg_retrieval_latency_ms": round(sum(latencies) / len(latencies), 4) if latencies else None,
         "avg_target_context_tokens": round(sum(target_tokens) / len(target_tokens), 2)
         if target_tokens
         else None,
@@ -641,14 +654,20 @@ def write_nasa_atmonto_s7_retrieval_markdown(result: dict[str, Any], output_path
         f"- Modes: {', '.join(f'`{mode}`' for mode in result['metadata']['modes'])}",
         f"- Boundary: {result['metadata']['boundary']}",
         f"- Live source documents: {result['metadata']['live_source_document_count']}",
+        (
+            "- Materialized graph: "
+            f"{result['metadata']['graph_source_node_count']} source nodes, "
+            f"{result['metadata']['graph_fact_node_count']} fact nodes, "
+            f"{result['metadata']['graph_edge_count']} edges"
+        ),
         "",
         "## Aggregate Retrieval Metrics",
         "",
         (
             "| Mode | Recall@5 | Context recall | Target hit | Answer P | Answer R | Answer F1 | "
-            "Abstention correct | Path support | Avg tokens | Target tokens |"
+            "Abstention correct | Path support | Avg tokens | Target tokens | Avg latency ms |"
         ),
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for mode, metrics in result["aggregate_by_mode"].items():
         retrieval = metrics["retrieval"]
@@ -660,7 +679,8 @@ def write_nasa_atmonto_s7_retrieval_markdown(result: dict[str, Any], output_path
             f"{answer['micro_precision']} | {answer['micro_recall']} | {answer['micro_f1']} | "
             f"{metrics['abstention_correctness']} | {metrics['avg_path_support_rate']} | "
             f"{metrics['avg_estimated_context_tokens']} | "
-            f"{target_tokens if target_tokens is not None else 'n/a'} |"
+            f"{target_tokens if target_tokens is not None else 'n/a'} | "
+            f"{metrics['avg_retrieval_latency_ms']} |"
         )
     lines.extend(
         [
