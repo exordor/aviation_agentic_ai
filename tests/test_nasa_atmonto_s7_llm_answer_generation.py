@@ -5,7 +5,9 @@ from pathlib import Path
 
 from aviation_agentic_ai.reporting.nasa_atmonto_s7_llm_answer_generation import (
     S7_LLM_ANSWER_MODES,
+    build_s7_llm_answer_prompt,
     build_nasa_atmonto_s7_llm_answer_generation,
+    result_from_llm_payload,
     write_nasa_atmonto_s7_llm_answer_generation,
 )
 
@@ -161,3 +163,113 @@ def test_write_nasa_atmonto_s7_llm_answer_generation_records_not_run(
     assert "Fixed-Budget LLM Answer Generation" in markdown
     assert "CQ Template Breakdown" in markdown
     assert "Run LLM requested: False" in markdown
+
+
+def test_result_from_llm_payload_normalizes_atcscc_time_window() -> None:
+    result = result_from_llm_payload(
+        {},
+        {
+            "answer": "The advisory is effective from 191322 to 191630.",
+            "answer_values": [{"predicate": "EFFECTIVE TIME", "value": "191322-191630"}],
+            "citations": ["atcscc-2026-05-19-032-p1-c1"],
+        },
+        source_id="2026-05-19:032",
+    )
+
+    assert result["answer_values"] == [
+        {"predicate": "effectiveStartTime", "value": "2026-05-19T13:22:00Z"},
+        {"predicate": "effectiveEndTime", "value": "2026-05-19T16:30:00Z"},
+    ]
+
+
+def test_result_from_llm_payload_normalizes_cross_day_atcscc_time_window() -> None:
+    result = result_from_llm_payload(
+        {},
+        {
+            "answer": "The advisory is effective from 151918 to 160030.",
+            "answer_values": [{"predicate": "EFFECTIVE TIME", "value": "151918-160030"}],
+            "citations": ["atcscc-2026-05-15-063-p1-c1"],
+        },
+        source_id="2026-05-15:063",
+    )
+
+    assert result["answer_values"] == [
+        {"predicate": "effectiveStartTime", "value": "2026-05-15T19:18:00Z"},
+        {"predicate": "effectiveEndTime", "value": "2026-05-16T00:30:00Z"},
+    ]
+
+
+def test_result_from_llm_payload_repairs_iso_time_window_from_target_evidence() -> None:
+    result = result_from_llm_payload(
+        {
+            "fused_chunks": [
+                {
+                    "source_id": "2026-05-15:063",
+                    "text": "EFFECTIVE TIME: 151918-160030",
+                }
+            ]
+        },
+        {
+            "answer": "The advisory is effective until 2026-05-16T00:03:00Z.",
+            "answer_values": [
+                {"predicate": "effectiveStartTime", "value": "2026-05-15T19:18:00Z"},
+                {"predicate": "effectiveEndTime", "value": "2026-05-16T00:03:00Z"},
+            ],
+            "citations": ["atcscc-2026-05-15-063-p1-c1"],
+        },
+        source_id="2026-05-15:063",
+    )
+
+    assert result["answer_values"] == [
+        {"predicate": "effectiveStartTime", "value": "2026-05-15T19:18:00Z"},
+        {"predicate": "effectiveEndTime", "value": "2026-05-16T00:30:00Z"},
+    ]
+
+
+def test_result_from_llm_payload_does_not_repair_from_wrong_source_evidence() -> None:
+    result = result_from_llm_payload(
+        {
+            "fused_chunks": [
+                {
+                    "source_id": "2026-05-19:144",
+                    "text": "EFFECTIVE TIME: 191000-191100",
+                }
+            ]
+        },
+        {
+            "answer": "The advisory is effective until 2026-05-16T00:03:00Z.",
+            "answer_values": [
+                {"predicate": "effectiveStartTime", "value": "2026-05-15T19:18:00Z"},
+                {"predicate": "effectiveEndTime", "value": "2026-05-16T00:03:00Z"},
+            ],
+            "citations": ["atcscc-2026-05-19-144-p1-c1"],
+        },
+        source_id="2026-05-15:063",
+    )
+
+    assert result["answer_values"] == [
+        {"predicate": "effectiveStartTime", "value": "2026-05-15T19:18:00Z"},
+        {"predicate": "effectiveEndTime", "value": "2026-05-16T00:03:00Z"},
+    ]
+
+
+def test_result_from_llm_payload_clears_answer_values_when_abstaining() -> None:
+    result = result_from_llm_payload(
+        {},
+        {
+            "answer": "abstain",
+            "answer_values": [{"predicate": "abstain", "value": "True"}],
+            "abstain": True,
+            "citations": ["atcscc-2026-05-19-032-p1-c1"],
+        },
+        source_id="2026-05-19:032",
+    )
+
+    assert result["answer_values"] == []
+
+
+def test_s7_llm_prompt_requests_atcscc_time_window_normalization() -> None:
+    _, user_prompt = build_s7_llm_answer_prompt(_source_report()["records"][0], {}, "mode")
+
+    assert "normalize raw DDHHMM-DDHHMM" in user_prompt
+    assert "effectiveStartTime and effectiveEndTime" in user_prompt

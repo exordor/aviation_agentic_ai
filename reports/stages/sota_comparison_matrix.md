@@ -29,7 +29,7 @@ source-bounded answer tests.
 | Schema validity separated from semantic correctness | KG quality and ontology evaluation practice | Report schema violations, semantic P/R/F1, evidence support, and profile gaps separately | `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied |
 | Multi-agent artifact pipeline | Multi-agent ontology-generation paper | Source brief, SRD, TIP, extraction plan, validation findings, evidence critique, repair plan, graph-use plan | `reports/stages/atcscc_agentic_artifact_contract.md` | planned, contract exists but artifacts are incomplete |
 | Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md` | mostly satisfied for deterministic S7 plus bounded LLM check; broad human/LLM answer evaluation remains future work |
-| Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Retrieval and answer-generation reports now include source/vector/token-matched-vector/live lexical-vector/dense-vector/materialized graph/hybrid/routed modes, plus a 12-case fixed-budget LLM run over routed live/dense GraphRAG contexts | mostly satisfied for deterministic S7; bounded LLM evidence is diagnostic, not final |
+| Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Retrieval and answer-generation reports now include source/vector/token-matched-vector/live lexical-vector/dense-vector/materialized graph/hybrid/routed modes, plus a 24-case fixed-budget LLM run over routed live/dense GraphRAG contexts | mostly satisfied for deterministic S7; bounded LLM evidence is diagnostic, not final |
 | Queryability rather than ontological purity | KG quality for RAG-oriented systems | CQ answer-set precision/recall/F1 by predicate and question type | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | satisfied for pre-generation answer sets |
 | Graph health and path support | GraphRAG pipeline evaluation | Node/edge coverage, component/connectivity diagnostics, path support rate for graph-worthy CQs | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` reports topology, graph-context availability, path support, answer recovery, and abstention behavior by CQ group | mostly satisfied as diagnostic graph-health evidence |
 | Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | mostly satisfied for deterministic S7 plus bounded LLM check; needs human/expert answer review |
@@ -61,7 +61,7 @@ The project is only partially SOTA-comparable at the **GraphRAG** layer:
 - materialized graph traversal and latency reporting exist;
 - graph health by CQ group now exists;
 - deterministic answer generation over live retrieved contexts now exists;
-- a small fixed-budget LLM answer-generation check over routed live/dense
+- a 24-case fixed-budget LLM answer-generation check over routed live/dense
   GraphRAG contexts now exists;
 - the bounded LLM report now includes CQ-template breakdowns;
 - broader LLM runs and human QA labels remain incomplete.
@@ -83,7 +83,9 @@ Use this wording in thesis or defense material:
 > reviewed gold facts, evidence-span grounding, schema validation, and layered
 > KG/query/answer evaluation. It also includes a bounded LLM answer-generation
 > check over frozen S7 retrieved contexts and graph-health diagnostics by CQ
-> group. It does not claim live operational readiness or universal GraphRAG
+> group. The 24-case fixed-budget LLM check shows a strong live lexical routed
+> result and a negative dense-retrieval result under the same frozen context
+> policy. It does not claim live operational readiness or universal GraphRAG
 > superiority. The remaining SOTA gap is scaling that LLM check and adding
 > human/expert answer review while preserving citation, unsupported-claim, token,
 > and latency reporting.
@@ -101,8 +103,8 @@ Avoid these claims:
 The next executable upgrade should target the remaining GraphRAG gaps in this
 order:
 
-1. Expand the fixed-budget LLM answer-generation pass over existing S7 routed
-   live contexts.
-2. Add human/manual review for the highest-impact answer failures.
+1. Manually review the highest-impact dense-route LLM answer failures.
+2. Extend the fixed-budget LLM answer-generation pass beyond two cases per CQ
+   template if the failure review supports a stable live/dense contrast.
 3. Keep graph-health and LLM CQ-group breakdowns as the thesis-facing
    diagnostic tables.

@@ -4,15 +4,15 @@
   "metadata": {
     "s7_answer_report_path": "reports/stages/nasa_atmonto_s7_answer_generation.json",
     "source_status": "s7_answer_generation_evaluated",
-    "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
+    "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
     "reviewer_model": "gpt-5.4-mini",
     "modes": [
       "routed_token_matched_live_tfidf_graphrag",
       "routed_token_matched_dense_graphrag"
     ],
-    "max_cases_per_mode": 6,
-    "max_cases_per_template": 1,
-    "selected_case_count": 12,
+    "max_cases_per_mode": 12,
+    "max_cases_per_template": 2,
+    "selected_case_count": 24,
     "run_llm_requested": true,
     "llm_runtime_available": true,
     "temperature": 0.0,
@@ -22,28 +22,28 @@
   "answer_quality": {
     "aggregate_by_mode": {
       "routed_token_matched_live_tfidf_graphrag": {
-        "selected_total": 6,
-        "llm_answered_total": 6,
+        "selected_total": 12,
+        "llm_answered_total": 12,
         "not_run_total": 0,
         "failed_total": 0,
         "status_counts": {
-          "answered": 6
+          "answered": 12
         },
-        "answer_correctness": 0.8333,
+        "answer_correctness": 1.0,
         "citation_precision": 1.0,
         "citation_recall": 0.6111,
-        "evidence_faithfulness": 0.8333,
-        "unsupported_claim_rate": 0.3333,
-        "abstention_correctness": 0.8333,
-        "avg_estimated_context_tokens": 23.0
+        "evidence_faithfulness": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": 1.0,
+        "avg_estimated_context_tokens": 28.25
       },
       "routed_token_matched_dense_graphrag": {
-        "selected_total": 6,
-        "llm_answered_total": 6,
+        "selected_total": 12,
+        "llm_answered_total": 12,
         "not_run_total": 0,
         "failed_total": 0,
         "status_counts": {
-          "answered": 6
+          "answered": 12
         },
         "answer_correctness": 0.5,
         "citation_precision": 1.0,
@@ -51,16 +51,222 @@
         "evidence_faithfulness": 0.5,
         "unsupported_claim_rate": 0.3333,
         "abstention_correctness": 0.5,
-        "avg_estimated_context_tokens": 23.0
+        "avg_estimated_context_tokens": 28.25
+      }
+    },
+    "aggregate_by_template": {
+      "QT-A01-ABSTENTION-FIELDS": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 68.5
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 0.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": 0.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 0.0,
+          "avg_estimated_context_tokens": 68.5
+        }
+      },
+      "QT-Q01-AFFECTED-NAS-ELEMENTS": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 10.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 10.0
+        }
+      },
+      "QT-Q01-CAUSE-CONDITION": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 24.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 24.0
+        }
+      },
+      "QT-Q01-ROUTE-SEMANTICS": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 10.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 0.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 0.0,
+          "unsupported_claim_rate": 1.0,
+          "abstention_correctness": 0.0,
+          "avg_estimated_context_tokens": 10.0
+        }
+      },
+      "QT-Q01-STATUS-ACTION": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 25.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 25.0
+        }
+      },
+      "QT-Q01-TIME-WINDOW": {
+        "routed_token_matched_live_tfidf_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 1.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": 1.0,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": 1.0,
+          "avg_estimated_context_tokens": 32.0
+        },
+        "routed_token_matched_dense_graphrag": {
+          "selected_total": 2,
+          "llm_answered_total": 2,
+          "not_run_total": 0,
+          "failed_total": 0,
+          "status_counts": {
+            "answered": 2
+          },
+          "answer_correctness": 0.0,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": 0.0,
+          "unsupported_claim_rate": 1.0,
+          "abstention_correctness": 0.0,
+          "avg_estimated_context_tokens": 32.0
+        }
       }
     },
     "secondary_metrics": {
       "cost_latency": {
         "provider": "configured_llm",
         "model": "gpt-5.4-mini",
-        "elapsed_seconds": 50.0259,
-        "questions_total": 12,
-        "cases_total": 12,
+        "elapsed_seconds": 111.5495,
+        "questions_total": 24,
+        "cases_total": 24,
         "chunks_path": null,
         "chunks_size_bytes": null,
         "kg_path": null,
@@ -74,213 +280,7 @@
         }
       }
     },
-    "metric_policy": "LLM answer text is scored against source-bounded S7 labels. Answer correctness, citation precision/recall, evidence faithfulness, unsupported claim rate, abstention correctness, and failure/not-run counts are reported separately.",
-    "aggregate_by_template": {
-      "QT-A01-ABSTENTION-FIELDS": {
-        "routed_token_matched_live_tfidf_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 1.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 1.0,
-          "unsupported_claim_rate": 1.0,
-          "abstention_correctness": 1.0,
-          "avg_estimated_context_tokens": 56.0
-        },
-        "routed_token_matched_dense_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 0.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.5,
-          "evidence_faithfulness": 0.0,
-          "unsupported_claim_rate": 0.0,
-          "abstention_correctness": 0.0,
-          "avg_estimated_context_tokens": 56.0
-        }
-      },
-      "QT-Q01-AFFECTED-NAS-ELEMENTS": {
-        "routed_token_matched_live_tfidf_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 1.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 1.0,
-          "unsupported_claim_rate": 0.0,
-          "abstention_correctness": 1.0,
-          "avg_estimated_context_tokens": 10.0
-        },
-        "routed_token_matched_dense_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 1.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 1.0,
-          "unsupported_claim_rate": 0.0,
-          "abstention_correctness": 1.0,
-          "avg_estimated_context_tokens": 10.0
-        }
-      },
-      "QT-Q01-CAUSE-CONDITION": {
-        "routed_token_matched_live_tfidf_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 1.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 1.0,
-          "unsupported_claim_rate": 0.0,
-          "abstention_correctness": 1.0,
-          "avg_estimated_context_tokens": 24.0
-        },
-        "routed_token_matched_dense_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 1.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 1.0,
-          "unsupported_claim_rate": 0.0,
-          "abstention_correctness": 1.0,
-          "avg_estimated_context_tokens": 24.0
-        }
-      },
-      "QT-Q01-ROUTE-SEMANTICS": {
-        "routed_token_matched_live_tfidf_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 1.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 1.0,
-          "unsupported_claim_rate": 0.0,
-          "abstention_correctness": 0.0,
-          "avg_estimated_context_tokens": 10.0
-        },
-        "routed_token_matched_dense_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 0.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 0.0,
-          "unsupported_claim_rate": 1.0,
-          "abstention_correctness": 0.0,
-          "avg_estimated_context_tokens": 10.0
-        }
-      },
-      "QT-Q01-STATUS-ACTION": {
-        "routed_token_matched_live_tfidf_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 1.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 1.0,
-          "unsupported_claim_rate": 0.0,
-          "abstention_correctness": 1.0,
-          "avg_estimated_context_tokens": 6.0
-        },
-        "routed_token_matched_dense_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 1.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.6667,
-          "evidence_faithfulness": 1.0,
-          "unsupported_claim_rate": 0.0,
-          "abstention_correctness": 1.0,
-          "avg_estimated_context_tokens": 6.0
-        }
-      },
-      "QT-Q01-TIME-WINDOW": {
-        "routed_token_matched_live_tfidf_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 0.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.3333,
-          "evidence_faithfulness": 0.0,
-          "unsupported_claim_rate": 1.0,
-          "abstention_correctness": 1.0,
-          "avg_estimated_context_tokens": 32.0
-        },
-        "routed_token_matched_dense_graphrag": {
-          "selected_total": 1,
-          "llm_answered_total": 1,
-          "not_run_total": 0,
-          "failed_total": 0,
-          "status_counts": {
-            "answered": 1
-          },
-          "answer_correctness": 0.0,
-          "citation_precision": 1.0,
-          "citation_recall": 0.5,
-          "evidence_faithfulness": 0.0,
-          "unsupported_claim_rate": 1.0,
-          "abstention_correctness": 0.0,
-          "avg_estimated_context_tokens": 32.0
-        }
-      }
-    }
+    "metric_policy": "LLM answer text is scored against source-bounded S7 labels. Answer correctness, citation precision/recall, evidence faithfulness, unsupported claim rate, abstention correctness, and failure/not-run counts are reported separately."
   },
   "records": [
     {
@@ -303,7 +303,7 @@
         "estimated_padding_tokens": 0
       },
       "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
       "llm_status": "answered",
       "answer": "BNA Citations: atcscc-2026-05-19-079-p1-c1, t1.",
       "answer_values": [
@@ -335,9 +335,66 @@
           "t1"
         ]
       },
-      "raw_response": "{\"answer\":\"BNA\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The provided evidence explicitly states 'CTL ELEMENT: BNA', which directly identifies the affected NAS element as BNA.\"}",
+      "raw_response": "{\"answer\":\"BNA\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The evidence explicitly states \\\"CTL ELEMENT: BNA,\\\" which directly identifies the affected NAS element.\"}",
       "runtime": {
-        "answer_latency_ms": 6185.6808
+        "answer_latency_ms": 9514.3243
+      }
+    },
+    {
+      "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-19:074",
+      "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+      "source_id": "2026-05-19:074",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "BNA Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"BNA\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-074-p1-c1\",\"t1\"],\"rationale\":\"The supplied evidence explicitly states \\\"CTL ELEMENT: BNA\\\" and the associated graph triple maps this to predicate controlledNASelement with object BNA.\"}",
+      "runtime": {
+        "answer_latency_ms": 2486.4553
       }
     },
     {
@@ -361,21 +418,25 @@
         "estimated_padding_tokens": 0
       },
       "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
       "llm_status": "answered",
-      "answer": "The advisory is effective from 191322 to 191630. Citations: atcscc-2026-05-19-032-p1-c1.",
+      "answer": "The advisory effective window is 2026-05-19T13:22:00Z to 2026-05-19T16:30:00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
       "answer_values": [
         {
-          "predicate": "EFFECTIVE TIME",
-          "value": "191322-191630"
+          "predicate": "effectiveStartTime",
+          "value": "2026-05-19T13:22:00Z"
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "value": "2026-05-19T16:30:00Z"
         }
       ],
       "metrics": {
-        "answer_correctness": false,
+        "answer_correctness": true,
         "citation_precision": 1.0,
         "citation_recall": 0.3333,
-        "evidence_faithfulness": false,
-        "unsupported_claim_rate": 1.0,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
         "abstention_correctness": true,
         "expected_abstention": false,
         "actual_abstention": false,
@@ -391,9 +452,69 @@
           "page 1"
         ]
       },
-      "raw_response": "{\n  \"answer\": \"The advisory is effective from 191322 to 191630.\",\n  \"answer_values\": [\n    {\n      \"predicate\": \"EFFECTIVE TIME\",\n      \"value\": \"191322-191630\"\n    }\n  ],\n  \"abstain\": false,\n  \"citations\": [\n    \"atcscc-2026-05-19-032-p1-c1\"\n  ],\n  \"rationale\": \"The supplied evidence explicitly states \\\"EFFECTIVE TIME: 191322-191630\\\", which provides both the start and end times for the advisory.\"\n}",
+      "raw_response": "{\"answer\":\"The advisory effective window is 2026-05-19T13:22:00Z to 2026-05-19T16:30:00Z.\",\"answer_values\":[{\"predicate\":\"effectiveStartTime\",\"value\":\"2026-05-19T13:22:00Z\"},{\"predicate\":\"effectiveEndTime\",\"value\":\"2026-05-19T16:30:00Z\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-032-p1-c1\"],\"rationale\":\"The evidence shows EFFECTIVE TIME: 191322-191630 in source_id 2026-05-19:032. Using the source year/month and the day/time range, the effective start and end times normalize to 2026-05-19T13:22:00Z and 2026-05-19T16:30:00Z.\"}",
       "runtime": {
-        "answer_latency_ms": 5557.0309
+        "answer_latency_ms": 6081.8518
+      }
+    },
+    {
+      "cq_id": "QT-Q01-TIME-WINDOW::2026-05-15:063",
+      "template_id": "QT-Q01-TIME-WINDOW",
+      "source_id": "2026-05-15:063",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "live_tfidf_vector",
+      "expected_abstention": false,
+      "answer_set": [
+        "effectiveStartTime=2026-05-15T19:18:00Z",
+        "effectiveEndTime=2026-05-16T00:30:00Z"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 32,
+        "context_count": 2,
+        "source_context_count": 2,
+        "graph_context_count": 0,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 32,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "The advisory\u2019s effective time window is 2026-05-15T19:18:00Z to 2026-05-16T00:30:00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+      "answer_values": [
+        {
+          "predicate": "effectiveStartTime",
+          "value": "2026-05-15T19:18:00Z"
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "value": "2026-05-16T00:30:00Z"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.3333,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-15-063-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-15-063-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-15-063-p1-c1",
+          "atcscc-2026-05-20-150-p1-c1",
+          "page 1"
+        ]
+      },
+      "raw_response": "{\n  \"answer\": \"The advisory\u2019s effective time window is 2026-05-15T19:18:00Z to 2026-05-16T00:30:00Z.\",\n  \"answer_values\": [\n    {\n      \"predicate\": \"effectiveStartTime\",\n      \"value\": \"2026-05-15T19:18:00Z\"\n    },\n    {\n      \"predicate\": \"effectiveEndTime\",\n      \"value\": \"2026-05-16T00:30:00Z\"\n    }\n  ],\n  \"abstain\": false,\n  \"citations\": [\n    \"atcscc-2026-05-15-063-p1-c1\"\n  ],\n  \"rationale\": \"The source chunk states 'EFFECTIVE TIME: 151918-160030'. Using the source_id year/month (2026-05) and normalizing the DDHHMM-DDHHMM range yields 2026-05-15T19:18:00Z through 2026-05-16T00:30:00Z.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 4440.1558
       }
     },
     {
@@ -416,9 +537,9 @@
         "estimated_padding_tokens": 0
       },
       "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
       "llm_status": "answered",
-      "answer": "The restriction is explained by staffing. Citations: t1, atcscc-2026-05-19-079-p1-c1.",
+      "answer": "The restriction is explained by STAFFING / STAFFING. Citations: t1, atcscc-2026-05-19-079-p1-c1.",
       "answer_values": [
         {
           "predicate": "impactingConditionMessage",
@@ -448,9 +569,66 @@
           "t1"
         ]
       },
-      "raw_response": "{\"answer\":\"The restriction is explained by staffing.\",\"answer_values\":[{\"predicate\":\"impactingConditionMessage\",\"value\":\"STAFFING / STAFFING\"}],\"abstain\":false,\"citations\":[\"t1\",\"atcscc-2026-05-19-079-p1-c1\"],\"rationale\":\"The only retrieved evidence states 'IMPACTING CONDITION: STAFFING / STAFFING', which directly explains the restriction as staffing-related.\"}",
+      "raw_response": "{\"answer\":\"The restriction is explained by STAFFING / STAFFING.\",\"answer_values\":[{\"predicate\":\"impactingConditionMessage\",\"value\":\"STAFFING / STAFFING\"}],\"abstain\":false,\"citations\":[\"t1\",\"atcscc-2026-05-19-079-p1-c1\"],\"rationale\":\"The only supplied evidence states 'IMPACTING CONDITION: STAFFING / STAFFING', which directly answers the question about the condition explaining the restriction.\"}",
       "runtime": {
-        "answer_latency_ms": 7109.7729
+        "answer_latency_ms": 3788.9537
+      }
+    },
+    {
+      "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-19:074",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "source_id": "2026-05-19:074",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "impactingConditionMessage=STAFFING / STAFFING"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 24,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 24,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "The restriction is explained by staffing. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "impactingConditionMessage",
+          "value": "STAFFING / STAFFING"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\n  \"answer\": \"The restriction is explained by staffing.\",\n  \"answer_values\": [\n    {\n      \"predicate\": \"impactingConditionMessage\",\n      \"value\": \"STAFFING / STAFFING\"\n    }\n  ],\n  \"abstain\": false,\n  \"citations\": [\n    \"atcscc-2026-05-19-074-p1-c1\",\n    \"t1\"\n  ],\n  \"rationale\": \"The only supplied evidence states: \\\"IMPACTING CONDITION: STAFFING / STAFFING.\\\" This directly answers the question about what condition explains the restriction.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 2678.5645
       }
     },
     {
@@ -473,7 +651,673 @@
         "estimated_padding_tokens": 0
       },
       "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "RQD Citations: atcscc-2026-05-19-032-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "implementationStatus",
+          "value": "RQD"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-032-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-032-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-032-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"RQD\",\"answer_values\":[{\"predicate\":\"implementationStatus\",\"value\":\"RQD\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-032-p1-c1\",\"t1\"],\"rationale\":\"The only supplied evidence for the advisory status/action is the token '_RQD', with the triple explicitly mapping predicate implementationStatus to object RQD.\"}",
+      "runtime": {
+        "answer_latency_ms": 2218.5862
+      }
+    },
+    {
+      "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:079",
+      "template_id": "QT-Q01-STATUS-ACTION",
+      "source_id": "2026-05-19:079",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 44,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 44,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "BNA staffing trigger; modified low popup; time +45. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "initiativeComments",
+          "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"BNA staffing trigger; modified low popup; time +45.\",\"answer_values\":[{\"predicate\":\"initiativeComments\",\"value\":\"BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The advisory comment explicitly states the status/action text in the evidence: 'BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.'\"}",
+      "runtime": {
+        "answer_latency_ms": 3266.5253
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:079",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:079",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "The evidence only supports the constrained element as BNA. It does not provide the reroute type or reroute reason. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"The evidence only supports the constrained element as BNA. It does not provide the reroute type or reroute reason.\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The only retrieved evidence states 'CTL ELEMENT: BNA' and maps to predicate controlledNASelement = BNA. No text in the supplied evidence identifies a reroute type or reroute reason, so those parts cannot be answered from the record.\"}",
+      "runtime": {
+        "answer_latency_ms": 2583.2787
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:074",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:074",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "The evidence only supports the constrained element as BNA; it does not support a reroute type or reroute reason. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"The evidence only supports the constrained element as BNA; it does not support a reroute type or reroute reason.\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-074-p1-c1\",\"t1\"],\"rationale\":\"The only retrieved evidence states 'CTL ELEMENT: BNA' and maps to controlledNASelement = BNA. No reroute type or reroute reason is present in the supplied evidence, so those parts cannot be answered from the record.\"}",
+      "runtime": {
+        "answer_latency_ms": 2985.3922
+      }
+    },
+    {
+      "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-19:032",
+      "template_id": "QT-A01-ABSTENTION-FIELDS",
+      "source_id": "2026-05-19:032",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "live_tfidf_vector",
+      "expected_abstention": true,
+      "answer_set": [
+        "absent:controlledNASelement",
+        "absent:extensionProbability",
+        "absent:impactingCondition",
+        "absent:reRouteReason"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 56,
+        "context_count": 2,
+        "source_context_count": 2,
+        "graph_context_count": 0,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 56,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "Insufficient evidence to answer. Abstain: the evidence only supports an EFFECTIVE TIME field and partial advisory metadata. It does not support the other expected fields needed to answer the question, so abstention is triggered. Citations: atcscc-2026-05-19-032-p1-c1, atcscc-2026-05-18-075-p1-c1.",
+      "answer_values": [],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": true,
+        "actual_abstention": true,
+        "valid_citations": [
+          "atcscc-2026-05-19-032-p1-c1",
+          "atcscc-2026-05-18-075-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-18-075-p1-c1",
+          "atcscc-2026-05-19-032-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-18-075-p1-c1",
+          "atcscc-2026-05-19-032-p1-c1",
+          "page 1"
+        ]
+      },
+      "raw_response": "{\n  \"answer\": \"Abstain: the evidence only supports an EFFECTIVE TIME field and partial advisory metadata. It does not support the other expected fields needed to answer the question, so abstention is triggered.\",\n  \"answer_values\": [\n    {\n      \"predicate\": \"EFFECTIVE TIME\",\n      \"value\": \"191322-191630\"\n    },\n    {\n      \"predicate\": \"advisory_date\",\n      \"value\": \"2026-05-18\"\n    },\n    {\n      \"predicate\": \"advisory_number\",\n      \"value\": \"75\"\n    }\n  ],\n  \"abstain\": true,\n  \"citations\": [\n    \"atcscc-2026-05-19-032-p1-c1\",\n    \"atcscc-2026-05-18-075-p1-c1\"\n  ],\n  \"rationale\": \"The retrieved evidence contains only an EFFECTIVE TIME line and minimal metadata (advisory_date, advisory_number). It does not provide the broader expected fields implied by the task, so the answer must abstain.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 3427.3387
+      }
+    },
+    {
+      "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-15:063",
+      "template_id": "QT-A01-ABSTENTION-FIELDS",
+      "source_id": "2026-05-15:063",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "live_tfidf_vector",
+      "expected_abstention": true,
+      "answer_set": [
+        "absent:controlledNASelement",
+        "absent:extensionProbability",
+        "absent:impactingCondition",
+        "absent:reRouteReason"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 81,
+        "context_count": 2,
+        "source_context_count": 2,
+        "graph_context_count": 0,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 81,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "Insufficient evidence to answer. abstain Citations: atcscc-2026-05-15-063-p1-c1, atcscc-2026-05-18-075-p1-c1.",
+      "answer_values": [],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": true,
+        "actual_abstention": true,
+        "valid_citations": [
+          "atcscc-2026-05-15-063-p1-c1",
+          "atcscc-2026-05-18-075-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-15-063-p1-c1",
+          "atcscc-2026-05-18-075-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-15-063-p1-c1",
+          "atcscc-2026-05-18-075-p1-c1",
+          "page 1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"abstain\",\"answer_values\":[{\"predicate\":\"effective time\",\"value\":\"unsupported format\"},{\"predicate\":\"advisory_number\",\"value\":\"present in one source chunk only\"},{\"predicate\":\"advisory_date\",\"value\":\"present in one source chunk only\"},{\"predicate\":\"expected fields\",\"value\":\"absent or unsupported\"}],\"abstain\":true,\"citations\":[\"atcscc-2026-05-15-063-p1-c1\",\"atcscc-2026-05-18-075-p1-c1\"],\"rationale\":\"The evidence only supports an EFFECTIVE TIME field in raw DDHHMM-DDHHMM form and a separate source chunk listing source_id, advisory_date, and advisory_number. The question asks which expected fields are absent or unsupported and should trigger abstention, but the supplied evidence does not identify a complete set of expected fields or support a definitive missing-field determination beyond noting unsupported/partial field presence. Therefore abstention is warranted.\"}",
+      "runtime": {
+        "answer_latency_ms": 4171.3934
+      }
+    },
+    {
+      "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-19:079",
+      "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+      "source_id": "2026-05-19:079",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "BNA Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"BNA\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The supplied evidence explicitly states \\\"CTL ELEMENT: BNA\\\" and provides a matching triple with predicate controlledNASelement and object BNA.\"}",
+      "runtime": {
+        "answer_latency_ms": 2465.1961
+      }
+    },
+    {
+      "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-19:074",
+      "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+      "source_id": "2026-05-19:074",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "BNA Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"BNA\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-074-p1-c1\",\"t1\"],\"rationale\":\"The retrieved evidence explicitly states 'CTL ELEMENT: BNA' and the extracted triple gives controlledNASelement = BNA.\"}",
+      "runtime": {
+        "answer_latency_ms": 2315.2267
+      }
+    },
+    {
+      "cq_id": "QT-Q01-TIME-WINDOW::2026-05-19:032",
+      "template_id": "QT-Q01-TIME-WINDOW",
+      "source_id": "2026-05-19:032",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "dense_embedding_vector",
+      "expected_abstention": false,
+      "answer_set": [
+        "effectiveStartTime=2026-05-19T13:22:00Z",
+        "effectiveEndTime=2026-05-19T16:30:00Z"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 32,
+        "context_count": 1,
+        "source_context_count": 1,
+        "graph_context_count": 0,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 32,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": false,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "Insufficient evidence to answer. abstain Citations: atcscc-2026-05-19-144-p1-c1.",
+      "answer_values": [],
+      "metrics": {
+        "answer_correctness": false,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "evidence_faithfulness": false,
+        "unsupported_claim_rate": 1.0,
+        "abstention_correctness": false,
+        "expected_abstention": false,
+        "actual_abstention": true,
+        "valid_citations": [
+          "atcscc-2026-05-19-144-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-144-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-144-p1-c1",
+          "page 1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"abstain\",\"answer_values\":[],\"abstain\":true,\"citations\":[\"atcscc-2026-05-19-144-p1-c1\"],\"rationale\":\"The supplied evidence identifies the advisory date and number, but it does not provide any time window or explicit start/end times to normalize into effectiveStartTime and effectiveEndTime.\"}",
+      "runtime": {
+        "answer_latency_ms": 2497.8821
+      }
+    },
+    {
+      "cq_id": "QT-Q01-TIME-WINDOW::2026-05-15:063",
+      "template_id": "QT-Q01-TIME-WINDOW",
+      "source_id": "2026-05-15:063",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "dense_embedding_vector",
+      "expected_abstention": false,
+      "answer_set": [
+        "effectiveStartTime=2026-05-15T19:18:00Z",
+        "effectiveEndTime=2026-05-16T00:30:00Z"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 32,
+        "context_count": 1,
+        "source_context_count": 1,
+        "graph_context_count": 0,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 32,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": false,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "Insufficient evidence to answer. abstain Citations: atcscc-2026-05-19-144-p1-c1.",
+      "answer_values": [],
+      "metrics": {
+        "answer_correctness": false,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "evidence_faithfulness": false,
+        "unsupported_claim_rate": 1.0,
+        "abstention_correctness": false,
+        "expected_abstention": false,
+        "actual_abstention": true,
+        "valid_citations": [
+          "atcscc-2026-05-19-144-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-144-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-144-p1-c1",
+          "page 1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"abstain\",\"answer_values\":[],\"abstain\":true,\"citations\":[\"atcscc-2026-05-19-144-p1-c1\"],\"rationale\":\"The provided evidence only includes the advisory date and number, with no time window or effective start/end times. The source_id in the task metadata also does not supply a time range. Therefore, the effective start and end times cannot be determined from the evidence.\"}",
+      "runtime": {
+        "answer_latency_ms": 2925.196
+      }
+    },
+    {
+      "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-19:079",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "source_id": "2026-05-19:079",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "impactingConditionMessage=STAFFING / STAFFING"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 24,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 24,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "The restriction is explained by a staffing condition. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "impactingConditionMessage",
+          "value": "STAFFING / STAFFING"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"The restriction is explained by a staffing condition.\",\"answer_values\":[{\"predicate\":\"impactingConditionMessage\",\"value\":\"STAFFING / STAFFING\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The only supplied evidence explicitly states 'IMPACTING CONDITION: STAFFING / STAFFING,' which directly answers the question about the condition explaining the restriction.\"}",
+      "runtime": {
+        "answer_latency_ms": 2602.8832
+      }
+    },
+    {
+      "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-19:074",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "source_id": "2026-05-19:074",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "impactingConditionMessage=STAFFING / STAFFING"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 24,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 24,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "Staffing / staffing Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+      "answer_values": [
+        {
+          "predicate": "impactingConditionMessage",
+          "value": "STAFFING / STAFFING"
+        }
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\n  \"answer\": \"Staffing / staffing\",\n  \"answer_values\": [\n    {\n      \"predicate\": \"impactingConditionMessage\",\n      \"value\": \"STAFFING / STAFFING\"\n    }\n  ],\n  \"abstain\": false,\n  \"citations\": [\n    \"atcscc-2026-05-19-074-p1-c1\",\n    \"t1\"\n  ],\n  \"rationale\": \"The evidence explicitly states the impacting condition as \\\"STAFFING / STAFFING,\\\" which directly answers the question about the condition explaining the restriction.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 3671.054
+      }
+    },
+    {
+      "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:032",
+      "template_id": "QT-Q01-STATUS-ACTION",
+      "source_id": "2026-05-19:032",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "implementationStatus=RQD"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 6,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 6,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
       "llm_status": "answered",
       "answer": "RQD Citations: t1, atcscc-2026-05-19-032-p1-c1.",
       "answer_values": [
@@ -505,319 +1349,38 @@
           "t1"
         ]
       },
-      "raw_response": "{\"answer\":\"RQD\",\"answer_values\":[{\"predicate\":\"implementationStatus\",\"value\":\"RQD\"}],\"abstain\":false,\"citations\":[\"t1\",\"atcscc-2026-05-19-032-p1-c1\"],\"rationale\":\"The only supplied evidence states \\\"_RQD\\\" and the graph triple maps implementationStatus to RQD.\"}",
+      "raw_response": "{\"answer\":\"RQD\",\"answer_values\":[{\"predicate\":\"implementationStatus\",\"value\":\"RQD\"}],\"abstain\":false,\"citations\":[\"t1\",\"atcscc-2026-05-19-032-p1-c1\"],\"rationale\":\"The only supplied evidence for the advisory status/action is the token '_RQD', which is linked by the triple with predicate implementationStatus and object RQD.\"}",
       "runtime": {
-        "answer_latency_ms": 2380.1417
+        "answer_latency_ms": 2758.4025
       }
     },
     {
-      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:079",
-      "template_id": "QT-Q01-ROUTE-SEMANTICS",
-      "source_id": "2026-05-19:079",
-      "mode": "routed_token_matched_live_tfidf_graphrag",
-      "underlying_mode": "hybrid_graphrag",
-      "expected_abstention": false,
-      "answer_set": [
-        "controlledNASelement=BNA"
-      ],
-      "context_budget": {
-        "estimated_context_tokens": 10,
-        "context_count": 2,
-        "source_context_count": 1,
-        "graph_context_count": 1,
-        "token_match_target_mode": "hybrid_graphrag",
-        "target_estimated_context_tokens": 10,
-        "estimated_padding_tokens": 0
-      },
-      "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
-      "llm_status": "answered",
-      "answer": "insufficient evidence to determine reroute type and reroute reason; constrained element is BNA Citations: atcscc-2026-05-19-079-p1-c1, t1.",
-      "answer_values": [
-        {
-          "predicate": "controlledNASelement",
-          "value": "BNA"
-        }
-      ],
-      "metrics": {
-        "answer_correctness": true,
-        "citation_precision": 1.0,
-        "citation_recall": 0.6667,
-        "evidence_faithfulness": true,
-        "unsupported_claim_rate": 0.0,
-        "abstention_correctness": false,
-        "expected_abstention": false,
-        "actual_abstention": true,
-        "valid_citations": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "t1"
-        ],
-        "detected_citations": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "t1"
-        ],
-        "available_citation_units": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "page 1",
-          "t1"
-        ]
-      },
-      "raw_response": "{\"answer\":\"insufficient evidence to determine reroute type and reroute reason; constrained element is BNA\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":true,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The supplied evidence only states \\\"CTL ELEMENT: BNA\\\". It supports the constrained element as BNA, but does not provide any reroute type or reroute reason, so those parts cannot be determined from the evidence.\"}",
-      "runtime": {
-        "answer_latency_ms": 4813.6383
-      }
-    },
-    {
-      "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-19:032",
-      "template_id": "QT-A01-ABSTENTION-FIELDS",
-      "source_id": "2026-05-19:032",
-      "mode": "routed_token_matched_live_tfidf_graphrag",
-      "underlying_mode": "live_tfidf_vector",
-      "expected_abstention": true,
-      "answer_set": [
-        "absent:controlledNASelement",
-        "absent:extensionProbability",
-        "absent:impactingCondition",
-        "absent:reRouteReason"
-      ],
-      "context_budget": {
-        "estimated_context_tokens": 56,
-        "context_count": 2,
-        "source_context_count": 2,
-        "graph_context_count": 0,
-        "token_match_target_mode": "hybrid_graphrag",
-        "target_estimated_context_tokens": 56,
-        "estimated_padding_tokens": 0
-      },
-      "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
-      "llm_status": "answered",
-      "answer": "Insufficient evidence to answer. abstain Citations: atcscc-2026-05-19-032-p1-c1, atcscc-2026-05-18-075-p1-c1.",
-      "answer_values": [
-        {
-          "predicate": "expected fields absent or unsupported",
-          "value": "No supported advisory fields beyond EFFECTIVE TIME and advisory metadata are present in the supplied evidence."
-        }
-      ],
-      "metrics": {
-        "answer_correctness": true,
-        "citation_precision": 1.0,
-        "citation_recall": 0.6667,
-        "evidence_faithfulness": true,
-        "unsupported_claim_rate": 1.0,
-        "abstention_correctness": true,
-        "expected_abstention": true,
-        "actual_abstention": true,
-        "valid_citations": [
-          "atcscc-2026-05-19-032-p1-c1",
-          "atcscc-2026-05-18-075-p1-c1"
-        ],
-        "detected_citations": [
-          "atcscc-2026-05-18-075-p1-c1",
-          "atcscc-2026-05-19-032-p1-c1"
-        ],
-        "available_citation_units": [
-          "atcscc-2026-05-18-075-p1-c1",
-          "atcscc-2026-05-19-032-p1-c1",
-          "page 1"
-        ]
-      },
-      "raw_response": "{\"answer\":\"abstain\",\"answer_values\":[{\"predicate\":\"expected fields absent or unsupported\",\"value\":\"No supported advisory fields beyond EFFECTIVE TIME and advisory metadata are present in the supplied evidence.\"}],\"abstain\":true,\"citations\":[\"atcscc-2026-05-19-032-p1-c1\",\"atcscc-2026-05-18-075-p1-c1\"],\"rationale\":\"The evidence only shows EFFECTIVE TIME and limited advisory metadata (source_id, advisory_date, advisory_number, ATCSCC Advisory). It does not support any additional expected fields, so abstention is warranted.\"}",
-      "runtime": {
-        "answer_latency_ms": 3043.9928
-      }
-    },
-    {
-      "cq_id": "QT-Q01-AFFECTED-NAS-ELEMENTS::2026-05-19:079",
-      "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
-      "source_id": "2026-05-19:079",
-      "mode": "routed_token_matched_dense_graphrag",
-      "underlying_mode": "hybrid_graphrag",
-      "expected_abstention": false,
-      "answer_set": [
-        "controlledNASelement=BNA"
-      ],
-      "context_budget": {
-        "estimated_context_tokens": 10,
-        "context_count": 2,
-        "source_context_count": 1,
-        "graph_context_count": 1,
-        "token_match_target_mode": "hybrid_graphrag",
-        "target_estimated_context_tokens": 10,
-        "estimated_padding_tokens": 0
-      },
-      "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
-      "llm_status": "answered",
-      "answer": "BNA Citations: atcscc-2026-05-19-079-p1-c1, t1.",
-      "answer_values": [
-        {
-          "predicate": "controlledNASelement",
-          "value": "BNA"
-        }
-      ],
-      "metrics": {
-        "answer_correctness": true,
-        "citation_precision": 1.0,
-        "citation_recall": 0.6667,
-        "evidence_faithfulness": true,
-        "unsupported_claim_rate": 0.0,
-        "abstention_correctness": true,
-        "expected_abstention": false,
-        "actual_abstention": false,
-        "valid_citations": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "t1"
-        ],
-        "detected_citations": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "t1"
-        ],
-        "available_citation_units": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "page 1",
-          "t1"
-        ]
-      },
-      "raw_response": "{\"answer\":\"BNA\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The supplied evidence explicitly states \\\"CTL ELEMENT: BNA\\\" and the graph triple maps this to controlledNASelement = BNA.\"}",
-      "runtime": {
-        "answer_latency_ms": 2570.5788
-      }
-    },
-    {
-      "cq_id": "QT-Q01-TIME-WINDOW::2026-05-19:032",
-      "template_id": "QT-Q01-TIME-WINDOW",
-      "source_id": "2026-05-19:032",
-      "mode": "routed_token_matched_dense_graphrag",
-      "underlying_mode": "dense_embedding_vector",
-      "expected_abstention": false,
-      "answer_set": [
-        "effectiveStartTime=2026-05-19T13:22:00Z",
-        "effectiveEndTime=2026-05-19T16:30:00Z"
-      ],
-      "context_budget": {
-        "estimated_context_tokens": 32,
-        "context_count": 1,
-        "source_context_count": 1,
-        "graph_context_count": 0,
-        "token_match_target_mode": "hybrid_graphrag",
-        "target_estimated_context_tokens": 32,
-        "estimated_padding_tokens": 0
-      },
-      "target_source_retrieved": false,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
-      "llm_status": "answered",
-      "answer": "Insufficient evidence to answer.  Citations: atcscc-2026-05-19-144-p1-c1.",
-      "answer_values": [],
-      "metrics": {
-        "answer_correctness": false,
-        "citation_precision": 1.0,
-        "citation_recall": 0.5,
-        "evidence_faithfulness": false,
-        "unsupported_claim_rate": 1.0,
-        "abstention_correctness": false,
-        "expected_abstention": false,
-        "actual_abstention": true,
-        "valid_citations": [
-          "atcscc-2026-05-19-144-p1-c1"
-        ],
-        "detected_citations": [
-          "atcscc-2026-05-19-144-p1-c1"
-        ],
-        "available_citation_units": [
-          "atcscc-2026-05-19-144-p1-c1",
-          "page 1"
-        ]
-      },
-      "raw_response": "{\n  \"answer\": null,\n  \"answer_values\": [],\n  \"abstain\": true,\n  \"citations\": [\n    \"atcscc-2026-05-19-144-p1-c1\"\n  ],\n  \"rationale\": \"The supplied evidence only shows the advisory date and advisory number, but it does not include any effective start or end times. Therefore the requested times cannot be determined from the evidence.\"\n}",
-      "runtime": {
-        "answer_latency_ms": 4189.7894
-      }
-    },
-    {
-      "cq_id": "QT-Q01-CAUSE-CONDITION::2026-05-19:079",
-      "template_id": "QT-Q01-CAUSE-CONDITION",
-      "source_id": "2026-05-19:079",
-      "mode": "routed_token_matched_dense_graphrag",
-      "underlying_mode": "hybrid_graphrag",
-      "expected_abstention": false,
-      "answer_set": [
-        "impactingConditionMessage=STAFFING / STAFFING"
-      ],
-      "context_budget": {
-        "estimated_context_tokens": 24,
-        "context_count": 2,
-        "source_context_count": 1,
-        "graph_context_count": 1,
-        "token_match_target_mode": "hybrid_graphrag",
-        "target_estimated_context_tokens": 24,
-        "estimated_padding_tokens": 0
-      },
-      "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
-      "llm_status": "answered",
-      "answer": "STAFFING / STAFFING Citations: atcscc-2026-05-19-079-p1-c1, t1.",
-      "answer_values": [
-        {
-          "predicate": "impactingConditionMessage",
-          "value": "STAFFING / STAFFING"
-        }
-      ],
-      "metrics": {
-        "answer_correctness": true,
-        "citation_precision": 1.0,
-        "citation_recall": 0.6667,
-        "evidence_faithfulness": true,
-        "unsupported_claim_rate": 0.0,
-        "abstention_correctness": true,
-        "expected_abstention": false,
-        "actual_abstention": false,
-        "valid_citations": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "t1"
-        ],
-        "detected_citations": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "t1"
-        ],
-        "available_citation_units": [
-          "atcscc-2026-05-19-079-p1-c1",
-          "page 1",
-          "t1"
-        ]
-      },
-      "raw_response": "{\"answer\":\"STAFFING / STAFFING\",\"answer_values\":[{\"predicate\":\"impactingConditionMessage\",\"value\":\"STAFFING / STAFFING\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The evidence explicitly states the impacting condition as 'STAFFING / STAFFING', which explains the restriction.\"}",
-      "runtime": {
-        "answer_latency_ms": 2096.9948
-      }
-    },
-    {
-      "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:032",
+      "cq_id": "QT-Q01-STATUS-ACTION::2026-05-19:079",
       "template_id": "QT-Q01-STATUS-ACTION",
-      "source_id": "2026-05-19:032",
+      "source_id": "2026-05-19:079",
       "mode": "routed_token_matched_dense_graphrag",
       "underlying_mode": "hybrid_graphrag",
       "expected_abstention": false,
       "answer_set": [
-        "implementationStatus=RQD"
+        "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
       ],
       "context_budget": {
-        "estimated_context_tokens": 6,
+        "estimated_context_tokens": 44,
         "context_count": 2,
         "source_context_count": 1,
         "graph_context_count": 1,
         "token_match_target_mode": "hybrid_graphrag",
-        "target_estimated_context_tokens": 6,
+        "target_estimated_context_tokens": 44,
         "estimated_padding_tokens": 0
       },
       "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
       "llm_status": "answered",
-      "answer": "The advisory status/action stated is RQD. Citations: t1, atcscc-2026-05-19-032-p1-c1.",
+      "answer": "The advisory comment states: \"BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.\" Citations: atcscc-2026-05-19-079-p1-c1, t1.",
       "answer_values": [
         {
-          "predicate": "implementationStatus",
-          "value": "RQD"
+          "predicate": "initiativeComments",
+          "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
         }
       ],
       "metrics": {
@@ -830,22 +1393,22 @@
         "expected_abstention": false,
         "actual_abstention": false,
         "valid_citations": [
-          "atcscc-2026-05-19-032-p1-c1",
+          "atcscc-2026-05-19-079-p1-c1",
           "t1"
         ],
         "detected_citations": [
-          "atcscc-2026-05-19-032-p1-c1",
+          "atcscc-2026-05-19-079-p1-c1",
           "t1"
         ],
         "available_citation_units": [
-          "atcscc-2026-05-19-032-p1-c1",
+          "atcscc-2026-05-19-079-p1-c1",
           "page 1",
           "t1"
         ]
       },
-      "raw_response": "{\"answer\":\"The advisory status/action stated is RQD.\",\"answer_values\":[{\"predicate\":\"implementationStatus\",\"value\":\"RQD\"}],\"abstain\":false,\"citations\":[\"t1\",\"atcscc-2026-05-19-032-p1-c1\"],\"rationale\":\"The only supplied evidence links implementationStatus to the text '_RQD', so the stated status/action is 'RQD'.\"}",
+      "raw_response": "{\"answer\":\"The advisory comment states: \\\"BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.\\\"\",\"answer_values\":[{\"predicate\":\"initiativeComments\",\"value\":\"BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.\"}],\"abstain\":false,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The supplied evidence explicitly provides the advisory comment/status/action in the initiativeComments field. No additional inference is needed.\"}",
       "runtime": {
-        "answer_latency_ms": 3146.9369
+        "answer_latency_ms": 2680.4608
       }
     },
     {
@@ -868,9 +1431,9 @@
         "estimated_padding_tokens": 0
       },
       "target_source_retrieved": true,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
       "llm_status": "answered",
-      "answer": "Insufficient evidence to answer. abstain Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+      "answer": "Insufficient evidence to answer. Abstain: the evidence only supports the constrained element BNA and does not provide the reroute type or reroute reason. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
       "answer_values": [],
       "metrics": {
         "answer_correctness": false,
@@ -895,9 +1458,61 @@
           "t1"
         ]
       },
-      "raw_response": "{\"answer\":\"abstain\",\"answer_values\":[],\"abstain\":true,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The supplied evidence only states \\\"CTL ELEMENT: BNA\\\" and supports the constrained element. It does not provide any reroute type or reroute reason, so the question cannot be fully answered from the evidence.\"}",
+      "raw_response": "{\"answer\":\"Abstain: the evidence only supports the constrained element BNA and does not provide the reroute type or reroute reason.\",\"answer_values\":[{\"predicate\":\"controlledNASelement\",\"value\":\"BNA\"}],\"abstain\":true,\"citations\":[\"atcscc-2026-05-19-079-p1-c1\",\"t1\"],\"rationale\":\"The only supplied evidence is 'CTL ELEMENT: BNA', which supports the constrained element/controlled NAS element. No reroute type or reroute reason appears in the provided chunk, so those parts cannot be answered from evidence.\"}",
       "runtime": {
-        "answer_latency_ms": 3257.6034
+        "answer_latency_ms": 3542.8091
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:074",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:074",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "expected_abstention": false,
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": true,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "Insufficient evidence to answer. abstain Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+      "answer_values": [],
+      "metrics": {
+        "answer_correctness": false,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6667,
+        "evidence_faithfulness": false,
+        "unsupported_claim_rate": 1.0,
+        "abstention_correctness": false,
+        "expected_abstention": false,
+        "actual_abstention": true,
+        "valid_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "t1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "page 1",
+          "t1"
+        ]
+      },
+      "raw_response": "{\"answer\":\"abstain\",\"answer_values\":[],\"abstain\":true,\"citations\":[\"atcscc-2026-05-19-074-p1-c1\",\"t1\"],\"rationale\":\"The supplied evidence only states 'CTL ELEMENT: BNA' and supports the constrained element. It does not provide a reroute type or reroute reason, so the question cannot be fully answered from the evidence.\"}",
+      "runtime": {
+        "answer_latency_ms": 27411.4057
       }
     },
     {
@@ -923,7 +1538,7 @@
         "estimated_padding_tokens": 0
       },
       "target_source_retrieved": false,
-      "prompt_version": "nasa_atmonto_s7_llm_answer_v1",
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
       "llm_status": "answered",
       "answer": "Insufficient evidence to answer. abstain Citations: atcscc-2026-05-18-021-p1-c1.",
       "answer_values": [],
@@ -947,9 +1562,61 @@
           "page 1"
         ]
       },
-      "raw_response": "{\n  \"answer\": \"abstain\",\n  \"answer_values\": [],\n  \"abstain\": true,\n  \"citations\": [\n    \"atcscc-2026-05-18-021-p1-c1\"\n  ],\n  \"rationale\": \"The supplied evidence only shows a minimal header with source_id, advisory_date, advisory_number, and generic page/title text. It does not support many expected advisory fields, but it also does not enumerate a complete schema or identify which specific fields are required. Therefore, the question about which expected fields are absent or unsupported cannot be answered reliably from the evidence, so abstention is appropriate.\"\n}",
+      "raw_response": "{\"answer\":\"abstain\",\"answer_values\":[{\"predicate\":\"expected fields absent or unsupported\",\"value\":[\"No operational advisory fields are present in the supplied evidence beyond source metadata (source_id, advisory_date, advisory_number, title/header text).\"]},{\"predicate\":\"should trigger abstention\",\"value\":\"yes\"}],\"abstain\":true,\"citations\":[\"atcscc-2026-05-18-021-p1-c1\"],\"rationale\":\"The only supplied chunk contains metadata and page/header text, but no substantive advisory content or field values to validate. Because the evidence does not support identifying any additional expected fields, abstention is required.\"}",
       "runtime": {
-        "answer_latency_ms": 3909.9163
+        "answer_latency_ms": 5875.613
+      }
+    },
+    {
+      "cq_id": "QT-A01-ABSTENTION-FIELDS::2026-05-15:063",
+      "template_id": "QT-A01-ABSTENTION-FIELDS",
+      "source_id": "2026-05-15:063",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "dense_embedding_vector",
+      "expected_abstention": true,
+      "answer_set": [
+        "absent:controlledNASelement",
+        "absent:extensionProbability",
+        "absent:impactingCondition",
+        "absent:reRouteReason"
+      ],
+      "context_budget": {
+        "estimated_context_tokens": 81,
+        "context_count": 1,
+        "source_context_count": 1,
+        "graph_context_count": 0,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 81,
+        "estimated_padding_tokens": 0
+      },
+      "target_source_retrieved": false,
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v2",
+      "llm_status": "answered",
+      "answer": "Insufficient evidence to answer. Abstain: the evidence only shows the advisory source metadata and does not support the requested expected fields. Citations: atcscc-2026-05-18-021-p1-c1.",
+      "answer_values": [],
+      "metrics": {
+        "answer_correctness": false,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "evidence_faithfulness": false,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": false,
+        "expected_abstention": true,
+        "actual_abstention": true,
+        "valid_citations": [
+          "atcscc-2026-05-18-021-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-18-021-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-18-021-p1-c1",
+          "page 1"
+        ]
+      },
+      "raw_response": "{\n  \"answer\": \"Abstain: the evidence only shows the advisory source metadata and does not support the requested expected fields.\",\n  \"answer_values\": [\n    {\n      \"predicate\": \"abstention_trigger\",\n      \"value\": \"Expected fields are absent or unsupported in the provided evidence\"\n    },\n    {\n      \"predicate\": \"supported_field\",\n      \"value\": \"source_id 2026-05-18:021\"\n    },\n    {\n      \"predicate\": \"supported_field\",\n      \"value\": \"advisory_date 2026-05-18\"\n    },\n    {\n      \"predicate\": \"supported_field\",\n      \"value\": \"advisory_number 21\"\n    }\n  ],\n  \"abstain\": true,\n  \"citations\": [\n    \"atcscc-2026-05-18-021-p1-c1\"\n  ],\n  \"rationale\": \"The supplied chunk contains only advisory metadata (source_id, advisory_date, advisory_number) and no additional fields needed to identify specific absent or unsupported expected fields beyond the general lack of evidence. Therefore abstention is required.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 3386.8801
       }
     }
   ],

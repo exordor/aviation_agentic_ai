@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from datetime import date, timedelta
 import json
 from pathlib import Path
+import re
 from time import perf_counter
 from typing import Any, Callable
 
@@ -23,8 +25,15 @@ S7_LLM_ANSWER_MODES: tuple[str, ...] = (
     "routed_token_matched_live_tfidf_graphrag",
     "routed_token_matched_dense_graphrag",
 )
-LLM_ANSWER_PROMPT_VERSION = "nasa_atmonto_s7_llm_answer_v1"
+LLM_ANSWER_PROMPT_VERSION = "nasa_atmonto_s7_llm_answer_v2"
 LLMAnswerRunner = Callable[[str, str, float, int], str]
+ATCSCC_SOURCE_DATE_RE = re.compile(r"^(?P<year>\d{4})-(?P<month>\d{2})-\d{2}:")
+ATCSCC_TIME_RANGE_RE = re.compile(
+    r"\b(?P<start_day>\d{2})/?(?P<start_hour>\d{2})(?P<start_minute>\d{2})Z?"
+    r"\s*[-\u2013\u2014]\s*"
+    r"(?P<end_day>\d{2})/?(?P<end_hour>\d{2})(?P<end_minute>\d{2})Z?\b",
+    re.IGNORECASE,
+)
 
 
 def build_nasa_atmonto_s7_llm_answer_generation(
@@ -195,7 +204,11 @@ def llm_answer_record(
             max_tokens,
         )
         payload = parse_llm_answer_payload(raw_response)
-        result = result_from_llm_payload(mode_result, payload)
+        result = result_from_llm_payload(
+            mode_result,
+            payload,
+            source_id=str(source_record.get("source_id") or ""),
+        )
         label = label_from_s7_record(source_record)
         metrics = evaluate_s7_answer_result(label, result)
         return {
@@ -231,6 +244,7 @@ def build_s7_llm_answer_prompt(
     evidence = {
         "mode": mode,
         "underlying_mode": mode_result.get("underlying_mode"),
+        "template_id": source_record.get("template_id"),
         "question": source_record.get("question"),
         "source_id": source_record.get("source_id"),
         "source_chunks": mode_result.get("fused_chunks", []),
@@ -240,7 +254,10 @@ def build_s7_llm_answer_prompt(
         "Return JSON with keys: answer, answer_values, abstain, citations, rationale.\n"
         "answer_values must be a list of objects with predicate and value. Use exact "
         "predicate names visible in the evidence when possible. citations must contain "
-        "chunk_id or triple_id values that appear in the evidence.\n\n"
+        "chunk_id or triple_id values that appear in the evidence. For ATCSCC time "
+        "windows, normalize raw DDHHMM-DDHHMM or DD/HHMMZ-DD/HHMMZ ranges into "
+        "effectiveStartTime and effectiveEndTime ISO-8601 UTC values using source_id "
+        "for the year and month.\n\n"
         f"<s7_answer_task>\n{json.dumps(evidence, indent=2, sort_keys=True)}\n</s7_answer_task>"
     )
     return system_prompt, user_prompt
@@ -272,17 +289,25 @@ def parse_llm_answer_payload(raw_response: str) -> dict[str, Any]:
 def result_from_llm_payload(
     mode_result: dict[str, Any],
     payload: dict[str, Any],
+    *,
+    source_id: str = "",
 ) -> dict[str, Any]:
-    answer_values = [
-        {"predicate": str(item.get("predicate") or ""), "value": str(item.get("value") or "")}
-        for item in payload.get("answer_values", [])
-        if isinstance(item, dict) and (item.get("predicate") or item.get("value"))
-    ]
+    abstain = bool(payload.get("abstain"))
+    answer_values = normalize_llm_answer_values(
+        [
+            {"predicate": str(item.get("predicate") or ""), "value": str(item.get("value") or "")}
+            for item in payload.get("answer_values", [])
+            if isinstance(item, dict) and (item.get("predicate") or item.get("value"))
+        ],
+        source_id=source_id,
+        mode_result=mode_result,
+        abstain=abstain,
+    )
     answer = str(payload.get("answer") or "").strip()
     citations = [str(item) for item in payload.get("citations", []) if str(item).strip()]
     if citations and "citations:" not in answer.lower():
         answer = f"{answer.rstrip()} Citations: {', '.join(citations)}."
-    if bool(payload.get("abstain")) and "insufficient" not in answer.lower():
+    if abstain and "insufficient" not in answer.lower():
         answer = f"Insufficient evidence to answer. {answer}".strip()
     return {
         "answer": answer,
@@ -296,6 +321,172 @@ def result_from_llm_payload(
         "runtime": mode_result.get("runtime", {}),
         "target_source_retrieved": mode_result.get("target_source_retrieved"),
     }
+
+
+def normalize_llm_answer_values(
+    answer_values: list[dict[str, str]],
+    *,
+    source_id: str,
+    mode_result: dict[str, Any],
+    abstain: bool,
+) -> list[dict[str, str]]:
+    if abstain:
+        return []
+    normalized: list[dict[str, str]] = []
+    has_time_field = False
+    for item in answer_values:
+        has_time_field = has_time_field or is_time_answer_value(item)
+        canonical_time_window = canonical_atcscc_time_window(
+            predicate=item["predicate"],
+            value=item["value"],
+            source_id=source_id,
+        )
+        if canonical_time_window:
+            normalized.extend(canonical_time_window)
+            continue
+        normalized.append(item)
+    evidence_time_window = canonical_atcscc_time_window_from_evidence(
+        mode_result,
+        source_id=source_id,
+    )
+    if has_time_field and evidence_time_window:
+        non_time_values = [item for item in normalized if not is_time_answer_value(item)]
+        return [*non_time_values, *evidence_time_window]
+    return normalized
+
+
+def canonical_atcscc_time_window_from_evidence(
+    mode_result: dict[str, Any],
+    *,
+    source_id: str,
+) -> list[dict[str, str]]:
+    for item in mode_result.get("fused_chunks", []):
+        if not isinstance(item, dict) or not same_source_id(item.get("source_id"), source_id):
+            continue
+        canonical = canonical_atcscc_time_window(
+            predicate="EFFECTIVE TIME",
+            value=str(item.get("text") or ""),
+            source_id=source_id,
+        )
+        if canonical:
+            return canonical
+    for item in mode_result.get("graph_triples", []):
+        if not isinstance(item, dict) or not same_source_id(item.get("source_id"), source_id):
+            continue
+        canonical = canonical_atcscc_time_window(
+            predicate=str(item.get("predicate") or ""),
+            value=" ".join(
+                str(part)
+                for part in (
+                    item.get("object"),
+                    item.get("evidence_text"),
+                )
+                if part
+            ),
+            source_id=source_id,
+        )
+        if canonical:
+            return canonical
+    return []
+
+
+def is_time_answer_value(item: dict[str, str]) -> bool:
+    text = f"{item.get('predicate', '')} {item.get('value', '')}".lower()
+    return "time" in text or "effective" in text
+
+
+def same_source_id(actual: Any, expected: str) -> bool:
+    return str(actual or "") == expected
+
+
+def canonical_atcscc_time_window(
+    *,
+    predicate: str,
+    value: str,
+    source_id: str,
+) -> list[dict[str, str]]:
+    if not is_time_window_candidate(predicate, value):
+        return []
+    source_date = parse_atcscc_source_year_month(source_id)
+    time_range = ATCSCC_TIME_RANGE_RE.search(value)
+    if source_date is None or time_range is None:
+        return []
+    year, month = source_date
+    try:
+        start_day = int(time_range.group("start_day"))
+        start_hour = int(time_range.group("start_hour"))
+        start_minute = int(time_range.group("start_minute"))
+        end_day = int(time_range.group("end_day"))
+        end_hour = int(time_range.group("end_hour"))
+        end_minute = int(time_range.group("end_minute"))
+    except ValueError:
+        return []
+    if not valid_utc_clock(start_hour, start_minute) or not valid_utc_clock(
+        end_hour,
+        end_minute,
+    ):
+        return []
+    try:
+        start_date = date(year, month, start_day)
+    except ValueError:
+        return []
+    end_date = date_for_atcscc_day(year=year, month=month, day=end_day, not_before=start_date)
+    if end_date is None:
+        return []
+    return [
+        {
+            "predicate": "effectiveStartTime",
+            "value": format_utc_minute(start_date, start_hour, start_minute),
+        },
+        {
+            "predicate": "effectiveEndTime",
+            "value": format_utc_minute(end_date, end_hour, end_minute),
+        },
+    ]
+
+
+def is_time_window_candidate(predicate: str, value: str) -> bool:
+    text = f"{predicate} {value}".lower()
+    return ("time" in text or "effective" in text) and bool(ATCSCC_TIME_RANGE_RE.search(value))
+
+
+def parse_atcscc_source_year_month(source_id: str) -> tuple[int, int] | None:
+    match = ATCSCC_SOURCE_DATE_RE.search(source_id)
+    if match is None:
+        return None
+    try:
+        return int(match.group("year")), int(match.group("month"))
+    except ValueError:
+        return None
+
+
+def valid_utc_clock(hour: int, minute: int) -> bool:
+    return 0 <= hour <= 23 and 0 <= minute <= 59
+
+
+def date_for_atcscc_day(
+    *,
+    year: int,
+    month: int,
+    day: int,
+    not_before: date,
+) -> date | None:
+    try:
+        candidate = date(year, month, day)
+    except ValueError:
+        candidate = None
+    if candidate is not None and candidate >= not_before:
+        return candidate
+    rollover = not_before
+    for _ in range(35):
+        if rollover.day == day and rollover >= not_before:
+            return rollover
+        rollover += timedelta(days=1)
+    return None
+
+
+def format_utc_minute(day: date, hour: int, minute: int) -> str:
+    return f"{day.isoformat()}T{hour:02d}:{minute:02d}:00Z"
 
 
 def label_from_s7_record(record: dict[str, Any]) -> dict[str, Any]:

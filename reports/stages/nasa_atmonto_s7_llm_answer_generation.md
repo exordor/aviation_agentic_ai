@@ -6,7 +6,7 @@
 - Reviewer model: `gpt-5.4-mini`
 - Run LLM requested: True
 - LLM runtime available: True
-- Selected cases: 12
+- Selected cases: 24
 - Modes: `routed_token_matched_live_tfidf_graphrag`, `routed_token_matched_dense_graphrag`
 - Boundary: Bounded LLM answer-generation pass over frozen S7 retrieved contexts. This is retrospective and source-bounded, not operational ATC support.
 
@@ -14,25 +14,25 @@
 
 | Mode | Selected | Answered | Not run | Failed | Correctness | Citation P | Citation R | Evidence faithful | Unsupported claim rate | Abstention correct | Avg context tokens |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `routed_token_matched_live_tfidf_graphrag` | 6 | 6 | 0 | 0 | 0.8333 | 1.0 | 0.6111 | 0.8333 | 0.3333 | 0.8333 | 23.0 |
-| `routed_token_matched_dense_graphrag` | 6 | 6 | 0 | 0 | 0.5 | 1.0 | 0.6111 | 0.5 | 0.3333 | 0.5 | 23.0 |
+| `routed_token_matched_live_tfidf_graphrag` | 12 | 12 | 0 | 0 | 1.0 | 1.0 | 0.6111 | 1.0 | 0.0 | 1.0 | 28.25 |
+| `routed_token_matched_dense_graphrag` | 12 | 12 | 0 | 0 | 0.5 | 1.0 | 0.6111 | 0.5 | 0.3333 | 0.5 | 28.25 |
 
 ## CQ Template Breakdown
 
 | Template | Mode | Selected | Answered | Correctness | Citation R | Unsupported claim rate | Abstention correct |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_live_tfidf_graphrag` | 1 | 1 | 1.0 | 0.6667 | 1.0 | 1.0 |
-| `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_dense_graphrag` | 1 | 1 | 0.0 | 0.5 | 0.0 | 0.0 |
-| `QT-Q01-AFFECTED-NAS-ELEMENTS` | `routed_token_matched_live_tfidf_graphrag` | 1 | 1 | 1.0 | 0.6667 | 0.0 | 1.0 |
-| `QT-Q01-AFFECTED-NAS-ELEMENTS` | `routed_token_matched_dense_graphrag` | 1 | 1 | 1.0 | 0.6667 | 0.0 | 1.0 |
-| `QT-Q01-CAUSE-CONDITION` | `routed_token_matched_live_tfidf_graphrag` | 1 | 1 | 1.0 | 0.6667 | 0.0 | 1.0 |
-| `QT-Q01-CAUSE-CONDITION` | `routed_token_matched_dense_graphrag` | 1 | 1 | 1.0 | 0.6667 | 0.0 | 1.0 |
-| `QT-Q01-ROUTE-SEMANTICS` | `routed_token_matched_live_tfidf_graphrag` | 1 | 1 | 1.0 | 0.6667 | 0.0 | 0.0 |
-| `QT-Q01-ROUTE-SEMANTICS` | `routed_token_matched_dense_graphrag` | 1 | 1 | 0.0 | 0.6667 | 1.0 | 0.0 |
-| `QT-Q01-STATUS-ACTION` | `routed_token_matched_live_tfidf_graphrag` | 1 | 1 | 1.0 | 0.6667 | 0.0 | 1.0 |
-| `QT-Q01-STATUS-ACTION` | `routed_token_matched_dense_graphrag` | 1 | 1 | 1.0 | 0.6667 | 0.0 | 1.0 |
-| `QT-Q01-TIME-WINDOW` | `routed_token_matched_live_tfidf_graphrag` | 1 | 1 | 0.0 | 0.3333 | 1.0 | 1.0 |
-| `QT-Q01-TIME-WINDOW` | `routed_token_matched_dense_graphrag` | 1 | 1 | 0.0 | 0.5 | 1.0 | 0.0 |
+| `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-A01-ABSTENTION-FIELDS` | `routed_token_matched_dense_graphrag` | 2 | 2 | 0.0 | 0.5 | 0.0 | 0.0 |
+| `QT-Q01-AFFECTED-NAS-ELEMENTS` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-Q01-AFFECTED-NAS-ELEMENTS` | `routed_token_matched_dense_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-Q01-CAUSE-CONDITION` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-Q01-CAUSE-CONDITION` | `routed_token_matched_dense_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-Q01-ROUTE-SEMANTICS` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-Q01-ROUTE-SEMANTICS` | `routed_token_matched_dense_graphrag` | 2 | 2 | 0.0 | 0.6667 | 1.0 | 0.0 |
+| `QT-Q01-STATUS-ACTION` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-Q01-STATUS-ACTION` | `routed_token_matched_dense_graphrag` | 2 | 2 | 1.0 | 0.6667 | 0.0 | 1.0 |
+| `QT-Q01-TIME-WINDOW` | `routed_token_matched_live_tfidf_graphrag` | 2 | 2 | 1.0 | 0.3333 | 0.0 | 1.0 |
+| `QT-Q01-TIME-WINDOW` | `routed_token_matched_dense_graphrag` | 2 | 2 | 0.0 | 0.5 | 1.0 | 0.0 |
 
 ## Notes
 

@@ -40,7 +40,7 @@ bounded and does not replace expert review.
 | KG extraction systems | satisfied | S0/S1/S1b/S2/S3/S4 scoring in `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | no new gap for S0-S4 extraction | preserve S4 as current strongest system |
 | Profile-gap/rejection analysis | satisfied | 288 rejected facts adjudicated as extractor bugs or profile gaps | profile-gap explanations need thesis wording | summarize as application-profile boundary |
 | CQ answer-set queryability | satisfied for pre-generation | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | deterministic answer-set scoring is not natural-language answer quality | keep as graph/queryability layer |
-| Natural-language answer generation | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/nasa_atmonto_answer_generation.md`, 18-label pilot; `reports/stages/nasa_atmonto_s7_answer_generation.md`, 317-label S7 rerun; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`, 12-case fixed-budget LLM check | larger human answer labels and broader LLM runs remain future work | keep deterministic S7 as reproducible thesis benchmark and LLM S7 as diagnostic supplement |
+| Natural-language answer generation | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/nasa_atmonto_answer_generation.md`, 18-label pilot; `reports/stages/nasa_atmonto_s7_answer_generation.md`, 317-label S7 rerun; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`, 24-case fixed-budget LLM check | larger human answer labels and broader LLM runs remain future work | keep deterministic S7 as reproducible thesis benchmark and LLM S7 as diagnostic supplement |
 | Graph-use gate | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md` | broad LLM/human answer evaluation remains future work | report routed lexical and dense results conservatively |
 | Token-matched vector baseline | satisfied for deterministic S7 | `token_matched_vector_rag`; `token_matched_vector_proxy`; `token_matched_live_tfidf_vector`; `token_matched_dense_embedding_vector`; `routed_token_matched_live_tfidf_graphrag`; `routed_token_matched_dense_graphrag` | no current deterministic S7 gap | preserve token-matched comparisons in thesis tables |
 | Graph health/path support | mostly satisfied for S7 diagnostics | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` | graph health is diagnostic rather than semantic truth certification | preserve graph health by CQ group in thesis tables |
@@ -71,7 +71,7 @@ The strongest parts of the project are:
    graph/vector/hybrid, token-matched-vector, routed answer/retrieval modes,
    live lexical-vector retrieval, dense retrieval, materialized graph traversal,
    latency reporting, tokenizer-backed context budgets, deterministic answer
-   generation over live retrieved contexts, and a 12-case fixed-budget LLM
+   generation over live retrieved contexts, and a 24-case fixed-budget LLM
    answer-generation check, and graph-health diagnostics by CQ group. It still
    lacks broad human-reviewed answer labels and larger LLM reruns.
 2. **Answer-generation evidence is source-bounded.** The 317-label S7 rerun is
@@ -116,11 +116,12 @@ That version is not supported because:
 
 ## Next Executable Experiment
 
-The next experiment should extend the bounded LLM S7 check:
+The next experiment should review and extend the bounded LLM S7 check:
 
-1. Expand the fixed-budget LLM sample beyond one case per CQ template while
+1. Manually review the highest-impact dense-route LLM answer failures while
    keeping the same frozen S7 contexts.
-2. Add human/manual review for the highest-impact LLM answer failures.
+2. Extend the fixed-budget LLM sample beyond two cases per CQ template if the
+   failure review suggests the live/dense contrast remains stable.
 3. Keep graph-health diagnostics by CQ group in the thesis tables, but describe
    them as diagnostic path/context evidence rather than semantic truth.
 4. Keep the dense retrieval result framed as negative/qualified unless a
