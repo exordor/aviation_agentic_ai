@@ -12,9 +12,14 @@
     "prediction_validation_path": "reports/stages/nasa_atmonto_prediction_output_validation.json",
     "extraction_schema_path": "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json",
     "generated_artifacts": {
+      "source_brief_markdown": "reports/stages/atcscc_source_brief.md",
       "srd_markdown": "reports/stages/atcscc_semantic_requirements.md",
       "tip_markdown": "reports/stages/atcscc_technical_implementation_plan.md",
-      "plan_markdown": "reports/stages/atcscc_extraction_validation_plan.md"
+      "plan_markdown": "reports/stages/atcscc_extraction_validation_plan.md",
+      "extraction_plan_markdown": "reports/stages/atcscc_extraction_plan.md",
+      "validation_findings_markdown": "reports/stages/atcscc_validation_findings.md",
+      "evidence_support_findings_markdown": "reports/stages/atcscc_evidence_support_findings.md",
+      "repair_plan_markdown": "reports/stages/atcscc_repair_plan.md"
     }
   },
   "method_families": [
@@ -716,6 +721,12 @@
   ],
   "agentic_artifacts": [
     {
+      "artifact": "SourceBrief",
+      "path": "reports/stages/atcscc_source_brief.md",
+      "status": "generated",
+      "purpose": "Source-family boundary, evidence scope, and non-operational-use limits."
+    },
+    {
       "artifact": "SRD",
       "path": "reports/stages/atcscc_semantic_requirements.md",
       "status": "generated",
@@ -732,6 +743,30 @@
       "path": "reports/stages/atcscc_extraction_validation_plan.md",
       "status": "generated",
       "purpose": "Runnable loop policy with anomaly-to-review routing."
+    },
+    {
+      "artifact": "ExtractionPlan",
+      "path": "reports/stages/atcscc_extraction_plan.md",
+      "status": "generated",
+      "purpose": "Field-level extractor, evidence, and abstention rules for the ATCSCC profile."
+    },
+    {
+      "artifact": "ValidationFindings",
+      "path": "reports/stages/atcscc_validation_findings.md",
+      "status": "generated",
+      "purpose": "Current schema, scoring, and anomaly findings before another extraction pass."
+    },
+    {
+      "artifact": "EvidenceSupportFindings",
+      "path": "reports/stages/atcscc_evidence_support_findings.md",
+      "status": "generated",
+      "purpose": "Evidence-support boundary for accepted, quarantined, and profile-gap facts."
+    },
+    {
+      "artifact": "RepairPlan",
+      "path": "reports/stages/atcscc_repair_plan.md",
+      "status": "generated",
+      "purpose": "Bounded repair and code-review routing plan for abnormal outputs."
     },
     {
       "artifact": "CQManifest",

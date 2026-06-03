@@ -34,9 +34,14 @@
 
 | Artifact | Status | Path | Purpose |
 | --- | --- | --- | --- |
+| `SourceBrief` | `generated` | `reports/stages/atcscc_source_brief.md` | Source-family boundary, evidence scope, and non-operational-use limits. |
 | `SRD` | `generated` | `reports/stages/atcscc_semantic_requirements.md` | Semantic requirements contract from CQs, gold fields, predicates, and evidence rules. |
 | `TIP` | `generated` | `reports/stages/atcscc_technical_implementation_plan.md` | Implementation plan for deterministic, LLM, validation, repair, and review stages. |
 | `ExtractionValidationPlan` | `generated` | `reports/stages/atcscc_extraction_validation_plan.md` | Runnable loop policy with anomaly-to-review routing. |
+| `ExtractionPlan` | `generated` | `reports/stages/atcscc_extraction_plan.md` | Field-level extractor, evidence, and abstention rules for the ATCSCC profile. |
+| `ValidationFindings` | `generated` | `reports/stages/atcscc_validation_findings.md` | Current schema, scoring, and anomaly findings before another extraction pass. |
+| `EvidenceSupportFindings` | `generated` | `reports/stages/atcscc_evidence_support_findings.md` | Evidence-support boundary for accepted, quarantined, and profile-gap facts. |
+| `RepairPlan` | `generated` | `reports/stages/atcscc_repair_plan.md` | Bounded repair and code-review routing plan for abnormal outputs. |
 | `CQManifest` | `ready` | `data/evaluation/nasa_atmonto/atcscc_cq_query_manifest.json` | Executable CQs and route labels for ATCSCC/ATMONTO extraction. |
 | `PredictionValidation` | `ready_for_scoring` | `reports/stages/nasa_atmonto_prediction_output_validation.json` | Saved S0-S4 prediction readiness before scoring and repair decisions. |
 

@@ -155,6 +155,18 @@ The current S0-S4 suite can become the reusable baseline template:
 Current ATCSCC starter contract:
 `reports/stages/atcscc_agentic_artifact_contract.md`.
 
+The ATCSCC stage-1 artifact chain is now instantiated in:
+`reports/stages/atcscc_source_brief.md`,
+`reports/stages/atcscc_semantic_requirements.md`,
+`reports/stages/atcscc_technical_implementation_plan.md`,
+`reports/stages/atcscc_extraction_plan.md`,
+`reports/stages/atcscc_validation_findings.md`,
+`reports/stages/atcscc_evidence_support_findings.md`,
+`reports/stages/atcscc_repair_plan.md`, and
+`reports/stages/atcscc_graph_use_plan.md`. This satisfies the artifact
+handoff requirement, but it is not yet a scored S5/S6 multi-agent extraction
+run.
+
 ## Research Contributions That Generalize
 
 The long-term thesis/project contribution can be framed as a methodology with
@@ -248,11 +260,10 @@ Unsafe wording to avoid:
 The next concrete step is to keep building the ATMONTO case study, but name
 artifacts and scripts in a way that preserves the generic pattern:
 
-1. derive `atcscc_cq_answer_sets.json`;
-2. use `reports/stages/atcscc_agentic_artifact_contract.md` as the run-level
-   handoff contract;
-3. draft the first ATCSCC SRD/TIP artifact aligned to the 12 CQs;
-4. run retrieval-only ablations from `atcscc_cq_query_manifest.json`;
+1. preserve the completed ATCSCC artifact chain as the S5/S6 contract;
+2. implement S5 CQ/module-routed extraction using that contract;
+3. implement S6 evidence-verifier repair with bounded repair cycles;
+4. compare S5/S6 against S0-S4 and S7 retrieval/answer-generation layers;
 5. document which parts are domain-specific adapters and which parts are
    reusable pipeline logic;
 6. only after the ATM case is stable, choose one second-domain pilot.

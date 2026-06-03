@@ -10,9 +10,14 @@ DEFAULT_PREDICTION_VALIDATION_PATH = Path(
 DEFAULT_EXTRACTION_SCHEMA_PATH = Path(
     "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json"
 )
+DEFAULT_SOURCE_BRIEF_REPORT_NAME = "atcscc_source_brief"
 DEFAULT_SRD_REPORT_NAME = "atcscc_semantic_requirements"
 DEFAULT_TIP_REPORT_NAME = "atcscc_technical_implementation_plan"
 DEFAULT_PLAN_REPORT_NAME = "atcscc_extraction_validation_plan"
+DEFAULT_EXTRACTION_PLAN_REPORT_NAME = "atcscc_extraction_plan"
+DEFAULT_VALIDATION_FINDINGS_REPORT_NAME = "atcscc_validation_findings"
+DEFAULT_EVIDENCE_SUPPORT_FINDINGS_REPORT_NAME = "atcscc_evidence_support_findings"
+DEFAULT_REPAIR_PLAN_REPORT_NAME = "atcscc_repair_plan"
 
 METHOD_FAMILIES: tuple[dict[str, str], ...] = (
     {

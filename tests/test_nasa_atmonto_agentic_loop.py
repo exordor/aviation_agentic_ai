@@ -285,6 +285,19 @@ def test_build_nasa_atmonto_agentic_loop_routes_abnormal_results_to_code_review(
     assert result["code_review_triggers"]
     assert result["srd_seed"]["competency_question_count"] == 2
     assert result["tip_seed"]["accepted_baselines"] == ["S4_hybrid_backbone_enrichment"]
+    artifact_names = {artifact["artifact"] for artifact in result["agentic_artifacts"]}
+    assert {
+        "SourceBrief",
+        "SRD",
+        "TIP",
+        "ExtractionValidationPlan",
+        "ExtractionPlan",
+        "ValidationFindings",
+        "EvidenceSupportFindings",
+        "RepairPlan",
+        "CQManifest",
+        "PredictionValidation",
+    } <= artifact_names
 
 
 def test_write_nasa_atmonto_agentic_loop_outputs_supporting_artifacts(tmp_path: Path) -> None:
@@ -306,12 +319,19 @@ def test_write_nasa_atmonto_agentic_loop_outputs_supporting_artifacts(tmp_path: 
     assert json_path.exists()
     assert md_path.exists()
     assert result["status"] == "agentic_loop_ready_with_code_review_triggers"
+    assert (output_dir / "atcscc_source_brief.md").exists()
     assert (output_dir / "atcscc_semantic_requirements.md").exists()
     assert (output_dir / "atcscc_technical_implementation_plan.md").exists()
     assert (output_dir / "atcscc_extraction_validation_plan.md").exists()
+    assert (output_dir / "atcscc_extraction_plan.md").exists()
+    assert (output_dir / "atcscc_validation_findings.md").exists()
+    assert (output_dir / "atcscc_evidence_support_findings.md").exists()
+    assert (output_dir / "atcscc_repair_plan.md").exists()
     markdown = md_path.read_text(encoding="utf-8")
     assert "Multi-Paper Method Transfer" in markdown
     assert "Agentic Loop Diagnostics" in markdown
+    assert "SourceBrief" in markdown
+    assert "RepairPlan" in markdown
     assert "repair_did_not_improve_semantic_f1" in markdown
 
 

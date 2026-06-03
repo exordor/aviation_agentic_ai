@@ -12,11 +12,16 @@ from aviation_agentic_ai.reporting.nasa_atmonto_agentic_loop_diagnostics import 
 )
 from aviation_agentic_ai.reporting.nasa_atmonto_agentic_loop_contract import (
     DEFAULT_CQ_MANIFEST_PATH,
+    DEFAULT_EVIDENCE_SUPPORT_FINDINGS_REPORT_NAME,
+    DEFAULT_EXTRACTION_PLAN_REPORT_NAME,
     DEFAULT_EXTRACTION_SCHEMA_PATH,
     DEFAULT_PLAN_REPORT_NAME,
     DEFAULT_PREDICTION_VALIDATION_PATH,
+    DEFAULT_REPAIR_PLAN_REPORT_NAME,
+    DEFAULT_SOURCE_BRIEF_REPORT_NAME,
     DEFAULT_SRD_REPORT_NAME,
     DEFAULT_TIP_REPORT_NAME,
+    DEFAULT_VALIDATION_FINDINGS_REPORT_NAME,
     METHOD_FAMILIES,
     PIPELINE_STAGES,
 )
@@ -136,9 +141,29 @@ def write_nasa_atmonto_agentic_loop(
 ) -> tuple[Path, Path, dict[str, Any]]:
     output = Path(output_dir)
     generated = {
+        "source_brief_markdown": project_relative_path(
+            output / f"{DEFAULT_SOURCE_BRIEF_REPORT_NAME}.md",
+            PROJECT_ROOT,
+        ),
         "srd_markdown": project_relative_path(output / f"{DEFAULT_SRD_REPORT_NAME}.md", PROJECT_ROOT),
         "tip_markdown": project_relative_path(output / f"{DEFAULT_TIP_REPORT_NAME}.md", PROJECT_ROOT),
         "plan_markdown": project_relative_path(output / f"{DEFAULT_PLAN_REPORT_NAME}.md", PROJECT_ROOT),
+        "extraction_plan_markdown": project_relative_path(
+            output / f"{DEFAULT_EXTRACTION_PLAN_REPORT_NAME}.md",
+            PROJECT_ROOT,
+        ),
+        "validation_findings_markdown": project_relative_path(
+            output / f"{DEFAULT_VALIDATION_FINDINGS_REPORT_NAME}.md",
+            PROJECT_ROOT,
+        ),
+        "evidence_support_findings_markdown": project_relative_path(
+            output / f"{DEFAULT_EVIDENCE_SUPPORT_FINDINGS_REPORT_NAME}.md",
+            PROJECT_ROOT,
+        ),
+        "repair_plan_markdown": project_relative_path(
+            output / f"{DEFAULT_REPAIR_PLAN_REPORT_NAME}.md",
+            PROJECT_ROOT,
+        ),
     }
     result = build_nasa_atmonto_agentic_loop(
         repo_root=repo_root,
@@ -154,9 +179,14 @@ def write_nasa_atmonto_agentic_loop(
     write_agentic_supporting_artifacts(
         result,
         output,
+        source_brief_report_name=DEFAULT_SOURCE_BRIEF_REPORT_NAME,
         srd_report_name=DEFAULT_SRD_REPORT_NAME,
         tip_report_name=DEFAULT_TIP_REPORT_NAME,
         plan_report_name=DEFAULT_PLAN_REPORT_NAME,
+        extraction_plan_report_name=DEFAULT_EXTRACTION_PLAN_REPORT_NAME,
+        validation_findings_report_name=DEFAULT_VALIDATION_FINDINGS_REPORT_NAME,
+        evidence_support_findings_report_name=DEFAULT_EVIDENCE_SUPPORT_FINDINGS_REPORT_NAME,
+        repair_plan_report_name=DEFAULT_REPAIR_PLAN_REPORT_NAME,
     )
     json_path = write_nasa_atmonto_agentic_loop_json(result, output / f"{report_name}.json")
     md_path = write_nasa_atmonto_agentic_loop_markdown(result, output / f"{report_name}.md")
@@ -165,9 +195,16 @@ def write_nasa_atmonto_agentic_loop(
 
 def _default_generated_artifacts() -> dict[str, str]:
     return {
+        "source_brief_markdown": f"reports/stages/{DEFAULT_SOURCE_BRIEF_REPORT_NAME}.md",
         "srd_markdown": f"reports/stages/{DEFAULT_SRD_REPORT_NAME}.md",
         "tip_markdown": f"reports/stages/{DEFAULT_TIP_REPORT_NAME}.md",
         "plan_markdown": f"reports/stages/{DEFAULT_PLAN_REPORT_NAME}.md",
+        "extraction_plan_markdown": f"reports/stages/{DEFAULT_EXTRACTION_PLAN_REPORT_NAME}.md",
+        "validation_findings_markdown": f"reports/stages/{DEFAULT_VALIDATION_FINDINGS_REPORT_NAME}.md",
+        "evidence_support_findings_markdown": (
+            f"reports/stages/{DEFAULT_EVIDENCE_SUPPORT_FINDINGS_REPORT_NAME}.md"
+        ),
+        "repair_plan_markdown": f"reports/stages/{DEFAULT_REPAIR_PLAN_REPORT_NAME}.md",
     }
 
 
@@ -300,6 +337,12 @@ def _agent_artifacts(result: dict[str, Any]) -> list[dict[str, Any]]:
     cq_summary = result["cq_manifest_summary"]
     return [
         {
+            "artifact": "SourceBrief",
+            "path": metadata["generated_artifacts"]["source_brief_markdown"],
+            "status": "generated",
+            "purpose": "Source-family boundary, evidence scope, and non-operational-use limits.",
+        },
+        {
             "artifact": "SRD",
             "path": metadata["generated_artifacts"]["srd_markdown"],
             "status": "generated",
@@ -316,6 +359,30 @@ def _agent_artifacts(result: dict[str, Any]) -> list[dict[str, Any]]:
             "path": metadata["generated_artifacts"]["plan_markdown"],
             "status": "generated",
             "purpose": "Runnable loop policy with anomaly-to-review routing.",
+        },
+        {
+            "artifact": "ExtractionPlan",
+            "path": metadata["generated_artifacts"]["extraction_plan_markdown"],
+            "status": "generated",
+            "purpose": "Field-level extractor, evidence, and abstention rules for the ATCSCC profile.",
+        },
+        {
+            "artifact": "ValidationFindings",
+            "path": metadata["generated_artifacts"]["validation_findings_markdown"],
+            "status": "generated",
+            "purpose": "Current schema, scoring, and anomaly findings before another extraction pass.",
+        },
+        {
+            "artifact": "EvidenceSupportFindings",
+            "path": metadata["generated_artifacts"]["evidence_support_findings_markdown"],
+            "status": "generated",
+            "purpose": "Evidence-support boundary for accepted, quarantined, and profile-gap facts.",
+        },
+        {
+            "artifact": "RepairPlan",
+            "path": metadata["generated_artifacts"]["repair_plan_markdown"],
+            "status": "generated",
+            "purpose": "Bounded repair and code-review routing plan for abnormal outputs.",
         },
         {
             "artifact": "CQManifest",
