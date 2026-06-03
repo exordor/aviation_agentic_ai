@@ -145,15 +145,15 @@ The next rerun should follow a nine-stage pipeline:
 9. Layered evaluation.
 
 The first S7 graph-use gate now includes a retrieval-only run over 317
-CQ-derived cases. It reports source/vector proxy, token-matched vector proxy,
-live TF-IDF lexical-vector retrieval, token-matched live lexical-vector
-retrieval, graph-only, hybrid, and routed GraphRAG modes. This is sufficient to
-evaluate route policy, graph path support, abstention behavior, live
-source-retrieval behavior, and tokenizer-backed context budgets. It is not yet a
-dense embedding answer-generation benchmark or live operational GraphRAG system.
-Graph modes traverse a materialized ATCSCC source-predicate-fact graph built
-from critic-gated S4 facts, and dense retrieval is reported as a retrieval-only
-baseline.
+CQ-derived cases and a deterministic answer-generation rerun over the same
+S7 labels. It reports source/vector proxy, token-matched vector proxy, live
+TF-IDF lexical-vector retrieval, token-matched live lexical-vector retrieval,
+dense embedding retrieval, graph-only, hybrid, and routed GraphRAG modes. This
+is sufficient to evaluate route policy, graph path support, abstention behavior,
+live source-retrieval behavior, tokenizer-backed context budgets, and generated
+answer behavior over retrieved contexts. It is not yet an online LLM GraphRAG
+benchmark or live operational GraphRAG system. Graph modes traverse a
+materialized ATCSCC source-predicate-fact graph built from critic-gated S4 facts.
 
 The Extract-Define-Canonicalize design separates open extraction from
 target-schema scoring. Ontology-guided short-text KGC motivates 10-20

@@ -63,6 +63,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Current pipeline SOTA gap audit: `reports/stages/current_pipeline_sota_gap_audit.md`
 - ATCSCC S7 graph-use gate plan: `reports/stages/atcscc_graph_use_plan.md`
 - NASA ATMONTO S7 retrieval-only graph-use gate: `reports/stages/nasa_atmonto_s7_retrieval.md`
+- NASA ATMONTO S7 live-retrieval answer generation: `reports/stages/nasa_atmonto_s7_answer_generation.md`
 
 ## Current Experiment Snapshot
 
