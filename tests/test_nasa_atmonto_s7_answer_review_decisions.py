@@ -123,6 +123,30 @@ def test_write_review_decisions_outputs_json_and_markdown(tmp_path: Path) -> Non
     assert "Human review completed: `False`" in markdown
 
 
+def test_write_review_decisions_accepts_explicit_review_csv_path(tmp_path: Path) -> None:
+    _write_packet(tmp_path / "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.json")
+    reviewed_csv = tmp_path / "exports/reviewed.csv"
+    _write_csv(
+        reviewed_csv,
+        [
+            _complete_row("S7-BR-001", "correct"),
+            _complete_row("S7-BR-002", "profile_boundary"),
+        ],
+    )
+
+    json_path, md_path, result = write_nasa_atmonto_s7_answer_review_decisions(
+        output_dir=tmp_path / "reports/stages",
+        repo_root=tmp_path,
+        review_csv_path=reviewed_csv,
+    )
+
+    assert json_path.exists()
+    assert md_path.exists()
+    assert result["status"] == "s7_answer_review_decisions_completed"
+    assert result["metadata"]["review_csv_path"] == "exports/reviewed.csv"
+    assert result["metadata"]["human_review_completed"] is True
+
+
 def _complete_row(review_id: str, decision: str) -> dict[str, str]:
     return {
         "review_id": review_id,

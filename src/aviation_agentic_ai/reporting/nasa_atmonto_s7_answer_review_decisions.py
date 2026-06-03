@@ -178,8 +178,14 @@ def write_nasa_atmonto_s7_answer_review_decisions(
     output_dir: str | Path,
     repo_root: str | Path = PROJECT_ROOT,
     report_name: str = DEFAULT_REPORT_NAME,
+    packet_path: str | Path = DEFAULT_PACKET_PATH,
+    review_csv_path: str | Path = DEFAULT_REVIEW_CSV_PATH,
 ) -> tuple[Path, Path, dict[str, Any]]:
-    result = build_nasa_atmonto_s7_answer_review_decisions(repo_root=repo_root)
+    result = build_nasa_atmonto_s7_answer_review_decisions(
+        repo_root=repo_root,
+        packet_path=packet_path,
+        review_csv_path=review_csv_path,
+    )
     output = Path(output_dir)
     json_path = write_nasa_atmonto_s7_answer_review_decisions_json(
         result,
