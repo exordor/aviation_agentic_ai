@@ -32,7 +32,7 @@ source-bounded answer tests.
 | Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Retrieval and answer-generation reports now include source/vector/token-matched-vector/live lexical-vector/dense-vector/materialized graph/hybrid/routed modes, plus a 24-case fixed-budget LLM run over routed live/dense GraphRAG contexts | mostly satisfied for deterministic S7; bounded LLM evidence is diagnostic, not final |
 | Queryability rather than ontological purity | KG quality for RAG-oriented systems | CQ answer-set precision/recall/F1 by predicate and question type | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | satisfied for pre-generation answer sets |
 | Graph health and path support | GraphRAG pipeline evaluation | Node/edge coverage, component/connectivity diagnostics, path support rate for graph-worthy CQs | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` reports topology, graph-context availability, path support, answer recovery, and abstention behavior by CQ group | mostly satisfied as diagnostic graph-health evidence |
-| Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | mostly satisfied for deterministic S7 plus bounded LLM check; needs human/expert answer review |
+| Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | mostly satisfied for deterministic S7 plus bounded LLM check; needs broader human/expert answer review |
 | Cost and reproducibility reporting | Fair retrieval/GraphRAG benchmarking | Token budget, latency, deterministic source scope, frozen data version, rerunnable commands | frozen source/gold scope exists; S7 retrieval and answer-generation reports use tokenizer-backed token budgets and latency reporting | mostly satisfied for deterministic S7 |
 | Transferability to another domain | Domain-agnostic ontology/KG/GraphRAG methodology | Same artifact contract applied to a non-ATM corpus with only domain artifacts changed | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md` | planned |
 
@@ -64,6 +64,8 @@ The project is only partially SOTA-comparable at the **GraphRAG** layer:
 - a 24-case fixed-budget LLM answer-generation check over routed live/dense
   GraphRAG contexts now exists;
 - the bounded LLM report now includes CQ-template breakdowns;
+- a manual failure review now classifies dense-route failures into source misses,
+  wrong-context abstentions, and compound-CQ partial-answer ambiguity;
 - broader LLM runs and human QA labels remain incomplete.
 
 The project is currently a planned, not completed, example of the **multi-agent
@@ -103,8 +105,8 @@ Avoid these claims:
 The next executable upgrade should target the remaining GraphRAG gaps in this
 order:
 
-1. Manually review the highest-impact dense-route LLM answer failures.
-2. Extend the fixed-budget LLM answer-generation pass beyond two cases per CQ
-   template if the failure review supports a stable live/dense contrast.
+1. Add deterministic dense-retrieval guards for source-local CQs.
+2. Refine compound route-semantics CQs or add a controlled partial-answer
+   ablation.
 3. Keep graph-health and LLM CQ-group breakdowns as the thesis-facing
    diagnostic tables.

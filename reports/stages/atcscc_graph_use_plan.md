@@ -37,6 +37,8 @@ layer:
   `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`
 - S7 graph-health by CQ group report:
   `reports/stages/nasa_atmonto_s7_graph_health.md`
+- S7 LLM failure review:
+  `reports/stages/nasa_atmonto_s7_llm_failure_review.md`
 
 The core retrieval implementation is in
 `src/aviation_agentic_ai/reporting/nasa_atmonto_s7_retrieval.py`.
@@ -232,6 +234,17 @@ Interpretation:
   with failures concentrated in time-window, abstention, and route-semantics
   questions.
 
+Manual failure review in
+`reports/stages/nasa_atmonto_s7_llm_failure_review.md` classifies the dense
+failures as:
+
+- two dense source misses on source-local time-window CQs;
+- two wrong-context abstentions where the scorer correctly requires target-source
+  retrieval before abstention can count as correct;
+- two compound route-semantics partial-answer failures where the evidence
+  supports `controlledNASelement=BNA` but the LLM abstains because reroute
+  type/reason are unsupported.
+
 ## What This Proves
 
 This proves that the project now has an explicit graph-use gate, retrieval-only
@@ -258,6 +271,6 @@ This does not yet prove:
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to manually review the highest-impact dense-route LLM
-answer failures and, if budget permits, extend the fixed-budget LLM check beyond
-two cases per CQ template.
+The next SOTA upgrade is to add deterministic dense-retrieval guards for
+source-local CQs and refine the route-semantics CQ contract before expanding the
+LLM sample beyond two cases per CQ template.
