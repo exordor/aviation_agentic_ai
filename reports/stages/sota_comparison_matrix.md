@@ -28,11 +28,11 @@ source-bounded answer tests.
 | Evidence-grounded extraction | OBIE, claim KG, and GraphRAG evaluation practice | Every accepted fact has source ID and evidence span or explicit support record | `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied for scored extraction |
 | Schema validity separated from semantic correctness | KG quality and ontology evaluation practice | Report schema violations, semantic P/R/F1, evidence support, and profile gaps separately | `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied |
 | Multi-agent artifact pipeline | Multi-agent ontology-generation paper | Source brief, SRD, TIP, extraction plan, validation findings, evidence critique, repair plan, graph-use plan, live pilot, full live diagnostic | `reports/stages/atcscc_agentic_artifact_contract.md`; `reports/stages/nasa_atmonto_agentic_loop.md`; `reports/stages/atcscc_source_brief.md`; `reports/stages/atcscc_semantic_requirements.md`; `reports/stages/atcscc_technical_implementation_plan.md`; `reports/stages/atcscc_extraction_plan.md`; `reports/stages/atcscc_validation_findings.md`; `reports/stages/atcscc_evidence_support_findings.md`; `reports/stages/atcscc_repair_plan.md`; `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`; `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md`; `reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md`; `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.md`; `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md` | stage-1 artifact chain, bounded S4-wrapper diagnostics, independent deterministic S5/S6 scoring, a 3-sample live pilot, and a 100-record live LLM diagnostic are satisfied; full live S6 F1 0.4557 is a negative control against deterministic S6 F1 0.7778 |
-| Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, failure analysis, profile-decision sensitivity, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`; `reports/stages/nasa_atmonto_s7_profile_decision.md` | mostly satisfied for deterministic S7 plus bounded LLM check; broad human/LLM answer evaluation remains future work |
+| Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, failure analysis, profile-decision sensitivity, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`; `reports/stages/nasa_atmonto_s7_profile_decision.md` | mostly satisfied for deterministic S7 plus bounded LLM check; broad 60-case review packet exists but external decisions remain future work |
 | Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Retrieval and answer-generation reports now include source/vector/token-matched-vector/live lexical-vector/dense-vector/source-local guarded dense/materialized graph/hybrid/routed modes, plus a 60-case fixed-budget LLM run over routed live/dense GraphRAG contexts | mostly satisfied for deterministic S7; bounded LLM evidence is diagnostic, not final |
 | Queryability rather than ontological purity | KG quality for RAG-oriented systems | CQ answer-set precision/recall/F1 by predicate and question type | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | satisfied for pre-generation answer sets |
 | Graph health and path support | GraphRAG pipeline evaluation | Node/edge coverage, component/connectivity diagnostics, path support rate for graph-worthy CQs | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` reports topology, graph-context availability, path support, answer recovery, and abstention behavior by CQ group | mostly satisfied as diagnostic graph-health evidence |
-| Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, candidate adjudication, profile-decision sensitivity, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`; `reports/stages/nasa_atmonto_s7_profile_decision.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | mostly satisfied for deterministic S7 plus bounded LLM check; needs broader human/expert answer review |
+| Abstention and unsupported-claim control | Evidence-grounded QA and GraphRAG safety practice | Unsupported triple rate, abstention correctness, rejected/unsupported facts, candidate adjudication, profile-decision sensitivity, claim-safe answer policy | `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md`; `reports/stages/nasa_atmonto_s7_llm_failure_review.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`; `reports/stages/nasa_atmonto_s7_profile_decision.md`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | mostly satisfied for deterministic S7 plus bounded LLM check; needs external human/expert answer-review decisions |
 | Cost and reproducibility reporting | Fair retrieval/GraphRAG benchmarking | Token budget, latency, deterministic source scope, frozen data version, rerunnable commands | frozen source/gold scope exists; S7 retrieval and answer-generation reports use tokenizer-backed token budgets and latency reporting | mostly satisfied for deterministic S7 |
 | Transferability to another domain | Domain-agnostic ontology/KG/GraphRAG methodology | Same artifact contract applied to a non-ATM corpus with only domain artifacts changed | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md` | planned |
 
@@ -71,8 +71,8 @@ The project is only partially SOTA-comparable at the **GraphRAG** layer:
   wrong-context abstentions were addressed in the selected post-guard rerun,
   while the partial-answer ablation isolates the compound-CQ answer-contract
   issue;
-- a human-review candidate package now exists for the remaining failures and
-  coverage-success examples;
+- a 60-case broad answer-review packet now exists, plus a focused candidate
+  package for remaining failures and coverage-success examples;
 - deterministic candidate adjudication classifies the three remaining
   cause-condition failures as profile/gold-boundary cases without changing the
   strict S7 metrics;
@@ -114,7 +114,7 @@ Use this wording in thesis or defense material:
 > predicate-whitelist sensitivity but does not replace strict metrics. It does
 > not claim live
 > operational readiness, pure dense embedding superiority, or universal GraphRAG
-> superiority. The remaining SOTA gap is human/expert answer review and
+> superiority. The remaining SOTA gap is external human/expert answer-review decisions and
 > second-domain transfer while preserving citation, unsupported-claim, token,
 > guard-rate, failure-adjudication, and latency reporting.
 
@@ -131,10 +131,11 @@ Avoid these claims:
 The next executable upgrade should target the remaining SOTA gaps in this
 order:
 
-1. Scale the live LLM S5/S6 extractor/validator/critic/refiner pilot to the full reviewed ATCSCC set under the same artifact contract.
+1. Treat the full live LLM S5/S6 run as a negative diagnostic and use it to justify deterministic parsing, prompt specialization, or supervised extraction as future improvement paths.
 2. Run the human/expert review pass using
+   `reports/stages/nasa_atmonto_s7_broad_answer_review_packet.csv`, with
    `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
-   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`.
+   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` as focused failure context.
 3. Keep graph-health, guard-rate, and LLM CQ-group breakdowns as the thesis-facing
    diagnostic tables.
 4. Use the profile-decision what-if as the evidence package for deciding whether

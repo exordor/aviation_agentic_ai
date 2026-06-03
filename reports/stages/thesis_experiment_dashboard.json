@@ -158,12 +158,13 @@
       "can_support_thesis_main_claim": "source_bounded_diagnostic",
       "dataset": "ATCSCC S7 source-bounded answer set",
       "evidence_role": "s7_graphrag_answer_generation",
-      "limitations": "bounded retrospective LLM run; candidate package is a review queue, profile-decision what-if does not replace strict main metrics or completed human review",
+      "limitations": "bounded retrospective LLM run; broad 60-case reviewer packet exists but external review decisions remain incomplete; profile-decision what-if does not replace strict main metrics or completed human review",
       "purpose": "SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts",
       "used_in_reports": [
         "nasa_atmonto_s7_answer_generation",
         "nasa_atmonto_s7_llm_answer_generation",
         "nasa_atmonto_s7_human_review_candidates",
+        "nasa_atmonto_s7_broad_answer_review_packet",
         "nasa_atmonto_s7_candidate_adjudication",
         "nasa_atmonto_s7_profile_decision"
       ]
@@ -805,6 +806,20 @@
       "present": true,
       "questions_count": "n/a",
       "report_name": "nasa_atmonto_s7_human_review_candidates"
+    },
+    {
+      "dataset_used": "atcscc_s7_source_bounded_60",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "answer_generation",
+        "llm_review_scaffold",
+        "failure_analysis"
+      ],
+      "path": "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s7_broad_answer_review_packet"
     },
     {
       "dataset_used": "atcscc_s7_review_candidate_queue_9",

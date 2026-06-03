@@ -11,6 +11,8 @@
 - Live S5/S6 pilot status: `s5_s6_live_agentic_pilot_scored`
 - Live S5/S6 full-run status: `s5_s6_live_agentic_full_run_scored`
 - S7 LLM status: `s7_llm_answer_generation_evaluated`
+- S7 broad review packet status: `broad_answer_review_packet_created`
+- S7 broad review packet cases: 60
 
 ## Requirement Evidence
 
@@ -22,7 +24,7 @@
 | `R4` | `satisfied` | Ontology-guided KG extraction is scored with schema and semantic layers separated. | 3/3 | S4 is the current strongest scored extraction system; not all LLM systems perform well. |
 | `R5` | `satisfied` | Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics. | 6/6 | Live S5/S6 evidence is still extraction-layer evidence; answer-layer review and cross-domain transfer remain separate claims. |
 | `R6` | `mostly_satisfied` | Graph-use gate, token-matched retrieval, and graph health are evaluated. | 3/3 | Graph health is diagnostic evidence, not certification of semantic truth. |
-| `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 4/4 | Broad human/expert answer review remains future work. |
+| `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 5/5 | A broad 60-case reviewer packet exists, but external human/expert decisions have not been recorded. |
 | `R8` | `mostly_satisfied` | Completeness, correctness, limitations, and story claims are thesis-ready. | 3/3 | The final thesis should keep the claim wording profile-relative and retrospective. |
 | `R9` | `partial` | The method can be described as domain-independent and transferable. | 2/2 | No second-domain transfer run has been executed yet. |
 
@@ -64,6 +66,7 @@
 ### R7: Answer generation and failure analysis are source-bounded and reported.
 - `present` `reports/stages/nasa_atmonto_s7_answer_generation.md`
 - `present` `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`
+- `present` `reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md`
 - `present` `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`
 - `present` `reports/stages/nasa_atmonto_s7_profile_decision.md`
 
@@ -79,7 +82,7 @@
 
 ## Remaining Blockers
 
-- Broad human/expert answer review is not yet complete.
+- External human/expert answer-review decisions are not yet complete.
 - Second-domain transfer is not yet executed.
 
 ## Claim-Safe Summary

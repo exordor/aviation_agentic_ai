@@ -52,6 +52,13 @@ def _write_all_evidence(tmp_path: Path) -> None:
         tmp_path / "reports/stages/nasa_atmonto_s7_llm_answer_generation.json",
         {"status": "s7_llm_answer_generation_evaluated"},
     )
+    _write_json(
+        tmp_path / "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.json",
+        {
+            "status": "broad_answer_review_packet_created",
+            "metadata": {"case_count": 60},
+        },
+    )
 
 
 def test_sota_goal_audit_maps_requirements_to_present_evidence(tmp_path: Path) -> None:
@@ -68,11 +75,13 @@ def test_sota_goal_audit_maps_requirements_to_present_evidence(tmp_path: Path) -
     assert result["metadata"]["s5_s6_live_pilot_status"] == "s5_s6_live_agentic_pilot_scored"
     assert result["metadata"]["s5_s6_live_full_run_status"] == "s5_s6_live_agentic_full_run_scored"
     assert result["metadata"]["s7_llm_status"] == "s7_llm_answer_generation_evaluated"
+    assert result["metadata"]["s7_broad_review_packet_status"] == "broad_answer_review_packet_created"
+    assert result["metadata"]["s7_broad_review_case_count"] == 60
     assert result["metadata"]["status_counts"]["satisfied"] == 5
     assert result["metadata"]["status_counts"]["mostly_satisfied"] == 3
     assert result["metadata"]["status_counts"]["partial"] == 1
     assert all(item["missing_evidence"] == [] for item in result["requirements"])
-    assert "Broad human/expert answer review" in result["remaining_blockers"][0]
+    assert "External human/expert answer-review decisions" in result["remaining_blockers"][0]
     assert "Second-domain transfer" in result["remaining_blockers"][1]
 
 
@@ -93,4 +102,5 @@ def test_write_sota_goal_audit_outputs_json_and_markdown(tmp_path: Path) -> None
     assert "Requirement Evidence" in markdown
     assert "active_not_complete" in markdown
     assert "full 100-record live LLM" not in markdown
-    assert "Broad human/expert answer review" in markdown
+    assert "S7 broad review packet cases: 60" in markdown
+    assert "External human/expert answer-review decisions" in markdown

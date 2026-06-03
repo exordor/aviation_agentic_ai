@@ -14,7 +14,9 @@
     "s5_s6_independent_status": "s5_s6_independent_agentic_run_scored",
     "s5_s6_live_pilot_status": "s5_s6_live_agentic_pilot_scored",
     "s5_s6_live_full_run_status": "s5_s6_live_agentic_full_run_scored",
-    "s7_llm_status": "s7_llm_answer_generation_evaluated"
+    "s7_llm_status": "s7_llm_answer_generation_evaluated",
+    "s7_broad_review_packet_status": "broad_answer_review_packet_created",
+    "s7_broad_review_case_count": 60
   },
   "requirements": [
     {
@@ -181,6 +183,10 @@
           "present": true
         },
         {
+          "path": "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md",
+          "present": true
+        },
+        {
           "path": "reports/stages/nasa_atmonto_s7_candidate_adjudication.md",
           "present": true
         },
@@ -189,9 +195,9 @@
           "present": true
         }
       ],
-      "limitation": "Broad human/expert answer review remains future work.",
-      "evidence_count": 4,
-      "present_evidence_count": 4,
+      "limitation": "A broad 60-case reviewer packet exists, but external human/expert decisions have not been recorded.",
+      "evidence_count": 5,
+      "present_evidence_count": 5,
       "missing_evidence": []
     },
     {
@@ -238,7 +244,7 @@
     }
   ],
   "remaining_blockers": [
-    "Broad human/expert answer review is not yet complete.",
+    "External human/expert answer-review decisions are not yet complete.",
     "Second-domain transfer is not yet executed."
   ],
   "claim_safe_summary": "The current project is SOTA-comparable as a layered retrospective ATCSCC case study, but it is not complete enough for claims of universal GraphRAG superiority, full ATMONTO coverage, operational readiness, or domain-general validation."

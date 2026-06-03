@@ -89,10 +89,14 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
         "evidence": [
             "reports/stages/nasa_atmonto_s7_answer_generation.md",
             "reports/stages/nasa_atmonto_s7_llm_answer_generation.md",
+            "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md",
             "reports/stages/nasa_atmonto_s7_candidate_adjudication.md",
             "reports/stages/nasa_atmonto_s7_profile_decision.md",
         ],
-        "limitation": "Broad human/expert answer review remains future work.",
+        "limitation": (
+            "A broad 60-case reviewer packet exists, but external human/expert "
+            "decisions have not been recorded."
+        ),
     },
     {
         "id": "R8",
@@ -136,6 +140,9 @@ def build_nasa_atmonto_sota_goal_audit(
         root / "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.json"
     )
     s7_llm = read_json_object_or_empty(root / "reports/stages/nasa_atmonto_s7_llm_answer_generation.json")
+    s7_broad_review = read_json_object_or_empty(
+        root / "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.json"
+    )
     status_counts: dict[str, int] = {}
     for item in requirements:
         status_counts[item["status"]] = status_counts.get(item["status"], 0) + 1
@@ -153,6 +160,8 @@ def build_nasa_atmonto_sota_goal_audit(
             "s5_s6_live_pilot_status": s5_s6_live.get("status"),
             "s5_s6_live_full_run_status": s5_s6_live_full.get("status"),
             "s7_llm_status": s7_llm.get("status"),
+            "s7_broad_review_packet_status": s7_broad_review.get("status"),
+            "s7_broad_review_case_count": s7_broad_review.get("metadata", {}).get("case_count"),
         },
         "requirements": requirements,
         "remaining_blockers": remaining_blockers,
@@ -192,6 +201,8 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- Live S5/S6 pilot status: `{result['metadata']['s5_s6_live_pilot_status']}`",
         f"- Live S5/S6 full-run status: `{result['metadata']['s5_s6_live_full_run_status']}`",
         f"- S7 LLM status: `{result['metadata']['s7_llm_status']}`",
+        f"- S7 broad review packet status: `{result['metadata']['s7_broad_review_packet_status']}`",
+        f"- S7 broad review packet cases: {result['metadata']['s7_broad_review_case_count']}",
         "",
         "## Requirement Evidence",
         "",
@@ -259,7 +270,7 @@ def _remaining_blockers(s5_s6_live_full: dict[str, Any]) -> list[str]:
         )
     blockers.extend(
         [
-            "Broad human/expert answer review is not yet complete.",
+            "External human/expert answer-review decisions are not yet complete.",
             "Second-domain transfer is not yet executed.",
         ]
     )

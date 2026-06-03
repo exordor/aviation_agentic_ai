@@ -229,6 +229,25 @@ def _write_dashboard_fixture(root: Path) -> None:
         },
     )
     _write_json(
+        stages / "nasa_atmonto_s7_broad_answer_review_packet.json",
+        {
+            "status": "broad_answer_review_packet_created",
+            "metadata": {
+                "case_count": 60,
+                "failure_case_count": 3,
+                "coverage_success_case_count": 57,
+                "human_review": False,
+                "human_review_completed": False,
+            },
+            "aggregate": {
+                "review_status_counts": {
+                    "auto_success": 57,
+                    "needs_review": 3,
+                }
+            },
+        },
+    )
+    _write_json(
         stages / "nasa_atmonto_s7_candidate_adjudication.json",
         {
             "status": "candidate_adjudication_created",
