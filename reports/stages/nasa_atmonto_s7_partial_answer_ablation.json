@@ -1,0 +1,393 @@
+{
+  "source_family": "nasa_atmonto_s7_partial_answer_ablation",
+  "status": "s7_partial_answer_ablation_evaluated",
+  "metadata": {
+    "s7_answer_report_path": "reports/stages/nasa_atmonto_s7_answer_generation.json",
+    "source_status": "s7_answer_generation_evaluated",
+    "prompt_version": "nasa_atmonto_s7_route_semantics_partial_answer_v1",
+    "reviewer_model": "gpt-5.4-mini",
+    "template_id": "QT-Q01-ROUTE-SEMANTICS",
+    "requested_predicates": [
+      "reRouteType",
+      "reRouteReason",
+      "controlledNASelement"
+    ],
+    "modes": [
+      "routed_token_matched_live_tfidf_graphrag",
+      "routed_token_matched_dense_graphrag"
+    ],
+    "max_cases_per_mode": 2,
+    "selected_case_count": 4,
+    "run_llm_requested": true,
+    "llm_runtime_available": true,
+    "temperature": 0.0,
+    "max_tokens": 500,
+    "boundary": "Controlled route-semantics partial-answer ablation over frozen S7 contexts. This tests answer-contract wording only; it is not a new gold label set or operational ATC evaluation."
+  },
+  "answer_quality": {
+    "aggregate_by_mode": {
+      "routed_token_matched_live_tfidf_graphrag": {
+        "selected_total": 2,
+        "llm_answered_total": 2,
+        "not_run_total": 0,
+        "failed_total": 0,
+        "status_counts": {
+          "answered": 2
+        },
+        "strict_answer_correctness": 1.0,
+        "partial_contract_satisfied_rate": 1.0,
+        "partial_value_precision": 1.0,
+        "partial_value_recall": 1.0,
+        "partial_value_f1": 1.0,
+        "payload_abstain_rate": 0.0,
+        "unsupported_claim_rate": 0.0,
+        "citation_precision": 1.0
+      },
+      "routed_token_matched_dense_graphrag": {
+        "selected_total": 2,
+        "llm_answered_total": 2,
+        "not_run_total": 0,
+        "failed_total": 0,
+        "status_counts": {
+          "answered": 2
+        },
+        "strict_answer_correctness": 1.0,
+        "partial_contract_satisfied_rate": 1.0,
+        "partial_value_precision": 1.0,
+        "partial_value_recall": 1.0,
+        "partial_value_f1": 1.0,
+        "payload_abstain_rate": 0.0,
+        "unsupported_claim_rate": 0.0,
+        "citation_precision": 1.0
+      }
+    },
+    "secondary_metrics": {
+      "cost_latency": {
+        "provider": "configured_llm",
+        "model": "gpt-5.4-mini",
+        "elapsed_seconds": 19.5684,
+        "questions_total": 4,
+        "cases_total": 4,
+        "chunks_path": null,
+        "chunks_size_bytes": null,
+        "kg_path": null,
+        "kg_size_bytes": null,
+        "index_dir": null,
+        "index_size_bytes": null,
+        "llm_token_usage": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    },
+    "metric_policy": "Primary strict correctness still uses source-bounded answer-set equality. The ablation additionally reports whether the model returned supported requested fields without unsupported claims while listing missing requested fields."
+  },
+  "records": [
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:079",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:079",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "target_source_retrieved": true,
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "requested_predicates": [
+        "reRouteType",
+        "reRouteReason",
+        "controlledNASelement"
+      ],
+      "prompt_version": "nasa_atmonto_s7_route_semantics_partial_answer_v1",
+      "llm_status": "answered",
+      "answer": "The evidence directly supports the constrained element only. No reroute type or reroute reason is provided. Citations: atcscc-2026-05-19-079-p1-c1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "missing_predicates": [
+        "reRouteReason",
+        "reRouteType"
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.3333,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-079-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-079-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "page 1",
+          "t1"
+        ],
+        "partial_value_precision": 1.0,
+        "partial_value_recall": 1.0,
+        "partial_value_f1": 1.0,
+        "partial_supported_value_count": 1,
+        "partial_unsupported_value_count": 0,
+        "partial_contract_satisfied": true,
+        "missing_requested_predicates": [
+          "reRouteReason",
+          "reRouteType"
+        ],
+        "payload_abstain": false,
+        "partial_citation_precision": 1.0,
+        "partial_citation_recall": 0.3333
+      },
+      "raw_response": "{\n  \"answer\": \"The evidence directly supports the constrained element only. No reroute type or reroute reason is provided.\",\n  \"answer_values\": {\n    \"controlledNASelement\": \"BNA\"\n  },\n  \"abstain\": false,\n  \"citations\": [\n    {\n      \"source_id\": \"2026-05-19:079\",\n      \"page\": 1,\n      \"chunk_id\": \"atcscc-2026-05-19-079-p1-c1\",\n      \"evidence_text\": \"CTL ELEMENT: BNA\",\n      \"predicate\": \"controlledNASelement\",\n      \"object\": \"BNA\"\n    }\n  ],\n  \"missing_predicates\": [\n    \"reRouteType\",\n    \"reRouteReason\"\n  ],\n  \"rationale\": \"The only directly supported predicate in the supplied evidence is controlledNASelement = BNA. There is no evidence for reroute type or reroute reason, so those are omitted and listed as missing.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 6073.8439
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:079",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:079",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "target_source_retrieved": true,
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "requested_predicates": [
+        "reRouteType",
+        "reRouteReason",
+        "controlledNASelement"
+      ],
+      "prompt_version": "nasa_atmonto_s7_route_semantics_partial_answer_v1",
+      "llm_status": "answered",
+      "answer": "Only the constrained element is directly supported by the evidence; reroute type and reroute reason are not provided. Citations: atcscc-2026-05-19-079-p1-c1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "missing_predicates": [
+        "reRouteReason",
+        "reRouteType"
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.3333,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-079-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-079-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-079-p1-c1",
+          "page 1",
+          "t1"
+        ],
+        "partial_value_precision": 1.0,
+        "partial_value_recall": 1.0,
+        "partial_value_f1": 1.0,
+        "partial_supported_value_count": 1,
+        "partial_unsupported_value_count": 0,
+        "partial_contract_satisfied": true,
+        "missing_requested_predicates": [
+          "reRouteReason",
+          "reRouteType"
+        ],
+        "payload_abstain": false,
+        "partial_citation_precision": 1.0,
+        "partial_citation_recall": 0.3333
+      },
+      "raw_response": "{\n  \"answer\": \"Only the constrained element is directly supported by the evidence; reroute type and reroute reason are not provided.\",\n  \"answer_values\": {\n    \"controlledNASelement\": \"BNA\"\n  },\n  \"abstain\": false,\n  \"citations\": [\n    {\n      \"predicate\": \"controlledNASelement\",\n      \"value\": \"BNA\",\n      \"source_id\": \"2026-05-19:079\",\n      \"chunk_id\": \"atcscc-2026-05-19-079-p1-c1\",\n      \"page\": 1,\n      \"evidence_text\": \"CTL ELEMENT: BNA\"\n    }\n  ],\n  \"missing_predicates\": [\n    \"reRouteType\",\n    \"reRouteReason\"\n  ],\n  \"rationale\": \"The evidence explicitly states 'CTL ELEMENT: BNA', which directly supports controlledNASelement=BNA. No evidence in the provided chunk identifies a reroute type or reroute reason, so those predicates are left unsupported.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 4053.2422
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:074",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:074",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "target_source_retrieved": true,
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "requested_predicates": [
+        "reRouteType",
+        "reRouteReason",
+        "controlledNASelement"
+      ],
+      "prompt_version": "nasa_atmonto_s7_route_semantics_partial_answer_v1",
+      "llm_status": "answered",
+      "answer": "A constrained element is represented; reroute type and reroute reason are not supported by the evidence provided. Citations: atcscc-2026-05-19-074-p1-c1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "missing_predicates": [
+        "reRouteReason",
+        "reRouteType"
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.3333,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-074-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-074-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "page 1",
+          "t1"
+        ],
+        "partial_value_precision": 1.0,
+        "partial_value_recall": 1.0,
+        "partial_value_f1": 1.0,
+        "partial_supported_value_count": 1,
+        "partial_unsupported_value_count": 0,
+        "partial_contract_satisfied": true,
+        "missing_requested_predicates": [
+          "reRouteReason",
+          "reRouteType"
+        ],
+        "payload_abstain": false,
+        "partial_citation_precision": 1.0,
+        "partial_citation_recall": 0.3333
+      },
+      "raw_response": "{\n  \"answer\": \"A constrained element is represented; reroute type and reroute reason are not supported by the evidence provided.\",\n  \"answer_values\": {\n    \"controlledNASelement\": \"BNA\"\n  },\n  \"abstain\": false,\n  \"citations\": [\n    {\n      \"chunk_id\": \"atcscc-2026-05-19-074-p1-c1\",\n      \"source_id\": \"2026-05-19:074\",\n      \"page\": 1,\n      \"text\": \"CTL ELEMENT: BNA\",\n      \"supports\": [\n        \"controlledNASelement\"\n      ]\n    }\n  ],\n  \"missing_predicates\": [\n    \"reRouteType\",\n    \"reRouteReason\"\n  ],\n  \"rationale\": \"The evidence directly supports only the constrained/controlled NAS element as BNA via 'CTL ELEMENT: BNA'. No reroute type or reroute reason is stated, so those predicates are omitted.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 2855.0353
+      }
+    },
+    {
+      "cq_id": "QT-Q01-ROUTE-SEMANTICS::2026-05-19:074",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS",
+      "source_id": "2026-05-19:074",
+      "mode": "routed_token_matched_dense_graphrag",
+      "underlying_mode": "hybrid_graphrag",
+      "answer_set": [
+        "controlledNASelement=BNA"
+      ],
+      "target_source_retrieved": true,
+      "context_budget": {
+        "estimated_context_tokens": 10,
+        "context_count": 2,
+        "source_context_count": 1,
+        "graph_context_count": 1,
+        "token_match_target_mode": "hybrid_graphrag",
+        "target_estimated_context_tokens": 10,
+        "estimated_padding_tokens": 0
+      },
+      "requested_predicates": [
+        "reRouteType",
+        "reRouteReason",
+        "controlledNASelement"
+      ],
+      "prompt_version": "nasa_atmonto_s7_route_semantics_partial_answer_v1",
+      "llm_status": "answered",
+      "answer": "Only the constrained element is directly supported by the evidence. Citations: atcscc-2026-05-19-074-p1-c1.",
+      "answer_values": [
+        {
+          "predicate": "controlledNASelement",
+          "value": "BNA"
+        }
+      ],
+      "missing_predicates": [
+        "reRouteReason",
+        "reRouteType"
+      ],
+      "metrics": {
+        "answer_correctness": true,
+        "citation_precision": 1.0,
+        "citation_recall": 0.3333,
+        "evidence_faithfulness": true,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": true,
+        "expected_abstention": false,
+        "actual_abstention": false,
+        "valid_citations": [
+          "atcscc-2026-05-19-074-p1-c1"
+        ],
+        "detected_citations": [
+          "atcscc-2026-05-19-074-p1-c1"
+        ],
+        "available_citation_units": [
+          "atcscc-2026-05-19-074-p1-c1",
+          "page 1",
+          "t1"
+        ],
+        "partial_value_precision": 1.0,
+        "partial_value_recall": 1.0,
+        "partial_value_f1": 1.0,
+        "partial_supported_value_count": 1,
+        "partial_unsupported_value_count": 0,
+        "partial_contract_satisfied": true,
+        "missing_requested_predicates": [
+          "reRouteReason",
+          "reRouteType"
+        ],
+        "payload_abstain": false,
+        "partial_citation_precision": 1.0,
+        "partial_citation_recall": 0.3333
+      },
+      "raw_response": "{\n  \"answer\": \"Only the constrained element is directly supported by the evidence.\",\n  \"answer_values\": {\n    \"controlledNASelement\": \"BNA\"\n  },\n  \"abstain\": false,\n  \"citations\": [\n    {\n      \"chunk_id\": \"atcscc-2026-05-19-074-p1-c1\",\n      \"source_id\": \"2026-05-19:074\",\n      \"page\": 1,\n      \"evidence_text\": \"CTL ELEMENT: BNA\",\n      \"predicate\": \"controlledNASelement\",\n      \"object\": \"BNA\"\n    }\n  ],\n  \"missing_predicates\": [\n    \"reRouteType\",\n    \"reRouteReason\"\n  ],\n  \"rationale\": \"The evidence explicitly states 'CTL ELEMENT: BNA', which directly supports controlledNASelement = BNA. No evidence in the provided chunk supports a reroute type or reroute reason, so those predicates are omitted and listed as missing.\"\n}",
+      "runtime": {
+        "answer_latency_ms": 4828.7824
+      }
+    }
+  ],
+  "claim_boundary": "This report isolates the compound route-semantics answer-contract issue found in the S7 LLM failure review. It should be cited as a partial-answer policy diagnostic, not as a replacement for the main S7 LLM answer report."
+}

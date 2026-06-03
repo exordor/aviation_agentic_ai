@@ -38,6 +38,8 @@ layer:
   `reports/stages/nasa_atmonto_s7_answer_generation.md`
 - S7 fixed-budget LLM answer-generation report:
   `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`
+- S7 route-semantics partial-answer ablation:
+  `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`
 - S7 graph-health by CQ group report:
   `reports/stages/nasa_atmonto_s7_graph_health.md`
 - S7 LLM failure review:
@@ -248,6 +250,25 @@ selected post-guard rerun. The remaining failures are compound route-semantics
 partial-answer cases where the evidence supports `controlledNASelement=BNA` but
 the LLM abstains because reroute type/reason are unsupported.
 
+### Route-Semantics Partial-Answer Ablation
+
+From `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`:
+
+| Mode | Selected | Strict correctness | Partial contract | Value F1 | Abstain rate | Unsupported rate |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `routed_token_matched_live_tfidf_graphrag` | 2 | 1.0 | 1.0 | 1.0 | 0.0 | 0.0 |
+| `routed_token_matched_dense_graphrag` | 2 | 1.0 | 1.0 | 1.0 | 0.0 | 0.0 |
+
+Interpretation:
+
+- the compound route-semantics failures are answer-contract failures rather than
+  evidence-availability failures for the scored `controlledNASelement` field;
+- when the prompt explicitly asks for supported route fields and lists missing
+  requested predicates separately, both routed live lexical and guarded dense
+  modes recover the supported value without unsupported claims;
+- this ablation should remain separate from the main S7 LLM report until it is
+  either scaled or converted into a revised primary answer contract.
+
 ## What This Proves
 
 This proves that the project now has an explicit graph-use gate, retrieval-only
@@ -274,7 +295,9 @@ This does not yet prove:
 
 ## Next Implementation Step
 
-The next SOTA upgrade is to refine the route-semantics CQ contract before
-expanding the LLM sample beyond two cases per CQ template. The two feasible
-options are to split `QT-Q01-ROUTE-SEMANTICS` into separately scored fields, or
-to add a controlled partial-answer ablation with explicit expected semantics.
+The next SOTA upgrade is to decide whether the route-semantics partial-answer
+contract should become the primary S7 answer contract or remain a diagnostic
+ablation. If it becomes primary, rerun the bounded LLM check with the revised
+contract and then scale beyond two cases per CQ template. If it remains
+diagnostic, split `QT-Q01-ROUTE-SEMANTICS` into separately scored field-level
+CQs before expanding the sample.

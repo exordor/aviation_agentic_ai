@@ -103,10 +103,27 @@ Assessment: same compound-CQ partial-answer issue as F1/F2.
 
 ## Next Engineering Step
 
+Follow-up ablation:
+`reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`
+
+The controlled partial-answer prompt was run on the same two selected
+route-semantics cases for each routed mode. Both
+`routed_token_matched_live_tfidf_graphrag` and
+`routed_token_matched_dense_graphrag` reached strict correctness 1.0, partial
+contract satisfaction 1.0, value F1 1.0, abstain rate 0.0, unsupported rate
+0.0, and citation precision 1.0. Each case returned
+`controlledNASelement=BNA` and listed `reRouteType` and `reRouteReason` as
+missing requested predicates.
+
+This means the remaining failures in the main S7 LLM report are caused by the
+answer contract around compound CQs, not by missing graph/source evidence for
+the scored field.
+
 Do not expand the LLM sample until the route-semantics contract is explicit:
 
-1. Split `QT-Q01-ROUTE-SEMANTICS` into separately scored fields, or add a
-   controlled partial-answer ablation with explicit expected semantics.
+1. Either promote the explicit partial-answer policy into the primary S7 LLM
+   answer prompt, or split `QT-Q01-ROUTE-SEMANTICS` into separately scored
+   field-level CQs.
 2. Keep the source-local dense guard and report its guard rate in retrieval and
    answer-generation tables.
 3. Rerun the 24-case and then larger S7 LLM checks after the CQ-contract change.

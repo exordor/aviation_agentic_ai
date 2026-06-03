@@ -28,7 +28,7 @@ source-bounded answer tests.
 | Evidence-grounded extraction | OBIE, claim KG, and GraphRAG evaluation practice | Every accepted fact has source ID and evidence span or explicit support record | `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied for scored extraction |
 | Schema validity separated from semantic correctness | KG quality and ontology evaluation practice | Report schema violations, semantic P/R/F1, evidence support, and profile gaps separately | `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied |
 | Multi-agent artifact pipeline | Multi-agent ontology-generation paper | Source brief, SRD, TIP, extraction plan, validation findings, evidence critique, repair plan, graph-use plan | `reports/stages/atcscc_agentic_artifact_contract.md` | planned, contract exists but artifacts are incomplete |
-| Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md` | mostly satisfied for deterministic S7 plus bounded LLM check; broad human/LLM answer evaluation remains future work |
+| Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md` | mostly satisfied for deterministic S7 plus bounded LLM check; broad human/LLM answer evaluation remains future work |
 | Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Retrieval and answer-generation reports now include source/vector/token-matched-vector/live lexical-vector/dense-vector/source-local guarded dense/materialized graph/hybrid/routed modes, plus a 24-case fixed-budget LLM run over routed live/dense GraphRAG contexts | mostly satisfied for deterministic S7; bounded LLM evidence is diagnostic, not final |
 | Queryability rather than ontological purity | KG quality for RAG-oriented systems | CQ answer-set precision/recall/F1 by predicate and question type | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | satisfied for pre-generation answer sets |
 | Graph health and path support | GraphRAG pipeline evaluation | Node/edge coverage, component/connectivity diagnostics, path support rate for graph-worthy CQs | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` reports topology, graph-context availability, path support, answer recovery, and abstention behavior by CQ group | mostly satisfied as diagnostic graph-health evidence |
@@ -65,10 +65,12 @@ The project is only partially SOTA-comparable at the **GraphRAG** layer:
 - deterministic answer generation over live retrieved contexts now exists;
 - a 24-case fixed-budget LLM answer-generation check over routed live/dense
   GraphRAG contexts now exists;
+- a 4-case controlled route-semantics partial-answer ablation now exists;
 - the bounded LLM report now includes CQ-template breakdowns;
 - a manual failure review now shows that source-local dense source misses and
   wrong-context abstentions were addressed in the selected post-guard rerun,
-  while compound-CQ partial-answer ambiguity remains;
+  while the partial-answer ablation isolates the compound-CQ answer-contract
+  issue;
 - broader LLM runs and human QA labels remain incomplete.
 
 The project is currently a planned, not completed, example of the **multi-agent
@@ -92,9 +94,10 @@ Use this wording in thesis or defense material:
 > behavior and a qualified source-local guarded dense result under the same
 > frozen context policy. It does not claim live operational readiness, pure
 > dense embedding superiority, or universal GraphRAG superiority. The remaining
-> SOTA gap is refining compound CQ answer policy, scaling the LLM check, and
-> adding human/expert answer review while preserving citation, unsupported-claim,
-> token, guard-rate, and latency reporting.
+> SOTA gap is deciding whether the partial-answer contract becomes the primary
+> route-semantics policy, scaling the LLM check, and adding human/expert answer
+> review while preserving citation, unsupported-claim, token, guard-rate, and
+> latency reporting.
 
 Avoid these claims:
 
@@ -109,7 +112,7 @@ Avoid these claims:
 The next executable upgrade should target the remaining GraphRAG gaps in this
 order:
 
-1. Refine compound route-semantics CQs or add a controlled partial-answer
-   ablation.
+1. Decide whether to promote the route-semantics partial-answer contract or
+   split `QT-Q01-ROUTE-SEMANTICS` into field-level CQs.
 2. Keep graph-health, guard-rate, and LLM CQ-group breakdowns as the thesis-facing
    diagnostic tables.
