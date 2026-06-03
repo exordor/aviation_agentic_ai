@@ -229,6 +229,25 @@ def _write_dashboard_fixture(root: Path) -> None:
         },
     )
     _write_json(
+        stages / "nasa_atmonto_s7_candidate_adjudication.json",
+        {
+            "status": "candidate_adjudication_created",
+            "metadata": {
+                "candidate_count": 9,
+                "failure_candidate_count": 3,
+                "strict_main_metrics_changed": False,
+                "human_review": False,
+            },
+            "summary": {
+                "decision_counts": {
+                    "coverage_success_not_adjudicated": 6,
+                    "profile_or_gold_boundary_case": 3,
+                },
+                "profile_or_gold_boundary_failures": 3,
+            },
+        },
+    )
+    _write_json(
         stages / "llm_review_consistency.json",
         {"summary": {"agreement_rate": 1.0, "consistency_not_measured": False}},
     )
@@ -318,10 +337,13 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     assert result["consistency_checks"]["benchmark_llm_review_available"]
     assert result["consistency_checks"]["s7_llm_answer_generation_available"]
     assert result["consistency_checks"]["s7_human_review_candidates_available"]
+    assert result["consistency_checks"]["s7_candidate_adjudication_available"]
     s7 = result["primary_results"]["s7_llm_answer_generation"]
     assert s7["selected_case_count"] == 60
     assert s7["best_mode"] == "routed_token_matched_live_tfidf_graphrag"
     assert s7["human_review_candidate_count"] == 9
+    assert s7["profile_or_gold_boundary_failures"] == 3
+    assert s7["strict_main_metrics_changed_by_adjudication"] is False
     assert "review queue" in s7["claim_boundary"]
     assert "ATCSCC S7 source-bounded answer set" in {
         row["dataset"] for row in result["dataset_usage_matrix"]

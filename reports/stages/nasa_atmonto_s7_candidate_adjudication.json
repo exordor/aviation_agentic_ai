@@ -1,0 +1,163 @@
+{
+  "adjudications": [
+    {
+      "adjudication": "profile_or_gold_boundary_case",
+      "evidence_snapshot": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45 impactingCondition=other IMPACTING CONDITION: STAFFING / STAFFING impactingConditionMessage=STAFFING / STAFFING",
+      "extra_answer_values": [
+        {
+          "predicate": "impactingCondition",
+          "value": "staffing"
+        }
+      ],
+      "failure_type": "extra_coarse_impacting_condition_for_staffing",
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "priority": "failure",
+      "rationale": "The source supports the raw condition message STAFFING / STAFFING and the answer includes that expected value. The failure is caused by an extra coarse impactingCondition value. Current graph evidence maps the coarse value to other, while another LLM output may normalize the surface value to staffing. That mismatch is a NASA ATMONTO profile/gold boundary issue, not a retrieval miss.",
+      "recommended_action": "Do not change the main S7 score without review. Either approve STAFFING as an impactingCondition profile extension and add it to gold answer sets, or keep the CQ answer-set scoped to impactingConditionMessage and enforce a predicate whitelist for this template.",
+      "review_id": "S7-HR-001",
+      "source_id": "2026-05-15:067",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "would_pass_if_extra_condition_ignored": true
+    },
+    {
+      "adjudication": "profile_or_gold_boundary_case",
+      "evidence_snapshot": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45 impactingCondition=other IMPACTING CONDITION: STAFFING / STAFFING impactingConditionMessage=STAFFING / STAFFING",
+      "extra_answer_values": [
+        {
+          "predicate": "impactingCondition",
+          "value": "other"
+        }
+      ],
+      "failure_type": "extra_coarse_impacting_condition_for_staffing",
+      "mode": "routed_token_matched_dense_graphrag",
+      "priority": "failure",
+      "rationale": "The source supports the raw condition message STAFFING / STAFFING and the answer includes that expected value. The failure is caused by an extra coarse impactingCondition value. Current graph evidence maps the coarse value to other, while another LLM output may normalize the surface value to staffing. That mismatch is a NASA ATMONTO profile/gold boundary issue, not a retrieval miss.",
+      "recommended_action": "Do not change the main S7 score without review. Either approve STAFFING as an impactingCondition profile extension and add it to gold answer sets, or keep the CQ answer-set scoped to impactingConditionMessage and enforce a predicate whitelist for this template.",
+      "review_id": "S7-HR-002",
+      "source_id": "2026-05-15:067",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "would_pass_if_extra_condition_ignored": true
+    },
+    {
+      "adjudication": "profile_or_gold_boundary_case",
+      "evidence_snapshot": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: PROPOSAL ONLY. impactingCondition=other IMPACTING CONDITION: STAFFING / STAFFING impactingConditionMessage=STAFFING / STAFFING",
+      "extra_answer_values": [
+        {
+          "predicate": "impactingCondition",
+          "value": "staffing"
+        }
+      ],
+      "failure_type": "extra_coarse_impacting_condition_for_staffing",
+      "mode": "routed_token_matched_dense_graphrag",
+      "priority": "failure",
+      "rationale": "The source supports the raw condition message STAFFING / STAFFING and the answer includes that expected value. The failure is caused by an extra coarse impactingCondition value. Current graph evidence maps the coarse value to other, while another LLM output may normalize the surface value to staffing. That mismatch is a NASA ATMONTO profile/gold boundary issue, not a retrieval miss.",
+      "recommended_action": "Do not change the main S7 score without review. Either approve STAFFING as an impactingCondition profile extension and add it to gold answer sets, or keep the CQ answer-set scoped to impactingConditionMessage and enforce a predicate whitelist for this template.",
+      "review_id": "S7-HR-003",
+      "source_id": "2026-05-15:064",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-Q01-CAUSE-CONDITION",
+      "would_pass_if_extra_condition_ignored": true
+    },
+    {
+      "adjudication": "coverage_success_not_adjudicated",
+      "failure_type": null,
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "priority": "coverage_success",
+      "rationale": "Coverage examples are retained for later review calibration.",
+      "recommended_action": "Use as positive-control evidence during manual review.",
+      "review_id": "S7-HR-004",
+      "source_id": "2026-05-19:079",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS"
+    },
+    {
+      "adjudication": "coverage_success_not_adjudicated",
+      "failure_type": null,
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "priority": "coverage_success",
+      "rationale": "Coverage examples are retained for later review calibration.",
+      "recommended_action": "Use as positive-control evidence during manual review.",
+      "review_id": "S7-HR-005",
+      "source_id": "2026-05-19:032",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-Q01-TIME-WINDOW"
+    },
+    {
+      "adjudication": "coverage_success_not_adjudicated",
+      "failure_type": null,
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "priority": "coverage_success",
+      "rationale": "Coverage examples are retained for later review calibration.",
+      "recommended_action": "Use as positive-control evidence during manual review.",
+      "review_id": "S7-HR-006",
+      "source_id": "2026-05-19:079",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-Q01-CAUSE-CONDITION"
+    },
+    {
+      "adjudication": "coverage_success_not_adjudicated",
+      "failure_type": null,
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "priority": "coverage_success",
+      "rationale": "Coverage examples are retained for later review calibration.",
+      "recommended_action": "Use as positive-control evidence during manual review.",
+      "review_id": "S7-HR-007",
+      "source_id": "2026-05-19:032",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-Q01-STATUS-ACTION"
+    },
+    {
+      "adjudication": "coverage_success_not_adjudicated",
+      "failure_type": null,
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "priority": "coverage_success",
+      "rationale": "Coverage examples are retained for later review calibration.",
+      "recommended_action": "Use as positive-control evidence during manual review.",
+      "review_id": "S7-HR-008",
+      "source_id": "2026-05-19:079",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-Q01-ROUTE-SEMANTICS"
+    },
+    {
+      "adjudication": "coverage_success_not_adjudicated",
+      "failure_type": null,
+      "mode": "routed_token_matched_live_tfidf_graphrag",
+      "priority": "coverage_success",
+      "rationale": "Coverage examples are retained for later review calibration.",
+      "recommended_action": "Use as positive-control evidence during manual review.",
+      "review_id": "S7-HR-009",
+      "source_id": "2026-05-19:032",
+      "strict_metric_action": "unchanged",
+      "template_id": "QT-A01-ABSTENTION-FIELDS"
+    }
+  ],
+  "claim_boundary": "Cite this artifact as failure-analysis evidence only. Do not cite it as expert validation, operational readiness, or corrected answer accuracy.",
+  "metadata": {
+    "boundary": "This is deterministic project adjudication of review candidates. It is not human review and does not change the S7 main answer metrics.",
+    "candidate_count": 9,
+    "candidate_report_path": "reports/stages/nasa_atmonto_s7_human_review_candidates.json",
+    "external_expert_certified": false,
+    "failure_candidate_count": 3,
+    "human_review": false,
+    "s7_llm_report_path": "reports/stages/nasa_atmonto_s7_llm_answer_generation.json",
+    "source_llm_selected_cases": 60,
+    "strict_main_metrics_changed": false
+  },
+  "source_family": "nasa_atmonto_s7_candidate_adjudication",
+  "status": "candidate_adjudication_created",
+  "summary": {
+    "decision_counts": {
+      "coverage_success_not_adjudicated": 6,
+      "profile_or_gold_boundary_case": 3
+    },
+    "failure_type_counts": {
+      "extra_coarse_impacting_condition_for_staffing": 3
+    },
+    "model_hallucination_count": 0,
+    "profile_or_gold_boundary_failures": 3,
+    "recommended_policy": "Keep strict S7 metrics unchanged. Treat the current failures as profile/gold-boundary review targets unless a reviewer approves either a STAFFING impactingCondition value extension or a predicate-whitelist rule for this CQ template.",
+    "retrieval_failure_count": 0
+  }
+}

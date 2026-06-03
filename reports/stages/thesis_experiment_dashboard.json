@@ -17,6 +17,7 @@
     "primary_thesis_metrics_have_report_evidence": true,
     "reviewed_subset_llm_review_pending": true,
     "robustness_false_answer_rate_zero": true,
+    "s7_candidate_adjudication_available": true,
     "s7_human_review_candidates_available": true,
     "s7_llm_answer_generation_available": true,
     "safety_reports_have_no_boundary_violations": true,
@@ -161,7 +162,8 @@
       "used_in_reports": [
         "nasa_atmonto_s7_answer_generation",
         "nasa_atmonto_s7_llm_answer_generation",
-        "nasa_atmonto_s7_human_review_candidates"
+        "nasa_atmonto_s7_human_review_candidates",
+        "nasa_atmonto_s7_candidate_adjudication"
       ]
     },
     {
@@ -708,6 +710,20 @@
       "present": true,
       "questions_count": "n/a",
       "report_name": "nasa_atmonto_s7_human_review_candidates"
+    },
+    {
+      "dataset_used": "atcscc_s7_review_candidate_queue_9",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "answer_generation",
+        "failure_analysis",
+        "claim_safety"
+      ],
+      "path": "reports/stages/nasa_atmonto_s7_candidate_adjudication.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s7_candidate_adjudication"
     }
   ],
   "failure_mode_summary": {
@@ -1004,6 +1020,11 @@
       "false_answer_rate": 0.0
     },
     "s7_llm_answer_generation": {
+      "adjudication_decision_counts": {
+        "coverage_success_not_adjudicated": 6,
+        "profile_or_gold_boundary_case": 3
+      },
+      "adjudication_status": "candidate_adjudication_created",
       "aggregate_by_mode": {
         "routed_token_matched_dense_graphrag": {
           "abstention_correctness": 1.0,
@@ -1064,10 +1085,12 @@
         "routed_token_matched_live_tfidf_graphrag",
         "routed_token_matched_dense_graphrag"
       ],
+      "profile_or_gold_boundary_failures": 3,
       "prompt_version": "nasa_atmonto_s7_llm_answer_v3_route_partial",
       "reviewer_model": "gpt-5.4-mini",
       "selected_case_count": 60,
-      "status": "s7_llm_answer_generation_evaluated"
+      "status": "s7_llm_answer_generation_evaluated",
+      "strict_main_metrics_changed_by_adjudication": false
     },
     "standalone_traversal": {
       "path_coverage": 0.75,
@@ -1271,12 +1294,13 @@
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible. S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review.",
+      "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible. S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review; 3 are deterministically adjudicated as profile/gold-boundary cases.",
       "evidence_reports": [
         "sufficiency_evaluation",
         "robustness_evaluation",
         "nasa_atmonto_s7_llm_answer_generation",
-        "nasa_atmonto_s7_human_review_candidates"
+        "nasa_atmonto_s7_human_review_candidates",
+        "nasa_atmonto_s7_candidate_adjudication"
       ],
       "primary_metrics": [
         "Abstention Accuracy",
@@ -1286,7 +1310,7 @@
         "Unsupported Claim Rate",
         "Abstention Correctness"
       ],
-      "remaining_gaps": "Sufficiency can create false abstentions on supported questions; S7 cause-condition over-answer cases still require review.",
+      "remaining_gaps": "Sufficiency can create false abstentions on supported questions; S7 cause-condition over-answer cases still require human or supervisor review before any profile/gold update.",
       "rq": "RQ4 safety-aware abstention"
     },
     {

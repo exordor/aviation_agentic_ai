@@ -67,6 +67,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - NASA ATMONTO S7 live-retrieval answer generation: `reports/stages/nasa_atmonto_s7_answer_generation.md`
 - NASA ATMONTO S7 fixed-budget LLM answer generation: `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`
 - NASA ATMONTO S7 human-review candidate package: `reports/stages/nasa_atmonto_s7_human_review_candidates.md`
+- NASA ATMONTO S7 candidate adjudication: `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`
 
 ## Current Experiment Snapshot
 

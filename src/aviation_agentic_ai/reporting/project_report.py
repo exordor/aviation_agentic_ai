@@ -953,8 +953,11 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"{s7_best.get('unsupported_claim_rate')}, abstention correctness="
             f"{s7_best.get('abstention_correctness')}, human-review candidates="
             f"{s7_answer.get('human_review_candidate_count')} including "
-            f"{s7_answer.get('failure_candidate_count')} failure candidates. The remaining "
-            "cause-condition over-answer cases are queued for review.",
+            f"{s7_answer.get('failure_candidate_count')} failure candidates. Deterministic "
+            "adjudication classifies "
+            f"{s7_answer.get('profile_or_gold_boundary_failures')} failures as "
+            "profile/gold-boundary cases; strict main metrics changed="
+            f"{s7_answer.get('strict_main_metrics_changed_by_adjudication')}.",
             "",
             "## RQ5: NASA source generalization and ontology boundary validation",
             "",
@@ -1021,9 +1024,11 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"{s7_answer.get('selected_case_count')}, best-mode correctness="
             f"{s7_best.get('answer_correctness')}, best-mode unsupported claim rate="
             f"{s7_best.get('unsupported_claim_rate')}, review candidates="
-            f"{s7_answer.get('human_review_candidate_count')}. This candidate queue is "
-            "prepared for later human or supervisor review and is not itself completed "
-            "human review.",
+            f"{s7_answer.get('human_review_candidate_count')}, adjudicated "
+            "profile/gold-boundary failures="
+            f"{s7_answer.get('profile_or_gold_boundary_failures')}. This candidate queue "
+            "is prepared for later human or supervisor review and is not itself completed "
+            "human review; deterministic adjudication did not change the main metrics.",
             "",
             "## Model-Based Review Instead of Human Review",
             "",

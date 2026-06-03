@@ -249,6 +249,8 @@ def test_deterministic_project_report_includes_s7_dashboard_summary(tmp_path: Pa
                         "best_mode": "routed_token_matched_live_tfidf_graphrag",
                         "human_review_candidate_count": 9,
                         "failure_candidate_count": 3,
+                        "profile_or_gold_boundary_failures": 3,
+                        "strict_main_metrics_changed_by_adjudication": False,
                         "best_mode_metrics": {
                             "answer_correctness": 0.9667,
                             "citation_precision": 1.0,
@@ -279,6 +281,8 @@ def test_deterministic_project_report_includes_s7_dashboard_summary(tmp_path: Pa
     assert "ATCSCC S7 source-bounded LLM answer generation" in markdown
     assert "selected cases=60" in markdown
     assert "unsupported claim rate=0.0167" in markdown
+    assert "profile/gold-boundary cases" in markdown
+    assert "strict main metrics changed=False" in markdown
     assert "not human-reviewed evidence" in markdown
 
 

@@ -59,6 +59,9 @@ REPORT_SOURCES: dict[str, str] = {
     "nasa_atmonto_s7_human_review_candidates": (
         "reports/stages/nasa_atmonto_s7_human_review_candidates.json"
     ),
+    "nasa_atmonto_s7_candidate_adjudication": (
+        "reports/stages/nasa_atmonto_s7_candidate_adjudication.json"
+    ),
 }
 
 UNSAFE_PATTERNS = (
@@ -169,6 +172,11 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
             "llm_review_scaffold",
             "failure_analysis",
         ),
+        "nasa_atmonto_s7_candidate_adjudication": (
+            "answer_generation",
+            "failure_analysis",
+            "claim_safety",
+        ),
     }
     dataset_map = {
         "benchmark_v2_summary": "benchmark_v2_120",
@@ -209,6 +217,7 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "triple_semantic_review_sample": "triple_semantic_review_sample",
         "nasa_atmonto_s7_llm_answer_generation": "atcscc_s7_source_bounded_60",
         "nasa_atmonto_s7_human_review_candidates": "atcscc_s7_review_candidate_queue_9",
+        "nasa_atmonto_s7_candidate_adjudication": "atcscc_s7_review_candidate_queue_9",
     }
     inventory = []
     for name, rel_path in REPORT_SOURCES.items():
@@ -292,6 +301,7 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     implementation_remediation = reports.get("deepseek_v4pro_implementation_remediation", {})
     s7_llm_answers = reports.get("nasa_atmonto_s7_llm_answer_generation", {})
     s7_review_candidates = reports.get("nasa_atmonto_s7_human_review_candidates", {})
+    s7_candidate_adjudication = reports.get("nasa_atmonto_s7_candidate_adjudication", {})
 
     vector = _scenario_metrics(retrieval, "vector_hops2_v5_h8")
     hybrid = _scenario_metrics(retrieval, "hybrid_hops2_v5_h8")
@@ -427,6 +437,25 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 "metadata",
                 "failure_candidate_count",
                 default=0,
+            ),
+            "adjudication_status": s7_candidate_adjudication.get("status", "not_present"),
+            "adjudication_decision_counts": _metric(
+                s7_candidate_adjudication,
+                "summary",
+                "decision_counts",
+                default={},
+            ),
+            "profile_or_gold_boundary_failures": _metric(
+                s7_candidate_adjudication,
+                "summary",
+                "profile_or_gold_boundary_failures",
+                default=0,
+            ),
+            "strict_main_metrics_changed_by_adjudication": _metric(
+                s7_candidate_adjudication,
+                "metadata",
+                "strict_main_metrics_changed",
+                default=False,
             ),
             "coverage_candidate_count": _metric(
                 s7_review_candidates,
@@ -976,6 +1005,7 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
                 "nasa_atmonto_s7_answer_generation",
                 "nasa_atmonto_s7_llm_answer_generation",
                 "nasa_atmonto_s7_human_review_candidates",
+                "nasa_atmonto_s7_candidate_adjudication",
             ],
             "limitations": (
                 "bounded retrospective LLM run; candidate package is a review queue, "
@@ -1077,6 +1107,7 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 "robustness_evaluation",
                 "nasa_atmonto_s7_llm_answer_generation",
                 "nasa_atmonto_s7_human_review_candidates",
+                "nasa_atmonto_s7_candidate_adjudication",
             ],
             "primary_metrics": [
                 "Abstention Accuracy",
@@ -1094,12 +1125,15 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')} "
                 "with "
                 f"{primary['s7_llm_answer_generation']['failure_candidate_count']} "
-                "failure candidates queued for review."
+                "failure candidates queued for review; "
+                f"{primary['s7_llm_answer_generation']['profile_or_gold_boundary_failures']} "
+                "are deterministically adjudicated as profile/gold-boundary cases."
             ),
             "claim_strength": "moderate",
             "remaining_gaps": (
                 "Sufficiency can create false abstentions on supported questions; "
-                "S7 cause-condition over-answer cases still require review."
+                "S7 cause-condition over-answer cases still require human or supervisor "
+                "review before any profile/gold update."
             ),
         },
         {
@@ -1290,6 +1324,12 @@ def _consistency_checks(
         "candidate_count",
         default=0,
     )
+    s7_adjudication_failures = _metric(
+        reports.get("nasa_atmonto_s7_candidate_adjudication", {}),
+        "summary",
+        "profile_or_gold_boundary_failures",
+        default=0,
+    )
     checks = {
         "every_rq_has_evidence_report": all(row["evidence_reports"] for row in rq_matrix),
         "primary_thesis_metrics_have_report_evidence": not primary_metric_gaps,
@@ -1309,6 +1349,7 @@ def _consistency_checks(
         "answer_llm_judge_available": answer_llm_reviewed > 0,
         "s7_llm_answer_generation_available": s7_llm_selected > 0,
         "s7_human_review_candidates_available": s7_review_candidates > 0,
+        "s7_candidate_adjudication_available": s7_adjudication_failures > 0,
         "reviewed_subset_llm_review_pending": reviewed_subset_pending,
         "safety_reports_have_no_boundary_violations": (
             sufficiency_boundary == 0 and robustness_boundary == 0
@@ -1515,7 +1556,11 @@ def write_thesis_experiment_dashboard_markdown(
                 f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')}, "
                 "Human-review candidates="
                 f"{primary['s7_llm_answer_generation']['human_review_candidate_count']} "
-                "(queue only; no human review) |"
+                "(queue only; no human review), "
+                "Adjudicated profile/gold-boundary failures="
+                f"{primary['s7_llm_answer_generation']['profile_or_gold_boundary_failures']}, "
+                "Strict metrics changed="
+                f"{primary['s7_llm_answer_generation']['strict_main_metrics_changed_by_adjudication']} |"
             ),
             (
                 "| chunking benchmark v2 | "
@@ -1578,6 +1623,8 @@ def write_thesis_experiment_dashboard_markdown(
                 f"{primary['s7_llm_answer_generation']['selected_case_count']}, "
                 "S7 review candidates="
                 f"{primary['s7_llm_answer_generation']['human_review_candidate_count']}, "
+                "S7 adjudicated boundary failures="
+                f"{primary['s7_llm_answer_generation']['profile_or_gold_boundary_failures']}, "
                 "human review=false |"
             ),
             (
