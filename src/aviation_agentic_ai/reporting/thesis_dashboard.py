@@ -56,6 +56,9 @@ REPORT_SOURCES: dict[str, str] = {
     "nasa_atmonto_s5_s6_agentic_loop": (
         "reports/stages/nasa_atmonto_s5_s6_agentic_loop.json"
     ),
+    "nasa_atmonto_s5_s6_independent_agentic_run": (
+        "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.json"
+    ),
     "nasa_atmonto_sota_goal_audit": (
         "reports/stages/nasa_atmonto_sota_goal_audit.json"
     ),

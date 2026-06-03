@@ -49,6 +49,7 @@
 | `robustness_evaluation` | True | robustness_10_cases | n/a | safety_abstention, robustness | False | False |
 | `benchmark_review_pack` | True | not_dataset_specific | 120 | benchmark_llm_review_scaffold | False | False |
 | `nasa_atmonto_s5_s6_agentic_loop` | True | not_dataset_specific | n/a |  | False | False |
+| `nasa_atmonto_s5_s6_independent_agentic_run` | True | not_dataset_specific | n/a |  | False | False |
 | `nasa_atmonto_sota_goal_audit` | True | not_dataset_specific | n/a |  | False | False |
 | `nasa_atmonto_s7_llm_answer_generation` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, graph_paths, safety_abstention | False | True |
 | `nasa_atmonto_s7_human_review_candidates` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, llm_review_scaffold, failure_analysis | False | False |

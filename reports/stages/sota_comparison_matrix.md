@@ -27,7 +27,7 @@ source-bounded answer tests.
 | CQ-driven scope and evaluation | Ontology engineering and competency-question methodology | Compact primary CQs mapped to fields, predicates, validation, and query patterns | `reports/stages/nasa_atmonto_competency_questions.md`; `reports/stages/nasa_atmonto_cq_query_evaluation.md` | satisfied for 12 primary CQs |
 | Evidence-grounded extraction | OBIE, claim KG, and GraphRAG evaluation practice | Every accepted fact has source ID and evidence span or explicit support record | `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`; `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied for scored extraction |
 | Schema validity separated from semantic correctness | KG quality and ontology evaluation practice | Report schema violations, semantic P/R/F1, evidence support, and profile gaps separately | `reports/stages/nasa_atmonto_formal_experiment_scoring.md` | satisfied |
-| Multi-agent artifact pipeline | Multi-agent ontology-generation paper | Source brief, SRD, TIP, extraction plan, validation findings, evidence critique, repair plan, graph-use plan | `reports/stages/atcscc_agentic_artifact_contract.md`; `reports/stages/nasa_atmonto_agentic_loop.md`; `reports/stages/atcscc_source_brief.md`; `reports/stages/atcscc_semantic_requirements.md`; `reports/stages/atcscc_technical_implementation_plan.md`; `reports/stages/atcscc_extraction_plan.md`; `reports/stages/atcscc_validation_findings.md`; `reports/stages/atcscc_evidence_support_findings.md`; `reports/stages/atcscc_repair_plan.md`; `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md` | stage-1 artifact chain and bounded executable S5/S6 evidence-gate wrapper satisfied; independent autonomous S5/S6 extraction remains future work |
+| Multi-agent artifact pipeline | Multi-agent ontology-generation paper | Source brief, SRD, TIP, extraction plan, validation findings, evidence critique, repair plan, graph-use plan | `reports/stages/atcscc_agentic_artifact_contract.md`; `reports/stages/nasa_atmonto_agentic_loop.md`; `reports/stages/atcscc_source_brief.md`; `reports/stages/atcscc_semantic_requirements.md`; `reports/stages/atcscc_technical_implementation_plan.md`; `reports/stages/atcscc_extraction_plan.md`; `reports/stages/atcscc_validation_findings.md`; `reports/stages/atcscc_evidence_support_findings.md`; `reports/stages/atcscc_repair_plan.md`; `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`; `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md` | stage-1 artifact chain, bounded S4-wrapper diagnostics, and independent deterministic S5/S6 scoring satisfied; live LLM multi-agent extraction remains future work |
 | Layered GraphRAG evaluation | GraphRAG-Bench; RAG vs GraphRAG; When to use Graphs in RAG | Separate graph construction, retrieval, answer generation, rationale/citation, failure analysis, profile-decision sensitivity, and cost/token reporting | `reports/stages/nasa_atmonto_cq_query_evaluation.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md`; `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`; `reports/stages/nasa_atmonto_s7_profile_decision.md` | mostly satisfied for deterministic S7 plus bounded LLM check; broad human/LLM answer evaluation remains future work |
 | Fair RAG-vs-GraphRAG comparison | RAG vs GraphRAG; When to use Graphs in RAG | Vector-only, graph-only, hybrid, routed graph-use gate, token-matched vector control | Retrieval and answer-generation reports now include source/vector/token-matched-vector/live lexical-vector/dense-vector/source-local guarded dense/materialized graph/hybrid/routed modes, plus a 60-case fixed-budget LLM run over routed live/dense GraphRAG contexts | mostly satisfied for deterministic S7; bounded LLM evidence is diagnostic, not final |
 | Queryability rather than ontological purity | KG quality for RAG-oriented systems | CQ answer-set precision/recall/F1 by predicate and question type | `reports/stages/nasa_atmonto_cq_query_evaluation.md` | satisfied for pre-generation answer sets |
@@ -87,11 +87,13 @@ pipeline**:
 - the role contract exists;
 - the SRD/TIP/extraction-plan/validation/evidence-critique/repair/graph-use
   artifacts exist;
-- the S5/S6 wrapper routes and evidence-gates S4 outputs.
+- the S5/S6 wrapper routes and evidence-gates S4 outputs;
+- the independent deterministic S5/S6 run starts from source-derived S0
+  candidates and scores extractor/validator/critic/refiner behavior.
 
-It is still not a fully autonomous multi-agent extractor because the current
-S5/S6 layer wraps already scored S4 output rather than running separate live
-extractor, validator, critic, and refiner agents.
+It is still not a fully autonomous LLM multi-agent extractor because the
+independent S5/S6 run uses deterministic source-derived candidates rather than
+separate live LLM extractor, validator, critic, and refiner agents.
 
 ## Claim-Safe SOTA Wording
 
@@ -128,7 +130,7 @@ Avoid these claims:
 The next executable upgrade should target the remaining SOTA gaps in this
 order:
 
-1. Promote the bounded S5/S6 wrapper into an independent extractor/validator/critic/refiner run.
+1. Replace the deterministic S5/S6 extractor with live LLM extractor/validator/critic/refiner agents under the same artifact contract.
 2. Run the human/expert review pass using
    `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
    `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`.

@@ -57,13 +57,14 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
     {
         "id": "R5",
         "requirement": "Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics.",
-        "status": "mostly_satisfied",
+        "status": "satisfied",
         "evidence": [
             "reports/stages/atcscc_agentic_artifact_contract.md",
             "reports/stages/nasa_atmonto_agentic_loop.md",
             "reports/stages/nasa_atmonto_s5_s6_agentic_loop.md",
+            "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md",
         ],
-        "limitation": "S5/S6 currently wraps S4 output; it is not yet an autonomous extractor/critic/refiner run.",
+        "limitation": "The independent S5/S6 run is deterministic and artifact-driven; live LLM agents remain future work.",
     },
     {
         "id": "R6",
@@ -120,6 +121,9 @@ def build_nasa_atmonto_sota_goal_audit(
     requirements = [_requirement_status(root, item) for item in SOTA_REQUIREMENTS]
     scoring = read_json_object_or_empty(root / "reports/stages/nasa_atmonto_formal_experiment_scoring.json")
     s5_s6 = read_json_object_or_empty(root / "reports/stages/nasa_atmonto_s5_s6_agentic_loop.json")
+    s5_s6_independent = read_json_object_or_empty(
+        root / "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.json"
+    )
     s7_llm = read_json_object_or_empty(root / "reports/stages/nasa_atmonto_s7_llm_answer_generation.json")
     status_counts: dict[str, int] = {}
     for item in requirements:
@@ -133,11 +137,12 @@ def build_nasa_atmonto_sota_goal_audit(
             "status_counts": dict(sorted(status_counts.items())),
             "formal_scoring_status": scoring.get("status"),
             "s5_s6_status": s5_s6.get("status"),
+            "s5_s6_independent_status": s5_s6_independent.get("status"),
             "s7_llm_status": s7_llm.get("status"),
         },
         "requirements": requirements,
         "remaining_blockers": [
-            "Independent autonomous S5/S6 extractor/validator/critic/refiner run is not yet scored.",
+            "Live LLM extractor/validator/critic/refiner agents are not yet scored under S5/S6.",
             "Broad human/expert answer review is not yet complete.",
             "Second-domain transfer is not yet executed.",
         ],
@@ -173,6 +178,7 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- Status counts: {_format_status_counts(result['metadata']['status_counts'])}",
         f"- Formal scoring status: `{result['metadata']['formal_scoring_status']}`",
         f"- S5/S6 status: `{result['metadata']['s5_s6_status']}`",
+        f"- Independent S5/S6 status: `{result['metadata']['s5_s6_independent_status']}`",
         f"- S7 LLM status: `{result['metadata']['s7_llm_status']}`",
         "",
         "## Requirement Evidence",

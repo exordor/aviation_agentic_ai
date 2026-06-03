@@ -5,12 +5,13 @@
   "metadata": {
     "requirement_count": 9,
     "status_counts": {
-      "mostly_satisfied": 4,
+      "mostly_satisfied": 3,
       "partial": 1,
-      "satisfied": 4
+      "satisfied": 5
     },
     "formal_scoring_status": "scored",
     "s5_s6_status": "s5_s6_agentic_evidence_gate_scored",
+    "s5_s6_independent_status": "s5_s6_independent_agentic_run_scored",
     "s7_llm_status": "s7_llm_answer_generation_evaluated"
   },
   "requirements": [
@@ -109,7 +110,7 @@
     {
       "id": "R5",
       "requirement": "Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics.",
-      "status": "mostly_satisfied",
+      "status": "satisfied",
       "evidence": [
         {
           "path": "reports/stages/atcscc_agentic_artifact_contract.md",
@@ -122,11 +123,15 @@
         {
           "path": "reports/stages/nasa_atmonto_s5_s6_agentic_loop.md",
           "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md",
+          "present": true
         }
       ],
-      "limitation": "S5/S6 currently wraps S4 output; it is not yet an autonomous extractor/critic/refiner run.",
-      "evidence_count": 3,
-      "present_evidence_count": 3,
+      "limitation": "The independent S5/S6 run is deterministic and artifact-driven; live LLM agents remain future work.",
+      "evidence_count": 4,
+      "present_evidence_count": 4,
       "missing_evidence": []
     },
     {
@@ -223,7 +228,7 @@
     }
   ],
   "remaining_blockers": [
-    "Independent autonomous S5/S6 extractor/validator/critic/refiner run is not yet scored.",
+    "Live LLM extractor/validator/critic/refiner agents are not yet scored under S5/S6.",
     "Broad human/expert answer review is not yet complete.",
     "Second-domain transfer is not yet executed."
   ],

@@ -1,0 +1,18 @@
+{
+  "system_id": "S5_S6_independent_agentic_run",
+  "run_status": "completed",
+  "runner": "artifact_driven_extractor_validator_critic_refiner",
+  "requires_llm": false,
+  "source_systems": [
+    "S0_rule_only"
+  ],
+  "independent_from_s4": true,
+  "input_record_count": 100,
+  "prediction_record_count": 100,
+  "prediction_output": "data/experiments/nasa_atmonto/formal/s5_s6_independent_agentic_predictions.jsonl",
+  "schema_valid_record_count": 60,
+  "s5_fact_count": 567,
+  "s6_fact_count": 545,
+  "quarantined_fact_count": 22,
+  "claim_boundary": "This is an independent, deterministic, artifact-driven S5/S6 run over source-derived S0 candidates. It is independent from S4 output and scored against reviewed gold, but it is not a live LLM multi-agent generation run."
+}
