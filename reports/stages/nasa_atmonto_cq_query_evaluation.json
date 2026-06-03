@@ -694,6 +694,152 @@
       "macro_f1": 0.7178
     }
   },
+  "graph_use_gate_proxy": {
+    "status": "deterministic_queryability_proxy",
+    "policy": "select deterministic S0 for direct temporal fields and S4 hybrid backbone-enrichment for entity, cause, status, route, and abstention templates",
+    "selected_templates": [
+      {
+        "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+        "selected_system": "S4_hybrid_backbone_enrichment",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-D02",
+          "CQ-E03"
+        ],
+        "question": "Which airports, ARTCCs, routes, or other NAS elements are affected by the advisory?",
+        "metrics": {
+          "gold_answer_count": 46,
+          "predicted_answer_count": 87,
+          "true_positive_count": 38,
+          "false_positive_count": 49,
+          "false_negative_count": 8,
+          "precision": 0.4368,
+          "recall": 0.8261,
+          "f1": 0.5714,
+          "predicted_evidence_coverage": 1.0
+        },
+        "reason": "relation-heavy or semantic field; use S4 hybrid backbone enrichment"
+      },
+      {
+        "template_id": "QT-Q01-TIME-WINDOW",
+        "selected_system": "S0_rule_only",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-D03",
+          "CQ-O01"
+        ],
+        "question": "What are the effective start and end times for the advisory?",
+        "metrics": {
+          "gold_answer_count": 196,
+          "predicted_answer_count": 196,
+          "true_positive_count": 192,
+          "false_positive_count": 4,
+          "false_negative_count": 4,
+          "precision": 0.9796,
+          "recall": 0.9796,
+          "f1": 0.9796,
+          "predicted_evidence_coverage": 1.0
+        },
+        "reason": "direct deterministic field; graph expansion is unnecessary"
+      },
+      {
+        "template_id": "QT-Q01-CAUSE-CONDITION",
+        "selected_system": "S4_hybrid_backbone_enrichment",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E02"
+        ],
+        "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
+        "metrics": {
+          "gold_answer_count": 52,
+          "predicted_answer_count": 51,
+          "true_positive_count": 41,
+          "false_positive_count": 10,
+          "false_negative_count": 11,
+          "precision": 0.8039,
+          "recall": 0.7885,
+          "f1": 0.7961,
+          "predicted_evidence_coverage": 1.0
+        },
+        "reason": "relation-heavy or semantic field; use S4 hybrid backbone enrichment"
+      },
+      {
+        "template_id": "QT-Q01-STATUS-ACTION",
+        "selected_system": "S4_hybrid_backbone_enrichment",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E01"
+        ],
+        "question": "What status or action is stated for the advisory?",
+        "metrics": {
+          "gold_answer_count": 102,
+          "predicted_answer_count": 72,
+          "true_positive_count": 48,
+          "false_positive_count": 24,
+          "false_negative_count": 54,
+          "precision": 0.6667,
+          "recall": 0.4706,
+          "f1": 0.5517,
+          "predicted_evidence_coverage": 1.0
+        },
+        "reason": "relation-heavy or semantic field; use S4 hybrid backbone enrichment"
+      },
+      {
+        "template_id": "QT-Q01-ROUTE-SEMANTICS",
+        "selected_system": "S4_hybrid_backbone_enrichment",
+        "cq_ids": [
+          "CQ-Q01",
+          "CQ-E03",
+          "CQ-O02"
+        ],
+        "question": "What reroute type, reroute reason, and constrained element are represented?",
+        "metrics": {
+          "gold_answer_count": 85,
+          "predicted_answer_count": 107,
+          "true_positive_count": 57,
+          "false_positive_count": 50,
+          "false_negative_count": 28,
+          "precision": 0.5327,
+          "recall": 0.6706,
+          "f1": 0.5937,
+          "predicted_evidence_coverage": 1.0
+        },
+        "reason": "relation-heavy or semantic field; use S4 hybrid backbone enrichment"
+      },
+      {
+        "template_id": "QT-A01-ABSTENTION-FIELDS",
+        "selected_system": "S4_hybrid_backbone_enrichment",
+        "cq_ids": [
+          "CQ-A01"
+        ],
+        "question": "Which expected fields are absent or unsupported and should trigger abstention?",
+        "metrics": {
+          "gold_answer_count": 216,
+          "predicted_answer_count": 253,
+          "true_positive_count": 191,
+          "false_positive_count": 62,
+          "false_negative_count": 25,
+          "precision": 0.7549,
+          "recall": 0.8843,
+          "f1": 0.8145,
+          "predicted_evidence_coverage": 1.0
+        },
+        "reason": "use S4 critic-gated hybrid facts to expose missing or unsupported fields"
+      }
+    ],
+    "aggregate": {
+      "gold_answer_count": 697,
+      "predicted_answer_count": 766,
+      "true_positive_count": 567,
+      "false_positive_count": 199,
+      "false_negative_count": 130,
+      "micro_precision": 0.7402,
+      "micro_recall": 0.8135,
+      "micro_f1": 0.7751,
+      "macro_f1": 0.7178
+    },
+    "boundary": "This is an answer-set/queryability proxy over existing system outputs, not a live vector or graph retriever run."
+  },
   "graphrag_answer_quality": {
     "evaluation_layer": "pre_generation_answer_set_quality",
     "llm_generation_status": "not_run",

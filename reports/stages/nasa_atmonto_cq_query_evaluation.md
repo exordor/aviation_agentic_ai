@@ -102,6 +102,23 @@
 | `S3_llm_schema_slice_validator_repair` | 0.645 | 0.5046 | 0.5662 | 0.9645 | `usable_with_review` |
 | `S4_hybrid_backbone_enrichment` | 0.7549 | 0.8843 | 0.8145 | 1.0 | `ready_for_answer_generation` |
 
+## S7 Graph-Use Gate Proxy
+
+- Status: `deterministic_queryability_proxy`
+- Policy: select deterministic S0 for direct temporal fields and S4 hybrid backbone-enrichment for entity, cause, status, route, and abstention templates
+- Boundary: This is an answer-set/queryability proxy over existing system outputs, not a live vector or graph retriever run.
+
+| Template | Selected system | P | R | F1 | Reason |
+| --- | --- | ---: | ---: | ---: | --- |
+| `QT-Q01-AFFECTED-NAS-ELEMENTS` | `S4_hybrid_backbone_enrichment` | 0.4368 | 0.8261 | 0.5714 | relation-heavy or semantic field; use S4 hybrid backbone enrichment |
+| `QT-Q01-TIME-WINDOW` | `S0_rule_only` | 0.9796 | 0.9796 | 0.9796 | direct deterministic field; graph expansion is unnecessary |
+| `QT-Q01-CAUSE-CONDITION` | `S4_hybrid_backbone_enrichment` | 0.8039 | 0.7885 | 0.7961 | relation-heavy or semantic field; use S4 hybrid backbone enrichment |
+| `QT-Q01-STATUS-ACTION` | `S4_hybrid_backbone_enrichment` | 0.6667 | 0.4706 | 0.5517 | relation-heavy or semantic field; use S4 hybrid backbone enrichment |
+| `QT-Q01-ROUTE-SEMANTICS` | `S4_hybrid_backbone_enrichment` | 0.5327 | 0.6706 | 0.5937 | relation-heavy or semantic field; use S4 hybrid backbone enrichment |
+| `QT-A01-ABSTENTION-FIELDS` | `S4_hybrid_backbone_enrichment` | 0.7549 | 0.8843 | 0.8145 | use S4 critic-gated hybrid facts to expose missing or unsupported fields |
+
+Aggregate routed proxy micro-F1: 0.7751 (P=0.7402, R=0.8135).
+
 ## Claim Boundary
 
 This artifact measures whether graph/query outputs can recover source-bounded CQ answers with evidence. It does not claim generated-answer superiority.

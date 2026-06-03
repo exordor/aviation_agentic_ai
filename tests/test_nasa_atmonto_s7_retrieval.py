@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_answer_generation import (
-    ANSWER_MODES,
-    build_nasa_atmonto_answer_generation,
-    write_nasa_atmonto_answer_generation,
-)
 from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import build_cq_query_manifest
+from aviation_agentic_ai.reporting.nasa_atmonto_s7_retrieval import (
+    RETRIEVAL_MODES,
+    build_nasa_atmonto_s7_retrieval,
+    write_nasa_atmonto_s7_retrieval,
+)
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -23,8 +23,7 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
     source_text = (
         "ATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD. "
         "MESSAGE: CONSTRAINED FACILITIES: ZNY. ZNY ADVISES THAT ROUTE L452 IS "
-        "CLOSED DUE TO WEATHER. EFFECTIVE TIME: 191322-191630. "
-        "CUSTOMERS ARE ENCOURAGED TO FILE ALTERNATE ROUTES."
+        "CLOSED DUE TO WEATHER. EFFECTIVE TIME: 191322-191630."
     )
     gold_path = tmp_path / "gold.jsonl"
     _write_jsonl(
@@ -82,7 +81,6 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
                             "evidence_text": "",
                         }
                     ],
-                    "notes": "Rejected parser artifacts include ADVZY, THAT, and ADDS.",
                 },
             }
         ],
@@ -92,7 +90,6 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
         s4_path,
         [
             {
-                "sample_id": "ATCSCC-GOLD-001",
                 "source_id": "2026-05-19:032",
                 "facts": [
                     {
@@ -109,14 +106,6 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
                         "object_label": "ADVZY",
                         "source_id": "2026-05-19:032",
                         "evidence_text": "ATCSCC ADVZY 032",
-                        "validator_status": "repaired_accepted",
-                    },
-                    {
-                        "fact_id": "fact-unsupported-extra",
-                        "predicate": "atm:controlledNASelement",
-                        "object_label": "Airport",
-                        "source_id": "2026-05-19:032",
-                        "evidence_text": "ROUTE L452 IS CLOSED",
                         "validator_status": "repaired_accepted",
                     },
                     {
@@ -168,12 +157,10 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
     return {"gold": gold_path, "s4": s4_path, "manifest": manifest_path}
 
 
-def test_build_nasa_atmonto_answer_generation_materializes_benchmark_modes_and_metrics(
-    tmp_path: Path,
-) -> None:
+def test_build_nasa_atmonto_s7_retrieval_reports_modes_and_gate(tmp_path: Path) -> None:
     paths = _write_fixture(tmp_path)
 
-    result = build_nasa_atmonto_answer_generation(
+    result = build_nasa_atmonto_s7_retrieval(
         repo_root=tmp_path,
         gold_path=paths["gold"],
         s4_prediction_path=paths["s4"],
@@ -181,72 +168,27 @@ def test_build_nasa_atmonto_answer_generation_materializes_benchmark_modes_and_m
         max_cases_per_template=1,
     )
 
-    assert result["status"] == "answer_generation_evaluated"
-    assert result["metadata"]["modes"] == list(ANSWER_MODES)
-    assert result["metadata"]["template_count"] == 6
-    assert result["metadata"]["benchmark_label_count"] == 6
-
-    label = result["benchmark"]["labels"][0]
-    assert label["expected_values"]
-    assert label["answer_set"]
-    assert label["expected_evidence"]
-    assert label["evidence_spans"][0]["text"] in label["source_text"]
-
-    by_template = {record["template_id"]: record for record in result["records"]}
-    affected = by_template["QT-Q01-AFFECTED-NAS-ELEMENTS"]
-    assert set(affected["results"]) == set(ANSWER_MODES)
-    assert "ZNY" in affected["results"]["graph_only"]["answer"]
-    assert "ADVZY" not in affected["results"]["graph_only"]["answer"]
-    assert "ADVZY" not in affected["results"]["hybrid_graphrag"]["answer"]
-    assert "ADVZY" not in affected["results"]["routed_graphrag"]["answer"]
-    assert affected["results"]["routed_graphrag"]["underlying_mode"] == "hybrid_graphrag"
-    assert (
-        affected["results"]["token_matched_vector_rag"]["context_budget"][
-            "token_match_target_mode"
-        ]
-        == "hybrid_graphrag"
-    )
-    assert "Airport" in affected["results"]["graph_only"]["answer"]
-    assert affected["metrics"]["graph_only"]["unsupported_claim_rate"] > 0
-    assert affected["metrics"]["graph_only"]["answer_correctness"] is False
-
-    critic = result["critic_gate"]
-    assert critic["rejected_fact_count"] == 1
-    assert critic["rejected_values"] == ["ADVZY"]
-
-    aggregate = result["answer_quality"]["aggregate_by_mode"]
-    for mode in ANSWER_MODES:
-        metrics = aggregate[mode]
-        assert metrics["answers_total"] == 6
-        for key in (
-            "answer_correctness",
-            "citation_precision",
-            "citation_recall",
-            "evidence_faithfulness",
-            "unsupported_claim_rate",
-            "abstention_correctness",
-            "avg_estimated_context_tokens",
-            "max_estimated_context_tokens",
-        ):
-            assert key in metrics
-    gate = result["answer_quality"]["secondary_metrics"]["graph_use_gate"]
-    assert gate["status"] == "deterministic_proxy_gate"
-    assert gate["decision_counts"]["hybrid_graphrag"] >= 1
-    assert result["answer_quality"]["secondary_metrics"]["cost_latency"]["provider"] == "none"
+    assert result["status"] == "s7_retrieval_proxy_evaluated"
+    assert result["metadata"]["modes"] == list(RETRIEVAL_MODES)
+    assert result["metadata"]["retrieval_case_count"] == 6
+    assert result["critic_gate"]["rejected_values"] == ["ADVZY"]
+    assert result["aggregate_by_mode"]["token_matched_vector_proxy"]["avg_target_context_tokens"]
+    assert result["aggregate_by_mode"]["hybrid_graphrag"]["avg_path_support_rate"] is not None
+    assert result["aggregate_by_mode"]["source_oracle"]["abstention_correctness"] == 1.0
+    assert result["aggregate_by_mode"]["vector_rag_proxy"]["abstention_correctness"] == 1.0
+    assert result["aggregate_by_mode"]["routed_graphrag"]["abstention_correctness"] == 1.0
+    assert result["aggregate_by_mode"]["graph_only"]["abstention_correctness"] == 0.0
+    route_summary = result["route_summary"]["by_template"]
+    assert route_summary["QT-Q01-TIME-WINDOW"]["underlying_mode"] == "vector_rag"
+    assert route_summary["QT-Q01-ROUTE-SEMANTICS"]["underlying_mode"] == "hybrid_graphrag"
 
 
-def test_write_nasa_atmonto_answer_generation_outputs_reports_and_chapter(
-    tmp_path: Path,
-) -> None:
+def test_write_nasa_atmonto_s7_retrieval_outputs_reports(tmp_path: Path) -> None:
     paths = _write_fixture(tmp_path)
     output_dir = tmp_path / "reports"
-    benchmark_path = tmp_path / "benchmark.json"
-    chapter_path = tmp_path / "chapter.md"
 
-    json_path, md_path, benchmark_json, chapter_md, result = write_nasa_atmonto_answer_generation(
+    json_path, md_path, result = write_nasa_atmonto_s7_retrieval(
         output_dir=output_dir,
-        benchmark_path=benchmark_path,
-        chapter_path=chapter_path,
         repo_root=tmp_path,
         gold_path=paths["gold"],
         s4_prediction_path=paths["s4"],
@@ -256,14 +198,8 @@ def test_write_nasa_atmonto_answer_generation_outputs_reports_and_chapter(
 
     assert json_path.exists()
     assert md_path.exists()
-    assert benchmark_json.exists()
-    assert chapter_md.exists()
-    assert json.loads(benchmark_json.read_text(encoding="utf-8"))["labels"]
+    assert json.loads(json_path.read_text(encoding="utf-8"))["records"]
     markdown = md_path.read_text(encoding="utf-8")
-    assert "GraphRAG Answer Generation" in markdown
-    assert "S7 Graph-Use Gate" in markdown
-    chapter = chapter_md.read_text(encoding="utf-8")
-    assert "Experiment A: ATMONTO-constrained KG extraction" in chapter
-    assert "Experiment B: CQ queryability / answer-set quality" in chapter
-    assert "Experiment C: GraphRAG answer generation" in chapter
-    assert result["experiment_chapter_draft"]["claim_boundary"]
+    assert "S7 Retrieval-Only Graph-Use Gate" in markdown
+    assert "token_matched_vector_proxy" in markdown
+    assert result["claim_boundary"]

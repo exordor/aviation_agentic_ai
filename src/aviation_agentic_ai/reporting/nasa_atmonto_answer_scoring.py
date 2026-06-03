@@ -16,9 +16,20 @@ from aviation_agentic_ai.reporting.nasa_atmonto_answer_benchmark import (
 ANSWER_MODES: tuple[str, ...] = (
     "source_only",
     "vector_rag",
+    "token_matched_vector_rag",
     "graph_only",
     "hybrid_graphrag",
+    "routed_graphrag",
 )
+
+ROUTED_TEMPLATE_MODES: dict[str, str] = {
+    "QT-Q01-AFFECTED-NAS-ELEMENTS": "hybrid_graphrag",
+    "QT-Q01-TIME-WINDOW": "vector_rag",
+    "QT-Q01-CAUSE-CONDITION": "hybrid_graphrag",
+    "QT-Q01-STATUS-ACTION": "hybrid_graphrag",
+    "QT-Q01-ROUTE-SEMANTICS": "hybrid_graphrag",
+    "QT-A01-ABSTENTION-FIELDS": "vector_rag",
+}
 
 CONTROLLED_NAS_ARTIFACT_VALUES = {
     "ADDS",
@@ -111,6 +122,7 @@ def build_generation_records(
         results = {
             mode: result_for_mode(label, mode, source_items, graph_items) for mode in ANSWER_MODES
         }
+        _annotate_context_budgets(results)
         metrics = {mode: evaluate_result(label, result) for mode, result in results.items()}
         for mode in ANSWER_MODES:
             scored_by_mode[mode].append(
@@ -119,6 +131,16 @@ def build_generation_records(
                     "template_id": label["template_id"],
                     "source_id": label["source_id"],
                     "metrics": metrics[mode],
+                    "underlying_mode": results[mode].get("underlying_mode", mode),
+                    "estimated_context_tokens": results[mode]["context_budget"][
+                        "estimated_context_tokens"
+                    ],
+                    "target_estimated_context_tokens": results[mode]["context_budget"].get(
+                        "target_estimated_context_tokens"
+                    ),
+                    "estimated_padding_tokens": results[mode]["context_budget"].get(
+                        "estimated_padding_tokens"
+                    ),
                 }
             )
         records.append(
@@ -138,6 +160,17 @@ def build_generation_records(
 
 def aggregate_mode(records: list[dict[str, Any]]) -> dict[str, Any]:
     denominator = len(records) or 1
+    context_tokens = [int(record.get("estimated_context_tokens") or 0) for record in records]
+    target_context_tokens = [
+        int(record["target_estimated_context_tokens"])
+        for record in records
+        if record.get("target_estimated_context_tokens") is not None
+    ]
+    padding_tokens = [
+        int(record["estimated_padding_tokens"])
+        for record in records
+        if record.get("estimated_padding_tokens") is not None
+    ]
     return {
         "answers_total": len(records),
         "answer_correctness": round(
@@ -163,6 +196,43 @@ def aggregate_mode(records: list[dict[str, Any]]) -> dict[str, Any]:
         "abstention_correctness": round(
             sum(int(record["metrics"]["abstention_correctness"]) for record in records) / denominator,
             4,
+        ),
+        "avg_estimated_context_tokens": round(sum(context_tokens) / denominator, 2),
+        "max_estimated_context_tokens": max(context_tokens) if context_tokens else 0,
+        "avg_target_context_tokens": round(sum(target_context_tokens) / len(target_context_tokens), 2)
+        if target_context_tokens
+        else None,
+        "avg_estimated_padding_tokens": round(sum(padding_tokens) / len(padding_tokens), 2)
+        if padding_tokens
+        else None,
+    }
+
+
+def graph_use_gate_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
+    decisions = Counter()
+    by_template: dict[str, dict[str, Any]] = {}
+    for record in records:
+        routed = record["results"].get("routed_graphrag", {})
+        template_id = str(record["template_id"])
+        underlying_mode = str(routed.get("underlying_mode") or "")
+        decisions[underlying_mode] += 1
+        by_template.setdefault(
+            template_id,
+            {
+                "underlying_mode": underlying_mode,
+                "graph_use_decision": routed.get("graph_use_decision", {}),
+                "cases": 0,
+            },
+        )
+        by_template[template_id]["cases"] += 1
+    return {
+        "policy": "route each CQ template to vector or hybrid graph context before generation",
+        "status": "deterministic_proxy_gate",
+        "decision_counts": dict(sorted(decisions.items())),
+        "by_template": by_template,
+        "boundary": (
+            "The gate is evaluated in the deterministic answer scaffold. It is a proxy for "
+            "query routing and does not claim live retriever performance."
         ),
     }
 
@@ -221,29 +291,112 @@ def result_for_mode(
     source_items: list[dict[str, Any]],
     graph_items: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    if mode == "graph_only":
+    requested_mode = mode
+    underlying_mode = routed_underlying_mode(label) if mode == "routed_graphrag" else mode
+    if underlying_mode == "token_matched_vector_rag":
+        underlying_mode = "vector_rag"
+
+    if underlying_mode == "graph_only":
         items = graph_items
         evidence_route = "critic_gated_s4_graph"
-    elif mode == "hybrid_graphrag":
+    elif underlying_mode == "hybrid_graphrag":
         items = dedupe_items(graph_items + source_items)
         evidence_route = "source_span_plus_critic_gated_s4_graph"
     else:
         items = source_items
-        evidence_route = "source_span" if mode == "source_only" else "source_text_retrieval_proxy"
+        evidence_route = (
+            "source_span"
+            if underlying_mode == "source_only"
+            else "source_text_retrieval_proxy"
+        )
     if label.get("expected_abstention"):
-        answer = abstention_answer(label, mode)
+        answer = abstention_answer(label, requested_mode)
         items = []
     else:
-        answer = answer_text(label, items, mode)
+        answer = answer_text(label, items, underlying_mode)
     return {
         "answer": answer,
         "answer_values": [{"predicate": item["predicate"], "value": item["value"]} for item in items],
         "evidence_route": evidence_route,
-        "fused_chunks": fused_chunks(label, source_items if mode != "graph_only" else []),
+        "requested_mode": requested_mode,
+        "underlying_mode": underlying_mode,
+        "graph_use_decision": graph_use_decision(label, requested_mode, underlying_mode),
+        "fused_chunks": fused_chunks(label, source_items if underlying_mode != "graph_only" else []),
         "graph_triples": graph_triples(
-            label, items if mode in {"graph_only", "hybrid_graphrag"} else []
+            label, items if underlying_mode in {"graph_only", "hybrid_graphrag"} else []
         ),
     }
+
+
+def routed_underlying_mode(label: dict[str, Any]) -> str:
+    template_id = str(label.get("template_id") or "")
+    return ROUTED_TEMPLATE_MODES.get(template_id, "vector_rag")
+
+
+def graph_use_decision(
+    label: dict[str, Any],
+    requested_mode: str,
+    underlying_mode: str,
+) -> dict[str, Any]:
+    route = str(label.get("route") or "")
+    template_id = str(label.get("template_id") or "")
+    if requested_mode == "token_matched_vector_rag":
+        return {
+            "route": route,
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples",
+        }
+    if requested_mode != "routed_graphrag":
+        return {"route": route, "decision": "always_" + underlying_mode, "reason": "fixed_mode"}
+    if underlying_mode == "hybrid_graphrag":
+        reason = "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+    else:
+        reason = "vector/source context is sufficient for direct temporal or abstention templates"
+    return {
+        "route": route,
+        "decision": underlying_mode,
+        "template_id": template_id,
+        "reason": reason,
+    }
+
+
+def _annotate_context_budgets(results: dict[str, dict[str, Any]]) -> None:
+    for result in results.values():
+        result["context_budget"] = {
+            "estimated_context_tokens": estimate_context_tokens(result),
+            "fused_chunk_count": len(result.get("fused_chunks", [])),
+            "graph_triple_count": len(result.get("graph_triples", [])),
+        }
+    token_control = results.get("token_matched_vector_rag")
+    hybrid = results.get("hybrid_graphrag")
+    if token_control is not None and hybrid is not None:
+        target = int(hybrid["context_budget"]["estimated_context_tokens"])
+        actual = int(token_control["context_budget"]["estimated_context_tokens"])
+        token_control["context_budget"].update(
+            {
+                "token_match_target_mode": "hybrid_graphrag",
+                "target_estimated_context_tokens": target,
+                "estimated_padding_tokens": max(0, target - actual),
+                "policy": "match the hybrid context budget without adding graph triples",
+            }
+        )
+
+
+def estimate_context_tokens(result: dict[str, Any]) -> int:
+    text_parts: list[str] = []
+    for chunk in result.get("fused_chunks", []):
+        if isinstance(chunk, dict):
+            text_parts.append(str(chunk.get("text") or ""))
+    for triple in result.get("graph_triples", []):
+        if isinstance(triple, dict):
+            text_parts.append(
+                " ".join(
+                    str(triple.get(key) or "")
+                    for key in ("predicate", "object", "evidence_text")
+                    if triple.get(key)
+                )
+            )
+    return sum(len(part.split()) for part in text_parts if part.strip())
 
 
 def evaluate_result(label: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:

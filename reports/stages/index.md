@@ -56,6 +56,13 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Defense deck outline: `reports/final/defense_deck_outline.md`
 - Defense deck: `reports/final/aviation_graphrag_defense_deck.pptx`
 - AI visual assets with local SVG fallbacks: `reports/final/assets/visual_assets_manifest.json`
+- ATCSCC data format and processing flow: `reports/stages/atcscc_data_format_and_processing_flow.md`
+- ATCSCC ontology profile overview: `reports/stages/atcscc_ontology_profile_overview.md`
+- ATCSCC event-centric extraction framing: `reports/stages/atcscc_event_centric_extraction_framing.md`
+- SOTA comparison matrix for ATCSCC / NASA ATMONTO: `reports/stages/sota_comparison_matrix.md`
+- Current pipeline SOTA gap audit: `reports/stages/current_pipeline_sota_gap_audit.md`
+- ATCSCC S7 graph-use gate plan: `reports/stages/atcscc_graph_use_plan.md`
+- NASA ATMONTO S7 retrieval-only graph-use gate: `reports/stages/nasa_atmonto_s7_retrieval.md`
 
 ## Current Experiment Snapshot
 

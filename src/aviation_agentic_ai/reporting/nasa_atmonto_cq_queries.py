@@ -25,6 +25,15 @@ DEFAULT_SYSTEM_PREDICTION_PATHS: dict[str, Path] = {
     ),
 }
 
+GRAPH_USE_GATE_TEMPLATE_SYSTEMS: dict[str, str] = {
+    "QT-Q01-AFFECTED-NAS-ELEMENTS": "S4_hybrid_backbone_enrichment",
+    "QT-Q01-TIME-WINDOW": "S0_rule_only",
+    "QT-Q01-CAUSE-CONDITION": "S4_hybrid_backbone_enrichment",
+    "QT-Q01-STATUS-ACTION": "S4_hybrid_backbone_enrichment",
+    "QT-Q01-ROUTE-SEMANTICS": "S4_hybrid_backbone_enrichment",
+    "QT-A01-ABSTENTION-FIELDS": "S4_hybrid_backbone_enrichment",
+}
+
 QUERY_TEMPLATES: tuple[dict[str, Any], ...] = (
     {
         "id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
@@ -349,6 +358,7 @@ def build_nasa_atmonto_cq_query_evaluation(
         "aggregate_by_system": {
             system_id: _aggregate_metrics(metrics) for system_id, metrics in aggregate_by_system.items()
         },
+        "graph_use_gate_proxy": _graph_use_gate_proxy(template_results),
         "graphrag_answer_quality": {
             "evaluation_layer": "pre_generation_answer_set_quality",
             "llm_generation_status": "not_run",
@@ -358,6 +368,59 @@ def build_nasa_atmonto_cq_query_evaluation(
             ),
         },
     }
+
+
+def _graph_use_gate_proxy(template_results: list[dict[str, Any]]) -> dict[str, Any]:
+    selected_metrics: list[dict[str, Any]] = []
+    selected_templates: list[dict[str, Any]] = []
+    for template in template_results:
+        template_id = str(template["template_id"])
+        selected_system = GRAPH_USE_GATE_TEMPLATE_SYSTEMS.get(
+            template_id, "S4_hybrid_backbone_enrichment"
+        )
+        system_result = next(
+            (
+                item
+                for item in template["system_results"]
+                if item["system_id"] == selected_system
+            ),
+            None,
+        )
+        if system_result is None:
+            continue
+        metrics = system_result["metrics"]
+        selected_metrics.append(metrics)
+        selected_templates.append(
+            {
+                "template_id": template_id,
+                "selected_system": selected_system,
+                "cq_ids": template["cq_ids"],
+                "question": template["question"],
+                "metrics": metrics,
+                "reason": _graph_use_gate_reason(template_id, selected_system),
+            }
+        )
+    return {
+        "status": "deterministic_queryability_proxy",
+        "policy": (
+            "select deterministic S0 for direct temporal fields and S4 hybrid "
+            "backbone-enrichment for entity, cause, status, route, and abstention templates"
+        ),
+        "selected_templates": selected_templates,
+        "aggregate": _aggregate_metrics(selected_metrics),
+        "boundary": (
+            "This is an answer-set/queryability proxy over existing system outputs, not a live "
+            "vector or graph retriever run."
+        ),
+    }
+
+
+def _graph_use_gate_reason(template_id: str, selected_system: str) -> str:
+    if selected_system == "S0_rule_only":
+        return "direct deterministic field; graph expansion is unnecessary"
+    if template_id == "QT-A01-ABSTENTION-FIELDS":
+        return "use S4 critic-gated hybrid facts to expose missing or unsupported fields"
+    return "relation-heavy or semantic field; use S4 hybrid backbone enrichment"
 
 
 def _answer_quality_status(metrics: dict[str, Any]) -> str:
@@ -475,6 +538,32 @@ def write_cq_query_evaluation_markdown(result: dict[str, Any], output_path: str 
         lines.append("")
     lines.extend(
         [
+            "## S7 Graph-Use Gate Proxy",
+            "",
+            f"- Status: `{result['graph_use_gate_proxy']['status']}`",
+            f"- Policy: {result['graph_use_gate_proxy']['policy']}",
+            f"- Boundary: {result['graph_use_gate_proxy']['boundary']}",
+            "",
+            "| Template | Selected system | P | R | F1 | Reason |",
+            "| --- | --- | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for template in result["graph_use_gate_proxy"]["selected_templates"]:
+        metrics = template["metrics"]
+        lines.append(
+            f"| `{template['template_id']}` | `{template['selected_system']}` | "
+            f"{metrics['precision']} | {metrics['recall']} | {metrics['f1']} | "
+            f"{template['reason']} |"
+        )
+    aggregate = result["graph_use_gate_proxy"]["aggregate"]
+    lines.extend(
+        [
+            "",
+            (
+                f"Aggregate routed proxy micro-F1: {aggregate['micro_f1']} "
+                f"(P={aggregate['micro_precision']}, R={aggregate['micro_recall']})."
+            ),
+            "",
             "## Claim Boundary",
             "",
             result["graphrag_answer_quality"]["claim_boundary"],

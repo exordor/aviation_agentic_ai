@@ -20,6 +20,7 @@ from aviation_agentic_ai.reporting.nasa_atmonto_answer_scoring import (
     build_generation_records,
     facts_by_source,
     gate_s4_facts,
+    graph_use_gate_summary,
 )
 from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import DEFAULT_GOLD_PATH
 
@@ -85,7 +86,10 @@ def build_nasa_atmonto_answer_generation(
         "records": records,
         "answer_quality": {
             "aggregate_by_mode": aggregate_by_mode,
-            "secondary_metrics": {"cost_latency": cost_latency},
+            "secondary_metrics": {
+                "cost_latency": cost_latency,
+                "graph_use_gate": graph_use_gate_summary(records),
+            },
             "metric_policy": (
                 "Answer correctness, evidence faithfulness, unsupported claim rate, "
                 "citation precision/recall, and abstention correctness are reported separately."
@@ -156,18 +160,31 @@ def write_nasa_atmonto_answer_generation_markdown(
         "",
         "## Aggregate Answer Quality",
         "",
-        "| Mode | Answers | Correctness | Citation P | Citation R | Evidence faithful | Unsupported claim rate | Abstention correct |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        (
+            "| Mode | Answers | Correctness | Citation P | Citation R | Evidence faithful | "
+            "Unsupported claim rate | Abstention correct | Avg context tokens | Avg target tokens |"
+        ),
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for mode, metrics in result["answer_quality"]["aggregate_by_mode"].items():
+        target_context = metrics["avg_target_context_tokens"]
         lines.append(
             f"| `{mode}` | {metrics['answers_total']} | {metrics['answer_correctness']} | "
             f"{metrics['citation_precision']} | {metrics['citation_recall']} | "
             f"{metrics['evidence_faithfulness']} | {metrics['unsupported_claim_rate']} | "
-            f"{metrics['abstention_correctness']} |"
+            f"{metrics['abstention_correctness']} | {metrics['avg_estimated_context_tokens']} | "
+            f"{target_context if target_context is not None else 'n/a'} |"
         )
+    gate = result["answer_quality"]["secondary_metrics"]["graph_use_gate"]
     lines.extend(
         [
+            "",
+            "## S7 Graph-Use Gate",
+            "",
+            f"- Status: `{gate['status']}`",
+            f"- Policy: {gate['policy']}",
+            f"- Decision counts: {gate['decision_counts']}",
+            f"- Boundary: {gate['boundary']}",
             "",
             "## Critic Gate",
             "",

@@ -84,6 +84,12 @@ FAA ATCSCC advisories sampled from `2026-05-14` through `2026-05-20`, with
 candidate classes `GroundDelayProgramTMI`, `GroundStopTMI`, `ReRouteTMI`, and
 `TrafficManagementInitiative`.
 
+For thesis and defense discussion of source data shape, raw HTML structure,
+processed JSONL fields, temporal alignment, and the KG fact format, use
+`reports/stages/atcscc_data_format_and_processing_flow.md`.
+For the corresponding ontology/profile shape, use
+`reports/stages/atcscc_ontology_profile_overview.md`.
+
 Source family B is a planned second source-family pilot. It should use the
 already-downloaded FAA/NASA reference PDFs, especially:
 
@@ -112,6 +118,14 @@ The rerun uses the Consensus and ChatGPT Pro methodology reviews as design
 constraints for this narrow ATCSCC / ATMONTO study. They do not change the
 project into a general aviation KG or a broad GraphRAG benchmark.
 
+The current SOTA-facing reports are:
+
+- `reports/stages/sota_comparison_matrix.md`
+- `reports/stages/current_pipeline_sota_gap_audit.md`
+- `reports/stages/atcscc_event_centric_extraction_framing.md`
+- `reports/stages/atcscc_graph_use_plan.md`
+- `reports/stages/nasa_atmonto_s7_retrieval.md`
+
 The current all-zero `S1_llm_only` result is treated as an ontology-interface
 and canonicalization failure. `S1_raw_open_llm` is a drift diagnostic and must
 not report target-schema precision, recall, or F1. `S1b_llm_canonicalized`
@@ -129,6 +143,13 @@ The next rerun should follow a nine-stage pipeline:
 7. Repair with trace.
 8. Graph materialization.
 9. Layered evaluation.
+
+The first S7 graph-use gate now includes a deterministic retrieval-only proxy
+over 317 CQ-derived cases. It reports source/vector proxy, token-matched vector
+proxy, graph-only, hybrid, and routed GraphRAG modes. This is sufficient to
+evaluate route policy, graph path support, abstention behavior, and context
+budget proxies, but it is not yet a live vector-index or tokenizer-backed
+retrieval benchmark.
 
 The Extract-Define-Canonicalize design separates open extraction from
 target-schema scoring. Ontology-guided short-text KGC motivates 10-20

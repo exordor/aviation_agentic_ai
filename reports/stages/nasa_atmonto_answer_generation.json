@@ -10,8 +10,10 @@
     "modes": [
       "source_only",
       "vector_rag",
+      "token_matched_vector_rag",
       "graph_only",
-      "hybrid_graphrag"
+      "hybrid_graphrag",
+      "routed_graphrag"
     ],
     "generation_policy": "deterministic_answer_scaffold_no_live_llm",
     "boundary": "Retrospective ATCSCC advisory GraphRAG answer evaluation only."
@@ -1156,6 +1158,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -1163,7 +1172,12 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1.",
@@ -1174,6 +1188,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -1181,7 +1202,46 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 8,
+            "estimated_padding_tokens": 5,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "controlledNASelement=BNA. Citations: t1.",
@@ -1192,6 +1252,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -1208,7 +1275,12 @@
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 45,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
@@ -1219,6 +1291,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -1235,7 +1314,52 @@
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 8,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 8,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -1279,6 +1403,26 @@
             "page 1"
           ]
         },
+        "token_matched_vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
         "graph_only": {
           "answer_correctness": true,
           "citation_precision": 1.0,
@@ -1301,6 +1445,29 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.6667,
@@ -1344,6 +1511,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -1351,7 +1525,12 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1.",
@@ -1362,6 +1541,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -1369,7 +1555,46 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 8,
+            "estimated_padding_tokens": 5,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "controlledNASelement=BNA. Citations: t1.",
@@ -1380,6 +1605,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -1396,7 +1628,12 @@
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 45,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
@@ -1407,6 +1644,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -1423,7 +1667,52 @@
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 8,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 8,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -1448,6 +1737,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -1510,6 +1819,29 @@
             "page 1",
             "t1"
           ]
+        },
+        "routed_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
         }
       }
     },
@@ -1532,6 +1864,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -1539,7 +1878,12 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1.",
@@ -1550,6 +1894,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -1557,7 +1908,46 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 16,
+            "estimated_padding_tokens": 13,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: t1, t2.",
@@ -1572,6 +1962,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -1596,7 +1993,12 @@
               "object": "Airport",
               "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 53,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         },
         "hybrid_graphrag": {
           "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
@@ -1611,6 +2013,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -1635,7 +2044,64 @@
               "object": "Airport",
               "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 16,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
+        },
+        "routed_graphrag": {
+          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            },
+            {
+              "predicate": "controlledNASelement",
+              "value": "Airport"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "Airport",
+              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 16,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         }
       },
       "metrics": {
@@ -1660,6 +2126,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -1704,6 +2190,32 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": false,
           "citation_precision": 1.0,
           "citation_recall": 0.75,
@@ -1755,6 +2267,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -1762,7 +2281,12 @@
               "text": "EFFECTIVE TIME: 191322-191630 EFFECTIVE TIME: 191322-191630"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
@@ -1777,6 +2301,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -1784,7 +2315,50 @@
               "text": "EFFECTIVE TIME: 191322-191630 EFFECTIVE TIME: 191322-191630"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630 EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 16,
+            "estimated_padding_tokens": 10,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
@@ -1799,6 +2373,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -1823,7 +2404,12 @@
               "object": "00Z",
               "evidence_text": "EFFECTIVE TIME: 191322-191630"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 49,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         },
         "hybrid_graphrag": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1, t1, t2.",
@@ -1838,6 +2424,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -1862,7 +2455,47 @@
               "object": "00Z",
               "evidence_text": "EFFECTIVE TIME: 191322-191630"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 16,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
+        },
+        "routed_graphrag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_rag",
+            "template_id": "QT-Q01-TIME-WINDOW",
+            "reason": "vector/source context is sufficient for direct temporal or abstention templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630 EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         }
       },
       "metrics": {
@@ -1887,6 +2520,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -1954,6 +2607,26 @@
             "page 1",
             "t1",
             "t2"
+          ]
+        },
+        "routed_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
           ]
         }
       }
@@ -1982,6 +2655,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
@@ -1989,7 +2669,12 @@
               "text": "EFFECTIVE TIME: 151918-160030 EFFECTIVE TIME: 151918-160030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
@@ -2004,6 +2689,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
@@ -2011,7 +2703,50 @@
               "text": "EFFECTIVE TIME: 151918-160030 EFFECTIVE TIME: 151918-160030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030 EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 16,
+            "estimated_padding_tokens": 10,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
@@ -2026,6 +2761,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
@@ -2050,7 +2792,12 @@
               "object": "00Z",
               "evidence_text": "EFFECTIVE TIME: 151918-160030"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 50,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         },
         "hybrid_graphrag": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1, t1, t2.",
@@ -2065,6 +2812,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
@@ -2089,7 +2843,47 @@
               "object": "00Z",
               "evidence_text": "EFFECTIVE TIME: 151918-160030"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 16,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
+        },
+        "routed_graphrag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-15-063-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_rag",
+            "template_id": "QT-Q01-TIME-WINDOW",
+            "reason": "vector/source context is sufficient for direct temporal or abstention templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030 EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         }
       },
       "metrics": {
@@ -2114,6 +2908,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-063-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-063-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -2181,6 +2995,26 @@
             "page 1",
             "t1",
             "t2"
+          ]
+        },
+        "routed_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-063-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-063-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
           ]
         }
       }
@@ -2209,6 +3043,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
@@ -2216,7 +3057,12 @@
               "text": "EFFECTIVE TIME: 181545-182030 EFFECTIVE TIME: 181545-182030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
@@ -2231,6 +3077,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
@@ -2238,7 +3091,50 @@
               "text": "EFFECTIVE TIME: 181545-182030 EFFECTIVE TIME: 181545-182030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030 EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 16,
+            "estimated_padding_tokens": 10,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: t1, t2.",
@@ -2253,6 +3149,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
@@ -2277,7 +3180,12 @@
               "object": "00Z",
               "evidence_text": "EFFECTIVE TIME: 181545-182030"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 50,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         },
         "hybrid_graphrag": {
           "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1, t1, t2.",
@@ -2292,6 +3200,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
@@ -2316,7 +3231,47 @@
               "object": "00Z",
               "evidence_text": "EFFECTIVE TIME: 181545-182030"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 16,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
+        },
+        "routed_graphrag": {
+          "answer": "effectiveStartTime=00Z; effectiveEndTime=00Z. Citations: atcscc-2026-05-18-069-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "effectiveStartTime",
+              "value": "00Z"
+            },
+            {
+              "predicate": "effectiveEndTime",
+              "value": "00Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_rag",
+            "template_id": "QT-Q01-TIME-WINDOW",
+            "reason": "vector/source context is sufficient for direct temporal or abstention templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030 EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 6,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         }
       },
       "metrics": {
@@ -2341,6 +3296,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-18-069-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-18-069-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -2409,6 +3384,26 @@
             "t1",
             "t2"
           ]
+        },
+        "routed_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-18-069-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-18-069-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
         }
       }
     },
@@ -2431,6 +3426,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -2438,7 +3440,12 @@
               "text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
@@ -2449,6 +3456,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -2456,7 +3470,46 @@
               "text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 12,
+            "estimated_padding_tokens": 7,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "impactingConditionMessage=STAFFING. Citations: t1.",
@@ -2467,6 +3520,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -2483,7 +3543,12 @@
               "object": "STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 47,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
@@ -2494,6 +3559,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -2510,7 +3582,52 @@
               "object": "STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 12,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-CAUSE-CONDITION",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 12,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -2535,6 +3652,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -2576,6 +3713,29 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.6667,
@@ -2619,6 +3779,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -2626,7 +3793,12 @@
               "text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
@@ -2637,6 +3809,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -2644,7 +3823,46 @@
               "text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 12,
+            "estimated_padding_tokens": 7,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "impactingConditionMessage=STAFFING. Citations: t1.",
@@ -2655,6 +3873,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -2671,7 +3896,12 @@
               "object": "STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 47,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
@@ -2682,6 +3912,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -2698,7 +3935,52 @@
               "object": "STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 12,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-CAUSE-CONDITION",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 12,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -2723,6 +4005,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -2785,6 +4087,29 @@
             "page 1",
             "t1"
           ]
+        },
+        "routed_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
         }
       }
     },
@@ -2807,6 +4132,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -2814,7 +4146,12 @@
               "text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
@@ -2825,6 +4162,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -2832,7 +4176,46 @@
               "text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "impactingConditionMessage=STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 5,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 30,
+            "estimated_padding_tokens": 25,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "impactingConditionMessage=STAFFING; impactingCondition=other. Citations: t1, t2.",
@@ -2847,6 +4230,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -2871,7 +4261,12 @@
               "object": "other",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 65,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         },
         "hybrid_graphrag": {
           "answer": "impactingConditionMessage=STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
@@ -2886,6 +4281,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -2910,7 +4312,64 @@
               "object": "other",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 30,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
+        },
+        "routed_graphrag": {
+          "answer": "impactingConditionMessage=STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "impactingConditionMessage",
+              "value": "STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "other"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "graph_template",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-CAUSE-CONDITION",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "impactingConditionMessage",
+              "object": "STAFFING",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "other",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 30,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         }
       },
       "metrics": {
@@ -2935,6 +4394,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -2979,6 +4458,32 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": false,
           "citation_precision": 1.0,
           "citation_recall": 0.75,
@@ -3025,6 +4530,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -3032,7 +4544,12 @@
               "text": "_RQD"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 1,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "implementationStatus=RQD. Citations: atcscc-2026-05-19-032-p1-c1.",
@@ -3043,6 +4560,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -3050,7 +4574,46 @@
               "text": "_RQD"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 1,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "implementationStatus=RQD. Citations: atcscc-2026-05-19-032-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "implementationStatus",
+              "value": "RQD"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "_RQD"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 1,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 4,
+            "estimated_padding_tokens": 3,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "implementationStatus=RQD. Citations: t1.",
@@ -3061,6 +4624,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -3077,7 +4647,12 @@
               "object": "RQD",
               "evidence_text": "_RQD"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 42,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "implementationStatus=RQD. Citations: atcscc-2026-05-19-032-p1-c1, t1.",
@@ -3088,6 +4663,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -3104,7 +4686,52 @@
               "object": "RQD",
               "evidence_text": "_RQD"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 4,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "implementationStatus=RQD. Citations: atcscc-2026-05-19-032-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "implementationStatus",
+              "value": "RQD"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-STATUS-ACTION",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "_RQD"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "predicate": "implementationStatus",
+              "object": "RQD",
+              "evidence_text": "_RQD"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 4,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -3148,6 +4775,26 @@
             "page 1"
           ]
         },
+        "token_matched_vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
         "graph_only": {
           "answer_correctness": true,
           "citation_precision": 1.0,
@@ -3170,6 +4817,29 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.6667,
@@ -3213,6 +4883,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -3220,7 +4897,12 @@
               "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 10,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: atcscc-2026-05-19-079-p1-c1.",
@@ -3231,6 +4913,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -3238,7 +4927,46 @@
               "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 10,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 10,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 30,
+            "estimated_padding_tokens": 20,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: t1.",
@@ -3249,6 +4977,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -3265,7 +5000,12 @@
               "object": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
               "evidence_text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 60,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
@@ -3276,6 +5016,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -3292,7 +5039,52 @@
               "object": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
               "evidence_text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 30,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "initiativeComments=BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-STATUS-ACTION",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "initiativeComments",
+              "object": "BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45.",
+              "evidence_text": "COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45."
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 30,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -3336,6 +5128,26 @@
             "page 1"
           ]
         },
+        "token_matched_vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
         "graph_only": {
           "answer_correctness": true,
           "citation_precision": 1.0,
@@ -3358,6 +5170,29 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.6667,
@@ -3401,6 +5236,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -3408,7 +5250,12 @@
               "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 21,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
@@ -3419,6 +5266,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -3426,7 +5280,46 @@
               "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 21,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "1850Z"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 21,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 44,
+            "estimated_padding_tokens": 23,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "initiativeComments=1850Z. Citations: t1.",
@@ -3437,6 +5330,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -3453,7 +5353,12 @@
               "object": "1850Z",
               "evidence_text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 63,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
@@ -3464,6 +5369,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -3480,7 +5392,52 @@
               "object": "1850Z",
               "evidence_text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 44,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "initiativeComments=1850Z. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "initiativeComments",
+              "value": "1850Z"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-STATUS-ACTION",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "initiativeComments",
+              "object": "1850Z",
+              "evidence_text": "COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES MUST BE RECEIVED BY: 19/1850Z"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 44,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -3524,6 +5481,26 @@
             "page 1"
           ]
         },
+        "token_matched_vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
         "graph_only": {
           "answer_correctness": true,
           "citation_precision": 1.0,
@@ -3546,6 +5523,29 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.6667,
@@ -3589,6 +5589,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -3596,7 +5603,12 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1.",
@@ -3607,6 +5619,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -3614,7 +5633,46 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 8,
+            "estimated_padding_tokens": 5,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "controlledNASelement=BNA. Citations: t1.",
@@ -3625,6 +5683,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -3641,7 +5706,12 @@
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 45,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
@@ -3652,6 +5722,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
@@ -3668,7 +5745,52 @@
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 8,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-ROUTE-SEMANTICS",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 8,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -3712,6 +5834,26 @@
             "page 1"
           ]
         },
+        "token_matched_vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1"
+          ]
+        },
         "graph_only": {
           "answer_correctness": true,
           "citation_precision": 1.0,
@@ -3734,6 +5876,29 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-079-p1-c1",
+            "page 1",
+            "t1"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.6667,
@@ -3777,6 +5942,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -3784,7 +5956,12 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1.",
@@ -3795,6 +5972,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -3802,7 +5986,46 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 8,
+            "estimated_padding_tokens": 5,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "controlledNASelement=BNA. Citations: t1.",
@@ -3813,6 +6036,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -3829,7 +6059,12 @@
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 45,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         },
         "hybrid_graphrag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
@@ -3840,6 +6075,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
@@ -3856,7 +6098,52 @@
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 8,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
+        },
+        "routed_graphrag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-ROUTE-SEMANTICS",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 8,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 1
+          }
         }
       },
       "metrics": {
@@ -3881,6 +6168,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -3943,6 +6250,29 @@
             "page 1",
             "t1"
           ]
+        },
+        "routed_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "t1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-19-074-p1-c1",
+            "page 1",
+            "t1"
+          ]
         }
       }
     },
@@ -3965,6 +6295,13 @@
             }
           ],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -3972,7 +6309,12 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1.",
@@ -3983,6 +6325,13 @@
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -3990,7 +6339,46 @@
               "text": "CTL ELEMENT: BNA"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            }
+          ],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 16,
+            "estimated_padding_tokens": 13,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: t1, t2.",
@@ -4005,6 +6393,13 @@
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -4029,7 +6424,12 @@
               "object": "Airport",
               "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 53,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         },
         "hybrid_graphrag": {
           "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
@@ -4044,6 +6444,13 @@
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
@@ -4068,7 +6475,64 @@
               "object": "Airport",
               "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
-          ]
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 16,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
+        },
+        "routed_graphrag": {
+          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer_values": [
+            {
+              "predicate": "controlledNASelement",
+              "value": "BNA"
+            },
+            {
+              "predicate": "controlledNASelement",
+              "value": "Airport"
+            }
+          ],
+          "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "hybrid_graph_plus_source_span",
+            "decision": "hybrid_graphrag",
+            "template_id": "QT-Q01-ROUTE-SEMANTICS",
+            "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "text": "CTL ELEMENT: BNA"
+            }
+          ],
+          "graph_triples": [
+            {
+              "triple_id": "t1",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "BNA",
+              "evidence_text": "CTL ELEMENT: BNA"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "controlledNASelement",
+              "object": "Airport",
+              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
+            }
+          ],
+          "context_budget": {
+            "estimated_context_tokens": 16,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 2
+          }
         }
       },
       "metrics": {
@@ -4093,6 +6557,26 @@
           ]
         },
         "vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1"
+          ]
+        },
+        "token_matched_vector_rag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.5,
@@ -4161,6 +6645,32 @@
             "t1",
             "t2"
           ]
+        },
+        "routed_graphrag": {
+          "answer_correctness": false,
+          "citation_precision": 1.0,
+          "citation_recall": 0.75,
+          "evidence_faithfulness": false,
+          "unsupported_claim_rate": 0.5,
+          "abstention_correctness": true,
+          "expected_abstention": false,
+          "actual_abstention": false,
+          "valid_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "detected_citations": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "t1",
+            "t2"
+          ],
+          "available_citation_units": [
+            "atcscc-2026-05-15-067-p1-c1",
+            "page 1",
+            "t1",
+            "t2"
+          ]
         }
       }
     },
@@ -4181,6 +6691,13 @@
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in source_only.",
           "answer_values": [],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -4188,12 +6705,24 @@
               "text": "EFFECTIVE TIME: 191322-191630"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in vector_rag.",
           "answer_values": [],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -4201,12 +6730,53 @@
               "text": "EFFECTIVE TIME: 191322-191630"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in token_matched_vector_rag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 3,
+            "estimated_padding_tokens": 0,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in graph_only.",
           "answer_values": [],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -4214,12 +6784,24 @@
               "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 39,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "hybrid_graphrag": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in hybrid_graphrag.",
           "answer_values": [],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-19-032-p1-c1",
@@ -4227,7 +6809,38 @@
               "text": "EFFECTIVE TIME: 191322-191630"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "routed_graphrag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-19:032 in routed_graphrag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "vector_rag",
+            "template_id": "QT-A01-ABSTENTION-FIELDS",
+            "reason": "vector/source context is sufficient for direct temporal or abstention templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-19-032-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 191322-191630"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         }
       },
       "metrics": {
@@ -4263,6 +6876,22 @@
             "page 1"
           ]
         },
+        "token_matched_vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
         "graph_only": {
           "answer_correctness": true,
           "citation_precision": 1.0,
@@ -4280,6 +6909,22 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-19-032-p1-c1",
+            "page 1"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.0,
@@ -4314,6 +6959,13 @@
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in source_only.",
           "answer_values": [],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
@@ -4321,12 +6973,24 @@
               "text": "EFFECTIVE TIME: 151918-160030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in vector_rag.",
           "answer_values": [],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
@@ -4334,12 +6998,53 @@
               "text": "EFFECTIVE TIME: 151918-160030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in token_matched_vector_rag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 3,
+            "estimated_padding_tokens": 0,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in graph_only.",
           "answer_values": [],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
@@ -4347,12 +7052,24 @@
               "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 063 SAN/ZLA 05/15/2026 SAN AIRPORT ARRIVAL DE"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 40,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "hybrid_graphrag": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in hybrid_graphrag.",
           "answer_values": [],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-15-063-p1-c1",
@@ -4360,7 +7077,38 @@
               "text": "EFFECTIVE TIME: 151918-160030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "routed_graphrag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-15:063 in routed_graphrag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "vector_rag",
+            "template_id": "QT-A01-ABSTENTION-FIELDS",
+            "reason": "vector/source context is sufficient for direct temporal or abstention templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-15-063-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 151918-160030"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         }
       },
       "metrics": {
@@ -4396,6 +7144,22 @@
             "page 1"
           ]
         },
+        "token_matched_vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        },
         "graph_only": {
           "answer_correctness": true,
           "citation_precision": 1.0,
@@ -4413,6 +7177,22 @@
           ]
         },
         "hybrid_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-15-063-p1-c1",
+            "page 1"
+          ]
+        },
+        "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
           "citation_recall": 0.0,
@@ -4447,6 +7227,13 @@
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in source_only.",
           "answer_values": [],
           "evidence_route": "source_span",
+          "requested_mode": "source_only",
+          "underlying_mode": "source_only",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_source_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
@@ -4454,12 +7241,24 @@
               "text": "EFFECTIVE TIME: 181545-182030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "vector_rag": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in vector_rag.",
           "answer_values": [],
           "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_vector_rag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
@@ -4467,12 +7266,53 @@
               "text": "EFFECTIVE TIME: 181545-182030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "token_matched_vector_rag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in token_matched_vector_rag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "token_matched_vector_rag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "vector_control",
+            "reason": "token-matched control uses source-text context without graph triples"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0,
+            "token_match_target_mode": "hybrid_graphrag",
+            "target_estimated_context_tokens": 3,
+            "estimated_padding_tokens": 0,
+            "policy": "match the hybrid context budget without adding graph triples"
+          }
         },
         "graph_only": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in graph_only.",
           "answer_values": [],
           "evidence_route": "critic_gated_s4_graph",
+          "requested_mode": "graph_only",
+          "underlying_mode": "graph_only",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_graph_only",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
@@ -4480,12 +7320,24 @@
               "text": "ATCSCC Advisory\nFAA Home\nAir Traffic Control System Command Center\nATCSCC Home\n|\nProducts\n|\nWhat's New\n|\nSite Map\n|\nATCSCC FAQ\n|\nDiversion Forums\n|\nText-Only Version\nATCSCC Advisory\nATCSCC ADVZY 069 LAS/ZLA 05/18/2026 LAS AIRPORT ARRIVAL DE"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 40,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         },
         "hybrid_graphrag": {
           "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in hybrid_graphrag.",
           "answer_values": [],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
+          "requested_mode": "hybrid_graphrag",
+          "underlying_mode": "hybrid_graphrag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "always_hybrid_graphrag",
+            "reason": "fixed_mode"
+          },
           "fused_chunks": [
             {
               "chunk_id": "atcscc-2026-05-18-069-p1-c1",
@@ -4493,7 +7345,38 @@
               "text": "EFFECTIVE TIME: 181545-182030"
             }
           ],
-          "graph_triples": []
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
+        },
+        "routed_graphrag": {
+          "answer": "Insufficient evidence to answer without overclaiming. The benchmark marks controlledNASelement, extensionProbability, impactingCondition, reRouteReason as absent or unsupported for 2026-05-18:069 in routed_graphrag.",
+          "answer_values": [],
+          "evidence_route": "source_text_retrieval_proxy",
+          "requested_mode": "routed_graphrag",
+          "underlying_mode": "vector_rag",
+          "graph_use_decision": {
+            "route": "critic_gate",
+            "decision": "vector_rag",
+            "template_id": "QT-A01-ABSTENTION-FIELDS",
+            "reason": "vector/source context is sufficient for direct temporal or abstention templates"
+          },
+          "fused_chunks": [
+            {
+              "chunk_id": "atcscc-2026-05-18-069-p1-c1",
+              "page": 1,
+              "text": "EFFECTIVE TIME: 181545-182030"
+            }
+          ],
+          "graph_triples": [],
+          "context_budget": {
+            "estimated_context_tokens": 3,
+            "fused_chunk_count": 1,
+            "graph_triple_count": 0
+          }
         }
       },
       "metrics": {
@@ -4529,6 +7412,22 @@
             "page 1"
           ]
         },
+        "token_matched_vector_rag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
+        },
         "graph_only": {
           "answer_correctness": true,
           "citation_precision": 1.0,
@@ -4560,6 +7459,22 @@
             "atcscc-2026-05-18-069-p1-c1",
             "page 1"
           ]
+        },
+        "routed_graphrag": {
+          "answer_correctness": true,
+          "citation_precision": 1.0,
+          "citation_recall": 0.0,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
+          "abstention_correctness": true,
+          "expected_abstention": true,
+          "actual_abstention": true,
+          "valid_citations": [],
+          "detected_citations": [],
+          "available_citation_units": [
+            "atcscc-2026-05-18-069-p1-c1",
+            "page 1"
+          ]
         }
       }
     }
@@ -4573,7 +7488,11 @@
         "citation_recall": 0.4167,
         "evidence_faithfulness": 1.0,
         "unsupported_claim_rate": 0.0,
-        "abstention_correctness": 1.0
+        "abstention_correctness": 1.0,
+        "avg_estimated_context_tokens": 5.11,
+        "max_estimated_context_tokens": 21,
+        "avg_target_context_tokens": null,
+        "avg_estimated_padding_tokens": null
       },
       "vector_rag": {
         "answers_total": 18,
@@ -4582,7 +7501,24 @@
         "citation_recall": 0.4167,
         "evidence_faithfulness": 1.0,
         "unsupported_claim_rate": 0.0,
-        "abstention_correctness": 1.0
+        "abstention_correctness": 1.0,
+        "avg_estimated_context_tokens": 5.11,
+        "max_estimated_context_tokens": 21,
+        "avg_target_context_tokens": null,
+        "avg_estimated_padding_tokens": null
+      },
+      "token_matched_vector_rag": {
+        "answers_total": 18,
+        "answer_correctness": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 0.4167,
+        "evidence_faithfulness": 1.0,
+        "unsupported_claim_rate": 0.0,
+        "abstention_correctness": 1.0,
+        "avg_estimated_context_tokens": 5.11,
+        "max_estimated_context_tokens": 21,
+        "avg_target_context_tokens": 14.06,
+        "avg_estimated_padding_tokens": 8.94
       },
       "graph_only": {
         "answers_total": 18,
@@ -4591,7 +7527,11 @@
         "citation_recall": 0.3333,
         "evidence_faithfulness": 0.8333,
         "unsupported_claim_rate": 0.0833,
-        "abstention_correctness": 1.0
+        "abstention_correctness": 1.0,
+        "avg_estimated_context_tokens": 48.78,
+        "max_estimated_context_tokens": 65,
+        "avg_target_context_tokens": null,
+        "avg_estimated_padding_tokens": null
       },
       "hybrid_graphrag": {
         "answers_total": 18,
@@ -4600,14 +7540,31 @@
         "citation_recall": 0.5833,
         "evidence_faithfulness": 0.8333,
         "unsupported_claim_rate": 0.0833,
-        "abstention_correctness": 1.0
+        "abstention_correctness": 1.0,
+        "avg_estimated_context_tokens": 14.06,
+        "max_estimated_context_tokens": 44,
+        "avg_target_context_tokens": null,
+        "avg_estimated_padding_tokens": null
+      },
+      "routed_graphrag": {
+        "answers_total": 18,
+        "answer_correctness": 0.8333,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5417,
+        "evidence_faithfulness": 0.8333,
+        "unsupported_claim_rate": 0.0833,
+        "abstention_correctness": 1.0,
+        "avg_estimated_context_tokens": 12.39,
+        "max_estimated_context_tokens": 44,
+        "avg_target_context_tokens": null,
+        "avg_estimated_padding_tokens": null
       }
     },
     "secondary_metrics": {
       "cost_latency": {
         "provider": "none",
         "model": "deterministic_scaffold",
-        "elapsed_seconds": 0.0233,
+        "elapsed_seconds": 0.0231,
         "questions_total": 18,
         "cases_total": 18,
         "chunks_path": null,
@@ -4621,6 +7578,77 @@
           "completion_tokens": 0,
           "total_tokens": 0
         }
+      },
+      "graph_use_gate": {
+        "policy": "route each CQ template to vector or hybrid graph context before generation",
+        "status": "deterministic_proxy_gate",
+        "decision_counts": {
+          "hybrid_graphrag": 12,
+          "vector_rag": 6
+        },
+        "by_template": {
+          "QT-Q01-AFFECTED-NAS-ELEMENTS": {
+            "underlying_mode": "hybrid_graphrag",
+            "graph_use_decision": {
+              "route": "graph_template",
+              "decision": "hybrid_graphrag",
+              "template_id": "QT-Q01-AFFECTED-NAS-ELEMENTS",
+              "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+            },
+            "cases": 3
+          },
+          "QT-Q01-TIME-WINDOW": {
+            "underlying_mode": "vector_rag",
+            "graph_use_decision": {
+              "route": "graph_template",
+              "decision": "vector_rag",
+              "template_id": "QT-Q01-TIME-WINDOW",
+              "reason": "vector/source context is sufficient for direct temporal or abstention templates"
+            },
+            "cases": 3
+          },
+          "QT-Q01-CAUSE-CONDITION": {
+            "underlying_mode": "hybrid_graphrag",
+            "graph_use_decision": {
+              "route": "graph_template",
+              "decision": "hybrid_graphrag",
+              "template_id": "QT-Q01-CAUSE-CONDITION",
+              "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+            },
+            "cases": 3
+          },
+          "QT-Q01-STATUS-ACTION": {
+            "underlying_mode": "hybrid_graphrag",
+            "graph_use_decision": {
+              "route": "hybrid_graph_plus_source_span",
+              "decision": "hybrid_graphrag",
+              "template_id": "QT-Q01-STATUS-ACTION",
+              "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+            },
+            "cases": 3
+          },
+          "QT-Q01-ROUTE-SEMANTICS": {
+            "underlying_mode": "hybrid_graphrag",
+            "graph_use_decision": {
+              "route": "hybrid_graph_plus_source_span",
+              "decision": "hybrid_graphrag",
+              "template_id": "QT-Q01-ROUTE-SEMANTICS",
+              "reason": "graph context is used for relation-heavy, entity-role, cause/status, or route templates"
+            },
+            "cases": 3
+          },
+          "QT-A01-ABSTENTION-FIELDS": {
+            "underlying_mode": "vector_rag",
+            "graph_use_decision": {
+              "route": "critic_gate",
+              "decision": "vector_rag",
+              "template_id": "QT-A01-ABSTENTION-FIELDS",
+              "reason": "vector/source context is sufficient for direct temporal or abstention templates"
+            },
+            "cases": 3
+          }
+        },
+        "boundary": "The gate is evaluated in the deterministic answer scaffold. It is a proxy for query routing and does not claim live retriever performance."
       }
     },
     "metric_policy": "Answer correctness, evidence faithfulness, unsupported claim rate, citation precision/recall, and abstention correctness are reported separately."

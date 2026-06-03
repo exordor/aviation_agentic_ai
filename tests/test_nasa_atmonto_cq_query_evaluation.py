@@ -135,6 +135,12 @@ def test_build_nasa_atmonto_cq_query_evaluation_scores_answer_sets(tmp_path: Pat
     assert aggregate["false_positive_count"] == 3
     assert aggregate["micro_f1"] is not None
     assert result["aggregate_by_system"]["S0_rule_only"]["true_positive_count"] == 3
+    gate = result["graph_use_gate_proxy"]
+    assert gate["status"] == "deterministic_queryability_proxy"
+    assert gate["aggregate"]["micro_f1"] is not None
+    selected = {item["template_id"]: item["selected_system"] for item in gate["selected_templates"]}
+    assert selected["QT-Q01-TIME-WINDOW"] == "S0_rule_only"
+    assert selected["QT-Q01-AFFECTED-NAS-ELEMENTS"] == "S4_hybrid_backbone_enrichment"
 
 
 def test_write_nasa_atmonto_cq_query_evaluation_outputs_reports(tmp_path: Path) -> None:
@@ -155,5 +161,7 @@ def test_write_nasa_atmonto_cq_query_evaluation_outputs_reports(tmp_path: Path) 
     assert manifest_json.exists()
     assert manifest_md.exists()
     assert result["query_manifest"]["status"] == "query_templates_ready"
-    assert "CQ Query and Answer-Quality" in md_path.read_text(encoding="utf-8")
+    markdown = md_path.read_text(encoding="utf-8")
+    assert "CQ Query and Answer-Quality" in markdown
+    assert "S7 Graph-Use Gate Proxy" in markdown
     assert "ATCSCC CQ Query Manifest" in manifest_md.read_text(encoding="utf-8")
