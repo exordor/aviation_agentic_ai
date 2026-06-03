@@ -85,6 +85,8 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - NASA ATMONTO S7 broad answer-review packet: `reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md`
 - NASA ATMONTO S7 answer-review worksheet: `reports/stages/nasa_atmonto_s7_answer_review_worksheet.html`
 - NASA ATMONTO S7 answer-review protocol: `reports/stages/nasa_atmonto_s7_answer_review_protocol.md`
+- NASA ATMONTO S7 review handoff: `reports/stages/nasa_atmonto_s7_review_handoff.md`
+- NASA ATMONTO S7 automated adversarial review: `reports/stages/nasa_atmonto_s7_automated_adversarial_review.md`
 - NASA ATMONTO S7 answer-review import status: `reports/stages/nasa_atmonto_s7_answer_review_import.md`
 - NASA ATMONTO S7 answer-review decision status: `reports/stages/nasa_atmonto_s7_answer_review_decisions.md`
 - NASA ATMONTO S7 candidate adjudication: `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`

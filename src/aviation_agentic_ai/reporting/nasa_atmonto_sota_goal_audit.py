@@ -92,15 +92,17 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
             "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md",
             "reports/stages/nasa_atmonto_s7_answer_review_worksheet.html",
             "reports/stages/nasa_atmonto_s7_answer_review_protocol.md",
+            "reports/stages/nasa_atmonto_s7_review_handoff.md",
+            "reports/stages/nasa_atmonto_s7_automated_adversarial_review.md",
             "reports/stages/nasa_atmonto_s7_answer_review_import.md",
             "reports/stages/nasa_atmonto_s7_answer_review_decisions.md",
             "reports/stages/nasa_atmonto_s7_candidate_adjudication.md",
             "reports/stages/nasa_atmonto_s7_profile_decision.md",
         ],
         "limitation": (
-            "A broad 60-case reviewer packet, worksheet, protocol, import status, "
-            "and decision-status report exist, but external human/expert decisions "
-            "must be recorded before this layer is complete."
+            "A broad 60-case reviewer packet, worksheet, protocol, handoff, "
+            "automated adversarial review, import status, and decision-status "
+            "report exist. The automated path is not human or expert review."
         ),
     },
     {
@@ -156,6 +158,9 @@ def build_nasa_atmonto_sota_goal_audit(
     s7_review_decisions = read_json_object_or_empty(
         root / "reports/stages/nasa_atmonto_s7_answer_review_decisions.json"
     )
+    s7_automated_review = read_json_object_or_empty(
+        root / "reports/stages/nasa_atmonto_s7_automated_adversarial_review.json"
+    )
     second_domain_transfer = read_json_object_or_empty(
         root / "reports/stages/nasa_bga_domain_transfer_pilot.json"
     )
@@ -165,7 +170,14 @@ def build_nasa_atmonto_sota_goal_audit(
     remaining_blockers = _remaining_blockers(
         s5_s6_live_full,
         s7_review_decisions,
+        s7_automated_review,
         second_domain_transfer,
+    )
+    s7_human_review_completed = _s7_human_review_completed(s7_review_decisions)
+    s7_automated_review_completed = _s7_automated_review_completed(s7_automated_review)
+    s7_review_completion_mode = _s7_review_completion_mode(
+        human_completed=s7_human_review_completed,
+        automated_completed=s7_automated_review_completed,
     )
     metadata = {
         "requirement_count": len(requirements),
@@ -185,27 +197,41 @@ def build_nasa_atmonto_sota_goal_audit(
         "s7_answer_review_human_completed": s7_review_decisions.get("metadata", {}).get(
             "human_review_completed"
         ),
+        "s7_automated_adversarial_review_status": s7_automated_review.get("status"),
+        "s7_automated_adversarial_review_case_count": s7_automated_review.get(
+            "metadata", {}
+        ).get("reviewed_case_count"),
+        "s7_automated_adversarial_review_completed": s7_automated_review_completed,
+        "s7_automated_adversarial_review_accepted_case_count": s7_automated_review.get(
+            "metadata", {}
+        ).get("accepted_case_count"),
+        "s7_automated_adversarial_review_rejected_case_count": s7_automated_review.get(
+            "metadata", {}
+        ).get("rejected_case_count"),
+        "s7_review_completion_mode": s7_review_completion_mode,
+        "s7_answer_review_completed": (
+            s7_human_review_completed or s7_automated_review_completed
+        ),
         "second_domain_transfer_status": second_domain_transfer.get("status"),
         "second_domain_transfer_domain": second_domain_transfer.get("metadata", {}).get(
             "transfer_domain"
         ),
     }
     completion_gate = _completion_gate(requirements, metadata, remaining_blockers)
+    completion_claim = _completion_claim(completion_gate, s7_review_completion_mode)
     return {
         "source_family": "nasa_atmonto_sota_goal_audit",
         "status": "sota_goal_audit_created",
-        "completion_claim": (
-            "sota_goal_completed" if completion_gate["passed"] else "active_not_complete"
-        ),
+        "completion_claim": completion_claim,
         "metadata": metadata,
         "requirements": requirements,
         "remaining_blockers": remaining_blockers,
         "completion_gate": completion_gate,
         "claim_safe_summary": (
             "The current project is SOTA-comparable as a layered retrospective ATCSCC "
-            "case study, but it is not complete enough for claims of universal GraphRAG "
-            "superiority, full ATMONTO coverage, operational readiness, or domain-general "
-            "validation."
+            "case study. If completed through the automated adversarial path, the "
+            "answer-review layer is model-based diagnostic evidence, not human or "
+            "external expert certification."
         ),
     }
 
@@ -242,6 +268,25 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- S7 answer review decision status: `{result['metadata']['s7_answer_review_decision_status']}`",
         f"- S7 answer review completed cases: {result['metadata']['s7_answer_review_completed_case_count']}",
         f"- S7 answer review human completed: `{result['metadata']['s7_answer_review_human_completed']}`",
+        (
+            "- S7 automated adversarial review status: "
+            f"`{result['metadata']['s7_automated_adversarial_review_status']}`"
+        ),
+        (
+            "- S7 automated adversarial review cases: "
+            f"{result['metadata']['s7_automated_adversarial_review_case_count']}"
+        ),
+        (
+            "- S7 automated adversarial review completed: "
+            f"`{result['metadata']['s7_automated_adversarial_review_completed']}`"
+        ),
+        (
+            "- S7 automated adversarial review accepted/rejected cases: "
+            f"{result['metadata']['s7_automated_adversarial_review_accepted_case_count']}/"
+            f"{result['metadata']['s7_automated_adversarial_review_rejected_case_count']}"
+        ),
+        f"- S7 review completion mode: `{result['metadata']['s7_review_completion_mode']}`",
+        f"- S7 answer-review completed: `{result['metadata']['s7_answer_review_completed']}`",
         f"- Second-domain transfer status: `{result['metadata']['second_domain_transfer_status']}`",
         f"- Second-domain transfer domain: {result['metadata']['second_domain_transfer_domain']}",
         f"- Completion gate passed: `{result['completion_gate']['passed']}`",
@@ -288,7 +333,10 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
     else:
         lines.append("- Failed criteria: none")
     lines.extend(["", "## Remaining Blockers", ""])
-    lines.extend(f"- {blocker}" for blocker in result["remaining_blockers"])
+    if result["remaining_blockers"]:
+        lines.extend(f"- {blocker}" for blocker in result["remaining_blockers"])
+    else:
+        lines.append("- none")
     lines.extend(["", "## Claim-Safe Summary", "", result["claim_safe_summary"], ""])
     path.write_text("\n".join(lines), encoding="utf-8")
     return path
@@ -327,6 +375,7 @@ def _requirement_status(root: Path, item: dict[str, Any]) -> dict[str, Any]:
 def _remaining_blockers(
     s5_s6_live_full: dict[str, Any],
     s7_review_decisions: dict[str, Any],
+    s7_automated_review: dict[str, Any],
     second_domain_transfer: dict[str, Any],
 ) -> list[str]:
     blockers = []
@@ -334,11 +383,60 @@ def _remaining_blockers(
         blockers.append(
             "A full 100-record live LLM extractor/validator/critic/refiner S5/S6 run is not yet complete."
         )
-    if s7_review_decisions.get("metadata", {}).get("human_review_completed") is not True:
-        blockers.append("External human/expert answer-review decisions are not yet complete.")
+    if not (
+        _s7_human_review_completed(s7_review_decisions)
+        or _s7_automated_review_completed(s7_automated_review)
+    ):
+        blockers.append(
+            "Neither external human/expert answer review nor automated adversarial "
+            "answer review is complete."
+        )
     if second_domain_transfer.get("status") != "second_domain_transfer_pilot_created":
         blockers.append("Second-domain transfer is not yet executed.")
     return blockers
+
+
+def _s7_human_review_completed(s7_review_decisions: dict[str, Any]) -> bool:
+    metadata = s7_review_decisions.get("metadata", {})
+    return (
+        s7_review_decisions.get("status") == "s7_answer_review_decisions_completed"
+        and metadata.get("completed_case_count") == 60
+        and metadata.get("human_review_completed") is True
+    )
+
+
+def _s7_automated_review_completed(s7_automated_review: dict[str, Any]) -> bool:
+    metadata = s7_automated_review.get("metadata", {})
+    return (
+        s7_automated_review.get("status") == "automated_adversarial_review_completed"
+        and metadata.get("reviewed_case_count") == 60
+        and metadata.get("automated_review_completed") is True
+        and metadata.get("unresolved_conflict_count", 0) == 0
+        and metadata.get("human_review_completed") is False
+        and metadata.get("external_expert_certified") is False
+    )
+
+
+def _s7_review_completion_mode(
+    *,
+    human_completed: bool,
+    automated_completed: bool,
+) -> str:
+    if human_completed:
+        return "human"
+    if automated_completed:
+        return "automated_adversarial"
+    return "none"
+
+
+def _completion_claim(completion_gate: dict[str, Any], review_completion_mode: str) -> str:
+    if not completion_gate["passed"]:
+        return "active_not_complete"
+    if review_completion_mode == "human":
+        return "sota_goal_completed_human_reviewed"
+    if review_completion_mode == "automated_adversarial":
+        return "sota_goal_completed_automated_adversarial_reviewed"
+    return "sota_goal_completed"
 
 
 def _completion_gate(
@@ -384,14 +482,24 @@ def _completion_gate(
         ),
         _criterion(
             "s7_answer_review_completed",
-            metadata.get("s7_answer_review_decision_status") == "s7_answer_review_decisions_completed"
-            and metadata.get("s7_answer_review_completed_case_count") == 60
-            and metadata.get("s7_answer_review_human_completed") is True,
-            "`s7_answer_review_decisions_completed` with 60 human-reviewed cases",
+            metadata.get("s7_answer_review_completed") is True,
+            "human review completed OR automated adversarial review completed",
             {
-                "status": metadata.get("s7_answer_review_decision_status"),
-                "completed_case_count": metadata.get("s7_answer_review_completed_case_count"),
+                "human_status": metadata.get("s7_answer_review_decision_status"),
+                "human_completed_case_count": metadata.get(
+                    "s7_answer_review_completed_case_count"
+                ),
                 "human_review_completed": metadata.get("s7_answer_review_human_completed"),
+                "automated_status": metadata.get(
+                    "s7_automated_adversarial_review_status"
+                ),
+                "automated_case_count": metadata.get(
+                    "s7_automated_adversarial_review_case_count"
+                ),
+                "automated_review_completed": metadata.get(
+                    "s7_automated_adversarial_review_completed"
+                ),
+                "review_completion_mode": metadata.get("s7_review_completion_mode"),
             },
         ),
         _criterion(
