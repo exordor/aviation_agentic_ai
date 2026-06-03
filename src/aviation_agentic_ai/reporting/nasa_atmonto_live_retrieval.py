@@ -3,11 +3,13 @@ from __future__ import annotations
 from collections import Counter
 import math
 import re
-from typing import Any
+from typing import Any, Callable, Iterable
 
 from aviation_agentic_ai.reporting.nasa_atmonto_answer_benchmark import chunk_id
 
 TOKEN_RE = re.compile(r"[a-z0-9][a-z0-9_:/.-]*", re.IGNORECASE)
+DEFAULT_DENSE_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+DenseEncoder = Callable[[list[str]], Iterable[Iterable[float]]]
 
 
 def tokenize_for_retrieval(text: object) -> list[str]:
@@ -116,6 +118,87 @@ def query_live_tfidf_source_index(
     return hits
 
 
+def build_dense_source_index(
+    source_records: list[dict[str, Any]],
+    *,
+    model_name: str = DEFAULT_DENSE_MODEL_NAME,
+    local_files_only: bool = True,
+    encoder: DenseEncoder | None = None,
+) -> dict[str, Any]:
+    documents = [
+        source_record_document(record)
+        for record in source_records
+        if record.get("source_id") or record.get("sample_id")
+    ]
+    if encoder is None:
+        from sentence_transformers import SentenceTransformer
+
+        model = SentenceTransformer(model_name, local_files_only=local_files_only)
+
+        def encode_texts(texts: list[str]) -> Iterable[Iterable[float]]:
+            return model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
+
+        active_encoder: DenseEncoder = encode_texts
+    else:
+        active_encoder = encoder
+    embeddings = [_normalize_dense_vector(vector) for vector in active_encoder([doc["text"] for doc in documents])]
+    return {
+        "documents": documents,
+        "embeddings": embeddings,
+        "document_count": len(documents),
+        "retriever": "dense_embedding_vector",
+        "model_name": model_name,
+        "local_files_only": local_files_only,
+        "_encoder": active_encoder,
+    }
+
+
+def query_dense_source_index(
+    index: dict[str, Any],
+    query: str,
+    *,
+    top_k: int = 5,
+) -> list[dict[str, Any]]:
+    encoder = index.get("_encoder")
+    if not callable(encoder):
+        raise RuntimeError("Dense source index is missing an encoder")
+    query_vector = _normalize_dense_vector(next(iter(encoder([query]))))
+    scored: list[dict[str, Any]] = []
+    documents = index.get("documents", [])
+    embeddings = index.get("embeddings", [])
+    for position, document in enumerate(documents):
+        embedding = embeddings[position] if position < len(embeddings) else []
+        scored.append({"score": _dense_dot(query_vector, embedding), "document": document})
+    scored.sort(
+        key=lambda item: (
+            -float(item["score"]),
+            str(item["document"].get("source_id") or ""),
+        )
+    )
+    hits: list[dict[str, Any]] = []
+    for rank, item in enumerate(scored[:top_k], start=1):
+        document = item["document"]
+        hits.append(
+            {
+                "kind": "source_chunk",
+                "chunk_id": document["chunk_id"],
+                "page": 1,
+                "rank": rank,
+                "score": round(float(item["score"]), 6),
+                "text": document["text"],
+                "source_id": document["source_id"],
+                "source": "dense_embedding_vector",
+                "metadata": {
+                    "source_url": document.get("source_url"),
+                    "advisory_date": document.get("advisory_date"),
+                    "advisory_number": document.get("advisory_number"),
+                    "model_name": index.get("model_name"),
+                },
+            }
+        )
+    return hits
+
+
 def _tfidf_vector(counts: Counter[str], idf: dict[str, float]) -> dict[str, float]:
     total = sum(counts.values()) or 1
     return {
@@ -141,3 +224,15 @@ def _cosine(
         left, right = right, left
     dot = sum(value * right.get(token, 0.0) for token, value in left.items())
     return dot / (left_norm * right_norm)
+
+
+def _normalize_dense_vector(vector: Iterable[float]) -> list[float]:
+    values = [float(value) for value in vector]
+    norm = math.sqrt(sum(value * value for value in values))
+    if norm <= 0.0:
+        return values
+    return [value / norm for value in values]
+
+
+def _dense_dot(left: list[float], right: list[float]) -> float:
+    return sum(a * b for a, b in zip(left, right, strict=False))

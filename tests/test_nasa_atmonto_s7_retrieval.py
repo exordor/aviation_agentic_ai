@@ -19,6 +19,10 @@ def _write_jsonl(path: Path, records: list[dict]) -> None:
     path.write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
 
 
+def _fake_dense_encoder(texts: list[str]) -> list[list[float]]:
+    return [[1.0 if "2026-05-19:032" in text else 0.0, 1.0] for text in texts]
+
+
 def _write_fixture(tmp_path: Path) -> dict[str, Path]:
     source_text = (
         "ATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD. "
@@ -181,20 +185,25 @@ def test_build_nasa_atmonto_s7_retrieval_reports_modes_and_gate(tmp_path: Path) 
         source_record_path=paths["source"],
         query_manifest_path=paths["manifest"],
         max_cases_per_template=1,
+        dense_encoder=_fake_dense_encoder,
     )
 
     assert result["status"] == "s7_retrieval_gate_evaluated"
     assert result["metadata"]["modes"] == list(RETRIEVAL_MODES)
     assert "live_tfidf_vector" in result["metadata"]["modes"]
+    assert "dense_embedding_vector" in result["metadata"]["modes"]
     assert result["metadata"]["retrieval_case_count"] == 6
     assert result["metadata"]["live_source_document_count"] == 1
+    assert result["metadata"]["dense_source_document_count"] == 1
     assert result["metadata"]["graph_source_node_count"] == 1
     assert result["metadata"]["graph_fact_node_count"] == 6
     assert result["metadata"]["graph_edge_count"] == 12
     assert result["critic_gate"]["rejected_values"] == ["ADVZY"]
     assert result["aggregate_by_mode"]["token_matched_vector_proxy"]["avg_target_context_tokens"]
     assert result["aggregate_by_mode"]["token_matched_live_tfidf_vector"]["avg_target_context_tokens"]
+    assert result["aggregate_by_mode"]["token_matched_dense_embedding_vector"]["avg_target_context_tokens"]
     assert result["aggregate_by_mode"]["live_tfidf_vector"]["target_source_hit_rate"] == 1.0
+    assert result["aggregate_by_mode"]["dense_embedding_vector"]["target_source_hit_rate"] == 1.0
     assert result["aggregate_by_mode"]["live_tfidf_vector"]["avg_retrieval_latency_ms"] is not None
     assert result["aggregate_by_mode"]["graph_only"]["avg_retrieval_latency_ms"] is not None
     assert result["aggregate_by_mode"]["hybrid_graphrag"]["avg_path_support_rate"] is not None
@@ -219,6 +228,7 @@ def test_write_nasa_atmonto_s7_retrieval_outputs_reports(tmp_path: Path) -> None
         source_record_path=paths["source"],
         query_manifest_path=paths["manifest"],
         max_cases_per_template=1,
+        dense_encoder=_fake_dense_encoder,
     )
 
     assert json_path.exists()
@@ -228,6 +238,8 @@ def test_write_nasa_atmonto_s7_retrieval_outputs_reports(tmp_path: Path) -> None
     assert "S7 Retrieval-Only Graph-Use Gate" in markdown
     assert "token_matched_vector_proxy" in markdown
     assert "live_tfidf_vector" in markdown
+    assert "dense_embedding_vector" in markdown
+    assert "Dense retrieval model" in markdown
     assert "Target hit" in markdown
     assert "Materialized graph" in markdown
     assert "Avg latency ms" in markdown

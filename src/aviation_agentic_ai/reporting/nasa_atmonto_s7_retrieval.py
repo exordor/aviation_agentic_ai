@@ -30,7 +30,11 @@ from aviation_agentic_ai.reporting.nasa_atmonto_graph_retrieval import (
     traverse_materialized_graph_for_label,
 )
 from aviation_agentic_ai.reporting.nasa_atmonto_live_retrieval import (
+    DEFAULT_DENSE_MODEL_NAME,
+    DenseEncoder,
+    build_dense_source_index,
     build_live_tfidf_source_index,
+    query_dense_source_index,
     query_live_tfidf_source_index,
 )
 
@@ -46,9 +50,15 @@ RETRIEVAL_MODES: tuple[str, ...] = (
     "token_matched_vector_proxy",
     "live_tfidf_vector",
     "token_matched_live_tfidf_vector",
+    "dense_embedding_vector",
+    "token_matched_dense_embedding_vector",
     "graph_only",
     "hybrid_graphrag",
     "routed_graphrag",
+    "routed_live_tfidf_graphrag",
+    "routed_token_matched_live_tfidf_graphrag",
+    "routed_dense_graphrag",
+    "routed_token_matched_dense_graphrag",
 )
 
 
@@ -61,6 +71,9 @@ def build_nasa_atmonto_s7_retrieval(
     query_manifest_path: str | Path | None = DEFAULT_QUERY_MANIFEST_PATH,
     max_cases_per_template: int = 1000,
     live_top_k: int = 5,
+    dense_model_name: str = DEFAULT_DENSE_MODEL_NAME,
+    dense_local_files_only: bool = True,
+    dense_encoder: DenseEncoder | None = None,
 ) -> dict[str, Any]:
     started = perf_counter()
     root = Path(repo_root)
@@ -78,6 +91,12 @@ def build_nasa_atmonto_s7_retrieval(
     )
     gated_facts_by_source, critic_gate = gate_s4_facts(facts_by_source(s4_records))
     live_source_index = build_live_tfidf_source_index(source_records)
+    dense_source_index = build_dense_source_index(
+        source_records,
+        model_name=dense_model_name,
+        local_files_only=dense_local_files_only,
+        encoder=dense_encoder,
+    )
     materialized_graph = build_materialized_atcscc_fact_graph(gated_facts_by_source)
     answer_items_by_template_source = answer_items_index(benchmark["labels"])
     records = [
@@ -85,6 +104,7 @@ def build_nasa_atmonto_s7_retrieval(
             label,
             materialized_graph,
             live_source_index=live_source_index,
+            dense_source_index=dense_source_index,
             answer_items_by_template_source=answer_items_by_template_source,
             live_top_k=live_top_k,
         )
@@ -112,14 +132,17 @@ def build_nasa_atmonto_s7_retrieval(
             "max_cases_per_template": max_cases_per_template,
             "live_top_k": live_top_k,
             "live_source_document_count": live_source_index["document_count"],
+            "dense_model_name": dense_source_index["model_name"],
+            "dense_local_files_only": dense_source_index["local_files_only"],
+            "dense_source_document_count": dense_source_index["document_count"],
             "graph_source_node_count": materialized_graph["source_node_count"],
             "graph_fact_node_count": materialized_graph["fact_node_count"],
             "graph_edge_count": materialized_graph["edge_count"],
             "elapsed_seconds": round(elapsed_seconds, 4),
             "boundary": (
                 "Retrieval-only evaluation over source-bounded ATCSCC labels. "
-                "Live vector modes use a deterministic lexical TF-IDF source index, "
-                "not a dense embedding index."
+                "Live retrieval modes include deterministic lexical TF-IDF and "
+                "dense embedding source indexes over frozen ATCSCC records."
             ),
         },
         "critic_gate": critic_gate,
@@ -128,8 +151,8 @@ def build_nasa_atmonto_s7_retrieval(
         "records": records,
         "claim_boundary": (
             "This report evaluates retrieval-context availability, graph path support, "
-            "answer-set recovery, live lexical-vector retrieval, and token-budget proxies. "
-            "It does not prove dense-vector or operational GraphRAG performance."
+            "answer-set recovery, live lexical-vector retrieval, dense-vector retrieval, "
+            "and token-budget controls. It does not prove operational GraphRAG performance."
         ),
     }
 
@@ -139,6 +162,7 @@ def retrieval_record_for_label(
     materialized_graph: dict[str, Any],
     *,
     live_source_index: dict[str, Any],
+    dense_source_index: dict[str, Any],
     answer_items_by_template_source: dict[tuple[str, str], list[dict[str, Any]]],
     live_top_k: int,
 ) -> dict[str, Any]:
@@ -151,6 +175,7 @@ def retrieval_record_for_label(
             source_items,
             graph_items,
             live_source_index=live_source_index,
+            dense_source_index=dense_source_index,
             answer_items_by_template_source=answer_items_by_template_source,
             live_top_k=live_top_k,
         )
@@ -176,15 +201,34 @@ def retrieval_mode_result(
     graph_items: list[dict[str, Any]],
     *,
     live_source_index: dict[str, Any],
+    dense_source_index: dict[str, Any],
     answer_items_by_template_source: dict[tuple[str, str], list[dict[str, Any]]],
     live_top_k: int,
 ) -> dict[str, Any]:
     started = perf_counter()
-    underlying_mode = routed_underlying_mode(label) if mode == "routed_graphrag" else mode
+    route_mode = routed_underlying_mode(label)
+    if mode == "routed_graphrag":
+        underlying_mode = route_mode
+    elif mode == "routed_live_tfidf_graphrag":
+        underlying_mode = "hybrid_graphrag" if route_mode == "hybrid_graphrag" else "live_tfidf_vector"
+    elif mode == "routed_token_matched_live_tfidf_graphrag":
+        underlying_mode = "hybrid_graphrag" if route_mode == "hybrid_graphrag" else "live_tfidf_vector"
+    elif mode == "routed_dense_graphrag":
+        underlying_mode = (
+            "hybrid_graphrag" if route_mode == "hybrid_graphrag" else "dense_embedding_vector"
+        )
+    elif mode == "routed_token_matched_dense_graphrag":
+        underlying_mode = (
+            "hybrid_graphrag" if route_mode == "hybrid_graphrag" else "dense_embedding_vector"
+        )
+    else:
+        underlying_mode = mode
     if mode == "token_matched_vector_proxy":
         underlying_mode = "vector_rag_proxy"
     if mode == "token_matched_live_tfidf_vector":
         underlying_mode = "live_tfidf_vector"
+    if mode == "token_matched_dense_embedding_vector":
+        underlying_mode = "dense_embedding_vector"
     if underlying_mode == "live_tfidf_vector":
         contexts, answer_items = live_contexts_for_label(
             label,
@@ -192,7 +236,27 @@ def retrieval_mode_result(
             answer_items_by_template_source,
             top_k=live_top_k,
         )
-        if mode == "token_matched_live_tfidf_vector":
+        if mode in {
+            "token_matched_live_tfidf_vector",
+            "routed_token_matched_live_tfidf_graphrag",
+        }:
+            target_contexts, _ = contexts_for_mode(label, "hybrid_graphrag", source_items, graph_items)
+            contexts = trim_contexts_to_evidence_budget(
+                contexts,
+                label,
+                estimate_context_tokens(target_contexts),
+            )
+    elif underlying_mode == "dense_embedding_vector":
+        contexts, answer_items = dense_contexts_for_label(
+            label,
+            dense_source_index,
+            answer_items_by_template_source,
+            top_k=live_top_k,
+        )
+        if mode in {
+            "token_matched_dense_embedding_vector",
+            "routed_token_matched_dense_graphrag",
+        }:
             target_contexts, _ = contexts_for_mode(label, "hybrid_graphrag", source_items, graph_items)
             contexts = trim_contexts_to_evidence_budget(
                 contexts,
@@ -207,7 +271,7 @@ def retrieval_mode_result(
     answer_set = answer_set_metrics(
         label,
         answer_items,
-        abstention_source_supported=not uses_live_vector(underlying_mode)
+        abstention_source_supported=not uses_live_source_retrieval(underlying_mode)
         or target_source_retrieved,
     )
     path_support = graph_path_support(label, answer_items) if uses_graph(underlying_mode) else None
@@ -267,6 +331,28 @@ def live_contexts_for_label(
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     contexts = query_live_tfidf_source_index(
         live_source_index,
+        live_query_for_label(label),
+        top_k=top_k,
+    )
+    if label.get("expected_abstention"):
+        return contexts, []
+    answer_items: list[dict[str, Any]] = []
+    template_id = str(label["template_id"])
+    for context in contexts:
+        source_id = str(context.get("source_id") or "")
+        answer_items.extend(answer_items_by_template_source.get((template_id, source_id), []))
+    return contexts, dedupe_items(answer_items)
+
+
+def dense_contexts_for_label(
+    label: dict[str, Any],
+    dense_source_index: dict[str, Any],
+    answer_items_by_template_source: dict[tuple[str, str], list[dict[str, Any]]],
+    *,
+    top_k: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    contexts = query_dense_source_index(
+        dense_source_index,
         live_query_for_label(label),
         top_k=top_k,
     )
@@ -457,8 +543,8 @@ def uses_graph(mode: str) -> bool:
     return mode in {"graph_only", "hybrid_graphrag"}
 
 
-def uses_live_vector(mode: str) -> bool:
-    return mode == "live_tfidf_vector"
+def uses_live_source_retrieval(mode: str) -> bool:
+    return mode in {"live_tfidf_vector", "dense_embedding_vector"}
 
 
 def graph_use_decision(label: dict[str, Any], requested_mode: str, underlying_mode: str) -> dict[str, Any]:
@@ -477,10 +563,31 @@ def graph_use_decision(label: dict[str, Any], requested_mode: str, underlying_mo
             "decision": "live_vector",
             "reason": "fixed live lexical-vector retrieval over ATCSCC source records",
         }
-    if requested_mode != "routed_graphrag":
+    if requested_mode == "token_matched_dense_embedding_vector":
+        return {
+            "decision": "dense_vector_control",
+            "reason": "token-matched control uses dense source retrieval without graph triples",
+        }
+    if requested_mode == "dense_embedding_vector":
+        return {
+            "decision": "dense_vector",
+            "reason": "fixed dense embedding retrieval over ATCSCC source records",
+        }
+    routed_modes = {
+        "routed_graphrag",
+        "routed_live_tfidf_graphrag",
+        "routed_token_matched_live_tfidf_graphrag",
+        "routed_dense_graphrag",
+        "routed_token_matched_dense_graphrag",
+    }
+    if requested_mode not in routed_modes:
         return {"decision": "always_" + underlying_mode, "reason": "fixed_mode"}
     if underlying_mode == "hybrid_graphrag":
         reason = "graph context selected for semantic, entity-role, cause/status, or route query"
+    elif underlying_mode == "dense_embedding_vector":
+        reason = "dense source retrieval selected for direct temporal or abstention query"
+    elif underlying_mode == "live_tfidf_vector":
+        reason = "lexical source retrieval selected for direct temporal or abstention query"
     else:
         reason = "source/vector proxy selected for direct temporal or abstention query"
     return {
@@ -495,7 +602,13 @@ def annotate_token_match(modes: dict[str, dict[str, Any]]) -> None:
     if hybrid is None:
         return
     target = int(hybrid["context_budget"]["estimated_context_tokens"])
-    for mode in ("token_matched_vector_proxy", "token_matched_live_tfidf_vector"):
+    for mode in (
+        "token_matched_vector_proxy",
+        "token_matched_live_tfidf_vector",
+        "token_matched_dense_embedding_vector",
+        "routed_token_matched_live_tfidf_graphrag",
+        "routed_token_matched_dense_graphrag",
+    ):
         token_control = modes.get(mode)
         if token_control is None:
             continue
@@ -655,6 +768,11 @@ def write_nasa_atmonto_s7_retrieval_markdown(result: dict[str, Any], output_path
         f"- Boundary: {result['metadata']['boundary']}",
         f"- Live source documents: {result['metadata']['live_source_document_count']}",
         (
+            "- Dense retrieval model: "
+            f"`{result['metadata']['dense_model_name']}` "
+            f"(local_files_only={result['metadata']['dense_local_files_only']})"
+        ),
+        (
             "- Materialized graph: "
             f"{result['metadata']['graph_source_node_count']} source nodes, "
             f"{result['metadata']['graph_fact_node_count']} fact nodes, "
@@ -732,6 +850,9 @@ def write_nasa_atmonto_s7_retrieval(
     report_name: str = "nasa_atmonto_s7_retrieval",
     max_cases_per_template: int = 1000,
     live_top_k: int = 5,
+    dense_model_name: str = DEFAULT_DENSE_MODEL_NAME,
+    dense_local_files_only: bool = True,
+    dense_encoder: DenseEncoder | None = None,
 ) -> tuple[Path, Path, dict[str, Any]]:
     result = build_nasa_atmonto_s7_retrieval(
         repo_root=repo_root,
@@ -741,6 +862,9 @@ def write_nasa_atmonto_s7_retrieval(
         query_manifest_path=query_manifest_path,
         max_cases_per_template=max_cases_per_template,
         live_top_k=live_top_k,
+        dense_model_name=dense_model_name,
+        dense_local_files_only=dense_local_files_only,
+        dense_encoder=dense_encoder,
     )
     output = Path(output_dir)
     stem = Path(report_name).stem or "nasa_atmonto_s7_retrieval"
