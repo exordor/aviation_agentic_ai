@@ -59,6 +59,9 @@ REPORT_SOURCES: dict[str, str] = {
     "nasa_atmonto_s5_s6_independent_agentic_run": (
         "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.json"
     ),
+    "nasa_atmonto_s5_s6_live_agentic_pilot": (
+        "reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.json"
+    ),
     "nasa_atmonto_sota_goal_audit": (
         "reports/stages/nasa_atmonto_sota_goal_audit.json"
     ),
@@ -174,6 +177,11 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "answer_evaluation": ("answer_generation", "safety_abstention"),
         "robustness_evaluation": ("safety_abstention", "robustness"),
         "benchmark_review_pack": ("benchmark_llm_review_scaffold",),
+        "nasa_atmonto_s5_s6_live_agentic_pilot": (
+            "ontology_kg",
+            "llm_agents",
+            "evaluation_protocol",
+        ),
         "nasa_atmonto_s7_llm_answer_generation": (
             "answer_generation",
             "graph_paths",
@@ -233,6 +241,7 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "robustness_evaluation": "robustness_10_cases",
         "kg_extraction_comparison": "35_question_expanded",
         "triple_semantic_review_sample": "triple_semantic_review_sample",
+        "nasa_atmonto_s5_s6_live_agentic_pilot": "atcscc_s5_s6_live_agentic_pilot_3",
         "nasa_atmonto_s7_llm_answer_generation": "atcscc_s7_source_bounded_60",
         "nasa_atmonto_s7_human_review_candidates": "atcscc_s7_review_candidate_queue_9",
         "nasa_atmonto_s7_candidate_adjudication": "atcscc_s7_review_candidate_queue_9",
@@ -1077,6 +1086,20 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
             ),
             "can_support_thesis_main_claim": "source_bounded_diagnostic",
             "evidence_role": "s7_graphrag_answer_generation",
+        },
+        {
+            "dataset": "ATCSCC S5/S6 live agentic pilot 3",
+            "purpose": (
+                "bounded live extractor/validator/critic/refiner pilot over reviewed "
+                "ATCSCC advisory samples"
+            ),
+            "used_in_reports": ["nasa_atmonto_s5_s6_live_agentic_pilot"],
+            "limitations": (
+                "3-sample live LLM pilot; useful for method evidence but not a full "
+                "autonomous-agent benchmark"
+            ),
+            "can_support_thesis_main_claim": "bounded_method_pilot",
+            "evidence_role": "s5_s6_live_agentic_pilot",
         },
         {
             "dataset": "triple semantic review sample",

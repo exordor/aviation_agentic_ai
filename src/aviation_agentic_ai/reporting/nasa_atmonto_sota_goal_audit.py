@@ -63,8 +63,12 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
             "reports/stages/nasa_atmonto_agentic_loop.md",
             "reports/stages/nasa_atmonto_s5_s6_agentic_loop.md",
             "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md",
+            "reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md",
         ],
-        "limitation": "The independent S5/S6 run is deterministic and artifact-driven; live LLM agents remain future work.",
+        "limitation": (
+            "The live LLM S5/S6 run is currently a 3-sample pilot; full-scale live "
+            "agent scoring remains future work."
+        ),
     },
     {
         "id": "R6",
@@ -124,6 +128,9 @@ def build_nasa_atmonto_sota_goal_audit(
     s5_s6_independent = read_json_object_or_empty(
         root / "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.json"
     )
+    s5_s6_live = read_json_object_or_empty(
+        root / "reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.json"
+    )
     s7_llm = read_json_object_or_empty(root / "reports/stages/nasa_atmonto_s7_llm_answer_generation.json")
     status_counts: dict[str, int] = {}
     for item in requirements:
@@ -138,11 +145,12 @@ def build_nasa_atmonto_sota_goal_audit(
             "formal_scoring_status": scoring.get("status"),
             "s5_s6_status": s5_s6.get("status"),
             "s5_s6_independent_status": s5_s6_independent.get("status"),
+            "s5_s6_live_pilot_status": s5_s6_live.get("status"),
             "s7_llm_status": s7_llm.get("status"),
         },
         "requirements": requirements,
         "remaining_blockers": [
-            "Live LLM extractor/validator/critic/refiner agents are not yet scored under S5/S6.",
+            "A full 100-record live LLM extractor/validator/critic/refiner S5/S6 run is not yet complete.",
             "Broad human/expert answer review is not yet complete.",
             "Second-domain transfer is not yet executed.",
         ],
@@ -179,6 +187,7 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- Formal scoring status: `{result['metadata']['formal_scoring_status']}`",
         f"- S5/S6 status: `{result['metadata']['s5_s6_status']}`",
         f"- Independent S5/S6 status: `{result['metadata']['s5_s6_independent_status']}`",
+        f"- Live S5/S6 pilot status: `{result['metadata']['s5_s6_live_pilot_status']}`",
         f"- S7 LLM status: `{result['metadata']['s7_llm_status']}`",
         "",
         "## Requirement Evidence",

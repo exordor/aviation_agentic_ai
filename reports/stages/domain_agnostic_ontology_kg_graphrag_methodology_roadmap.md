@@ -148,8 +148,8 @@ The current S0-S4 suite can become the reusable baseline template:
 | `S2_schema_slice_llm` | LLM prompted with a schema slice/profile. | ATCSCC schema-slice extraction. |
 | `S3_validator_repair` | Schema validation and constrained repair. | Validator/repair of ATMONTO facts. |
 | `S4_hybrid_backbone_enrichment` | Deterministic backbone plus semantic enrichment. | Current strongest ATCSCC system. |
-| `S5_agentic_cq_module_routed_extraction` | Current implementation: route both S4-wrapper facts and independent source-derived candidates through CQ/module roles. | `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md` routes 686 S4 facts; `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md` reruns S5 from S0 candidates. |
-| `S6_agentic_evidence_verifier_repair` | Current implementation: separate schema validation, evidence containment, text-artifact criticism, and refined fact output. | `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md` quarantines 22 source-derived candidate facts and improves F1 from 0.7643 to 0.7778 without changing recall. |
+| `S5_agentic_cq_module_routed_extraction` | Current implementation: route S4-wrapper facts, independent source-derived candidates, and a bounded live LLM pilot through CQ/module roles. | `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md` routes 686 S4 facts; `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md` reruns S5 from S0 candidates; `reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md` runs a 3-sample live LLM extractor pilot. |
+| `S6_agentic_evidence_verifier_repair` | Current implementation: separate schema validation, evidence containment, text-artifact criticism, live critic/refiner pilot, and refined fact output. | `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md` quarantines 22 source-derived candidate facts and improves F1 from 0.7643 to 0.7778; the live pilot reaches S6 F1 0.7742 on 3 reviewed samples. |
 | `S7_agentic_graph_use_gate` | Planned extension: route retrieval by query type, graph need, and cost boundary. | Planned CQ route: vector, graph, hybrid, abstain. |
 
 Current ATCSCC starter contract:
@@ -168,8 +168,10 @@ handoff requirement. `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`
 adds a scored S5/S6 wrapper over the current S4 output, and
 `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md` adds an
 independent deterministic extractor/validator/critic/refiner run over
-source-derived S0 candidates. The remaining upgrade is live LLM agent autonomy,
-not the existence of an independent scored loop.
+source-derived S0 candidates. `reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md`
+adds a bounded 3-sample live LLM extractor/critic/refiner pilot under the same
+hard ontology/evidence gates. The remaining upgrade is full-set live LLM agent
+scoring, not the existence of a live pilot.
 
 ## Research Contributions That Generalize
 
@@ -265,7 +267,7 @@ The next concrete step is to keep building the ATMONTO case study, but name
 artifacts and scripts in a way that preserves the generic pattern:
 
 1. preserve the completed ATCSCC artifact chain as the S5/S6 contract;
-2. replace the deterministic S5/S6 extractor with live LLM extractor/validator/critic/refiner agents;
+2. scale the live LLM extractor/validator/critic/refiner pilot to the full reviewed set;
 3. compare independent S5/S6 against S0-S4 and S7 retrieval/answer-generation layers;
 4. keep the deterministic S5/S6 run as the reproducible non-LLM control;
 5. document which parts are domain-specific adapters and which parts are

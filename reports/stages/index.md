@@ -71,6 +71,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - ATCSCC repair plan: `reports/stages/atcscc_repair_plan.md`
 - NASA ATMONTO S5/S6 agentic evidence loop: `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`
 - NASA ATMONTO S5/S6 independent agentic run: `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md`
+- NASA ATMONTO S5/S6 live agentic pilot: `reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md`
 - NASA ATMONTO SOTA goal completion audit: `reports/stages/nasa_atmonto_sota_goal_audit.md`
 - ATCSCC S7 graph-use gate plan: `reports/stages/atcscc_graph_use_plan.md`
 - NASA ATMONTO S7 retrieval-only graph-use gate: `reports/stages/nasa_atmonto_s7_retrieval.md`

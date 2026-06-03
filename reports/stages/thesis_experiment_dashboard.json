@@ -169,6 +169,16 @@
       ]
     },
     {
+      "can_support_thesis_main_claim": "bounded_method_pilot",
+      "dataset": "ATCSCC S5/S6 live agentic pilot 3",
+      "evidence_role": "s5_s6_live_agentic_pilot",
+      "limitations": "3-sample live LLM pilot; useful for method evidence but not a full autonomous-agent benchmark",
+      "purpose": "bounded live extractor/validator/critic/refiner pilot over reviewed ATCSCC advisory samples",
+      "used_in_reports": [
+        "nasa_atmonto_s5_s6_live_agentic_pilot"
+      ]
+    },
+    {
       "can_support_thesis_main_claim": "partial",
       "dataset": "triple semantic review sample",
       "evidence_role": "llm_review_pending",
@@ -704,6 +714,20 @@
       "present": true,
       "questions_count": "n/a",
       "report_name": "nasa_atmonto_s5_s6_independent_agentic_run"
+    },
+    {
+      "dataset_used": "atcscc_s5_s6_live_agentic_pilot_3",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "ontology_kg",
+        "llm_agents",
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s5_s6_live_agentic_pilot"
     },
     {
       "dataset_used": "not_dataset_specific",

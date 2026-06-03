@@ -44,7 +44,7 @@ bounded and does not replace expert review.
 | Graph-use gate | mostly satisfied for deterministic S7 plus bounded LLM check | `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_answer_generation.md`; `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_answer_generation.md`; `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`; `reports/stages/nasa_atmonto_s7_partial_answer_ablation.md` | broad LLM/human answer evaluation remains future work | report routed lexical and source-local guarded dense results conservatively |
 | Token-matched vector baseline | satisfied for deterministic S7 | `token_matched_vector_rag`; `token_matched_vector_proxy`; `token_matched_live_tfidf_vector`; `token_matched_dense_embedding_vector`; `routed_token_matched_live_tfidf_graphrag`; `routed_token_matched_dense_graphrag` | no current deterministic S7 gap | preserve token-matched comparisons in thesis tables |
 | Graph health/path support | mostly satisfied for S7 diagnostics | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/stages/nasa_atmonto_s7_graph_health.md` | graph health is diagnostic rather than semantic truth certification | preserve graph health by CQ group in thesis tables |
-| Multi-agent loop | independent deterministic S5/S6 run scored | `reports/stages/atcscc_agentic_artifact_contract.md`; `reports/stages/nasa_atmonto_agentic_loop.md`; `reports/stages/atcscc_source_brief.md`; `reports/stages/atcscc_semantic_requirements.md`; `reports/stages/atcscc_technical_implementation_plan.md`; `reports/stages/atcscc_extraction_plan.md`; `reports/stages/atcscc_validation_findings.md`; `reports/stages/atcscc_evidence_support_findings.md`; `reports/stages/atcscc_repair_plan.md`; `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`; `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md` | S5/S6 now has both an S4-wrapper diagnostic and an independent source-derived deterministic run; live LLM agent autonomy remains future work | replace the deterministic extractor with live LLM extractor/validator/critic/refiner agents before claiming autonomous multi-agent LLM extraction |
+| Multi-agent loop | bounded live LLM pilot plus deterministic controls | `reports/stages/atcscc_agentic_artifact_contract.md`; `reports/stages/nasa_atmonto_agentic_loop.md`; `reports/stages/atcscc_source_brief.md`; `reports/stages/atcscc_semantic_requirements.md`; `reports/stages/atcscc_technical_implementation_plan.md`; `reports/stages/atcscc_extraction_plan.md`; `reports/stages/atcscc_validation_findings.md`; `reports/stages/atcscc_evidence_support_findings.md`; `reports/stages/atcscc_repair_plan.md`; `reports/stages/atcscc_graph_use_plan.md`; `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`; `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md`; `reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md` | S5/S6 now has an S4-wrapper diagnostic, an independent source-derived deterministic run, and a 3-sample live LLM extractor/validator/critic/refiner pilot; full 100-record live autonomy remains future work | expand the live pilot to the full reviewed set before claiming autonomous multi-agent LLM extraction performance |
 | Domain-agnostic methodology | partial | `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md` | only validated in ATM so far | keep second-domain transfer as future work |
 
 ## What Is Already Strong
@@ -86,12 +86,13 @@ The strongest parts of the project are:
    and answer-set recovery by CQ group, while candidate adjudication and the
    profile-decision what-if record profile/gold-boundary failures. These
    metrics do not prove semantic truth or expert usefulness.
-4. **The multi-agent method is executable, but not yet live-LLM autonomous.**
+4. **The multi-agent method now has a bounded live-LLM pilot, but not full autonomy evidence.**
    The SRD/TIP/extraction-plan/validation/evidence-critique/repair/graph-use
    artifact chain exists. S5/S6 now has both an S4-wrapper diagnostic and an
    independent deterministic extractor/validator/critic/refiner run over S0
-   source-derived candidates. It is still not a live LLM multi-agent generation
-   run.
+   source-derived candidates. A 3-sample live LLM pilot now exercises the
+   extractor, validator, critic, and refiner roles under the same hard
+   ontology/evidence gates. It is still not a full 100-record autonomous run.
 5. **Transferability is still a thesis direction.** The domain-agnostic
    methodology is credible, but it is not validated outside ATCSCC yet.
 
@@ -132,10 +133,12 @@ whitelist while keeping strict main S7 metrics unchanged. The S5/S6 artifact
 chain has also been converted into a bounded S4 wrapper
 (`reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`) and an independent
 source-derived deterministic run
-(`reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md`). The next
+(`reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md`) plus a
+3-sample live LLM pilot
+(`reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md`). The next
 experiments should:
 
-1. replace the deterministic S5/S6 extractor with live LLM extractor/validator/critic/refiner agents;
+1. scale the live LLM extractor/validator/critic/refiner pilot to the full reviewed ATCSCC set;
 2. use `reports/stages/nasa_atmonto_s7_human_review_candidates.md` and
    `reports/stages/nasa_atmonto_s7_candidate_adjudication.md` for a small
    human/supervisor review pass over the 3 failures plus coverage successes.

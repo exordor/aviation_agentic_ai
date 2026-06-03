@@ -12,6 +12,7 @@
     "formal_scoring_status": "scored",
     "s5_s6_status": "s5_s6_agentic_evidence_gate_scored",
     "s5_s6_independent_status": "s5_s6_independent_agentic_run_scored",
+    "s5_s6_live_pilot_status": "s5_s6_live_agentic_pilot_scored",
     "s7_llm_status": "s7_llm_answer_generation_evaluated"
   },
   "requirements": [
@@ -127,11 +128,15 @@
         {
           "path": "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md",
           "present": true
+        },
+        {
+          "path": "reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md",
+          "present": true
         }
       ],
-      "limitation": "The independent S5/S6 run is deterministic and artifact-driven; live LLM agents remain future work.",
-      "evidence_count": 4,
-      "present_evidence_count": 4,
+      "limitation": "The live LLM S5/S6 run is currently a 3-sample pilot; full-scale live agent scoring remains future work.",
+      "evidence_count": 5,
+      "present_evidence_count": 5,
       "missing_evidence": []
     },
     {
@@ -228,7 +233,7 @@
     }
   ],
   "remaining_blockers": [
-    "Live LLM extractor/validator/critic/refiner agents are not yet scored under S5/S6.",
+    "A full 100-record live LLM extractor/validator/critic/refiner S5/S6 run is not yet complete.",
     "Broad human/expert answer review is not yet complete.",
     "Second-domain transfer is not yet executed."
   ],

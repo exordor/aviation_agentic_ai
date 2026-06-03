@@ -8,6 +8,7 @@
 - Formal scoring status: `scored`
 - S5/S6 status: `s5_s6_agentic_evidence_gate_scored`
 - Independent S5/S6 status: `s5_s6_independent_agentic_run_scored`
+- Live S5/S6 pilot status: `s5_s6_live_agentic_pilot_scored`
 - S7 LLM status: `s7_llm_answer_generation_evaluated`
 
 ## Requirement Evidence
@@ -18,7 +19,7 @@
 | `R2` | `satisfied` | The ATCSCC data source and event-centric extraction target are explicit. | 3/3 | The source family is retrospective ATCSCC advisories, not live operations. |
 | `R3` | `satisfied` | NASA ATMONTO is used as an application-profile constraint, not full truth. | 3/3 | Completeness and correctness are profile-relative and CQ-relative. |
 | `R4` | `satisfied` | Ontology-guided KG extraction is scored with schema and semantic layers separated. | 3/3 | S4 is the current strongest scored extraction system; not all LLM systems perform well. |
-| `R5` | `satisfied` | Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics. | 4/4 | The independent S5/S6 run is deterministic and artifact-driven; live LLM agents remain future work. |
+| `R5` | `satisfied` | Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics. | 5/5 | The live LLM S5/S6 run is currently a 3-sample pilot; full-scale live agent scoring remains future work. |
 | `R6` | `mostly_satisfied` | Graph-use gate, token-matched retrieval, and graph health are evaluated. | 3/3 | Graph health is diagnostic evidence, not certification of semantic truth. |
 | `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 4/4 | Broad human/expert answer review remains future work. |
 | `R8` | `mostly_satisfied` | Completeness, correctness, limitations, and story claims are thesis-ready. | 3/3 | The final thesis should keep the claim wording profile-relative and retrospective. |
@@ -51,6 +52,7 @@
 - `present` `reports/stages/nasa_atmonto_agentic_loop.md`
 - `present` `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`
 - `present` `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.md`
+- `present` `reports/stages/nasa_atmonto_s5_s6_live_agentic_pilot.md`
 
 ### R6: Graph-use gate, token-matched retrieval, and graph health are evaluated.
 - `present` `reports/stages/atcscc_graph_use_plan.md`
@@ -75,7 +77,7 @@
 
 ## Remaining Blockers
 
-- Live LLM extractor/validator/critic/refiner agents are not yet scored under S5/S6.
+- A full 100-record live LLM extractor/validator/critic/refiner S5/S6 run is not yet complete.
 - Broad human/expert answer review is not yet complete.
 - Second-domain transfer is not yet executed.
 
