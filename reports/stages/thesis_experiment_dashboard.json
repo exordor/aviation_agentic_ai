@@ -17,6 +17,8 @@
     "primary_thesis_metrics_have_report_evidence": true,
     "reviewed_subset_llm_review_pending": true,
     "robustness_false_answer_rate_zero": true,
+    "s7_human_review_candidates_available": true,
+    "s7_llm_answer_generation_available": true,
     "safety_reports_have_no_boundary_violations": true,
     "triple_semantic_llm_review_available": true,
     "unsafe_hits": []
@@ -148,6 +150,18 @@
       "used_in_reports": [
         "answer_evaluation",
         "answer_evaluation_benchmark_subset"
+      ]
+    },
+    {
+      "can_support_thesis_main_claim": "source_bounded_diagnostic",
+      "dataset": "ATCSCC S7 source-bounded answer set",
+      "evidence_role": "s7_graphrag_answer_generation",
+      "limitations": "bounded retrospective LLM run; candidate package is a review queue, not completed human review",
+      "purpose": "SOTA-comparable GraphRAG answer-generation diagnostic over frozen retrieved ATCSCC contexts",
+      "used_in_reports": [
+        "nasa_atmonto_s7_answer_generation",
+        "nasa_atmonto_s7_llm_answer_generation",
+        "nasa_atmonto_s7_human_review_candidates"
       ]
     },
     {
@@ -666,6 +680,34 @@
       "present": true,
       "questions_count": 120,
       "report_name": "benchmark_review_pack"
+    },
+    {
+      "dataset_used": "atcscc_s7_source_bounded_60",
+      "human_review_present": false,
+      "llm_review_available": true,
+      "metric_layers_covered": [
+        "answer_generation",
+        "graph_paths",
+        "safety_abstention"
+      ],
+      "path": "reports/stages/nasa_atmonto_s7_llm_answer_generation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s7_llm_answer_generation"
+    },
+    {
+      "dataset_used": "atcscc_s7_review_candidate_queue_9",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "answer_generation",
+        "llm_review_scaffold",
+        "failure_analysis"
+      ],
+      "path": "reports/stages/nasa_atmonto_s7_human_review_candidates.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s7_human_review_candidates"
     }
   ],
   "failure_mode_summary": {
@@ -961,6 +1003,72 @@
       "advisory_boundary_violation_count": 0,
       "false_answer_rate": 0.0
     },
+    "s7_llm_answer_generation": {
+      "aggregate_by_mode": {
+        "routed_token_matched_dense_graphrag": {
+          "abstention_correctness": 1.0,
+          "answer_correctness": 0.9333,
+          "avg_estimated_context_tokens": 33.03,
+          "citation_precision": 1.0,
+          "citation_recall": 0.5945,
+          "evidence_faithfulness": 0.9333,
+          "failed_total": 0,
+          "llm_answered_total": 30,
+          "not_run_total": 0,
+          "selected_total": 30,
+          "status_counts": {
+            "answered": 30
+          },
+          "unsupported_claim_rate": 0.0333
+        },
+        "routed_token_matched_live_tfidf_graphrag": {
+          "abstention_correctness": 1.0,
+          "answer_correctness": 0.9667,
+          "avg_estimated_context_tokens": 33.03,
+          "citation_precision": 1.0,
+          "citation_recall": 0.6084,
+          "evidence_faithfulness": 0.9667,
+          "failed_total": 0,
+          "llm_answered_total": 30,
+          "not_run_total": 0,
+          "selected_total": 30,
+          "status_counts": {
+            "answered": 30
+          },
+          "unsupported_claim_rate": 0.0167
+        }
+      },
+      "best_mode": "routed_token_matched_live_tfidf_graphrag",
+      "best_mode_metrics": {
+        "abstention_correctness": 1.0,
+        "answer_correctness": 0.9667,
+        "avg_estimated_context_tokens": 33.03,
+        "citation_precision": 1.0,
+        "citation_recall": 0.6084,
+        "evidence_faithfulness": 0.9667,
+        "failed_total": 0,
+        "llm_answered_total": 30,
+        "not_run_total": 0,
+        "selected_total": 30,
+        "status_counts": {
+          "answered": 30
+        },
+        "unsupported_claim_rate": 0.0167
+      },
+      "claim_boundary": "S7 LLM answers are source-bounded diagnostics over frozen retrieved contexts; the candidate package is a review queue, not human-reviewed evidence.",
+      "coverage_candidate_count": 6,
+      "failure_candidate_count": 3,
+      "human_review_candidate_count": 9,
+      "max_cases_per_template": 5,
+      "modes": [
+        "routed_token_matched_live_tfidf_graphrag",
+        "routed_token_matched_dense_graphrag"
+      ],
+      "prompt_version": "nasa_atmonto_s7_llm_answer_v3_route_partial",
+      "reviewer_model": "gpt-5.4-mini",
+      "selected_case_count": 60,
+      "status": "s7_llm_answer_generation_evaluated"
+    },
     "standalone_traversal": {
       "path_coverage": 0.75,
       "recall_at_5": 0.1333
@@ -1122,11 +1230,12 @@
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Hybrid reports expose KG evidence and citations; answer scores are deterministic heuristics unless LLM-judge scores are explicitly recorded.",
+      "current_result_summary": "Hybrid reports expose KG evidence and citations; answer scores are deterministic heuristics unless LLM-judge scores are explicitly recorded. S7 adds a source-bounded LLM answer diagnostic with best-mode correctness=0.9667.",
       "evidence_reports": [
         "retrieval_ablation_benchmark_v2",
         "graph_traversal_ablation_benchmark_v2",
-        "answer_evaluation"
+        "answer_evaluation",
+        "nasa_atmonto_s7_llm_answer_generation"
       ],
       "primary_metrics": [
         "KG evidence coverage",
@@ -1134,7 +1243,7 @@
         "citation precision",
         "citation recall"
       ],
-      "remaining_gaps": "Answer-level LLM-judge evaluation must remain separate from deterministic metrics.",
+      "remaining_gaps": "S7 LLM results are retrospective diagnostics and must remain separate from human review or external aviation certification.",
       "rq": "RQ2 evidence traceability"
     },
     {
@@ -1162,18 +1271,22 @@
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible.",
+      "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible. S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review.",
       "evidence_reports": [
         "sufficiency_evaluation",
-        "robustness_evaluation"
+        "robustness_evaluation",
+        "nasa_atmonto_s7_llm_answer_generation",
+        "nasa_atmonto_s7_human_review_candidates"
       ],
       "primary_metrics": [
         "Abstention Accuracy",
         "False Answer Rate",
         "False Abstention Rate",
-        "Risk Category Accuracy"
+        "Risk Category Accuracy",
+        "Unsupported Claim Rate",
+        "Abstention Correctness"
       ],
-      "remaining_gaps": "Sufficiency can create false abstentions on supported questions.",
+      "remaining_gaps": "Sufficiency can create false abstentions on supported questions; S7 cause-condition over-answer cases still require review.",
       "rq": "RQ4 safety-aware abstention"
     },
     {

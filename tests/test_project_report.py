@@ -224,6 +224,64 @@ def test_deterministic_project_report_needs_no_ai(tmp_path: Path) -> None:
     assert "vs vector Recall@5=-0.1" in markdown
 
 
+def test_deterministic_project_report_includes_s7_dashboard_summary(tmp_path: Path) -> None:
+    index_path = _write_project_fixture(tmp_path)
+    dashboard_path = tmp_path / "reports" / "stages" / "thesis_experiment_dashboard.json"
+    dashboard_path.write_text(
+        json.dumps(
+            {
+                "metadata": {
+                    "advisory_boundary": "learning only",
+                },
+                "dataset_usage_matrix": [
+                    {
+                        "dataset": "ATCSCC S7 source-bounded answer set",
+                        "purpose": "source-bounded diagnostic",
+                        "evidence_role": "s7_graphrag_answer_generation",
+                        "can_support_thesis_main_claim": "source_bounded_diagnostic",
+                        "limitations": "not completed human review",
+                    }
+                ],
+                "rq_to_evidence_matrix": [],
+                "primary_results": {
+                    "s7_llm_answer_generation": {
+                        "selected_case_count": 60,
+                        "best_mode": "routed_token_matched_live_tfidf_graphrag",
+                        "human_review_candidate_count": 9,
+                        "failure_candidate_count": 3,
+                        "best_mode_metrics": {
+                            "answer_correctness": 0.9667,
+                            "citation_precision": 1.0,
+                            "citation_recall": 0.6084,
+                            "evidence_faithfulness": 0.9667,
+                            "unsupported_claim_rate": 0.0167,
+                            "abstention_correctness": 1.0,
+                        },
+                    },
+                },
+                "failure_mode_summary": {},
+                "thesis_ready_claim_summary": [],
+                "consistency_checks": {},
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    md_path, _sources_path, result = write_project_report(
+        tmp_path / "reports" / "final",
+        project_root=tmp_path,
+        stage_index_path=index_path,
+    )
+
+    assert not result["used_ai"]
+    markdown = md_path.read_text(encoding="utf-8")
+    assert "ATCSCC S7 source-bounded LLM answer generation" in markdown
+    assert "selected cases=60" in markdown
+    assert "unsupported claim rate=0.0167" in markdown
+    assert "not human-reviewed evidence" in markdown
+
+
 def test_ai_project_report_uses_mock_llm_and_prompt_constraints(tmp_path: Path) -> None:
     index_path = _write_project_fixture(tmp_path)
     captured = {}

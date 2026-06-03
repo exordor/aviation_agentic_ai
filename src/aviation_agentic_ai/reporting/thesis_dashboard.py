@@ -53,6 +53,12 @@ REPORT_SOURCES: dict[str, str] = {
     "answer_evaluation": "reports/stages/answer_evaluation.json",
     "robustness_evaluation": "reports/stages/robustness_evaluation.json",
     "benchmark_review_pack": "reports/stages/benchmark_review_pack.json",
+    "nasa_atmonto_s7_llm_answer_generation": (
+        "reports/stages/nasa_atmonto_s7_llm_answer_generation.json"
+    ),
+    "nasa_atmonto_s7_human_review_candidates": (
+        "reports/stages/nasa_atmonto_s7_human_review_candidates.json"
+    ),
 }
 
 UNSAFE_PATTERNS = (
@@ -153,6 +159,16 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "answer_evaluation": ("answer_generation", "safety_abstention"),
         "robustness_evaluation": ("safety_abstention", "robustness"),
         "benchmark_review_pack": ("benchmark_llm_review_scaffold",),
+        "nasa_atmonto_s7_llm_answer_generation": (
+            "answer_generation",
+            "graph_paths",
+            "safety_abstention",
+        ),
+        "nasa_atmonto_s7_human_review_candidates": (
+            "answer_generation",
+            "llm_review_scaffold",
+            "failure_analysis",
+        ),
     }
     dataset_map = {
         "benchmark_v2_summary": "benchmark_v2_120",
@@ -191,6 +207,8 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "robustness_evaluation": "robustness_10_cases",
         "kg_extraction_comparison": "35_question_expanded",
         "triple_semantic_review_sample": "triple_semantic_review_sample",
+        "nasa_atmonto_s7_llm_answer_generation": "atcscc_s7_source_bounded_60",
+        "nasa_atmonto_s7_human_review_candidates": "atcscc_s7_review_candidate_queue_9",
     }
     inventory = []
     for name, rel_path in REPORT_SOURCES.items():
@@ -218,6 +236,25 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
 
 def _scenario_metrics(report: dict[str, Any], scenario: str) -> dict[str, Any]:
     return _metric(report, "scenarios", scenario, "aggregate", default={})
+
+
+def _best_s7_answer_mode(aggregate_by_mode: dict[str, Any]) -> tuple[str | None, dict[str, Any]]:
+    valid_modes = {
+        mode: metrics
+        for mode, metrics in aggregate_by_mode.items()
+        if isinstance(metrics, dict)
+    }
+    if not valid_modes:
+        return None, {}
+    best_mode = max(
+        valid_modes,
+        key=lambda mode: (
+            valid_modes[mode].get("answer_correctness") or 0.0,
+            valid_modes[mode].get("evidence_faithfulness") or 0.0,
+            -(valid_modes[mode].get("unsupported_claim_rate") or 1.0),
+        ),
+    )
+    return best_mode, valid_modes[best_mode]
 
 
 def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
@@ -253,6 +290,8 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     cross_source = reports.get("cross_source_ontology_validation", {})
     multisource = reports.get("multisource_retrieval_smoke", {})
     implementation_remediation = reports.get("deepseek_v4pro_implementation_remediation", {})
+    s7_llm_answers = reports.get("nasa_atmonto_s7_llm_answer_generation", {})
+    s7_review_candidates = reports.get("nasa_atmonto_s7_human_review_candidates", {})
 
     vector = _scenario_metrics(retrieval, "vector_hops2_v5_h8")
     hybrid = _scenario_metrics(retrieval, "hybrid_hops2_v5_h8")
@@ -260,6 +299,15 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     traversal_graph = _scenario_metrics(traversal, "traversal_graph_2_hop")
     structure_kg = _metric(kg, "experiments", "structure_aware", default={})
     suff_metrics = sufficiency.get("metrics", {})
+    s7_answer_modes = _metric(
+        s7_llm_answers,
+        "answer_quality",
+        "aggregate_by_mode",
+        default={},
+    )
+    if not isinstance(s7_answer_modes, dict):
+        s7_answer_modes = {}
+    best_s7_mode, best_s7_metrics = _best_s7_answer_mode(s7_answer_modes)
     return {
         "vector_only": {
             "recall_at_5": _metric(vector, "retrieval", "recall_at_5"),
@@ -348,6 +396,49 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 "faithfulness",
             ),
             "score_method": "deterministic_heuristic",
+        },
+        "s7_llm_answer_generation": {
+            "status": s7_llm_answers.get("status", "not_present"),
+            "prompt_version": _metric(s7_llm_answers, "metadata", "prompt_version"),
+            "reviewer_model": _metric(s7_llm_answers, "metadata", "reviewer_model"),
+            "selected_case_count": _metric(
+                s7_llm_answers,
+                "metadata",
+                "selected_case_count",
+                default=0,
+            ),
+            "max_cases_per_template": _metric(
+                s7_llm_answers,
+                "metadata",
+                "max_cases_per_template",
+            ),
+            "modes": list(s7_answer_modes),
+            "best_mode": best_s7_mode,
+            "best_mode_metrics": best_s7_metrics,
+            "aggregate_by_mode": s7_answer_modes,
+            "human_review_candidate_count": _metric(
+                s7_review_candidates,
+                "metadata",
+                "candidate_count",
+                default=0,
+            ),
+            "failure_candidate_count": _metric(
+                s7_review_candidates,
+                "metadata",
+                "failure_candidate_count",
+                default=0,
+            ),
+            "coverage_candidate_count": _metric(
+                s7_review_candidates,
+                "metadata",
+                "coverage_candidate_count",
+                default=0,
+            ),
+            "claim_boundary": (
+                "S7 LLM answers are source-bounded diagnostics over frozen retrieved "
+                "contexts; the candidate package is a review queue, not human-reviewed "
+                "evidence."
+            ),
         },
         "chunking_benchmark_v2": {
             "audit_status": _metric(
@@ -876,6 +967,24 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
             "evidence_role": "pilot",
         },
         {
+            "dataset": "ATCSCC S7 source-bounded answer set",
+            "purpose": (
+                "SOTA-comparable GraphRAG answer-generation diagnostic over frozen "
+                "retrieved ATCSCC contexts"
+            ),
+            "used_in_reports": [
+                "nasa_atmonto_s7_answer_generation",
+                "nasa_atmonto_s7_llm_answer_generation",
+                "nasa_atmonto_s7_human_review_candidates",
+            ],
+            "limitations": (
+                "bounded retrospective LLM run; candidate package is a review queue, "
+                "not completed human review"
+            ),
+            "can_support_thesis_main_claim": "source_bounded_diagnostic",
+            "evidence_role": "s7_graphrag_answer_generation",
+        },
+        {
             "dataset": "triple semantic review sample",
             "purpose": "KG semantic correctness review template",
             "used_in_reports": ["triple_semantic_review_sample"],
@@ -914,6 +1023,7 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 "retrieval_ablation_benchmark_v2",
                 "graph_traversal_ablation_benchmark_v2",
                 "answer_evaluation",
+                "nasa_atmonto_s7_llm_answer_generation",
             ],
             "primary_metrics": [
                 "KG evidence coverage",
@@ -923,10 +1033,15 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
             ],
             "current_result_summary": (
                 "Hybrid reports expose KG evidence and citations; answer scores are "
-                "deterministic heuristics unless LLM-judge scores are explicitly recorded."
+                "deterministic heuristics unless LLM-judge scores are explicitly recorded. "
+                "S7 adds a source-bounded LLM answer diagnostic with best-mode "
+                f"correctness={primary['s7_llm_answer_generation']['best_mode_metrics'].get('answer_correctness')}."
             ),
             "claim_strength": "moderate",
-            "remaining_gaps": "Answer-level LLM-judge evaluation must remain separate from deterministic metrics.",
+            "remaining_gaps": (
+                "S7 LLM results are retrospective diagnostics and must remain separate "
+                "from human review or external aviation certification."
+            ),
         },
         {
             "rq": "RQ3 graph evidence vs vector sufficiency",
@@ -957,20 +1072,35 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
         },
         {
             "rq": "RQ4 safety-aware abstention",
-            "evidence_reports": ["sufficiency_evaluation", "robustness_evaluation"],
+            "evidence_reports": [
+                "sufficiency_evaluation",
+                "robustness_evaluation",
+                "nasa_atmonto_s7_llm_answer_generation",
+                "nasa_atmonto_s7_human_review_candidates",
+            ],
             "primary_metrics": [
                 "Abstention Accuracy",
                 "False Answer Rate",
                 "False Abstention Rate",
                 "Risk Category Accuracy",
+                "Unsupported Claim Rate",
+                "Abstention Correctness",
             ],
             "current_result_summary": (
                 f"Benchmark v2 abstention accuracy={primary['sufficiency']['abstention_accuracy']} "
                 f"and false answer rate={primary['sufficiency']['false_answer_rate']}; "
-                "false abstentions remain visible."
+                "false abstentions remain visible. S7 best-mode unsupported claim "
+                "rate="
+                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')} "
+                "with "
+                f"{primary['s7_llm_answer_generation']['failure_candidate_count']} "
+                "failure candidates queued for review."
             ),
             "claim_strength": "moderate",
-            "remaining_gaps": "Sufficiency can create false abstentions on supported questions.",
+            "remaining_gaps": (
+                "Sufficiency can create false abstentions on supported questions; "
+                "S7 cause-condition over-answer cases still require review."
+            ),
         },
         {
             "rq": "RQ5 source generalization",
@@ -1148,6 +1278,18 @@ def _consistency_checks(
         "llm_reviewed_total",
         default=0,
     )
+    s7_llm_selected = _metric(
+        reports.get("nasa_atmonto_s7_llm_answer_generation", {}),
+        "metadata",
+        "selected_case_count",
+        default=0,
+    )
+    s7_review_candidates = _metric(
+        reports.get("nasa_atmonto_s7_human_review_candidates", {}),
+        "metadata",
+        "candidate_count",
+        default=0,
+    )
     checks = {
         "every_rq_has_evidence_report": all(row["evidence_reports"] for row in rq_matrix),
         "primary_thesis_metrics_have_report_evidence": not primary_metric_gaps,
@@ -1165,6 +1307,8 @@ def _consistency_checks(
         "benchmark_llm_review_available": benchmark_llm_reviewed > 0,
         "triple_semantic_llm_review_available": triple_llm_reviewed > 0,
         "answer_llm_judge_available": answer_llm_reviewed > 0,
+        "s7_llm_answer_generation_available": s7_llm_selected > 0,
+        "s7_human_review_candidates_available": s7_review_candidates > 0,
         "reviewed_subset_llm_review_pending": reviewed_subset_pending,
         "safety_reports_have_no_boundary_violations": (
             sufficiency_boundary == 0 and robustness_boundary == 0
@@ -1358,6 +1502,22 @@ def write_thesis_experiment_dashboard_markdown(
                 "Score Method=deterministic_heuristic |"
             ),
             (
+                "| ATCSCC S7 LLM answer generation | "
+                f"Selected={primary['s7_llm_answer_generation']['selected_case_count']}, "
+                f"Best mode={primary['s7_llm_answer_generation']['best_mode']}, "
+                "Correctness="
+                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('answer_correctness')}, "
+                "Citation precision="
+                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('citation_precision')}, "
+                "Citation recall="
+                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('citation_recall')}, "
+                "Unsupported claim rate="
+                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')}, "
+                "Human-review candidates="
+                f"{primary['s7_llm_answer_generation']['human_review_candidate_count']} "
+                "(queue only; no human review) |"
+            ),
+            (
                 "| chunking benchmark v2 | "
                 f"Top-k best={primary['chunking_benchmark_v2']['topk_best_strategy']} "
                 f"(Recall@5={primary['chunking_benchmark_v2']['topk_recall_at_5_supported']}), "
@@ -1414,6 +1574,10 @@ def write_thesis_experiment_dashboard_markdown(
                 f"{primary['llm_review_status']['graph_paths']['path_relevance_rate']}, "
                 "answer judge correctness="
                 f"{primary['llm_review_status']['answer_judge']['correctness_rate']}, "
+                "S7 selected="
+                f"{primary['s7_llm_answer_generation']['selected_case_count']}, "
+                "S7 review candidates="
+                f"{primary['s7_llm_answer_generation']['human_review_candidate_count']}, "
                 "human review=false |"
             ),
             (

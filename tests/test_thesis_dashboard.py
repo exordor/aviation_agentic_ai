@@ -181,6 +181,54 @@ def _write_dashboard_fixture(root: Path) -> None:
         },
     )
     _write_json(
+        stages / "nasa_atmonto_s7_llm_answer_generation.json",
+        {
+            "status": "s7_llm_answer_generation_evaluated",
+            "metadata": {
+                "prompt_version": "fixture_prompt",
+                "reviewer_model": "fixture-model",
+                "selected_case_count": 60,
+                "max_cases_per_template": 5,
+            },
+            "answer_quality": {
+                "aggregate_by_mode": {
+                    "routed_token_matched_live_tfidf_graphrag": {
+                        "selected_total": 30,
+                        "llm_answered_total": 30,
+                        "answer_correctness": 0.9667,
+                        "citation_precision": 1.0,
+                        "citation_recall": 0.6084,
+                        "evidence_faithfulness": 0.9667,
+                        "unsupported_claim_rate": 0.0167,
+                        "abstention_correctness": 1.0,
+                    },
+                    "routed_token_matched_dense_graphrag": {
+                        "selected_total": 30,
+                        "llm_answered_total": 30,
+                        "answer_correctness": 0.9333,
+                        "citation_precision": 1.0,
+                        "citation_recall": 0.5945,
+                        "evidence_faithfulness": 0.9333,
+                        "unsupported_claim_rate": 0.0333,
+                        "abstention_correctness": 1.0,
+                    },
+                }
+            },
+        },
+    )
+    _write_json(
+        stages / "nasa_atmonto_s7_human_review_candidates.json",
+        {
+            "metadata": {
+                "candidate_count": 9,
+                "failure_candidate_count": 3,
+                "coverage_candidate_count": 6,
+                "source_llm_selected_cases": 60,
+            },
+            "candidates": [],
+        },
+    )
+    _write_json(
         stages / "llm_review_consistency.json",
         {"summary": {"agreement_rate": 1.0, "consistency_not_measured": False}},
     )
@@ -268,6 +316,16 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     assert result["consistency_checks"]["primary_thesis_metric_gaps"] == []
     assert result["consistency_checks"]["human_review_absent"]
     assert result["consistency_checks"]["benchmark_llm_review_available"]
+    assert result["consistency_checks"]["s7_llm_answer_generation_available"]
+    assert result["consistency_checks"]["s7_human_review_candidates_available"]
+    s7 = result["primary_results"]["s7_llm_answer_generation"]
+    assert s7["selected_case_count"] == 60
+    assert s7["best_mode"] == "routed_token_matched_live_tfidf_graphrag"
+    assert s7["human_review_candidate_count"] == 9
+    assert "review queue" in s7["claim_boundary"]
+    assert "ATCSCC S7 source-bounded answer set" in {
+        row["dataset"] for row in result["dataset_usage_matrix"]
+    }
     assert result["primary_results"]["llm_review_status"]["human_review"] is False
     remediation = result["primary_results"]["implementation_review_remediation"]
     assert remediation["implemented_items"] == 1

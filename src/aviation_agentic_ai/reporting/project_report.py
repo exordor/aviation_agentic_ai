@@ -832,6 +832,8 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
     nasa = primary.get("nasa_source_expansion", {})
     triple = primary.get("triple_semantic_review", {})
     llm_review = primary.get("llm_review_status", {})
+    s7_answer = primary.get("s7_llm_answer_generation", {})
+    s7_best = s7_answer.get("best_mode_metrics", {})
     remediation = primary.get("implementation_review_remediation", {})
     lines = [
         "# Aviation Agentic AI Project Report",
@@ -890,6 +892,14 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             "the dashboard inventory. Answer-level scores are deterministic heuristics "
             "unless an LLM-judge score is explicitly recorded; human review is absent.",
             "",
+            "ATCSCC S7 source-bounded LLM answer generation: selected cases="
+            f"{s7_answer.get('selected_case_count')}, best mode={s7_answer.get('best_mode')}, "
+            f"answer correctness={s7_best.get('answer_correctness')}, citation precision="
+            f"{s7_best.get('citation_precision')}, citation recall="
+            f"{s7_best.get('citation_recall')}, evidence faithfulness="
+            f"{s7_best.get('evidence_faithfulness')}. This is a retrospective diagnostic "
+            "over frozen retrieved contexts, not human-reviewed evidence.",
+            "",
             "## RQ3: vector vs graph vs hybrid retrieval (Hybrid RAG protocol and layered metrics)",
             "",
             f"Benchmark v2 vector-only: Recall@5={vector.get('recall_at_5')}, "
@@ -938,6 +948,13 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             "robustness must also remain visible: false answer rate="
             f"{robustness.get('false_answer_rate')}, boundary violations="
             f"{robustness.get('advisory_boundary_violation_count')}.",
+            "",
+            "S7 answer-generation safety diagnostics: unsupported claim rate="
+            f"{s7_best.get('unsupported_claim_rate')}, abstention correctness="
+            f"{s7_best.get('abstention_correctness')}, human-review candidates="
+            f"{s7_answer.get('human_review_candidate_count')} including "
+            f"{s7_answer.get('failure_candidate_count')} failure candidates. The remaining "
+            "cause-condition over-answer cases are queued for review.",
             "",
             "## RQ5: NASA source generalization and ontology boundary validation",
             "",
@@ -999,6 +1016,14 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"{answer_subset.get('unmatched_gold_labels')}, hybrid faithfulness="
             f"{answer_subset.get('hybrid_faithfulness')}, score method="
             f"{answer_subset.get('score_method')}. These are not human review results.",
+            "",
+            "ATCSCC S7 LLM answer-generation diagnostic: selected cases="
+            f"{s7_answer.get('selected_case_count')}, best-mode correctness="
+            f"{s7_best.get('answer_correctness')}, best-mode unsupported claim rate="
+            f"{s7_best.get('unsupported_claim_rate')}, review candidates="
+            f"{s7_answer.get('human_review_candidate_count')}. This candidate queue is "
+            "prepared for later human or supervisor review and is not itself completed "
+            "human review.",
             "",
             "## Model-Based Review Instead of Human Review",
             "",
