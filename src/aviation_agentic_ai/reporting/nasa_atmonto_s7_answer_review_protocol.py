@@ -23,6 +23,7 @@ def build_nasa_atmonto_s7_answer_review_protocol() -> dict[str, Any]:
             "worksheet": "reports/stages/nasa_atmonto_s7_answer_review_worksheet.html",
             "packet_json": "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.json",
             "packet_csv": "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.csv",
+            "import_report": "reports/stages/nasa_atmonto_s7_answer_review_import.md",
             "decision_report": "reports/stages/nasa_atmonto_s7_answer_review_decisions.md",
         },
         "review_scope": {
@@ -48,6 +49,11 @@ def build_nasa_atmonto_s7_answer_review_protocol() -> dict[str, Any]:
             "validate_reviewed_csv": (
                 "uv run python scripts/build_nasa_atmonto_s7_answer_review_decisions.py "
                 "--review-csv reports/stages/nasa_atmonto_s7_broad_answer_review_packet.reviewed.csv"
+            ),
+            "import_reviewed_csv": (
+                "uv run python scripts/import_nasa_atmonto_s7_reviewed_csv.py "
+                "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.reviewed.csv "
+                "--import-if-valid"
             ),
             "refresh_sota_audit": "uv run python scripts/build_nasa_atmonto_sota_goal_audit.py",
             "refresh_dashboard": "uv run aviation-ai report thesis-experiment-dashboard",
@@ -101,7 +107,8 @@ def write_nasa_atmonto_s7_answer_review_protocol_markdown(
             "4. Fill every required reviewer field; keep automatic metric columns unchanged.",
             "5. Download the reviewed CSV from the worksheet.",
             "6. Validate the reviewed CSV with the decision-status script.",
-            "7. Regenerate the SOTA audit and thesis dashboard after valid decisions are available.",
+            "7. Import the reviewed CSV only after validation succeeds.",
+            "8. Regenerate the SOTA audit and thesis dashboard after valid decisions are available.",
             "",
             "## Decision Fields",
             "",

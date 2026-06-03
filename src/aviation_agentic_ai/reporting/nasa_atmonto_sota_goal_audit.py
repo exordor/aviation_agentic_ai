@@ -92,14 +92,15 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
             "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md",
             "reports/stages/nasa_atmonto_s7_answer_review_worksheet.html",
             "reports/stages/nasa_atmonto_s7_answer_review_protocol.md",
+            "reports/stages/nasa_atmonto_s7_answer_review_import.md",
             "reports/stages/nasa_atmonto_s7_answer_review_decisions.md",
             "reports/stages/nasa_atmonto_s7_candidate_adjudication.md",
             "reports/stages/nasa_atmonto_s7_profile_decision.md",
         ],
         "limitation": (
-            "A broad 60-case reviewer packet, worksheet, protocol, and decision-status "
-            "report exist, but external human/expert decisions must be recorded before "
-            "this layer is complete."
+            "A broad 60-case reviewer packet, worksheet, protocol, import status, "
+            "and decision-status report exist, but external human/expert decisions "
+            "must be recorded before this layer is complete."
         ),
     },
     {
