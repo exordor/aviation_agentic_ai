@@ -4160,6 +4160,18 @@
     {
       "allowed_values": "free text",
       "field": "reviewer_notes"
+    },
+    {
+      "allowed_values": "pseudonym or initials",
+      "field": "reviewer_id_or_initials"
+    },
+    {
+      "allowed_values": "external_expert | human_reviewer | supervisor",
+      "field": "reviewer_role"
+    },
+    {
+      "allowed_values": "YYYY-MM-DD or ISO timestamp",
+      "field": "reviewed_at"
     }
   ],
   "source_family": "nasa_atmonto_s7_broad_answer_review_packet",

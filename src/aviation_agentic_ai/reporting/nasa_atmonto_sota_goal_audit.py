@@ -90,12 +90,13 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
             "reports/stages/nasa_atmonto_s7_answer_generation.md",
             "reports/stages/nasa_atmonto_s7_llm_answer_generation.md",
             "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md",
+            "reports/stages/nasa_atmonto_s7_answer_review_decisions.md",
             "reports/stages/nasa_atmonto_s7_candidate_adjudication.md",
             "reports/stages/nasa_atmonto_s7_profile_decision.md",
         ],
         "limitation": (
-            "A broad 60-case reviewer packet exists, but external human/expert "
-            "decisions have not been recorded."
+            "A broad 60-case reviewer packet and decision-status report exist, but "
+            "external human/expert decisions must be recorded before this layer is complete."
         ),
     },
     {
@@ -148,13 +149,20 @@ def build_nasa_atmonto_sota_goal_audit(
     s7_broad_review = read_json_object_or_empty(
         root / "reports/stages/nasa_atmonto_s7_broad_answer_review_packet.json"
     )
+    s7_review_decisions = read_json_object_or_empty(
+        root / "reports/stages/nasa_atmonto_s7_answer_review_decisions.json"
+    )
     second_domain_transfer = read_json_object_or_empty(
         root / "reports/stages/nasa_bga_domain_transfer_pilot.json"
     )
     status_counts: dict[str, int] = {}
     for item in requirements:
         status_counts[item["status"]] = status_counts.get(item["status"], 0) + 1
-    remaining_blockers = _remaining_blockers(s5_s6_live_full, second_domain_transfer)
+    remaining_blockers = _remaining_blockers(
+        s5_s6_live_full,
+        s7_review_decisions,
+        second_domain_transfer,
+    )
     return {
         "source_family": "nasa_atmonto_sota_goal_audit",
         "status": "sota_goal_audit_created",
@@ -170,6 +178,13 @@ def build_nasa_atmonto_sota_goal_audit(
             "s7_llm_status": s7_llm.get("status"),
             "s7_broad_review_packet_status": s7_broad_review.get("status"),
             "s7_broad_review_case_count": s7_broad_review.get("metadata", {}).get("case_count"),
+            "s7_answer_review_decision_status": s7_review_decisions.get("status"),
+            "s7_answer_review_completed_case_count": s7_review_decisions.get("metadata", {}).get(
+                "completed_case_count"
+            ),
+            "s7_answer_review_human_completed": s7_review_decisions.get("metadata", {}).get(
+                "human_review_completed"
+            ),
             "second_domain_transfer_status": second_domain_transfer.get("status"),
             "second_domain_transfer_domain": second_domain_transfer.get("metadata", {}).get(
                 "transfer_domain"
@@ -215,6 +230,9 @@ def write_nasa_atmonto_sota_goal_audit_markdown(
         f"- S7 LLM status: `{result['metadata']['s7_llm_status']}`",
         f"- S7 broad review packet status: `{result['metadata']['s7_broad_review_packet_status']}`",
         f"- S7 broad review packet cases: {result['metadata']['s7_broad_review_case_count']}",
+        f"- S7 answer review decision status: `{result['metadata']['s7_answer_review_decision_status']}`",
+        f"- S7 answer review completed cases: {result['metadata']['s7_answer_review_completed_case_count']}",
+        f"- S7 answer review human completed: `{result['metadata']['s7_answer_review_human_completed']}`",
         f"- Second-domain transfer status: `{result['metadata']['second_domain_transfer_status']}`",
         f"- Second-domain transfer domain: {result['metadata']['second_domain_transfer_domain']}",
         "",
@@ -278,6 +296,7 @@ def _requirement_status(root: Path, item: dict[str, Any]) -> dict[str, Any]:
 
 def _remaining_blockers(
     s5_s6_live_full: dict[str, Any],
+    s7_review_decisions: dict[str, Any],
     second_domain_transfer: dict[str, Any],
 ) -> list[str]:
     blockers = []
@@ -285,7 +304,8 @@ def _remaining_blockers(
         blockers.append(
             "A full 100-record live LLM extractor/validator/critic/refiner S5/S6 run is not yet complete."
         )
-    blockers.append("External human/expert answer-review decisions are not yet complete.")
+    if s7_review_decisions.get("metadata", {}).get("human_review_completed") is not True:
+        blockers.append("External human/expert answer-review decisions are not yet complete.")
     if second_domain_transfer.get("status") != "second_domain_transfer_pilot_created":
         blockers.append("Second-domain transfer is not yet executed.")
     return blockers

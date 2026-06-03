@@ -13,6 +13,9 @@
 - S7 LLM status: `s7_llm_answer_generation_evaluated`
 - S7 broad review packet status: `broad_answer_review_packet_created`
 - S7 broad review packet cases: 60
+- S7 answer review decision status: `s7_answer_review_decisions_pending`
+- S7 answer review completed cases: 0
+- S7 answer review human completed: `False`
 - Second-domain transfer status: `second_domain_transfer_pilot_created`
 - Second-domain transfer domain: NASA Beginner's Guide to Aerodynamics
 
@@ -26,7 +29,7 @@
 | `R4` | `satisfied` | Ontology-guided KG extraction is scored with schema and semantic layers separated. | 3/3 | S4 is the current strongest scored extraction system; not all LLM systems perform well. |
 | `R5` | `satisfied` | Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics. | 6/6 | Live S5/S6 evidence is still extraction-layer evidence; answer-layer review and cross-domain transfer remain separate claims. |
 | `R6` | `mostly_satisfied` | Graph-use gate, token-matched retrieval, and graph health are evaluated. | 3/3 | Graph health is diagnostic evidence, not certification of semantic truth. |
-| `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 5/5 | A broad 60-case reviewer packet exists, but external human/expert decisions have not been recorded. |
+| `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 6/6 | A broad 60-case reviewer packet and decision-status report exist, but external human/expert decisions must be recorded before this layer is complete. |
 | `R8` | `mostly_satisfied` | Completeness, correctness, limitations, and story claims are thesis-ready. | 3/3 | The final thesis should keep the claim wording profile-relative and retrospective. |
 | `R9` | `mostly_satisfied` | The method can be described as domain-independent and transferable. | 3/3 | A bounded NASA BGA second-source-family pilot exists, but it is concept-centric, seed-labelled, and not a full cross-domain GraphRAG answer-generation benchmark. |
 
@@ -69,6 +72,7 @@
 - `present` `reports/stages/nasa_atmonto_s7_answer_generation.md`
 - `present` `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`
 - `present` `reports/stages/nasa_atmonto_s7_broad_answer_review_packet.md`
+- `present` `reports/stages/nasa_atmonto_s7_answer_review_decisions.md`
 - `present` `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`
 - `present` `reports/stages/nasa_atmonto_s7_profile_decision.md`
 

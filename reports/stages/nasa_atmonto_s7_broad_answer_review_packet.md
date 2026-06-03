@@ -21,6 +21,9 @@ This is a broad reviewer packet over every selected S7 LLM answer case. It conta
 | `citation_sufficiency` | sufficient / partial / insufficient / not_applicable |
 | `profile_boundary` | yes / no / unsure |
 | `reviewer_notes` | free text |
+| `reviewer_id_or_initials` | pseudonym or initials |
+| `reviewer_role` | external_expert / human_reviewer / supervisor |
+| `reviewed_at` | YYYY-MM-DD or ISO timestamp |
 
 ## Aggregate
 

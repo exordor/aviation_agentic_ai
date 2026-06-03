@@ -264,6 +264,20 @@ def _write_dashboard_fixture(root: Path) -> None:
         },
     )
     _write_json(
+        stages / "nasa_atmonto_s7_answer_review_decisions.json",
+        {
+            "status": "s7_answer_review_decisions_pending",
+            "metadata": {
+                "expected_case_count": 60,
+                "completed_case_count": 0,
+                "pending_case_count": 60,
+                "human_review": False,
+                "human_review_completed": False,
+            },
+            "aggregate": {"row_status_counts": {"pending": 60}},
+        },
+    )
+    _write_json(
         stages / "nasa_atmonto_s7_candidate_adjudication.json",
         {
             "status": "candidate_adjudication_created",

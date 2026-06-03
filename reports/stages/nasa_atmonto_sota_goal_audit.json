@@ -16,6 +16,9 @@
     "s7_llm_status": "s7_llm_answer_generation_evaluated",
     "s7_broad_review_packet_status": "broad_answer_review_packet_created",
     "s7_broad_review_case_count": 60,
+    "s7_answer_review_decision_status": "s7_answer_review_decisions_pending",
+    "s7_answer_review_completed_case_count": 0,
+    "s7_answer_review_human_completed": false,
     "second_domain_transfer_status": "second_domain_transfer_pilot_created",
     "second_domain_transfer_domain": "NASA Beginner's Guide to Aerodynamics"
   },
@@ -188,6 +191,10 @@
           "present": true
         },
         {
+          "path": "reports/stages/nasa_atmonto_s7_answer_review_decisions.md",
+          "present": true
+        },
+        {
           "path": "reports/stages/nasa_atmonto_s7_candidate_adjudication.md",
           "present": true
         },
@@ -196,9 +203,9 @@
           "present": true
         }
       ],
-      "limitation": "A broad 60-case reviewer packet exists, but external human/expert decisions have not been recorded.",
-      "evidence_count": 5,
-      "present_evidence_count": 5,
+      "limitation": "A broad 60-case reviewer packet and decision-status report exist, but external human/expert decisions must be recorded before this layer is complete.",
+      "evidence_count": 6,
+      "present_evidence_count": 6,
       "missing_evidence": []
     },
     {

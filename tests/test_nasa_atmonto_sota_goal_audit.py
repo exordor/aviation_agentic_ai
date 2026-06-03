@@ -60,6 +60,16 @@ def _write_all_evidence(tmp_path: Path) -> None:
         },
     )
     _write_json(
+        tmp_path / "reports/stages/nasa_atmonto_s7_answer_review_decisions.json",
+        {
+            "status": "s7_answer_review_decisions_pending",
+            "metadata": {
+                "completed_case_count": 0,
+                "human_review_completed": False,
+            },
+        },
+    )
+    _write_json(
         tmp_path / "reports/stages/nasa_bga_domain_transfer_pilot.json",
         {
             "status": "second_domain_transfer_pilot_created",
@@ -84,6 +94,9 @@ def test_sota_goal_audit_maps_requirements_to_present_evidence(tmp_path: Path) -
     assert result["metadata"]["s7_llm_status"] == "s7_llm_answer_generation_evaluated"
     assert result["metadata"]["s7_broad_review_packet_status"] == "broad_answer_review_packet_created"
     assert result["metadata"]["s7_broad_review_case_count"] == 60
+    assert result["metadata"]["s7_answer_review_decision_status"] == "s7_answer_review_decisions_pending"
+    assert result["metadata"]["s7_answer_review_completed_case_count"] == 0
+    assert result["metadata"]["s7_answer_review_human_completed"] is False
     assert result["metadata"]["second_domain_transfer_status"] == "second_domain_transfer_pilot_created"
     assert result["metadata"]["second_domain_transfer_domain"] == "NASA Beginner's Guide to Aerodynamics"
     assert result["metadata"]["status_counts"]["satisfied"] == 5
@@ -112,5 +125,6 @@ def test_write_sota_goal_audit_outputs_json_and_markdown(tmp_path: Path) -> None
     assert "active_not_complete" in markdown
     assert "full 100-record live LLM" not in markdown
     assert "S7 broad review packet cases: 60" in markdown
+    assert "S7 answer review decision status: `s7_answer_review_decisions_pending`" in markdown
     assert "Second-domain transfer status: `second_domain_transfer_pilot_created`" in markdown
     assert "External human/expert answer-review decisions" in markdown

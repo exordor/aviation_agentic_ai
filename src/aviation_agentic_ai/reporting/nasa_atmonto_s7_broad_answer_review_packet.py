@@ -122,6 +122,18 @@ def review_schema() -> list[dict[str, str]]:
             "field": "reviewer_notes",
             "allowed_values": "free text",
         },
+        {
+            "field": "reviewer_id_or_initials",
+            "allowed_values": "pseudonym or initials",
+        },
+        {
+            "field": "reviewer_role",
+            "allowed_values": "external_expert | human_reviewer | supervisor",
+        },
+        {
+            "field": "reviewed_at",
+            "allowed_values": "YYYY-MM-DD or ISO timestamp",
+        },
     ]
 
 
@@ -150,6 +162,9 @@ def review_csv_rows(result: dict[str, Any]) -> list[dict[str, Any]]:
                 "citation_sufficiency": "",
                 "profile_boundary": "",
                 "reviewer_notes": "",
+                "reviewer_id_or_initials": "",
+                "reviewer_role": "",
+                "reviewed_at": "",
             }
         )
     return rows
@@ -161,7 +176,7 @@ def write_review_csv(result: dict[str, Any], output_path: str | Path) -> Path:
     rows = review_csv_rows(result)
     fieldnames = list(rows[0].keys()) if rows else []
     with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     return path
