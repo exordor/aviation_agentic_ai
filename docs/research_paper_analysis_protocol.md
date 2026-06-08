@@ -58,7 +58,56 @@ This writes ignored artifacts under `tmp/pdfs/<slug>/`:
 The rendered pages and embedded images must be inspected for papers where
 figures, tables, diagrams, or visual experiment design matter.
 
-### Step 3: Produce A Stage Report
+### Step 3: Refresh The Figure Gallery
+
+After creating or updating any PDF evidence pack, run:
+
+```bash
+uv run python scripts/build_paper_figure_gallery.py
+```
+
+This refreshes:
+
+- `reports/stages/paper_figure_gallery.html`;
+- `reports/stages/paper_figure_gallery_manifest.json`.
+
+Use the gallery as the default visual comparison surface for figure/table
+design across papers. The default view shows only figure/table candidates and
+hides full page renders, tiny PDF icons, masks, and other extraction artifacts.
+The `All raw` view remains available for debugging extraction quality. The
+gallery indexes ignored local assets from `tmp/pdfs/`, so it is reproducible
+from the PDF evidence packs rather than a replacement for them.
+
+### Optional Step 3b: Run MinerU For Difficult Figure/Table Extraction
+
+Use MinerU only when Poppler/`pdfimages` extraction produces unusable assets
+such as masks, color blocks, tiny icons, or page-level renderings without
+separate figure/table candidates.
+
+Keep MinerU isolated because it has a large dependency and model footprint:
+
+```bash
+/Users/jlw/.local/bin/uv venv --python 3.12 tmp/mineru_smoke/.venv
+/Users/jlw/.local/bin/uv pip install --python tmp/mineru_smoke/.venv/bin/python -U "mineru[all]"
+tmp/mineru_smoke/.venv/bin/mineru-models-download -s huggingface -m pipeline
+tmp/mineru_smoke/.venv/bin/mineru -p <paper.pdf> -o tmp/mineru_smoke/<slug> -b pipeline -m txt -l en
+```
+
+Then import MinerU's table/image assets into the ignored PDF evidence pack and
+refresh the gallery:
+
+```bash
+/Users/jlw/.local/bin/uv run python scripts/import_mineru_gallery_assets.py \
+  tmp/mineru_smoke/<slug>/<paper_name>/txt/<paper_name>_content_list.json \
+  <slug>
+/Users/jlw/.local/bin/uv run python scripts/build_paper_figure_gallery.py
+```
+
+MinerU-imported assets appear as `mineru_extract` cards in the gallery. Treat
+them as visual evidence for method analysis, not as a substitute for reading
+the paper text and captions.
+
+### Step 4: Produce A Stage Report
 
 Create a curated report under `reports/stages/` using
 `templates/research_paper_analysis_report.md`.
@@ -83,7 +132,7 @@ The report must distinguish:
 - what is only a possible adaptation;
 - what should not be used as evidence for aviation claims.
 
-### Step 4: Decide The Paper's Project Role
+### Step 5: Decide The Paper's Project Role
 
 Assign one or more roles:
 
@@ -97,7 +146,7 @@ Assign one or more roles:
 Only `primary_method_reference`, `evaluation_reference`, and
 `figure_design_reference` papers should change experiment plans.
 
-### Step 5: Link To Experiment Artifacts
+### Step 6: Link To Experiment Artifacts
 
 If the paper changes project direction, update the relevant protocol or report:
 

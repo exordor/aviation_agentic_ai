@@ -22,6 +22,22 @@ Curated notes belong in `reports/stages/` and should use
 
 ## Current References
 
+- Title: "CHATATC: Large Language Model-Driven Conversational Agents for
+  Supporting Strategic Air Traffic Flow Management"
+- Authors: Sinan Abdulhak, Wayne Hubbard, Karthik Gopalakrishnan, and
+  Max Z. Li
+- Venue / year: ICRAT 2024; arXiv preprint v2, 2024
+- Stable URL: https://arxiv.org/abs/2402.14850
+- arXiv PDF: https://arxiv.org/pdf/2402.14850
+- Local download date: 2026-06-06
+- Local ignored PDF name: `arxiv_2402.14850_chatatc.pdf`
+- Use in this project: aviation-domain related work and evaluation reference
+  for LLM-assisted historical traffic flow management question answering. It
+  supports the non-safety-critical advisory analysis framing, but it is not a
+  KG, ontology-constrained extraction, or GraphRAG method reference.
+- Inspection artifacts: `tmp/pdfs/chatatc/`
+- Curated analysis: `reports/stages/chatatc_paper_analysis.md`
+
 - Title: "Towards Automated Ontology Generation from Unstructured Text: A
   Multi-Agent LLM Approach"
 - Authors: Abid Talukder, Maruf Ahmed Mridul, and Oshani Seneviratne
