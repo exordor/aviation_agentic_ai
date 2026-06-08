@@ -6,7 +6,7 @@ Last updated: 2026-06-02
 
 - Artifact: thesis-grade competency-question matrix for the NASA ATMONTO /
   FAA ATCSCC advisory KG extraction study.
-- Deep Research input reviewed: downloaded ChatGPT Pro/Deep Research report;
+- Research export reviewed: downloaded research report;
   raw report is treated as local research scratch and distilled here.
 - Primary ontology role: NASA ATMONTO runtime profile and ATCSCC schema slice.
 - Source family: retrospective FAA ATCSCC / NAS Status advisory records.
@@ -15,7 +15,7 @@ Last updated: 2026-06-02
 - Boundary: retrospective research only. These CQs do not support live aviation
   operations, flight planning, dispatch, ATC decisions, or safety certification.
 
-## Review Of The Deep Research Report
+## Review Of The Research Export
 
 Assessment: useful as a design scaffold, but not bibliography-ready without
 local verification.
@@ -33,7 +33,7 @@ Strengths:
 
 Limitations to correct before thesis use:
 
-- The downloaded report keeps ChatGPT-internal citation markers such as
+- The downloaded report keeps internal citation markers such as
   `turn6view...`; those are not reusable thesis citations.
 - Some proposed fields, such as `affectedNASelement`, `sourceSpanStart`,
   `sourceSpanEnd`, and PROV-O predicates, are design extensions rather than
@@ -44,7 +44,7 @@ Limitations to correct before thesis use:
   construction metrics and limited graph queries, not an end-to-end GraphRAG
   answer-improvement claim.
 
-Portable source anchors to use instead of internal ChatGPT citations:
+Portable source anchors to use instead of internal citations:
 
 - NASA NTRS: The NASA Air Traffic Management Ontology technical documentation,
   NASA/TM-2017-219526.

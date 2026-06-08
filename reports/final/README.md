@@ -39,7 +39,7 @@ final-report pass explicitly regenerates or replaces them.
 | `defense_deck_outline.md` | historical PHAK-era deck outline | Useful as a slide-structure reference only. It should not be used for the current ATCSCC defense without rewriting. |
 | `aviation_graphrag_defense_deck.pptx` | historical PHAK-era deck | Large binary deck. Keep for provenance and design reference, not current thesis submission. |
 | `aviation_graphrag_defense_deck_sources.json` | provenance for historical deck | Source pack for the old deck. |
-| `assets/*` | historical visual assets | Mostly PHAK/web-demo presentation assets. Reuse only if the figure still matches the ATCSCC method story. |
+| `assets/*` | historical figures | Mostly PHAK/web-demo presentation assets. Reuse only if the figure still matches the ATCSCC method story. |
 
 ## Next ATCSCC Final-Package Target
 

@@ -18,7 +18,7 @@ Reference patterns used for this design:
 - NASA ATM Ontology treats an aviation ontology as a conceptual model for information organization, querying, integration, and terminology standardization: https://ntrs.nasa.gov/citations/20170006095
 - ICARUS provides an aviation dataset ontology plus local NASA ATMONTO modules for external vocabulary alignment: `data/ontology/external/icarus_ontology/`
 - Aviation accident KG work uses a compact core-concept ontology diagram before information extraction: https://www.mdpi.com/2079-9292/13/19/3936
-- ATC KG work frames KG construction as part of a narrow-domain hybrid AI system: https://www.sciencedirect.com/science/article/pii/S2352146522006524
+- ATC KG work frames KG construction as part of a narrow-domain hybrid KG/RAG system: https://www.sciencedirect.com/science/article/pii/S2352146522006524
 - SWIM ontology work separates domain ontologies and reference-level semantic alignment: https://www.jstage.jst.go.jp/article/tjsai/36/1/36_36-1_WI2-F/_article/-char/en
 
 ## Design Questions

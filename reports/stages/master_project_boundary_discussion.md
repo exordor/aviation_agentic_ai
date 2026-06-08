@@ -131,17 +131,17 @@ Example questions:
 This project does not aim to build a complete aviation ontology, perform
 ontology engineering as the main contribution, deliver real-time ATC decision
 support, predict delays, build a production chatbot, build a passenger-facing
-flight assistant, perform large-scale multi-source ATM integration, extract
+passenger-facing flight tool, perform large-scale multi-source ATM integration, extract
 complete PDF manuals, or invent a new RAG algorithm.
 
-GraphRAG is evaluated as one retrieval strategy inside an agentic assistant, not
+GraphRAG is evaluated as one retrieval strategy inside an agentic KG-RAG system, not
 assumed to be universally better than Vector RAG.
 
 ## 9. Questions For Confirmation
 
 Could you confirm whether this scope is acceptable?
 
-1. Should the main contribution be an Agentic RAG / KG-RAG assistant rather than
+1. Should the main contribution be an Agentic RAG / KG-RAG system rather than
    ontology engineering?
 2. Should FAA ATCSCC advisories be the main extraction and QA corpus?
 3. Should ATMONTO be used only as a lightweight schema / validation backbone

@@ -6,7 +6,7 @@
 - Scope: current NASA ATMONTO pivot sources plus prior baseline and planned extension sources.
 - Primary experiment role: choose the safest extraction path for each source before KG construction.
 - Snapshot evidence used: NASA ATMONTO phase-1 collection, temporal alignment, FAA reference-document inventory, AIRM-O alignment inventory, local ontology files, and existing source backend policy.
-- Consensus validation: `reports/stages/data_source_extraction_method_consensus_validation.md`.
+- Literature validation: `reports/stages/data_source_extraction_method_consensus_validation.md`.
 - Claim boundary: retrospective research data integration only. No source in this matrix supports live operational flight decisions.
 
 ## Core Decision Rule

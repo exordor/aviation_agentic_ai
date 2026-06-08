@@ -3,20 +3,20 @@
 - Date: 2026-06-01
 - Purpose: map the BDIS thesis topic list to the current
   `aviation_agentic_ai` assets and identify a defensible master thesis route.
-- Search surface: Consensus web frontend, with paper metadata checked through
-  Consensus paper records.
+- Search surface: academic search web pages, with paper metadata checked through
+  paper records.
 - Project boundary: current evidence supports aviation knowledge-graph
   construction, provenance, validation, and layered RAG evaluation. It does not
   support operational aviation decision claims or a full digital-twin pivot.
 
-## Consensus Web Searches
+## Literature Search Pages
 
-The following searches were run in the Consensus web UI so the results remain
-visible and easy to reopen.
+The following searches were preserved as reusable web pages so the results
+remain visible and easy to reopen.
 
-| Topic | Consensus search page |
+| Topic | Search page |
 | --- | --- |
-| 1. Agentic ontology construction and validation | [Agentic AI Ontology Construction](https://consensus.app/search/agentic-ai-ontology-construction/BAg7PRUSRByYHNdlPHwwWg/) |
+| 1. Agentic ontology construction and validation | [Agentic Ontology Construction](https://consensus.app/search/agentic-ai-ontology-construction/BAg7PRUSRByYHNdlPHwwWg/) |
 | 2. KG quality evaluation for RAG | [Knowledge Graph Quality Evaluation](https://consensus.app/search/knowledge-graph-quality-evaluation/4pBvj6C4TM-OmEN-3UiyYQ/) |
 | 3. LLM fine-tuning for ontology population | [LLM Fine Tuning Ontology Population](https://consensus.app/search/llm-fine-tuning-ontology-population/QXbaSXT-RLiSyHVFhRKpmQ/) |
 | 4. Multimodal ontology learning | [Multimodal Ontology Learning Scientific Documents](https://consensus.app/search/multimodal-ontology-learning-scientific-documents/bcQWxz4jQ7qR_bEIQpMHAw/) |
@@ -42,7 +42,7 @@ already contains:
   and safety-aware abstention.
 
 Topic 4 is the best optional extension if the professor wants stronger
-document-AI novelty: add figure/table/PDF evidence extraction as a second source
+document-processing novelty: add figure/table/PDF evidence extraction as a second source
 family. Topic 3 is feasible as a secondary experiment, but it needs supervised
 training data and compute; it should not be the main route unless LoRA or
 instruction-tuning resources are secured. Topics 5-7 are real research areas,
@@ -54,7 +54,7 @@ Scores use 1-5 where 5 is strongest. Risk uses 1-5 where 5 is highest risk.
 
 | Rank | BDIS topic | Project fit | Data readiness | Novelty | Risk | Recommendation |
 | ---: | --- | ---: | ---: | ---: | ---: | --- |
-| 1 | Agentic AI architectures for iterative ontology construction and validation | 5 | 5 | 4 | 2 | Core thesis route |
+| 1 | Agentic architectures for iterative ontology construction and validation | 5 | 5 | 4 | 2 | Core thesis route |
 | 2 | KG quality evaluation: completeness and semantic correctness in RAG systems | 5 | 4 | 5 | 2 | Core thesis route, combine with Topic 1 |
 | 3 | Multimodal ontology learning from heterogeneous documents | 4 | 3 | 4 | 3 | Strong extension or second experiment |
 | 4 | LLM fine-tuning for ontology population and relation classification | 3 | 2 | 3 | 4 | Optional method comparison, not first core |
@@ -74,23 +74,23 @@ gates.
 Key papers:
 
 - Talukder et al. (2026), [Towards Automated Ontology Generation from
-  Unstructured Text: A Multi-Agent LLM Approach](https://consensus.app/papers/towards-automated-ontology-generation-from-unstructured-talukder-mridul/6e29c680771f5cd9a2a3ba0701141457/?utm_source=chatgpt).
+  Unstructured Text: A Multi-Agent LLM Approach](https://consensus.app/papers/towards-automated-ontology-generation-from-unstructured-talukder-mridul/6e29c680771f5cd9a2a3ba0701141457/).
   A multi-agent architecture separates domain expert, manager, coder, and QA
   roles for ontology generation.
-- Chhetri et al. (2025), [STRUCTSENSE](https://consensus.app/papers/structsense-a-taskagnostic-agentic-framework-for-chhetri-chen/d883b853e6bb5ba1be1dadf66a0010ea/?utm_source=chatgpt).
+- Chhetri et al. (2025), [STRUCTSENSE](https://consensus.app/papers/structsense-a-taskagnostic-agentic-framework-for-chhetri-chen/d883b853e6bb5ba1be1dadf66a0010ea/).
   Uses ontology-guided structured extraction, self-evaluative judging, feedback
   loops, and human-in-the-loop benchmarking.
-- Lu and Wang (2025), [KARMA](https://consensus.app/papers/karma-leveraging-multiagent-llms-for-automated-knowledge-lu-wang/54dbe8ff550a5cbebe81453b5a0a82f7/?utm_source=chatgpt).
+- Lu and Wang (2025), [KARMA](https://consensus.app/papers/karma-leveraging-multiagent-llms-for-automated-knowledge-lu-wang/54dbe8ff550a5cbebe81453b5a0a82f7/).
   Uses multiple specialized agents for KG enrichment, schema alignment, and
   conflict resolution.
-- Qiang et al. (2023), [Agent-OM](https://consensus.app/papers/agentom-leveraging-llm-agents-for-ontology-matching-qiang-wang/1ff1e2abb0f255299ecb808951ceaf6b/?utm_source=chatgpt).
+- Qiang et al. (2023), [Agent-OM](https://consensus.app/papers/agentom-leveraging-llm-agents-for-ontology-matching-qiang-wang/1ff1e2abb0f255299ecb808951ceaf6b/).
   Shows that LLM-agent approaches are useful for ontology matching, especially
   in complex and few-shot settings.
 - Wang et al. (2023), [A survey on large language model based autonomous
-  agents](https://consensus.app/papers/a-survey-on-large-language-model-based-autonomous-agents-wang-ma/13f7f2d5872d5a02beef86caf769fd55/?utm_source=chatgpt).
+  agents](https://consensus.app/papers/a-survey-on-large-language-model-based-autonomous-agents-wang-ma/13f7f2d5872d5a02beef86caf769fd55/).
   Provides the broader agent architecture background.
 - Bian (2025), [LLM-empowered knowledge graph construction: A
-  survey](https://consensus.app/papers/llmempowered-knowledge-graph-construction-a-survey-bian/dfbcfc9b12ba50659e7f8a8fabdfa034/?utm_source=chatgpt).
+  survey](https://consensus.app/papers/llmempowered-knowledge-graph-construction-a-survey-bian/dfbcfc9b12ba50659e7f8a8fabdfa034/).
   Frames LLMs across ontology engineering, extraction, fusion, and dynamic KG
   construction.
 
@@ -113,18 +113,18 @@ ontological purity.
 
 Key papers:
 
-- Yu et al. (2023), [CompleQA](https://consensus.app/papers/compleqa-benchmarking-the-impacts-of-knowledge-graph-yu-gu/3cc17d53d8175c08bd65a43ef9f3afab/?utm_source=chatgpt).
+- Yu et al. (2023), [CompleQA](https://consensus.app/papers/compleqa-benchmarking-the-impacts-of-knowledge-graph-yu-gu/3cc17d53d8175c08bd65a43ef9f3afab/).
   Shows that KG completion can mitigate KG incompleteness in QA, but the best
   KG completion model is not necessarily the best downstream QA model.
-- Knollmeyer et al. (2025), [Document GraphRAG](https://consensus.app/papers/document-graphrag-knowledge-graph-enhanced-retrieval-knollmeyer-caymazer/78d009e01f925a00811cd33cbc74f60d/?utm_source=chatgpt).
+- Knollmeyer et al. (2025), [Document GraphRAG](https://consensus.app/papers/document-graphrag-knowledge-graph-enhanced-retrieval-knollmeyer-caymazer/78d009e01f925a00811cd33cbc74f60d/).
   Uses document-structure KGs to improve GraphRAG retrieval and answer
   generation in manufacturing documents.
 - Linders and Tomczak (2025), [Knowledge graph-extended retrieval augmented
-  generation for question answering](https://consensus.app/papers/knowledge-graphextended-retrieval-augmented-generation-linders-tomczak/c4b9354f63ec588487884aeabd1da4e9/?utm_source=chatgpt).
+  generation for question answering](https://consensus.app/papers/knowledge-graphextended-retrieval-augmented-generation-linders-tomczak/c4b9354f63ec588487884aeabd1da4e9/).
   Argues that KG-RAG improves transparency and multi-hop retrieval, with
   tradeoffs on simpler single-hop questions.
 - Zhang et al. (2025), [Diagnosing and Addressing Pitfalls in KG-RAG
-  Datasets](https://consensus.app/papers/diagnosing-and-addressing-pitfalls-in-kgrag-datasets-zhang-jiang/8e1c3a38a914593fb5921790c4cd90b1/?utm_source=chatgpt).
+  Datasets](https://consensus.app/papers/diagnosing-and-addressing-pitfalls-in-kgrag-datasets-zhang-jiang/8e1c3a38a914593fb5921790c4cd90b1/).
   Shows that KG-RAG benchmark quality itself can be fragile and must be audited.
 
 Fit to current project:
@@ -145,17 +145,17 @@ training examples, train/dev/test separation, model selection, and compute.
 Key papers:
 
 - Norouzi et al. (2024), [Ontology Population using
-  LLMs](https://consensus.app/papers/ontology-population-using-llms-norouzi-barua/f554b20ac8cc55a38a7c4b9d2a486a38/?utm_source=chatgpt).
+  LLMs](https://consensus.app/papers/ontology-population-using-llms-norouzi-barua/f554b20ac8cc55a38a7c4b9d2a486a38/).
   Shows that modular ontology guidance helps LLM triple extraction, while
   hallucination remains a risk.
-- Caufield et al. (2023), [SPIRES](https://consensus.app/papers/structured-prompt-interrogation-and-recursive-caufield-hegde/e57d6fe0e5c55182be4ce2faa7751afe/?utm_source=chatgpt).
+- Caufield et al. (2023), [SPIRES](https://consensus.app/papers/structured-prompt-interrogation-and-recursive-caufield-hegde/e57d6fe0e5c55182be4ce2faa7751afe/).
   Uses schema-guided recursive extraction and grounding into existing
   ontologies and vocabularies.
 - Doumanas et al. (2025), [Fine-Tuning Large Language Models for Ontology
-  Engineering](https://consensus.app/papers/finetuning-large-language-models-for-ontology-doumanas-soularidis/e5cafc7bcec15697981bf719de6f393a/?utm_source=chatgpt).
+  Engineering](https://consensus.app/papers/finetuning-large-language-models-for-ontology-doumanas-soularidis/e5cafc7bcec15697981bf719de6f393a/).
   Compares fine-tuned GPT-4 and Mistral-style models for ontology engineering.
 - Dagdelen et al. (2024), [Structured information extraction from scientific
-  text with large language models](https://consensus.app/papers/structured-information-extraction-from-scientific-text-dagdelen-dunn/075e3f5a3be0575d99f30dc34440d323/?utm_source=chatgpt).
+  text with large language models](https://consensus.app/papers/structured-information-extraction-from-scientific-text-dagdelen-dunn/075e3f5a3be0575d99f30dc34440d323/).
   Demonstrates structured scientific extraction with fine-tuned LLMs.
 
 Fit to current project:
@@ -168,20 +168,20 @@ Fit to current project:
 
 ### Topic 4: Multimodal ontology learning from heterogeneous documents
 
-This is a good extension if the thesis should emphasize document AI. The
+This is a good extension if the thesis should emphasize document processing. The
 current repository has PDF extraction work, NASA sources, and Docling/PyMuPDF
 comparisons, so the route is plausible. The risk is that figure/table extraction
 adds a second research problem.
 
 Key papers:
 
-- Sun et al. (2025), [Docs2KG](https://consensus.app/papers/docs2kg-a-humanllm-collaborative-approach-to-unified-sun-luo/d2c7ec831d695f5fb3a02d3cd10ae6b0/?utm_source=chatgpt).
+- Sun et al. (2025), [Docs2KG](https://consensus.app/papers/docs2kg-a-humanllm-collaborative-approach-to-unified-sun-luo/d2c7ec831d695f5fb3a02d3cd10ae6b0/).
   Builds KGs from heterogeneous documents through layout, metadata, and semantic
   graph layers.
-- Wang et al. (2024), [SciDaSynth](https://consensus.app/papers/scidasynth-interactive-structured-data-extraction-from-wang-huey/8a6b0bc5ea43505daf6e6f19da3c46ac/?utm_source=chatgpt).
+- Wang et al. (2024), [SciDaSynth](https://consensus.app/papers/scidasynth-interactive-structured-data-extraction-from-wang-huey/8a6b0bc5ea43505daf6e6f19da3c46ac/).
   Extracts structured data from text, tables, and figures with validation and
   refinement.
-- Khalighinejad et al. (2024), [MatViX](https://consensus.app/papers/matvix-multimodal-information-extraction-from-visually-khalighinejad-scott/f313f35a54f75c88b68b261d7c688773/?utm_source=chatgpt).
+- Khalighinejad et al. (2024), [MatViX](https://consensus.app/papers/matvix-multimodal-information-extraction-from-visually-khalighinejad-scott/f313f35a54f75c88b68b261d7c688773/).
   Benchmarks multimodal extraction from visually rich scientific articles.
 
 Fit to current project:
@@ -200,15 +200,15 @@ codebase unless the thesis pivots away from aviation KG/RAG.
 Key papers:
 
 - Jones et al. (2020), [Characterising the Digital
-  Twin](https://consensus.app/papers/characterising-the-digital-twin-a-systematic-literature-jones-snider/501b2aa1beaf5d379f06455947f071cd/?utm_source=chatgpt).
+  Twin](https://consensus.app/papers/characterising-the-digital-twin-a-systematic-literature-jones-snider/501b2aa1beaf5d379f06455947f071cd/).
   Provides a widely cited characterization of digital twins and research gaps.
 - Thelen et al. (2022), [A comprehensive review of digital twin - part
-  1](https://consensus.app/papers/a-comprehensive-review-of-digital-twin-part-1-modeling-and-thelen-zhang/c7d1de09cc7b5c7dad86246790903bb5/?utm_source=chatgpt).
+  1](https://consensus.app/papers/a-comprehensive-review-of-digital-twin-part-1-modeling-and-thelen-zhang/c7d1de09cc7b5c7dad86246790903bb5/).
   Reviews modeling and twinning technologies.
-- Bhatt et al. (2025), [HarmonE](https://consensus.app/papers/harmone-a-selfadaptive-approach-to-architecting-bhatt-biswas/a1f5d2e0cbac5159a903ed0dd52da009/?utm_source=chatgpt).
+- Bhatt et al. (2025), [HarmonE](https://consensus.app/papers/harmone-a-selfadaptive-approach-to-architecting-bhatt-biswas/a1f5d2e0cbac5159a903ed0dd52da009/).
   Connects MLOps, monitoring, MAPE-K loops, drift, and digital-twin systems.
 - Kapteyn et al. (2020), [A probabilistic graphical model foundation for
-  predictive digital twins](https://consensus.app/papers/a-probabilistic-graphical-model-foundation-for-enabling-kapteyn-pretorius/1b707432891b5eb8942e8c56d5886adc/?utm_source=chatgpt).
+  predictive digital twins](https://consensus.app/papers/a-probabilistic-graphical-model-foundation-for-enabling-kapteyn-pretorius/1b707432891b5eb8942e8c56d5886adc/).
   Gives a rigorous foundation for scalable predictive digital twins.
 
 Fit to current project:
@@ -228,14 +228,14 @@ Key papers:
 
 - Qu et al. (2020), [Lithium-ion battery performance degradation evaluation
   in dynamic operating conditions based on a digital twin
-  model](https://consensus.app/papers/lithiumion-battery-performance-degradation-evaluation-qu-song/d96bcd573c135325b70517b857dedbc8/?utm_source=chatgpt).
+  model](https://consensus.app/papers/lithiumion-battery-performance-degradation-evaluation-qu-song/d96bcd573c135325b70517b857dedbc8/).
   Uses a battery digital twin for degradation and capacity estimation.
 - Qin et al. (2022), [Digital Twin for Real-time Li-Ion Battery State of Health
-  Estimation](https://consensus.app/papers/digital-twin-for-realtime-liion-battery-state-of-health-qin-arunan/f2d96419c410539d81d6c75a556578c2/?utm_source=chatgpt).
+  Estimation](https://consensus.app/papers/digital-twin-for-realtime-liion-battery-state-of-health-qin-arunan/f2d96419c410539d81d6c75a556578c2/).
   Focuses on real-time SOH estimation from partially discharged cycling data.
 - Cao and Liu (2025), [A Multi-Timescale Method for State of Charge Estimation
   for Lithium-Ion Batteries in Electric
-  UAVs](https://consensus.app/papers/a-multitimescale-method-for-state-of-charge-estimation-for-cao-liu/941e26ac3ee25b72854ce81b8b0f5c9d/?utm_source=chatgpt).
+  UAVs](https://consensus.app/papers/a-multitimescale-method-for-state-of-charge-estimation-for-cao-liu/941e26ac3ee25b72854ce81b8b0f5c9d/).
   Addresses electric UAV battery SOC estimation under dynamic conditions.
 
 Fit to current project:
@@ -244,7 +244,7 @@ Fit to current project:
   model.
 - Choose this only if the supervisor can provide UAV battery data or an
   accepted public dataset and if the thesis should be a digital-twin thesis
-  rather than an AI/KG thesis.
+  rather than a KG/RAG thesis.
 
 ## Recommended Thesis Framing
 
@@ -304,7 +304,7 @@ and evaluation of aviation knowledge graphs for evidence-aware RAG?
 3. Add correlation analysis between KG quality measures and answer support.
 4. Use insufficiency/abstention cases as safety-relevant evaluation.
 
-### Route C: document AI extension
+### Route C: document-processing extension
 
 1. Add a second source family: FAA/NASA PDF reference documents.
 2. Extract definitions, aliases, procedure mentions, and source mappings.
@@ -321,7 +321,7 @@ Suggested short pitch:
 > provenance, reviewed ATCSCC gold data, and layered evaluation. The thesis can
 > study agentic ontology-guided KG construction and evaluate KG quality by its
 > downstream RAG usefulness rather than by ontology purity alone. A multimodal
-> PDF/table/figure extension is possible if we want a stronger document-AI
+> PDF/table/figure extension is possible if we want a stronger document-processing
 > angle.
 
 Questions to ask:
@@ -352,40 +352,40 @@ Questions to ask:
 ## Anchor Source List
 
 1. Talukder et al. (2026), [Towards Automated Ontology Generation from
-   Unstructured Text](https://consensus.app/papers/towards-automated-ontology-generation-from-unstructured-talukder-mridul/6e29c680771f5cd9a2a3ba0701141457/?utm_source=chatgpt).
-2. Chhetri et al. (2025), [STRUCTSENSE](https://consensus.app/papers/structsense-a-taskagnostic-agentic-framework-for-chhetri-chen/d883b853e6bb5ba1be1dadf66a0010ea/?utm_source=chatgpt).
-3. Lu and Wang (2025), [KARMA](https://consensus.app/papers/karma-leveraging-multiagent-llms-for-automated-knowledge-lu-wang/54dbe8ff550a5cbebe81453b5a0a82f7/?utm_source=chatgpt).
-4. Qiang et al. (2023), [Agent-OM](https://consensus.app/papers/agentom-leveraging-llm-agents-for-ontology-matching-qiang-wang/1ff1e2abb0f255299ecb808951ceaf6b/?utm_source=chatgpt).
-5. Yu et al. (2023), [CompleQA](https://consensus.app/papers/compleqa-benchmarking-the-impacts-of-knowledge-graph-yu-gu/3cc17d53d8175c08bd65a43ef9f3afab/?utm_source=chatgpt).
-6. Knollmeyer et al. (2025), [Document GraphRAG](https://consensus.app/papers/document-graphrag-knowledge-graph-enhanced-retrieval-knollmeyer-caymazer/78d009e01f925a00811cd33cbc74f60d/?utm_source=chatgpt).
+   Unstructured Text](https://consensus.app/papers/towards-automated-ontology-generation-from-unstructured-talukder-mridul/6e29c680771f5cd9a2a3ba0701141457/).
+2. Chhetri et al. (2025), [STRUCTSENSE](https://consensus.app/papers/structsense-a-taskagnostic-agentic-framework-for-chhetri-chen/d883b853e6bb5ba1be1dadf66a0010ea/).
+3. Lu and Wang (2025), [KARMA](https://consensus.app/papers/karma-leveraging-multiagent-llms-for-automated-knowledge-lu-wang/54dbe8ff550a5cbebe81453b5a0a82f7/).
+4. Qiang et al. (2023), [Agent-OM](https://consensus.app/papers/agentom-leveraging-llm-agents-for-ontology-matching-qiang-wang/1ff1e2abb0f255299ecb808951ceaf6b/).
+5. Yu et al. (2023), [CompleQA](https://consensus.app/papers/compleqa-benchmarking-the-impacts-of-knowledge-graph-yu-gu/3cc17d53d8175c08bd65a43ef9f3afab/).
+6. Knollmeyer et al. (2025), [Document GraphRAG](https://consensus.app/papers/document-graphrag-knowledge-graph-enhanced-retrieval-knollmeyer-caymazer/78d009e01f925a00811cd33cbc74f60d/).
 7. Linders and Tomczak (2025), [Knowledge graph-extended retrieval augmented
-   generation](https://consensus.app/papers/knowledge-graphextended-retrieval-augmented-generation-linders-tomczak/c4b9354f63ec588487884aeabd1da4e9/?utm_source=chatgpt).
+   generation](https://consensus.app/papers/knowledge-graphextended-retrieval-augmented-generation-linders-tomczak/c4b9354f63ec588487884aeabd1da4e9/).
 8. Zhang et al. (2025), [Diagnosing and Addressing Pitfalls in KG-RAG
-   Datasets](https://consensus.app/papers/diagnosing-and-addressing-pitfalls-in-kgrag-datasets-zhang-jiang/8e1c3a38a914593fb5921790c4cd90b1/?utm_source=chatgpt).
+   Datasets](https://consensus.app/papers/diagnosing-and-addressing-pitfalls-in-kgrag-datasets-zhang-jiang/8e1c3a38a914593fb5921790c4cd90b1/).
 9. Norouzi et al. (2024), [Ontology Population using
-   LLMs](https://consensus.app/papers/ontology-population-using-llms-norouzi-barua/f554b20ac8cc55a38a7c4b9d2a486a38/?utm_source=chatgpt).
-10. Caufield et al. (2023), [SPIRES](https://consensus.app/papers/structured-prompt-interrogation-and-recursive-caufield-hegde/e57d6fe0e5c55182be4ce2faa7751afe/?utm_source=chatgpt).
+   LLMs](https://consensus.app/papers/ontology-population-using-llms-norouzi-barua/f554b20ac8cc55a38a7c4b9d2a486a38/).
+10. Caufield et al. (2023), [SPIRES](https://consensus.app/papers/structured-prompt-interrogation-and-recursive-caufield-hegde/e57d6fe0e5c55182be4ce2faa7751afe/).
 11. Doumanas et al. (2025), [Fine-Tuning LLMs for Ontology
-    Engineering](https://consensus.app/papers/finetuning-large-language-models-for-ontology-doumanas-soularidis/e5cafc7bcec15697981bf719de6f393a/?utm_source=chatgpt).
+    Engineering](https://consensus.app/papers/finetuning-large-language-models-for-ontology-doumanas-soularidis/e5cafc7bcec15697981bf719de6f393a/).
 12. Dagdelen et al. (2024), [Structured information extraction from scientific
-    text](https://consensus.app/papers/structured-information-extraction-from-scientific-text-dagdelen-dunn/075e3f5a3be0575d99f30dc34440d323/?utm_source=chatgpt).
-13. Sun et al. (2025), [Docs2KG](https://consensus.app/papers/docs2kg-a-humanllm-collaborative-approach-to-unified-sun-luo/d2c7ec831d695f5fb3a02d3cd10ae6b0/?utm_source=chatgpt).
-14. Wang et al. (2024), [SciDaSynth](https://consensus.app/papers/scidasynth-interactive-structured-data-extraction-from-wang-huey/8a6b0bc5ea43505daf6e6f19da3c46ac/?utm_source=chatgpt).
-15. Khalighinejad et al. (2024), [MatViX](https://consensus.app/papers/matvix-multimodal-information-extraction-from-visually-khalighinejad-scott/f313f35a54f75c88b68b261d7c688773/?utm_source=chatgpt).
-16. Bhatt et al. (2025), [HarmonE](https://consensus.app/papers/harmone-a-selfadaptive-approach-to-architecting-bhatt-biswas/a1f5d2e0cbac5159a903ed0dd52da009/?utm_source=chatgpt).
+    text](https://consensus.app/papers/structured-information-extraction-from-scientific-text-dagdelen-dunn/075e3f5a3be0575d99f30dc34440d323/).
+13. Sun et al. (2025), [Docs2KG](https://consensus.app/papers/docs2kg-a-humanllm-collaborative-approach-to-unified-sun-luo/d2c7ec831d695f5fb3a02d3cd10ae6b0/).
+14. Wang et al. (2024), [SciDaSynth](https://consensus.app/papers/scidasynth-interactive-structured-data-extraction-from-wang-huey/8a6b0bc5ea43505daf6e6f19da3c46ac/).
+15. Khalighinejad et al. (2024), [MatViX](https://consensus.app/papers/matvix-multimodal-information-extraction-from-visually-khalighinejad-scott/f313f35a54f75c88b68b261d7c688773/).
+16. Bhatt et al. (2025), [HarmonE](https://consensus.app/papers/harmone-a-selfadaptive-approach-to-architecting-bhatt-biswas/a1f5d2e0cbac5159a903ed0dd52da009/).
 17. Jones et al. (2020), [Characterising the Digital
-    Twin](https://consensus.app/papers/characterising-the-digital-twin-a-systematic-literature-jones-snider/501b2aa1beaf5d379f06455947f071cd/?utm_source=chatgpt).
+    Twin](https://consensus.app/papers/characterising-the-digital-twin-a-systematic-literature-jones-snider/501b2aa1beaf5d379f06455947f071cd/).
 18. Thelen et al. (2022), [A comprehensive review of digital twin - part
-    1](https://consensus.app/papers/a-comprehensive-review-of-digital-twin-part-1-modeling-and-thelen-zhang/c7d1de09cc7b5c7dad86246790903bb5/?utm_source=chatgpt).
+    1](https://consensus.app/papers/a-comprehensive-review-of-digital-twin-part-1-modeling-and-thelen-zhang/c7d1de09cc7b5c7dad86246790903bb5/).
 19. Kapteyn et al. (2020), [A probabilistic graphical model foundation for
-    predictive digital twins](https://consensus.app/papers/a-probabilistic-graphical-model-foundation-for-enabling-kapteyn-pretorius/1b707432891b5eb8942e8c56d5886adc/?utm_source=chatgpt).
+    predictive digital twins](https://consensus.app/papers/a-probabilistic-graphical-model-foundation-for-enabling-kapteyn-pretorius/1b707432891b5eb8942e8c56d5886adc/).
 20. Qu et al. (2020), [Lithium-ion battery performance degradation evaluation
-    based on a digital twin model](https://consensus.app/papers/lithiumion-battery-performance-degradation-evaluation-qu-song/d96bcd573c135325b70517b857dedbc8/?utm_source=chatgpt).
+    based on a digital twin model](https://consensus.app/papers/lithiumion-battery-performance-degradation-evaluation-qu-song/d96bcd573c135325b70517b857dedbc8/).
 21. Qin et al. (2022), [Digital Twin for Real-time Li-Ion Battery State of
-    Health Estimation](https://consensus.app/papers/digital-twin-for-realtime-liion-battery-state-of-health-qin-arunan/f2d96419c410539d81d6c75a556578c2/?utm_source=chatgpt).
+    Health Estimation](https://consensus.app/papers/digital-twin-for-realtime-liion-battery-state-of-health-qin-arunan/f2d96419c410539d81d6c75a556578c2/).
 22. Cao and Liu (2025), [SOC Estimation for Lithium-Ion Batteries in Electric
-    UAVs](https://consensus.app/papers/a-multitimescale-method-for-state-of-charge-estimation-for-cao-liu/941e26ac3ee25b72854ce81b8b0f5c9d/?utm_source=chatgpt).
+    UAVs](https://consensus.app/papers/a-multitimescale-method-for-state-of-charge-estimation-for-cao-liu/941e26ac3ee25b72854ce81b8b0f5c9d/).
 23. Wang et al. (2023), [A survey on large language model based autonomous
-    agents](https://consensus.app/papers/a-survey-on-large-language-model-based-autonomous-agents-wang-ma/13f7f2d5872d5a02beef86caf769fd55/?utm_source=chatgpt).
+    agents](https://consensus.app/papers/a-survey-on-large-language-model-based-autonomous-agents-wang-ma/13f7f2d5872d5a02beef86caf769fd55/).
 24. Bian (2025), [LLM-empowered knowledge graph construction: A
-    survey](https://consensus.app/papers/llmempowered-knowledge-graph-construction-a-survey-bian/dfbcfc9b12ba50659e7f8a8fabdfa034/?utm_source=chatgpt).
+    survey](https://consensus.app/papers/llmempowered-knowledge-graph-construction-a-survey-bian/dfbcfc9b12ba50659e7f8a8fabdfa034/).

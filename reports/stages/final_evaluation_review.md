@@ -62,7 +62,7 @@ Evidence-level delta, structure-aware hybrid minus fixed-window hybrid:
 - The project implements a reproducible PDF-to-chunks-to-KG-to-vector-index-to-Hybrid-RAG pipeline for PHAK Chapter 4.
 - Evaluation is intentionally layered into retrieval, KG evidence, and LLM answer/citation metrics.
 - Structure-aware chunking is the recommended demo/default strategy; fixed-window remains the baseline.
-- The advisory assistant boundary is explicit: this is flight learning and decision support, not a substitute for POH, checklist, ATC, instructor, or pilot judgment.
+- The advisory-system boundary is explicit: this is flight learning and decision support, not a substitute for POH, checklist, ATC, instructor, or pilot judgment.
 
 ## Remaining Limitations
 

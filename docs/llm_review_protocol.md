@@ -10,9 +10,9 @@ operational certification.
 
 The model-based review layer uses the configured LLM reviewer as a scalable way
 to find likely benchmark, evidence, KG, graph-path, and answer-quality problems.
-When `MODEL_NAME=Codex GPT-5.5`, reports identify the reviewer as Codex GPT-5.5.
-Otherwise reports record the exact configured model identifier. This keeps the
-workflow reproducible and avoids claiming a reviewer model that was not used.
+Reports record the exact configured model identifier from `MODEL_NAME`. This
+keeps the workflow reproducible and avoids claiming a reviewer model that was
+not used.
 
 LLM review can support:
 

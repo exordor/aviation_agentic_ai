@@ -1,12 +1,12 @@
 # Agentic Ontology-Guided KG + RAG Quality Mainline Literature Search
 
 - Date: 2026-06-01
-- Search surface: Consensus web frontend
-- User-visible requirement: searches were run one after another in the
-  Consensus UI; the next query was not submitted until the previous search page
-  had loaded or clearly returned no analyzable papers.
-- Library action: six core papers were saved to Consensus My Library and added
-  to the `Literature Review` collection.
+- Search surface: academic search web pages
+- Search policy: searches were run sequentially; a new query was not submitted
+  until the previous search page had loaded or clearly returned no analyzable
+  papers.
+- Library action: six core papers were saved to the local literature review
+  collection.
 
 ## Mainline
 
@@ -31,9 +31,9 @@ This matches the current project because `aviation_agentic_ai` already has:
 - validator-gated fact acceptance and rejection analysis;
 - GraphRAG-style retrieval and layered evaluation reports.
 
-## Consensus Search Log
+## Search Log
 
-| # | Query purpose | Consensus page | Result |
+| # | Query purpose | Search page | Result |
 | ---: | --- | --- | --- |
 | 1 | Agentic ontology-guided KG construction | [Agentic Ontology Knowledge Graph](https://consensus.app/search/agentic-ontology-knowledge-graph/5AaPumUUS7qw2QPOcik3ew/) | 7 paper links |
 | 2 | Ontology-guided information extraction and validation | [Ontology Guided Information Extraction](https://consensus.app/search/ontology-guided-information-extraction/oab-Z6WSRyuMuS1v2G1m1Q/) | 9 paper links |
@@ -44,7 +44,7 @@ This matches the current project because `aviation_agentic_ai` already has:
 | 7 | Aviation ontology/KG/RAG | [Aviation Ontology Knowledge Graph](https://consensus.app/search/aviation-ontology-knowledge-graph/GAw3Gn1ESfyvChjh4pxzYQ/) | 9 paper links; aviation-specific evidence still emerging |
 | 8 | ATMONTO, AIRM-O, and aviation ontology baselines | [Aviation Ontology Knowledge Graph](https://consensus.app/search/aviation-ontology-knowledge-graph/KtxCf1GASjq8g0jhlL1alw/) | 16 paper links |
 
-## Papers Saved To Consensus Library
+## Papers Saved To The Literature Collection
 
 These papers were saved to `My Library` and added to the `Literature Review`
 collection. The final UI evidence showed the collection at `6 items`.
@@ -108,8 +108,8 @@ The main useful terminology is:
 - `AIRM NASA ATM ontology alignment`
 
 The overly narrow phrasing
-`faithfulness completeness correctness provenance` returned no papers in
-Consensus. Those are still useful evaluation dimensions, but they should be
+`faithfulness completeness correctness provenance` returned no papers in the
+search run. Those are still useful evaluation dimensions, but they should be
 introduced in the thesis as evaluation metrics rather than as the primary search
 query phrase.
 
@@ -117,8 +117,8 @@ query phrase.
 
 ### What the literature supports
 
-The literature supports an architecture where LLMs are KG construction
-assistants, not final authorities. Ontologies define admissible types and
+The literature supports an architecture where LLMs are KG construction support
+modules, not final authorities. Ontologies define admissible types and
 relations; LLMs extract, canonicalize, or enrich candidate facts; validators
 gate the output; and downstream RAG evaluation checks whether the resulting KG
 actually helps retrieval, evidence support, or answer grounding.

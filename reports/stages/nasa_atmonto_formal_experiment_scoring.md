@@ -33,7 +33,7 @@
 - PDF target predicates: `term_has_definition, term_has_alias, procedure_mentions_concept, document_defines_or_constrains, source_supports_mapping`.
 - PDF provenance fields: `document_id, page, section, span, evidence_text`.
 
-## Consensus SOTA Constraints
+## SOTA Design Constraints
 
 - Status: `rerun_design_constraint`
 - Boundary: These constraints refine the narrow ATCSCC / ATMONTO rerun. They are not a pivot to a general aviation KG or an end-to-end GraphRAG claim.
@@ -45,7 +45,7 @@
 | --- | --- | --- |
 | `Extract-Define-Canonicalize` | Split open extraction from target-schema canonicalization. | Do not score raw open LLM output with ATMONTO P/R/F1. |
 | `ontology_guided_domain_short_text_kgc` | Use 10-20 reviewed dev examples for S2/S3 by advisory type and predicate family. | Do not draw examples from the held-out 100 scoring records. |
-| `llm_as_kg_assistant` | Use LLMs as canonicalizer, semantic enrichment module, evidence checker, and profile-gap explainer. | Do not make pure LLM extraction the primary thesis system. |
+| `llm_as_kg_support_module` | Use LLMs as canonicalizer, semantic enrichment module, evidence checker, and profile-gap explainer. | Do not make pure LLM extraction the primary thesis system. |
 | `production_ontology_guided_pipeline` | Combine pattern/rule extraction, ontology-guided prompting, grounding, corroboration, and validator gating. | Quarantine conflicts, unsupported spans, and rejected repairs. |
 | `source_family_separation` | Keep ATCSCC event extraction and PDF reference extraction in separate metric tables. | Do not compare PDF definition F1 with ATCSCC event F1. |
 | `graph_rag_layered_evaluation` | Report KG construction, graph retrieval, and answer generation metrics as separate layers. | Current remediation supports KG construction metrics only; no end-to-end GraphRAG answer improvement claim. |

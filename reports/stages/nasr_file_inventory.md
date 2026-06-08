@@ -165,7 +165,7 @@ Use `CSV_Data/14_May_2026_CSV.zip` as the primary machine-readable input. Every 
 
 ## KG/Ontology Relevance
 
-Recommended ingestion order for the Aviation Agentic AI KG:
+Recommended ingestion order for the project KG:
 
 1. Airport core: `APT_BASE`, `APT_RWY`, `APT_RWY_END`, `APT_ATT`, `APT_ARS`, `CLS_ARSP`.
 2. Navigation core: `NAV_BASE`, `FIX_BASE`, `FIX_NAV`, `FIX_CHRT`, `ILS_*`, `AWOS`, `WXL_*`.

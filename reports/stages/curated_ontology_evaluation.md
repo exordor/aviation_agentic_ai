@@ -2,8 +2,8 @@
 
 - Ontology: `data/ontology/curated/06_phak_ch4_0.curated.ttl`
 - CQ file: `data/cqs/06_phak_ch4_0.json`
-- CQ standard: AI-generated silver CQs, not domain-expert gold annotations
-- AI review enabled: no
+- CQ standard: generated silver CQs, not domain-expert gold annotations
+- Model review enabled: no
 
 ## Overall Judgment
 
@@ -77,6 +77,6 @@
 - Object property matches: 23
 - Datatype property matches: 0
 
-## AI Review
+## Model Review
 
-- AI review skipped. Run with `--ai-review` after configuring a rotated API key.
+- Model review skipped. Run with `--ai-review` after configuring a rotated API key.

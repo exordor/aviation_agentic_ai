@@ -1,4 +1,4 @@
-# Aviation Agentic AI Project Report
+# Aviation GraphRAG Project Report
 
 > Status: transitional generated report. It includes some ATCSCC evidence but
 > still contains earlier aviation-training / PHAK framing. For the current

@@ -18,7 +18,7 @@
 ## Executive Takeaway
 
 CHATATC is the closest aviation-domain related work found so far for a
-non-safety-critical LLM assistant over historical traffic flow management
+non-safety-critical conversational system over historical traffic flow management
 records. It supports this project's practical framing: the target use case is
 not passenger flight search, flight-delay prediction, or FAA decision
 replacement, but evidence-backed retrieval and analysis of official operational
@@ -62,7 +62,7 @@ extraction, RAG, or GraphRAG method reference.
 6. Add system-prompt instructions for more structured output, including key GDP
    fields such as date, start time, end time, program rate, runway
    configuration, and impacting condition.
-7. Design GUI wireframes for a Traffic Manager-facing assistant.
+7. Design GUI wireframes for a Traffic Manager-facing interface.
 
 ### Ontology / Schema / KG Design
 
@@ -120,7 +120,7 @@ Visual inspection notes:
 
 | Paper element | Local adaptation | Required local artifact |
 |---|---|---|
-| Non-safety-critical strategic TFM assistant framing | Position this project as advisory search, situational understanding, and retrospective analysis. | Boundary document and thesis related-work section. |
+| Non-safety-critical strategic TFM framing | Position this project as advisory search, situational understanding, and retrospective analysis. | Boundary document and thesis related-work section. |
 | GDP-focused factual questions | Include questions about airport, GDP/Ground Stop/TMI type, reason, start/end time, and rate/delay only when observable. | `reports/stages/master_project_boundary_discussion.md` and RAG evaluation question set. |
 | Superlative failure case | Include aggregate and extreme-value questions as explicit hard/failure cases, not as easy headline claims. | RAG evaluation taxonomy and failure-analysis report. |
 | GUI field hierarchy | Structure demo answers around event type, airport/location, reason, valid time, status/action, and source advisory. | Demo examples or report figures. |
@@ -198,12 +198,12 @@ Visual inspection notes:
 
 ## Follow-Up Actions
 
-| Action | Owner / tool | Output artifact | Status |
+| Action | Method | Output artifact | Status |
 |---|---|---|---|
-| Register paper in citation inventory | Codex / `data/papers/README.md` | CHATATC entry | Done |
-| Download PDF locally | Codex / `curl` | `data/papers/arxiv_2402.14850_chatatc.pdf` | Done |
-| Generate evidence pack | Codex / `scripts/inspect_paper_pdf.sh` | `tmp/pdfs/chatatc/` | Done |
-| Refresh figure gallery | Codex / `uv run python scripts/build_paper_figure_gallery.py` | `reports/stages/paper_figure_gallery.html` and manifest | Done |
-| Visually inspect figures and method pages | Codex / page renders | Notes in this report | Done |
+| Register paper in citation inventory | `data/papers/README.md` | CHATATC entry | Done |
+| Download PDF locally | `curl` | `data/papers/arxiv_2402.14850_chatatc.pdf` | Done |
+| Generate evidence pack | `scripts/inspect_paper_pdf.sh` | `tmp/pdfs/chatatc/` | Done |
+| Refresh figure gallery | `uv run python scripts/build_paper_figure_gallery.py` | `reports/stages/paper_figure_gallery.html` and manifest | Done |
+| Visually inspect figures and method pages | Page renders | Notes in this report | Done |
 | Add related-work paragraph to thesis/report | Future writing pass | Report or thesis section | Pending |
 | Translate evaluation inspirations into concrete question set | Future design pass | RAG evaluation questions | Pending |

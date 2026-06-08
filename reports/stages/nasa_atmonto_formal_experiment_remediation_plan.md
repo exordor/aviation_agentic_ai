@@ -2,7 +2,7 @@
 
 - Status: `methodology_remediation_plan`
 - Scope: near-term aviation-domain ATCSCC / NASA ATMONTO experiment repair.
-- Non-scope: aviation-energy transition. The ChatGPT Pro Deep Research export at
+- Non-scope: aviation-energy transition. The external research export at
   `data/papers/deep-research-report2.md` is retained as a long-term research memo,
   not as a reason to pivot the current experiment.
 
@@ -18,12 +18,12 @@
   `docs/experiment_protocol.md`
 - Frozen reviewed gold:
   `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
-- ChatGPT Pro Deep Research export:
+- External research export:
   `data/papers/deep-research-report2.md`
 
 ### External-methodology checks
 
-Consensus literature checks support the following remediation principles:
+Literature checks support the following remediation principles:
 
 - Ontology-guided extraction should use relevant schema context and few-shot
   examples for domain-specific short texts, rather than relying on a purely
@@ -301,9 +301,9 @@ evidence, ontology mapping rationale, and gold-review approval.
 | FAA NASR 2026-05-14 | Optional frozen reference-data layer for airport/NAVAID/fix/facility canonicalization and effective-cycle metadata. | Free-text extraction corpus or ontology. |
 | FAA reference documents | Optional terminology/evidence layer for definitions and phraseology. | Official KG or direct ontology. |
 | AIRM-O / ATMONTO2AIRM | Alignment and interoperability baseline. | Replacement gold truth for ATCSCC extraction. |
-| ChatGPT Pro aviation-energy report | Long-term research memo for future SAF/PtL/hydrogen work. | Immediate experiment pivot or replacement for current aviation scoring. |
+| Aviation-energy research memo | Long-term research memo for future SAF/PtL/hydrogen work. | Immediate experiment pivot or replacement for current aviation scoring. |
 
-## Consensus SOTA Adaptation For The Rerun
+## SOTA Adaptation For The Rerun
 
 The next rerun should use the literature as an experiment-design correction,
 not as a generic prompt-quality argument. The main change is to evaluate the
@@ -315,7 +315,7 @@ collapsed into one score.
 | --- | --- | --- | --- |
 | Extract-Define-Canonicalize separates open extraction from post-hoc schema canonicalization. | Split `S1_llm_only` into `S1_raw_open_llm` and `S1b_llm_canonicalized`. | Converts the all-zero S1 result into a diagnosable baseline: raw extraction coverage, mapping yield, and final ATMONTO-profile F1. | Do not report target-schema P/R/F1 for raw S1. |
 | Ontology-guided KGC from domain short texts can work with a small set of semantically similar in-context examples. | Add 10-20 reviewed development examples for S2/S3, selected by advisory type and predicate family. | Improves semantic predicates where S0 is weak, especially `reRouteReason`, `reRouteType`, and `implementationStatus`. | Never select examples from the held-out 100-record scoring set. |
-| LLMs are often stronger as assistants for reasoning, normalization, and inference than as unsupported few-shot extractors. | Use LLMs for canonicalization, semantic enrichment, evidence checking, and profile-gap explanation instead of making LLM-only the primary thesis system. | Reduces overclaiming and makes S4 the credible candidate system. | Keep a separate LLM-only diagnostic track for comparison. |
+| LLMs are often stronger as support modules for reasoning, normalization, and inference than as unsupported few-shot extractors. | Use LLMs for canonicalization, semantic enrichment, evidence checking, and profile-gap explanation instead of making LLM-only the primary thesis system. | Reduces overclaiming and makes S4 the credible candidate system. | Keep a separate LLM-only diagnostic track for comparison. |
 | Production ontology-guided extraction pipelines combine pattern rules, ontology snippets, grounding, and corroboration. | Implement `S4_hybrid_backbone_enrichment`: S0 backbone plus S3 semantic candidates plus evidence/validator/corroboration gates. | Preserves deterministic-field performance while adding semantic fields rules cannot recover. | Quarantine conflicts unless the evidence span and schema validator agree. |
 | Semi-structured KG creation is a distinct setting from free prose extraction. | Keep ATCSCC advisory extraction and PDF reference extraction as separate source families. | Avoids unfairly scoring event-instance extraction and definition/procedure extraction in one table. | Compare only cross-family metrics such as JSON adherence, evidence validity, schema conformance, and canonicalization yield. |
 | Technical-document extraction benefits from structured output and task-specific evaluation. | Add PCG / JO 7110.65BB PDF pilot with passage-level gold and section/page provenance. | Tests whether ontology constraints still help when input is long-form PDF text rather than advisory records. | Do not mix PDF definition F1 with ATCSCC event F1. |
@@ -348,10 +348,10 @@ collapsed into one score.
 7. Preserve the current all-zero S1 result as a negative control, but label it
    `invalid_direct_schema_scoring` rather than treating it as semantic failure.
 
-## ChatGPT Pro Methodology Review Assimilation
+## Methodology Review Assimilation
 
-A separate ChatGPT Pro methodology review, run in the ontology project after the
-initial Consensus pass, converged on the same central diagnosis: the original
+A separate methodology review, run after the initial literature pass, converged
+on the same central diagnosis: the original
 all-zero `S1_llm_only` score is best treated as an ontology-interface and
 canonicalization failure, not as evidence that the LLM extracted no useful
 advisory information. The review is useful as an implementation checklist, but
@@ -427,7 +427,7 @@ until they are fetched and checked directly:
 - Microsoft GraphRAG / query-focused summarization.
 
 Use these as search leads only. The currently verified methodology anchors in
-this plan remain the Consensus-fetched KGC/GraphRAG papers and the official
+this plan remain the checked KGC/GraphRAG papers and the official
 NASA/FAA/W3C sources listed below.
 
 ## Pipeline Corrections
@@ -554,7 +554,7 @@ because schema violation decreases. Use these criteria:
   https://consensus.app/papers/extract-define-canonicalize-an-llmbased-framework-for-zhang-soh/711b33c15bfc562d9137b07050be7666/
 - Yuqi Zhu et al., "LLMs for knowledge graph construction and reasoning: recent
   capabilities and future opportunities", 2023. Supports treating LLMs as
-  assistants for construction, normalization, reasoning, and external-source
+  support modules for construction, normalization, reasoning, and external-source
   aided KG workflows rather than as the only extractor.
   https://consensus.app/papers/llms-for-knowledge-graph-construction-and-reasoning-zhu-wang/bc301ddc6b135419a9743367f3b5545c/
 - Vamsi Krishna Kommineni, B. Konig-Ries, and Sheeba Samuel, "From human

@@ -1,4 +1,4 @@
-# Aviation Agentic AI: Ontology-Constrained GraphRAG for Aviation Learning
+# Ontology-Constrained GraphRAG for Aviation Learning
 
 > Status: historical PHAK-era academic draft. It is useful as a writing-format
 > reference, but it is not the current ATCSCC thesis manuscript. For the current
@@ -13,7 +13,7 @@ Revised thesis claim: This thesis does not assume that GraphRAG universally impr
 
 ## 1. Introduction
 
-The course objective is to explain a full AI pipeline that can answer what the system does, why each design choice exists, and what evidence supports the claims. This implementation focuses on aviation learning and decision support, not operational flight authority. Sources: `GOALS.md`, `src/aviation_agentic_ai/advisory.py`.
+The course objective is to explain a full retrieval and evidence pipeline that can answer what the system does, why each design choice exists, and what evidence supports the claims. This implementation focuses on aviation learning and decision support, not operational flight authority. Sources: `GOALS.md`, `src/aviation_agentic_ai/advisory.py`.
 
 ## 2. Background and Research Gap
 

@@ -13,7 +13,7 @@
   - `reports/stages/nasa_atmonto_formal_experiment_remediation_plan.md`
   - `reports/stages/sota_data_source_format_processing_review.md`
   - `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
-- External evidence base: Consensus-fetched records listed in the Literature Evidence Table.
+- External evidence base: literature records listed in the Literature Evidence Table.
 
 ## Executive Decision
 
@@ -171,15 +171,15 @@ PDFs are valuable but they mostly provide definitions, procedures, terminology, 
 
 | Evidence | What it supports here | Boundary |
 | --- | --- | --- |
-| [Extract, Define, Canonicalize](https://consensus.app/papers/extract-define-canonicalize-an-llmbased-framework-for-zhang-soh/711b33c15bfc562d9137b07050be7666/?utm_source=chatgpt), Zhang and Soh, 2024 | Split raw open extraction from target-schema canonicalization; justifies `S1 -> S1b`. | Do not copy its self-generated schema setting; use ATMONTO profile. |
-| [Text2KGBench](https://consensus.app/papers/text2kgbench-a-benchmark-for-ontologydriven-knowledge-mihindukulasooriya-tiwari/b24be0d0ff9f52eebfa7a23833492952/?utm_source=chatgpt), Mihindukulasooriya et al., 2023 | Ontology-driven text-to-KG evaluation should measure fact extraction, ontology conformance, and hallucinations. | Benchmark domains are not aviation. |
-| [Ontology-guided KGC from Maintenance Short Texts](https://consensus.app/papers/ontologyguided-knowledge-graph-construction-from-cauter-yakovets/28494e5fc0905fc598416a17f098c8c0/?utm_source=chatgpt), Cauter and Yakovets, 2024 | Strong analogy for short domain-specific records and few reviewed examples. | Maintenance text is not ATCSCC. |
-| [JSONSchemaBench](https://consensus.app/papers/jsonschemabench-a-rigorous-benchmark-of-structured-geng-cooper/ca5abcbe21085a9dbcae79f8c52bcf9a/?utm_source=chatgpt), Geng et al., 2025 | Structured output compliance needs systematic evaluation, not just "valid JSON" reporting. | JSON schema compliance is not semantic truth. |
-| [Structured information extraction from scientific text](https://consensus.app/papers/structured-information-extraction-from-scientific-text-dagdelen-dunn/075e3f5a3be0575d99f30dc34440d323/?utm_source=chatgpt), Dagdelen et al., 2024 | Supports PDF / paragraph extraction as a separate structured IE task. | Materials science domain, not aviation. |
-| [Schema-Driven IE from Heterogeneous Tables](https://consensus.app/papers/schemadriven-information-extraction-from-heterogeneous-bai-kang/dd3a160b9e1f54a498177d3b0450bf57/?utm_source=chatgpt), Bai et al., 2023 | Human-authored schemas can define small structured extraction tasks over heterogeneous semi-structured sources. | Table extraction differs from advisory extraction. |
-| [GraphRAG Survey](https://consensus.app/papers/graph-retrievalaugmented-generation-a-survey-peng-zhu/1b8c5362a3d3538ba1dd90f9b40178f1/?utm_source=chatgpt), Peng et al., 2024 | GraphRAG should be decomposed into indexing, retrieval, and generation layers. | Survey, not an extraction benchmark. |
-| [Evaluation of RAG: A Survey](https://consensus.app/papers/evaluation-of-retrievalaugmented-generation-a-survey-yu-gan/861805cd172d534298b77a83a0d83d92/?utm_source=chatgpt), Yu et al., 2024 | Supports separate relevance, accuracy, and faithfulness metrics. | RAG evaluation cannot replace gold KG evaluation. |
-| [GraphRAG-Bench](https://consensus.app/papers/graphragbench-challenging-domainspecific-reasoning-for-xiao-dong/622e8b388c575636b2d8f4b7463068c0/?utm_source=chatgpt), Xiao et al., 2025 | Supports holistic GraphRAG pipeline evaluation: construction, retrieval, answer generation, reasoning coherence. | New preprint; use cautiously. |
+| [Extract, Define, Canonicalize](https://consensus.app/papers/extract-define-canonicalize-an-llmbased-framework-for-zhang-soh/711b33c15bfc562d9137b07050be7666/), Zhang and Soh, 2024 | Split raw open extraction from target-schema canonicalization; justifies `S1 -> S1b`. | Do not copy its self-generated schema setting; use ATMONTO profile. |
+| [Text2KGBench](https://consensus.app/papers/text2kgbench-a-benchmark-for-ontologydriven-knowledge-mihindukulasooriya-tiwari/b24be0d0ff9f52eebfa7a23833492952/), Mihindukulasooriya et al., 2023 | Ontology-driven text-to-KG evaluation should measure fact extraction, ontology conformance, and hallucinations. | Benchmark domains are not aviation. |
+| [Ontology-guided KGC from Maintenance Short Texts](https://consensus.app/papers/ontologyguided-knowledge-graph-construction-from-cauter-yakovets/28494e5fc0905fc598416a17f098c8c0/), Cauter and Yakovets, 2024 | Strong analogy for short domain-specific records and few reviewed examples. | Maintenance text is not ATCSCC. |
+| [JSONSchemaBench](https://consensus.app/papers/jsonschemabench-a-rigorous-benchmark-of-structured-geng-cooper/ca5abcbe21085a9dbcae79f8c52bcf9a/), Geng et al., 2025 | Structured output compliance needs systematic evaluation, not just "valid JSON" reporting. | JSON schema compliance is not semantic truth. |
+| [Structured information extraction from scientific text](https://consensus.app/papers/structured-information-extraction-from-scientific-text-dagdelen-dunn/075e3f5a3be0575d99f30dc34440d323/), Dagdelen et al., 2024 | Supports PDF / paragraph extraction as a separate structured IE task. | Materials science domain, not aviation. |
+| [Schema-Driven IE from Heterogeneous Tables](https://consensus.app/papers/schemadriven-information-extraction-from-heterogeneous-bai-kang/dd3a160b9e1f54a498177d3b0450bf57/), Bai et al., 2023 | Human-authored schemas can define small structured extraction tasks over heterogeneous semi-structured sources. | Table extraction differs from advisory extraction. |
+| [GraphRAG Survey](https://consensus.app/papers/graph-retrievalaugmented-generation-a-survey-peng-zhu/1b8c5362a3d3538ba1dd90f9b40178f1/), Peng et al., 2024 | GraphRAG should be decomposed into indexing, retrieval, and generation layers. | Survey, not an extraction benchmark. |
+| [Evaluation of RAG: A Survey](https://consensus.app/papers/evaluation-of-retrievalaugmented-generation-a-survey-yu-gan/861805cd172d534298b77a83a0d83d92/), Yu et al., 2024 | Supports separate relevance, accuracy, and faithfulness metrics. | RAG evaluation cannot replace gold KG evaluation. |
+| [GraphRAG-Bench](https://consensus.app/papers/graphragbench-challenging-domainspecific-reasoning-for-xiao-dong/622e8b388c575636b2d8f4b7463068c0/), Xiao et al., 2025 | Supports holistic GraphRAG pipeline evaluation: construction, retrieval, answer generation, reasoning coherence. | New preprint; use cautiously. |
 
 ## arXiv HTML / Full-Text Verification Notes
 

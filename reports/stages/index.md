@@ -61,7 +61,7 @@ This directory is the current report dashboard. Detailed stage artifacts are arc
 - Project defense notes: `reports/final/project_defense_notes.md`
 - Defense deck outline: `reports/final/defense_deck_outline.md`
 - Defense deck: `reports/final/aviation_graphrag_defense_deck.pptx`
-- AI visual assets with local SVG fallbacks: `reports/final/assets/visual_assets_manifest.json`
+- Historical figures with local SVG fallbacks: `reports/final/assets/visual_assets_manifest.json`
 - ATCSCC data format and processing flow: `reports/stages/atcscc_data_format_and_processing_flow.md`
 - ATCSCC ontology profile overview: `reports/stages/atcscc_ontology_profile_overview.md`
 - ATCSCC event-centric extraction framing: `reports/stages/atcscc_event_centric_extraction_framing.md`
