@@ -1,8 +1,8 @@
-# Context Hygiene Audit
+# Documentation Scope Audit
 
-This audit identifies documents that should or should not be used as default
-LLM context for the current thesis route. Its purpose is to prevent historical
-PHAK-era or broad ontology documents from overriding the current ATCSCC
+This audit identifies which documents should control the current thesis route
+and which documents should remain historical background. Its purpose is to keep
+legacy PHAK-era and broad ontology material from overriding the current ATCSCC
 schema-constrained Agentic KG-RAG framing.
 
 ## Current Default Framing
@@ -17,10 +17,9 @@ advisory-event extraction and KG-RAG evaluation. It should not be described as
 a full aviation ontology-construction thesis or a live ATC decision-support
 system.
 
-## Safe Default Context
+## Primary Reading Set
 
-Use these files first when a new agent, review thread, or report-generation
-task needs project context.
+Use these files first for thesis writing, review, and report generation.
 
 | Role | Files |
 | --- | --- |
@@ -31,7 +30,7 @@ task needs project context.
 | Current evidence synthesis | `reports/stages/thesis_experiment_dashboard.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
 | Final-package entry points | `reports/final/README.md`, `reports/final/atcscc_thesis_report_outline.md`, `reports/final/atcscc_defense_deck_outline.md` |
 
-## Use With Caution
+## Secondary Reading Set
 
 These files may still be useful, but they should not be treated as the current
 research narrative without checking the current framing documents first.
@@ -46,7 +45,7 @@ research narrative without checking the current framing documents first.
 | `reports/stages/sota_data_source_format_processing_review.md` | Useful data-format review, but not a replacement for current ATCSCC source docs. | Use as supporting literature-method context. |
 | `reports/stages/*paper_analysis.md`, `*_figures_analysis.md`, `*_paper_adaptation.md` | Method inspiration may be domain-agnostic and not directly validated in ATCSCC. | Use for related work and design migration only. |
 
-## High-Risk Historical Context
+## Historical Background
 
 The following documents are likely to pollute future context if loaded
 uncritically. They are historical or secondary artifacts, not current thesis
@@ -69,7 +68,7 @@ entry points.
 | `reports/stages/benchmark_*`, `chunking_*`, `hybrid_rag_*`, `retrieval_ablation*`, `graph_traversal_ablation*`, `graphrag_review.*`, `kg_validation.*`, `evidence_level_evaluation.*`, `web_demo_*`, `pdf_*` | Old PHAK/web-demo/chunking/retrieval experiment families. Preserve for provenance, but do not use as current claim evidence. |
 | `reports/stages/nasa_bga_*`, `reports/stages/nasa_source_*`, `reports/stages/nasa_ontology_extension_proposal.md` | NASA BGA or transfer-pilot material. Use only as transfer or source-expansion context. |
 
-## Context Loading Rules
+## Reading Rules
 
 1. Start every thesis-writing, review, or experiment-planning task from
    `docs/documentation_map.md`, not from `reports/stages/index.md`.
@@ -91,14 +90,11 @@ entry points.
 6. Paper-analysis files can motivate methods, but they cannot replace current
    ATCSCC evidence, gold review, or SOTA/reviewer-defense audits.
 
-## Practical Prompt For Future Agents
+## Starting Point For New Work
 
-When starting a new thread, use this instruction:
-
-```text
-Use docs/documentation_map.md and docs/context_hygiene_audit.md first.
-Current framing is schema-constrained, evidence-grounded Agentic KG-RAG over
-retrospective FAA ATCSCC advisories. Treat PHAK/web-demo/chunking-era reports
-as historical unless explicitly requested. Keep source families and evaluation
-layers separate.
-```
+For new documentation or experiment-planning work, begin with
+`docs/documentation_map.md` and this scope audit. The current framing is
+schema-constrained, evidence-grounded Agentic KG-RAG over retrospective FAA
+ATCSCC advisories. Treat PHAK, web-demo, and chunking-era reports as historical
+unless the task explicitly requests historical comparison. Keep source families
+and evaluation layers separate.

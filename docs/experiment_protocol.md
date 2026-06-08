@@ -112,11 +112,11 @@ The PDF backend policy follows the existing project reports:
 `reports/stages/pdf_extraction_comparison.md` and
 `reports/stages/pdf_backend_chunking_comparison.md`.
 
-## Consensus SOTA Adaptation For The Rerun
+## SOTA-Informed Adaptation For The Rerun
 
-The rerun uses the Consensus and ChatGPT Pro methodology reviews as design
-constraints for this narrow ATCSCC / ATMONTO study. They do not change the
-project into a general aviation KG or a broad GraphRAG benchmark.
+The rerun uses the project methodology-review notes as design constraints for
+this narrow ATCSCC / ATMONTO study. They do not change the project into a
+general aviation KG or a broad GraphRAG benchmark.
 
 The current SOTA-facing reports are:
 
@@ -200,8 +200,8 @@ faithfulness/completeness, and citation support must be reported separately.
 The current remediation only supports KG construction metrics; it must not be
 used to claim end-to-end GraphRAG answer improvement.
 
-Additional Pro-review leads such as OntoLogX, JSON-Schema-guided information extraction,
-Graphusion, RAKG, RAGAS, STaRK, and Microsoft GraphRAG are
+Additional literature leads such as OntoLogX, JSON-Schema-guided information
+extraction, Graphusion, RAKG, RAGAS, STaRK, and Microsoft GraphRAG are
 `requiring verification`. They are search leads only until directly fetched and
 checked.
 
@@ -410,10 +410,10 @@ For every reviewed record, validator-rejected candidate facts also need
 ### Assisted Gold Adjudication Workflow
 
 The formal gold set is human-supervised and evidence-grounded, but it does not
-require the human assistant to act as an unaided aviation-domain expert. Each
-review session should use an assisted adjudication workflow:
+require the reviewer to act as an unaided aviation-domain expert. Each review
+session should use an assisted adjudication workflow:
 
-- Primary screening: Codex or a frontier model proposes accepted facts,
+- Primary screening: a configured review model proposes accepted facts,
   rejected-fact decisions, profile-gap candidates, and missing-fact candidates
   from the source text plus S0-S3 candidate package.
 - Source-evidence review: an independent reviewer checks whether every accepted

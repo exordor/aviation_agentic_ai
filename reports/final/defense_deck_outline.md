@@ -90,7 +90,7 @@
 - Sources: `data/cqs/06_phak_ch4_0.gold.json`, `reports/stages/final_evaluation_review.json`, `TASKS.md`
 - Speaker note: Be explicit about what the project does not prove yet.
 
-### 11. The assistant is for aviation learning support, not operational authority
+### 11. The system is for aviation learning support, not operational authority
 
 - Role: `boundary`
 - Claim: Learning and decision-support only; not a POH, checklist, ATC, instructor, or pilot-judgment substitute.

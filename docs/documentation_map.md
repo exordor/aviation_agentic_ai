@@ -11,7 +11,7 @@ old evidence without letting old framing control the thesis story.
 | Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
 | Documentation tiers and maintenance rules | `docs/documentation_maintenance.md` |
-| Context hygiene and historical-document risk | `docs/context_hygiene_audit.md` |
+| Documentation scope and historical-document risk | `docs/context_hygiene_audit.md` |
 | Final deliverable directory status | `reports/final/README.md` |
 | Experiment sequence and regeneration commands | `docs/experiment_workflow.md` |
 | Metric definitions and no-overall-score policy | `docs/evaluation_protocol.md` |
@@ -79,7 +79,7 @@ as the current thesis entry point:
 Historical reports may still be cited for method evolution or negative results,
 but current thesis claims should be routed through `docs/research_mainline.md`,
 `docs/thesis_positioning.md`, and `reports/stages/thesis_experiment_dashboard.md`.
-For a file-level list of documents that can pollute current LLM context, use
+For a file-level list of documents that can pollute current project context, use
 `docs/context_hygiene_audit.md`.
 
 ## Artifact Management Policy
