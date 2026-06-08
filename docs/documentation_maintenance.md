@@ -17,26 +17,36 @@ The repository currently has three documentation layers:
 This volume is expected for the current research workflow, but only a small
 subset should control the thesis narrative.
 
-## Canonical Entry Points
+## Minimal New-Thread Entry Points
 
-Use these files first, in this order:
+Use these files first for a new thread or broad orientation:
 
-1. `docs/thread_handoff.md` for compact new-thread orientation.
-2. `docs/documentation_map.md` for navigation.
-3. `docs/thesis_positioning.md` for claim boundaries.
-4. `docs/research_mainline.md` for RQs, validation gates, and SOTA positioning.
-5. `docs/context_hygiene_audit.md` before loading old reports into the working
+1. `docs/thread_handoff.md`
+2. `docs/documentation_map.md`
+3. `docs/context_hygiene_audit.md`
+4. `docs/tracked_context_inventory.md`
+
+This startup pack is intentionally small. Load task-specific files only after
+choosing the work type.
+
+## Task-Specific Entry Points
+
+Use these files as needed:
+
+1. `docs/thesis_positioning.md` for claim boundaries.
+2. `docs/research_mainline.md` for RQs, validation gates, and SOTA positioning.
+3. `docs/context_hygiene_audit.md` before loading old reports into the working
    context.
-6. `docs/tracked_context_inventory.md` before broad-loading tracked Markdown
+4. `docs/tracked_context_inventory.md` before broad-loading tracked Markdown
    or report-source files.
-7. `docs/experiment_workflow.md` for the end-to-end experiment sequence.
-8. `docs/evaluation_protocol.md` for metric definitions and no-overall-score
+5. `docs/experiment_workflow.md` for the end-to-end experiment sequence.
+6. `docs/evaluation_protocol.md` for metric definitions and no-overall-score
    policy.
-9. `reports/stages/thesis_experiment_dashboard.md` for current evidence
+7. `reports/stages/thesis_experiment_dashboard.md` for current evidence
    synthesis.
-10. `reports/stages/nasa_atmonto_reviewer_defense_audit.md` and
+8. `reports/stages/nasa_atmonto_reviewer_defense_audit.md` and
    `reports/stages/nasa_atmonto_sota_goal_audit.md` for claim-safety gates.
-11. `reports/final/README.md` before using any final-report or defense-deck
+9. `reports/final/README.md` before using any final-report or defense-deck
    files.
 
 Do not use `reports/stages/index.md` as the current thesis story. It is an

@@ -35,22 +35,31 @@ clean. They can include ignored local archives when explicit paths are supplied.
 | `data/ontology/*/README.md` | 3 | ontology-source notes; load only for schema/source questions. |
 | `data/cqs/README.md` | 1 | CQ data note; load only for CQ tasks. |
 
-## Default Load Set
+## Minimal Startup Pack
 
-For a new thread or thesis-writing task, load only:
+For a new thread, load only:
 
 1. `docs/thread_handoff.md`
 2. `docs/documentation_map.md`
 3. `docs/context_hygiene_audit.md`
-4. `docs/thesis_positioning.md`
-5. `docs/research_mainline.md`
-6. `docs/experiment_workflow.md`
-7. `docs/evaluation_protocol.md`
-8. `reports/stages/thesis_experiment_dashboard.md`
-9. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
-10. `reports/stages/nasa_atmonto_sota_goal_audit.md`
+4. `docs/tracked_context_inventory.md`
 
-Load additional files only when the task needs their layer.
+This pack is about 2.7k words in the 2026-06-08 audit and is intended to avoid
+loading historical PHAK, final-report, review-trail, or transfer-pilot material
+by default.
+
+## Task-Specific Expansion
+
+Load additional files only when the task needs their layer:
+
+| Task | Add |
+| --- | --- |
+| Thesis framing or writing | `docs/thesis_positioning.md`, `docs/research_mainline.md` |
+| Experiment execution or regeneration | `docs/experiment_workflow.md`, `docs/evaluation_protocol.md`, `docs/experiment_protocol.md` |
+| Current result synthesis | `reports/stages/thesis_experiment_dashboard.md` |
+| Reviewer or SOTA defense | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md` |
+| ATCSCC data/schema explanation | `reports/stages/atcscc_source_brief.md`, `reports/stages/atcscc_data_format_and_processing_flow.md`, `reports/stages/atcscc_ontology_profile_overview.md` |
+| Gold/CQ review | `data/evaluation/nasa_atmonto/*` and `docs/nasa_atmonto_gold_annotation_guide.md` |
 
 ## Tracked But Non-Default Families
 
@@ -76,7 +85,7 @@ Load additional files only when the task needs their layer.
 
 When adding a new tracked report or document, decide one of:
 
-- current default context;
+- minimal startup context;
 - current evidence but task-specific;
 - method/literature support;
 - transfer/source-expansion support;
@@ -84,4 +93,3 @@ When adding a new tracked report or document, decide one of:
 
 Then link it from `docs/documentation_map.md` only if it should be discoverable
 from the current thesis path.
-

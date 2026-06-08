@@ -14,22 +14,24 @@ Frame the project as schema-constrained advisory-event extraction plus
 evidence-grounded KG-RAG evaluation. Do not frame it as full aviation ontology
 construction or live ATC decision support.
 
-## First Files To Read
+## Minimal Startup Pack
 
-Read these files before loading broad context:
+For a new thread, read only these files first:
 
 1. `docs/documentation_map.md`
 2. `docs/context_hygiene_audit.md`
 3. `docs/tracked_context_inventory.md`
-4. `docs/thesis_positioning.md`
-5. `docs/research_mainline.md`
-6. `docs/experiment_workflow.md`
 
-For current evidence, use:
+This keeps startup context small. Load additional files only when the task needs
+their layer:
 
-- `reports/stages/thesis_experiment_dashboard.md`
-- `reports/stages/nasa_atmonto_sota_goal_audit.md`
-- `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
+- thesis framing: `docs/thesis_positioning.md`, `docs/research_mainline.md`;
+- experiment execution: `docs/experiment_workflow.md`,
+  `docs/evaluation_protocol.md`;
+- current evidence synthesis: `reports/stages/thesis_experiment_dashboard.md`;
+- reviewer/SOTA defense:
+  `reports/stages/nasa_atmonto_reviewer_defense_audit.md`,
+  `reports/stages/nasa_atmonto_sota_goal_audit.md`.
 
 ## Claim Boundaries
 
