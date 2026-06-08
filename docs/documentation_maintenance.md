@@ -33,10 +33,7 @@ choosing the work type.
 
 Keep project threads on the smallest useful tool surface:
 
-- Enable only the plugins needed for the current work. For this repository,
-  the usual core set is Browser, GitHub, and Superpowers; add Documents,
-  Data Analytics, Product Design, or Creative Production only for a task that
-  specifically needs them.
+- Enable only the plugins needed for the current work.
 - Treat skills as task routers, not background reading. Load a skill only when
   its trigger matches the current action, then return to the project startup
   pack and task-specific files.
@@ -45,6 +42,18 @@ Keep project threads on the smallest useful tool surface:
   ATCSCC schema-constrained KG-RAG line.
 - Keep custom skill descriptions short and trigger-only. Long descriptions are
   injected into new threads and compete with project context.
+
+Recommended client state for this repository:
+
+| State | Plugins or skills | Use |
+| --- | --- | --- |
+| Keep enabled | Browser, GitHub, Superpowers | Local preview, repository publishing/review, planning and verification workflows. |
+| Enable on demand | Documents, Data Analytics, Build Web Data Visualization, OpenAI Developers | Use only for document rendering, dashboard/report artifacts, visual analytics, or product/API-specific work. Disable again after the task. |
+| Keep off by default | Product Design, Creative Production, Spreadsheets, Presentations, broad browser/desktop-control plugins | These add large generic instructions and usually do not help ATCSCC schema, KG extraction, retrieval, or thesis-text work. |
+
+When a task needs literature search, paper review, PDF inspection, diagrams, or
+paper writing, load the matching custom skill for that task only. Do not keep
+all research-related skills as default context in every thread.
 
 ## Task-Specific Entry Points
 
