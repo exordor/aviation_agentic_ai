@@ -1,5 +1,10 @@
 # Aviation Agentic AI Project Report
 
+> Status: transitional generated report. It includes some ATCSCC evidence but
+> still contains earlier aviation-training / PHAK framing. For the current
+> thesis story, start from `docs/research_mainline.md` and
+> `reports/final/README.md`.
+
 ## Research claim and scope
 
 This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can add inspectable KG/path evidence, expose structured evidence coverage, and support insufficient-evidence abstention checks. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.

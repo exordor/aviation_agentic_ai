@@ -11,6 +11,7 @@ old evidence without letting old framing control the thesis story.
 | Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
 | Documentation tiers and maintenance rules | `docs/documentation_maintenance.md` |
+| Final deliverable directory status | `reports/final/README.md` |
 | Experiment sequence and regeneration commands | `docs/experiment_workflow.md` |
 | Metric definitions and no-overall-score policy | `docs/evaluation_protocol.md` |
 | Paper-analysis workflow | `docs/research_paper_analysis_protocol.md` |

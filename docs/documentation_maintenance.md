@@ -31,6 +31,8 @@ Use these files first, in this order:
    synthesis.
 7. `reports/stages/nasa_atmonto_reviewer_defense_audit.md` and
    `reports/stages/nasa_atmonto_sota_goal_audit.md` for claim-safety gates.
+8. `reports/final/README.md` before using any final-report or defense-deck
+   files.
 
 Do not use `reports/stages/index.md` as the current thesis story. It is an
 artifact inventory with legacy PHAK-era material.
@@ -59,6 +61,7 @@ artifact inventory with legacy PHAK-era material.
 | New experiment result | `reports/stages/<experiment>.md` plus JSON when generated | Link it from the dashboard or leave it as secondary evidence. |
 | New paper analysis | `reports/stages/<paper>_paper_analysis.md`, `<paper>_figures_analysis.md`, or `<paper>_paper_adaptation.md` | Register the paper in `data/papers/README.md` when it influences method design. |
 | Final report or defense material | `reports/final/` | Ensure it cites current docs, not legacy stage index material. |
+| ATCSCC final deliverable | `reports/final/atcscc_*` | Keep separate from historical PHAK-era final files. |
 
 ## Update Rules
 

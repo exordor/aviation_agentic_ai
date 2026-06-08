@@ -1,5 +1,9 @@
 # Project Defense Notes
 
+> Status: historical PHAK-era defense notes. The format may be reused, but the
+> content does not represent the current ATCSCC Agentic KG-RAG thesis route.
+> See `reports/final/README.md` before using this file.
+
 ## 30-Second Summary
 
 This project turns one aviation handbook chapter into a reproducible GraphRAG pipeline: curated ontology, validated KG, chunking comparison, vector/graph/hybrid retrieval, grounded answers, and a web demo that makes the evidence inspectable. The thesis claim is evidence traceability and structured KG support, not universal Recall@k improvement.

@@ -1,5 +1,9 @@
 # Aviation GraphRAG Defense Deck Outline
 
+> Status: historical PHAK-era deck outline. It is a slide-structure reference,
+> not the current ATCSCC thesis defense outline. See `reports/final/README.md`
+> before reusing it.
+
 - Presentation type: `structured_argument`
 - Deck profile: `engineering-platform`
 - Design: white academic technical deck, dark navy primary, sparse blue accents.

@@ -1,5 +1,10 @@
 # Aviation Agentic AI: Ontology-Constrained GraphRAG for Aviation Learning
 
+> Status: historical PHAK-era academic draft. It is useful as a writing-format
+> reference, but it is not the current ATCSCC thesis manuscript. For the current
+> thesis story, start from `docs/research_mainline.md` and
+> `reports/final/README.md`.
+
 ## Abstract
 
 This project builds a reproducible aviation-domain GraphRAG prototype over FAA PHAK Chapter 4. The system converts a PDF into chunks, constrains KG extraction with an explainable curated ontology, builds vector and graph retrieval indexes, and reports grounded answers with citations. The current evidence shows that GraphRAG should be defended primarily as structured evidence support rather than as a single page-level Recall@5 improvement. Sources: `reports/stages/index.json`, `reports/stages/graphrag_review.json`.
