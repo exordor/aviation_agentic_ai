@@ -55,6 +55,25 @@ When a task needs literature search, paper review, PDF inspection, diagrams, or
 paper writing, load the matching custom skill for that task only. Do not keep
 all research-related skills as default context in every thread.
 
+## Neutral Wording Audit
+
+The current project documents avoid model-brand and generic assistant wording in
+default context. Use `model-assisted`, `model-based`, or `configured-model` for
+review workflows unless a field name or metric explicitly uses `llm_*`.
+
+Allowed technical residues:
+
+- project title terms such as `Aviation Agentic AI`;
+- `LLM` as a technical method category in RQ/method/evaluation text;
+- schema and report fields such as `llm_review`, `requires_llm_review`, and
+  `llm_as_judge_enabled`;
+- historical PHAK benchmark JSON fields that are listed as non-default context
+  in `docs/tracked_context_inventory.md`.
+
+Do not use default-context wording such as model-brand names, generic advisory
+assistant capability, generated-by-model labels, or certified/operational
+assistant claims.
+
 ## Task-Specific Entry Points
 
 Use these files as needed:
