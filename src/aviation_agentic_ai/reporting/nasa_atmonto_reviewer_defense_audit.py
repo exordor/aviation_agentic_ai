@@ -50,15 +50,17 @@ def build_nasa_atmonto_reviewer_defense_audit(
         "metadata": metadata,
         "reviewer_findings": findings,
         "safe_thesis_claim": (
-            "This thesis presents a retrospective, source-bounded ATCSCC case study "
-            "showing that a NASA ATMONTO-derived application profile can constrain "
-            "KG extraction, preserve inspectable provenance, and support layered "
-            "GraphRAG retrieval and answer diagnostics. The strongest claims are "
-            "structural/profile conformance, evidence traceability, benchmark-specific "
-            "retrieval and answer diagnostics, and abstention behavior. Automated "
-            "consistency diagnostics are an internal error-discovery layer, not human "
-            "review, expert certification, domain-general proof, or operational "
-            "aviation validation."
+            "This thesis presents a retrospective, source-bounded study of "
+            "schema-constrained Agentic KG-RAG for FAA ATCSCC advisories. A "
+            "lightweight NASA ATMONTO-derived application schema constrains advisory "
+            "event extraction; the research contribution is evidence-linked event "
+            "extraction, agentic validation/refinement, and source-bounded KG-RAG "
+            "evaluation. The strongest claims are structural schema conformance, "
+            "evidence traceability, benchmark-specific retrieval and answer "
+            "diagnostics, and failure-boundary analysis. Automated consistency "
+            "diagnostics are an internal error-discovery layer, not human review, "
+            "expert certification, domain-general proof, or operational aviation "
+            "validation."
         ),
     }
 
@@ -169,10 +171,11 @@ def write_nasa_atmonto_reviewer_defense_audit_markdown(
             "",
             "## No-Go Claims",
             "",
+            "- Do not treat the lightweight ATCSCC application schema as a complete aviation ontology.",
             "- Do not claim that automated diagnostics replace human or expert answer review.",
             "- Do not claim operational FAA/ATC decision-support readiness.",
             "- Do not claim domain-general validation from the bounded ATCSCC plus NASA BGA pilot.",
-            "- Do not collapse schema/profile conformance into semantic correctness.",
+            "- Do not collapse schema conformance into semantic correctness.",
             "- Do not present selected 60-case LLM diagnostics as the full 317-label answer benchmark.",
             "",
         ]
@@ -337,13 +340,13 @@ def _reviewer_findings(metadata: dict[str, Any]) -> list[dict[str, str]]:
         {
             "id": "D3",
             "severity": "high",
-            "reviewer_angle": "ontology / KG extraction",
-            "risk": "Schema/profile conformance can be conflated with semantic correctness.",
+            "reviewer_angle": "schema-guided event extraction / KG evidence",
+            "risk": "Schema conformance can be conflated with semantic correctness.",
             "defensive_improvement": (
                 "Keep structural acceptance, semantic precision/recall/F1, and evidence "
                 "support as separate columns."
             ),
-            "claim_boundary": "Profile validity is not equivalent to domain truth.",
+            "claim_boundary": "Schema validity is not equivalent to domain truth.",
         },
         {
             "id": "D4",

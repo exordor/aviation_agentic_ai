@@ -160,10 +160,10 @@
     {
       "id": "D3",
       "severity": "high",
-      "reviewer_angle": "ontology / KG extraction",
-      "risk": "Schema/profile conformance can be conflated with semantic correctness.",
+      "reviewer_angle": "schema-guided event extraction / KG evidence",
+      "risk": "Schema conformance can be conflated with semantic correctness.",
       "defensive_improvement": "Keep structural acceptance, semantic precision/recall/F1, and evidence support as separate columns.",
-      "claim_boundary": "Profile validity is not equivalent to domain truth."
+      "claim_boundary": "Schema validity is not equivalent to domain truth."
     },
     {
       "id": "D4",
@@ -190,5 +190,5 @@
       "claim_boundary": "Reproducibility is artifact-level unless raw provider traces are added."
     }
   ],
-  "safe_thesis_claim": "This thesis presents a retrospective, source-bounded ATCSCC case study showing that a NASA ATMONTO-derived application profile can constrain KG extraction, preserve inspectable provenance, and support layered GraphRAG retrieval and answer diagnostics. The strongest claims are structural/profile conformance, evidence traceability, benchmark-specific retrieval and answer diagnostics, and abstention behavior. Automated consistency diagnostics are an internal error-discovery layer, not human review, expert certification, domain-general proof, or operational aviation validation."
+  "safe_thesis_claim": "This thesis presents a retrospective, source-bounded study of schema-constrained Agentic KG-RAG for FAA ATCSCC advisories. A lightweight NASA ATMONTO-derived application schema constrains advisory event extraction; the research contribution is evidence-linked event extraction, agentic validation/refinement, and source-bounded KG-RAG evaluation. The strongest claims are structural schema conformance, evidence traceability, benchmark-specific retrieval and answer diagnostics, and failure-boundary analysis. Automated consistency diagnostics are an internal error-discovery layer, not human review, expert certification, domain-general proof, or operational aviation validation."
 }

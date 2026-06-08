@@ -2,158 +2,146 @@
 
 ## Problem Statement
 
-The project studies aviation training question answering over FAA PHAK Chapter 4.
-The central problem is not only whether a retriever can return the right page. A
-defensible aviation learning system must also show why evidence was selected,
-which source text supports it, which KG relations were used, and when the source
-material is insufficient for a safe answer.
+The project studies evidence-grounded question answering over retrospective FAA
+ATCSCC advisories. ATCSCC advisories are semi-structured operational notices:
+they contain identifiers, affected NAS elements, route or airport constraints,
+effective time windows, causes, and free-text operational context. The research
+problem is not to build a complete aviation ontology. The research problem is to
+extract advisory-event knowledge with explicit schema constraints and evidence
+spans, then evaluate whether that structured graph improves grounded question
+answering.
 
-The prototype therefore treats GraphRAG as an evidence-structuring method rather
-than as a guaranteed Recall@k winner.
-
-## Why The Old Recall Claim Is Too Strong
-
-The earlier framing implied that GraphRAG or Hybrid RAG should generally improve
-retrieval Recall@k over vector-only RAG. Current project evidence is more mixed:
-on the expanded 35-question set, vector Recall@5 can be higher than the default
-hybrid configuration. This negative result is useful. It shows that vector
-retrieval can be sufficient for simple factual or page-local questions and that
-GraphRAG should be evaluated for structured evidence support, provenance, and
-abstention behavior rather than defended as a universal retrieval winner.
+The prototype therefore treats the ontology/profile as an engineering
+constraint. The main method is schema-constrained, evidence-grounded Agentic
+KG-RAG.
 
 ## Revised Thesis Claim
 
-This thesis does not assume that GraphRAG universally improves retrieval Recall@k
-over vector-only RAG. Instead, it investigates a narrower and more safety-relevant
-claim: in aviation training question answering, an ontology-constrained GraphRAG
-pipeline can add inspectable evidence-traceability signals, structured KG
-evidence coverage, and insufficient-evidence abstention checks. The system is
-therefore evaluated with layered
-metrics: retrieval quality, KG evidence quality, answer citation quality, and
-safety-aware abstention are measured separately rather than collapsed into a
-single overall score.
+This thesis investigates a retrospective and source-bounded claim: for FAA
+ATCSCC advisories, a lightweight NASA ATMONTO-derived application schema can
+constrain LLM extraction of advisory events, support agentic
+validation/refinement, and provide an inspectable advisory event graph for
+KG-RAG question answering. The system is evaluated with layered metrics:
+schema-valid extraction, evidence-linked relation correctness on reviewed
+subsets, repair/critic behavior, retrieval and answer quality, citation quality,
+and failure/human-review boundaries are reported separately.
+
+The thesis does not claim that the ATCSCC schema is a complete aviation
+ontology, that GraphRAG universally improves retrieval, or that the system is
+usable for live ATC decision support.
 
 ## Research Questions
 
-- **RQ1**: How can a lightweight aviation ontology constrain KG extraction from
-  aviation training text?
-- **RQ2**: Does ontology-constrained KG extraction add inspectable
-  evidence-traceability signals compared with vector-only RAG?
-- **RQ3**: When does graph evidence help aviation QA, and when is vector
-  retrieval sufficient?
-- **RQ4**: Can evidence-aware GraphRAG better identify unsupported or unsafe
-  aviation questions?
+- **RQ1**: Can schema-constrained LLM extraction produce valid and
+  evidence-linked event records from ATCSCC advisories?
+- **RQ2**: Does an agentic validation-refinement loop reduce schema violations
+  and unsupported relations?
+- **RQ3**: Does KG-RAG improve evidence grounding and citation quality compared
+  with vector-only RAG?
+- **RQ4**: What failure types remain, and where does human review remain
+  necessary?
 
 ## Hypotheses
 
-- **H1**: Ontology constraints reduce unsupported KG triples and preserve
-  provenance.
-- **H2**: GraphRAG adds inspectable evidence-traceability signals compared with
-  vector-only RAG.
-- **H3**: GraphRAG does not always improve Recall@k but can improve structured
-  evidence coverage.
-- **H4**: Evidence sufficiency checking improves abstention on unsupported
-  aviation questions.
-- **H5**: KG evidence is most useful for relation-oriented, causal, and
-  cross-page questions, and less useful for simple factual definition questions.
+- **H1**: Schema constraints increase valid, evidence-linked advisory event
+  records compared with unconstrained or weakly constrained extraction.
+- **H2**: A validator/refiner/critic loop reduces schema violations,
+  unsupported relations, and parser artifacts before graph insertion.
+- **H3**: KG-RAG improves source-bounded grounding, answer-set quality, and
+  citation behavior on relation-oriented ATCSCC questions, while vector-only
+  retrieval can remain sufficient for simple source-local questions.
+- **H4**: Failure analysis can separate extraction errors, profile/gold-boundary
+  gaps, retrieval context errors, answer overreach, and cases requiring human
+  review.
 
 ## Contributions
 
-- A task ontology for PHAK Chapter 4 that constrains focused aviation KG
-  extraction.
-- Validator-gated KG/ABox artifacts with provenance back to source chunks.
-- A CLI-first vector, graph, and hybrid GraphRAG pipeline that can be reproduced
-  from local artifacts.
-- A layered evaluation protocol that separates retrieval quality, KG evidence
-  quality, answer quality, and safety-aware abstention.
-- A claim-safety framing that keeps the aviation learning and decision-support
-  boundary explicit.
+- A lightweight ATCSCC application schema/profile derived from NASA ATMONTO
+  terms and restricted to the advisory-event extraction task.
+- An advisory event graph with source IDs and evidence spans for extracted
+  facts.
+- An agentic extraction loop with extractor, validator, refiner, and critic
+  roles that records repair and rejection outcomes.
+- A reproducible vector, graph, and hybrid KG-RAG evaluation pipeline over
+  retrospective ATCSCC advisories.
+- A layered evaluation and claim-boundary protocol that separates schema
+  validity, evidence support, answer quality, and human-review requirements.
 
 ## Evaluation Philosophy
 
-The thesis should report negative and mixed Recall@k results directly. A lower
-or equal hybrid Recall@k does not invalidate GraphRAG if the graph layer improves
-evidence traceability, KG evidence coverage, or abstention on unsupported
-questions. The evaluation should therefore keep these layers separate:
+The thesis should report mixed or negative retrieval results directly. KG-RAG
+does not need to win every Recall@k comparison to be useful. The defensible
+claim is narrower: graph evidence is useful when it improves source-bounded
+answer sets, evidence traceability, citation behavior, and failure diagnosis.
 
 | Layer | Metrics | Purpose |
 | --- | --- | --- |
-| Retrieval quality | Recall@k, MRR@k, Context Precision@k | Measure whether the right chunks are returned near the top of the ranking. |
-| KG evidence quality | key entity coverage, triple coverage, provenance completeness | Measure whether structured graph evidence covers the entities and relations needed by the question. |
-| Answer quality | citation correctness, faithfulness, relevance | Measure whether generated answers are supported by cited evidence. |
-| Safety-aware abstention | abstention correctness, false answer rate, boundary violations | Measure whether the system refuses unsupported or unsafe aviation questions. |
+| Schema-constrained extraction | schema validity, structural acceptance rate, rejected fact count, repaired fact count | Measure whether generated event records obey the application schema before graph insertion. |
+| Evidence support | evidence-span coverage, unsupported relation rate, provenance completeness, reviewed-subset precision/recall/F1 | Measure whether accepted facts can be traced to advisory text. |
+| Agentic loop behavior | violation reduction, repair success, critic rejection count, post-loop extraction F1 | Measure whether validation/refinement improves extraction quality. |
+| Retrieval and KG-RAG answer quality | answer-set F1, target-source hit rate, citation precision/recall, evidence faithfulness | Measure whether vector, graph, and hybrid modes support grounded answers. |
+| Failure and human-review boundary | failure category counts, abstention correctness, profile/gold-boundary cases, human-review completion status | Measure what remains unresolved and which claims require review. |
 
 The thesis must not collapse these layers into a single mixed overall score.
 The full metric protocol is documented in `docs/evaluation_protocol.md` and can
-be audited with `uv run aviation-ai report evaluation-protocol`. It explicitly
-maps mainstream RAGAS-style metrics, ARES-style component evaluation, standard
-IR metrics, GraphRAG path/evidence metrics, ontology/KG construction metrics,
-and aviation safety-abstention metrics onto the current project reports.
-The full thesis experiment sequence is documented in
-`docs/experiment_workflow.md` and summarized by
-`uv run aviation-ai report thesis-experiment-dashboard`.
+be audited with `uv run aviation-ai report evaluation-protocol`. The full thesis
+experiment sequence is documented in `docs/experiment_workflow.md` and
+summarized by `uv run aviation-ai report thesis-experiment-dashboard`.
 
 ## Claim Safety Matrix
 
 | Claim | Current evidence | Supported strength | Safe wording | Unsafe wording to avoid |
 | --- | --- | --- | --- | --- |
-| Ontology constrains KG extraction. | Extraction profile terms map to the curated ontology; KG validation rejects unsupported schema terms. | strong | The task ontology constrains which focused classes and relations can enter the KG. | The ontology fully models aviation knowledge. |
-| KG triples preserve provenance. | KG validation reports zero missing-provenance errors in the current fixed-window and structure-aware artifacts. | strong | Current extracted triples carry source chunk provenance checked by deterministic validation. | Every KG triple is semantically correct. |
-| GraphRAG improves Recall@5. | Expanded retrieval ablation shows vector Recall@5 can be higher than default hybrid Recall@5. | not supported | GraphRAG does not always improve Recall@5; report Recall separately from KG evidence coverage. | GraphRAG always improves Recall@5. |
-| GraphRAG improves structured evidence support. | Graph and hybrid modes expose KG coverage, provenance, triples, and evidence-level answer support. | moderate | GraphRAG improves inspectable structured evidence support in the current benchmark. | GraphRAG is always more accurate than vector retrieval. |
-| Hybrid RAG always beats vector-only RAG. | Fixed-window and expanded ablations include cases where vector retrieval is equal or better on Recall@5. | not supported | Hybrid RAG can add KG evidence coverage while vector retrieval can remain sufficient for simple factual questions. | Hybrid RAG always beats vector-only RAG. |
-| The system can answer aviation operational questions. | The advisory boundary limits the system to learning and decision support; live operational data and official procedures are out of scope. | not supported | The system can answer aviation training questions when evidence is sufficient and should abstain otherwise. | The system can support operational flight decisions. |
-| The system can support aviation learning questions. | The pipeline answers PHAK Chapter 4 training questions with citations and evidence panels. | moderate | The prototype supports aviation learning questions over its scoped source material. | The prototype is a certified aviation assistant. |
-| The system can replace POH/checklists/ATC/instructor judgment. | The advisory boundary explicitly rejects replacement of official sources or human judgment. | not supported | The system does not replace POH, approved checklists, ATC, instructor guidance, or pilot judgment. | The system can replace POH, checklists, ATC, or instructor judgment. |
-| The benchmark is externally aviation-expert certified. | Current labels are reviewed course-project / thesis-oriented gold, not external examiner certification. | not supported | The benchmark is course-project / thesis-oriented gold with documented limitations. | The benchmark is externally aviation-expert certified. |
-| The benchmark is course-project / thesis-oriented gold. | Reports identify the 10-question and expanded 35-question labels as project/thesis evidence. | strong | The benchmark is course-project / thesis-oriented gold, useful for internal evaluation but not external certification. | The benchmark proves aviation-domain correctness. |
+| Lightweight schema constrains advisory event extraction. | ATCSCC profile terms, schema validation, and prediction-output validation reports constrain accepted event fields. | strong | The application schema constrains which advisory event fields and relations can enter the graph. | The ontology fully models aviation knowledge. |
+| Accepted facts preserve provenance. | KG and prediction validation reports check source IDs and evidence spans. | strong | Accepted facts carry source-bounded provenance checked by deterministic validation. | Every KG triple is semantically correct. |
+| Agentic validation improves extraction quality. | S5/S6 reports record validator, refiner, critic, repair, and rejection behavior. | moderate | The agentic loop reduces specific schema and support failures in the current ATCSCC pipeline. | Autonomous agents construct a correct ontology. |
+| KG-RAG improves grounded ATCSCC QA. | S7 retrieval, graph-health, and LLM answer-generation diagnostics report answer-set, citation, and target-source metrics. | moderate | KG-RAG improves some source-bounded grounding diagnostics on this benchmark. | GraphRAG is always more accurate than vector retrieval. |
+| The system can answer operational ATC questions. | The advisory boundary limits the system to retrospective research diagnostics. | not supported | The system analyzes retrospective advisories and must not be used for live operational decisions. | The system can support operational flight or ATC decisions. |
+| The benchmark is externally expert certified. | Current labels and diagnostics are project/thesis evidence with documented review gaps. | not supported | The benchmark is thesis-oriented and source-bounded, with explicit review limitations. | The benchmark is externally aviation-expert certified. |
 
 ## What The Thesis Can Claim
 
-- The project implements a reproducible aviation training GraphRAG prototype over
-  scoped FAA handbook material.
-- The task ontology constrains focused KG extraction and supports validation.
-- Current KG triples preserve source provenance at the artifact level.
-- GraphRAG adds structured KG evidence coverage and evidence traceability in the
-  current experiments.
-- Mixed Recall@k results show when vector retrieval is sufficient and motivate
-  layered evaluation.
-- The system can support aviation learning questions when scoped evidence is
-  sufficient.
+- The project implements a reproducible schema-constrained Agentic KG-RAG
+  prototype over retrospective FAA ATCSCC advisories.
+- The application schema constrains focused advisory-event extraction and
+  supports deterministic validation.
+- Accepted facts preserve source IDs and evidence spans at the artifact level.
+- Agentic validation/refinement provides inspectable repair and rejection
+  signals.
+- KG-RAG adds structured evidence and citation diagnostics in the current
+  source-bounded benchmark.
+- Remaining failures and human-review requirements are explicitly categorized.
 
 ## What The Thesis Must Not Claim
 
-- GraphRAG universally improves Recall@k over vector-only RAG.
-- Hybrid RAG always outperforms vector-only RAG.
-- The ontology is a complete aviation ontology.
+- The ATCSCC application schema is a complete aviation ontology.
+- NASA ATMONTO is treated as complete ground truth for ATCSCC advisories.
+- GraphRAG universally improves Recall@k or answer accuracy.
+- Automated diagnostics replace human or expert review.
 - The benchmark is externally aviation-expert certified.
-- The system is operationally safe for flight decisions.
-- The system can replace the aircraft POH, approved checklists, ATC
-  instructions, instructor guidance, or pilot judgment.
+- The system is operationally safe for live ATC or flight decisions.
 
-## Relationship Between Ontology, KG, GraphRAG, Provenance, And Abstention
+## Relationship Between Schema, Event Graph, Agent Loop, KG-RAG, And Review
 
-The ontology is the schema boundary. It defines the focused classes and
-relations that the extractor is allowed to emit. The KG is the structured
-evidence layer built under that boundary; each accepted triple must preserve
-source provenance so it can be traced back to handbook chunks. GraphRAG combines
-this KG evidence with vector retrieval, allowing answers to cite both text and
-relations where available. Provenance makes the result inspectable, while
-evidence sufficiency checks determine whether the system should answer or
-abstain.
+The schema is the boundary. It defines the focused advisory-event fields and
+relations that the extractor is allowed to emit. The event graph is the
+structured evidence layer built under that boundary; each accepted fact must
+preserve source provenance and an evidence span. The agent loop uses validation
+results to repair or reject candidate facts before they enter the graph. KG-RAG
+combines graph evidence with vector retrieval so answers can cite both text and
+structured event facts where available. Review artifacts then classify remaining
+failures and mark which conclusions require human adjudication.
 
-This relationship is safety relevant because aviation questions often require a
-clear boundary between training explanation and operational authority. When the
-available source material does not support a question, the correct behavior is
-to abstain and defer to official sources, the aircraft POH/AFM, approved
-checklists, ATC instructions, instructor guidance, and pilot judgment.
+This relationship keeps the thesis defensible: the project evaluates a bounded
+method for evidence-grounded advisory QA, not a certified aviation ontology or a
+live operational decision-support system.
 
 ## Evidence Gaps Before Thesis Submission
 
-- Need larger benchmark beyond 35 questions.
-- Need stronger no-answer / insufficient-evidence evaluation.
-- Need triple-level semantic correctness review.
-- Need graph traversal or path-based retrieval if claiming multi-hop graph
-  reasoning.
-- Need manual or expert review if claiming aviation-domain correctness.
-- Need embedding/index comparison if claiming retrieval backend optimality.
+- Need final reviewed subset for triple-level and answer-level correctness.
+- Need explicit comparison against a naive/unconstrained extraction baseline.
+- Need clearer reporting of repair success and rejection reasons across the
+  agentic loop.
+- Need final failure taxonomy with examples and claim impact.
+- Need an optional second-domain pilot only as transfer evidence, not as proof
+  of domain-general validity.

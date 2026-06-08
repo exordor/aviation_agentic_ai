@@ -2,22 +2,21 @@
 
 ## Revised Thesis Claim
 
-This thesis does not assume that GraphRAG universally improves retrieval Recall@k over vector-only RAG. Instead, it investigates a narrower and more safety-relevant claim: in aviation training question answering, an ontology-constrained GraphRAG pipeline can add inspectable KG/path evidence, expose structured evidence coverage, and support insufficient-evidence abstention checks. The system is therefore evaluated with layered metrics: retrieval quality, KG evidence quality, answer citation quality, and safety-aware abstention are measured separately rather than collapsed into a single overall score.
+This thesis investigates a retrospective and source-bounded claim: for FAA ATCSCC advisories, a lightweight NASA ATMONTO-derived application schema can constrain LLM extraction of advisory events, support agentic validation/refinement, and provide an inspectable advisory event graph for KG-RAG question answering. The system is evaluated with layered metrics: schema-valid extraction, evidence-linked relation correctness on reviewed subsets, repair/critic behavior, retrieval and answer quality, citation quality, and failure/human-review boundaries are reported separately.
 
 ## Research Questions
 
-- **RQ1**: How can a lightweight aviation ontology constrain KG extraction from aviation training text?
-- **RQ2**: Does ontology-constrained KG extraction add inspectable evidence-traceability signals compared with vector-only RAG?
-- **RQ3**: When does graph evidence help aviation QA, and when is vector retrieval sufficient?
-- **RQ4**: Can evidence-aware GraphRAG better identify unsupported or unsafe aviation questions?
+- **RQ1**: Can schema-constrained LLM extraction produce valid and evidence-linked event records from ATCSCC advisories?
+- **RQ2**: Does an agentic validation-refinement loop reduce schema violations and unsupported relations?
+- **RQ3**: Does KG-RAG improve evidence grounding and citation quality compared with vector-only RAG?
+- **RQ4**: What failure types remain, and where does human review remain necessary?
 
 ## Hypotheses
 
-- **H1**: Ontology constraints reduce unsupported KG triples and preserve provenance.
-- **H2**: GraphRAG adds inspectable evidence-traceability signals compared with vector-only RAG.
-- **H3**: GraphRAG does not always improve Recall@k but can improve structured evidence coverage.
-- **H4**: Evidence sufficiency checking improves abstention on unsupported aviation questions.
-- **H5**: KG evidence is most useful for relation-oriented, causal, and cross-page questions, and less useful for simple factual definition questions.
+- **H1**: Schema constraints increase valid, evidence-linked advisory event records compared with unconstrained or weakly constrained extraction.
+- **H2**: A validator/refiner/critic loop reduces schema violations, unsupported relations, and parser artifacts before graph insertion.
+- **H3**: KG-RAG improves source-bounded grounding, answer-set quality, and citation behavior on relation-oriented ATCSCC questions, while vector-only retrieval can remain sufficient for simple source-local questions.
+- **H4**: Failure analysis can separate extraction errors, profile/gold-boundary gaps, retrieval context errors, answer overreach, and cases requiring human review.
 
 ## Evaluation Framing
 
@@ -25,10 +24,11 @@ Negative or mixed Recall@k results are not hidden. They motivate layered evaluat
 
 | Layer | Metrics | Purpose |
 | --- | --- | --- |
-| Retrieval quality | Recall@k, MRR@k, Context Precision@k | Measure whether the retriever returns source chunks near the top of the ranking. |
-| KG evidence quality | key entity coverage, triple coverage, provenance completeness | Measure whether graph evidence covers the entities and relations needed by the question. |
-| Answer quality | citation correctness, faithfulness, relevance | Measure whether generated answers are supported by cited evidence. |
-| Safety-aware abstention | abstention correctness, false answer rate, boundary violations | Measure whether the system refuses unsupported or unsafe aviation questions. |
+| Schema-constrained extraction | schema validity, structural acceptance rate, rejected fact count, repaired fact count | Measure whether generated event records obey the application schema before graph insertion. |
+| Evidence support | evidence-span coverage, unsupported relation rate, provenance completeness, reviewed-subset precision/recall/F1 | Measure whether accepted facts can be traced to advisory text. |
+| Agentic loop behavior | violation reduction, repair success, critic rejection count, post-loop extraction F1 | Measure whether validation/refinement improves extraction quality. |
+| Retrieval and KG-RAG answer quality | answer-set F1, target-source hit rate, citation precision/recall, evidence faithfulness | Measure whether vector, graph, and hybrid modes support grounded answers. |
+| Failure and human-review boundary | failure category counts, abstention correctness, profile/gold-boundary cases, human-review completion status | Measure what remains unresolved and which claims require review. |
 
 The report must not create or recommend a single mixed overall score.
 
@@ -36,16 +36,15 @@ The report must not create or recommend a single mixed overall score.
 
 | Claim | Current evidence | Supported strength | Safe wording | Unsafe wording to avoid |
 | --- | --- | --- | --- | --- |
-| Ontology constrains KG extraction. | Extraction profile terms map to the curated ontology; KG validation rejects unsupported schema terms. | strong | The task ontology constrains which focused classes and relations can enter the KG. | The ontology fully models aviation knowledge. |
-| KG triples preserve provenance. | KG validation reports zero missing-provenance errors in the current fixed-window and structure-aware artifacts. | strong | Current extracted triples carry source chunk provenance checked by deterministic validation. | Every KG triple is semantically correct. |
-| GraphRAG improves Recall@5. | Expanded retrieval ablation shows vector Recall@5 can be higher than default hybrid Recall@5. | not supported | GraphRAG does not always improve Recall@5; report Recall separately from KG evidence coverage. | GraphRAG always improves Recall@5. |
-| GraphRAG improves structured evidence support. | Graph and hybrid modes expose KG coverage, provenance, triples, and evidence-level answer support. | moderate | GraphRAG improves inspectable structured evidence support in the current benchmark. | GraphRAG is always more accurate than vector retrieval. |
-| Hybrid RAG always beats vector-only RAG. | Fixed-window and expanded ablations include cases where vector retrieval is equal or better on Recall@5. | not supported | Hybrid RAG can add KG evidence coverage while vector retrieval can remain sufficient for simple factual questions. | Hybrid RAG always beats vector-only RAG. |
-| The system can answer aviation operational questions. | The advisory boundary limits the system to learning and decision support; live operational data and official procedures are out of scope. | not supported | The system can answer aviation training questions when evidence is sufficient and should abstain otherwise. | The system can support operational flight decisions. |
-| The system can support aviation learning questions. | The pipeline answers PHAK Chapter 4 training questions with citations and evidence panels. | moderate | The prototype supports aviation learning questions over its scoped source material. | The prototype is a certified aviation assistant. |
-| The system can replace POH/checklists/ATC/instructor judgment. | The advisory boundary explicitly rejects replacement of official sources or human judgment. | not supported | The system does not replace POH, approved checklists, ATC, instructor guidance, or pilot judgment. | The system can replace POH, checklists, ATC, or instructor judgment. |
-| The benchmark is externally aviation-expert certified. | Current labels are reviewed course-project / thesis-oriented gold, not external examiner certification. | not supported | The benchmark is course-project / thesis-oriented gold with documented limitations. | The benchmark is externally aviation-expert certified. |
-| The benchmark is course-project / thesis-oriented gold. | Reports identify the 10-question and expanded 35-question labels as project/thesis evidence. | strong | The benchmark is course-project / thesis-oriented gold, useful for internal evaluation but not external certification. | The benchmark proves aviation-domain correctness. |
+| Lightweight schema constrains advisory event extraction. | ATCSCC profile terms, schema validation, and prediction-output validation reports constrain accepted event fields. | strong | The application schema constrains which advisory event fields and relations can enter the graph. | The ontology fully models aviation knowledge. |
+| Accepted facts preserve provenance. | KG and prediction validation reports check source IDs and evidence spans. | strong | Accepted facts carry source-bounded provenance checked by deterministic validation. | Every KG triple is semantically correct. |
+| Agentic validation improves extraction quality. | S5/S6 reports record validator, refiner, critic, repair, and rejection behavior. | moderate | The agentic loop reduces specific schema and support failures in the current ATCSCC pipeline. | Autonomous agents construct a correct ontology. |
+| KG-RAG improves grounded ATCSCC QA diagnostics. | S7 retrieval, graph-health, and LLM answer-generation diagnostics report answer-set, citation, and target-source metrics. | moderate | KG-RAG improves some source-bounded grounding diagnostics on this benchmark. | GraphRAG is always more accurate than vector retrieval. |
+| GraphRAG universally improves retrieval. | S7 reports vector, graph, and routed modes separately; graph use is template-dependent. | not supported | KG-RAG should be reported as a source-bounded grounding and evidence diagnostic, not a universal Recall@k improvement. | GraphRAG always improves Recall@k. |
+| The system can answer operational ATC questions. | The advisory boundary limits the system to retrospective research diagnostics. | not supported | The system analyzes retrospective advisories and must not be used for live operational decisions. | The system can support operational flight or ATC decisions. |
+| Automated diagnostics replace human review. | Reviewer-defense and SOTA audits keep automated diagnostics separate from human review. | not supported | Automated diagnostics are internal error-discovery tools and do not replace human or expert review. | The benchmark is human reviewed or expert certified. |
+| The benchmark is externally aviation-expert certified. | Current labels and diagnostics are project/thesis evidence with documented review gaps. | not supported | The benchmark is thesis-oriented and source-bounded, with explicit review limitations. | The benchmark is externally aviation-expert certified. |
+| The method is domain-general. | A bounded second-source-family pilot exists, but it is not a full cross-domain benchmark. | weak | The method is designed to be domain-adaptable, with only pilot-level transfer evidence so far. | The method is proven domain-general. |
 
 ## Unsafe Claims Scan
 
@@ -53,37 +52,31 @@ No unsupported unsafe claims were found in the scanned files outside explicit li
 
 ## Evidence Gaps Before Thesis Submission
 
-- Need larger benchmark beyond 35 questions
-- Need stronger no-answer / insufficient-evidence evaluation
-- Need triple-level semantic correctness review
-- Need graph traversal or path-based retrieval if claiming multi-hop graph reasoning
-- Need manual or expert review if claiming aviation-domain correctness
-- Need embedding/index comparison if claiming retrieval backend optimality
+- Need final reviewed subset for triple-level and answer-level correctness
+- Need explicit comparison against a naive/unconstrained extraction baseline
+- Need clearer reporting of repair success and rejection reasons across the agentic loop
+- Need final failure taxonomy with examples and claim impact
+- Need optional second-domain pilot evidence only as transfer evidence, not as proof of domain-general validity
 
 ## Evidence Files
 
-- `GOALS.md`: present
-- `README.md`: present
-- `configs/extraction_profile.yaml`: present
-- `data/cqs/06_phak_ch4_0.expanded.gold.json`: present
-- `data/cqs/06_phak_ch4_0.gold.json`: present
-- `data/kg/06_phak_ch4_0.kg.jsonl`: present
-- `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl`: present
-- `docs/benchmark_design.md`: present
-- `docs/document_expansion_protocol.md`: present
-- `docs/ontology_design.md`: present
+- `data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json`: present
 - `docs/thesis_positioning.md`: present
-- `reports/stages/answer_evaluation.json`: present
-- `reports/stages/evidence_cards.md`: present
-- `reports/stages/evidence_level_evaluation.json`: present
-- `reports/stages/final_evaluation_review.json`: present
-- `reports/stages/graphrag_review.json`: present
-- `reports/stages/hybrid_rag_experiment.json`: present
-- `reports/stages/hybrid_rag_structure_aware.json`: present
-- `reports/stages/kg_extraction_comparison.json`: present
-- `reports/stages/kg_validation.json`: present
-- `reports/stages/retrieval_ablation.json`: present
-- `reports/stages/robustness_evaluation.json`: present
-- `reports/stages/structure_aware_kg_validation.json`: present
-- `reports/stages/web_demo_readiness.json`: present
+- `reports/stages/atcscc_ontology_profile_overview.md`: present
+- `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md`: present
+- `reports/stages/nasa_atmonto_cq_evaluation.json`: present
+- `reports/stages/nasa_atmonto_formal_experiment_scoring.json`: present
+- `reports/stages/nasa_atmonto_prediction_output_validation.json`: present
+- `reports/stages/nasa_atmonto_reviewer_defense_audit.json`: present
+- `reports/stages/nasa_atmonto_s5_s6_agentic_loop.json`: present
+- `reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.json`: present
+- `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.json`: present
+- `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.json`: present
+- `reports/stages/nasa_atmonto_s7_answer_review_decisions.json`: present
+- `reports/stages/nasa_atmonto_s7_automated_adversarial_review.json`: present
+- `reports/stages/nasa_atmonto_s7_graph_health.json`: present
+- `reports/stages/nasa_atmonto_s7_llm_answer_generation.json`: present
+- `reports/stages/nasa_atmonto_s7_retrieval.json`: present
+- `reports/stages/nasa_atmonto_sota_goal_audit.json`: present
+- `reports/stages/nasa_bga_domain_transfer_pilot.json`: present
 - `src/aviation_agentic_ai/advisory.py`: present

@@ -726,6 +726,47 @@
       "report_name": "benchmark_review_pack"
     },
     {
+      "dataset_used": "atcscc_gold_100",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "ontology_kg",
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/nasa_atmonto_formal_experiment_scoring.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_formal_experiment_scoring"
+    },
+    {
+      "dataset_used": "atcscc_prediction_outputs",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "ontology_kg",
+        "evaluation_protocol",
+        "claim_safety"
+      ],
+      "path": "reports/stages/nasa_atmonto_prediction_output_validation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_prediction_output_validation"
+    },
+    {
+      "dataset_used": "atcscc_cq_answer_sets",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "ontology_kg",
+        "answer_generation",
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/nasa_atmonto_cq_evaluation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_cq_evaluation"
+    },
+    {
       "dataset_used": "not_dataset_specific",
       "human_review_present": false,
       "llm_review_available": false,
@@ -789,14 +830,60 @@
       "report_name": "nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic"
     },
     {
-      "dataset_used": "not_dataset_specific",
+      "dataset_used": "atcscc_thesis_claim_gate",
       "human_review_present": false,
       "llm_review_available": false,
-      "metric_layers_covered": [],
+      "metric_layers_covered": [
+        "claim_safety",
+        "evaluation_protocol",
+        "failure_analysis"
+      ],
       "path": "reports/stages/nasa_atmonto_sota_goal_audit.json",
       "present": true,
       "questions_count": "n/a",
       "report_name": "nasa_atmonto_sota_goal_audit"
+    },
+    {
+      "dataset_used": "atcscc_thesis_claim_gate",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "claim_safety",
+        "failure_analysis",
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/nasa_atmonto_reviewer_defense_audit.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_reviewer_defense_audit"
+    },
+    {
+      "dataset_used": "atcscc_s7_source_bounded_317",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "retrieval",
+        "graph_paths",
+        "evaluation_protocol"
+      ],
+      "path": "reports/stages/nasa_atmonto_s7_retrieval.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s7_retrieval"
+    },
+    {
+      "dataset_used": "atcscc_s7_source_bounded_317",
+      "human_review_present": false,
+      "llm_review_available": false,
+      "metric_layers_covered": [
+        "retrieval",
+        "graph_paths",
+        "claim_safety"
+      ],
+      "path": "reports/stages/nasa_atmonto_s7_graph_health.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s7_graph_health"
     },
     {
       "dataset_used": "atcscc_s7_source_bounded_60",
@@ -1453,235 +1540,192 @@
   "rq_to_evidence_matrix": [
     {
       "claim_strength": "strong",
-      "current_result_summary": "Curated ontology validates as a task ontology; structure-aware KG has provenance completeness=1.0.",
+      "current_result_summary": "The ATCSCC application schema constrains accepted advisory-event fields and keeps structure, evidence support, and semantic scoring separate. Current KG provenance completeness=1.0.",
       "evidence_reports": [
-        "curated_ontology_evaluation",
-        "kg_extraction_comparison",
-        "kg_validation"
+        "nasa_atmonto_formal_experiment_scoring",
+        "nasa_atmonto_prediction_output_validation",
+        "nasa_atmonto_cq_evaluation",
+        "atcscc_ontology_profile_overview"
       ],
       "primary_metrics": [
-        "RDF/OWL parse validity",
-        "label/comment coverage",
-        "unsupported class/property count",
+        "schema validity",
+        "structural acceptance rate",
+        "triple precision/recall/F1",
+        "evidence-span containment",
         "provenance completeness"
       ],
-      "remaining_gaps": "Triple semantic correctness is absent or LLM-estimated only.",
-      "rq": "RQ1 ontology constraint"
+      "remaining_gaps": "Semantic correctness remains reviewed-subset/profile-relative, not full ontology correctness.",
+      "rq": "RQ1 schema-constrained event extraction"
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Hybrid reports expose KG evidence and citations; answer scores are deterministic heuristics unless LLM-judge scores are explicitly recorded. S7 adds a source-bounded LLM answer diagnostic with best-mode correctness=0.9667.",
+      "current_result_summary": "S5/S6 artifacts make extractor, validator, refiner, and critic outcomes inspectable. The live full-run diagnostic is extraction-layer evidence and should be interpreted before answer-generation claims.",
       "evidence_reports": [
-        "retrieval_ablation_benchmark_v2",
-        "graph_traversal_ablation_benchmark_v2",
-        "answer_evaluation",
+        "nasa_atmonto_s5_s6_agentic_loop",
+        "nasa_atmonto_s5_s6_independent_agentic_run",
+        "nasa_atmonto_s5_s6_live_agentic_pilot",
+        "nasa_atmonto_s5_s6_live_agentic_full_run",
+        "nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic"
+      ],
+      "primary_metrics": [
+        "schema violation rate",
+        "repair count",
+        "quarantine/rejection count",
+        "unsupported relation rate",
+        "post-loop extraction F1"
+      ],
+      "remaining_gaps": "The agent loop is not autonomous ontology construction; it is a bounded diagnostic and repair loop for advisory-event extraction.",
+      "rq": "RQ2 agentic validation-refinement"
+    },
+    {
+      "claim_strength": "moderate",
+      "current_result_summary": "S7 reports vector, graph, and routed modes separately. Best selected LLM diagnostic correctness=0.9667 with unsupported claim rate=0.0167.",
+      "evidence_reports": [
+        "nasa_atmonto_s7_retrieval",
+        "nasa_atmonto_s7_graph_health",
         "nasa_atmonto_s7_llm_answer_generation"
       ],
       "primary_metrics": [
-        "KG evidence coverage",
-        "citation completeness",
+        "answer-set F1",
+        "target-source hit rate",
         "citation precision",
-        "citation recall"
+        "citation recall",
+        "evidence faithfulness",
+        "unsupported claim rate"
       ],
-      "remaining_gaps": "S7 LLM results are retrospective diagnostics and must remain separate from human review or external aviation certification.",
-      "rq": "RQ2 evidence traceability"
+      "remaining_gaps": "This is source-bounded ATCSCC evidence, not a universal claim that GraphRAG beats vector-only retrieval.",
+      "rq": "RQ3 KG-RAG grounding vs vector-only RAG"
     },
     {
       "claim_strength": "moderate",
-      "current_result_summary": "Vector and hybrid retrieval are reported separately. Graph traversal can improve path evidence without guaranteeing Recall improvement. Chunking-v2 is reported with top-k, fixed-budget, and category views.",
+      "current_result_summary": "S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review; 3 are deterministically adjudicated as profile/gold-boundary cases. A profile-decision sensitivity report corrects 3 records under a predicate-whitelist what-if while leaving strict main metrics unchanged.",
       "evidence_reports": [
-        "retrieval_ablation_benchmark_v2",
-        "graph_traversal_ablation_benchmark_v2",
-        "chunking_comparison_benchmark_v2",
-        "chunking_comparison_benchmark_v2_budget",
-        "chunking_topk_sensitivity_benchmark_v2",
-        "chunking_category_analysis_benchmark_v2"
-      ],
-      "primary_metrics": [
-        "Recall@5",
-        "Recall@10",
-        "MRR@5",
-        "NDCG@10",
-        "Path Recall@5",
-        "Path Precision@5",
-        "Fixed-budget chunking Recall@5"
-      ],
-      "remaining_gaps": "Path relevance is heuristic or model-reviewed, not human-validated.",
-      "rq": "RQ3 graph evidence vs vector sufficiency"
-    },
-    {
-      "claim_strength": "moderate",
-      "current_result_summary": "Benchmark v2 abstention accuracy=1.0 and false answer rate=0.0; false abstentions remain visible. S7 best-mode unsupported claim rate=0.0167 with 3 failure candidates queued for review; 3 are deterministically adjudicated as profile/gold-boundary cases. A profile-decision sensitivity report corrects 3 records under a predicate-whitelist what-if while leaving strict main metrics unchanged.",
-      "evidence_reports": [
-        "sufficiency_evaluation",
-        "robustness_evaluation",
         "nasa_atmonto_s7_llm_answer_generation",
         "nasa_atmonto_s7_human_review_candidates",
         "nasa_atmonto_s7_answer_review_import",
+        "nasa_atmonto_s7_answer_review_decisions",
         "nasa_atmonto_s7_candidate_adjudication",
-        "nasa_atmonto_s7_profile_decision"
+        "nasa_atmonto_s7_profile_decision",
+        "nasa_atmonto_reviewer_defense_audit"
       ],
       "primary_metrics": [
-        "Abstention Accuracy",
-        "False Answer Rate",
-        "False Abstention Rate",
-        "Risk Category Accuracy",
+        "failure candidate count",
+        "profile/gold-boundary failures",
         "Unsupported Claim Rate",
-        "Abstention Correctness"
+        "Abstention Correctness",
+        "human_review_completed",
+        "expert_certification_completed"
       ],
-      "remaining_gaps": "Sufficiency can create false abstentions on supported questions; STAFFING as a profile extension still requires human or supervisor review before any ontology/profile/gold update.",
-      "rq": "RQ4 safety-aware abstention"
-    },
-    {
-      "claim_strength": "provisional",
-      "current_result_summary": "NASA Glenn BGA is collected as a full landing-page corpus while the current experiment uses the Lessons in Aerodynamics subset. Status=full_corpus_collected_aerodynamics_subset_experiment_ready.",
-      "evidence_reports": [
-        "nasa_source_discovery",
-        "nasa_source_ingestion",
-        "nasa_source_validation",
-        "nasa_chunking_summary",
-        "ontology_boundary_nasa",
-        "nasa_kg_validation",
-        "nasa_benchmark_summary",
-        "cross_source_ontology_validation",
-        "multisource_retrieval_smoke"
-      ],
-      "primary_metrics": [
-        "NASA landing-page URL coverage",
-        "full-corpus valid page count",
-        "Lessons in Aerodynamics experiment page count",
-        "candidate ontology additions",
-        "NASA KG provenance/evidence validation",
-        "multi-source lexical smoke Recall@5"
-      ],
-      "remaining_gaps": "NASA labels and KG triples are deterministic scaffolds; no human or external aviation expert certification is present.",
-      "rq": "RQ5 source generalization"
+      "remaining_gaps": "Human/expert review remains separate from automated diagnostics; operational ATC use remains out of scope.",
+      "rq": "RQ4 failure modes and human-review boundary"
     }
   ],
   "thesis_ready_claim_summary": [
     {
-      "claim": "Ontology constrains KG extraction.",
+      "claim": "Lightweight schema constrains advisory event extraction.",
       "evidence": [
-        "docs/ontology_design.md",
-        "configs/extraction_profile.yaml",
-        "reports/stages/kg_validation.json",
-        "reports/stages/structure_aware_kg_validation.json"
+        "reports/stages/atcscc_ontology_profile_overview.md",
+        "data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json",
+        "reports/stages/nasa_atmonto_prediction_output_validation.json",
+        "reports/stages/nasa_atmonto_formal_experiment_scoring.json"
       ],
-      "limitations": "Extraction profile terms map to the curated ontology; KG validation rejects unsupported schema terms.",
-      "safe_wording": "The task ontology constrains which focused classes and relations can enter the KG.",
+      "limitations": "ATCSCC profile terms, schema validation, and prediction-output validation reports constrain accepted event fields.",
+      "safe_wording": "The application schema constrains which advisory event fields and relations can enter the graph.",
       "supported_strength": "strong",
       "unsafe_wording_to_avoid": "The ontology fully models aviation knowledge."
     },
     {
-      "claim": "KG triples preserve provenance.",
+      "claim": "Accepted facts preserve provenance.",
       "evidence": [
-        "data/kg/06_phak_ch4_0.kg.jsonl",
-        "data/kg/06_phak_ch4_0.structure_aware.kg.jsonl",
-        "reports/stages/kg_validation.json",
-        "reports/stages/structure_aware_kg_validation.json"
+        "reports/stages/nasa_atmonto_prediction_output_validation.json",
+        "reports/stages/nasa_atmonto_formal_experiment_scoring.json",
+        "reports/stages/nasa_atmonto_cq_evaluation.json"
       ],
-      "limitations": "KG validation reports zero missing-provenance errors in the current fixed-window and structure-aware artifacts.",
-      "safe_wording": "Current extracted triples carry source chunk provenance checked by deterministic validation.",
+      "limitations": "KG and prediction validation reports check source IDs and evidence spans.",
+      "safe_wording": "Accepted facts carry source-bounded provenance checked by deterministic validation.",
       "supported_strength": "strong",
       "unsafe_wording_to_avoid": "Every KG triple is semantically correct."
     },
     {
-      "claim": "GraphRAG improves Recall@5.",
+      "claim": "Agentic validation improves extraction quality.",
       "evidence": [
-        "reports/stages/retrieval_ablation.json",
-        "reports/stages/graphrag_review.json",
-        "reports/stages/hybrid_rag_experiment.json",
-        "reports/stages/hybrid_rag_structure_aware.json"
+        "reports/stages/nasa_atmonto_s5_s6_agentic_loop.json",
+        "reports/stages/nasa_atmonto_s5_s6_independent_agentic_run.json",
+        "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.json",
+        "reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.json"
       ],
-      "limitations": "Expanded retrieval ablation shows vector Recall@5 can be higher than default hybrid Recall@5.",
-      "safe_wording": "GraphRAG does not always improve Recall@5; report Recall separately from KG evidence coverage.",
-      "supported_strength": "not supported",
-      "unsafe_wording_to_avoid": "GraphRAG always improves Recall@5."
+      "limitations": "S5/S6 reports record validator, refiner, critic, repair, and rejection behavior.",
+      "safe_wording": "The agentic loop reduces specific schema and support failures in the current ATCSCC pipeline.",
+      "supported_strength": "moderate",
+      "unsafe_wording_to_avoid": "Autonomous agents construct a correct ontology."
     },
     {
-      "claim": "GraphRAG improves structured evidence support.",
+      "claim": "KG-RAG improves grounded ATCSCC QA diagnostics.",
       "evidence": [
-        "reports/stages/graphrag_review.json",
-        "reports/stages/evidence_level_evaluation.json",
-        "reports/stages/kg_extraction_comparison.json"
+        "reports/stages/nasa_atmonto_s7_retrieval.json",
+        "reports/stages/nasa_atmonto_s7_graph_health.json",
+        "reports/stages/nasa_atmonto_s7_llm_answer_generation.json"
       ],
-      "limitations": "Graph and hybrid modes expose KG coverage, provenance, triples, and evidence-level answer support.",
-      "safe_wording": "GraphRAG improves inspectable structured evidence support in the current benchmark.",
+      "limitations": "S7 retrieval, graph-health, and LLM answer-generation diagnostics report answer-set, citation, and target-source metrics.",
+      "safe_wording": "KG-RAG improves some source-bounded grounding diagnostics on this benchmark.",
       "supported_strength": "moderate",
       "unsafe_wording_to_avoid": "GraphRAG is always more accurate than vector retrieval."
     },
     {
-      "claim": "Hybrid RAG always beats vector-only RAG.",
+      "claim": "GraphRAG universally improves retrieval.",
       "evidence": [
-        "reports/stages/retrieval_ablation.json",
-        "reports/stages/hybrid_rag_experiment.json",
-        "reports/stages/graphrag_review.json"
+        "reports/stages/nasa_atmonto_s7_retrieval.json",
+        "reports/stages/nasa_atmonto_s7_graph_health.json"
       ],
-      "limitations": "Fixed-window and expanded ablations include cases where vector retrieval is equal or better on Recall@5.",
-      "safe_wording": "Hybrid RAG can add KG evidence coverage while vector retrieval can remain sufficient for simple factual questions.",
+      "limitations": "S7 reports vector, graph, and routed modes separately; graph use is template-dependent.",
+      "safe_wording": "KG-RAG should be reported as a source-bounded grounding and evidence diagnostic, not a universal Recall@k improvement.",
       "supported_strength": "not supported",
-      "unsafe_wording_to_avoid": "Hybrid RAG always beats vector-only RAG."
+      "unsafe_wording_to_avoid": "GraphRAG always improves Recall@k."
     },
     {
-      "claim": "The system can answer aviation operational questions.",
+      "claim": "The system can answer operational ATC questions.",
       "evidence": [
         "src/aviation_agentic_ai/advisory.py",
-        "docs/document_expansion_protocol.md",
-        "reports/stages/robustness_evaluation.json"
+        "reports/stages/nasa_atmonto_reviewer_defense_audit.json"
       ],
-      "limitations": "The advisory boundary limits the system to learning and decision support; live operational data and official procedures are out of scope.",
-      "safe_wording": "The system can answer aviation training questions when evidence is sufficient and should abstain otherwise.",
+      "limitations": "The advisory boundary limits the system to retrospective research diagnostics.",
+      "safe_wording": "The system analyzes retrospective advisories and must not be used for live operational decisions.",
       "supported_strength": "not supported",
-      "unsafe_wording_to_avoid": "The system can support operational flight decisions."
+      "unsafe_wording_to_avoid": "The system can support operational flight or ATC decisions."
     },
     {
-      "claim": "The system can support aviation learning questions.",
+      "claim": "Automated diagnostics replace human review.",
       "evidence": [
-        "reports/stages/answer_evaluation.json",
-        "reports/stages/evidence_cards.md",
-        "reports/stages/web_demo_readiness.json"
+        "reports/stages/nasa_atmonto_sota_goal_audit.json",
+        "reports/stages/nasa_atmonto_reviewer_defense_audit.json",
+        "reports/stages/nasa_atmonto_s7_automated_adversarial_review.json"
       ],
-      "limitations": "The pipeline answers PHAK Chapter 4 training questions with citations and evidence panels.",
-      "safe_wording": "The prototype supports aviation learning questions over its scoped source material.",
-      "supported_strength": "moderate",
-      "unsafe_wording_to_avoid": "The prototype is a certified aviation assistant."
-    },
-    {
-      "claim": "The system can replace POH/checklists/ATC/instructor judgment.",
-      "evidence": [
-        "src/aviation_agentic_ai/advisory.py",
-        "GOALS.md",
-        "README.md"
-      ],
-      "limitations": "The advisory boundary explicitly rejects replacement of official sources or human judgment.",
-      "safe_wording": "The system does not replace POH, approved checklists, ATC, instructor guidance, or pilot judgment.",
+      "limitations": "Reviewer-defense and SOTA audits keep automated diagnostics separate from human review.",
+      "safe_wording": "Automated diagnostics are internal error-discovery tools and do not replace human or expert review.",
       "supported_strength": "not supported",
-      "unsafe_wording_to_avoid": "The system can replace POH, checklists, ATC, or instructor judgment."
+      "unsafe_wording_to_avoid": "The benchmark is human reviewed or expert certified."
     },
     {
       "claim": "The benchmark is externally aviation-expert certified.",
       "evidence": [
-        "data/cqs/06_phak_ch4_0.gold.json",
-        "data/cqs/06_phak_ch4_0.expanded.gold.json",
-        "reports/stages/final_evaluation_review.json"
+        "reports/stages/nasa_atmonto_s7_answer_review_decisions.json",
+        "reports/stages/nasa_atmonto_reviewer_defense_audit.json"
       ],
-      "limitations": "Current labels are reviewed course-project / thesis-oriented gold, not external examiner certification.",
-      "safe_wording": "The benchmark is course-project / thesis-oriented gold with documented limitations.",
+      "limitations": "Current labels and diagnostics are project/thesis evidence with documented review gaps.",
+      "safe_wording": "The benchmark is thesis-oriented and source-bounded, with explicit review limitations.",
       "supported_strength": "not supported",
       "unsafe_wording_to_avoid": "The benchmark is externally aviation-expert certified."
     },
     {
-      "claim": "The benchmark is course-project / thesis-oriented gold.",
+      "claim": "The method is domain-general.",
       "evidence": [
-        "data/cqs/06_phak_ch4_0.gold.json",
-        "data/cqs/06_phak_ch4_0.expanded.gold.json",
-        "docs/benchmark_design.md",
-        "reports/stages/final_evaluation_review.json"
+        "reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md",
+        "reports/stages/nasa_bga_domain_transfer_pilot.json"
       ],
-      "limitations": "Reports identify the 10-question and expanded 35-question labels as project/thesis evidence.",
-      "safe_wording": "The benchmark is course-project / thesis-oriented gold, useful for internal evaluation but not external certification.",
-      "supported_strength": "strong",
-      "unsafe_wording_to_avoid": "The benchmark proves aviation-domain correctness."
+      "limitations": "A bounded second-source-family pilot exists, but it is not a full cross-domain benchmark.",
+      "safe_wording": "The method is designed to be domain-adaptable, with only pilot-level transfer evidence so far.",
+      "supported_strength": "weak",
+      "unsafe_wording_to_avoid": "The method is proven domain-general."
     }
   ]
 }

@@ -33,7 +33,10 @@ def test_thesis_claim_report_generation_includes_revised_claim(tmp_path: Path) -
     ).lower()
     data = json.loads(json_path.read_text(encoding="utf-8"))
     assert data["research_questions"][0]["id"] == "RQ1"
-    assert data["hypotheses"][-1]["id"] == "H5"
+    assert data["research_questions"][0]["question"].startswith(
+        "Can schema-constrained LLM extraction"
+    )
+    assert data["hypotheses"][-1]["id"] == "H4"
 
 
 def test_unsafe_wording_detector_catches_overclaims() -> None:

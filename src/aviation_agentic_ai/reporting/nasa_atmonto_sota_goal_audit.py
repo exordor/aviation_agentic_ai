@@ -34,7 +34,10 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
     },
     {
         "id": "R3",
-        "requirement": "NASA ATMONTO is used as an application-profile constraint, not full truth.",
+        "requirement": (
+            "NASA ATMONTO-derived terms are used as a lightweight application "
+            "schema/profile, not the thesis object or ground truth."
+        ),
         "status": "satisfied",
         "evidence": [
             "reports/stages/atcscc_ontology_profile_overview.md",
@@ -45,7 +48,10 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
     },
     {
         "id": "R4",
-        "requirement": "Ontology-guided KG extraction is scored with schema and semantic layers separated.",
+        "requirement": (
+            "Schema-guided advisory event extraction is scored with structural, "
+            "semantic, and evidence layers separated."
+        ),
         "status": "satisfied",
         "evidence": [
             "reports/stages/nasa_atmonto_formal_experiment_scoring.json",
@@ -107,7 +113,7 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
     },
     {
         "id": "R8",
-        "requirement": "Completeness, correctness, limitations, and story claims are thesis-ready.",
+        "requirement": "Schema-constrained Agentic KG-RAG claims and limitations are thesis-ready.",
         "status": "mostly_satisfied",
         "evidence": [
             "reports/stages/current_pipeline_sota_gap_audit.md",
@@ -119,7 +125,7 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
     },
     {
         "id": "R9",
-        "requirement": "The method can be described as domain-independent and transferable.",
+        "requirement": "The method is domain-adaptable but only pilot-transferred.",
         "status": "mostly_satisfied",
         "evidence": [
             "reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md",

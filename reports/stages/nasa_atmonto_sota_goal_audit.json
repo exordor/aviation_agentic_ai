@@ -82,7 +82,7 @@
     },
     {
       "id": "R3",
-      "requirement": "NASA ATMONTO is used as an application-profile constraint, not full truth.",
+      "requirement": "NASA ATMONTO-derived terms are used as a lightweight application schema/profile, not the thesis object or ground truth.",
       "status": "satisfied",
       "evidence": [
         {
@@ -105,7 +105,7 @@
     },
     {
       "id": "R4",
-      "requirement": "Ontology-guided KG extraction is scored with schema and semantic layers separated.",
+      "requirement": "Schema-guided advisory event extraction is scored with structural, semantic, and evidence layers separated.",
       "status": "satisfied",
       "evidence": [
         {
@@ -241,7 +241,7 @@
     },
     {
       "id": "R8",
-      "requirement": "Completeness, correctness, limitations, and story claims are thesis-ready.",
+      "requirement": "Schema-constrained Agentic KG-RAG claims and limitations are thesis-ready.",
       "status": "mostly_satisfied",
       "evidence": [
         {
@@ -268,7 +268,7 @@
     },
     {
       "id": "R9",
-      "requirement": "The method can be described as domain-independent and transferable.",
+      "requirement": "The method is domain-adaptable but only pilot-transferred.",
       "status": "mostly_satisfied",
       "evidence": [
         {

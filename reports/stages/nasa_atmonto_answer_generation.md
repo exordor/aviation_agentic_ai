@@ -6,7 +6,7 @@
 - Benchmark labels: 18
 - Modes: `source_only`, `vector_rag`, `token_matched_vector_rag`, `graph_only`, `hybrid_graphrag`, `routed_graphrag`
 - Boundary: Retrospective ATCSCC advisory GraphRAG answer evaluation only.
-- Critic gate rejected facts: 20
+- Critic gate rejected facts: 24
 
 ## Aggregate Answer Quality
 
@@ -14,10 +14,10 @@
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `source_only` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.11 | n/a |
 | `vector_rag` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.11 | n/a |
-| `token_matched_vector_rag` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.11 | 15.44 |
-| `graph_only` | 18 | 0.8333 | 1.0 | 0.3333 | 0.8333 | 0.0833 | 1.0 | 50.17 | n/a |
-| `hybrid_graphrag` | 18 | 0.8333 | 1.0 | 0.5833 | 0.8333 | 0.0833 | 1.0 | 15.44 | n/a |
-| `routed_graphrag` | 18 | 0.8333 | 1.0 | 0.5417 | 0.8333 | 0.0833 | 1.0 | 13.78 | n/a |
+| `token_matched_vector_rag` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.11 | 14.56 |
+| `graph_only` | 18 | 0.9444 | 1.0 | 0.3148 | 0.9444 | 0.0278 | 1.0 | 49.28 | n/a |
+| `hybrid_graphrag` | 18 | 0.9444 | 1.0 | 0.5741 | 0.9444 | 0.0278 | 1.0 | 14.56 | n/a |
+| `routed_graphrag` | 18 | 0.9444 | 1.0 | 0.5324 | 0.9444 | 0.0278 | 1.0 | 12.89 | n/a |
 
 ## S7 Graph-Use Gate
 
@@ -29,8 +29,8 @@
 ## Critic Gate
 
 - Policy: reject known parser artifacts before graph/hybrid answer generation
-- Rejected values: ADDS, ADVZY, ARE, CAN, INTO, THAT, USERS
+- Rejected values: ADDS, ADVZY, ARE, Airport, CAN, INTO, THAT, USERS, {"@type": "nas:Airport", "evidence_text": "CTL ELEMENT: SFO ELEMENT TYPE: APT"}, {"evidence_text": "CTL ELEMENT: IAD ELEMENT TYPE: APT ADL TIME: 1907Z GROUND STOP PERIOD: 20/1900Z - 20/2015Z", "type": "nas:Airport"}, {"evidence_text": "CTL ELEMENT: ORD ELEMENT TYPE: APT", "type": "nas:Airport"}
 
 ## Claim Boundary
 
-The experiment is retrospective and source-bounded. It evaluates extraction, CQ queryability, and generated-answer behavior as separate layers; it does not make live operational decision-support claims.
+The experiment is retrospective and source-bounded. NASA ATMONTO-derived terms are used as a lightweight application schema, not as a complete aviation ontology or ground truth. The thesis evaluates schema-constrained event extraction, agentic validation/refinement, KG-RAG grounding, and failure/human-review boundaries as separate layers; it does not make live operational ATC decision-support claims.

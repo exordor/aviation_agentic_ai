@@ -291,7 +291,10 @@ def test_write_nasa_atmonto_answer_generation_outputs_reports_and_chapter(
     assert "GraphRAG Answer Generation" in markdown
     assert "S7 Graph-Use Gate" in markdown
     chapter = chapter_md.read_text(encoding="utf-8")
-    assert "Experiment A: ATMONTO-constrained KG extraction" in chapter
-    assert "Experiment B: CQ queryability / answer-set quality" in chapter
-    assert "Experiment C: GraphRAG answer generation" in chapter
+    assert "Schema-constrained Agentic KG-RAG" in chapter
+    assert "RQ1: Can schema-constrained LLM extraction" in chapter
+    assert "Experiment A: Schema-constrained advisory event extraction" in chapter
+    assert "Experiment B: Agentic validation and CQ queryability" in chapter
+    assert "Experiment C: KG-RAG grounding and answer generation" in chapter
+    assert "Experiment D: Failure analysis and human-review boundary" in chapter
     assert result["experiment_chapter_draft"]["claim_boundary"]

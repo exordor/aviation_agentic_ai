@@ -25,9 +25,9 @@ def _write_dashboard_fixture(root: Path) -> None:
         {
             "claim_safety_matrix": [
                 {
-                    "claim": "Ontology constrains KG extraction.",
-                    "safe_wording": "The task ontology constrains extraction.",
-                    "evidence_files": ["curated_ontology_evaluation.json"],
+                    "claim": "Lightweight schema constrains advisory event extraction.",
+                    "safe_wording": "The application schema constrains advisory event extraction.",
+                    "evidence_files": ["nasa_atmonto_formal_experiment_scoring.json"],
                     "current_evidence": "Validation passes.",
                     "supported_strength": "strong",
                     "unsafe_wording_to_avoid": "The ontology fully models aviation.",
@@ -380,10 +380,10 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     assert md_path.exists()
     rq_names = {row["rq"] for row in result["rq_to_evidence_matrix"]}
     assert {
-        "RQ1 ontology constraint",
-        "RQ2 evidence traceability",
-        "RQ3 graph evidence vs vector sufficiency",
-        "RQ4 safety-aware abstention",
+        "RQ1 schema-constrained event extraction",
+        "RQ2 agentic validation-refinement",
+        "RQ3 KG-RAG grounding vs vector-only RAG",
+        "RQ4 failure modes and human-review boundary",
     } <= rq_names
     benchmark = next(
         row for row in result["dataset_usage_matrix"] if row["dataset"] == "benchmark v2 120"

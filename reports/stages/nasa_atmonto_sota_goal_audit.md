@@ -35,13 +35,13 @@
 | --- | --- | --- | --- | --- |
 | `R1` | `satisfied` | Literature-derived SOTA criteria are consolidated. | 3/3 | The mapping is thesis-scoped and should not be treated as a full systematic review. |
 | `R2` | `satisfied` | The ATCSCC data source and event-centric extraction target are explicit. | 3/3 | The source family is retrospective ATCSCC advisories, not live operations. |
-| `R3` | `satisfied` | NASA ATMONTO is used as an application-profile constraint, not full truth. | 3/3 | Completeness and correctness are profile-relative and CQ-relative. |
-| `R4` | `satisfied` | Ontology-guided KG extraction is scored with schema and semantic layers separated. | 3/3 | S4 is the current strongest scored extraction system; not all LLM systems perform well. |
+| `R3` | `satisfied` | NASA ATMONTO-derived terms are used as a lightweight application schema/profile, not the thesis object or ground truth. | 3/3 | Completeness and correctness are profile-relative and CQ-relative. |
+| `R4` | `satisfied` | Schema-guided advisory event extraction is scored with structural, semantic, and evidence layers separated. | 3/3 | S4 is the current strongest scored extraction system; not all LLM systems perform well. |
 | `R5` | `satisfied` | Multi-agent artifact contract is executable enough to drive S5/S6 diagnostics. | 6/6 | Live S5/S6 evidence is still extraction-layer evidence; answer-layer review and cross-domain transfer remain separate claims. |
 | `R6` | `mostly_satisfied` | Graph-use gate, token-matched retrieval, and graph health are evaluated. | 3/3 | Graph health is diagnostic evidence, not certification of semantic truth. |
 | `R7` | `mostly_satisfied` | Answer generation and failure analysis are source-bounded and reported. | 11/11 | A broad 60-case reviewer packet, worksheet, protocol, handoff, automated consistency diagnostic, import status, and decision-status report exist. The automated diagnostic path is not human or expert review. |
-| `R8` | `mostly_satisfied` | Completeness, correctness, limitations, and story claims are thesis-ready. | 4/4 | The final thesis should keep the claim wording profile-relative and retrospective. |
-| `R9` | `mostly_satisfied` | The method can be described as domain-independent and transferable. | 3/3 | A bounded NASA BGA second-source-family pilot exists, but it is concept-centric, seed-labelled, and not a full cross-domain GraphRAG answer-generation benchmark. |
+| `R8` | `mostly_satisfied` | Schema-constrained Agentic KG-RAG claims and limitations are thesis-ready. | 4/4 | The final thesis should keep the claim wording profile-relative and retrospective. |
+| `R9` | `mostly_satisfied` | The method is domain-adaptable but only pilot-transferred. | 3/3 | A bounded NASA BGA second-source-family pilot exists, but it is concept-centric, seed-labelled, and not a full cross-domain GraphRAG answer-generation benchmark. |
 
 ## Evidence Index
 
@@ -55,12 +55,12 @@
 - `present` `reports/stages/atcscc_event_centric_extraction_framing.md`
 - `present` `reports/stages/atcscc_source_brief.md`
 
-### R3: NASA ATMONTO is used as an application-profile constraint, not full truth.
+### R3: NASA ATMONTO-derived terms are used as a lightweight application schema/profile, not the thesis object or ground truth.
 - `present` `reports/stages/atcscc_ontology_profile_overview.md`
 - `present` `data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json`
 - `present` `reports/stages/nasa_atmonto_rejection_adjudication.md`
 
-### R4: Ontology-guided KG extraction is scored with schema and semantic layers separated.
+### R4: Schema-guided advisory event extraction is scored with structural, semantic, and evidence layers separated.
 - `present` `reports/stages/nasa_atmonto_formal_experiment_scoring.json`
 - `present` `reports/stages/nasa_atmonto_prediction_output_validation.json`
 - `present` `reports/stages/nasa_atmonto_cq_evaluation.md`
@@ -91,13 +91,13 @@
 - `present` `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`
 - `present` `reports/stages/nasa_atmonto_s7_profile_decision.md`
 
-### R8: Completeness, correctness, limitations, and story claims are thesis-ready.
+### R8: Schema-constrained Agentic KG-RAG claims and limitations are thesis-ready.
 - `present` `reports/stages/current_pipeline_sota_gap_audit.md`
 - `present` `reports/stages/thesis_experiment_dashboard.md`
 - `present` `reports/stages/nasa_atmonto_experiment_chapter_draft.md`
 - `present` `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 
-### R9: The method can be described as domain-independent and transferable.
+### R9: The method is domain-adaptable but only pilot-transferred.
 - `present` `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md`
 - `present` `reports/stages/nasa_bga_domain_transfer_pilot.md`
 - `present` `templates/agentic_artifact_contract.md`

@@ -17,7 +17,7 @@ This report converts the parallel reviewer-style audit into explicit claim gates
 
 ## Main Guardrail
 
-This thesis presents a retrospective, source-bounded ATCSCC case study showing that a NASA ATMONTO-derived application profile can constrain KG extraction, preserve inspectable provenance, and support layered GraphRAG retrieval and answer diagnostics. The strongest claims are structural/profile conformance, evidence traceability, benchmark-specific retrieval and answer diagnostics, and abstention behavior. Automated consistency diagnostics are an internal error-discovery layer, not human review, expert certification, domain-general proof, or operational aviation validation.
+This thesis presents a retrospective, source-bounded study of schema-constrained Agentic KG-RAG for FAA ATCSCC advisories. A lightweight NASA ATMONTO-derived application schema constrains advisory event extraction; the research contribution is evidence-linked event extraction, agentic validation/refinement, and source-bounded KG-RAG evaluation. The strongest claims are structural schema conformance, evidence traceability, benchmark-specific retrieval and answer diagnostics, and failure-boundary analysis. Automated consistency diagnostics are an internal error-discovery layer, not human review, expert certification, domain-general proof, or operational aviation validation.
 
 ## Claim Scope Gates
 
@@ -54,15 +54,16 @@ This thesis presents a retrospective, source-bounded ATCSCC case study showing t
 | --- | --- | --- | --- | --- | --- |
 | `D1` | `high` | methodology / claim gate | Automated checks may be mistaken for human answer review. | Split completion into internal diagnostic, human review, expert certification, and operational scopes. | Current scope is `internal_diagnostic`. |
 | `D2` | `high` | GraphRAG answer evaluation | The selected 60-case LLM sample can be overread as the full S7 benchmark. | Report 317 retrieval labels separately from the selected 60-case LLM diagnostic, with per-mode sample counts. | LLM metrics are selected-sample diagnostics, not full-label coverage. |
-| `D3` | `high` | ontology / KG extraction | Schema/profile conformance can be conflated with semantic correctness. | Keep structural acceptance, semantic precision/recall/F1, and evidence support as separate columns. | Profile validity is not equivalent to domain truth. |
+| `D3` | `high` | schema-guided event extraction / KG evidence | Schema conformance can be conflated with semantic correctness. | Keep structural acceptance, semantic precision/recall/F1, and evidence support as separate columns. | Schema validity is not equivalent to domain truth. |
 | `D4` | `medium` | citation and evidence support | Citation precision alone hides incomplete evidence coverage. | Report citation recall and describe future span-level adequacy checks. | Citation validity does not prove full source-span support. |
 | `D5` | `medium` | baseline fairness | GraphRAG gains may depend on route, top-k, or token budget choices. | Separate primary token-matched comparisons from diagnostic dense/vector sensitivity modes. | Results support source-bounded routed GraphRAG diagnostics. |
 | `D6` | `medium` | reproducibility | LLM provider, prompt, and selected-case provenance can be underspecified. | Surface model, sample counts, prompt boundary, and required regeneration artifacts in the report. | Reproducibility is artifact-level unless raw provider traces are added. |
 
 ## No-Go Claims
 
+- Do not treat the lightweight ATCSCC application schema as a complete aviation ontology.
 - Do not claim that automated diagnostics replace human or expert answer review.
 - Do not claim operational FAA/ATC decision-support readiness.
 - Do not claim domain-general validation from the bounded ATCSCC plus NASA BGA pilot.
-- Do not collapse schema/profile conformance into semantic correctness.
+- Do not collapse schema conformance into semantic correctness.
 - Do not present selected 60-case LLM diagnostics as the full 317-label answer benchmark.

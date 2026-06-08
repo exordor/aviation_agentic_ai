@@ -56,6 +56,13 @@ REPORT_SOURCES: dict[str, str] = {
     "answer_evaluation": "reports/stages/answer_evaluation.json",
     "robustness_evaluation": "reports/stages/robustness_evaluation.json",
     "benchmark_review_pack": "reports/stages/benchmark_review_pack.json",
+    "nasa_atmonto_formal_experiment_scoring": (
+        "reports/stages/nasa_atmonto_formal_experiment_scoring.json"
+    ),
+    "nasa_atmonto_prediction_output_validation": (
+        "reports/stages/nasa_atmonto_prediction_output_validation.json"
+    ),
+    "nasa_atmonto_cq_evaluation": "reports/stages/nasa_atmonto_cq_evaluation.json",
     "nasa_atmonto_s5_s6_agentic_loop": (
         "reports/stages/nasa_atmonto_s5_s6_agentic_loop.json"
     ),
@@ -73,6 +80,13 @@ REPORT_SOURCES: dict[str, str] = {
     ),
     "nasa_atmonto_sota_goal_audit": (
         "reports/stages/nasa_atmonto_sota_goal_audit.json"
+    ),
+    "nasa_atmonto_reviewer_defense_audit": (
+        "reports/stages/nasa_atmonto_reviewer_defense_audit.json"
+    ),
+    "nasa_atmonto_s7_retrieval": "reports/stages/nasa_atmonto_s7_retrieval.json",
+    "nasa_atmonto_s7_graph_health": (
+        "reports/stages/nasa_atmonto_s7_graph_health.json"
     ),
     "nasa_atmonto_s7_llm_answer_generation": (
         "reports/stages/nasa_atmonto_s7_llm_answer_generation.json"
@@ -202,6 +216,20 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "answer_evaluation": ("answer_generation", "safety_abstention"),
         "robustness_evaluation": ("safety_abstention", "robustness"),
         "benchmark_review_pack": ("benchmark_llm_review_scaffold",),
+        "nasa_atmonto_formal_experiment_scoring": (
+            "ontology_kg",
+            "evaluation_protocol",
+        ),
+        "nasa_atmonto_prediction_output_validation": (
+            "ontology_kg",
+            "evaluation_protocol",
+            "claim_safety",
+        ),
+        "nasa_atmonto_cq_evaluation": (
+            "ontology_kg",
+            "answer_generation",
+            "evaluation_protocol",
+        ),
         "nasa_atmonto_s5_s6_live_agentic_pilot": (
             "ontology_kg",
             "llm_agents",
@@ -216,6 +244,26 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
             "ontology_kg",
             "llm_agents",
             "failure_analysis",
+            "claim_safety",
+        ),
+        "nasa_atmonto_sota_goal_audit": (
+            "claim_safety",
+            "evaluation_protocol",
+            "failure_analysis",
+        ),
+        "nasa_atmonto_reviewer_defense_audit": (
+            "claim_safety",
+            "failure_analysis",
+            "evaluation_protocol",
+        ),
+        "nasa_atmonto_s7_retrieval": (
+            "retrieval",
+            "graph_paths",
+            "evaluation_protocol",
+        ),
+        "nasa_atmonto_s7_graph_health": (
+            "retrieval",
+            "graph_paths",
             "claim_safety",
         ),
         "nasa_atmonto_s7_llm_answer_generation": (
@@ -294,9 +342,16 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "robustness_evaluation": "robustness_10_cases",
         "kg_extraction_comparison": "35_question_expanded",
         "triple_semantic_review_sample": "triple_semantic_review_sample",
+        "nasa_atmonto_formal_experiment_scoring": "atcscc_gold_100",
+        "nasa_atmonto_prediction_output_validation": "atcscc_prediction_outputs",
+        "nasa_atmonto_cq_evaluation": "atcscc_cq_answer_sets",
         "nasa_atmonto_s5_s6_live_agentic_pilot": "atcscc_s5_s6_live_agentic_pilot_3",
         "nasa_atmonto_s5_s6_live_agentic_full_run": "atcscc_s5_s6_live_agentic_full_run_100",
         "nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic": "atcscc_s5_s6_live_agentic_full_run_100",
+        "nasa_atmonto_sota_goal_audit": "atcscc_thesis_claim_gate",
+        "nasa_atmonto_reviewer_defense_audit": "atcscc_thesis_claim_gate",
+        "nasa_atmonto_s7_retrieval": "atcscc_s7_source_bounded_317",
+        "nasa_atmonto_s7_graph_health": "atcscc_s7_source_bounded_317",
         "nasa_atmonto_s7_llm_answer_generation": "atcscc_s7_source_bounded_60",
         "nasa_atmonto_s7_human_review_candidates": "atcscc_s7_review_candidate_queue_9",
         "nasa_atmonto_s7_broad_answer_review_packet": "atcscc_s7_source_bounded_60",
@@ -1193,102 +1248,108 @@ def _dataset_usage_matrix() -> list[dict[str, Any]]:
 def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
     return [
         {
-            "rq": "RQ1 ontology constraint",
+            "rq": "RQ1 schema-constrained event extraction",
             "evidence_reports": [
-                "curated_ontology_evaluation",
-                "kg_extraction_comparison",
-                "kg_validation",
+                "nasa_atmonto_formal_experiment_scoring",
+                "nasa_atmonto_prediction_output_validation",
+                "nasa_atmonto_cq_evaluation",
+                "atcscc_ontology_profile_overview",
             ],
             "primary_metrics": [
-                "RDF/OWL parse validity",
-                "label/comment coverage",
-                "unsupported class/property count",
+                "schema validity",
+                "structural acceptance rate",
+                "triple precision/recall/F1",
+                "evidence-span containment",
                 "provenance completeness",
             ],
             "current_result_summary": (
-                "Curated ontology validates as a task ontology; structure-aware KG "
-                f"has provenance completeness={primary['kg']['provenance_completeness']}."
+                "The ATCSCC application schema constrains accepted advisory-event "
+                "fields and keeps structure, evidence support, and semantic scoring "
+                "separate. Current KG provenance completeness="
+                f"{primary['kg']['provenance_completeness']}."
             ),
             "claim_strength": "strong",
-            "remaining_gaps": "Triple semantic correctness is absent or LLM-estimated only.",
+            "remaining_gaps": (
+                "Semantic correctness remains reviewed-subset/profile-relative, not "
+                "full ontology correctness."
+            ),
         },
         {
-            "rq": "RQ2 evidence traceability",
+            "rq": "RQ2 agentic validation-refinement",
             "evidence_reports": [
-                "retrieval_ablation_benchmark_v2",
-                "graph_traversal_ablation_benchmark_v2",
-                "answer_evaluation",
-                "nasa_atmonto_s7_llm_answer_generation",
+                "nasa_atmonto_s5_s6_agentic_loop",
+                "nasa_atmonto_s5_s6_independent_agentic_run",
+                "nasa_atmonto_s5_s6_live_agentic_pilot",
+                "nasa_atmonto_s5_s6_live_agentic_full_run",
+                "nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic",
             ],
             "primary_metrics": [
-                "KG evidence coverage",
-                "citation completeness",
-                "citation precision",
-                "citation recall",
+                "schema violation rate",
+                "repair count",
+                "quarantine/rejection count",
+                "unsupported relation rate",
+                "post-loop extraction F1",
             ],
             "current_result_summary": (
-                "Hybrid reports expose KG evidence and citations; answer scores are "
-                "deterministic heuristics unless LLM-judge scores are explicitly recorded. "
-                "S7 adds a source-bounded LLM answer diagnostic with best-mode "
-                f"correctness={primary['s7_llm_answer_generation']['best_mode_metrics'].get('answer_correctness')}."
+                "S5/S6 artifacts make extractor, validator, refiner, and critic outcomes "
+                "inspectable. The live full-run diagnostic is extraction-layer evidence "
+                "and should be interpreted before answer-generation claims."
             ),
             "claim_strength": "moderate",
             "remaining_gaps": (
-                "S7 LLM results are retrospective diagnostics and must remain separate "
-                "from human review or external aviation certification."
+                "The agent loop is not autonomous ontology construction; it is a "
+                "bounded diagnostic and repair loop for advisory-event extraction."
             ),
         },
         {
-            "rq": "RQ3 graph evidence vs vector sufficiency",
+            "rq": "RQ3 KG-RAG grounding vs vector-only RAG",
             "evidence_reports": [
-                "retrieval_ablation_benchmark_v2",
-                "graph_traversal_ablation_benchmark_v2",
-                "chunking_comparison_benchmark_v2",
-                "chunking_comparison_benchmark_v2_budget",
-                "chunking_topk_sensitivity_benchmark_v2",
-                "chunking_category_analysis_benchmark_v2",
+                "nasa_atmonto_s7_retrieval",
+                "nasa_atmonto_s7_graph_health",
+                "nasa_atmonto_s7_llm_answer_generation",
             ],
             "primary_metrics": [
-                "Recall@5",
-                "Recall@10",
-                "MRR@5",
-                "NDCG@10",
-                "Path Recall@5",
-                "Path Precision@5",
-                "Fixed-budget chunking Recall@5",
+                "answer-set F1",
+                "target-source hit rate",
+                "citation precision",
+                "citation recall",
+                "evidence faithfulness",
+                "unsupported claim rate",
             ],
             "current_result_summary": (
-                "Vector and hybrid retrieval are reported separately. Graph traversal "
-                "can improve path evidence without guaranteeing Recall improvement. "
-                "Chunking-v2 is reported with top-k, fixed-budget, and category views."
+                "S7 reports vector, graph, and routed modes separately. Best selected "
+                "LLM diagnostic correctness="
+                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('answer_correctness')} "
+                "with unsupported claim rate="
+                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')}."
             ),
             "claim_strength": "moderate",
-            "remaining_gaps": "Path relevance is heuristic or model-reviewed, not human-validated.",
+            "remaining_gaps": (
+                "This is source-bounded ATCSCC evidence, not a universal claim that "
+                "GraphRAG beats vector-only retrieval."
+            ),
         },
         {
-            "rq": "RQ4 safety-aware abstention",
+            "rq": "RQ4 failure modes and human-review boundary",
             "evidence_reports": [
-                "sufficiency_evaluation",
-                "robustness_evaluation",
                 "nasa_atmonto_s7_llm_answer_generation",
                 "nasa_atmonto_s7_human_review_candidates",
                 "nasa_atmonto_s7_answer_review_import",
+                "nasa_atmonto_s7_answer_review_decisions",
                 "nasa_atmonto_s7_candidate_adjudication",
                 "nasa_atmonto_s7_profile_decision",
+                "nasa_atmonto_reviewer_defense_audit",
             ],
             "primary_metrics": [
-                "Abstention Accuracy",
-                "False Answer Rate",
-                "False Abstention Rate",
-                "Risk Category Accuracy",
+                "failure candidate count",
+                "profile/gold-boundary failures",
                 "Unsupported Claim Rate",
                 "Abstention Correctness",
+                "human_review_completed",
+                "expert_certification_completed",
             ],
             "current_result_summary": (
-                f"Benchmark v2 abstention accuracy={primary['sufficiency']['abstention_accuracy']} "
-                f"and false answer rate={primary['sufficiency']['false_answer_rate']}; "
-                "false abstentions remain visible. S7 best-mode unsupported claim "
-                "rate="
+                "S7 best-mode unsupported claim rate="
                 f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')} "
                 "with "
                 f"{primary['s7_llm_answer_generation']['failure_candidate_count']} "
@@ -1302,41 +1363,8 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
             ),
             "claim_strength": "moderate",
             "remaining_gaps": (
-                "Sufficiency can create false abstentions on supported questions; "
-                "STAFFING as a profile extension still requires human or supervisor "
-                "review before any ontology/profile/gold update."
-            ),
-        },
-        {
-            "rq": "RQ5 source generalization",
-            "evidence_reports": [
-                "nasa_source_discovery",
-                "nasa_source_ingestion",
-                "nasa_source_validation",
-                "nasa_chunking_summary",
-                "ontology_boundary_nasa",
-                "nasa_kg_validation",
-                "nasa_benchmark_summary",
-                "cross_source_ontology_validation",
-                "multisource_retrieval_smoke",
-            ],
-            "primary_metrics": [
-                "NASA landing-page URL coverage",
-                "full-corpus valid page count",
-                "Lessons in Aerodynamics experiment page count",
-                "candidate ontology additions",
-                "NASA KG provenance/evidence validation",
-                "multi-source lexical smoke Recall@5",
-            ],
-            "current_result_summary": (
-                "NASA Glenn BGA is collected as a full landing-page corpus while "
-                "the current experiment uses the Lessons in Aerodynamics subset. "
-                f"Status={primary['nasa_source_expansion']['status']}."
-            ),
-            "claim_strength": "provisional",
-            "remaining_gaps": (
-                "NASA labels and KG triples are deterministic scaffolds; no human or "
-                "external aviation expert certification is present."
+                "Human/expert review remains separate from automated diagnostics; "
+                "operational ATC use remains out of scope."
             ),
         },
     ]

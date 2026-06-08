@@ -103,39 +103,81 @@ def build_nasa_atmonto_answer_generation(
 def experiment_chapter_draft(result: dict[str, Any]) -> dict[str, Any]:
     hybrid = result["answer_quality"]["aggregate_by_mode"].get("hybrid_graphrag", {})
     return {
-        "title": "ATMONTO-constrained advisory KG extraction and GraphRAG evaluation",
+        "title": (
+            "Schema-constrained Agentic KG-RAG for evidence-grounded FAA ATCSCC "
+            "advisory question answering"
+        ),
         "claim_boundary": (
-            "The experiment is retrospective and source-bounded. It evaluates extraction, "
-            "CQ queryability, and generated-answer behavior as separate layers; it does not "
-            "make live operational decision-support claims."
+            "The experiment is retrospective and source-bounded. NASA ATMONTO-derived "
+            "terms are used as a lightweight application schema, not as a complete "
+            "aviation ontology or ground truth. The thesis evaluates schema-constrained "
+            "event extraction, agentic validation/refinement, KG-RAG grounding, and "
+            "failure/human-review boundaries as separate layers; it does not make live "
+            "operational ATC decision-support claims."
+        ),
+        "research_questions": [
+            (
+                "RQ1: Can schema-constrained LLM extraction produce valid and "
+                "evidence-linked event records from ATCSCC advisories?"
+            ),
+            (
+                "RQ2: Does an agentic validation-refinement loop reduce schema "
+                "violations and unsupported relations?"
+            ),
+            (
+                "RQ3: Does KG-RAG improve evidence grounding and citation quality "
+                "compared with vector-only RAG?"
+            ),
+            (
+                "RQ4: What failure types remain, and where does human review remain "
+                "necessary?"
+            ),
+        ],
+        "schema_role": (
+            "The ATCSCC profile is an application schema for bounded advisory-event "
+            "extraction. It constrains accepted fields, relation names, evidence spans, "
+            "and validation checks, but it is not evaluated as a complete aviation "
+            "ontology."
         ),
         "experiments": [
             {
                 "id": "A",
-                "heading": "Experiment A: ATMONTO-constrained KG extraction",
+                "heading": "Experiment A: Schema-constrained advisory event extraction",
                 "summary": (
                     "Compare rule-only, schema-slice LLM, validator-repair, and hybrid S4 "
-                    "outputs against reviewed ATCSCC advisory facts."
+                    "outputs against reviewed ATCSCC advisory facts, keeping structural "
+                    "schema validity, evidence support, and semantic scores separate."
                 ),
             },
             {
                 "id": "B",
-                "heading": "Experiment B: CQ queryability / answer-set quality",
+                "heading": "Experiment B: Agentic validation and CQ queryability",
                 "summary": (
-                    "Use six CQ query templates to measure whether graph outputs recover "
-                    "source-bounded answer sets with evidence."
+                    "Use validator/refiner/critic artifacts plus CQ query templates to "
+                    "measure whether graph outputs recover source-bounded answer sets "
+                    "with evidence and fewer unsupported relations."
                 ),
             },
             {
                 "id": "C",
-                "heading": "Experiment C: GraphRAG answer generation",
+                "heading": "Experiment C: KG-RAG grounding and answer generation",
                 "summary": (
                     "Generate deterministic source-only, vector proxy, graph-only, and "
                     "hybrid GraphRAG answers over the answer-eval benchmark with a critic "
-                    "gate before S4 evidence enters graph/hybrid answers."
+                    "gate before S4 evidence enters graph/hybrid answers. Report citation, "
+                    "faithfulness, unsupported-claim, and abstention metrics separately."
                 ),
                 "hybrid_answer_correctness": hybrid.get("answer_correctness"),
                 "hybrid_evidence_faithfulness": hybrid.get("evidence_faithfulness"),
+            },
+            {
+                "id": "D",
+                "heading": "Experiment D: Failure analysis and human-review boundary",
+                "summary": (
+                    "Classify remaining extraction, retrieval, profile/gold-boundary, "
+                    "and answer-overreach failures, and keep automated diagnostics "
+                    "separate from human or expert review."
+                ),
             },
         ],
     }
@@ -205,11 +247,19 @@ def write_experiment_chapter_draft_markdown(result: dict[str, Any], output_path:
     path.parent.mkdir(parents=True, exist_ok=True)
     draft = result["experiment_chapter_draft"]
     lines = [
-        "# ATMONTO Advisory KG and GraphRAG Experiment Chapter Draft",
+        f"# {draft['title']}",
         "",
         "## Claim Boundary",
         "",
         draft["claim_boundary"],
+        "",
+        "## Research Questions",
+        "",
+        *[f"- {question}" for question in draft["research_questions"]],
+        "",
+        "## Schema Role",
+        "",
+        draft["schema_role"],
         "",
     ]
     for experiment in draft["experiments"]:

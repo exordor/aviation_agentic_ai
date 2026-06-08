@@ -1062,18 +1062,23 @@
   },
   "critic_gate": {
     "policy": "reject known parser artifacts before graph/hybrid answer generation",
-    "rejected_fact_count": 20,
+    "rejected_fact_count": 24,
     "rejected_values": [
       "ADDS",
       "ADVZY",
       "ARE",
+      "Airport",
       "CAN",
       "INTO",
       "THAT",
-      "USERS"
+      "USERS",
+      "{\"@type\": \"nas:Airport\", \"evidence_text\": \"CTL ELEMENT: SFO ELEMENT TYPE: APT\"}",
+      "{\"evidence_text\": \"CTL ELEMENT: IAD ELEMENT TYPE: APT ADL TIME: 1907Z GROUND STOP PERIOD: 20/1900Z - 20/2015Z\", \"type\": \"nas:Airport\"}",
+      "{\"evidence_text\": \"CTL ELEMENT: ORD ELEMENT TYPE: APT\", \"type\": \"nas:Airport\"}"
     ],
     "rejection_reasons": {
-      "controlled_nas_parser_artifact": 20
+      "controlled_nas_metadata_artifact": 3,
+      "controlled_nas_parser_artifact": 21
     },
     "examples": [
       {
@@ -1944,21 +1949,17 @@
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 16,
-            "estimated_padding_tokens": 13,
+            "target_estimated_context_tokens": 8,
+            "estimated_padding_tokens": 5,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
         "graph_only": {
-          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: t1, t2.",
+          "answer": "controlledNASelement=BNA. Citations: t1.",
           "answer_values": [
             {
               "predicate": "controlledNASelement",
               "value": "BNA"
-            },
-            {
-              "predicate": "controlledNASelement",
-              "value": "Airport"
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
@@ -1984,32 +1985,20 @@
               "predicate": "controlledNASelement",
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
-            },
-            {
-              "triple_id": "t2",
-              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
-              "page": 1,
-              "predicate": "controlledNASelement",
-              "object": "Airport",
-              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 53,
+            "estimated_context_tokens": 45,
             "fused_chunk_count": 1,
-            "graph_triple_count": 2
+            "graph_triple_count": 1
           }
         },
         "hybrid_graphrag": {
-          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "controlledNASelement",
               "value": "BNA"
-            },
-            {
-              "predicate": "controlledNASelement",
-              "value": "Airport"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -2035,32 +2024,20 @@
               "predicate": "controlledNASelement",
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
-            },
-            {
-              "triple_id": "t2",
-              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
-              "page": 1,
-              "predicate": "controlledNASelement",
-              "object": "Airport",
-              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 16,
+            "estimated_context_tokens": 8,
             "fused_chunk_count": 1,
-            "graph_triple_count": 2
+            "graph_triple_count": 1
           }
         },
         "routed_graphrag": {
-          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "controlledNASelement",
               "value": "BNA"
-            },
-            {
-              "predicate": "controlledNASelement",
-              "value": "Airport"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -2087,20 +2064,12 @@
               "predicate": "controlledNASelement",
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
-            },
-            {
-              "triple_id": "t2",
-              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
-              "page": 1,
-              "predicate": "controlledNASelement",
-              "object": "Airport",
-              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 16,
+            "estimated_context_tokens": 8,
             "fused_chunk_count": 1,
-            "graph_triple_count": 2
+            "graph_triple_count": 1
           }
         }
       },
@@ -2166,79 +2135,70 @@
           ]
         },
         "graph_only": {
-          "answer_correctness": false,
+          "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.5,
-          "evidence_faithfulness": false,
-          "unsupported_claim_rate": 0.5,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
           "expected_abstention": false,
           "actual_abstention": false,
           "valid_citations": [
-            "t1",
-            "t2"
+            "t1"
           ],
           "detected_citations": [
-            "t1",
-            "t2"
+            "t1"
           ],
           "available_citation_units": [
             "atcscc-2026-05-15-067-p1-c1",
             "page 1",
-            "t1",
-            "t2"
+            "t1"
           ]
         },
         "hybrid_graphrag": {
-          "answer_correctness": false,
+          "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.75,
-          "evidence_faithfulness": false,
-          "unsupported_claim_rate": 0.5,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
           "expected_abstention": false,
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-15-067-p1-c1",
-            "t1",
-            "t2"
+            "t1"
           ],
           "detected_citations": [
             "atcscc-2026-05-15-067-p1-c1",
-            "t1",
-            "t2"
+            "t1"
           ],
           "available_citation_units": [
             "atcscc-2026-05-15-067-p1-c1",
             "page 1",
-            "t1",
-            "t2"
+            "t1"
           ]
         },
         "routed_graphrag": {
-          "answer_correctness": false,
+          "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.75,
-          "evidence_faithfulness": false,
-          "unsupported_claim_rate": 0.5,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
           "expected_abstention": false,
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-15-067-p1-c1",
-            "t1",
-            "t2"
+            "t1"
           ],
           "detected_citations": [
             "atcscc-2026-05-15-067-p1-c1",
-            "t1",
-            "t2"
+            "t1"
           ],
           "available_citation_units": [
             "atcscc-2026-05-15-067-p1-c1",
             "page 1",
-            "t1",
-            "t2"
+            "t1"
           ]
         }
       }
@@ -6375,21 +6335,17 @@
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 16,
-            "estimated_padding_tokens": 13,
+            "target_estimated_context_tokens": 8,
+            "estimated_padding_tokens": 5,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
         "graph_only": {
-          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: t1, t2.",
+          "answer": "controlledNASelement=BNA. Citations: t1.",
           "answer_values": [
             {
               "predicate": "controlledNASelement",
               "value": "BNA"
-            },
-            {
-              "predicate": "controlledNASelement",
-              "value": "Airport"
             }
           ],
           "evidence_route": "critic_gated_s4_graph",
@@ -6415,32 +6371,20 @@
               "predicate": "controlledNASelement",
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
-            },
-            {
-              "triple_id": "t2",
-              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
-              "page": 1,
-              "predicate": "controlledNASelement",
-              "object": "Airport",
-              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 53,
+            "estimated_context_tokens": 45,
             "fused_chunk_count": 1,
-            "graph_triple_count": 2
+            "graph_triple_count": 1
           }
         },
         "hybrid_graphrag": {
-          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "controlledNASelement",
               "value": "BNA"
-            },
-            {
-              "predicate": "controlledNASelement",
-              "value": "Airport"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -6466,32 +6410,20 @@
               "predicate": "controlledNASelement",
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
-            },
-            {
-              "triple_id": "t2",
-              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
-              "page": 1,
-              "predicate": "controlledNASelement",
-              "object": "Airport",
-              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 16,
+            "estimated_context_tokens": 8,
             "fused_chunk_count": 1,
-            "graph_triple_count": 2
+            "graph_triple_count": 1
           }
         },
         "routed_graphrag": {
-          "answer": "controlledNASelement=BNA; controlledNASelement=Airport. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer": "controlledNASelement=BNA. Citations: atcscc-2026-05-15-067-p1-c1, t1.",
           "answer_values": [
             {
               "predicate": "controlledNASelement",
               "value": "BNA"
-            },
-            {
-              "predicate": "controlledNASelement",
-              "value": "Airport"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -6518,20 +6450,12 @@
               "predicate": "controlledNASelement",
               "object": "BNA",
               "evidence_text": "CTL ELEMENT: BNA"
-            },
-            {
-              "triple_id": "t2",
-              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
-              "page": 1,
-              "predicate": "controlledNASelement",
-              "object": "Airport",
-              "evidence_text": "CTL ELEMENT: BNA ELEMENT TYPE: APT"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 16,
+            "estimated_context_tokens": 8,
             "fused_chunk_count": 1,
-            "graph_triple_count": 2
+            "graph_triple_count": 1
           }
         }
       },
@@ -6597,79 +6521,70 @@
           ]
         },
         "graph_only": {
-          "answer_correctness": false,
+          "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.5,
-          "evidence_faithfulness": false,
-          "unsupported_claim_rate": 0.5,
+          "citation_recall": 0.3333,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
           "expected_abstention": false,
           "actual_abstention": false,
           "valid_citations": [
-            "t1",
-            "t2"
+            "t1"
           ],
           "detected_citations": [
-            "t1",
-            "t2"
+            "t1"
           ],
           "available_citation_units": [
             "atcscc-2026-05-15-067-p1-c1",
             "page 1",
-            "t1",
-            "t2"
+            "t1"
           ]
         },
         "hybrid_graphrag": {
-          "answer_correctness": false,
+          "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.75,
-          "evidence_faithfulness": false,
-          "unsupported_claim_rate": 0.5,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
           "expected_abstention": false,
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-15-067-p1-c1",
-            "t1",
-            "t2"
+            "t1"
           ],
           "detected_citations": [
             "atcscc-2026-05-15-067-p1-c1",
-            "t1",
-            "t2"
+            "t1"
           ],
           "available_citation_units": [
             "atcscc-2026-05-15-067-p1-c1",
             "page 1",
-            "t1",
-            "t2"
+            "t1"
           ]
         },
         "routed_graphrag": {
-          "answer_correctness": false,
+          "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.75,
-          "evidence_faithfulness": false,
-          "unsupported_claim_rate": 0.5,
+          "citation_recall": 0.6667,
+          "evidence_faithfulness": true,
+          "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
           "expected_abstention": false,
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-15-067-p1-c1",
-            "t1",
-            "t2"
+            "t1"
           ],
           "detected_citations": [
             "atcscc-2026-05-15-067-p1-c1",
-            "t1",
-            "t2"
+            "t1"
           ],
           "available_citation_units": [
             "atcscc-2026-05-15-067-p1-c1",
             "page 1",
-            "t1",
-            "t2"
+            "t1"
           ]
         }
       }
@@ -7517,44 +7432,44 @@
         "abstention_correctness": 1.0,
         "avg_estimated_context_tokens": 5.11,
         "max_estimated_context_tokens": 21,
-        "avg_target_context_tokens": 15.44,
-        "avg_estimated_padding_tokens": 10.33
+        "avg_target_context_tokens": 14.56,
+        "avg_estimated_padding_tokens": 9.44
       },
       "graph_only": {
         "answers_total": 18,
-        "answer_correctness": 0.8333,
+        "answer_correctness": 0.9444,
         "citation_precision": 1.0,
-        "citation_recall": 0.3333,
-        "evidence_faithfulness": 0.8333,
-        "unsupported_claim_rate": 0.0833,
+        "citation_recall": 0.3148,
+        "evidence_faithfulness": 0.9444,
+        "unsupported_claim_rate": 0.0278,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 50.17,
+        "avg_estimated_context_tokens": 49.28,
         "max_estimated_context_tokens": 82,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
       },
       "hybrid_graphrag": {
         "answers_total": 18,
-        "answer_correctness": 0.8333,
+        "answer_correctness": 0.9444,
         "citation_precision": 1.0,
-        "citation_recall": 0.5833,
-        "evidence_faithfulness": 0.8333,
-        "unsupported_claim_rate": 0.0833,
+        "citation_recall": 0.5741,
+        "evidence_faithfulness": 0.9444,
+        "unsupported_claim_rate": 0.0278,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 15.44,
+        "avg_estimated_context_tokens": 14.56,
         "max_estimated_context_tokens": 63,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
       },
       "routed_graphrag": {
         "answers_total": 18,
-        "answer_correctness": 0.8333,
+        "answer_correctness": 0.9444,
         "citation_precision": 1.0,
-        "citation_recall": 0.5417,
-        "evidence_faithfulness": 0.8333,
-        "unsupported_claim_rate": 0.0833,
+        "citation_recall": 0.5324,
+        "evidence_faithfulness": 0.9444,
+        "unsupported_claim_rate": 0.0278,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 13.78,
+        "avg_estimated_context_tokens": 12.89,
         "max_estimated_context_tokens": 63,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
@@ -7564,7 +7479,7 @@
       "cost_latency": {
         "provider": "none",
         "model": "deterministic_scaffold",
-        "elapsed_seconds": 0.0218,
+        "elapsed_seconds": 0.0251,
         "questions_total": 18,
         "cases_total": 18,
         "chunks_path": null,
@@ -7654,25 +7569,37 @@
     "metric_policy": "Answer correctness, evidence faithfulness, unsupported claim rate, citation precision/recall, and abstention correctness are reported separately."
   },
   "experiment_chapter_draft": {
-    "title": "ATMONTO-constrained advisory KG extraction and GraphRAG evaluation",
-    "claim_boundary": "The experiment is retrospective and source-bounded. It evaluates extraction, CQ queryability, and generated-answer behavior as separate layers; it does not make live operational decision-support claims.",
+    "title": "Schema-constrained Agentic KG-RAG for evidence-grounded FAA ATCSCC advisory question answering",
+    "claim_boundary": "The experiment is retrospective and source-bounded. NASA ATMONTO-derived terms are used as a lightweight application schema, not as a complete aviation ontology or ground truth. The thesis evaluates schema-constrained event extraction, agentic validation/refinement, KG-RAG grounding, and failure/human-review boundaries as separate layers; it does not make live operational ATC decision-support claims.",
+    "research_questions": [
+      "RQ1: Can schema-constrained LLM extraction produce valid and evidence-linked event records from ATCSCC advisories?",
+      "RQ2: Does an agentic validation-refinement loop reduce schema violations and unsupported relations?",
+      "RQ3: Does KG-RAG improve evidence grounding and citation quality compared with vector-only RAG?",
+      "RQ4: What failure types remain, and where does human review remain necessary?"
+    ],
+    "schema_role": "The ATCSCC profile is an application schema for bounded advisory-event extraction. It constrains accepted fields, relation names, evidence spans, and validation checks, but it is not evaluated as a complete aviation ontology.",
     "experiments": [
       {
         "id": "A",
-        "heading": "Experiment A: ATMONTO-constrained KG extraction",
-        "summary": "Compare rule-only, schema-slice LLM, validator-repair, and hybrid S4 outputs against reviewed ATCSCC advisory facts."
+        "heading": "Experiment A: Schema-constrained advisory event extraction",
+        "summary": "Compare rule-only, schema-slice LLM, validator-repair, and hybrid S4 outputs against reviewed ATCSCC advisory facts, keeping structural schema validity, evidence support, and semantic scores separate."
       },
       {
         "id": "B",
-        "heading": "Experiment B: CQ queryability / answer-set quality",
-        "summary": "Use six CQ query templates to measure whether graph outputs recover source-bounded answer sets with evidence."
+        "heading": "Experiment B: Agentic validation and CQ queryability",
+        "summary": "Use validator/refiner/critic artifacts plus CQ query templates to measure whether graph outputs recover source-bounded answer sets with evidence and fewer unsupported relations."
       },
       {
         "id": "C",
-        "heading": "Experiment C: GraphRAG answer generation",
-        "summary": "Generate deterministic source-only, vector proxy, graph-only, and hybrid GraphRAG answers over the answer-eval benchmark with a critic gate before S4 evidence enters graph/hybrid answers.",
-        "hybrid_answer_correctness": 0.8333,
-        "hybrid_evidence_faithfulness": 0.8333
+        "heading": "Experiment C: KG-RAG grounding and answer generation",
+        "summary": "Generate deterministic source-only, vector proxy, graph-only, and hybrid GraphRAG answers over the answer-eval benchmark with a critic gate before S4 evidence enters graph/hybrid answers. Report citation, faithfulness, unsupported-claim, and abstention metrics separately.",
+        "hybrid_answer_correctness": 0.9444,
+        "hybrid_evidence_faithfulness": 0.9444
+      },
+      {
+        "id": "D",
+        "heading": "Experiment D: Failure analysis and human-review boundary",
+        "summary": "Classify remaining extraction, retrieval, profile/gold-boundary, and answer-overreach failures, and keep automated diagnostics separate from human or expert review."
       }
     ]
   }
