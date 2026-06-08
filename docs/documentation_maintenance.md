@@ -27,14 +27,16 @@ Use these files first, in this order:
 4. `docs/research_mainline.md` for RQs, validation gates, and SOTA positioning.
 5. `docs/context_hygiene_audit.md` before loading old reports into the working
    context.
-6. `docs/experiment_workflow.md` for the end-to-end experiment sequence.
-7. `docs/evaluation_protocol.md` for metric definitions and no-overall-score
+6. `docs/tracked_context_inventory.md` before broad-loading tracked Markdown
+   or report-source files.
+7. `docs/experiment_workflow.md` for the end-to-end experiment sequence.
+8. `docs/evaluation_protocol.md` for metric definitions and no-overall-score
    policy.
-8. `reports/stages/thesis_experiment_dashboard.md` for current evidence
+9. `reports/stages/thesis_experiment_dashboard.md` for current evidence
    synthesis.
-9. `reports/stages/nasa_atmonto_reviewer_defense_audit.md` and
+10. `reports/stages/nasa_atmonto_reviewer_defense_audit.md` and
    `reports/stages/nasa_atmonto_sota_goal_audit.md` for claim-safety gates.
-10. `reports/final/README.md` before using any final-report or defense-deck
+11. `reports/final/README.md` before using any final-report or defense-deck
    files.
 
 Do not use `reports/stages/index.md` as the current thesis story. It is an
@@ -45,7 +47,7 @@ artifact inventory with legacy PHAK-era material.
 | Tier | Location | Examples | Maintenance rule |
 | --- | --- | --- | --- |
 | T0 canonical framing | `docs/` | `thesis_positioning.md`, `research_mainline.md`, `documentation_map.md` | Update when the thesis scope, RQs, claim boundaries, or entry points change. |
-| T1 protocols and scope control | `docs/` | `experiment_workflow.md`, `experiment_protocol.md`, `evaluation_protocol.md`, `research_paper_analysis_protocol.md`, `context_hygiene_audit.md` | Update when the reproducible workflow, scoring rules, paper-intake process, or historical-document risk changes. |
+| T1 protocols and scope control | `docs/` | `experiment_workflow.md`, `experiment_protocol.md`, `evaluation_protocol.md`, `research_paper_analysis_protocol.md`, `context_hygiene_audit.md`, `tracked_context_inventory.md` | Update when the reproducible workflow, scoring rules, paper-intake process, or historical-document risk changes. |
 | T2 current thesis evidence | `reports/stages/` | `nasa_atmonto_formal_experiment_scoring.md`, `nasa_atmonto_s7_retrieval.md`, `thesis_experiment_dashboard.md` | Keep as generated or reviewed evidence; cite through the dashboard and documentation map. |
 | T3 source/schema explainers | `reports/stages/` | `atcscc_data_format_and_processing_flow.md`, `atcscc_ontology_profile_overview.md` | Keep thesis-facing and readable; update when data/profile boundaries change. |
 | T4 method migration and paper analysis | `reports/stages/`, `data/papers/README.md` | `claim_kg_graphrag_paper_adaptation.md`, `multi_agent_pipeline_method_adaptation.md` | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
@@ -112,6 +114,7 @@ docs/thread_handoff.md
   -> docs/thesis_positioning.md
   -> docs/research_mainline.md
   -> docs/context_hygiene_audit.md
+  -> docs/tracked_context_inventory.md
   -> docs/experiment_workflow.md
   -> docs/evaluation_protocol.md
   -> reports/stages/thesis_experiment_dashboard.md

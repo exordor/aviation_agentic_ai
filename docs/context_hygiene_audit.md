@@ -23,7 +23,7 @@ Use these files first for thesis writing, review, and report generation.
 
 | Role | Files |
 | --- | --- |
-| Navigation | `docs/thread_handoff.md`, `docs/documentation_map.md`, `docs/documentation_maintenance.md` |
+| Navigation | `docs/thread_handoff.md`, `docs/documentation_map.md`, `docs/documentation_maintenance.md`, `docs/tracked_context_inventory.md` |
 | Thesis scope and claims | `docs/thesis_positioning.md`, `docs/research_mainline.md` |
 | Experiment workflow and metrics | `docs/experiment_workflow.md`, `docs/evaluation_protocol.md`, `docs/experiment_protocol.md` |
 | Data and schema boundary | `reports/stages/atcscc_data_format_and_processing_flow.md`, `reports/stages/atcscc_source_brief.md`, `reports/stages/atcscc_ontology_profile_overview.md`, `reports/stages/atcscc_semantic_requirements.md` |
@@ -101,12 +101,15 @@ forensics or cleanup:
      on the reviewed subset.
 6. Paper-analysis files can motivate methods, but they cannot replace current
    ATCSCC evidence, gold review, or SOTA/reviewer-defense audits.
+7. Before broad-loading tracked Markdown or report-source files, check
+   `docs/tracked_context_inventory.md` for family-level context risk.
 
 ## Starting Point For New Work
 
 For new documentation or experiment-planning work, begin with
-`docs/thread_handoff.md`, `docs/documentation_map.md`, and this scope audit.
-The current framing is schema-constrained, evidence-grounded Agentic KG-RAG over
-retrospective FAA ATCSCC advisories. Treat PHAK, web-demo, and chunking-era
-reports as historical unless the task explicitly requests historical
-comparison. Keep source families and evaluation layers separate.
+`docs/thread_handoff.md`, `docs/documentation_map.md`, this scope audit, and
+`docs/tracked_context_inventory.md`. The current framing is
+schema-constrained, evidence-grounded Agentic KG-RAG over retrospective FAA
+ATCSCC advisories. Treat PHAK, web-demo, and chunking-era reports as historical
+unless the task explicitly requests historical comparison. Keep source families
+and evaluation layers separate.

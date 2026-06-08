@@ -20,9 +20,10 @@ Read these files before loading broad context:
 
 1. `docs/documentation_map.md`
 2. `docs/context_hygiene_audit.md`
-3. `docs/thesis_positioning.md`
-4. `docs/research_mainline.md`
-5. `docs/experiment_workflow.md`
+3. `docs/tracked_context_inventory.md`
+4. `docs/thesis_positioning.md`
+5. `docs/research_mainline.md`
+6. `docs/experiment_workflow.md`
 
 For current evidence, use:
 
@@ -76,4 +77,3 @@ history or comparison:
 - Documentation-only changes: `git diff --check` and `uv run ruff check .`.
 - Report-generation changes: run the relevant report command and inspect the
   generated diff before committing.
-
