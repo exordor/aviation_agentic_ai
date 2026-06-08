@@ -3,9 +3,10 @@
 This directory is the current report dashboard. Detailed stage artifacts are archived under `reports/archive/stages/2026-05-18`.
 
 > Current thesis entry points are `docs/documentation_map.md`,
-> `docs/research_mainline.md`, and `docs/thesis_positioning.md`. This index
-> still contains legacy PHAK-stage artifacts and should be used as an artifact
-> inventory, not as the canonical research narrative.
+> `docs/thesis_positioning.md`, `docs/research_mainline.md`, and
+> `docs/documentation_maintenance.md`. This file still contains legacy
+> PHAK-stage artifacts and should be used only as an artifact inventory, not as
+> the canonical research narrative or current thesis dashboard.
 
 ## Summary
 

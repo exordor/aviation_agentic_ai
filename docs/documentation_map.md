@@ -10,6 +10,7 @@ old evidence without letting old framing control the thesis story.
 | --- | --- |
 | Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
+| Documentation tiers and maintenance rules | `docs/documentation_maintenance.md` |
 | Experiment sequence and regeneration commands | `docs/experiment_workflow.md` |
 | Metric definitions and no-overall-score policy | `docs/evaluation_protocol.md` |
 | Paper-analysis workflow | `docs/research_paper_analysis_protocol.md` |
@@ -69,7 +70,9 @@ as the current thesis entry point:
 - Early `hybrid_rag_*`, `retrieval_ablation*`, and `graphrag_review` reports
   from the aviation-training prototype.
 - NASA BGA transfer-pilot reports, which provide transfer evidence only.
-- `reports/stages/index.md`, which still contains legacy stage-index content.
+- `reports/stages/index.md`, which is an artifact inventory and still contains
+  legacy stage-index content.
+- Old `reports/final/*` drafts generated from the PHAK-era project evidence.
 
 Historical reports may still be cited for method evolution or negative results,
 but current thesis claims should be routed through `docs/research_mainline.md`,
@@ -104,10 +107,11 @@ When documents disagree, use this precedence:
 
 1. `docs/thesis_positioning.md`
 2. `docs/research_mainline.md`
-3. `docs/experiment_workflow.md`
-4. `reports/stages/thesis_experiment_dashboard.md`
-5. Latest SOTA/reviewer-defense audit reports
-6. Older stage reports
+3. `docs/documentation_maintenance.md`
+4. `docs/experiment_workflow.md`
+5. `reports/stages/thesis_experiment_dashboard.md`
+6. Latest SOTA/reviewer-defense audit reports
+7. Older stage reports
 
 This avoids old PHAK-oriented reports overriding the current ATCSCC
 schema-constrained Agentic KG-RAG framing.
