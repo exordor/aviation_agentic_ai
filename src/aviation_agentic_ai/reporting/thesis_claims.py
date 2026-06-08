@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -513,7 +512,8 @@ def build_thesis_claims_review(
         )
     return {
         "metadata": {
-            "created_at": datetime.now(UTC).isoformat(),
+            "created_at": "static-for-reproducible-report",
+            "timestamp_policy": "wall-clock generation time is omitted to keep tracked reports reproducible",
             "project_root": project_relative_path(root, base=root),
             "scanned_files": scanned_files,
             "unsafe_claims_total": len(unsafe_claims),

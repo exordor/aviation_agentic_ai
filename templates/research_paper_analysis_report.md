@@ -67,17 +67,17 @@ ATCSCC/ATMONTO experiment, and if so how.
 
 ## Weaknesses Not To Copy
 
-- 
+-
 
 ## Adaptation Plan
 
 ### Immediate
 
-- 
+-
 
 ### Deferred
 
-- 
+-
 
 ## Claim-Safety Boundaries
 

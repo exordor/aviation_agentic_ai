@@ -37,19 +37,19 @@ retrospective advisory text
 
 ## Research Questions
 
-1. **RQ1: Schema-constrained extraction**  
+1. **RQ1: Schema-constrained extraction**
    Can schema-constrained LLM extraction produce valid and evidence-linked
    event records from ATCSCC advisories?
 
-2. **RQ2: Agentic validation-refinement**  
+2. **RQ2: Agentic validation-refinement**
    Does an agentic validation-refinement loop reduce schema violations and
    unsupported relations?
 
-3. **RQ3: KG-RAG grounding**  
+3. **RQ3: KG-RAG grounding**
    Does KG-RAG improve evidence grounding and citation quality compared with
    vector-only RAG?
 
-4. **RQ4: Failure boundary**  
+4. **RQ4: Failure boundary**
    What failure types remain, and where does human review remain necessary?
 
 ## Method Components

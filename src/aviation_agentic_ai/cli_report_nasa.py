@@ -421,7 +421,7 @@ def register_nasa_report_commands(report: click.Group) -> None:
         "--chapter-path",
         type=click.Path(path_type=Path),
         default=None,
-        help="Output path for the experiment chapter draft.",
+        help="Output path for the scoped answer-generation chapter section.",
     )
     @click.option(
         "--output-dir",

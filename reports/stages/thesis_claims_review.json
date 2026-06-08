@@ -269,7 +269,7 @@
     }
   ],
   "metadata": {
-    "created_at": "2026-06-08T01:59:16.157816+00:00",
+    "created_at": "static-for-reproducible-report",
     "project_root": ".",
     "scanned_files": [
       {
@@ -298,6 +298,7 @@
         "unsafe_claims": 0
       }
     ],
+    "timestamp_policy": "wall-clock generation time is omitted to keep tracked reports reproducible",
     "unsafe_claims_total": 0
   },
   "remaining_evidence_gaps": [

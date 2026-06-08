@@ -101,4 +101,3 @@ the experiment.
 3. `arxiv_2506.02404_graphrag_bench.pdf`
 4. `arxiv_2411.09601_accelerating_kg_ontology_engineering_llms.pdf`
 5. `arxiv_2412.20942_ontology_grounded_automatic_kg_construction_wikidata.pdf`
-

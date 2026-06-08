@@ -32,6 +32,8 @@ def test_thesis_claim_report_generation_includes_revised_claim(tmp_path: Path) -
         encoding="utf-8"
     ).lower()
     data = json.loads(json_path.read_text(encoding="utf-8"))
+    assert data["metadata"]["created_at"] == "static-for-reproducible-report"
+    assert "timestamp_policy" in data["metadata"]
     assert data["research_questions"][0]["id"] == "RQ1"
     assert data["research_questions"][0]["question"].startswith(
         "Can schema-constrained LLM extraction"

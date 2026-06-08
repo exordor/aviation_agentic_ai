@@ -7479,7 +7479,7 @@
       "cost_latency": {
         "provider": "none",
         "model": "deterministic_scaffold",
-        "elapsed_seconds": 0.0251,
+        "elapsed_seconds": 0.0,
         "questions_total": 18,
         "cases_total": 18,
         "chunks_path": null,

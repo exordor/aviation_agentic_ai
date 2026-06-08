@@ -75,6 +75,29 @@ Historical reports may still be cited for method evolution or negative results,
 but current thesis claims should be routed through `docs/research_mainline.md`,
 `docs/thesis_positioning.md`, and `reports/stages/thesis_experiment_dashboard.md`.
 
+## Artifact Management Policy
+
+The repository intentionally tracks bounded thesis-evidence artifacts that are
+needed to reproduce the current ATCSCC claims:
+
+- reviewed gold and review-decision artifacts under `data/evaluation/nasa_atmonto/`;
+- formal S0-S7 prediction and run-metadata artifacts under
+  `data/experiments/nasa_atmonto/formal/`;
+- stage-report JSON/Markdown files that feed the thesis dashboard, SOTA audit,
+  reviewer-defense audit, and chapter draft.
+
+The repository intentionally ignores raw/local/generated material that is either
+large, environment-specific, or easy to rebuild:
+
+- raw NASA ATMONTO snapshots under `data/raw/nasa_atmonto/`;
+- smoke outputs under `data/experiments/nasa_atmonto/formal/smoke/`;
+- vector indexes, chunks, local paper PDFs, temporary PDF extraction assets,
+  gallery HTML/manifest files, and `outputs/`.
+
+Future large experiment outputs should enter Git only when they are referenced
+by the thesis dashboard or a claim-safety audit. Otherwise place them under an
+ignored runtime/output location and summarize them in a small tracked report.
+
 ## Document Precedence
 
 When documents disagree, use this precedence:

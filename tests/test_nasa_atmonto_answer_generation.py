@@ -261,6 +261,7 @@ def test_build_nasa_atmonto_answer_generation_materializes_benchmark_modes_and_m
     assert gate["status"] == "deterministic_proxy_gate"
     assert gate["decision_counts"]["hybrid_graphrag"] >= 1
     assert result["answer_quality"]["secondary_metrics"]["cost_latency"]["provider"] == "none"
+    assert result["answer_quality"]["secondary_metrics"]["cost_latency"]["elapsed_seconds"] == 0.0
 
 
 def test_write_nasa_atmonto_answer_generation_outputs_reports_and_chapter(
@@ -298,3 +299,22 @@ def test_write_nasa_atmonto_answer_generation_outputs_reports_and_chapter(
     assert "Experiment C: KG-RAG grounding and answer generation" in chapter
     assert "Experiment D: Failure analysis and human-review boundary" in chapter
     assert result["experiment_chapter_draft"]["claim_boundary"]
+
+
+def test_write_nasa_atmonto_answer_generation_default_chapter_is_scoped(
+    tmp_path: Path,
+) -> None:
+    paths = _write_fixture(tmp_path)
+
+    _json_path, _md_path, _benchmark_json, chapter_md, _result = write_nasa_atmonto_answer_generation(
+        output_dir=tmp_path / "reports",
+        repo_root=tmp_path,
+        gold_path=paths["gold"],
+        s4_prediction_path=paths["s4"],
+        query_manifest_path=paths["manifest"],
+        max_cases_per_template=1,
+    )
+
+    assert chapter_md == tmp_path / "reports/stages/nasa_atmonto_answer_generation_chapter_section.md"
+    assert chapter_md.exists()
+    assert not (tmp_path / "reports/stages/nasa_atmonto_experiment_chapter_draft.md").exists()

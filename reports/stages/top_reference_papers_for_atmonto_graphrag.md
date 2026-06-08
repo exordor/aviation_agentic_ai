@@ -68,4 +68,3 @@ Use these in Consensus, Google Scholar, Semantic Scholar, or arXiv:
 The defensible thesis story should not claim that aviation ATM ontology literature alone is a mature top-journal field. A stronger framing is:
 
 > This thesis applies top-journal KG construction, KG quality, GraphRAG, and CQ-based ontology evaluation methods to a narrowly scoped aviation advisory extraction task, using NASA ATMONTO as a schema/profile reference and retrospective FAA ATCSCC advisories as the evidence corpus.
-

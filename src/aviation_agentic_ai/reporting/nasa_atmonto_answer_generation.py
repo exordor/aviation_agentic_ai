@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from time import perf_counter
 from typing import Any
 
 from aviation_agentic_ai.evaluation.cost_latency import cost_latency_block
@@ -29,7 +28,10 @@ DEFAULT_S4_PREDICTION_PATH = Path(
 )
 DEFAULT_QUERY_MANIFEST_PATH = Path("data/evaluation/nasa_atmonto/atcscc_cq_query_templates.json")
 DEFAULT_BENCHMARK_PATH = Path("data/evaluation/nasa_atmonto/atcscc_answer_eval_benchmark.json")
-DEFAULT_CHAPTER_PATH = Path("reports/stages/nasa_atmonto_experiment_chapter_draft.md")
+# Keep this scoped to the answer-generation section. The comprehensive S7
+# experiment chapter draft is assembled by later reports and should not be
+# overwritten by this narrower command.
+DEFAULT_CHAPTER_PATH = Path("reports/stages/nasa_atmonto_answer_generation_chapter_section.md")
 
 
 def build_nasa_atmonto_answer_generation(
@@ -40,7 +42,6 @@ def build_nasa_atmonto_answer_generation(
     query_manifest_path: str | Path | None = DEFAULT_QUERY_MANIFEST_PATH,
     max_cases_per_template: int = 3,
 ) -> dict[str, Any]:
-    started = perf_counter()
     root = Path(repo_root)
     gold_file = resolve_path(root, gold_path)
     s4_file = resolve_path(root, s4_prediction_path)
@@ -59,7 +60,7 @@ def build_nasa_atmonto_answer_generation(
         "provider": "none",
         "model": "deterministic_scaffold",
         **cost_latency_block(
-            elapsed_seconds=perf_counter() - started,
+            elapsed_seconds=0.0,
             questions_total=len(benchmark["labels"]),
             cases_total=len(records),
             kg_path=s4_file,
