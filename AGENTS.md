@@ -33,6 +33,9 @@ protocols live in `docs/`.
 
 - Prefer existing project patterns and small, reviewable changes.
 - Use `rg`/`rg --files` for repository search.
+- For context-hygiene or residue scans that should ignore local archives and
+  generated outputs, use `git grep` over tracked files instead of broad
+  multi-root `rg` searches.
 - Do not overwrite or delete user/generated research artifacts unless asked.
   Ignore or archive unsuitable Git artifacts instead of silently removing them.
 - Avoid giant single-file additions; keep code modular and reports focused.

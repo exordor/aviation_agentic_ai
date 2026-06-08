@@ -21,19 +21,20 @@ subset should control the thesis narrative.
 
 Use these files first, in this order:
 
-1. `docs/documentation_map.md` for navigation.
-2. `docs/thesis_positioning.md` for claim boundaries.
-3. `docs/research_mainline.md` for RQs, validation gates, and SOTA positioning.
-4. `docs/context_hygiene_audit.md` before loading old reports into the working
+1. `docs/thread_handoff.md` for compact new-thread orientation.
+2. `docs/documentation_map.md` for navigation.
+3. `docs/thesis_positioning.md` for claim boundaries.
+4. `docs/research_mainline.md` for RQs, validation gates, and SOTA positioning.
+5. `docs/context_hygiene_audit.md` before loading old reports into the working
    context.
-5. `docs/experiment_workflow.md` for the end-to-end experiment sequence.
-6. `docs/evaluation_protocol.md` for metric definitions and no-overall-score
+6. `docs/experiment_workflow.md` for the end-to-end experiment sequence.
+7. `docs/evaluation_protocol.md` for metric definitions and no-overall-score
    policy.
-7. `reports/stages/thesis_experiment_dashboard.md` for current evidence
+8. `reports/stages/thesis_experiment_dashboard.md` for current evidence
    synthesis.
-8. `reports/stages/nasa_atmonto_reviewer_defense_audit.md` and
+9. `reports/stages/nasa_atmonto_reviewer_defense_audit.md` and
    `reports/stages/nasa_atmonto_sota_goal_audit.md` for claim-safety gates.
-9. `reports/final/README.md` before using any final-report or defense-deck
+10. `reports/final/README.md` before using any final-report or defense-deck
    files.
 
 Do not use `reports/stages/index.md` as the current thesis story. It is an
@@ -83,6 +84,10 @@ artifact inventory with legacy PHAK-era material.
 7. Before loading a broad document bundle, check `docs/context_hygiene_audit.md`
    and exclude high-risk historical PHAK, web-demo, chunking, and old
    final-report files unless the task explicitly asks for historical comparison.
+8. For cleanup scans that should reflect repository context rather than local
+   scratch files, use `git grep` over tracked files. Broad multi-root `rg`
+   searches can still include ignored local archives when explicit paths are
+   supplied.
 
 ## Cleanup Policy
 
@@ -102,7 +107,8 @@ it from canonical entry points.
 A reviewer should be able to reconstruct the thesis path using only:
 
 ```text
-docs/documentation_map.md
+docs/thread_handoff.md
+  -> docs/documentation_map.md
   -> docs/thesis_positioning.md
   -> docs/research_mainline.md
   -> docs/context_hygiene_audit.md

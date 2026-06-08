@@ -7,37 +7,37 @@ __pycache__/
 .ruff_cache/
 
 # Runtime/generated artifacts
-data/indexes/
-data/chunks/
-data/kg/*.tmp
-data/kg/*.cache
-reports/**/*.tmp
-reports/stages/*_run.log
-reports/stages/pytest_*.log
-reports/archive/
-logs/
-outputs/
+/data/indexes/
+/data/chunks/
+/data/kg/*.tmp
+/data/kg/*.cache
+/reports/**/*.tmp
+/reports/stages/*_run.log
+/reports/stages/pytest_*.log
+/reports/archive/
+/logs/
+/outputs/
 
 # Generated local paper figure gallery. Keep scripts and crop specs in Git;
 # rebuild these from tmp/pdfs/ when needed.
-reports/stages/paper_figure_gallery.html
-reports/stages/paper_figure_gallery_manifest.json
+/reports/stages/paper_figure_gallery.html
+/reports/stages/paper_figure_gallery_manifest.json
 
 # Locally downloaded paper PDFs; keep citations in data/papers/README.md.
-data/papers/*.pdf
+/data/papers/*.pdf
 
 # Local research downloads/screenshots. Curated literature notes belong in
 # reports/stages/ or data/papers/README.md instead.
-data/papers/*.md
-!data/papers/README.md
-data/papers/*.jpg
-data/papers/*.jpeg
-data/papers/*.png
-data/papers/*.webp
+/data/papers/*.md
+!/data/papers/README.md
+/data/papers/*.jpg
+/data/papers/*.jpeg
+/data/papers/*.png
+/data/papers/*.webp
 
 # NASA ATMONTO raw snapshots and ad-hoc smoke outputs.
-data/raw/nasa_atmonto/
-data/experiments/nasa_atmonto/formal/smoke/
+/data/raw/nasa_atmonto/
+/data/experiments/nasa_atmonto/formal/smoke/
 
 # Model and vector-store artifacts
 *.faiss
@@ -45,5 +45,5 @@ data/experiments/nasa_atmonto/formal/smoke/
 *.sqlite3
 *.duckdb
 *.parquet
-models/
-tmp/
+/models/
+/tmp/

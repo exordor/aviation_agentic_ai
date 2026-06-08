@@ -1,0 +1,29 @@
+# Search hygiene for local context gathering.
+#
+# These paths are ignored by Git or treated as historical/generated material.
+# Keep them out of ordinary directory walks unless the task is specifically
+# about forensics, cleanup, or regeneration. For tracked-only residue scans,
+# prefer git grep.
+
+/reports/archive/
+reports/archive/
+/outputs/
+outputs/
+/tmp/
+tmp/
+
+/reports/stages/paper_figure_gallery.html
+reports/stages/paper_figure_gallery.html
+/reports/stages/paper_figure_gallery_manifest.json
+reports/stages/paper_figure_gallery_manifest.json
+
+/data/raw/nasa_atmonto/
+data/raw/nasa_atmonto/
+/data/experiments/nasa_atmonto/formal/smoke/
+data/experiments/nasa_atmonto/formal/smoke/
+
+/data/papers/*.pdf
+/data/papers/*.jpg
+/data/papers/*.jpeg
+/data/papers/*.png
+/data/papers/*.webp
