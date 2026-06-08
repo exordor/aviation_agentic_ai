@@ -1,93 +1,89 @@
 # Aviation Agentic AI
 
-Aviation Agentic AI is a research prototype for turning aviation training text
-into machine-queryable knowledge. It uses FAA Pilot's Handbook of Aeronautical
-Knowledge material as a source document, represents domain concepts as an
-ontology, and prepares the foundation for provenance-aware Knowledge Graph and
-GraphRAG retrieval workflows.
+Aviation Agentic AI is a research prototype for schema-constrained,
+evidence-grounded Agentic KG-RAG over retrospective FAA ATCSCC advisories. It
+extracts advisory-event facts from semi-structured FAA traffic-management
+notices, validates them against a lightweight NASA ATMONTO-derived application
+schema, and evaluates whether an advisory event graph improves source-bounded
+question answering and citation quality.
 
-The project focuses on a practical question: can aviation concepts such as lift,
-drag, angle of attack, airflow, pressure, density, and altitude be extracted from
-technical prose into structured knowledge that can support traceable question
-answering?
+The project focuses on a practical research question: can LLM extraction,
+agentic validation/refinement, and KG-RAG retrieval produce valid,
+evidence-linked answers over ATCSCC advisories without overclaiming ontology
+completeness, human review, or operational ATC decision support?
 
 The current thesis framing does not assume that GraphRAG universally improves
 Recall@k over vector-only RAG. It evaluates a narrower claim:
-ontology-constrained GraphRAG can add inspectable evidence-traceability signals,
-KG evidence coverage, and safety-aware abstention checks for aviation training
-QA, with each metric layer reported separately.
+schema-constrained KG-RAG can add inspectable advisory-event evidence,
+source-grounded citations, and failure-boundary diagnostics, with each metric
+layer reported separately.
 
 ## What This Project Demonstrates
 
-- **Ontology-first modeling** of aviation concepts from PHAK Chapter 4.
-- **RDF/OWL validation and reporting** over the generated aviation ontology.
-- **A focused ABox extraction design** for future entity and relation extraction.
-- **GraphRAG-ready structure** with separate modules for ontology, KG, chunking,
-  retrieval, evaluation, and reporting.
-- **Layered evaluation and claim safety review** for retrieval quality, KG
-  evidence quality, answer quality, and safety-aware abstention.
+- **Schema-constrained advisory event extraction** from retrospective FAA
+  ATCSCC advisories.
+- **Agentic validation/refinement diagnostics** using extractor, validator,
+  refiner, and critic artifacts.
+- **Evidence-linked advisory event graphs** with source IDs and evidence spans.
+- **Vector, graph, hybrid, and routed KG-RAG evaluation** over source-bounded
+  competency-question labels.
+- **Layered evaluation and claim safety review** for schema validity, evidence
+  support, retrieval quality, answer quality, and human-review boundaries.
 - **Submission-friendly project hygiene** with curated assets, third-party
   attribution, and generated artifacts kept under control.
 
 ## Current Prototype
 
-The current implementation includes project-owned ontology generation code plus
-an explainable curated ontology for PHAK Chapter 4. The older baseline ontology
-is kept as a historical reference because it is useful for comparison but too
-large to explain clearly as the primary project schema. The curated ontology is
-the active task ontology for focused KG extraction and GraphRAG experiments.
+The current implementation centers on a 100-record reviewed ATCSCC advisory
+experiment, S0-S4 extraction baselines, S5/S6 agentic validation diagnostics,
+and S7 retrieval/answer-generation diagnostics. NASA ATMONTO is used as a
+reference vocabulary and lightweight schema/profile backbone, not as a complete
+aviation ontology or as the thesis object.
 
-Baseline assets:
+Primary current assets:
 
-- Source PDF: `data/raw/06_phak_ch4_0.pdf`
-- Primary ontology-generation reference paper:
-  `data/papers/towards-automated-ontology-generation-multi-agent-llm.pdf`
-- Generated CQs copied from the reference pipeline:
-  `data/cqs/06_phak_ch4_0.json`
-- Active curated ontology: `data/ontology/curated/06_phak_ch4_0.curated.ttl`
-- Ontology design explanation: `docs/ontology_design.md`
-- Historical baseline ontology: `data/ontology/baseline/06_phak_ch4_0.ttl`
-- Reference generated ontology/KG artifact:
-  `data/ontology/generated/reference/06_phak_ch4_0_kg_backup_20260512_042920.ttl`
-- Ontology report: `reports/stages/ontology_report.md`
-- Ontology statistics: `reports/stages/ontology_stats.json`
+- Research mainline: `docs/research_mainline.md`
+- Documentation map: `docs/documentation_map.md`
+- Thesis positioning: `docs/thesis_positioning.md`
+- Experiment workflow: `docs/experiment_workflow.md`
+- Formal ATCSCC protocol: `docs/experiment_protocol.md`
+- ATCSCC data processing flow:
+  `reports/stages/atcscc_data_format_and_processing_flow.md`
+- ATCSCC schema/profile overview:
+  `reports/stages/atcscc_ontology_profile_overview.md`
+- Formal extraction scoring:
+  `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
+- Thesis dashboard: `reports/stages/thesis_experiment_dashboard.md`
 
-The historical baseline ontology currently contains:
+Historical PHAK/PDF ontology, chunking, KG, and web-demo artifacts remain in the
+repository as background evidence and legacy prototype material. They are not
+the current thesis entry point.
 
-- 2,773 RDF triples
-- 245 OWL classes
-- 173 object properties
-- 2 datatype properties
-- 0 named individuals in the historical baseline TBox
-
-The active curated ontology is intentionally smaller. It is designed to be
-explainable in a project review and to constrain KG extraction with a focused
-set of aviation classes and relations.
-
-## Planned Pipeline
+## Current Thesis Pipeline
 
 ```text
-PHAK PDF
-  -> CQ generation
-  -> SRD/TIP/TTL ontology generation
-  -> RDF validation and reporting
-  -> focused ABox/KG extraction with provenance
-  -> section-aware semantic chunking
-  -> graph retrieval + vector retrieval
-  -> hybrid GraphRAG answer generation with citations
+FAA ATCSCC advisories
+  -> source snapshot and advisory parser
+  -> lightweight ATCSCC application schema/profile
+  -> S0-S4 extraction baselines
+  -> extractor / validator / refiner / critic loop
+  -> advisory event graph with evidence spans
+  -> vector / graph / hybrid / routed KG-RAG
+  -> answer generation, citation checks, and failure review
 ```
 
 The project is CLI-first so every stage can be reproduced and evaluated before a
-service or user interface is added.
+service or user interface is added. Use `docs/documentation_map.md` to find the
+current canonical reports.
 
 ## Project Layout
 
 ```text
 configs/                 Reproducible project and extraction settings
-data/raw/                Curated source PDF
+data/raw/                Source snapshots, including ATCSCC advisory HTML
 data/papers/             Related research papers and reading notes
-data/ontology/           Baseline and generated ontology artifacts
-data/kg/                 Future KG/ABox artifacts
+data/ontology/           NASA ATMONTO references, profiles, and legacy ontology artifacts
+data/kg/                 KG/ABox and evidence-graph artifacts
 reports/                 Stage and final research reports
 templates/               Reusable report templates for research workflows
 src/aviation_agentic_ai/ Project package and CLI implementation
@@ -107,10 +103,14 @@ Report directories are intentionally separated:
 
 ```bash
 cd aviation_agentic_ai
-uv sync --extra dev
-uv run aviation-ai ontology validate
-uv run aviation-ai ontology report
-uv run aviation-ai ontology validate-cqs
+uv sync --extra dev --extra graphrag
+uv run aviation-ai --help
+uv run aviation-ai report thesis-claims
+uv run aviation-ai report nasa-atmonto-answer-generation
+uv run python scripts/build_nasa_atmonto_reviewer_defense_audit.py
+uv run aviation-ai report thesis-experiment-dashboard
+uv run ruff check .
+uv run pytest -q
 ```
 
 Without `uv`:
@@ -119,13 +119,17 @@ Without `uv`:
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -e ".[dev]"
-aviation-ai ontology validate
+aviation-ai --help
 ```
 
 ## CLI
 
 ```bash
 aviation-ai --help
+aviation-ai report thesis-claims
+aviation-ai report nasa-atmonto-answer-generation
+aviation-ai report thesis-experiment-dashboard
+aviation-ai report stages
 aviation-ai ontology validate
 aviation-ai ontology report
 aviation-ai ontology scope
@@ -178,36 +182,51 @@ Additional stage-report aggregation is available with:
 aviation-ai report stages
 ```
 
-## Research Direction
+## Current Research Direction
 
-The ontology-generation code is adapted from the open-source implementation
+The current research direction is defined in `docs/research_mainline.md`:
+
+> Agentic KG-RAG for evidence-grounded question answering over retrospective
+> FAA ATCSCC advisories.
+
+The project now treats ontology/schema material as a lightweight engineering
+constraint. The thesis contribution is the end-to-end method: source-bounded
+advisory parsing, schema-constrained extraction, agentic validation/refinement,
+evidence-linked event graph construction, KG-RAG retrieval, answer generation,
+and failure-boundary evaluation.
+
+The paper-analysis workflow remains important, but it is used to transfer
+methods, evaluation designs, and figure/report conventions into this ATCSCC
+pipeline. It does not turn external paper datasets into direct evidence for
+ATCSCC extraction correctness.
+
+## Legacy PHAK And PDF Prototype Notes
+
+The older PHAK/PDF ontology and GraphRAG pipeline remains useful as engineering
+background. It should be cited as a prior prototype, not as the current thesis
+mainline.
+
+The ontology-generation code was adapted from the open-source implementation
 associated with the paper in
-`data/papers/towards-automated-ontology-generation-multi-agent-llm.pdf`, with
-the method reworked for aviation training text. The upstream implementation is
+`data/papers/towards-automated-ontology-generation-multi-agent-llm.pdf`. The
+upstream implementation is
 `https://github.com/brains-group/towards_automated_ontology_generation`. Source
-PDF text is converted into ontology-focused Competency Questions, then an
-LLM-assisted pipeline turns those CQs into validated Semantic Requirements
+PDF text was converted into ontology-focused Competency Questions, then an
+LLM-assisted pipeline turned those CQs into validated Semantic Requirements
 Document and Technical Implementation Plan JSON artifacts, then Turtle ontology
 output. Per-run manifests and page checkpoints are written when an artifact
-directory is supplied. The current baseline ontology is not treated as final.
+directory is supplied. The baseline ontology is not treated as final.
 
-The next stage after selecting the curated ontology is focused ABox extraction.
-Instead of extracting every possible concept from the historical baseline, the
-project uses `configs/extraction_profile.yaml` to define a small set of
-high-value aviation classes and relations for v1. Each extracted triple carries
-source provenance so GraphRAG answers can cite the text that supports them.
+The legacy focused ABox extraction design used `configs/extraction_profile.yaml`
+to define a small set of high-value aviation classes and relations. Each
+extracted triple carries source provenance so GraphRAG answers can cite the text
+that supports them.
 
-The retrieval layer will combine:
-
-- graph lookup and neighborhood traversal over validated RDF
-- vector retrieval over stable source chunks
-- normalized rank fusion for hybrid retrieval
-
-## Chunking Comparison
+## Legacy Chunking Comparison
 
 The chunking comparison experiment evaluates how document splitting affects
-vector retrieval quality. The original report is a 10-CQ pilot over PHAK
-Chapter 4 boundary CQs. It compares:
+vector retrieval quality in the earlier PHAK/PDF prototype. The original report
+is a 10-CQ pilot over PHAK Chapter 4 boundary CQs. It compares:
 
 - `fixed_window`: character window baseline with overlap
 - `sentence_recursive`: paragraph/sentence-aware merging
@@ -240,7 +259,7 @@ uv run aviation-ai report pdf-extraction-comparison
 uv run aviation-ai report pdf-backend-chunking-comparison
 ```
 
-This command evaluates mainstream chunking families on benchmark v2 and writes
+This legacy command evaluates mainstream chunking families on benchmark v2 and writes
 `reports/stages/chunking_comparison_benchmark_v2.json`, `.md`,
 `reports/stages/chunking_failure_cards_benchmark_v2.json`, and `.md`. It reports
 supported-only retrieval metrics, insufficient-evidence diagnostics, chunk-size
@@ -262,10 +281,10 @@ remains available only as a baseline. This policy is documented in
 `reports/stages/pdf_hybrid_repair_report.*`, and
 `reports/stages/pdf_backend_chunking_comparison.*`.
 
-## Hybrid RAG Experiment
+## Legacy PHAK Hybrid RAG Experiment
 
-The PHAK Chapter 4 Hybrid RAG experiment builds a reproducible retrieval and
-grounded-answering loop:
+The older PHAK Chapter 4 Hybrid RAG experiment builds a reproducible retrieval
+and grounded-answering loop:
 
 ```text
 PDF -> chunks -> focused KG triples -> ChromaDB chunk index
@@ -359,12 +378,17 @@ reports do not overclaim a small subset as the full NASA landing-page corpus.
 
 ## Thesis Experiment Workflow
 
-The canonical thesis workflow is documented in `docs/experiment_workflow.md`.
-It connects research questions, datasets, baselines, metrics, reports,
-limitations, and final thesis claims. Use the Makefile targets for the
-deterministic workflow; they do not require API keys. The main experiment
-targets do require a prepared local GraphRAG workspace with the ignored
-`data/chunks/` and `data/indexes/chroma/` artifacts present.
+Start with `docs/documentation_map.md` and `docs/research_mainline.md`. The
+current thesis route is **schema-constrained Agentic KG-RAG over retrospective
+FAA ATCSCC advisories**, not a general aviation ontology thesis. The canonical
+experiment workflow is documented in `docs/experiment_workflow.md`; it connects
+the four research questions, source scope, extraction baselines, agentic
+validation/refinement, KG-RAG retrieval, answer-generation diagnostics, failure
+analysis, and claim boundaries.
+
+Use the Makefile targets for deterministic legacy workflow pieces where they
+still apply. The current ATCSCC thesis reports are generated through the
+ATMONTO/ATCSCC report commands and scripts below.
 
 ```bash
 uv sync --extra dev --extra graphrag
@@ -374,6 +398,10 @@ make reports-core
 make reports-main-experiments
 make reports-review
 make thesis-dashboard
+uv run aviation-ai report thesis-claims
+uv run aviation-ai report nasa-atmonto-answer-generation
+uv run python scripts/build_nasa_atmonto_sota_goal_audit.py
+uv run python scripts/build_nasa_atmonto_reviewer_defense_audit.py
 uv run aviation-ai report project --no-ai
 uv run aviation-ai report academic-paper --no-ai
 ```

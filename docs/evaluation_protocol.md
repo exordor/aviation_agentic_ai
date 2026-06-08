@@ -1,45 +1,82 @@
 # Evaluation Protocol
 
-This project uses layered evaluation for aviation ontology-grounded GraphRAG.
-The goal is to show what each subsystem contributes without hiding tradeoffs in
-a single custom score. Retrieval, graph evidence, ontology/KG construction,
-answer generation, and safety-aware abstention are measured separately.
+This project uses layered evaluation for schema-constrained Agentic KG-RAG over
+retrospective FAA ATCSCC advisories. The goal is to show what each subsystem
+contributes without hiding tradeoffs in a single custom score. Schema-guided
+extraction, agentic validation/refinement, retrieval, graph evidence, answer
+generation, and failure/human-review boundaries are measured separately.
 
 ## Why Layered Evaluation
 
-Aviation training question answering has multiple failure modes. A retriever can
-find the right page while the KG misses the relation. A graph traversal can find
-connected paths while those paths point to the wrong source chunks. An answer can
-look fluent while citing weak evidence. A system can retrieve relevant training
-text but still need to abstain because the question asks for live weather, ATC
-clearance, POH procedures, aircraft-specific speeds, or a go/no-go decision.
+Evidence-grounded ATCSCC advisory question answering has multiple failure modes.
+A retriever can find the right advisory while the graph misses the relevant
+event relation. A graph traversal can find connected facts while those facts
+point to the wrong source advisory or unsupported span. An answer can look
+fluent while citing weak evidence. An automated diagnostic can find consistency
+issues without becoming human or expert review.
 
 Layered evaluation keeps these cases visible:
 
-- retrieval quality asks whether relevant chunks are ranked near the top;
-- graph evidence quality asks whether KG triples and paths cover entities,
+- schema-constrained extraction asks whether advisory event records obey the
+  application profile and keep provenance;
+- agentic validation/refinement asks whether validator, refiner, and critic
+  steps reduce unsupported or invalid facts;
+- retrieval quality asks whether relevant advisories and contexts are ranked
+  near the top;
+- graph evidence quality asks whether KG facts and paths cover entities,
   relations, and source provenance;
 - answer quality asks whether generated text is faithful, relevant, correct, and
   well cited;
 - ontology/KG quality asks whether the schema and triples are parseable,
   constrained, annotated, and source-grounded;
-- safety evaluation asks whether the system abstains when scoped evidence is
-  insufficient or the question crosses the advisory boundary.
+- failure-boundary evaluation asks which failures remain and whether they need
+  human review, profile changes, or stricter abstention.
 
 ## Why There Is No Overall Score
 
 The project does not compute a mixed overall score. A single score would combine
 metrics with different meanings, denominators, and risk profiles. For example,
-Recall@5 is an information-retrieval metric, provenance completeness is a KG
-construction metric, and false answer rate is a safety metric. Averaging them
-would make a high retrieval score capable of hiding an unsafe answer policy, or a
-clean ontology score capable of hiding poor retrieval.
+Recall@5 is an information-retrieval metric, provenance completeness is an
+extraction/KG-construction metric, and unsupported claim rate is an answer metric.
+Averaging them would make a high retrieval score capable of hiding unsupported
+answers, or a clean schema score capable of hiding poor retrieval.
 
 The thesis should therefore report metric groups side by side. GraphRAG should
 not be claimed to improve Recall@k unless the retrieval results support that
 specific claim.
 
 ## Primary Thesis Metrics
+
+### Schema-Constrained Extraction
+
+Primary extraction metrics are:
+
+- schema validity
+- structural acceptance rate
+- accepted fact count
+- rejected fact count
+- repaired fact count
+- provenance completeness
+- evidence-in-source rate
+- precision, recall, and F1 against reviewed source-bounded facts
+
+These metrics answer RQ1. Structural validity and semantic correctness must be
+reported separately. A record can be schema-valid while still semantically
+wrong, incomplete, or unsupported by the advisory text.
+
+### Agentic Validation And Refinement
+
+Primary agentic-loop metrics are:
+
+- schema violation reduction
+- unsupported relation reduction
+- repair success count
+- quarantine/rejection count
+- critic rejection count
+- post-loop precision, recall, and F1
+
+These metrics answer RQ2. The agentic loop is evaluated as an auditable
+extraction and validation workflow, not as autonomous ontology construction.
 
 ### Retrieval
 
@@ -57,7 +94,7 @@ Primary retrieval metrics are:
 These follow mainstream IR and RAG practice. Recall@k, Precision@k, MRR@k, and
 NDCG@k measure ranked retrieval quality. Context Precision@5 and Context Recall
 map the RAGAS-style context layer to the project gold labels by checking whether
-retrieved chunks, pages, or spans match expected evidence.
+retrieved advisories, chunks, or spans match expected evidence.
 
 Precision@5 and Context Precision@5 use intentionally different denominators.
 Precision@5 is strict IR precision over a fixed cutoff and divides by 5 even
@@ -106,9 +143,9 @@ answer evaluation. Current deterministic reports use source-citation and answer
 key overlap heuristics. Optional LLM-as-judge fields may be added, but any such
 scores must be marked as LLM-judge scores and not confused with human review.
 
-### Ontology And KG Construction
+### Application Schema And KG Construction
 
-Primary ontology/KG metrics are:
+Primary schema/KG metrics are:
 
 - RDF/OWL parse validity
 - label/comment coverage
@@ -118,26 +155,29 @@ Primary ontology/KG metrics are:
 - evidence-in-source rate
 - LLM-estimated triple semantic correctness from model-based review
 
-Ontology evaluation covers structural, functional, and usability/annotation
-quality. KG validation checks that extracted triples stay inside the curated
-ontology and preserve source provenance. Triple semantic correctness is not
-fabricated: the triple semantic review report initializes annotation fields as
-model-review pending, and `triple_semantic_llm_review` must be cited for
-LLM-estimated semantic correctness.
+Schema/KG evaluation covers structural, functional, and usability/annotation
+quality. KG validation checks that extracted facts stay inside the ATCSCC
+application profile and preserve source provenance. Triple semantic correctness
+is not fabricated: reviewed source-bounded labels or explicit model-review
+artifacts must be cited when semantic correctness is discussed.
 
-### Safety And Abstention
+### Failure And Human-Review Boundary
 
-Primary safety metrics are:
+Primary failure-boundary metrics are:
 
 - Abstention Accuracy
 - False Answer Rate
 - False Abstention Rate
 - Advisory Boundary Violation Count
 - Risk Category Accuracy
+- failure candidate count
+- profile/gold-boundary failure count
+- human-review completion status
+- expert-certification status
 
-These metrics are safety-sensitive for aviation. Benchmark v2 no-answer labels
-and operational boundary risk categories test whether the system abstains when
-the scoped PHAK Chapter 4 evidence is insufficient.
+These metrics are safety-sensitive for aviation and thesis claims. They test
+whether the system abstains when scoped advisory evidence is insufficient, and
+whether remaining errors are clearly separated from human or expert review.
 
 ## Secondary Metrics
 
@@ -151,11 +191,11 @@ are not the primary thesis claims.
 
 | Layer | Project reports | Primary metrics |
 | --- | --- | --- |
-| Retrieval | `retrieval_ablation*.json`, `chunking_comparison.json`, `hybrid_rag*.json` | Recall@5, Recall@10, Precision@5, MRR@5, MRR@10, NDCG@10, Context Precision@5, Context Recall |
-| Graph evidence/path retrieval | `graph_traversal_ablation*.json`, `retrieval_ablation*.json` | Key Entity Coverage, Relation Coverage, Path Recall@5, Path Precision@5, Supporting Path Rate, Average Path Length, Irrelevant Path Rate |
-| Answer generation | `answer_evaluation.json`, `hybrid_rag*.json` | Faithfulness, Answer Correctness, Answer Relevance, Citation Completeness, Citation Precision, Citation Recall |
-| Ontology/KG | `curated_ontology_evaluation.json`, `kg_validation.json`, `kg_extraction_comparison.json`, `triple_semantic_review_sample.json`, `triple_semantic_llm_review.json` | RDF/OWL validity, annotation coverage, domain/range completeness, unsupported schema counts, provenance completeness, evidence-in-source rate, LLM-estimated triple semantic review |
-| Safety/abstention | `sufficiency_evaluation.json`, `robustness_evaluation.json`, `answer_evaluation.json` | Abstention Accuracy, False Answer Rate, False Abstention Rate, Boundary Violation Count, Risk Category Accuracy |
+| Schema-constrained extraction | `nasa_atmonto_formal_experiment_scoring.json`, `nasa_atmonto_prediction_output_validation.json`, `nasa_atmonto_cq_evaluation.json` | schema validity, structural acceptance, accepted/rejected facts, precision, recall, F1, provenance completeness |
+| Agentic validation/refinement | `nasa_atmonto_s5_s6_agentic_loop.json`, `nasa_atmonto_s5_s6_live_agentic_full_run*.json` | violation reduction, repair/quarantine outcomes, critic rejection, post-loop F1 |
+| Retrieval and graph evidence | `nasa_atmonto_s7_retrieval.json`, `nasa_atmonto_s7_graph_health.json` | answer-set F1, target-source hit rate, graph-use rate, graph-context availability, path support |
+| Answer generation | `nasa_atmonto_answer_generation.json`, `nasa_atmonto_s7_answer_generation.json`, `nasa_atmonto_s7_llm_answer_generation.json` | answer correctness, evidence faithfulness, citation precision, citation recall, unsupported claim rate, abstention correctness |
+| Failure and review boundary | `nasa_atmonto_s7_*review*.json`, `nasa_atmonto_reviewer_defense_audit.json`, `nasa_atmonto_sota_goal_audit.json` | failure candidates, profile/gold-boundary cases, human-review completion, expert-certification status |
 
 Sufficiency evaluation is reported in two modes. The primary benchmark mode is
 gold-aided: it uses expected chunks and evidence spans to measure whether
@@ -176,6 +216,7 @@ answer correctness, but it has limitations:
 - LLM judgment is not external aviation expert certification.
 
 For this project, deterministic metrics and provenance checks are the default.
-LLM-as-judge fields must be explicitly marked when used. Human review is absent
-in this project. LLM-as-judge supports internal error discovery, but any strong
-aviation-domain correctness or certification claim remains unsupported.
+LLM-as-judge fields must be explicitly marked when used. Automated adversarial
+review supports internal error discovery, but any strong aviation-domain
+correctness, human-reviewed answer-quality, or certification claim remains
+unsupported until a completed human or expert review artifact exists.
