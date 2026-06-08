@@ -258,7 +258,7 @@ def register_thesis_report_commands(report: click.Group) -> None:
             for path in paths:
                 click.echo(f"Wrote {project_relative_path(path)}")
             click.echo(
-                "Wrote visual asset manifest; AI PNG assets present: "
+                "Wrote visual asset manifest; illustrative PNG assets present: "
                 f"{manifest['uses_gateway_or_api']}. "
                 "No credentials or gateway URL were recorded."
             )

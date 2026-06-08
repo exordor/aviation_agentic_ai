@@ -13,12 +13,16 @@ This file defines the durable project goals, scope boundaries, and success crite
 
 ## G1 - Course Objective And Project Rationale
 
-Build a research prototype that demonstrates how ontology, knowledge graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts can support an aviation advisory assistant.
+Build a research prototype that demonstrates how schema constraints, knowledge
+graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts
+can support evidence-grounded advisory-event question answering.
 
 Success criteria:
 
 - The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.
-- The final report explains ontology, KG, RAG, GraphRAG, hallucination mitigation, and agentic AI in the context of the implemented system.
+- The final report explains schema constraints, KG, RAG, GraphRAG,
+  hallucination mitigation, and agentic workflow design in the context of the
+  implemented system.
 - The project can explain where GraphRAG adds evidence traceability beyond plain LLM prompting or vector-only RAG, and where vector retrieval is sufficient.
 - The project uses FAA aviation handbook material as the starting source corpus.
 - The report clearly connects implementation choices to the course objective.
@@ -94,7 +98,8 @@ certification.
 
 ## G5 - Report Hygiene And Final Project Report
 
-Maintain readable project evidence and generate a complete final report from deterministic sources plus optional AI polishing.
+Maintain readable project evidence and generate a complete final report from
+deterministic sources plus optional model polishing.
 
 Success criteria:
 
@@ -104,7 +109,7 @@ Success criteria:
 - Missing experiments are explicitly marked TBD / Not yet run until evidence exists.
 
 Current status: report hygiene, deterministic final report, academic-style
-report, project-defense notes, AI-enhanced visual assets with local SVG
+report, project-defense notes, illustrative visual assets with local SVG
 fallbacks, and an editable academic defense PPTX are available under
 `reports/final/`. Final evaluation and web smoke evidence are recorded under
 `reports/stages/`. Thesis positioning is documented in
@@ -158,7 +163,7 @@ Current status: ontology design documentation, KG validation evidence, pilot
 chunking comparison, benchmark-v2 chunking hardening reports, fixed-window
 Hybrid RAG, structure-aware Hybrid RAG, GraphRAG review, evidence-level
 evaluation, web demo readiness/smoke evidence, academic report, final
-evaluation review, defense notes, AI-enhanced defense PPT, and per-question
+evaluation review, defense notes, illustrative defense PPT, and per-question
 evidence cards are available. The current defense framing is: GraphRAG should be
 defended as evidence traceability, KG evidence coverage, and safety-aware
 abstention rather than a simple page-level Recall winner; chunking-v2 top-k
@@ -201,8 +206,8 @@ vary. Embedding/index backend comparison and full parent-return retrieval for
 hierarchical/proposition methods remain future work.
 
 The review direction is model-based: benchmark, triple, graph-path, and answer
-review artifacts are LLM-assisted internal checks when run. They are not human
-review, not external aviation expert certification, and not operational
+review artifacts are internal model-assisted checks when run. They are not
+human review, not external aviation expert certification, and not operational
 readiness evidence.
 
 ## Current Non-Goals

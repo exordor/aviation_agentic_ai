@@ -18,6 +18,12 @@ __pycache__/
 /logs/
 /outputs/
 
+# Keep these legacy pattern strings for repository hygiene checks and for tools
+# that do not interpret root-anchored patterns consistently.
+data/indexes/
+data/chunks/
+models/
+
 # Generated local paper figure gallery. Keep scripts and crop specs in Git;
 # rebuild these from tmp/pdfs/ when needed.
 /reports/stages/paper_figure_gallery.html

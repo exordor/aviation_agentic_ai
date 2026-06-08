@@ -31,7 +31,7 @@ Related goals: G2, G3, G4, G5.
   - Evidence: GitLab remote `origin`, commit `5ccd437`.
 - [x] Clean report clutter by archiving old stage reports.
   - Evidence: `reports/stages/index.md`, `reports/archive/stages/2026-05-18/`.
-- [x] Generate the first AI-assisted project report draft.
+- [x] Generate the first model-assisted project report draft.
   - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.
 - [x] Verify local runtime and test environment.
   - Evidence: `uv run ruff check .`, `uv run pytest`.
@@ -136,13 +136,13 @@ Related goals: G1, G5, G6, G7, G8.
 - [x] Add project-defense notes and academic PPT outline.
   - Evidence: `reports/final/project_defense_notes.md`, `reports/final/project_defense_notes.json`, `reports/final/defense_deck_outline.md`, `reports/final/aviation_graphrag_defense_deck_sources.json`.
   - Acceptance: answers what was built, why ontology is needed, why KG is a deliverable, why GraphRAG is used, why chunking strategies are compared, and where the system can fail.
-- [x] Generate academic defense PPT and AI-enhanced visual assets.
+- [x] Generate academic defense PPT and illustrative visual assets.
   - Commands:
     - `uv run aviation-ai report visual-assets`
     - `uv run aviation-ai report defense-deck-outline`
     - `node scripts/build_defense_deck.mjs`
-  - Evidence: `reports/final/aviation_graphrag_defense_deck.pptx`, `reports/final/assets/*_ai.png`, `reports/final/assets/*.svg`, `reports/final/assets/visual_assets_manifest.json`.
-  - Acceptance: PPT uses evidence-backed action titles, AI presentation visuals with local SVG fallbacks, source citations, an artifact-index appendix, and zero layout-check errors/warnings.
+  - Evidence: `reports/final/aviation_graphrag_defense_deck.pptx`, `reports/final/assets/*_illustrative.png`, `reports/final/assets/*.svg`, `reports/final/assets/visual_assets_manifest.json`.
+  - Acceptance: PPT uses evidence-backed action titles, illustrative presentation visuals with local SVG fallbacks, source citations, an artifact-index appendix, and zero layout-check errors/warnings.
 - [x] Implement a minimal web interface demonstrator.
   - Command: `uv run aviation-ai web serve`
   - Evidence: `reports/stages/web_demo_readiness.md`

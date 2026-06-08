@@ -83,10 +83,10 @@ offline demo behavior and must be attributed below.
 
 ## Generated Presentation Assets
 
-### AI-Generated Explanatory Images
+### Illustrative Explanatory Images
 
 - Local generated assets:
-  `reports/final/assets/*_ai.png`
+  `reports/final/assets/*_illustrative.png`
 - Local deterministic fallbacks:
   `reports/final/assets/*.svg`
 - Manifest:
@@ -97,7 +97,7 @@ offline demo behavior and must be attributed below.
 - Integration rule:
   - Metrics, labels, source citations, and artifact paths remain editable PPT
     objects backed by local reports.
-  - The manifest records whether AI PNG assets are present but never records
+  - The manifest records whether illustrative PNG assets are present but never records
     API keys, tokens, gateway credentials, or private endpoint URLs.
 
 ## Runtime And Tooling Dependencies
