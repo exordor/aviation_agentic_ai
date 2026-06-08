@@ -1,8 +1,8 @@
 # Adversarial Review Report: aviation_agentic_ai
 
 **Date**: 2026-05-30
-**Reviewer**: Claude Agent (4 parallel adversarial sub-agents)
-**Scope**: Full project — architecture, scientific rigor, test quality, CLAUDE.md compliance
+**Reviewer**: 4 parallel adversarial review agents
+**Scope**: Full project — architecture, scientific rigor, test quality, repository-instruction compliance
 **Project Scale**: ~24K lines source / ~7K lines tests / 47 commits / 34 test files
 
 ---
@@ -14,7 +14,7 @@ Four independent adversarial review agents examined the project across different
 1. **Architecture & Code Quality** — coupling, dead code, error handling, type safety, duplication
 2. **Scientific Rigor & Methodology** — metric validity, statistical soundness, reproducibility
 3. **Test Quality & Coverage** — coverage gaps, assertion quality, mock quality, edge cases
-4. **CLAUDE.md Compliance** — repository boundaries, artifact policy, architecture constraints, dependency management
+4. **Repository-instruction compliance** — repository boundaries, artifact policy, architecture constraints, dependency management
 
 A total of **19 findings** were identified: 4 Critical, 8 Important, 7 Minor.
 

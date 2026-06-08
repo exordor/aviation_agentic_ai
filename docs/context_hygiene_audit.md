@@ -68,6 +68,18 @@ entry points.
 | `reports/stages/benchmark_*`, `chunking_*`, `hybrid_rag_*`, `retrieval_ablation*`, `graph_traversal_ablation*`, `graphrag_review.*`, `kg_validation.*`, `evidence_level_evaluation.*`, `web_demo_*`, `pdf_*` | Old PHAK/web-demo/chunking/retrieval experiment families. Preserve for provenance, but do not use as current claim evidence. |
 | `reports/stages/nasa_bga_*`, `reports/stages/nasa_source_*`, `reports/stages/nasa_ontology_extension_proposal.md` | NASA BGA or transfer-pilot material. Use only as transfer or source-expansion context. |
 
+## Ignored Local Material
+
+The following paths are intentionally ignored by Git and should not be loaded as
+current research context unless the task is specifically about historical
+forensics or cleanup:
+
+| Path | Why it is risky |
+| --- | --- |
+| `reports/archive/` | Local archive of obsolete stage reports, including old model-specific run identifiers and historical wording. Keep out of thesis-writing context. |
+| `outputs/` | Runtime outputs and scratch material that may combine multiple branches or stale experiments. |
+| `reports/stages/paper_figure_gallery.html` and gallery manifests | Local visual-comparison pages generated during paper review; useful for inspection, not thesis evidence. |
+
 ## Reading Rules
 
 1. Start every thesis-writing, review, or experiment-planning task from

@@ -99,7 +99,8 @@ large, environment-specific, or easy to rebuild:
 - raw NASA ATMONTO snapshots under `data/raw/nasa_atmonto/`;
 - smoke outputs under `data/experiments/nasa_atmonto/formal/smoke/`;
 - vector indexes, chunks, local paper PDFs, temporary PDF extraction assets,
-  gallery HTML/manifest files, and `outputs/`.
+  gallery HTML/manifest files, historical local archives under
+  `reports/archive/`, and `outputs/`.
 
 Future large experiment outputs should enter Git only when they are referenced
 by the thesis dashboard or a claim-safety audit. Otherwise place them under an
