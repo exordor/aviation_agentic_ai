@@ -1379,7 +1379,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
                     first_next_work,
                     "2. Smoke-test the FastAPI web demo and capture final review notes.",
                     "3. Write project-defense conclusions from fixed-window and structure-aware runs.",
-                    "4. Generate the AI-polished final report after review.",
+                    "4. Generate the model-polished final report after review.",
                     "5. Prepare final submission checks.",
                 ]
         else:
@@ -1387,7 +1387,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
                 "1. Review the chunking and Hybrid RAG reports for project-defense claims.",
                 "2. Decide whether to re-extract the KG with `structure_aware` chunks.",
                 "3. Refine gold labels from source-page to chunk/span evidence.",
-                "4. Generate the AI-polished final report after review.",
+                "4. Generate the model-polished final report after review.",
                 "5. Implement the minimal web interface demonstrator.",
             ]
     else:

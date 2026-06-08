@@ -58,7 +58,7 @@ def register_thesis_report_commands(report: click.Group) -> None:
             )
             click.echo(f"Wrote {project_relative_path(md_path)}")
             click.echo(f"Wrote {project_relative_path(sources_path)}")
-            mode = "AI-polished" if result["used_ai"] else "deterministic"
+            mode = "model-polished" if result["used_ai"] else "deterministic"
             click.echo(f"Generated {mode} project report.")
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc

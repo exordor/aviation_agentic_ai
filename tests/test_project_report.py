@@ -457,4 +457,4 @@ def test_cli_report_project_ai_uses_writer_flag(tmp_path: Path, monkeypatch) -> 
 
     assert result.exit_code == 0, result.output
     assert calls["use_ai"] is True
-    assert "Generated AI-polished project report" in result.output
+    assert "Generated model-polished project report" in result.output
