@@ -358,10 +358,10 @@ _UNSAFE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         ),
     ),
     (
-        "certified_aviation_assistant",
+        "certified_aviation_qa_system",
         re.compile(
-            r"\bcertified\b.{0,30}\baviation\b.{0,30}\bassistant\b"
-            r"|\baviation\b.{0,30}\bassistant\b.{0,30}\bcertified\b",
+            r"\bcertified\b.{0,30}\baviation\b.{0,30}\bqa system\b"
+            r"|\baviation\b.{0,30}\bqa system\b.{0,30}\bcertified\b",
             re.IGNORECASE,
         ),
     ),

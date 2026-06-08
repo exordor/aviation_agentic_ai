@@ -46,7 +46,7 @@ def test_unsafe_wording_detector_catches_overclaims() -> None:
         [
             "GraphRAG always improves Recall.",
             "Hybrid always outperforms vector retrieval.",
-            "This is a certified aviation assistant.",
+            "This is a certified aviation QA system.",
             "The tool can replace POH procedures.",
             "The tool can replace ATC clearances.",
             "Use it for an operational flight decision.",
@@ -62,7 +62,7 @@ def test_unsafe_wording_detector_catches_overclaims() -> None:
     pattern_ids = {finding["pattern_id"] for finding in findings}
     assert "graphrag_universal_recall" in pattern_ids
     assert "hybrid_always_beats_vector" in pattern_ids
-    assert "certified_aviation_assistant" in pattern_ids
+    assert "certified_aviation_qa_system" in pattern_ids
     assert "replace_poh" in pattern_ids
     assert "replace_atc" in pattern_ids
     assert "operational_flight_decision" in pattern_ids

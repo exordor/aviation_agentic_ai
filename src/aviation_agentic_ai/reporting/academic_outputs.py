@@ -558,7 +558,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         f"Validation passed={metrics['benchmark_v2']['validation_valid']}; review "
         f"status=`{metrics['benchmark_v2']['review_status']}`. The model-review pack "
         f"covers {metrics['benchmark_v2']['review_pack_labels_total']} labels and uses "
-        "automatic findings only as prompts for LLM-assisted internal review. Sources: "
+        "automatic findings only as prompts for model-assisted internal review. Sources: "
         "`reports/stages/benchmark_v2_summary.json`, "
         "`reports/stages/benchmark_review_pack.json`.",
         "",

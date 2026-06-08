@@ -1052,7 +1052,7 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             f"Answer generation and LLM judge: generation={llm_review.get('answer_generation', {})}, "
             f"judge={llm_review.get('answer_judge', {})}.",
             f"LLM review consistency: {llm_review.get('consistency', {})}.",
-            "All review-dependent claims are phrased as LLM-assisted or LLM-estimated, "
+            "All review-dependent claims are phrased as model-assisted or LLM-estimated, "
             "not human-verified.",
             "",
             "## Implementation Review Remediation",
@@ -1607,7 +1607,7 @@ def build_project_report_prompt(evidence: dict[str, Any], draft: str) -> str:
         "- Do not claim a universal best chunker, a mixed overall score, external "
         "aviation expert certification, or operational readiness.\n"
         "- Do not claim human review, manual review, expert gold labels, or "
-        "expert-verified triples. Use model-based/LLM-assisted wording only.\n"
+        "expert-verified triples. Use model-based or LLM-estimated wording only.\n"
         "- Preserve the advisory boundary and do not claim the system replaces POH, "
         "checklists, ATC, instructor guidance, or pilot judgment.\n"
         "- Keep all required sections from the deterministic draft.\n\n"

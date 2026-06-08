@@ -116,7 +116,7 @@ UNSAFE_PATTERNS = (
     "graphrag universally improves recall",
     "externally aviation-expert certified",
     "external aviation-expert certification",
-    "certified aviation assistant",
+    "certified aviation QA system",
     "operational flight readiness",
     "operationally safe for flight decisions",
     "support operational flight decisions",

@@ -32,7 +32,7 @@ Curated notes belong in `reports/stages/` and should use
 - Local download date: 2026-06-06
 - Local ignored PDF name: `arxiv_2402.14850_chatatc.pdf`
 - Use in this project: aviation-domain related work and evaluation reference
-  for LLM-assisted historical traffic flow management question answering. It
+  for model-assisted historical traffic flow management question answering. It
   supports the non-safety-critical advisory analysis framing, but it is not a
   KG, ontology-constrained extraction, or GraphRAG method reference.
 - Inspection artifacts: `tmp/pdfs/chatatc/`
@@ -83,7 +83,7 @@ default PDF inspection workflow and write a curated stage report.
 - arXiv PDF: https://arxiv.org/pdf/2411.09601
 - Local ignored PDF name:
   `arxiv_2411.09601_accelerating_kg_ontology_engineering_llms.pdf`
-- Candidate use: LLM-assisted ontology/KG engineering process design.
+- Candidate use: model-assisted ontology/KG engineering process design.
 
 - Title: "Ontology-grounded Automatic Knowledge Graph Construction by LLM
   under Wikidata schema"
