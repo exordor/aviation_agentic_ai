@@ -23,7 +23,7 @@ clean. They can include ignored local archives when explicit paths are supplied.
 
 | Family | Current tracked count | Default context status |
 | --- | ---: | --- |
-| Root project docs | 6 | mixed; start with `AGENTS.md`, `README.md`, `GOALS.md`, and use `TASKS.md` only for execution backlog. |
+| Root project docs | 6 | mixed; `AGENTS.md` is authoritative, `CLAUDE.md` is a compatibility shim, `README.md` and `GOALS.md` are project references, and `TASKS.md` is execution backlog only. |
 | `docs/*.md` | 23 | mixed; canonical docs plus historical PHAK-era protocols. |
 | `reports/stages/*` Markdown/JSON | 241 | mixed; current ATCSCC evidence, method literature, and legacy experiment reports live together. |
 | `reports/final/*` Markdown/JSON | 12 | mostly historical/transitional; current ATCSCC entry files are explicitly named. |
