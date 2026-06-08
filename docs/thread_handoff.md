@@ -37,6 +37,16 @@ Before opening a long-running new thread, also use the recommended Codex client
 state in `docs/documentation_maintenance.md#codex-skill-and-plugin-hygiene`:
 keep only the needed plugins and load task-specific skills on demand.
 
+## Startup Validation
+
+After reading the startup pack, verify these before making broad edits:
+
+1. The thesis is ATCSCC schema-constrained KG-RAG, not ontology construction.
+2. Historical PHAK/web-demo/final-report files are excluded by default.
+3. New source families need separate profiles and metrics.
+4. Tooling is limited to the plugins and skills needed for the current task.
+5. Claims stay evidence-backed and avoid operational readiness language.
+
 ## Claim Boundaries
 
 Allowed claims:
