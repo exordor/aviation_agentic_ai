@@ -6938,7 +6938,7 @@ def consensus_sota_remediation_constraints() -> dict[str, Any]:
                 "claim_guardrail": "Do not draw examples from the held-out 100 scoring records.",
             },
             {
-                "anchor": "llm_as_kg_assistant",
+                "anchor": "llm_as_kg_support_module",
                 "implementation": (
                     "Use LLMs as canonicalizer, semantic enrichment module, evidence checker, "
                     "and profile-gap explainer."

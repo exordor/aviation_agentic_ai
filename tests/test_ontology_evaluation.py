@@ -416,7 +416,7 @@ def test_evaluate_ontology_writes_reports_without_ai(tmp_path: Path) -> None:
     assert "Quality Gates" in markdown
     assert "Silver Answerability Heuristics" in markdown
     assert "not gold-standard answerability" in markdown
-    assert "AI review skipped" in markdown
+    assert "Model review skipped" in markdown
 
 
 def test_cli_ontology_evaluate_no_ai_review(tmp_path: Path) -> None:

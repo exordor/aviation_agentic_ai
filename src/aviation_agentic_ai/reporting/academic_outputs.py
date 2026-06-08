@@ -17,33 +17,33 @@ ACADEMIC_SKILLS = [
     "academic-pptx",
     "Presentations",
     "local-deterministic-svg-assets",
-    "gpt-image-2-optional-relay-assets",
+    "optional-visual-relay-assets",
 ]
 
 VISUAL_ASSETS = [
     {
-        "path": "reports/final/assets/project_cover_ai.png",
+        "path": "reports/final/assets/project_cover_illustrative.png",
         "fallback_path": "reports/final/assets/project_cover.svg",
         "purpose": "Apple-style title-slide cover visual for the defense deck.",
-        "prompt_role": "AI aviation GraphRAG research cover; no embedded text.",
+        "visual_role": "Illustrative aviation GraphRAG research cover; no embedded text.",
     },
     {
-        "path": "reports/final/assets/pipeline_hero_ai.png",
+        "path": "reports/final/assets/pipeline_hero_illustrative.png",
         "fallback_path": "reports/final/assets/pipeline_overview.svg",
         "purpose": "Large pipeline hero visual for PDF -> chunks -> KG -> Hybrid RAG.",
-        "prompt_role": "AI aviation GraphRAG pipeline hero; no embedded text.",
+        "visual_role": "Illustrative aviation GraphRAG pipeline hero; no embedded text.",
     },
     {
-        "path": "reports/final/assets/kg_evidence_ai.png",
+        "path": "reports/final/assets/kg_evidence_illustrative.png",
         "fallback_path": "reports/final/assets/ontology_kg_graphrag_concept.svg",
         "purpose": "Reusable KG evidence visual for ontology and GraphRAG slides.",
-        "prompt_role": "AI aviation KG evidence component; no embedded text.",
+        "visual_role": "Illustrative aviation KG evidence component; no embedded text.",
     },
     {
-        "path": "reports/final/assets/web_demo_ai.png",
+        "path": "reports/final/assets/web_demo_illustrative.png",
         "fallback_path": None,
         "purpose": "Apple-inspired web demo mockup for the interface explanation slide.",
-        "prompt_role": "AI web demo mockup; abstract placeholder text only.",
+        "visual_role": "Illustrative web demo mockup; abstract placeholder text only.",
     },
 ]
 
@@ -891,7 +891,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
             "title": "Ontology-constrained GraphRAG makes aviation handbook answers auditable",
             "role": "title",
             "claim": "The project turns PHAK Chapter 4 into an evidence-grounded GraphRAG demo.",
-            "visual": "reports/final/assets/project_cover_ai.png",
+            "visual": "reports/final/assets/project_cover_illustrative.png",
             "evidence_sources": common_sources,
             "speaker_note": "Open with the problem, the source document, and the advisory boundary.",
         },
@@ -909,7 +909,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
             "title": "The pipeline preserves traceability from PDF text to grounded answers",
             "role": "method",
             "claim": "Each answer can be traced through chunks, KG triples, retrieval mode, and citations.",
-            "visual": "reports/final/assets/pipeline_hero_ai.png",
+            "visual": "reports/final/assets/pipeline_hero_illustrative.png",
             "evidence_sources": ["README.md", "configs/default.yaml"],
             "speaker_note": "Walk left-to-right through the pipeline.",
         },
@@ -936,7 +936,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
                 f"Fixed-window KG has {metrics['kg']['fixed_window_triples']} triples; "
                 f"structure-aware KG has {metrics['kg']['structure_aware_triples']} triples."
             ),
-            "visual": "reports/final/assets/kg_evidence_ai.png",
+            "visual": "reports/final/assets/kg_evidence_illustrative.png",
             "evidence_sources": [
                 "reports/stages/kg_validation.json",
                 "reports/stages/structure_aware_kg_validation.json",
@@ -994,7 +994,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
                 f"{metrics['web_demo']['default_strategy']}; smoke="
                 f"{metrics['web_demo']['smoke_ready']}."
             ),
-            "visual": "reports/final/assets/web_demo_ai.png",
+            "visual": "reports/final/assets/web_demo_illustrative.png",
             "evidence_sources": [
                 "reports/stages/web_demo_readiness.json",
                 "reports/stages/web_demo_final_smoke.json",
@@ -1019,7 +1019,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
         },
         {
             "slide_number": 11,
-            "title": "The assistant is for aviation learning support, not operational authority",
+            "title": "The system is for aviation learning support, not operational authority",
             "role": "boundary",
             "claim": (
                 "Learning and decision-support only; not a POH, checklist, ATC, "
@@ -1314,7 +1314,7 @@ def write_visual_assets(output_dir: str | Path) -> tuple[list[Path], dict[str, A
     manifest = {
         "generated_at": _now(),
         "generation_method": (
-            "ai_png_assets_with_local_svg_fallbacks"
+            "illustrative_png_assets_with_local_svg_fallbacks"
             if ai_asset_present
             else "local_deterministic_svg_fallbacks"
         ),

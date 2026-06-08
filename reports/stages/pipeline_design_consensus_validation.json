@@ -153,7 +153,7 @@
     {
       "ref": 1,
       "title": "The NASA Air Traffic Management Ontology: Technical Documentation",
-      "url": "https://consensus.app/papers/the-nasa-air-traffic-management-ontology-technical-keller/aaa68d992d9257dc947aa197a05cffe7/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/the-nasa-air-traffic-management-ontology-technical-keller/aaa68d992d9257dc947aa197a05cffe7/",
       "authors": "R. Keller",
       "year": 2017,
       "citation_count": 18
@@ -161,7 +161,7 @@
     {
       "ref": 2,
       "title": "Building a Knowledge Graph for the Air Traffic Management Community",
-      "url": "https://consensus.app/papers/building-a-knowledge-graph-for-the-air-traffic-management-keller/0bd9184f163a5d03b3a5bcc8b926c7cf/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/building-a-knowledge-graph-for-the-air-traffic-management-keller/0bd9184f163a5d03b3a5bcc8b926c7cf/",
       "authors": "R. Keller",
       "year": 2019,
       "journal": "Companion Proceedings of The 2019 World Wide Web Conference",
@@ -170,7 +170,7 @@
     {
       "ref": 3,
       "title": "Ontology-Based Data Integration for Semantic Interoperability in Air Traffic Management",
-      "url": "https://consensus.app/papers/ontologybased-data-integration-for-semantic-egami-lu/d4c49acd073351f8a0c32e8f4732254e/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/ontologybased-data-integration-for-semantic-egami-lu/d4c49acd073351f8a0c32e8f4732254e/",
       "authors": "S. Egami, Xiaodong Lu, T. Koga, Y. Sumiya",
       "year": 2020,
       "journal": "2020 IEEE 14th International Conference on Semantic Computing (ICSC)",
@@ -179,7 +179,7 @@
     {
       "ref": 4,
       "title": "Matching Ontologies for Air Traffic Management: a Comparison and Reference Alignment of the AIRM and NASA ATM Ontologies",
-      "url": "https://consensus.app/papers/matching-ontologies-for-air-traffic-management-a-vennesland-keller/01af37df362c50a698821ec2fbba7aeb/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/matching-ontologies-for-air-traffic-management-a-vennesland-keller/01af37df362c50a698821ec2fbba7aeb/",
       "authors": "A. Vennesland, R. Keller, C. Schuetz, E. Gringinger, B. Neumayr",
       "year": 2019,
       "citation_count": 7
@@ -187,7 +187,7 @@
     {
       "ref": 5,
       "title": "Building Semantic Knowledge Graphs from (Semi-)Structured Data: A Review",
-      "url": "https://consensus.app/papers/building-semantic-knowledge-graphs-from-semistructured-ryen-soylu/1320b5afd1ab58d6a3e24c91a499425e/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/building-semantic-knowledge-graphs-from-semistructured-ryen-soylu/1320b5afd1ab58d6a3e24c91a499425e/",
       "authors": "Vetle Ryen, A. Soylu, D. Roman",
       "year": 2022,
       "journal": "Future Internet",
@@ -196,7 +196,7 @@
     {
       "ref": 6,
       "title": "A Review of SHACL: From Data Validation to Schema Reasoning for RDF Graphs",
-      "url": "https://consensus.app/papers/a-review-of-shacl-from-data-validation-to-schema-reasoning-pareti-konstantinidis/10995bdbe3cc54f397f5505ae787cc9b/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/a-review-of-shacl-from-data-validation-to-schema-reasoning-pareti-konstantinidis/10995bdbe3cc54f397f5505ae787cc9b/",
       "authors": "Paolo Pareti, G. Konstantinidis",
       "year": 2021,
       "citation_count": 42
@@ -204,7 +204,7 @@
     {
       "ref": 7,
       "title": "From human experts to machines: An LLM supported approach to ontology and knowledge graph construction",
-      "url": "https://consensus.app/papers/from-human-experts-to-machines-an-llm-supported-approach-to-kommineni-knig-ries/57f213fdb33c53609cd26604814de6b3/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/from-human-experts-to-machines-an-llm-supported-approach-to-kommineni-knig-ries/57f213fdb33c53609cd26604814de6b3/",
       "authors": "Vamsi Krishna Kommineni, B. Koenig-Ries, Sheeba Samuel",
       "year": 2024,
       "journal": "ArXiv",
@@ -213,7 +213,7 @@
     {
       "ref": 8,
       "title": "Text2KGBench: A Benchmark for Ontology-Driven Knowledge Graph Generation from Text",
-      "url": "https://consensus.app/papers/text2kgbench-a-benchmark-for-ontologydriven-knowledge-mihindukulasooriya-tiwari/b24be0d0ff9f52eebfa7a23833492952/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/text2kgbench-a-benchmark-for-ontologydriven-knowledge-mihindukulasooriya-tiwari/b24be0d0ff9f52eebfa7a23833492952/",
       "authors": "Nandana Mihindukulasooriya, S. Tiwari, Carlos F. Enguix, K. Lata",
       "year": 2023,
       "citation_count": 118
@@ -221,7 +221,7 @@
     {
       "ref": 9,
       "title": "Docs2KG: A Human-LLM Collaborative Approach to Unified Knowledge Graph Construction from Heterogeneous Documents",
-      "url": "https://consensus.app/papers/docs2kg-a-humanllm-collaborative-approach-to-unified-sun-luo/d2c7ec831d695f5fb3a02d3cd10ae6b0/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/docs2kg-a-humanllm-collaborative-approach-to-unified-sun-luo/d2c7ec831d695f5fb3a02d3cd10ae6b0/",
       "authors": "Qiang Sun, Yuanyi Luo, Wenxiao Zhang, Sirui Li, Jichunyang Li, Kai Niu, Xiangrui Kong, Wei Liu",
       "year": 2025,
       "journal": "Companion Proceedings of the ACM on Web Conference 2025",
@@ -230,7 +230,7 @@
     {
       "ref": 10,
       "title": "Knowledge graph validation by integrating LLMs and human-in-the-loop",
-      "url": "https://consensus.app/papers/knowledge-graph-validation-by-integrating-llms-and-tsaneva-dess/ef224a0a19d05ba4a3667ac7df16c122/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/knowledge-graph-validation-by-integrating-llms-and-tsaneva-dess/ef224a0a19d05ba4a3667ac7df16c122/",
       "authors": "Stefani Tsaneva, D. Dessi, Francesco Osborne, Marta Sabou",
       "year": 2025,
       "journal": "Information Processing & Management",
@@ -239,7 +239,7 @@
     {
       "ref": 11,
       "title": "Large language models for generative information extraction: a survey",
-      "url": "https://consensus.app/papers/large-language-models-for-generative-information-xu-chen/4c63099c001557d0847c860d1f98e213/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/large-language-models-for-generative-information-xu-chen/4c63099c001557d0847c860d1f98e213/",
       "authors": "Derong Xu, Wei Chen, Wenjun Peng, Chao Zhang, Tong Xu, Xiangyu Zhao, Xian Wu, Yefeng Zheng, Enhong Chen",
       "year": 2023,
       "journal": "Frontiers of Computer Science",
@@ -248,7 +248,7 @@
     {
       "ref": 12,
       "title": "Event Extraction in Large Language Model",
-      "url": "https://consensus.app/papers/event-extraction-in-large-language-model-li-han/3eee89eb691d5bab933b78db77888d77/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/event-extraction-in-large-language-model-li-han/3eee89eb691d5bab933b78db77888d77/",
       "authors": "Bobo Li, Xudong Han, Jiang Liu, Yuzhe Ding, Liqiang Jing, Zhaoqi Zhang, Jinheng Li, Xinya Du, Fei Li, Meishan Zhang, Min Zhang, Aixin Sun, P. Yu, Hao Fei",
       "year": 2025,
       "journal": "ArXiv",
@@ -257,7 +257,7 @@
     {
       "ref": 13,
       "title": "A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions",
-      "url": "https://consensus.app/papers/a-survey-on-hallucination-in-large-language-models-huang-yu/2ed4ee36843c59e58e5b66fb210b0d54/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/a-survey-on-hallucination-in-large-language-models-huang-yu/2ed4ee36843c59e58e5b66fb210b0d54/",
       "authors": "Lei Huang, Weijiang Yu, Weitao Ma, Weihong Zhong, Zhangyin Feng, Haotian Wang, Qianglong Chen, Weihua Peng, Xiaocheng Feng, Bing Qin, Ting Liu",
       "year": 2023,
       "journal": "ACM Transactions on Information Systems",
@@ -266,7 +266,7 @@
     {
       "ref": 14,
       "title": "Docling: An Efficient Open-Source Toolkit for AI-driven Document Conversion",
-      "url": "https://consensus.app/papers/docling-an-efficient-opensource-toolkit-for-aidriven-livathinos-auer/ec62522c3373520680261d2ec660d533/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/docling-an-efficient-opensource-toolkit-for-aidriven-livathinos-auer/ec62522c3373520680261d2ec660d533/",
       "authors": "Nikolaos Livathinos et al.",
       "year": 2025,
       "journal": "ArXiv",
@@ -275,7 +275,7 @@
     {
       "ref": 15,
       "title": "A Comparative Study of PDF Parsing Tools Across Diverse Document Categories",
-      "url": "https://consensus.app/papers/a-comparative-study-of-pdf-parsing-tools-across-diverse-adhikari-agarwal/356c29104c7f53a8a9695d4dc3bd8a49/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/a-comparative-study-of-pdf-parsing-tools-across-diverse-adhikari-agarwal/356c29104c7f53a8a9695d4dc3bd8a49/",
       "authors": "Narayan Adhikari, S. Agarwal",
       "year": 2024,
       "journal": "ArXiv",
@@ -284,7 +284,7 @@
     {
       "ref": 16,
       "title": "Graph Retrieval-Augmented Generation: A Survey",
-      "url": "https://consensus.app/papers/graph-retrievalaugmented-generation-a-survey-peng-zhu/1b8c5362a3d3538ba1dd90f9b40178f1/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/graph-retrievalaugmented-generation-a-survey-peng-zhu/1b8c5362a3d3538ba1dd90f9b40178f1/",
       "authors": "Boci Peng, Yun Zhu, Yongchao Liu, Xiaohe Bo, Haizhou Shi, Chuntao Hong, Yan Zhang, Siliang Tang",
       "year": 2024,
       "journal": "ACM Transactions on Information Systems",
@@ -293,7 +293,7 @@
     {
       "ref": 17,
       "title": "RAG vs. GraphRAG: A Systematic Evaluation and Key Insights",
-      "url": "https://consensus.app/papers/rag-vs-graphrag-a-systematic-evaluation-and-key-insights-han-shomer/79a87d60d85a5596b0c6f1077a0b4725/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/rag-vs-graphrag-a-systematic-evaluation-and-key-insights-han-shomer/79a87d60d85a5596b0c6f1077a0b4725/",
       "authors": "Haoyu Han, Harry Shomer, Yu Wang, Yongjia Lei, Kai Guo, Zhigang Hua, Bo Long, Hui Liu, Jiliang Tang",
       "year": 2025,
       "journal": "ArXiv",
@@ -302,7 +302,7 @@
     {
       "ref": 18,
       "title": "GraphRAG-Bench: Challenging Domain-Specific Reasoning for Evaluating Graph Retrieval-Augmented Generation",
-      "url": "https://consensus.app/papers/graphragbench-challenging-domainspecific-reasoning-for-xiao-dong/622e8b388c575636b2d8f4b7463068c0/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/graphragbench-challenging-domainspecific-reasoning-for-xiao-dong/622e8b388c575636b2d8f4b7463068c0/",
       "authors": "Yilin Xiao, Junnan Dong, Chuang Zhou, Su Dong, Qianwen Zhang, Di Yin, Xing Sun, Xiao Huang",
       "year": 2025,
       "journal": "ArXiv",
@@ -311,7 +311,7 @@
     {
       "ref": 19,
       "title": "Retrieval-Augmented Generation with Knowledge Graphs for Customer Service Question Answering",
-      "url": "https://consensus.app/papers/retrievalaugmented-generation-with-knowledge-graphs-for-xu-cruz/34effc648b565bf4be1a759f098455cf/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/retrievalaugmented-generation-with-knowledge-graphs-for-xu-cruz/34effc648b565bf4be1a759f098455cf/",
       "authors": "Zhentao Xu, Mark Jerome Cruz, M. Guevara, Tie-xin Wang, Manasi Deshpande, Xiaofeng Wang, Zheng Li",
       "year": 2024,
       "journal": "Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval",
@@ -320,7 +320,7 @@
     {
       "ref": 20,
       "title": "ARES: An Automated Evaluation Framework for Retrieval-Augmented Generation Systems",
-      "url": "https://consensus.app/papers/ares-an-automated-evaluation-framework-for-saad-falcon-khattab/dd05712d36365561becd51b2b17be9a4/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/ares-an-automated-evaluation-framework-for-saad-falcon-khattab/dd05712d36365561becd51b2b17be9a4/",
       "authors": "Jon Saad-Falcon, O. Khattab, Christopher Potts, Matei Zaharia",
       "year": 2023,
       "journal": "ArXiv",
@@ -329,7 +329,7 @@
     {
       "ref": 21,
       "title": "RAGAs: Automated Evaluation of Retrieval Augmented Generation",
-      "url": "https://consensus.app/papers/ragas-automated-evaluation-of-retrieval-augmented-shahul-james/1e214d3a38e2558b8d6595f964842bca/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/ragas-automated-evaluation-of-retrieval-augmented-shahul-james/1e214d3a38e2558b8d6595f964842bca/",
       "authors": "ES Shahul, J. James, Luis Espinosa Anke, S. Schockaert",
       "year": 2023,
       "journal": "ArXiv",
@@ -338,7 +338,7 @@
     {
       "ref": 22,
       "title": "Evaluation of Retrieval-Augmented Generation: A Survey",
-      "url": "https://consensus.app/papers/evaluation-of-retrievalaugmented-generation-a-survey-yu-gan/861805cd172d534298b77a83a0d83d92/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/evaluation-of-retrievalaugmented-generation-a-survey-yu-gan/861805cd172d534298b77a83a0d83d92/",
       "authors": "Hao Yu, Aoran Gan, Kai Zhang, Shiwei Tong, Qi Liu, Zhaofeng Liu",
       "year": 2024,
       "journal": "ArXiv",
@@ -347,7 +347,7 @@
     {
       "ref": 23,
       "title": "Evaluating Retrieval Quality in Retrieval-Augmented Generation",
-      "url": "https://consensus.app/papers/evaluating-retrieval-quality-in-retrievalaugmented-salemi-zamani/a0505157c8a35c0082d67273dc6c6818/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/evaluating-retrieval-quality-in-retrievalaugmented-salemi-zamani/a0505157c8a35c0082d67273dc6c6818/",
       "authors": "Alireza Salemi, Hamed Zamani",
       "year": 2024,
       "journal": "Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval",
@@ -356,7 +356,7 @@
     {
       "ref": 24,
       "title": "Use of Competency Questions in Ontology Engineering: A Survey",
-      "url": "https://consensus.app/papers/use-of-competency-questions-in-ontology-engineering-a-quirino-salamon/2cb3dc0807b6581ca448a183299303b7/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/use-of-competency-questions-in-ontology-engineering-a-quirino-salamon/2cb3dc0807b6581ca448a183299303b7/",
       "authors": "Glaice K. S. Quirino, J. S. Salamon, M. Barcellos",
       "year": 2023,
       "citation_count": 26
@@ -364,7 +364,7 @@
     {
       "ref": 25,
       "title": "Analysis of Ontology Competency Questions and their formalizations in SPARQL-OWL",
-      "url": "https://consensus.app/papers/analysis-of-ontology-competency-questions-and-their-wisniewski-potoniec/10971540ec3c52e488c274b84edeba70/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/analysis-of-ontology-competency-questions-and-their-wisniewski-potoniec/10971540ec3c52e488c274b84edeba70/",
       "authors": "Dawid Wisniewski, Jedrzej Potoniec, Agnieszka Lawrynowicz, C. Keet",
       "year": 2019,
       "journal": "Journal of Web Semantics",
@@ -373,7 +373,7 @@
     {
       "ref": 26,
       "title": "Ontology generation for flight safety messages in air traffic management",
-      "url": "https://consensus.app/papers/ontology-generation-for-flight-safety-messages-in-air-aghdam-tabbakh/c53444faec215b978b77482f5c2f3523/?utm_source=chatgpt",
+      "url": "https://consensus.app/papers/ontology-generation-for-flight-safety-messages-in-air-aghdam-tabbakh/c53444faec215b978b77482f5c2f3523/",
       "authors": "Mahdi Yousefzadeh Aghdam, Seyed Reza Kamel Tabbakh, Seyed Javad Mahdavi Chabok, M. Kheyrabadi",
       "year": 2021,
       "journal": "Journal of Big Data",

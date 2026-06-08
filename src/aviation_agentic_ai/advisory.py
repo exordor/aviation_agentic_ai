@@ -1,4 +1,4 @@
-"""Shared advisory-assistant safety boundary text."""
+"""Shared advisory support safety boundary text."""
 
 ADVISORY_BOUNDARY = (
     "This system is for aviation learning and decision-support only. Do not claim to "

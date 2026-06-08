@@ -4,7 +4,7 @@
     "cq_file": "data/cqs/06_phak_ch4_0.json",
     "output_dir": "reports/stages",
     "report_name": "curated_ontology_evaluation",
-    "cq_standard": "AI-generated silver CQs, not domain-expert gold annotations",
+    "cq_standard": "machine-generated silver CQs, not domain-expert gold annotations",
     "sample_size_requested": 50,
     "sample_size_actual": 50,
     "seed": 42,

@@ -531,7 +531,7 @@ uv run aviation-ai ontology evaluate --generated --report-name generated_ontolog
 The deterministic report distinguishes an RDF-valid TBox extraction prototype
 from a valid TBox prototype. A valid prototype must pass conservative quality
 gates for TBox-only output, ontology metadata, label coverage, domain/range
-completeness, namespace policy, and high-severity semantic smell checks. AI
+completeness, namespace policy, and high-severity semantic smell checks. Model
 review is opt-in; run with `--ai-review` only after configuring a rotated local
 API key in an ignored `.env` file.
 
@@ -542,8 +542,8 @@ boundary CQs:
 uv run aviation-ai ontology scope
 ```
 
-The evaluation treats generated CQs and boundary CQs as AI-generated silver CQs,
-not expert gold annotations.
+The evaluation treats generated CQs and boundary CQs as machine-generated silver
+CQs, not expert gold annotations.
 
 ## Review Reports
 

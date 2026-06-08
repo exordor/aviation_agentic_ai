@@ -1122,7 +1122,7 @@ def build_ai_review_prompt(cq: CompetencyQuestionRecord, context: dict[str, Any]
     }
     return (
         "You are evaluating whether an aviation OWL ontology can support an "
-        "AI-generated silver Competency Question. Use only the provided ontology "
+        "Machine-generated silver Competency Question. Use only the provided ontology "
         "context. Do not assume domain facts that are absent from the context. "
         "Return JSON only using this schema:\n"
         f"{json.dumps(schema, indent=2)}\n\n"
@@ -1284,7 +1284,7 @@ def evaluate_ontology(
             "cq_file": project_relative_path(cq_path),
             "output_dir": project_relative_path(report_dir),
             "report_name": report_stem,
-            "cq_standard": "AI-generated silver CQs, not domain-expert gold annotations",
+            "cq_standard": "machine-generated silver CQs, not domain-expert gold annotations",
             "sample_size_requested": sample_size,
             "sample_size_actual": len(sample),
             "seed": seed,
@@ -1343,7 +1343,7 @@ def write_evaluation_markdown(result: dict[str, Any], output_path: str | Path) -
         "",
         f"- Ontology: `{result['metadata']['ontology_file']}`",
         f"- CQ file: `{result['metadata']['cq_file']}`",
-        "- CQ standard: AI-generated silver CQs, not domain-expert gold annotations",
+        "- CQ standard: machine-generated silver CQs, not domain-expert gold annotations",
         f"- AI review enabled: {_yes_no(ai_review['enabled'])}",
         "",
         "## Overall Judgment",
@@ -1424,7 +1424,7 @@ def write_evaluation_markdown(result: dict[str, Any], output_path: str | Path) -
         f"- Object property matches: {answerability.get('object_property_matches', 0)}",
         f"- Datatype property matches: {answerability.get('datatype_property_matches', 0)}",
         "",
-        "## AI Review",
+        "## Model Review",
         "",
     ]
     if ai_review["enabled"]:
@@ -1438,7 +1438,7 @@ def write_evaluation_markdown(result: dict[str, Any], output_path: str | Path) -
             ]
         )
     else:
-        lines.append("- AI review skipped. Run with `--ai-review` after configuring a rotated API key.")
+        lines.append("- Model review skipped. Run with `--ai-review` after configuring a rotated API key.")
 
     lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")

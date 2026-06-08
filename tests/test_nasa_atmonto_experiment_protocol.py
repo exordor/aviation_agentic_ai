@@ -66,7 +66,7 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
         "pymupdf_text_legacy",
         "term_has_definition",
         "procedure_mentions_concept",
-        "Consensus SOTA Adaptation For The Rerun",
+        "SOTA-Informed Adaptation For The Rerun",
         "Extract-Define-Canonicalize",
         "reviewed_dev_examples",
         "held-out 100 scoring records",

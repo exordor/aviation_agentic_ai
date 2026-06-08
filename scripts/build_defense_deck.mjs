@@ -349,7 +349,7 @@ export async function ${exportName}(presentation, ctx) {
     text(slide, ctx, wrap(slideData.title, 32, 4), 84, 142, 520, 250, { size: 39, bold: true, color: COLORS.ink });
     text(slide, ctx, wrap(slideData.claim, 58, 3), 84, 430, 500, 88, { size: 21, color: COLORS.muted });
     if (slideData.visualPath) {
-      await ctx.addImage(slide, { path: slideData.visualPath, left: 666, top: 118, width: 520, height: 346, fit: "contain", alt: "AI-generated project cover visual" });
+      await ctx.addImage(slide, { path: slideData.visualPath, left: 666, top: 118, width: 520, height: 346, fit: "contain", alt: "Illustrative project cover visual" });
     }
     metricCards(slide, ctx, metricData);
     footer(slide, ctx, slideData.slide_number, slideData.evidence_sources);
@@ -358,7 +358,7 @@ export async function ${exportName}(presentation, ctx) {
   title(slide, ctx, slideData.title);
   if (slideData.slide_number === 3) {
     if (slideData.visualPath) {
-      await ctx.addImage(slide, { path: slideData.visualPath, left: 74, top: 150, width: 1132, height: 372, fit: "contain", alt: "AI-generated pipeline hero visual" });
+      await ctx.addImage(slide, { path: slideData.visualPath, left: 74, top: 150, width: 1132, height: 372, fit: "contain", alt: "Illustrative pipeline hero visual" });
     }
     ["PDF", "Chunks", "Ontology", "KG", "Chroma", "Grounded answer"].forEach((label, index) => {
       chip(slide, ctx, label, 112 + index * 174, 548, 132, { bold: index === 5, line: index === 5 ? COLORS.accent : COLORS.line });
@@ -399,7 +399,7 @@ export async function ${exportName}(presentation, ctx) {
     statCard(slide, ctx, "172", "fixed-window triples", 112, 452);
     statCard(slide, ctx, "448", "structure-aware triples", 282, 452);
     if (slideData.visualPath) {
-      await ctx.addImage(slide, { path: slideData.visualPath, left: 616, top: 172, width: 560, height: 374, fit: "contain", alt: "AI-generated KG evidence visual" });
+      await ctx.addImage(slide, { path: slideData.visualPath, left: 616, top: 172, width: 560, height: 374, fit: "contain", alt: "Illustrative KG evidence visual" });
     }
     footer(slide, ctx, slideData.slide_number, slideData.evidence_sources);
     return slide;
@@ -437,7 +437,7 @@ export async function ${exportName}(presentation, ctx) {
     }
   } else if (slideData.slide_number === 9) {
     if (slideData.visualPath) {
-      await ctx.addImage(slide, { path: slideData.visualPath, left: 70, top: 156, width: 780, height: 486, fit: "contain", alt: "AI-generated web demo mockup" });
+      await ctx.addImage(slide, { path: slideData.visualPath, left: 70, top: 156, width: 780, height: 486, fit: "contain", alt: "Illustrative web demo mockup" });
     }
     text(slide, ctx, "Demo explanation surface", 892, 200, 250, 24, { size: 16, bold: true, color: COLORS.accent });
     bullets(slide, ctx, [

@@ -46,7 +46,7 @@ SRD/TIP artifacts, and add reproducible run manifests/checkpoints.
 
 ## Notes
 
-- Current CQs are AI-generated silver CQs, not expert gold annotations.
+- Current CQs are machine-generated silver CQs, not expert gold annotations.
 - Current lexical CQ coverage should be treated as a smoke metric only.
 - The baseline ontology is RDF-valid, but not yet publication-ready.
 - Future reviews should add new JSON/Markdown files under `reports/reviews/`

@@ -200,10 +200,9 @@ faithfulness/completeness, and citation support must be reported separately.
 The current remediation only supports KG construction metrics; it must not be
 used to claim end-to-end GraphRAG answer improvement.
 
-Additional literature leads such as OntoLogX, JSON-Schema-guided information
-extraction, Graphusion, RAKG, RAGAS, STaRK, and Microsoft GraphRAG are
-`requiring verification`. They are search leads only until directly fetched and
-checked.
+Additional literature leads such as OntoLogX, JSON-Schema-guided information extraction,
+Graphusion, RAKG, RAGAS, STaRK, and Microsoft GraphRAG are `requiring verification`.
+They are search leads only until directly fetched and checked.
 
 ## Research Claims
 

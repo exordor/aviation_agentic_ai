@@ -14,7 +14,7 @@
 
 - Role: `title`
 - Claim: The project turns PHAK Chapter 4 into an evidence-grounded GraphRAG demo.
-- Visual: reports/final/assets/project_cover_ai.png
+- Visual: reports/final/assets/project_cover_illustrative.png
 - Sources: `reports/stages/index.json`, `reports/final/project_academic_report.md`
 - Speaker note: Open with the problem, the source document, and the advisory boundary.
 
@@ -30,7 +30,7 @@
 
 - Role: `method`
 - Claim: Each answer can be traced through chunks, KG triples, retrieval mode, and citations.
-- Visual: reports/final/assets/pipeline_hero_ai.png
+- Visual: reports/final/assets/pipeline_hero_illustrative.png
 - Sources: `README.md`, `configs/default.yaml`
 - Speaker note: Walk left-to-right through the pipeline.
 
@@ -46,7 +46,7 @@
 
 - Role: `method`
 - Claim: Fixed-window KG has 172 triples; structure-aware KG has 448 triples.
-- Visual: reports/final/assets/kg_evidence_ai.png
+- Visual: reports/final/assets/kg_evidence_illustrative.png
 - Sources: `reports/stages/kg_validation.json`, `reports/stages/structure_aware_kg_validation.json`
 - Speaker note: Stress evidence/provenance validation rather than raw triple count.
 
@@ -78,7 +78,7 @@
 
 - Role: `demo`
 - Claim: Readiness=True; default strategy=structure_aware; smoke=True.
-- Visual: reports/final/assets/web_demo_ai.png
+- Visual: reports/final/assets/web_demo_illustrative.png
 - Sources: `reports/stages/web_demo_readiness.json`, `reports/stages/web_demo_final_smoke.json`
 - Speaker note: Show answer, chunks, KG triples, KG graph, and Why This Result.
 
@@ -141,11 +141,11 @@
 - `docs/document_expansion_protocol.md`
 - `docs/ontology_design.md`
 - `docs/thesis_positioning.md`
-- `reports/final/assets/kg_evidence_ai.png`
-- `reports/final/assets/pipeline_hero_ai.png`
-- `reports/final/assets/project_cover_ai.png`
+- `reports/final/assets/kg_evidence_illustrative.png`
+- `reports/final/assets/pipeline_hero_illustrative.png`
+- `reports/final/assets/project_cover_illustrative.png`
 - `reports/final/assets/visual_assets_manifest.json`
-- `reports/final/assets/web_demo_ai.png`
+- `reports/final/assets/web_demo_illustrative.png`
 - `reports/final/aviation_graphrag_defense_deck.pptx`
 - `reports/final/aviation_graphrag_defense_deck_sources.json`
 - `reports/final/defense_deck_outline.md`

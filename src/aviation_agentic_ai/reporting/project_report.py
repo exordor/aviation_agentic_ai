@@ -23,7 +23,7 @@ PROJECT_REPORT_SECTIONS = (
     "Hybrid RAG protocol and layered metrics",
     "NASA source expansion and ontology boundary validation",
     "Current results and limitations",
-    "Advisory assistant boundary",
+    "Advisory support boundary",
     "Next work plan",
     "Reproducibility appendix",
 )
@@ -1556,7 +1556,7 @@ def build_project_report_draft(evidence: dict[str, Any]) -> str:
         "GraphRAG should be defended as structured evidence support rather than a "
         "single-score Recall improvement.",
         "",
-        "## Advisory assistant boundary",
+        "## Advisory support boundary",
         "",
         evidence["advisory_boundary"],
         "",
@@ -1608,7 +1608,7 @@ def build_project_report_prompt(evidence: dict[str, Any], draft: str) -> str:
         "aviation expert certification, or operational readiness.\n"
         "- Do not claim human review, manual review, expert gold labels, or "
         "expert-verified triples. Use model-based/LLM-assisted wording only.\n"
-        "- Preserve the advisory boundary and do not claim the assistant replaces POH, "
+        "- Preserve the advisory boundary and do not claim the system replaces POH, "
         "checklists, ATC, instructor guidance, or pilot judgment.\n"
         "- Keep all required sections from the deterministic draft.\n\n"
         f"Deterministic draft:\n---\n{draft}\n---\n\n"

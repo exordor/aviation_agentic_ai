@@ -83,11 +83,11 @@ Sources: `src/aviation_agentic_ai/advisory.py`
 - `docs/document_expansion_protocol.md`
 - `docs/ontology_design.md`
 - `docs/thesis_positioning.md`
-- `reports/final/assets/kg_evidence_ai.png`
-- `reports/final/assets/pipeline_hero_ai.png`
-- `reports/final/assets/project_cover_ai.png`
+- `reports/final/assets/kg_evidence_illustrative.png`
+- `reports/final/assets/pipeline_hero_illustrative.png`
+- `reports/final/assets/project_cover_illustrative.png`
 - `reports/final/assets/visual_assets_manifest.json`
-- `reports/final/assets/web_demo_ai.png`
+- `reports/final/assets/web_demo_illustrative.png`
 - `reports/final/aviation_graphrag_defense_deck.pptx`
 - `reports/final/aviation_graphrag_defense_deck_sources.json`
 - `reports/final/defense_deck_outline.md`
