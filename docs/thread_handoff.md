@@ -33,6 +33,10 @@ their layer:
   `reports/stages/nasa_atmonto_reviewer_defense_audit.md`,
   `reports/stages/nasa_atmonto_sota_goal_audit.md`.
 
+Before opening a long-running new thread, also use the recommended Codex client
+state in `docs/documentation_maintenance.md#codex-skill-and-plugin-hygiene`:
+keep only the needed plugins and load task-specific skills on demand.
+
 ## Claim Boundaries
 
 Allowed claims:
