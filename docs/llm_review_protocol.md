@@ -1,8 +1,8 @@
 # LLM-Based Review Protocol
 
 This project does not use human reviewers for the current thesis hardening
-workflow. Review-dependent artifacts are therefore reported as model-based
-review, LLM-assisted review, or configured-model review. They are not human
+workflow. Review-dependent artifacts are therefore reported as model-based or
+configured-model review. They are not human
 manual review, external aviation expert review, expert gold labels, or
 operational certification.
 

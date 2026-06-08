@@ -264,4 +264,4 @@ Related goals: G5.
 - Do not commit `.env`, local Chroma indexes, model caches, or generated temporary files.
 - Keep `reports/stages/` as a dashboard entrypoint; archive detailed stage artifacts with `aviation-ai report hygiene --apply`.
 - Every completed experiment should leave a JSON report, Markdown report, and run manifest.
-- Do not claim advisory assistant capability beyond aviation learning and decision support.
+- Do not claim advisory QA capability beyond aviation learning and decision support.

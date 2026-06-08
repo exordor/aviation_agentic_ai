@@ -116,9 +116,9 @@ fallbacks, and an editable academic defense PPTX are available under
 `docs/thesis_positioning.md`, with deterministic claim review output under
 `reports/stages/thesis_claims_review.md` when regenerated.
 
-## G6 - Future Advisory Assistant Boundary
+## G6 - Future Advisory QA Boundary
 
-Prepare for a future advisory assistant while keeping the current prototype within a safe learning and decision-support boundary.
+Prepare for a future advisory QA workflow while keeping the current prototype within a safe learning and decision-support boundary.
 
 Success criteria:
 
@@ -212,7 +212,7 @@ readiness evidence.
 
 ## Current Non-Goals
 
-- Do not build a production cockpit assistant in this phase.
+- Do not build a production cockpit QA system in this phase.
 - Do not present the web interface as certified, real-time, or operational flight software.
 - Do not integrate live aircraft sensors or real-time environmental data in this phase.
 - Do not expand to emergency/procedure manuals before the document metadata and section schema are stable.

@@ -53,7 +53,7 @@ Evidence-level scoring is more useful for defending GraphRAG: structure-aware hy
 
 The thesis benchmark v2 layer is reported separately from the earlier course gold set. It is machine-seeded and span-validated against repository chunks, but it is not external aviation-expert certification.
 
-Benchmark v2 contains 120 labels: 100 supported labels and 20 insufficient-evidence labels. Validation passed=True; review status=`llm_review_pending_not_human_certified`. The model-review pack covers 120 labels and uses automatic findings only as prompts for LLM-assisted internal review. Sources: `reports/stages/benchmark_v2_summary.json`, `reports/stages/benchmark_review_pack.json`.
+Benchmark v2 contains 120 labels: 100 supported labels and 20 insufficient-evidence labels. Validation passed=True; review status=`llm_review_pending_not_human_certified`. The model-review pack covers 120 labels and uses automatic findings only as prompts for model-assisted internal review. Sources: `reports/stages/benchmark_v2_summary.json`, `reports/stages/benchmark_review_pack.json`.
 
 On benchmark v2, vector Recall@5=0.475 and default hybrid Recall@5=0.5167; hybrid KG evidence coverage=0.8. These retrieval metrics are kept separate from KG evidence coverage. Source: `reports/stages/retrieval_ablation_benchmark_v2.json`.
 

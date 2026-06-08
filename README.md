@@ -211,8 +211,8 @@ associated with the paper in
 `data/papers/towards-automated-ontology-generation-multi-agent-llm.pdf`. The
 upstream implementation is
 `https://github.com/brains-group/towards_automated_ontology_generation`. Source
-PDF text was converted into ontology-focused Competency Questions, then an
-LLM-assisted pipeline turned those CQs into validated Semantic Requirements
+PDF text was converted into ontology-focused Competency Questions, then a
+model-assisted pipeline turned those CQs into validated Semantic Requirements
 Document and Technical Implementation Plan JSON artifacts, then Turtle ontology
 output. Per-run manifests and page checkpoints are written when an artifact
 directory is supplied. The baseline ontology is not treated as final.

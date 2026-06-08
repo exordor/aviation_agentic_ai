@@ -84,7 +84,7 @@ Triple semantic LLM review: {'evidence_support_rate': 0.1667, 'llm_reviewed': 6,
 Graph path LLM review: {'llm_reviewed': 6, 'path_relevance_rate': 0.3333, 'records': 6}.
 Answer generation and LLM judge: generation={'answers_total': 9, 'status': 'complete'}, judge={'correctness_rate': None, 'llm_reviewed': 5, 'records': 6}.
 LLM review consistency: {'agreement_rate': 0.3636, 'consistency_not_measured': False}.
-All review-dependent claims are phrased as LLM-assisted or LLM-estimated, not human-verified.
+All review-dependent claims are phrased as model-assisted or LLM-estimated, not human-verified.
 
 ## Implementation Review Remediation
 

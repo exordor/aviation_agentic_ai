@@ -70,6 +70,7 @@ Load additional files only when the task needs their layer:
 | `reports/final/project_*`, `reports/final/defense_deck_outline.md`, old deck source JSON | Final-style but mostly pre-ATCSCC. | Presentation format reference or manually reviewed reusable fragments. |
 | `reports/reviews/*` and root `reports/*review*.md` | Review trails from earlier branches may include stale issue lists or resolved risks. | Audit history only after checking current dashboard and reviewer-defense audit. |
 | `data/raw/nasa_bga_aerodynamics/*.md` | Transfer-pilot source family, not ATCSCC. | Transfer/source-expansion tasks only. |
+| `data/cqs/06_phak_*.json` | Historical PHAK benchmark and gold data with repeated legacy notes; useful provenance but noisy as thread context. | Load only for explicit PHAK benchmark or historical comparison tasks. |
 | `data/papers/ntrs_ontology_selection/*.pdf` | Tracked source PDFs are useful provenance but large and not thread context. | Open specific PDFs only for source-background analysis. |
 
 ## Current-Use Families
