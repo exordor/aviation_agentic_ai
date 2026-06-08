@@ -8,6 +8,7 @@ old evidence without letting old framing control the thesis story.
 
 | Purpose | Document |
 | --- | --- |
+| New-thread compact context | `docs/thread_handoff.md` |
 | Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
 | Documentation tiers and maintenance rules | `docs/documentation_maintenance.md` |
@@ -110,14 +111,15 @@ ignored runtime/output location and summarize them in a small tracked report.
 
 When documents disagree, use this precedence:
 
-1. `docs/thesis_positioning.md`
-2. `docs/research_mainline.md`
-3. `docs/context_hygiene_audit.md`
-4. `docs/documentation_maintenance.md`
-5. `docs/experiment_workflow.md`
-6. `reports/stages/thesis_experiment_dashboard.md`
-7. Latest SOTA/reviewer-defense audit reports
-8. Older stage reports
+1. `docs/thread_handoff.md` for compact new-thread orientation
+2. `docs/thesis_positioning.md`
+3. `docs/research_mainline.md`
+4. `docs/context_hygiene_audit.md`
+5. `docs/documentation_maintenance.md`
+6. `docs/experiment_workflow.md`
+7. `reports/stages/thesis_experiment_dashboard.md`
+8. Latest SOTA/reviewer-defense audit reports
+9. Older stage reports
 
 This avoids old PHAK-oriented reports overriding the current ATCSCC
 schema-constrained Agentic KG-RAG framing.

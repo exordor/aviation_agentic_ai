@@ -5,8 +5,8 @@ protocols live in `docs/`.
 
 ## Default Context
 
-- Start from `docs/documentation_map.md` and
-  `docs/context_hygiene_audit.md` before loading broad project context.
+- For a new thread, start from `docs/thread_handoff.md`, then
+  `docs/documentation_map.md` and `docs/context_hygiene_audit.md`.
 - Current thesis: schema-constrained, evidence-grounded Agentic KG-RAG over
   retrospective FAA ATCSCC advisories.
 - PHAK, web-demo, chunking-era, and old final-report docs are historical unless
@@ -14,6 +14,8 @@ protocols live in `docs/`.
 - Avoid unsupported claims: full aviation ontology completeness, live ATC
   decision support, external expert certification, or universal GraphRAG
   superiority.
+- Do not load ignored archives, `outputs/`, figure galleries, or old PHAK-era
+  reports unless the task explicitly asks for historical comparison.
 
 ## Research Boundaries
 
