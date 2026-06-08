@@ -8,9 +8,10 @@ For the current ATCSCC thesis route, start with:
 1. `docs/documentation_map.md`
 2. `docs/thesis_positioning.md`
 3. `docs/research_mainline.md`
-4. `docs/experiment_workflow.md`
-5. `reports/stages/thesis_experiment_dashboard.md`
-6. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
+4. `docs/context_hygiene_audit.md`
+5. `docs/experiment_workflow.md`
+6. `reports/stages/thesis_experiment_dashboard.md`
+7. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 
 ## Current Status
 

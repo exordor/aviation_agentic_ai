@@ -1,5 +1,10 @@
 # PDF Extraction Backend Policy
 
+> Historical context warning: this file is PDF-ingestion tooling policy. It can
+> support paper/reference processing, but it should not define the current
+> ATCSCC thesis story or evaluation scope. Start from
+> `docs/context_hygiene_audit.md` before loading historical PDF/chunking docs.
+
 ## Decision
 
 The project now treats PDF extraction as a backend choice, not as a single

@@ -1,5 +1,10 @@
 # Document Expansion Protocol
 
+> Historical context warning: this file describes the earlier PHAK Chapter 4
+> expansion policy. Do not use it as the current source-family policy for
+> ATCSCC advisories, reference PDFs, NASR/facility data, or weather data. Start
+> from `docs/context_hygiene_audit.md` instead.
+
 This project must not expand beyond PHAK Chapter 4 until each new source has a
 stable metadata record, section map, and evaluation plan. The goal is to avoid
 mixing document-scope uncertainty with GraphRAG retrieval or KG extraction

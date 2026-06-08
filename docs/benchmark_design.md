@@ -1,5 +1,10 @@
 # Benchmark Design
 
+> Historical context warning: this file describes the earlier PHAK Chapter 4
+> benchmark. Do not use it as the current ATCSCC event-extraction or KG-RAG
+> evaluation protocol. Start from `docs/context_hygiene_audit.md` and
+> `docs/evaluation_protocol.md` instead.
+
 This project uses PHAK Chapter 4 benchmark labels to evaluate retrieval,
 GraphRAG evidence, answer faithfulness, robustness, and insufficient-evidence
 abstention as separate layers. The v2 benchmark is a thesis-oriented seed set,

@@ -11,6 +11,7 @@ old evidence without letting old framing control the thesis story.
 | Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
 | Documentation tiers and maintenance rules | `docs/documentation_maintenance.md` |
+| Context hygiene and historical-document risk | `docs/context_hygiene_audit.md` |
 | Final deliverable directory status | `reports/final/README.md` |
 | Experiment sequence and regeneration commands | `docs/experiment_workflow.md` |
 | Metric definitions and no-overall-score policy | `docs/evaluation_protocol.md` |
@@ -78,6 +79,8 @@ as the current thesis entry point:
 Historical reports may still be cited for method evolution or negative results,
 but current thesis claims should be routed through `docs/research_mainline.md`,
 `docs/thesis_positioning.md`, and `reports/stages/thesis_experiment_dashboard.md`.
+For a file-level list of documents that can pollute current LLM context, use
+`docs/context_hygiene_audit.md`.
 
 ## Artifact Management Policy
 
@@ -108,11 +111,12 @@ When documents disagree, use this precedence:
 
 1. `docs/thesis_positioning.md`
 2. `docs/research_mainline.md`
-3. `docs/documentation_maintenance.md`
-4. `docs/experiment_workflow.md`
-5. `reports/stages/thesis_experiment_dashboard.md`
-6. Latest SOTA/reviewer-defense audit reports
-7. Older stage reports
+3. `docs/context_hygiene_audit.md`
+4. `docs/documentation_maintenance.md`
+5. `docs/experiment_workflow.md`
+6. `reports/stages/thesis_experiment_dashboard.md`
+7. Latest SOTA/reviewer-defense audit reports
+8. Older stage reports
 
 This avoids old PHAK-oriented reports overriding the current ATCSCC
 schema-constrained Agentic KG-RAG framing.

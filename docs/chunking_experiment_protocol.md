@@ -1,5 +1,10 @@
 # Chunking Experiment Protocol
 
+> Historical context warning: this file describes earlier PDF/chunking
+> experiments. Do not use it as the current ATCSCC advisory-event extraction
+> protocol. Start from `docs/context_hygiene_audit.md` and
+> `docs/experiment_workflow.md` instead.
+
 ## Purpose
 
 Chunking controls the evidence units indexed by vector retrieval and later used

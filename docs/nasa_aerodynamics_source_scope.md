@@ -1,5 +1,10 @@
 # NASA Glenn Aerodynamics Source Scope
 
+> Historical context warning: this file describes a NASA BGA transfer/source
+> pilot beyond the earlier PHAK prototype. It is not the current ATCSCC
+> source-family or thesis mainline. Start from `docs/context_hygiene_audit.md`
+> before using it.
+
 ## Purpose
 
 NASA Glenn Beginner's Guide to Aeronautics aerodynamics pages are added as a

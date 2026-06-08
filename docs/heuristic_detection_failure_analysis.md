@@ -1,5 +1,9 @@
 # Heuristic Detection Failure Analysis
 
+> Historical context warning: this file describes PHAK PDF-structure heuristic
+> failures. It is tooling history, not current ATCSCC thesis framing. Start
+> from `docs/context_hygiene_audit.md` for current context-loading rules.
+
 ## Purpose
 
 The chunking module ([src/aviation_agentic_ai/chunking/chunks.py](../src/aviation_agentic_ai/chunking/chunks.py))

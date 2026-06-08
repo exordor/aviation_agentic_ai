@@ -1,5 +1,11 @@
 # NASA ATMONTO Experiment Design
 
+> Transitional context warning: this file documents the shift from the old PHAK
+> prototype toward NASA ATMONTO. It is useful history, but the current thesis is
+> narrower: schema-constrained, evidence-grounded Agentic KG-RAG over
+> retrospective FAA ATCSCC advisories. Start from
+> `docs/context_hygiene_audit.md` and `docs/research_mainline.md` first.
+
 Last updated: 2026-06-01
 
 ## Material Passport

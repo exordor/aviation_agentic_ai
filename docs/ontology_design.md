@@ -1,5 +1,10 @@
 # Explainable Ontology Design
 
+> Historical context warning: this file describes the earlier PHAK Chapter 4
+> curated-ontology prototype. Do not use it as the current ATCSCC thesis
+> ontology/profile description. Start from `docs/context_hygiene_audit.md` and
+> `reports/stages/atcscc_ontology_profile_overview.md` instead.
+
 Last updated: 2026-06-01
 
 ## Purpose

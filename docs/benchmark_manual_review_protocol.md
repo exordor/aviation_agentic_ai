@@ -1,5 +1,10 @@
 # Benchmark Model-Based Review Protocol
 
+> Historical context warning: this file describes model-based review for the
+> earlier PHAK benchmark. Do not use it as the current ATCSCC gold-review or
+> answer-review protocol. Start from `docs/context_hygiene_audit.md` and
+> `docs/nasa_atmonto_gold_annotation_guide.md` instead.
+
 ## Purpose
 
 Benchmark v2 expands the project from 35 labels to 120 labels, but the current

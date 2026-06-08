@@ -1,5 +1,10 @@
 # NASA Ontology Boundary
 
+> Historical context warning: this file describes a PHAK/NASA BGA ontology
+> boundary pilot. It is not the current ATCSCC application-profile boundary.
+> Start from `docs/context_hygiene_audit.md` and
+> `reports/stages/atcscc_ontology_profile_overview.md` instead.
+
 This boundary document defines how the NASA Glenn Beginners Guide to Aeronautics
 aerodynamics corpus is used to test the current PHAK Chapter 4 task ontology.
 The landing-page corpus is collected broadly, but the current ontology boundary
