@@ -29,6 +29,23 @@ Use these files first for a new thread or broad orientation:
 This startup pack is intentionally small. Load task-specific files only after
 choosing the work type.
 
+## Codex Skill And Plugin Hygiene
+
+Keep project threads on the smallest useful tool surface:
+
+- Enable only the plugins needed for the current work. For this repository,
+  the usual core set is Browser, GitHub, and Superpowers; add Documents,
+  Data Analytics, Product Design, or Creative Production only for a task that
+  specifically needs them.
+- Treat skills as task routers, not background reading. Load a skill only when
+  its trigger matches the current action, then return to the project startup
+  pack and task-specific files.
+- Do not use broad research, design, or document-generation skills as default
+  project context. They can import assumptions that are unrelated to the
+  ATCSCC schema-constrained KG-RAG line.
+- Keep custom skill descriptions short and trigger-only. Long descriptions are
+  injected into new threads and compete with project context.
+
 ## Task-Specific Entry Points
 
 Use these files as needed:
