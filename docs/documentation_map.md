@@ -8,7 +8,7 @@ old evidence without letting old framing control the thesis story.
 
 | Purpose | Document |
 | --- | --- |
-| Research mainline and story | `docs/research_mainline.md` |
+| Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
 | Experiment sequence and regeneration commands | `docs/experiment_workflow.md` |
 | Metric definitions and no-overall-score policy | `docs/evaluation_protocol.md` |
