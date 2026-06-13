@@ -146,9 +146,9 @@
         "system_id": "S4_hybrid_backbone_enrichment",
         "label": "Hybrid backbone + semantic enrichment",
         "available": true,
-        "precision": 0.6795,
-        "recall": 0.7619,
-        "f1": 0.7183,
+        "precision": 0.6857,
+        "recall": 0.7742,
+        "f1": 0.7273,
         "scoring_validity": "valid_target_schema_scoring"
       }
     ]
@@ -814,14 +814,14 @@
             "initiativeComments",
             "reRouteReason"
           ],
-          "predicted_fact_count": 145,
+          "predicted_fact_count": 150,
           "gold_fact_count": 141,
-          "true_positive_count": 65,
-          "false_positive_count": 80,
-          "false_negative_count": 76,
-          "precision": 0.4483,
-          "recall": 0.461,
-          "f1": 0.4546
+          "true_positive_count": 73,
+          "false_positive_count": 77,
+          "false_negative_count": 68,
+          "precision": 0.4867,
+          "recall": 0.5177,
+          "f1": 0.5017
         }
       ],
       "best_system": {
@@ -1522,14 +1522,14 @@
             "impactingCondition",
             "implementationStatus"
           ],
-          "predicted_fact_count": 369,
+          "predicted_fact_count": 374,
           "gold_fact_count": 293,
-          "true_positive_count": 255,
-          "false_positive_count": 114,
-          "false_negative_count": 38,
-          "precision": 0.6911,
-          "recall": 0.8703,
-          "f1": 0.7704
+          "true_positive_count": 263,
+          "false_positive_count": 111,
+          "false_negative_count": 30,
+          "precision": 0.7032,
+          "recall": 0.8976,
+          "f1": 0.7886
         }
       ],
       "best_system": {
@@ -1692,14 +1692,14 @@
             "impactingCondition",
             "reRouteReason"
           ],
-          "predicted_fact_count": 305,
+          "predicted_fact_count": 310,
           "gold_fact_count": 224,
-          "true_positive_count": 177,
-          "false_positive_count": 128,
-          "false_negative_count": 47,
-          "precision": 0.5803,
-          "recall": 0.7902,
-          "f1": 0.6692
+          "true_positive_count": 185,
+          "false_positive_count": 125,
+          "false_negative_count": 39,
+          "precision": 0.5968,
+          "recall": 0.8259,
+          "f1": 0.6929
         }
       ],
       "best_system": {

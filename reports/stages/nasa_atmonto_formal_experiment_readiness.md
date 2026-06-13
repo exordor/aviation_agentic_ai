@@ -25,7 +25,7 @@
 - Decision progress: `ready_to_apply`
 - Ready to apply / not started: 100 / 0
 - Rejected-fact decisions confirmed: 40 / 40
-- First priority lane: `1_rejection_adjudication` (35 records, 799 est. min)
+- First priority lane: `1_rejection_adjudication` (35 records, 800 est. min)
 - Start packet: `data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md`
 - First sample: `ATCSCC-GOLD-001` / `2026-05-19:032` via `data/evaluation/nasa_atmonto/review_decisions/batch_01.jsonl`
 - Boundary: Priority packets and suggested_* fields are work aids only. A record becomes gold only after source review, completed review_checklist, confirmed decisions, validation, and frozen reviewed output.

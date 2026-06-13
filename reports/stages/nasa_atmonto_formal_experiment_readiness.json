@@ -29,7 +29,7 @@
       "lane_id": "1_rejection_adjudication",
       "label": "Rejected-fact adjudication first",
       "record_count": 35,
-      "estimated_review_minutes": 799,
+      "estimated_review_minutes": 800,
       "packet_markdown": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md",
       "first_sample_id": "ATCSCC-GOLD-001",
       "first_source_id": "2026-05-19:032",

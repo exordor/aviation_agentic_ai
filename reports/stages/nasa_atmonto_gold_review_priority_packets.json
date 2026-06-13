@@ -18,9 +18,9 @@
       "label": "Rejected-fact adjudication first",
       "path": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md",
       "record_count": 35,
-      "estimated_review_minutes": 799,
+      "estimated_review_minutes": 800,
       "candidate_cluster_count": 1270,
-      "cross_system_candidate_cluster_count": 1239,
+      "cross_system_candidate_cluster_count": 1242,
       "rejected_fact_count": 40,
       "records": [
         {
@@ -129,6 +129,21 @@
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_02.md"
         },
         {
+          "sample_id": "ATCSCC-GOLD-024",
+          "source_id": "2026-05-18:136",
+          "batch_id": "batch_03",
+          "candidate_subject_class": "GroundStopTMI",
+          "priority_lane": "1_rejection_adjudication",
+          "complexity_tier": "heavy",
+          "workload_score": 91,
+          "estimated_review_minutes": 26,
+          "candidate_cluster_count": 44,
+          "cross_system_candidate_cluster_count": 43,
+          "rejected_fact_count": 1,
+          "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
+          "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
+        },
+        {
           "sample_id": "ATCSCC-GOLD-052",
           "source_id": "2026-05-20:119",
           "batch_id": "batch_06",
@@ -142,21 +157,6 @@
           "rejected_fact_count": 1,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_06.jsonl",
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_06.md"
-        },
-        {
-          "sample_id": "ATCSCC-GOLD-024",
-          "source_id": "2026-05-18:136",
-          "batch_id": "batch_03",
-          "candidate_subject_class": "GroundStopTMI",
-          "priority_lane": "1_rejection_adjudication",
-          "complexity_tier": "heavy",
-          "workload_score": 90,
-          "estimated_review_minutes": 25,
-          "candidate_cluster_count": 44,
-          "cross_system_candidate_cluster_count": 42,
-          "rejected_fact_count": 1,
-          "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
-          "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
         },
         {
           "sample_id": "ATCSCC-GOLD-054",
@@ -240,10 +240,10 @@
           "candidate_subject_class": "GroundStopTMI",
           "priority_lane": "1_rejection_adjudication",
           "complexity_tier": "heavy",
-          "workload_score": 84,
+          "workload_score": 85,
           "estimated_review_minutes": 25,
           "candidate_cluster_count": 41,
-          "cross_system_candidate_cluster_count": 39,
+          "cross_system_candidate_cluster_count": 40,
           "rejected_fact_count": 1,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
@@ -414,6 +414,21 @@
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
         },
         {
+          "sample_id": "ATCSCC-GOLD-021",
+          "source_id": "2026-05-14:089",
+          "batch_id": "batch_03",
+          "candidate_subject_class": "GroundStopTMI",
+          "priority_lane": "1_rejection_adjudication",
+          "complexity_tier": "heavy",
+          "workload_score": 71,
+          "estimated_review_minutes": 22,
+          "candidate_cluster_count": 34,
+          "cross_system_candidate_cluster_count": 33,
+          "rejected_fact_count": 1,
+          "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
+          "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
+        },
+        {
           "sample_id": "ATCSCC-GOLD-055",
           "source_id": "2026-05-20:179",
           "batch_id": "batch_06",
@@ -427,21 +442,6 @@
           "rejected_fact_count": 1,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_06.jsonl",
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_06.md"
-        },
-        {
-          "sample_id": "ATCSCC-GOLD-021",
-          "source_id": "2026-05-14:089",
-          "batch_id": "batch_03",
-          "candidate_subject_class": "GroundStopTMI",
-          "priority_lane": "1_rejection_adjudication",
-          "complexity_tier": "heavy",
-          "workload_score": 70,
-          "estimated_review_minutes": 22,
-          "candidate_cluster_count": 34,
-          "cross_system_candidate_cluster_count": 32,
-          "rejected_fact_count": 1,
-          "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
-          "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
         },
         {
           "sample_id": "ATCSCC-GOLD-008",
@@ -555,9 +555,9 @@
       "label": "High cross-system candidate coverage",
       "path": "data/evaluation/nasa_atmonto/review_priority_packets/2_high_cross_system_coverage.md",
       "record_count": 16,
-      "estimated_review_minutes": 393,
+      "estimated_review_minutes": 394,
       "candidate_cluster_count": 720,
-      "cross_system_candidate_cluster_count": 715,
+      "cross_system_candidate_cluster_count": 720,
       "rejected_fact_count": 0,
       "records": [
         {
@@ -582,10 +582,10 @@
           "candidate_subject_class": "GroundDelayProgramTMI",
           "priority_lane": "2_high_cross_system_coverage",
           "complexity_tier": "heavy",
-          "workload_score": 124,
+          "workload_score": 125,
           "estimated_review_minutes": 32,
           "candidate_cluster_count": 62,
-          "cross_system_candidate_cluster_count": 61,
+          "cross_system_candidate_cluster_count": 62,
           "rejected_fact_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_02.jsonl",
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_02.md"
@@ -681,6 +681,21 @@
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_10.md"
         },
         {
+          "sample_id": "ATCSCC-GOLD-022",
+          "source_id": "2026-05-15:064",
+          "batch_id": "batch_03",
+          "candidate_subject_class": "GroundDelayProgramTMI",
+          "priority_lane": "2_high_cross_system_coverage",
+          "complexity_tier": "heavy",
+          "workload_score": 87,
+          "estimated_review_minutes": 24,
+          "candidate_cluster_count": 43,
+          "cross_system_candidate_cluster_count": 43,
+          "rejected_fact_count": 0,
+          "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
+          "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
+        },
+        {
           "sample_id": "ATCSCC-GOLD-044",
           "source_id": "2026-05-16:026",
           "batch_id": "batch_05",
@@ -694,21 +709,6 @@
           "rejected_fact_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_05.jsonl",
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_05.md"
-        },
-        {
-          "sample_id": "ATCSCC-GOLD-022",
-          "source_id": "2026-05-15:064",
-          "batch_id": "batch_03",
-          "candidate_subject_class": "GroundDelayProgramTMI",
-          "priority_lane": "2_high_cross_system_coverage",
-          "complexity_tier": "heavy",
-          "workload_score": 86,
-          "estimated_review_minutes": 23,
-          "candidate_cluster_count": 43,
-          "cross_system_candidate_cluster_count": 42,
-          "rejected_fact_count": 0,
-          "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
-          "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
         },
         {
           "sample_id": "ATCSCC-GOLD-065",
@@ -747,10 +747,10 @@
           "candidate_subject_class": "GroundDelayProgramTMI",
           "priority_lane": "2_high_cross_system_coverage",
           "complexity_tier": "heavy",
-          "workload_score": 70,
+          "workload_score": 71,
           "estimated_review_minutes": 20,
           "candidate_cluster_count": 35,
-          "cross_system_candidate_cluster_count": 34,
+          "cross_system_candidate_cluster_count": 35,
           "rejected_fact_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_02.jsonl",
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_02.md"
@@ -762,10 +762,10 @@
           "candidate_subject_class": "GroundDelayProgramTMI",
           "priority_lane": "2_high_cross_system_coverage",
           "complexity_tier": "heavy",
-          "workload_score": 70,
+          "workload_score": 71,
           "estimated_review_minutes": 20,
           "candidate_cluster_count": 35,
-          "cross_system_candidate_cluster_count": 34,
+          "cross_system_candidate_cluster_count": 35,
           "rejected_fact_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_02.jsonl",
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_02.md"
@@ -777,10 +777,10 @@
           "candidate_subject_class": "GroundDelayProgramTMI",
           "priority_lane": "2_high_cross_system_coverage",
           "complexity_tier": "heavy",
-          "workload_score": 68,
+          "workload_score": 69,
           "estimated_review_minutes": 20,
           "candidate_cluster_count": 34,
-          "cross_system_candidate_cluster_count": 33,
+          "cross_system_candidate_cluster_count": 34,
           "rejected_fact_count": 0,
           "decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_02.jsonl",
           "batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_02.md"

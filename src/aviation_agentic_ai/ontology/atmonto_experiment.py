@@ -4444,6 +4444,55 @@ HYBRID_SEMANTIC_ENRICHMENT_PREDICATES = {
     "reRouteType",
 }
 
+IMPACTING_CONDITION_CATEGORY_MAP: dict[str, str] = {
+    "staffing": "staffing",
+    "weather": "weather",
+    "thunderstorm": "weather",
+    "wind shear": "weather",
+    "low ceilings": "weather",
+    "visibility": "weather",
+    "snow": "weather",
+    "ice": "weather",
+    "fog": "weather",
+    "volume": "volume",
+    "demand": "volume",
+    "runway": "runway",
+    "equipment": "equipment",
+    "outage": "equipment",
+    "navaid": "equipment",
+}
+
+
+def derive_impacting_condition_category(
+    source_text: str,
+    facts: list[dict[str, Any]],
+) -> str | None:
+    """Derive an impactingCondition enum value from the message text or source text.
+
+    Checks the extracted impactingConditionMessage value first, then falls back
+    to the advisory source text. Returns None when no condition category matches.
+    """
+    for fact in facts:
+        if term_name(fact.get("predicate")) == "impactingConditionMessage":
+            message = str(fact.get("value", "")).lower()
+            for keyword, category in IMPACTING_CONDITION_CATEGORY_MAP.items():
+                if keyword in message:
+                    return category
+    text = source_text.lower()
+    marker = "impacting condition"
+    marker_pos = text.find(marker)
+    if marker_pos >= 0:
+        window = text[marker_pos : marker_pos + 120]
+        cut = window.find("comment")
+        if cut > 0:
+            window = window[:cut]
+        window = window.splitlines()[0]
+        for keyword, category in IMPACTING_CONDITION_CATEGORY_MAP.items():
+            if keyword in window:
+                return category
+    return None
+
+
 S1B_EXTENSION_ENUMS = {"NONE", "LOW", "MEDIUM", "MODERATE", "HIGH"}
 S1B_IMPLEMENTATION_ENUMS = {"FYI", "PLN", "RMD", "RQD"}
 S1B_STOPWORDS = {
@@ -4862,6 +4911,91 @@ def build_s4_prediction_record(
             }
         )
 
+    # Deterministic impactingCondition derivation: categorize the condition
+    # message/source text so S4 does not depend on S3 LLM for this enum field.
+    # This is a backbone-level derivation that takes priority over S3 enrichment.
+    # It only overrides S3 when the derived category disagrees with (or is absent
+    # from) S3's accepted impactingCondition, so records S3 already categorizes
+    # correctly keep their better subject/evidence alignment.
+    derived_condition = derive_impacting_condition_category(source_text, facts)
+    s0_has_impacting_condition = any(
+        term_name(item.get("validated_fact", {}).get("predicate")) == "impactingCondition"
+        for item in accepted_validation_items(s0_record or {})
+    )
+    s3_existing_condition: str | None = None
+    for item in accepted_validation_items(s3_record or {}):
+        fact = item.get("validated_fact", {})
+        if term_name(fact.get("predicate")) == "impactingCondition":
+            s3_existing_condition = str(fact.get("value", ""))
+            break
+    if (
+        derived_condition is not None
+        and not s0_has_impacting_condition
+        and derived_condition != s3_existing_condition
+        and "impactingCondition" not in existing_deterministic_predicates
+    ):
+        backbone_facts = accepted_validation_items(s0_record or {})
+        backbone_subject = ""
+        backbone_subject_class = ""
+        backbone_evidence = ""
+        for item in backbone_facts:
+            fact = item.get("validated_fact", {})
+            if term_name(fact.get("predicate")) == "impactingConditionMessage":
+                backbone_subject = str(fact.get("subject", ""))
+                backbone_subject_class = str(fact.get("subject_class", ""))
+                backbone_evidence = str(fact.get("evidence_text", ""))
+                break
+        if not backbone_subject:
+            for item in backbone_facts:
+                fact = item.get("validated_fact", {})
+                if fact.get("subject"):
+                    backbone_subject = str(fact.get("subject", ""))
+                    backbone_subject_class = str(fact.get("subject_class", ""))
+                    break
+        if not backbone_evidence:
+            for fact in facts:
+                if term_name(fact.get("predicate")) == "impactingConditionMessage":
+                    backbone_evidence = str(fact.get("evidence_text", ""))
+                    break
+        if not backbone_evidence and source_text:
+            lower = source_text.lower()
+            marker_pos = lower.find("impacting condition")
+            if marker_pos >= 0:
+                window = source_text[marker_pos : marker_pos + 80]
+                cut = window.lower().find("comment")
+                if cut > 0:
+                    window = window[:cut]
+                window = window.splitlines()[0]
+                backbone_evidence = window.strip()
+        derived_fact = {
+            "fact_id": f"S4_derived_impactingCondition:{source_id}",
+            "fact_type": "datatype_property",
+            "predicate": "https://data.nasa.gov/ontologies/atmonto/ATM#impactingCondition",
+            "value": derived_condition,
+            "datatype": "http://www.w3.org/2001/XMLSchema#string",
+            "evidence_text": backbone_evidence or "IMPACTING CONDITION",
+            "subject": backbone_subject,
+            "subject_class": backbone_subject_class,
+            "extraction_method": "deterministic_condition_categorization",
+            "extractor": "S4_hybrid_backbone_enrichment",
+            "hybrid_role": "deterministic_backbone_derived",
+            "hybrid_source_system": "S0_rule_only",
+            "source_id": source_id,
+        }
+        facts.append(derived_fact)
+        accepted_keys.add(canonical_fact_key(derived_fact))
+        existing_deterministic_predicates.add("impactingCondition")
+        validator_results.append(
+            {
+                "fact_id": derived_fact["fact_id"],
+                "accepted": True,
+                "status": "hybrid_backbone_derived_accepted",
+                "validated_fact": derived_fact,
+                "hybrid_role": "deterministic_backbone_derived",
+                "candidate": derived_fact,
+            }
+        )
+
     quarantine: list[dict[str, Any]] = []
     added_semantic_count = 0
     overwritten_deterministic_count = 0
@@ -4878,6 +5012,11 @@ def build_s4_prediction_record(
             reason = "unsupported_span"
         elif not semantic_repair_safe(item):
             reason = "semantic_changing_or_fuzzy_repair"
+        elif (
+            predicate == "impactingCondition"
+            and "impactingCondition" in existing_deterministic_predicates
+        ):
+            reason = "deterministic_backbone_derived_takes_priority"
         elif canonical_fact_key(fact) in accepted_keys:
             reason = "duplicate_fact"
 

@@ -23,7 +23,7 @@
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | `session_01` | `ready_to_apply` | 4 | 4 | 0 | 84 | 8 | 0 | `{"1_rejection_adjudication": 4}` |
 | `session_02` | `ready_to_apply` | 3 | 3 | 0 | 72 | 4 | 0 | `{"1_rejection_adjudication": 3}` |
-| `session_03` | `ready_to_apply` | 3 | 3 | 0 | 76 | 3 | 0 | `{"1_rejection_adjudication": 3}` |
+| `session_03` | `ready_to_apply` | 3 | 3 | 0 | 77 | 3 | 0 | `{"1_rejection_adjudication": 3}` |
 | `session_04` | `ready_to_apply` | 3 | 3 | 0 | 75 | 3 | 0 | `{"1_rejection_adjudication": 3}` |
 | `session_05` | `ready_to_apply` | 3 | 3 | 0 | 74 | 3 | 0 | `{"1_rejection_adjudication": 3}` |
 | `session_06` | `ready_to_apply` | 3 | 3 | 0 | 72 | 3 | 0 | `{"1_rejection_adjudication": 3}` |
@@ -34,7 +34,7 @@
 | `session_11` | `ready_to_apply` | 3 | 3 | 0 | 67 | 2 | 0 | `{"1_rejection_adjudication": 2, "2_high_cross_system_coverage": 1}` |
 | `session_12` | `ready_to_apply` | 3 | 3 | 0 | 88 | 0 | 0 | `{"2_high_cross_system_coverage": 3}` |
 | `session_13` | `ready_to_apply` | 3 | 3 | 0 | 77 | 0 | 0 | `{"2_high_cross_system_coverage": 3}` |
-| `session_14` | `ready_to_apply` | 3 | 3 | 0 | 72 | 0 | 0 | `{"2_high_cross_system_coverage": 3}` |
+| `session_14` | `ready_to_apply` | 3 | 3 | 0 | 73 | 0 | 0 | `{"2_high_cross_system_coverage": 3}` |
 | `session_15` | `ready_to_apply` | 4 | 4 | 0 | 84 | 0 | 0 | `{"2_high_cross_system_coverage": 4}` |
 | `session_16` | `ready_to_apply` | 4 | 4 | 0 | 78 | 0 | 0 | `{"2_high_cross_system_coverage": 2, "3_standard_review": 2}` |
 | `session_17` | `ready_to_apply` | 4 | 4 | 0 | 74 | 0 | 0 | `{"3_standard_review": 4}` |

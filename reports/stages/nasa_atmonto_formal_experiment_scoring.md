@@ -72,7 +72,7 @@
 | `S1b_llm_canonicalized` | `True` | 1.0 | 454 | 189 | 265 | 0.41629955947136565 | 0.5837004405286343 | n/a | P=0.4973544973544973, R=0.1443932411674347, F1=0.2238095238095238 |
 | `S2_llm_schema_slice` | `True` | 1.0 | 708 | 584 | 124 | 0.8248587570621468 | 0.1751412429378531 | n/a | P=0.20618556701030927, R=0.18433179723502305, F1=0.19464720194647203 |
 | `S3_llm_schema_slice_validator_repair` | `True` | 1.0 | 396 | 355 | 41 | 0.8964646464646465 | 0.10353535353535354 | 0.8964646464646465 | P=0.24225352112676057, R=0.13210445468509985, F1=0.17097415506958252 |
-| `S4_hybrid_backbone_enrichment` | `True` | 1.0 | 731 | 731 | 0 | 1.0 | 0.0 | 1.0 | P=0.6794520547945205, R=0.7619047619047619, F1=0.718320057929037 |
+| `S4_hybrid_backbone_enrichment` | `True` | 1.0 | 736 | 736 | 0 | 1.0 | 0.0 | 1.0 | P=0.6857142857142857, R=0.7741935483870968, F1=0.7272727272727272 |
 
 ## Semantic Confidence Intervals
 
@@ -82,7 +82,7 @@
 | `S1b_llm_canonicalized` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.41624365482233505 - 0.5963855421686747 | 0.12037037037037036 - 0.1679160419790105 | 0.18457943925233644 - 0.25389221556886227 |
 | `S2_llm_schema_slice` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.15081967213114755 - 0.25244618395303325 | 0.13582089552238805 - 0.23076923076923078 | 0.1437403400309119 - 0.23986486486486486 |
 | `S3_llm_schema_slice_validator_repair` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.17064846416382254 - 0.29941860465116277 | 0.08507223113964688 - 0.16593245227606462 | 0.11324786324786325 - 0.2121504339440694 |
-| `S4_hybrid_backbone_enrichment` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.6340819022457067 - 0.7178477690288714 | 0.7105666156202144 - 0.8051750380517504 | 0.6757369614512472 - 0.7531556802244038 |
+| `S4_hybrid_backbone_enrichment` | `record_bootstrap_by_source_id` (200 iter, seed=1701) | 0.6397919375812744 - 0.7270306258322237 | 0.717391304347826 - 0.8201219512195121 | 0.6812865497076023 - 0.7627365356622998 |
 
 ## Semantic Group Metrics
 
@@ -126,10 +126,10 @@
 | `S3_llm_schema_slice_validator_repair` | `airport_diversion_recovery` | 2 | 12 | 11 | 0.36363636363636365 | 0.3333333333333333 | 0.34782608695652173 |
 | `S3_llm_schema_slice_validator_repair` | `special_or_flow_constraint_fyi` | 2 | 10 | 5 | 0.0 | 0.0 | 0.0 |
 | `S3_llm_schema_slice_validator_repair` | `flight_plan_drop_time_status` | 1 | 4 | 3 | 0.0 | 0.0 | 0.0 |
-| `S4_hybrid_backbone_enrichment` | `ground_stop_lifecycle` | 26 | 186 | 238 | 0.7142857142857143 | 0.9139784946236559 | 0.8018867924528302 |
+| `S4_hybrid_backbone_enrichment` | `ground_stop_lifecycle` | 26 | 186 | 240 | 0.7208333333333333 | 0.9301075268817204 | 0.812206572769953 |
 | `S4_hybrid_backbone_enrichment` | `reroute_or_route_constraint` | 25 | 183 | 185 | 0.7027027027027027 | 0.7103825136612022 | 0.7065217391304348 |
 | `S4_hybrid_backbone_enrichment` | `volcanic_activity_bulletin` | 19 | 95 | 81 | 0.7037037037037037 | 0.6 | 0.6477272727272727 |
-| `S4_hybrid_backbone_enrichment` | `ground_delay_program_lifecycle` | 12 | 91 | 106 | 0.8113207547169812 | 0.945054945054945 | 0.8730964467005076 |
+| `S4_hybrid_backbone_enrichment` | `ground_delay_program_lifecycle` | 12 | 91 | 109 | 0.8348623853211009 | 1.0 | 0.9099999999999999 |
 | `S4_hybrid_backbone_enrichment` | `airport_arrival_or_scheduling_delay` | 10 | 55 | 77 | 0.5324675324675324 | 0.7454545454545455 | 0.6212121212121212 |
 | `S4_hybrid_backbone_enrichment` | `hotline_or_webpage_status` | 3 | 15 | 15 | 0.26666666666666666 | 0.26666666666666666 | 0.26666666666666666 |
 | `S4_hybrid_backbone_enrichment` | `airport_diversion_recovery` | 2 | 12 | 10 | 0.0 | 0.0 | 0.0 |

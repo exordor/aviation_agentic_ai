@@ -2,9 +2,9 @@
 
 - Label: Rejected-fact adjudication first
 - Records: 35
-- Estimated review time: 799 minutes
+- Estimated review time: 800 minutes
 - Candidate clusters: 1270
-- Cross-system clusters: 1239
+- Cross-system clusters: 1242
 - Rejected facts: 40
 
 ## Packet Checklist
@@ -450,6 +450,78 @@ Candidate clusters:
 | `cand-ec1d073503370420` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZME | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | FACILITIES INCLUDED: ZAU/ZJX/ZKC/ZMA/ZME/ZTL |
 | `cand-f4f77497554deff5` | `S2_llm_schema_slice` | `controlledNASelement` | KORD | `` | `S2_llm_schema_slice:ATCSCC-GOLD-014:fact-07-8c76418c514a` | `{"repaired_accepted": 1}` | `{}` | INCLUDE TRAFFIC: KCAE/KCHS/KJAX/KSAV/ZJX/ZMA/ZME DEPARTURES TO KORD |
 
+## ATCSCC-GOLD-024 / 2026-05-18:136
+
+- Batch: `batch_03`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_03.md`
+- Priority lane: `1_rejection_adjudication`
+- Complexity: `heavy` (score=91, est=26 min)
+- Candidate class: `GroundStopTMI`
+- Candidate clusters: 44
+- Cross-system clusters: 43
+- Rejected facts: 1
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=136
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2129Z GROUND STOP PERIOD: 18/2130Z - 18/2245Z DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 0 / 0 / 0 NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 901 / 75 / 39 PROBABILITY OF EXTENSION: LOW IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EFFECTIVE TIME: 182131-182345 SIGNATURE: 26/05/18 21:31 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
+
+Rejected facts to adjudicate:
+
+| Fact ID | Predicate | Errors | Suggested decision | Evidence |
+| --- | --- | --- | --- | --- |
+| `fact-c1b6afb7f5738a06` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-09fd167dc50d6c64` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 136 | `fact-380b135465278af5` | `S1b_llm_canonicalized:2026-05-18:136:fact-624c23f116fb, fact-380b135465278af5` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP |
+| `cand-1e6b560f1675feb5` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZKC'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-2340afc035f433b2` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZNY'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-237c6417370d3960` | `S1_llm_only` | `'effective_during'}` | {'label': '182131-182345'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 182131-182345 |
+| `cand-245e3f9218188877` | `S1b_llm_canonicalized` | `impactingCondition` | staffing | `` | `S1b_llm_canonicalized:2026-05-18:136:fact-5bf132493c05` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: |
+| `cand-26889e56b45891fd` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:APT | `` | `S1b_llm_canonicalized:2026-05-18:136:fact-213fb46531e3` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL |
+| `cand-286b28b93ff85a94` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZTL | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-2afc57e7f41de23d` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-18T22:45:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-024:fact-05-6e112f79b161` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 182131-182345 |
+| `cand-30f3a733481f9334` | `S2_llm_schema_slice` | `initiativeComments` | STAFFING / STAFFING COMMENTS: | `` | `S2_llm_schema_slice:ATCSCC-GOLD-024:fact-06-46697706a6ba` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: |
+| `cand-33573443e4cd72a6` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZID'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-4ebcf573704c556b` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZME'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-5712d720d06c60fb` | `S0_rule_only, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-18T21:31:00Z | `fact-ace2c626a48a40ec` | `S2_llm_schema_slice:ATCSCC-GOLD-024:fact-04-3f0828779f54, fact-ace2c626a48a40ec` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | EFFECTIVE TIME: 182131-182345 |
+| `cand-571fc9e87c4ce74c` | `S1_llm_only` | `'starts_at'}` | {'label': '18/2130Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GROUND STOP PERIOD: 18/2130Z - 18/2245Z |
+| `cand-66ed24ffa12c811b` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZAU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-67e98c878dfbf3f3` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZFW | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-696688b8e2ef844c` | `S1_llm_only` | `'has_control_element_type'}` | {'label': 'APT ADL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL |
+| `cand-6f1563cf130a516a` | `S0_rule_only` | `impactingConditionMessage` | STAFFING / STAFFING | `fact-c1b6afb7f5738a06` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
+| `cand-7d2dce4221ed2655` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZID | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-81d918a74dd2f70d` | `S1_llm_only` | `'ends_at'}` | {'label': '18/2245Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GROUND STOP PERIOD: 18/2130Z - 18/2245Z |
+| `cand-82984cbf2bf25dab` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-18T23:45:00Z | `fact-fc7a41ea570fa9b6` | `fact-fc7a41ea570fa9b6` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 182131-182345 |
+| `cand-8604f488b9fb2706` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZTL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-89b755fab41c7e7a` | `S1_llm_only` | `'references_air_traffic_facility'}` | {'label': 'ZME'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP |
+| `cand-8c470008cbd0ad6f` | `S1_llm_only` | `'has_new_delays'}` | {'label': '901 / 75 / 39'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 901 / 75 / 39 |
+| `cand-8cb241de1c37c205` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:BNA | `fact-22684e35378b2471` | `fact-22684e35378b2471` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA |
+| `cand-8dc309d1ef5f56d9` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZNY | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-92413edf53cebf59` | `S1_llm_only` | `'has_previous_delays'}` | {'label': '0 / 0 / 0'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 0 / 0 / 0 |
+| `cand-93ddb38014461dcc` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ADL | `` | `S1b_llm_canonicalized:2026-05-18:136:fact-fdb108896b1d` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL |
+| `cand-9fe0138ebe8bf2df` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZHU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-a1943333063ec8bb` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZKC | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-a58dbb825764ed7c` | `S2_llm_schema_slice` | `impactingCondition` | other | `` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1, "unknown_subject_class": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: |
+| `cand-a815502d2cae7ab2` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZFW'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-aa3df19feb940e20` | `S0_rule_only, S1b_llm_canonicalized, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `extensionProbability` | LOW | `fact-52888cfe9889b930` | `S1b_llm_canonicalized:2026-05-18:136:fact-9be76c6beca0, S2_llm_schema_slice:ATCSCC-GOLD-024:fact-02-64c6b1fc614d, fact-52888cfe9889b930` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | PROBABILITY OF EXTENSION: LOW |
+| `cand-aa42feb8d9c361f6` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZME | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-add7a13d3997fb37` | `S1_llm_only` | `'announces_ground_stop_for'}` | {'label': 'BNA'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP |
+| `cand-aed512b3ad3e8647` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `impactingCondition` | staffing | `fact-546d313b8f16f1ca` | `S4_derived_impactingCondition:2026-05-18:136` | `{"hybrid_backbone_derived_accepted": 1, "rejected_schema": 1}` | `{"allowed_value_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
+| `cand-c6029b6b4ae79d34` | `S1_llm_only` | `'has_probability_of_extension'}` | {'label': 'LOW'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PROBABILITY OF EXTENSION: LOW |
+| `cand-d4faf6c27e3dbe69` | `S1_llm_only` | `'has_advisory_time'}` | {'label': '2129Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2129Z GROUND STOP PERIOD: 18/2130Z - 18/2245Z |
+| `cand-df171d1156f63ddd` | `S1_llm_only` | `'has_impacting_condition'}` | {'label': 'STAFFING'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: |
+| `cand-df5e86e858e0a9f4` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | EFFECTIVE TIME: 182131-182345 SIGNATURE: 26/05/18 21:31 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Vie... | `fact-d221b64a3aae9663` | `fact-d221b64a3aae9663` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EFFECTIVE TIME: 182131-182345 SIGNATURE: 26/05/18 21:31 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Vie... |
+| `cand-e47958f2b535bf04` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZHU'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-e87d81e4d0da674c` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZAU'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
+| `cand-ebe3d7c5dec976c5` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-18T21:31:00Z | `fact-4a08bfe17902f89a` | `fact-4a08bfe17902f89a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 21:31 |
+| `cand-f776c4c11a035438` | `S2_llm_schema_slice` | `controlledNASelement` | BNA | `` | `S2_llm_schema_slice:ATCSCC-GOLD-024:fact-01-5b20fe834afb` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT |
+| `cand-fbd2fd14eb60cc79` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZME | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP |
+
 ## ATCSCC-GOLD-052 / 2026-05-20:119
 
 - Batch: `batch_06`
@@ -521,78 +593,6 @@ Candidate clusters:
 | `cand-f131f9336da3a5e0` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZJX | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (1stTier) ZTL ZDC ZNY ZJX ZOB ZBW ZID |
 | `cand-f7a74de532d39557` | `S0_rule_only` | `impactingConditionMessage` | WEATHER / THUNDERSTORMS | `fact-4e225078b5406aa3` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1}` | IMPACTING CONDITION: WEATHER / THUNDERSTORMS |
 | `cand-fad05dd80044d277` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-20T19:11:00Z | `fact-ddaeeedb0c104e6a` | `fact-ddaeeedb0c104e6a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 201911-202115 |
-
-## ATCSCC-GOLD-024 / 2026-05-18:136
-
-- Batch: `batch_03`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_03.md`
-- Priority lane: `1_rejection_adjudication`
-- Complexity: `heavy` (score=90, est=25 min)
-- Candidate class: `GroundStopTMI`
-- Candidate clusters: 44
-- Cross-system clusters: 42
-- Rejected facts: 1
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=136
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2129Z GROUND STOP PERIOD: 18/2130Z - 18/2245Z DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 0 / 0 / 0 NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 901 / 75 / 39 PROBABILITY OF EXTENSION: LOW IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EFFECTIVE TIME: 182131-182345 SIGNATURE: 26/05/18 21:31 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
-
-Rejected facts to adjudicate:
-
-| Fact ID | Predicate | Errors | Suggested decision | Evidence |
-| --- | --- | --- | --- | --- |
-| `fact-c1b6afb7f5738a06` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-09fd167dc50d6c64` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 136 | `fact-380b135465278af5` | `S1b_llm_canonicalized:2026-05-18:136:fact-624c23f116fb, fact-380b135465278af5` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP |
-| `cand-1e6b560f1675feb5` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZKC'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-2340afc035f433b2` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZNY'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-237c6417370d3960` | `S1_llm_only` | `'effective_during'}` | {'label': '182131-182345'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 182131-182345 |
-| `cand-245e3f9218188877` | `S1b_llm_canonicalized` | `impactingCondition` | staffing | `` | `S1b_llm_canonicalized:2026-05-18:136:fact-5bf132493c05` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: |
-| `cand-26889e56b45891fd` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:APT | `` | `S1b_llm_canonicalized:2026-05-18:136:fact-213fb46531e3` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL |
-| `cand-286b28b93ff85a94` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZTL | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-2afc57e7f41de23d` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-18T22:45:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-024:fact-05-6e112f79b161` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 182131-182345 |
-| `cand-30f3a733481f9334` | `S2_llm_schema_slice` | `initiativeComments` | STAFFING / STAFFING COMMENTS: | `` | `S2_llm_schema_slice:ATCSCC-GOLD-024:fact-06-46697706a6ba` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: |
-| `cand-33573443e4cd72a6` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZID'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-4ebcf573704c556b` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZME'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-5712d720d06c60fb` | `S0_rule_only, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-18T21:31:00Z | `fact-ace2c626a48a40ec` | `S2_llm_schema_slice:ATCSCC-GOLD-024:fact-04-3f0828779f54, fact-ace2c626a48a40ec` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | EFFECTIVE TIME: 182131-182345 |
-| `cand-571fc9e87c4ce74c` | `S1_llm_only` | `'starts_at'}` | {'label': '18/2130Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GROUND STOP PERIOD: 18/2130Z - 18/2245Z |
-| `cand-66ed24ffa12c811b` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZAU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-67e98c878dfbf3f3` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZFW | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-696688b8e2ef844c` | `S1_llm_only` | `'has_control_element_type'}` | {'label': 'APT ADL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL |
-| `cand-6f1563cf130a516a` | `S0_rule_only` | `impactingConditionMessage` | STAFFING / STAFFING | `fact-c1b6afb7f5738a06` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `cand-7d2dce4221ed2655` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZID | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-81d918a74dd2f70d` | `S1_llm_only` | `'ends_at'}` | {'label': '18/2245Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GROUND STOP PERIOD: 18/2130Z - 18/2245Z |
-| `cand-82984cbf2bf25dab` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-18T23:45:00Z | `fact-fc7a41ea570fa9b6` | `fact-fc7a41ea570fa9b6` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 182131-182345 |
-| `cand-8604f488b9fb2706` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZTL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-89b755fab41c7e7a` | `S1_llm_only` | `'references_air_traffic_facility'}` | {'label': 'ZME'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP |
-| `cand-8c470008cbd0ad6f` | `S1_llm_only` | `'has_new_delays'}` | {'label': '901 / 75 / 39'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 901 / 75 / 39 |
-| `cand-8cb241de1c37c205` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:BNA | `fact-22684e35378b2471` | `fact-22684e35378b2471` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA |
-| `cand-8dc309d1ef5f56d9` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZNY | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-92413edf53cebf59` | `S1_llm_only` | `'has_previous_delays'}` | {'label': '0 / 0 / 0'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 0 / 0 / 0 |
-| `cand-93ddb38014461dcc` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ADL | `` | `S1b_llm_canonicalized:2026-05-18:136:fact-fdb108896b1d` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL |
-| `cand-9fe0138ebe8bf2df` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZHU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-a1943333063ec8bb` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZKC | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-a58dbb825764ed7c` | `S2_llm_schema_slice` | `impactingCondition` | other | `` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1, "unknown_subject_class": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: |
-| `cand-a815502d2cae7ab2` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZFW'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-aa3df19feb940e20` | `S0_rule_only, S1b_llm_canonicalized, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `extensionProbability` | LOW | `fact-52888cfe9889b930` | `S1b_llm_canonicalized:2026-05-18:136:fact-9be76c6beca0, S2_llm_schema_slice:ATCSCC-GOLD-024:fact-02-64c6b1fc614d, fact-52888cfe9889b930` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | PROBABILITY OF EXTENSION: LOW |
-| `cand-aa42feb8d9c361f6` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZME | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-add7a13d3997fb37` | `S1_llm_only` | `'announces_ground_stop_for'}` | {'label': 'BNA'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP |
-| `cand-aed512b3ad3e8647` | `S0_rule_only` | `impactingCondition` | staffing | `fact-546d313b8f16f1ca` | `` | `{"rejected_schema": 1}` | `{"allowed_value_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `cand-c6029b6b4ae79d34` | `S1_llm_only` | `'has_probability_of_extension'}` | {'label': 'LOW'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PROBABILITY OF EXTENSION: LOW |
-| `cand-d4faf6c27e3dbe69` | `S1_llm_only` | `'has_advisory_time'}` | {'label': '2129Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2129Z GROUND STOP PERIOD: 18/2130Z - 18/2245Z |
-| `cand-df171d1156f63ddd` | `S1_llm_only` | `'has_impacting_condition'}` | {'label': 'STAFFING'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: |
-| `cand-df5e86e858e0a9f4` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | EFFECTIVE TIME: 182131-182345 SIGNATURE: 26/05/18 21:31 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Vie... | `fact-d221b64a3aae9663` | `fact-d221b64a3aae9663` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EFFECTIVE TIME: 182131-182345 SIGNATURE: 26/05/18 21:31 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Vie... |
-| `cand-e47958f2b535bf04` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZHU'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-e87d81e4d0da674c` | `S1_llm_only` | `'includes_departure_facilities'}` | {'label': 'ZAU'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID |
-| `cand-ebe3d7c5dec976c5` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-18T21:31:00Z | `fact-4a08bfe17902f89a` | `fact-4a08bfe17902f89a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 21:31 |
-| `cand-f776c4c11a035438` | `S2_llm_schema_slice` | `controlledNASelement` | BNA | `` | `S2_llm_schema_slice:ATCSCC-GOLD-024:fact-01-5b20fe834afb` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT |
-| `cand-fbd2fd14eb60cc79` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZME | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP |
 
 ## ATCSCC-GOLD-054 / 2026-05-20:153
 
@@ -951,10 +951,10 @@ Candidate clusters:
 - Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
 - Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_03.md`
 - Priority lane: `1_rejection_adjudication`
-- Complexity: `heavy` (score=84, est=25 min)
+- Complexity: `heavy` (score=85, est=25 min)
 - Candidate class: `GroundStopTMI`
 - Candidate clusters: 41
-- Cross-system clusters: 39
+- Cross-system clusters: 40
 - Rejected facts: 1
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=163
 
@@ -981,7 +981,7 @@ Candidate clusters:
 | `cand-2022703c27378dc2` | `S1_llm_only` | `'tier'}` | {'label': '1stTier'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (1stTier) ZLA ZLC ZDV ZKC ZAB ZMP |
 | `cand-33808244f1b2663f` | `S2_llm_schema_slice` | `controlledNASelement` | urn:nas:Airport:DEN | `` | `S2_llm_schema_slice:ATCSCC-GOLD-023:fact-06-9d5469529d0c` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: DEN ELEMENT TYPE: APT |
 | `cand-35319193695116ac` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `extensionProbability` | MEDIUM | `fact-ed8baaabd1233014` | `fact-ed8baaabd1233014` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | PROBABILITY OF EXTENSION: MEDIUM |
-| `cand-40dac55fbb1543a3` | `S0_rule_only` | `impactingCondition` | staffing | `fact-e1e95b7dcb859a1c` | `` | `{"rejected_schema": 1}` | `{"allowed_value_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
+| `cand-40dac55fbb1543a3` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `impactingCondition` | staffing | `fact-e1e95b7dcb859a1c` | `S4_derived_impactingCondition:2026-05-20:163` | `{"hybrid_backbone_derived_accepted": 1, "rejected_schema": 1}` | `{"allowed_value_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
 | `cand-4eb47e3f307afdd4` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T22:00:00Z | `fact-79bf0c09be665285` | `fact-79bf0c09be665285` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 22:00 |
 | `cand-4f36ace149a421c9` | `S1_llm_only` | `'has_element_type'}` | {'label': 'APT ADL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: DEN ELEMENT TYPE: APT ADL TIME: 2157Z GROUND STOP PERIOD: 20/2200Z - 20/2315Z |
 | `cand-5064f1e4079f118a` | `S1_llm_only` | `'announces_ground_stop_period'}` | {'label': 'ground stop period', 'value': '20/2200Z - 20/2315Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GROUND STOP PERIOD: 20/2200Z - 20/2315Z |
@@ -1740,6 +1740,68 @@ Candidate clusters:
 | `cand-f90c0d71e551cd6f` | `S2_llm_schema_slice` | `type` | atm:GroundStopTMI | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 123 MSP/ZMP 05/18/2026 CDM GROUND STOP |
 | `cand-f918e45a7ce0858a` | `S2_llm_schema_slice` | `initiativeComments` | NO ROUTES | `` | `S2_llm_schema_slice:ATCSCC-GOLD-028:fact-05-cd048b44843b` | `{"repaired_accepted": 1}` | `{}` | COMMENTS: NO ROUTES |
 
+## ATCSCC-GOLD-021 / 2026-05-14:089
+
+- Batch: `batch_03`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_03.md`
+- Priority lane: `1_rejection_adjudication`
+- Complexity: `heavy` (score=71, est=22 min)
+- Candidate class: `GroundStopTMI`
+- Candidate clusters: 34
+- Cross-system clusters: 33
+- Rejected facts: 1
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05142026&advn=89
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 089 BNA/ZME 05/14/2026 CDM GROUND STOP MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2220Z GROUND STOP PERIOD: 14/2112Z - 14/2300Z DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 606 / 70 / 23 NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 1243 / 100 / 48 PROBABILITY OF EXTENSION: MEDIUM IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 EFFECTIVE TIME: 142224-150000 SIGNATURE: 26/05/14 22:25 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
+
+Rejected facts to adjudicate:
+
+| Fact ID | Predicate | Errors | Suggested decision | Evidence |
+| --- | --- | --- | --- | --- |
+| `fact-5e0a045d089d24b4` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-07fee9e28fbb285e` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZFW | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
+| `cand-0b27ba3913cff5eb` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 89 | `fact-3a9689db576a50a9` | `fact-3a9689db576a50a9` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 089 BNA/ZME 05/14/2026 CDM GROUND STOP |
+| `cand-0c60b8fbe26c138c` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZAU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
+| `cand-0d12cb370461296d` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZKC | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
+| `cand-0f40f3edd018c254` | `S1b_llm_canonicalized` | `impactingCondition` | staffing impacting_condition | `` | `` | `{"rejected_schema": 1}` | `{"allowed_value_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
+| `cand-17112c8e38e7fa95` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZME | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
+| `cand-279ebb6249912ae1` | `S1_llm_only` | `'relation'}` | {'label': 'MEDIUM', 'type': 'probability_level'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PROBABILITY OF EXTENSION: MEDIUM |
+| `cand-2b5cf5ccc8559c5d` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2220Z GROUND STOP PERIOD: 14/2112Z - 14/2300Z DEP FACILITIES INCLUDED: (Manual) ZAU... | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-05-2c580d423afc` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2220Z GROUND STOP PERIOD: 14/2112Z - 14/2300Z DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID PREVIOUS TOTAL,... |
+| `cand-2c543cf5f8578bb1` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | EXTENDED UPDATE TIME OF 2300 | `fact-4d3568cb54fb7081` | `fact-4d3568cb54fb7081` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EXTENDED UPDATE TIME OF 2300 |
+| `cand-2d4299187edb5d15` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `impactingCondition` | staffing | `fact-3c4247c92836f15f` | `S4_derived_impactingCondition:2026-05-14:089` | `{"hybrid_backbone_derived_accepted": 1, "rejected_schema": 1}` | `{"allowed_value_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
+| `cand-2e294cf308c6f3fe` | `S1_llm_only` | `'relation'}` | {'label': '14/2112Z - 14/2300Z', 'type': 'time_period'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GROUND STOP PERIOD: 14/2112Z - 14/2300Z |
+| `cand-3613697a48cba1f5` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-15T00:00:00Z | `fact-ffe1d56fce2d6f15` | `fact-ffe1d56fce2d6f15` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 142224-150000 |
+| `cand-3fce3a58f4cc7b30` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:BNA | `fact-b40151e58090aefb` | `S1b_llm_canonicalized:2026-05-14:089:fact-89c012fad318, fact-b40151e58090aefb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | CTL ELEMENT: BNA |
+| `cand-47e111d08ed41660` | `S2_llm_schema_slice` | `initiativeComments` | EXTENDED UPDATE TIME OF 2300 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-05-e97747e3dc36` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
+| `cand-4a1c7dd0530889ee` | `S1_llm_only` | `'relation'}` | {'label': '2300', 'type': 'time'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
+| `cand-51f018e66b70d674` | `S1_llm_only` | `'relation'}` | {'label': '1243 / 100 / 48', 'type': 'delay_summary'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 1243 / 100 / 48 |
+| `cand-5c7b313cbd88caca` | `S1_llm_only` | `'relation'}` | {'label': 'APT ADL', 'type': 'element_type'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ELEMENT TYPE: APT ADL |
+| `cand-69fab0a4e5c06090` | `S1_llm_only` | `'relation'}` | {'label': 'BNA', 'type': 'airport_element'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA |
+| `cand-6f704afc8be63698` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZID | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
+| `cand-75007d05dcb81810` | `S1_llm_only` | `'relation'}` | {'label': 'ZAU ZTL ZHU ZFW ZKC ZME ZID', 'type': 'facility_list'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
+| `cand-7ee7e216e7c5420e` | `S1_llm_only` | `'relation'}` | {'label': '142224-150000', 'type': 'effective_time'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 142224-150000 |
+| `cand-86fba66a3877c7c0` | `S0_rule_only` | `impactingConditionMessage` | STAFFING / STAFFING | `fact-5e0a045d089d24b4` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
+| `cand-8d509d0f8d6be841` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `controlledNASelement` | nas:Airport:BNA | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-01-830b5431ebb5` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA |
+| `cand-96f3039aa7e0a539` | `S1_llm_only` | `'relation'}` | {'label': '606 / 70 / 23', 'type': 'delay_summary'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 606 / 70 / 23 |
+| `cand-97f357231cf50a47` | `S2_llm_schema_slice` | `controlledNASelement` | BNA | `` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-01-27dc0a33baab` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA |
+| `cand-9abe91116e64a3db` | `S0_rule_only, S2_llm_schema_slice, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `extensionProbability` | MEDIUM | `fact-0028f560ea4206d8` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-02-5cec43a433f6, S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-02-5cec43a433f6, fact-0028f560ea4206d8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | PROBABILITY OF EXTENSION: MEDIUM |
+| `cand-9eb32a440b4f66ea` | `S3_llm_schema_slice_validator_repair` | `impactingCondition` | weather | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-03-419e17f929a3` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING |
+| `cand-ad2d06e9d1a627d0` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-14T22:24:00Z | `fact-19cc97c4dbead592` | `fact-19cc97c4dbead592` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 142224-150000 |
+| `cand-b9f1b5087c191683` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-14T22:24:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-04-ad7c7d71b249` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 142224-150000 |
+| `cand-c062a36b286f962d` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZHU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
+| `cand-c46d5275cfd6c61f` | `S1_llm_only` | `'relation'}` | {'label': 'STAFFING', 'type': 'impacting_condition'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
+| `cand-cb09a7d9636ec658` | `S2_llm_schema_slice` | `impactingCondition` | other | `` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-03-3761bd1a1689` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
+| `cand-f3925fe269eef066` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZTL | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
+| `cand-f592c62fd6c78f3d` | `S0_rule_only, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-14T22:25:00Z | `fact-6858147ed339bf34` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-04-d41dc226e320, fact-6858147ed339bf34` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | SIGNATURE: 26/05/14 22:25 |
+
 ## ATCSCC-GOLD-055 / 2026-05-20:179
 
 - Batch: `batch_06`
@@ -1801,68 +1863,6 @@ Candidate clusters:
 | `cand-f73bebae5a44d6f7` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZID | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZDC ZOB ZID |
 | `cand-fd160b9594124ef9` | `S1_llm_only` | `has_probability_of_extension` | MEDIUM | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PROBABILITY OF EXTENSION: MEDIUM |
 | `cand-fd50a0099386616d` | `S3_llm_schema_slice_validator_repair` | `includesAirport` | ZDC | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-055:fact-03-ac67becb4f9a` | `{"repaired_accepted": 1}` | `{}` | DEP FACILITIES INCLUDED: (Manual) ZDC ZOB ZID |
-
-## ATCSCC-GOLD-021 / 2026-05-14:089
-
-- Batch: `batch_03`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_03.md`
-- Priority lane: `1_rejection_adjudication`
-- Complexity: `heavy` (score=70, est=22 min)
-- Candidate class: `GroundStopTMI`
-- Candidate clusters: 34
-- Cross-system clusters: 32
-- Rejected facts: 1
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05142026&advn=89
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 089 BNA/ZME 05/14/2026 CDM GROUND STOP MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2220Z GROUND STOP PERIOD: 14/2112Z - 14/2300Z DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 606 / 70 / 23 NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 1243 / 100 / 48 PROBABILITY OF EXTENSION: MEDIUM IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 EFFECTIVE TIME: 142224-150000 SIGNATURE: 26/05/14 22:25 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
-
-Rejected facts to adjudicate:
-
-| Fact ID | Predicate | Errors | Suggested decision | Evidence |
-| --- | --- | --- | --- | --- |
-| `fact-5e0a045d089d24b4` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-07fee9e28fbb285e` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZFW | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
-| `cand-0b27ba3913cff5eb` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 89 | `fact-3a9689db576a50a9` | `fact-3a9689db576a50a9` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 089 BNA/ZME 05/14/2026 CDM GROUND STOP |
-| `cand-0c60b8fbe26c138c` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZAU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
-| `cand-0d12cb370461296d` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZKC | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
-| `cand-0f40f3edd018c254` | `S1b_llm_canonicalized` | `impactingCondition` | staffing impacting_condition | `` | `` | `{"rejected_schema": 1}` | `{"allowed_value_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
-| `cand-17112c8e38e7fa95` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZME | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
-| `cand-279ebb6249912ae1` | `S1_llm_only` | `'relation'}` | {'label': 'MEDIUM', 'type': 'probability_level'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PROBABILITY OF EXTENSION: MEDIUM |
-| `cand-2b5cf5ccc8559c5d` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2220Z GROUND STOP PERIOD: 14/2112Z - 14/2300Z DEP FACILITIES INCLUDED: (Manual) ZAU... | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-05-2c580d423afc` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2220Z GROUND STOP PERIOD: 14/2112Z - 14/2300Z DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID PREVIOUS TOTAL,... |
-| `cand-2c543cf5f8578bb1` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | EXTENDED UPDATE TIME OF 2300 | `fact-4d3568cb54fb7081` | `fact-4d3568cb54fb7081` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EXTENDED UPDATE TIME OF 2300 |
-| `cand-2d4299187edb5d15` | `S0_rule_only` | `impactingCondition` | staffing | `fact-3c4247c92836f15f` | `` | `{"rejected_schema": 1}` | `{"allowed_value_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `cand-2e294cf308c6f3fe` | `S1_llm_only` | `'relation'}` | {'label': '14/2112Z - 14/2300Z', 'type': 'time_period'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GROUND STOP PERIOD: 14/2112Z - 14/2300Z |
-| `cand-3613697a48cba1f5` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-15T00:00:00Z | `fact-ffe1d56fce2d6f15` | `fact-ffe1d56fce2d6f15` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 142224-150000 |
-| `cand-3fce3a58f4cc7b30` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:BNA | `fact-b40151e58090aefb` | `S1b_llm_canonicalized:2026-05-14:089:fact-89c012fad318, fact-b40151e58090aefb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | CTL ELEMENT: BNA |
-| `cand-47e111d08ed41660` | `S2_llm_schema_slice` | `initiativeComments` | EXTENDED UPDATE TIME OF 2300 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-05-e97747e3dc36` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
-| `cand-4a1c7dd0530889ee` | `S1_llm_only` | `'relation'}` | {'label': '2300', 'type': 'time'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
-| `cand-51f018e66b70d674` | `S1_llm_only` | `'relation'}` | {'label': '1243 / 100 / 48', 'type': 'delay_summary'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 1243 / 100 / 48 |
-| `cand-5c7b313cbd88caca` | `S1_llm_only` | `'relation'}` | {'label': 'APT ADL', 'type': 'element_type'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ELEMENT TYPE: APT ADL |
-| `cand-69fab0a4e5c06090` | `S1_llm_only` | `'relation'}` | {'label': 'BNA', 'type': 'airport_element'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA |
-| `cand-6f704afc8be63698` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZID | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
-| `cand-75007d05dcb81810` | `S1_llm_only` | `'relation'}` | {'label': 'ZAU ZTL ZHU ZFW ZKC ZME ZID', 'type': 'facility_list'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
-| `cand-7ee7e216e7c5420e` | `S1_llm_only` | `'relation'}` | {'label': '142224-150000', 'type': 'effective_time'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 142224-150000 |
-| `cand-86fba66a3877c7c0` | `S0_rule_only` | `impactingConditionMessage` | STAFFING / STAFFING | `fact-5e0a045d089d24b4` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1}` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `cand-8d509d0f8d6be841` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `controlledNASelement` | nas:Airport:BNA | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-01-830b5431ebb5` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA |
-| `cand-96f3039aa7e0a539` | `S1_llm_only` | `'relation'}` | {'label': '606 / 70 / 23', 'type': 'delay_summary'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 606 / 70 / 23 |
-| `cand-97f357231cf50a47` | `S2_llm_schema_slice` | `controlledNASelement` | BNA | `` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-01-27dc0a33baab` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA |
-| `cand-9abe91116e64a3db` | `S0_rule_only, S2_llm_schema_slice, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `extensionProbability` | MEDIUM | `fact-0028f560ea4206d8` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-02-5cec43a433f6, S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-02-5cec43a433f6, fact-0028f560ea4206d8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | PROBABILITY OF EXTENSION: MEDIUM |
-| `cand-9eb32a440b4f66ea` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `impactingCondition` | weather | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-03-419e17f929a3` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING |
-| `cand-ad2d06e9d1a627d0` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-14T22:24:00Z | `fact-19cc97c4dbead592` | `fact-19cc97c4dbead592` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 142224-150000 |
-| `cand-b9f1b5087c191683` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-14T22:24:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-04-ad7c7d71b249` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 142224-150000 |
-| `cand-c062a36b286f962d` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZHU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
-| `cand-c46d5275cfd6c61f` | `S1_llm_only` | `'relation'}` | {'label': 'STAFFING', 'type': 'impacting_condition'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
-| `cand-cb09a7d9636ec658` | `S2_llm_schema_slice` | `impactingCondition` | other | `` | `S2_llm_schema_slice:ATCSCC-GOLD-021:fact-03-3761bd1a1689` | `{"repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 |
-| `cand-f3925fe269eef066` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZTL | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID |
-| `cand-f592c62fd6c78f3d` | `S0_rule_only, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-14T22:25:00Z | `fact-6858147ed339bf34` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-021:fact-04-d41dc226e320, fact-6858147ed339bf34` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | SIGNATURE: 26/05/14 22:25 |
 
 ## ATCSCC-GOLD-008 / 2026-05-17:019
 

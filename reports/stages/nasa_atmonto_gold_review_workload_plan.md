@@ -10,7 +10,7 @@
 - Batches: 10
 - Records with validator rejections: 35
 - Rejected facts to adjudicate: 40
-- Estimated total review time: 1935 minutes (32.25 hours)
+- Estimated total review time: 1937 minutes (32.28 hours)
 - Complexity counts: `{"heavy": 44, "light": 14, "medium": 42}`
 - Priority lanes: `{"1_rejection_adjudication": 35, "2_high_cross_system_coverage": 16, "3_standard_review": 49}`
 
@@ -27,8 +27,8 @@
 | Batch | Samples | Records | Clusters | Cross-system clusters | Rejected facts | Est. min | Complexity | Lanes | File |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |
 | `batch_01` | `ATCSCC-GOLD-001`-`ATCSCC-GOLD-010` | 10 | 318 | 310 | 14 | 211 | `{"heavy": 5, "medium": 5}` | `{"1_rejection_adjudication": 10}` | `data/evaluation/nasa_atmonto/review_batches/batch_01.md` |
-| `batch_02` | `ATCSCC-GOLD-011`-`ATCSCC-GOLD-020` | 10 | 406 | 401 | 6 | 240 | `{"heavy": 10}` | `{"1_rejection_adjudication": 6, "2_high_cross_system_coverage": 4}` | `data/evaluation/nasa_atmonto/review_batches/batch_02.md` |
-| `batch_03` | `ATCSCC-GOLD-021`-`ATCSCC-GOLD-030` | 10 | 378 | 365 | 9 | 229 | `{"heavy": 8, "medium": 2}` | `{"1_rejection_adjudication": 9, "2_high_cross_system_coverage": 1}` | `data/evaluation/nasa_atmonto/review_batches/batch_03.md` |
+| `batch_02` | `ATCSCC-GOLD-011`-`ATCSCC-GOLD-020` | 10 | 406 | 405 | 6 | 240 | `{"heavy": 10}` | `{"1_rejection_adjudication": 6, "2_high_cross_system_coverage": 4}` | `data/evaluation/nasa_atmonto/review_batches/batch_02.md` |
+| `batch_03` | `ATCSCC-GOLD-021`-`ATCSCC-GOLD-030` | 10 | 378 | 369 | 9 | 231 | `{"heavy": 8, "medium": 2}` | `{"1_rejection_adjudication": 9, "2_high_cross_system_coverage": 1}` | `data/evaluation/nasa_atmonto/review_batches/batch_03.md` |
 | `batch_04` | `ATCSCC-GOLD-031`-`ATCSCC-GOLD-040` | 10 | 364 | 362 | 2 | 212 | `{"heavy": 6, "light": 2, "medium": 2}` | `{"1_rejection_adjudication": 2, "2_high_cross_system_coverage": 4, "3_standard_review": 4}` | `data/evaluation/nasa_atmonto/review_batches/batch_04.md` |
 | `batch_05` | `ATCSCC-GOLD-041`-`ATCSCC-GOLD-050` | 10 | 238 | 238 | 0 | 154 | `{"heavy": 1, "light": 5, "medium": 4}` | `{"2_high_cross_system_coverage": 1, "3_standard_review": 9}` | `data/evaluation/nasa_atmonto/review_batches/batch_05.md` |
 | `batch_06` | `ATCSCC-GOLD-051`-`ATCSCC-GOLD-060` | 10 | 355 | 347 | 9 | 219 | `{"heavy": 8, "medium": 2}` | `{"1_rejection_adjudication": 8, "3_standard_review": 2}` | `data/evaluation/nasa_atmonto/review_batches/batch_06.md` |
@@ -48,14 +48,14 @@
 | 5 | `ATCSCC-GOLD-007` | `batch_01` | `1_rejection_adjudication` | `medium` | 54 | 18 | 24 | 23 | 2 | `TrafficManagementInitiative` |
 | 6 | `ATCSCC-GOLD-010` | `batch_01` | `1_rejection_adjudication` | `heavy` | 96 | 27 | 46 | 46 | 1 | `ReRouteTMI` |
 | 7 | `ATCSCC-GOLD-014` | `batch_02` | `1_rejection_adjudication` | `heavy` | 96 | 27 | 46 | 46 | 1 | `ReRouteTMI` |
-| 8 | `ATCSCC-GOLD-052` | `batch_06` | `1_rejection_adjudication` | `heavy` | 91 | 26 | 44 | 43 | 1 | `GroundStopTMI` |
-| 9 | `ATCSCC-GOLD-024` | `batch_03` | `1_rejection_adjudication` | `heavy` | 90 | 25 | 44 | 42 | 1 | `GroundStopTMI` |
+| 8 | `ATCSCC-GOLD-024` | `batch_03` | `1_rejection_adjudication` | `heavy` | 91 | 26 | 44 | 43 | 1 | `GroundStopTMI` |
+| 9 | `ATCSCC-GOLD-052` | `batch_06` | `1_rejection_adjudication` | `heavy` | 91 | 26 | 44 | 43 | 1 | `GroundStopTMI` |
 | 10 | `ATCSCC-GOLD-054` | `batch_06` | `1_rejection_adjudication` | `heavy` | 89 | 25 | 43 | 42 | 1 | `GroundStopTMI` |
 | 11 | `ATCSCC-GOLD-058` | `batch_06` | `1_rejection_adjudication` | `heavy` | 89 | 25 | 43 | 42 | 1 | `GroundStopTMI` |
 | 12 | `ATCSCC-GOLD-027` | `batch_03` | `1_rejection_adjudication` | `heavy` | 87 | 25 | 42 | 41 | 1 | `GroundStopTMI` |
 | 13 | `ATCSCC-GOLD-057` | `batch_06` | `1_rejection_adjudication` | `heavy` | 87 | 25 | 42 | 41 | 1 | `GroundStopTMI` |
 | 14 | `ATCSCC-GOLD-011` | `batch_02` | `1_rejection_adjudication` | `heavy` | 86 | 25 | 41 | 41 | 1 | `ReRouteTMI` |
-| 15 | `ATCSCC-GOLD-023` | `batch_03` | `1_rejection_adjudication` | `heavy` | 84 | 25 | 41 | 39 | 1 | `GroundStopTMI` |
+| 15 | `ATCSCC-GOLD-023` | `batch_03` | `1_rejection_adjudication` | `heavy` | 85 | 25 | 41 | 40 | 1 | `GroundStopTMI` |
 | 16 | `ATCSCC-GOLD-026` | `batch_03` | `1_rejection_adjudication` | `heavy` | 83 | 24 | 40 | 39 | 1 | `GroundStopTMI` |
 | 17 | `ATCSCC-GOLD-012` | `batch_02` | `1_rejection_adjudication` | `heavy` | 82 | 24 | 39 | 39 | 1 | `ReRouteTMI` |
 | 18 | `ATCSCC-GOLD-013` | `batch_02` | `1_rejection_adjudication` | `heavy` | 82 | 24 | 39 | 39 | 1 | `ReRouteTMI` |
@@ -67,8 +67,8 @@
 | 24 | `ATCSCC-GOLD-015` | `batch_02` | `1_rejection_adjudication` | `heavy` | 78 | 24 | 37 | 37 | 1 | `ReRouteTMI` |
 | 25 | `ATCSCC-GOLD-004` | `batch_01` | `1_rejection_adjudication` | `heavy` | 75 | 22 | 36 | 35 | 1 | `TrafficManagementInitiative` |
 | 26 | `ATCSCC-GOLD-028` | `batch_03` | `1_rejection_adjudication` | `heavy` | 75 | 22 | 36 | 35 | 1 | `GroundStopTMI` |
-| 27 | `ATCSCC-GOLD-055` | `batch_06` | `1_rejection_adjudication` | `heavy` | 71 | 22 | 34 | 33 | 1 | `GroundStopTMI` |
-| 28 | `ATCSCC-GOLD-021` | `batch_03` | `1_rejection_adjudication` | `heavy` | 70 | 22 | 34 | 32 | 1 | `GroundStopTMI` |
+| 27 | `ATCSCC-GOLD-021` | `batch_03` | `1_rejection_adjudication` | `heavy` | 71 | 22 | 34 | 33 | 1 | `GroundStopTMI` |
+| 28 | `ATCSCC-GOLD-055` | `batch_06` | `1_rejection_adjudication` | `heavy` | 71 | 22 | 34 | 33 | 1 | `GroundStopTMI` |
 | 29 | `ATCSCC-GOLD-008` | `batch_01` | `1_rejection_adjudication` | `heavy` | 69 | 22 | 33 | 32 | 1 | `TrafficManagementInitiative` |
 | 30 | `ATCSCC-GOLD-031` | `batch_04` | `1_rejection_adjudication` | `heavy` | 69 | 22 | 33 | 32 | 1 | `GroundStopTMI` |
 | 31 | `ATCSCC-GOLD-053` | `batch_06` | `1_rejection_adjudication` | `heavy` | 67 | 21 | 32 | 31 | 1 | `GroundStopTMI` |
@@ -77,20 +77,20 @@
 | 34 | `ATCSCC-GOLD-025` | `batch_03` | `1_rejection_adjudication` | `medium` | 59 | 19 | 28 | 27 | 1 | `GroundStopTMI` |
 | 35 | `ATCSCC-GOLD-003` | `batch_01` | `1_rejection_adjudication` | `medium` | 51 | 16 | 24 | 23 | 1 | `TrafficManagementInitiative` |
 | 36 | `ATCSCC-GOLD-035` | `batch_04` | `2_high_cross_system_coverage` | `heavy` | 127 | 32 | 63 | 63 | 0 | `GroundDelayProgramTMI` |
-| 37 | `ATCSCC-GOLD-018` | `batch_02` | `2_high_cross_system_coverage` | `heavy` | 124 | 32 | 62 | 61 | 0 | `GroundDelayProgramTMI` |
+| 37 | `ATCSCC-GOLD-018` | `batch_02` | `2_high_cross_system_coverage` | `heavy` | 125 | 32 | 62 | 62 | 0 | `GroundDelayProgramTMI` |
 | 38 | `ATCSCC-GOLD-098` | `batch_10` | `2_high_cross_system_coverage` | `heavy` | 111 | 29 | 55 | 55 | 0 | `ReRouteTMI` |
 | 39 | `ATCSCC-GOLD-082` | `batch_09` | `2_high_cross_system_coverage` | `heavy` | 103 | 27 | 51 | 51 | 0 | `ReRouteTMI` |
 | 40 | `ATCSCC-GOLD-039` | `batch_04` | `2_high_cross_system_coverage` | `heavy` | 101 | 27 | 50 | 50 | 0 | `GroundStopTMI` |
 | 41 | `ATCSCC-GOLD-036` | `batch_04` | `2_high_cross_system_coverage` | `heavy` | 95 | 25 | 47 | 47 | 0 | `GroundDelayProgramTMI` |
 | 42 | `ATCSCC-GOLD-037` | `batch_04` | `2_high_cross_system_coverage` | `heavy` | 95 | 25 | 47 | 47 | 0 | `GroundDelayProgramTMI` |
 | 43 | `ATCSCC-GOLD-092` | `batch_10` | `2_high_cross_system_coverage` | `heavy` | 91 | 25 | 45 | 45 | 0 | `GroundDelayProgramTMI` |
-| 44 | `ATCSCC-GOLD-044` | `batch_05` | `2_high_cross_system_coverage` | `heavy` | 87 | 24 | 43 | 43 | 0 | `ReRouteTMI` |
-| 45 | `ATCSCC-GOLD-022` | `batch_03` | `2_high_cross_system_coverage` | `heavy` | 86 | 23 | 43 | 42 | 0 | `GroundDelayProgramTMI` |
+| 44 | `ATCSCC-GOLD-022` | `batch_03` | `2_high_cross_system_coverage` | `heavy` | 87 | 24 | 43 | 43 | 0 | `GroundDelayProgramTMI` |
+| 45 | `ATCSCC-GOLD-044` | `batch_05` | `2_high_cross_system_coverage` | `heavy` | 87 | 24 | 43 | 43 | 0 | `ReRouteTMI` |
 | 46 | `ATCSCC-GOLD-065` | `batch_07` | `2_high_cross_system_coverage` | `heavy` | 81 | 22 | 40 | 40 | 0 | `TrafficManagementInitiative` |
 | 47 | `ATCSCC-GOLD-081` | `batch_09` | `2_high_cross_system_coverage` | `heavy` | 75 | 22 | 37 | 37 | 0 | `GroundDelayProgramTMI` |
-| 48 | `ATCSCC-GOLD-017` | `batch_02` | `2_high_cross_system_coverage` | `heavy` | 70 | 20 | 35 | 34 | 0 | `GroundDelayProgramTMI` |
-| 49 | `ATCSCC-GOLD-019` | `batch_02` | `2_high_cross_system_coverage` | `heavy` | 70 | 20 | 35 | 34 | 0 | `GroundDelayProgramTMI` |
-| 50 | `ATCSCC-GOLD-020` | `batch_02` | `2_high_cross_system_coverage` | `heavy` | 68 | 20 | 34 | 33 | 0 | `GroundDelayProgramTMI` |
+| 48 | `ATCSCC-GOLD-017` | `batch_02` | `2_high_cross_system_coverage` | `heavy` | 71 | 20 | 35 | 35 | 0 | `GroundDelayProgramTMI` |
+| 49 | `ATCSCC-GOLD-019` | `batch_02` | `2_high_cross_system_coverage` | `heavy` | 71 | 20 | 35 | 35 | 0 | `GroundDelayProgramTMI` |
+| 50 | `ATCSCC-GOLD-020` | `batch_02` | `2_high_cross_system_coverage` | `heavy` | 69 | 20 | 34 | 34 | 0 | `GroundDelayProgramTMI` |
 | 51 | `ATCSCC-GOLD-091` | `batch_10` | `2_high_cross_system_coverage` | `heavy` | 67 | 20 | 33 | 33 | 0 | `GroundStopTMI` |
 | 52 | `ATCSCC-GOLD-064` | `batch_07` | `3_standard_review` | `medium` | 65 | 19 | 32 | 32 | 0 | `TrafficManagementInitiative` |
 | 53 | `ATCSCC-GOLD-073` | `batch_08` | `3_standard_review` | `medium` | 65 | 19 | 32 | 32 | 0 | `GroundStopTMI` |
