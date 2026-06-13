@@ -15,7 +15,7 @@ from aviation_agentic_ai.reporting.io import (
 from aviation_agentic_ai.reporting.atmonto.agentic_loop.contract import (
     DEFAULT_CQ_MANIFEST_PATH,
 )
-from aviation_agentic_ai.reporting.nasa_atmonto_cq import DEFAULT_GOLD_PATH
+from aviation_agentic_ai.reporting.atmonto.core.cq import DEFAULT_GOLD_PATH
 from aviation_agentic_ai.reporting.atmonto.agentic_loop.s5_s6_loop_render import (
     write_nasa_atmonto_s5_s6_agentic_loop_markdown,
 )

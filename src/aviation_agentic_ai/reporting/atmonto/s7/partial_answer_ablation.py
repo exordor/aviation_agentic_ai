@@ -11,7 +11,7 @@ from aviation_agentic_ai.evaluation.llm_review import llm_runtime_available, rev
 from aviation_agentic_ai.evaluation.metrics import answer_metrics
 from aviation_agentic_ai.paths import PROJECT_ROOT, project_relative_path
 from aviation_agentic_ai.reporting.io import normalize_report_text, read_json_object_or_empty, write_json_report
-from aviation_agentic_ai.reporting.nasa_atmonto_answer_scoring import evaluate_result
+from aviation_agentic_ai.reporting.atmonto.core.answer_scoring import evaluate_result
 from aviation_agentic_ai.reporting.atmonto.s7.llm_answer_generation import (
     DEFAULT_S7_ANSWER_REPORT_PATH,
     LLMAnswerRunner,

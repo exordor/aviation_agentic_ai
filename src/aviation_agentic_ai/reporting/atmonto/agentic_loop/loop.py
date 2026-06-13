@@ -29,7 +29,7 @@ from aviation_agentic_ai.reporting.atmonto.agentic_loop.loop_render import (
     write_agentic_loop_markdown,
     write_agentic_supporting_artifacts,
 )
-from aviation_agentic_ai.reporting.nasa_atmonto_cq import (
+from aviation_agentic_ai.reporting.atmonto.core.cq import (
     DEFAULT_GOLD_PATH,
     DEFAULT_REJECTION_ADJUDICATION_PATH,
     DEFAULT_SCORING_PATH,

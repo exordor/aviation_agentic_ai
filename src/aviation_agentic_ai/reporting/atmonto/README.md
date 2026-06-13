@@ -18,6 +18,19 @@ new code should import from the package paths below.
 - `live_pilot_agents.py` — live-pilot agent helpers
 - `live_pilot_render.py` — live-pilot markdown rendering
 
+## audit/ — Claim-safety audits (RQ4)
+- `reviewer_defense_audit.py` — reviewer-defense audit separating automated diagnostics from human/expert review
+- `sota_goal_audit.py` — SOTA/thesis goal-claim gate audit
+
+## core/ — Foundation building blocks
+- `cq.py` — competency-question infrastructure (normalize_atmonto_predicate, DEFAULT_GOLD_PATH, CQ evaluation)
+- `cq_queries.py` — CQ query templates and deterministic answer-quality scoring
+- `answer_benchmark.py` — answer benchmark primitives (e.g. chunk_id, answer_value)
+- `answer_scoring.py` — deterministic answer-result scoring (evaluate_result)
+- `graph_retrieval.py` — graph retrieval backend
+- `live_retrieval.py` — live retrieval backend
+- `answer_generation.py` — deterministic GraphRAG answer generation
+
 ## s7/ — Retrieval, answer generation, and review boundary (RQ3/RQ4)
 - `retrieval.py` — source-bounded vector/graph/hybrid retrieval
 - `answer_generation.py` — deterministic GraphRAG answer generation
@@ -35,8 +48,4 @@ new code should import from the package paths below.
 - `automated_adversarial_review.py` — automated adversarial review
 - `review_handoff.py` — review handoff summary
 
-## Not yet migrated (still at reporting/nasa_atmonto_*)
-- `nasa_atmonto_cq*.py` — competency-question infrastructure (planned: atmonto/core/)
-- `nasa_atmonto_answer_*.py` — answer benchmark/scoring (planned: atmonto/core/)
-- `nasa_atmonto_{graph,live}_retrieval.py` — retrieval backends (planned: atmonto/core/)
-- `nasa_atmonto_{reviewer_defense,sota_goal}_audit.py` — claim-safety audits (planned: atmonto/audit/)
+_All ATMONTO/ATCSCC report families are now migrated into subpackages._
