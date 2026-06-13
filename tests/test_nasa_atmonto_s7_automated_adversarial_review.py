@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_s7_automated_adversarial_review import (
+from aviation_agentic_ai.reporting.atmonto.s7.automated_adversarial_review import (
     build_nasa_atmonto_s7_automated_adversarial_review,
     write_nasa_atmonto_s7_automated_adversarial_review,
 )

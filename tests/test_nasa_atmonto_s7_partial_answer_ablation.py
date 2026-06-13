@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_s7_partial_answer_ablation import (
+from aviation_agentic_ai.reporting.atmonto.s7.partial_answer_ablation import (
     PARTIAL_ANSWER_MODES,
     build_nasa_atmonto_s7_partial_answer_ablation,
     build_partial_answer_prompt,

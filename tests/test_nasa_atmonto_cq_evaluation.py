@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_cq import (
+from aviation_agentic_ai.reporting.atmonto.core.cq import (
     build_nasa_atmonto_cq_evaluation,
     write_nasa_atmonto_cq_evaluation,
 )

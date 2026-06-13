@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_s7_answer_review_protocol import (
+from aviation_agentic_ai.reporting.atmonto.s7.answer_review_protocol import (
     build_nasa_atmonto_s7_answer_review_protocol,
     write_nasa_atmonto_s7_answer_review_protocol,
 )

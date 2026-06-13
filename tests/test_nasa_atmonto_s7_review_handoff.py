@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_s7_review_handoff import (
+from aviation_agentic_ai.reporting.atmonto.s7.review_handoff import (
     ARTIFACTS,
     build_nasa_atmonto_s7_review_handoff,
     write_nasa_atmonto_s7_review_handoff,

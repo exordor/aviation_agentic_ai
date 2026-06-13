@@ -1,8 +1,8 @@
 # ATMONTO/ATCSCC Report Families
 
 This subpackage groups the ATMONTO-derived ATCSCC reports by experiment stage.
-The old flat names `reporting/nasa_atmonto_*` still work via compatibility shims;
-new code should import from the package paths below.
+The old flat `reporting/nasa_atmonto_*` names have been removed; import from the
+package paths below.
 
 ## agentic_loop/ — S5/S6 extractor/validator/refiner/critic loop (RQ2)
 - `contract.py` — shared artifact-contract constants (e.g. DEFAULT_CQ_MANIFEST_PATH)

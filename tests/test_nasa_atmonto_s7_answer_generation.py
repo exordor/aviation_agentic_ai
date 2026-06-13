@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import build_cq_query_manifest
-from aviation_agentic_ai.reporting.nasa_atmonto_s7_answer_generation import (
+from aviation_agentic_ai.reporting.atmonto.core.cq_queries import build_cq_query_manifest
+from aviation_agentic_ai.reporting.atmonto.s7.answer_generation import (
     S7_ANSWER_MODES,
     build_nasa_atmonto_s7_answer_generation,
     write_nasa_atmonto_s7_answer_generation,

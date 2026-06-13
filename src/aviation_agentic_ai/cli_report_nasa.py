@@ -6,14 +6,14 @@ import click
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.paths import project_relative_path
-from aviation_agentic_ai.reporting.nasa_atmonto_agentic_loop import (
+from aviation_agentic_ai.reporting.atmonto.agentic_loop.loop import (
     write_nasa_atmonto_agentic_loop,
 )
-from aviation_agentic_ai.reporting.nasa_atmonto_answer_generation import (
+from aviation_agentic_ai.reporting.atmonto.core.answer_generation import (
     write_nasa_atmonto_answer_generation,
 )
-from aviation_agentic_ai.reporting.nasa_atmonto_cq import write_nasa_atmonto_cq_evaluation
-from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import (
+from aviation_agentic_ai.reporting.atmonto.core.cq import write_nasa_atmonto_cq_evaluation
+from aviation_agentic_ai.reporting.atmonto.core.cq_queries import (
     write_nasa_atmonto_cq_query_evaluation,
 )
 from aviation_agentic_ai.reporting.nasa_sources import (

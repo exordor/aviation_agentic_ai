@@ -4,7 +4,7 @@ import argparse
 import json
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
-from aviation_agentic_ai.reporting.nasa_atmonto_s5_s6_live_agentic_pilot import (
+from aviation_agentic_ai.reporting.atmonto.agentic_loop.live_pilot import (
     DEFAULT_PREDICTION_OUTPUT_PATH,
     DEFAULT_REPORT_NAME,
     DEFAULT_RUN_METADATA_PATH,

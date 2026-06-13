@@ -3,14 +3,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_answer_generation import (
+from aviation_agentic_ai.reporting.atmonto.core.answer_generation import (
     ANSWER_MODES,
     build_nasa_atmonto_answer_generation,
     write_nasa_atmonto_answer_generation,
 )
-from aviation_agentic_ai.reporting.nasa_atmonto_answer_benchmark import answer_value
-from aviation_agentic_ai.reporting.nasa_atmonto_cq_queries import build_cq_query_manifest
-from aviation_agentic_ai.reporting.nasa_atmonto_answer_scoring import evaluate_result
+from aviation_agentic_ai.reporting.atmonto.core.answer_benchmark import answer_value
+from aviation_agentic_ai.reporting.atmonto.core.cq_queries import build_cq_query_manifest
+from aviation_agentic_ai.reporting.atmonto.core.answer_scoring import evaluate_result
 
 
 def _write_json(path: Path, payload: dict) -> None:

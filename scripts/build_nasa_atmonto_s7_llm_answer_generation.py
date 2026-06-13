@@ -4,7 +4,7 @@ import argparse
 import json
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
-from aviation_agentic_ai.reporting.nasa_atmonto_s7_llm_answer_generation import (
+from aviation_agentic_ai.reporting.atmonto.s7.llm_answer_generation import (
     write_nasa_atmonto_s7_llm_answer_generation,
 )
 

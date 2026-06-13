@@ -4,7 +4,7 @@ import argparse
 import json
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
-from aviation_agentic_ai.reporting.nasa_atmonto_sota_goal_audit import (
+from aviation_agentic_ai.reporting.atmonto.audit.sota_goal_audit import (
     write_nasa_atmonto_sota_goal_audit,
 )
 

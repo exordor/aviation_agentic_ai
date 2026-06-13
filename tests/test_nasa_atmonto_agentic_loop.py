@@ -6,7 +6,7 @@ from pathlib import Path
 from click.testing import CliRunner
 
 from aviation_agentic_ai.cli import main
-from aviation_agentic_ai.reporting.nasa_atmonto_agentic_loop import (
+from aviation_agentic_ai.reporting.atmonto.agentic_loop.loop import (
     build_nasa_atmonto_agentic_loop,
     write_nasa_atmonto_agentic_loop,
 )

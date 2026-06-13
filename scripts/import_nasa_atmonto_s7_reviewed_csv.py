@@ -4,17 +4,17 @@ import argparse
 import json
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
-from aviation_agentic_ai.reporting.nasa_atmonto_s7_answer_review_import import (
+from aviation_agentic_ai.reporting.atmonto.s7.answer_review_import import (
     DEFAULT_PACKET_PATH,
     DEFAULT_REPORT_NAME,
     DEFAULT_REVIEW_CSV_PATH,
     DEFAULT_REVIEWED_CSV_PATH,
     write_nasa_atmonto_s7_answer_review_import,
 )
-from aviation_agentic_ai.reporting.nasa_atmonto_s7_answer_review_decisions import (
+from aviation_agentic_ai.reporting.atmonto.s7.answer_review_decisions import (
     write_nasa_atmonto_s7_answer_review_decisions,
 )
-from aviation_agentic_ai.reporting.nasa_atmonto_sota_goal_audit import (
+from aviation_agentic_ai.reporting.atmonto.audit.sota_goal_audit import (
     write_nasa_atmonto_sota_goal_audit,
 )
 from aviation_agentic_ai.reporting.thesis_dashboard import (

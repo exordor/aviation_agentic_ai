@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aviation_agentic_ai.reporting.nasa_atmonto_sota_goal_audit import (
+from aviation_agentic_ai.reporting.atmonto.audit.sota_goal_audit import (
     SOTA_REQUIREMENTS,
     build_nasa_atmonto_sota_goal_audit,
     write_nasa_atmonto_sota_goal_audit,
