@@ -16,8 +16,8 @@
   "missing_decision_source_ids": [],
   "unexpected_decision_source_ids": [],
   "suggested_valid_candidate_fact_count": 567,
-  "rejected_fact_decision_count": 48,
-  "completed_rejected_fact_decision_count": 48,
+  "rejected_fact_decision_count": 40,
+  "completed_rejected_fact_decision_count": 40,
   "pending_rejected_fact_decision_count": 0,
   "batch_count": 10,
   "ready_to_apply_batch_count": 10,
@@ -210,8 +210,8 @@
       "needs_revision_record_count": 0,
       "missing_decision_record_count": 0,
       "suggested_valid_candidate_fact_count": 52,
-      "rejected_fact_decision_count": 10,
-      "completed_rejected_fact_decision_count": 10,
+      "rejected_fact_decision_count": 6,
+      "completed_rejected_fact_decision_count": 6,
       "pending_rejected_fact_decision_count": 0,
       "records": [
         {
@@ -321,8 +321,8 @@
           "issues": [],
           "suggested_valid_candidate_fact_count": 7,
           "rejected_fact_decisions": {
-            "total": 1,
-            "completed": 1,
+            "total": 0,
+            "completed": 0,
             "pending": 0
           }
         },
@@ -337,8 +337,8 @@
           "issues": [],
           "suggested_valid_candidate_fact_count": 7,
           "rejected_fact_decisions": {
-            "total": 1,
-            "completed": 1,
+            "total": 0,
+            "completed": 0,
             "pending": 0
           }
         },
@@ -353,8 +353,8 @@
           "issues": [],
           "suggested_valid_candidate_fact_count": 7,
           "rejected_fact_decisions": {
-            "total": 1,
-            "completed": 1,
+            "total": 0,
+            "completed": 0,
             "pending": 0
           }
         },
@@ -369,8 +369,8 @@
           "issues": [],
           "suggested_valid_candidate_fact_count": 7,
           "rejected_fact_decisions": {
-            "total": 1,
-            "completed": 1,
+            "total": 0,
+            "completed": 0,
             "pending": 0
           }
         }
@@ -387,29 +387,13 @@
       "needs_revision_record_count": 0,
       "missing_decision_record_count": 0,
       "suggested_valid_candidate_fact_count": 76,
-      "rejected_fact_decision_count": 13,
-      "completed_rejected_fact_decision_count": 13,
+      "rejected_fact_decision_count": 9,
+      "completed_rejected_fact_decision_count": 9,
       "pending_rejected_fact_decision_count": 0,
       "records": [
         {
           "sample_id": "ATCSCC-GOLD-021",
           "source_id": "2026-05-14:089",
-          "annotation_status": "reviewed",
-          "status": "ready_to_apply",
-          "manual_edits_present": true,
-          "ready_to_apply": true,
-          "issue_count": 0,
-          "issues": [],
-          "suggested_valid_candidate_fact_count": 7,
-          "rejected_fact_decisions": {
-            "total": 2,
-            "completed": 2,
-            "pending": 0
-          }
-        },
-        {
-          "sample_id": "ATCSCC-GOLD-022",
-          "source_id": "2026-05-15:064",
           "annotation_status": "reviewed",
           "status": "ready_to_apply",
           "manual_edits_present": true,
@@ -424,6 +408,22 @@
           }
         },
         {
+          "sample_id": "ATCSCC-GOLD-022",
+          "source_id": "2026-05-15:064",
+          "annotation_status": "reviewed",
+          "status": "ready_to_apply",
+          "manual_edits_present": true,
+          "ready_to_apply": true,
+          "issue_count": 0,
+          "issues": [],
+          "suggested_valid_candidate_fact_count": 7,
+          "rejected_fact_decisions": {
+            "total": 0,
+            "completed": 0,
+            "pending": 0
+          }
+        },
+        {
           "sample_id": "ATCSCC-GOLD-023",
           "source_id": "2026-05-20:163",
           "annotation_status": "reviewed",
@@ -434,8 +434,8 @@
           "issues": [],
           "suggested_valid_candidate_fact_count": 7,
           "rejected_fact_decisions": {
-            "total": 2,
-            "completed": 2,
+            "total": 1,
+            "completed": 1,
             "pending": 0
           }
         },
@@ -450,8 +450,8 @@
           "issues": [],
           "suggested_valid_candidate_fact_count": 7,
           "rejected_fact_decisions": {
-            "total": 2,
-            "completed": 2,
+            "total": 1,
+            "completed": 1,
             "pending": 0
           }
         },

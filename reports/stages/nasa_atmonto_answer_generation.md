@@ -6,18 +6,18 @@
 - Benchmark labels: 18
 - Modes: `source_only`, `vector_rag`, `token_matched_vector_rag`, `graph_only`, `hybrid_graphrag`, `routed_graphrag`
 - Boundary: Retrospective ATCSCC advisory GraphRAG answer evaluation only.
-- Critic gate rejected facts: 24
+- Critic gate rejected facts: 25
 
 ## Aggregate Answer Quality
 
 | Mode | Answers | Correctness | Citation P | Citation R | Evidence faithful | Unsupported claim rate | Abstention correct | Avg context tokens | Avg target tokens |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `source_only` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.11 | n/a |
-| `vector_rag` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.11 | n/a |
-| `token_matched_vector_rag` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.11 | 14.56 |
-| `graph_only` | 18 | 0.9444 | 1.0 | 0.3148 | 0.9444 | 0.0278 | 1.0 | 49.28 | n/a |
-| `hybrid_graphrag` | 18 | 0.9444 | 1.0 | 0.5741 | 0.9444 | 0.0278 | 1.0 | 14.56 | n/a |
-| `routed_graphrag` | 18 | 0.9444 | 1.0 | 0.5324 | 0.9444 | 0.0278 | 1.0 | 12.89 | n/a |
+| `source_only` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.94 | n/a |
+| `vector_rag` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.94 | n/a |
+| `token_matched_vector_rag` | 18 | 1.0 | 1.0 | 0.4167 | 1.0 | 0.0 | 1.0 | 5.94 | 16.56 |
+| `graph_only` | 18 | 0.8333 | 1.0 | 0.3148 | 0.9444 | 0.0278 | 1.0 | 49.28 | n/a |
+| `hybrid_graphrag` | 18 | 0.9444 | 1.0 | 0.5861 | 0.9444 | 0.0185 | 1.0 | 16.56 | n/a |
+| `routed_graphrag` | 18 | 0.9444 | 1.0 | 0.5445 | 0.9444 | 0.0185 | 1.0 | 14.89 | n/a |
 
 ## S7 Graph-Use Gate
 

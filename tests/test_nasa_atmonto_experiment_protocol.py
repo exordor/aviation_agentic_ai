@@ -31,7 +31,7 @@ def test_nasa_atmonto_gold_sample_manifest_and_template_are_consistent() -> None
         }
         for record in records
     )
-    assert sum(len(record["gold_annotation"]["valid_facts"]) for record in records) == 462
+    assert sum(len(record["gold_annotation"]["valid_facts"]) for record in records) == 470
     assert sum(len(record["gold_annotation"]["missing_facts"]) for record in records) == 181
 
 

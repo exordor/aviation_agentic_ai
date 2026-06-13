@@ -15,7 +15,7 @@
 | --- | --- | --- | --- | ---: | ---: | --- | ---: | ---: | --- | --- |
 | `S0_rule_only` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `` |  |  | `` | `` |
 | `S1_llm_only` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 0 | 0 | `` | `` |
-| `S1b_llm_canonicalized` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 0 | 32 | `` | `` |
+| `S1b_llm_canonicalized` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 0 | 35 | `` | `` |
 | `S2_llm_schema_slice` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 465 | 67 | `` | `` |
 | `S3_llm_schema_slice_validator_repair` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 321 | 83 | `` | `` |
 | `S4_hybrid_backbone_enrichment` | `ready_for_scoring` | `True` | `True` | 1.0 | 0 | `schema_object_flattening_v1` | 0 | 100 | `` | `` |

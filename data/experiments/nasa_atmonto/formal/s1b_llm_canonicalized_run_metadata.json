@@ -112,7 +112,7 @@
     "2026-05-20:197"
   ],
   "parse_error_count": 0,
-  "schema_valid_record_count": 32,
+  "schema_valid_record_count": 35,
   "repair_attempted_record_count": 0,
   "repair_success_record_count": 0,
   "normalizer_version": "schema_object_flattening_v1",

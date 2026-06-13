@@ -418,6 +418,10 @@
           {
             "predicate": "impactingConditionMessage",
             "value": "STAFFING / STAFFING"
+          },
+          {
+            "predicate": "impactingCondition",
+            "value": "staffing"
           }
         ],
         "expected_evidence": [
@@ -426,14 +430,27 @@
             "value": "STAFFING / STAFFING",
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
             "source_id": "2026-05-19:079"
+          },
+          {
+            "predicate": "impactingCondition",
+            "value": "staffing",
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "source_id": "2026-05-19:079"
           }
         ],
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "impactingConditionMessage=STAFFING / STAFFING"
+          "impactingConditionMessage=STAFFING / STAFFING",
+          "impactingCondition=staffing"
         ],
         "evidence_spans": [
+          {
+            "page": 1,
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "char_start": 698,
+            "char_end": 738
+          },
           {
             "page": 1,
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
@@ -444,7 +461,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-19-079-p1-c1"
         ],
-        "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
+        "answer_key": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -471,6 +488,10 @@
           {
             "predicate": "impactingConditionMessage",
             "value": "STAFFING / STAFFING"
+          },
+          {
+            "predicate": "impactingCondition",
+            "value": "staffing"
           }
         ],
         "expected_evidence": [
@@ -479,14 +500,27 @@
             "value": "STAFFING / STAFFING",
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
             "source_id": "2026-05-19:074"
+          },
+          {
+            "predicate": "impactingCondition",
+            "value": "staffing",
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "source_id": "2026-05-19:074"
           }
         ],
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "impactingConditionMessage=STAFFING / STAFFING"
+          "impactingConditionMessage=STAFFING / STAFFING",
+          "impactingCondition=staffing"
         ],
         "evidence_spans": [
+          {
+            "page": 1,
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "char_start": 759,
+            "char_end": 799
+          },
           {
             "page": 1,
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
@@ -497,7 +531,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-19-074-p1-c1"
         ],
-        "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
+        "answer_key": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -524,6 +558,10 @@
           {
             "predicate": "impactingConditionMessage",
             "value": "STAFFING / STAFFING"
+          },
+          {
+            "predicate": "impactingCondition",
+            "value": "staffing"
           }
         ],
         "expected_evidence": [
@@ -532,14 +570,27 @@
             "value": "STAFFING / STAFFING",
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
             "source_id": "2026-05-15:067"
+          },
+          {
+            "predicate": "impactingCondition",
+            "value": "staffing",
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "source_id": "2026-05-15:067"
           }
         ],
         "expected_abstention": false,
         "absent_predicates": [],
         "answer_set": [
-          "impactingConditionMessage=STAFFING / STAFFING"
+          "impactingConditionMessage=STAFFING / STAFFING",
+          "impactingCondition=staffing"
         ],
         "evidence_spans": [
+          {
+            "page": 1,
+            "text": "IMPACTING CONDITION: STAFFING / STAFFING",
+            "char_start": 595,
+            "char_end": 635
+          },
           {
             "page": 1,
             "text": "IMPACTING CONDITION: STAFFING / STAFFING",
@@ -550,7 +601,7 @@
         "expected_chunk_ids": [
           "atcscc-2026-05-15-067-p1-c1"
         ],
-        "answer_key": "impactingConditionMessage=STAFFING / STAFFING",
+        "answer_key": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing",
         "gold_level": "span",
         "route": "graph_template"
       },
@@ -1062,7 +1113,7 @@
   },
   "critic_gate": {
     "policy": "reject known parser artifacts before graph/hybrid answer generation",
-    "rejected_fact_count": 24,
+    "rejected_fact_count": 25,
     "rejected_values": [
       "ADDS",
       "ADVZY",
@@ -1078,7 +1129,7 @@
     ],
     "rejection_reasons": {
       "controlled_nas_metadata_artifact": 3,
-      "controlled_nas_parser_artifact": 21
+      "controlled_nas_parser_artifact": 22
     },
     "examples": [
       {
@@ -3374,15 +3425,20 @@
       "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
       "expected_abstention": false,
       "answer_set": [
-        "impactingConditionMessage=STAFFING / STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING",
+        "impactingCondition=staffing"
       ],
       "results": {
         "source_only": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-079-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span",
@@ -3397,22 +3453,26 @@
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0
           }
         },
         "vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-079-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3427,22 +3487,26 @@
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0
           }
         },
         "token_matched_vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-079-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3457,17 +3521,17 @@
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 14,
-            "estimated_padding_tokens": 9,
+            "target_estimated_context_tokens": 26,
+            "estimated_padding_tokens": 16,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
@@ -3511,11 +3575,15 @@
           }
         },
         "hybrid_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-079-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3530,7 +3598,7 @@
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [
@@ -3541,20 +3609,32 @@
               "predicate": "impactingConditionMessage",
               "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "staffing",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 14,
+            "estimated_context_tokens": 26,
             "fused_chunk_count": 1,
-            "graph_triple_count": 1
+            "graph_triple_count": 2
           }
         },
         "routed_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-079-p1-c1, t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-079-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3570,7 +3650,7 @@
             {
               "chunk_id": "atcscc-2026-05-19-079-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [
@@ -3581,12 +3661,20 @@
               "predicate": "impactingConditionMessage",
               "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-19-079-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "staffing",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 14,
+            "estimated_context_tokens": 26,
             "fused_chunk_count": 1,
-            "graph_triple_count": 1
+            "graph_triple_count": 2
           }
         }
       },
@@ -3652,7 +3740,7 @@
           ]
         },
         "graph_only": {
-          "answer_correctness": true,
+          "answer_correctness": false,
           "citation_precision": 1.0,
           "citation_recall": 0.3333,
           "evidence_faithfulness": true,
@@ -3675,7 +3763,7 @@
         "hybrid_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.6667,
+          "citation_recall": 0.75,
           "evidence_faithfulness": true,
           "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
@@ -3683,22 +3771,25 @@
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-19-079-p1-c1",
-            "t1"
+            "t1",
+            "t2"
           ],
           "detected_citations": [
             "atcscc-2026-05-19-079-p1-c1",
-            "t1"
+            "t1",
+            "t2"
           ],
           "available_citation_units": [
             "atcscc-2026-05-19-079-p1-c1",
             "page 1",
-            "t1"
+            "t1",
+            "t2"
           ]
         },
         "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.6667,
+          "citation_recall": 0.75,
           "evidence_faithfulness": true,
           "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
@@ -3706,16 +3797,19 @@
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-19-079-p1-c1",
-            "t1"
+            "t1",
+            "t2"
           ],
           "detected_citations": [
             "atcscc-2026-05-19-079-p1-c1",
-            "t1"
+            "t1",
+            "t2"
           ],
           "available_citation_units": [
             "atcscc-2026-05-19-079-p1-c1",
             "page 1",
-            "t1"
+            "t1",
+            "t2"
           ]
         }
       }
@@ -3727,15 +3821,20 @@
       "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
       "expected_abstention": false,
       "answer_set": [
-        "impactingConditionMessage=STAFFING / STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING",
+        "impactingCondition=staffing"
       ],
       "results": {
         "source_only": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span",
@@ -3750,22 +3849,26 @@
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0
           }
         },
         "vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3780,22 +3883,26 @@
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0
           }
         },
         "token_matched_vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-074-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -3810,17 +3917,17 @@
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 14,
-            "estimated_padding_tokens": 9,
+            "target_estimated_context_tokens": 26,
+            "estimated_padding_tokens": 16,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
@@ -3864,11 +3971,15 @@
           }
         },
         "hybrid_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-074-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3883,7 +3994,7 @@
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [
@@ -3894,20 +4005,32 @@
               "predicate": "impactingConditionMessage",
               "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "staffing",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 14,
+            "estimated_context_tokens": 26,
             "fused_chunk_count": 1,
-            "graph_triple_count": 1
+            "graph_triple_count": 2
           }
         },
         "routed_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-19-074-p1-c1, t1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-19-074-p1-c1, t1, t2.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -3923,7 +4046,7 @@
             {
               "chunk_id": "atcscc-2026-05-19-074-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [
@@ -3934,12 +4057,20 @@
               "predicate": "impactingConditionMessage",
               "object": "STAFFING / STAFFING",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
+            },
+            {
+              "triple_id": "t2",
+              "chunk_id": "atcscc-2026-05-19-074-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "staffing",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 14,
+            "estimated_context_tokens": 26,
             "fused_chunk_count": 1,
-            "graph_triple_count": 1
+            "graph_triple_count": 2
           }
         }
       },
@@ -4005,7 +4136,7 @@
           ]
         },
         "graph_only": {
-          "answer_correctness": true,
+          "answer_correctness": false,
           "citation_precision": 1.0,
           "citation_recall": 0.3333,
           "evidence_faithfulness": true,
@@ -4028,7 +4159,7 @@
         "hybrid_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.6667,
+          "citation_recall": 0.75,
           "evidence_faithfulness": true,
           "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
@@ -4036,22 +4167,25 @@
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-19-074-p1-c1",
-            "t1"
+            "t1",
+            "t2"
           ],
           "detected_citations": [
             "atcscc-2026-05-19-074-p1-c1",
-            "t1"
+            "t1",
+            "t2"
           ],
           "available_citation_units": [
             "atcscc-2026-05-19-074-p1-c1",
             "page 1",
-            "t1"
+            "t1",
+            "t2"
           ]
         },
         "routed_graphrag": {
           "answer_correctness": true,
           "citation_precision": 1.0,
-          "citation_recall": 0.6667,
+          "citation_recall": 0.75,
           "evidence_faithfulness": true,
           "unsupported_claim_rate": 0.0,
           "abstention_correctness": true,
@@ -4059,16 +4193,19 @@
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-19-074-p1-c1",
-            "t1"
+            "t1",
+            "t2"
           ],
           "detected_citations": [
             "atcscc-2026-05-19-074-p1-c1",
-            "t1"
+            "t1",
+            "t2"
           ],
           "available_citation_units": [
             "atcscc-2026-05-19-074-p1-c1",
             "page 1",
-            "t1"
+            "t1",
+            "t2"
           ]
         }
       }
@@ -4080,15 +4217,20 @@
       "question": "What weather, volume, runway, equipment, or other condition explains the restriction?",
       "expected_abstention": false,
       "answer_set": [
-        "impactingConditionMessage=STAFFING / STAFFING"
+        "impactingConditionMessage=STAFFING / STAFFING",
+        "impactingCondition=staffing"
       ],
       "results": {
         "source_only": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-15-067-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span",
@@ -4103,22 +4245,26 @@
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0
           }
         },
         "vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-15-067-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -4133,22 +4279,26 @@
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0
           }
         },
         "token_matched_vector_rag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING. Citations: atcscc-2026-05-15-067-p1-c1.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=staffing. Citations: atcscc-2026-05-15-067-p1-c1.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
               "value": "STAFFING / STAFFING"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_text_retrieval_proxy",
@@ -4163,17 +4313,17 @@
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [],
           "context_budget": {
-            "estimated_context_tokens": 5,
+            "estimated_context_tokens": 10,
             "fused_chunk_count": 1,
             "graph_triple_count": 0,
             "token_match_target_mode": "hybrid_graphrag",
-            "target_estimated_context_tokens": 32,
-            "estimated_padding_tokens": 27,
+            "target_estimated_context_tokens": 44,
+            "estimated_padding_tokens": 34,
             "policy": "match the hybrid context budget without adding graph triples"
           }
         },
@@ -4229,7 +4379,7 @@
           }
         },
         "hybrid_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=other; impactingCondition=staffing. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2, t3.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
@@ -4238,6 +4388,10 @@
             {
               "predicate": "impactingCondition",
               "value": "other"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -4252,7 +4406,7 @@
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [
@@ -4271,16 +4425,24 @@
               "predicate": "impactingCondition",
               "object": "other",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45"
+            },
+            {
+              "triple_id": "t3",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "staffing",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 32,
+            "estimated_context_tokens": 44,
             "fused_chunk_count": 1,
-            "graph_triple_count": 2
+            "graph_triple_count": 3
           }
         },
         "routed_graphrag": {
-          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=other. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2.",
+          "answer": "impactingConditionMessage=STAFFING / STAFFING; impactingCondition=other; impactingCondition=staffing. Citations: atcscc-2026-05-15-067-p1-c1, t1, t2, t3.",
           "answer_values": [
             {
               "predicate": "impactingConditionMessage",
@@ -4289,6 +4451,10 @@
             {
               "predicate": "impactingCondition",
               "value": "other"
+            },
+            {
+              "predicate": "impactingCondition",
+              "value": "staffing"
             }
           ],
           "evidence_route": "source_span_plus_critic_gated_s4_graph",
@@ -4304,7 +4470,7 @@
             {
               "chunk_id": "atcscc-2026-05-15-067-p1-c1",
               "page": 1,
-              "text": "IMPACTING CONDITION: STAFFING / STAFFING"
+              "text": "IMPACTING CONDITION: STAFFING / STAFFING IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "graph_triples": [
@@ -4323,12 +4489,20 @@
               "predicate": "impactingCondition",
               "object": "other",
               "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45"
+            },
+            {
+              "triple_id": "t3",
+              "chunk_id": "atcscc-2026-05-15-067-p1-c1",
+              "page": 1,
+              "predicate": "impactingCondition",
+              "object": "staffing",
+              "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING"
             }
           ],
           "context_budget": {
-            "estimated_context_tokens": 32,
+            "estimated_context_tokens": 44,
             "fused_chunk_count": 1,
-            "graph_triple_count": 2
+            "graph_triple_count": 3
           }
         }
       },
@@ -4420,53 +4594,59 @@
         "hybrid_graphrag": {
           "answer_correctness": false,
           "citation_precision": 1.0,
-          "citation_recall": 0.75,
+          "citation_recall": 0.8,
           "evidence_faithfulness": false,
-          "unsupported_claim_rate": 0.5,
+          "unsupported_claim_rate": 0.3333,
           "abstention_correctness": true,
           "expected_abstention": false,
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-15-067-p1-c1",
             "t1",
-            "t2"
+            "t2",
+            "t3"
           ],
           "detected_citations": [
             "atcscc-2026-05-15-067-p1-c1",
             "t1",
-            "t2"
+            "t2",
+            "t3"
           ],
           "available_citation_units": [
             "atcscc-2026-05-15-067-p1-c1",
             "page 1",
             "t1",
-            "t2"
+            "t2",
+            "t3"
           ]
         },
         "routed_graphrag": {
           "answer_correctness": false,
           "citation_precision": 1.0,
-          "citation_recall": 0.75,
+          "citation_recall": 0.8,
           "evidence_faithfulness": false,
-          "unsupported_claim_rate": 0.5,
+          "unsupported_claim_rate": 0.3333,
           "abstention_correctness": true,
           "expected_abstention": false,
           "actual_abstention": false,
           "valid_citations": [
             "atcscc-2026-05-15-067-p1-c1",
             "t1",
-            "t2"
+            "t2",
+            "t3"
           ],
           "detected_citations": [
             "atcscc-2026-05-15-067-p1-c1",
             "t1",
-            "t2"
+            "t2",
+            "t3"
           ],
           "available_citation_units": [
             "atcscc-2026-05-15-067-p1-c1",
             "page 1",
             "t1",
-            "t2"
+            "t2",
+            "t3"
           ]
         }
       }
@@ -7404,7 +7584,7 @@
         "evidence_faithfulness": 1.0,
         "unsupported_claim_rate": 0.0,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 5.11,
+        "avg_estimated_context_tokens": 5.94,
         "max_estimated_context_tokens": 21,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
@@ -7417,7 +7597,7 @@
         "evidence_faithfulness": 1.0,
         "unsupported_claim_rate": 0.0,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 5.11,
+        "avg_estimated_context_tokens": 5.94,
         "max_estimated_context_tokens": 21,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
@@ -7430,14 +7610,14 @@
         "evidence_faithfulness": 1.0,
         "unsupported_claim_rate": 0.0,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 5.11,
+        "avg_estimated_context_tokens": 5.94,
         "max_estimated_context_tokens": 21,
-        "avg_target_context_tokens": 14.56,
-        "avg_estimated_padding_tokens": 9.44
+        "avg_target_context_tokens": 16.56,
+        "avg_estimated_padding_tokens": 10.61
       },
       "graph_only": {
         "answers_total": 18,
-        "answer_correctness": 0.9444,
+        "answer_correctness": 0.8333,
         "citation_precision": 1.0,
         "citation_recall": 0.3148,
         "evidence_faithfulness": 0.9444,
@@ -7452,11 +7632,11 @@
         "answers_total": 18,
         "answer_correctness": 0.9444,
         "citation_precision": 1.0,
-        "citation_recall": 0.5741,
+        "citation_recall": 0.5861,
         "evidence_faithfulness": 0.9444,
-        "unsupported_claim_rate": 0.0278,
+        "unsupported_claim_rate": 0.0185,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 14.56,
+        "avg_estimated_context_tokens": 16.56,
         "max_estimated_context_tokens": 63,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
@@ -7465,11 +7645,11 @@
         "answers_total": 18,
         "answer_correctness": 0.9444,
         "citation_precision": 1.0,
-        "citation_recall": 0.5324,
+        "citation_recall": 0.5445,
         "evidence_faithfulness": 0.9444,
-        "unsupported_claim_rate": 0.0278,
+        "unsupported_claim_rate": 0.0185,
         "abstention_correctness": 1.0,
-        "avg_estimated_context_tokens": 12.89,
+        "avg_estimated_context_tokens": 14.89,
         "max_estimated_context_tokens": 63,
         "avg_target_context_tokens": null,
         "avg_estimated_padding_tokens": null
@@ -7485,7 +7665,7 @@
         "chunks_path": null,
         "chunks_size_bytes": null,
         "kg_path": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl",
-        "kg_size_bytes": 2375543,
+        "kg_size_bytes": 2521884,
         "index_dir": null,
         "index_size_bytes": null,
         "llm_token_usage": {

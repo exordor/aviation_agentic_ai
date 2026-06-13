@@ -5,8 +5,8 @@
   "annotation_guide": "docs/nasa_atmonto_gold_annotation_guide.md",
   "selected_source_id_count": 100,
   "record_count": 100,
-  "records_with_rejections": 40,
-  "total_rejected_facts_to_adjudicate": 48,
+  "records_with_rejections": 35,
+  "total_rejected_facts_to_adjudicate": 40,
   "status_counts": {
     "reviewed": 100
   },
@@ -18,7 +18,7 @@
   },
   "suggested_decision_counts": {
     "extractor_normalization_bug_candidate": 8,
-    "nasa_atmonto_profile_gap_candidate": 40
+    "nasa_atmonto_profile_gap_candidate": 32
   },
   "records": [
     {
@@ -667,7 +667,7 @@
       "annotation_status": "reviewed",
       "candidate_fact_count": 8,
       "accepted_fact_count": 7,
-      "rejected_fact_count": 1,
+      "rejected_fact_count": 0,
       "source_text_excerpt": "ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home | Products | What's New | Site Map | ATCSCC FAQ | Diversion Forums | Text-Only Version ATCSCC Advisory ATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1851Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0359Z CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0359Z PROGRAM RATE: 28/28/28/24/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 106 AVERAGE DELAY: 54 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA STAFFING TRIGGER. MODIFIED LOW POPUP. TIME + 45. EFFECTIVE TIME: 191854-200459 SIGNATURE: 26/05/19 18:55 FAA.gov Home | Privacy Policy | Web Pol...",
       "required_tasks": [
         "mark valid candidate facts",
@@ -675,23 +675,7 @@
         "add missing gold facts with evidence_text",
         "adjudicate validator-rejected facts"
       ],
-      "rejected_facts_to_adjudicate": [
-        {
-          "fact_id": "fact-55ba0ebe57eb90f0",
-          "predicate": "impactingCondition",
-          "errors": [
-            "allowed_value_violation"
-          ],
-          "subject_class": "GroundDelayProgramTMI",
-          "object_class": null,
-          "object": null,
-          "value": "staffing",
-          "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING",
-          "suggested_decision": "nasa_atmonto_profile_gap_candidate",
-          "suggested_rationale": "ATCSCC uses STAFFING as an impacting condition, but the ATMONTO enum contains equipment, other, runway, volume, and weather.",
-          "suggested_action": "Decide whether STAFFING should become a profile extension value or map to other with the raw value retained in impactingConditionMessage."
-        }
-      ]
+      "rejected_facts_to_adjudicate": []
     },
     {
       "sample_id": "ATCSCC-GOLD-018",
@@ -703,7 +687,7 @@
       "annotation_status": "reviewed",
       "candidate_fact_count": 8,
       "accepted_fact_count": 7,
-      "rejected_fact_count": 1,
+      "rejected_fact_count": 0,
       "source_text_excerpt": "ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home | Products | What's New | Site Map | ATCSCC FAQ | Diversion Forums | Text-Only Version ATCSCC Advisory ATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1836Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 19/2030Z - 20/0459Z ANTICIPATED CUMULATIVE PROGRAM PERIOD: 19/2030Z - 20/0459Z ANTICIPATED PROGRAM RATE: 28/18/18/20/20/20/20/20/20 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME ANTICIPATED MAXIMUM DELAY: 175 ANTICIPATED AVERAGE DELAY: 109 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: BNA WILL BE IN A TRACAB CONFIGURATION STARTING IN 00Z. CONFERENCE AT 1850Z USER UPDATES...",
       "required_tasks": [
         "mark valid candidate facts",
@@ -711,23 +695,7 @@
         "add missing gold facts with evidence_text",
         "adjudicate validator-rejected facts"
       ],
-      "rejected_facts_to_adjudicate": [
-        {
-          "fact_id": "fact-f72cd5658433c79b",
-          "predicate": "impactingCondition",
-          "errors": [
-            "allowed_value_violation"
-          ],
-          "subject_class": "GroundDelayProgramTMI",
-          "object_class": null,
-          "object": null,
-          "value": "staffing",
-          "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING",
-          "suggested_decision": "nasa_atmonto_profile_gap_candidate",
-          "suggested_rationale": "ATCSCC uses STAFFING as an impacting condition, but the ATMONTO enum contains equipment, other, runway, volume, and weather.",
-          "suggested_action": "Decide whether STAFFING should become a profile extension value or map to other with the raw value retained in impactingConditionMessage."
-        }
-      ]
+      "rejected_facts_to_adjudicate": []
     },
     {
       "sample_id": "ATCSCC-GOLD-019",
@@ -739,7 +707,7 @@
       "annotation_status": "reviewed",
       "candidate_fact_count": 8,
       "accepted_fact_count": 7,
-      "rejected_fact_count": 1,
+      "rejected_fact_count": 0,
       "source_text_excerpt": "ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home | Products | What's New | Site Map | ATCSCC FAQ | Diversion Forums | Text-Only Version ATCSCC Advisory ATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1945Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 15/2200Z - 16/0029Z CUMULATIVE PROGRAM PERIOD: 15/2200Z - 16/0029Z PROGRAM RATE: 32 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: 1000 CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME MAXIMUM DELAY: 59 AVERAGE DELAY: 29 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR 20L, DEP 20R, ZERO POP UP, EXEMPT TIME +45 EFFECTIVE TIME: 151949-160129 SIGNATURE: 26/05/15 19:50 FAA.gov Home | Privacy Policy | Web Policies & Notices | Contact Us Readers & Viewers: PDF Reader | MS Word Viewer | MS PowerPoint Viewer | MS Excel...",
       "required_tasks": [
         "mark valid candidate facts",
@@ -747,23 +715,7 @@
         "add missing gold facts with evidence_text",
         "adjudicate validator-rejected facts"
       ],
-      "rejected_facts_to_adjudicate": [
-        {
-          "fact_id": "fact-e266b922c1167993",
-          "predicate": "impactingCondition",
-          "errors": [
-            "allowed_value_violation"
-          ],
-          "subject_class": "GroundDelayProgramTMI",
-          "object_class": null,
-          "object": null,
-          "value": "staffing",
-          "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING",
-          "suggested_decision": "nasa_atmonto_profile_gap_candidate",
-          "suggested_rationale": "ATCSCC uses STAFFING as an impacting condition, but the ATMONTO enum contains equipment, other, runway, volume, and weather.",
-          "suggested_action": "Decide whether STAFFING should become a profile extension value or map to other with the raw value retained in impactingConditionMessage."
-        }
-      ]
+      "rejected_facts_to_adjudicate": []
     },
     {
       "sample_id": "ATCSCC-GOLD-020",
@@ -775,7 +727,7 @@
       "annotation_status": "reviewed",
       "candidate_fact_count": 8,
       "accepted_fact_count": 7,
-      "rejected_fact_count": 1,
+      "rejected_fact_count": 0,
       "source_text_excerpt": "ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home | Products | What's New | Site Map | ATCSCC FAQ | Diversion Forums | Text-Only Version ATCSCC Advisory ATCSCC ADVZY 084 SFO/ZOA 05/15/2026 CDM GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: SFO ELEMENT TYPE: APT ADL TIME: 2254Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 15/2254Z - 16/0659Z CUMULATIVE PROGRAM PERIOD: 15/1500Z - 16/0659Z PROGRAM RATE: 36/36/36/30/30/32/36/36/36 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: (ALL+CZV_AP) ZLA ZAU ZLC ZTL ZDC ZNY ZHU ZJX ZFW ZOB ZDV ZOA ZSE ZBW ZMA ZKC ZME ZID ZAB ZMP CANADIAN DEP ARPTS INCLUDED: CYEG CYVR CYYC DELAY ASSIGNMENT TABLE APPLIES TO: ZOA MAXIMUM DELAY: 758 AVERAGE DELAY: 70 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: ARR/DEP 28R/L, MODIFIED LOW POP UP, BY STATUS. PROCEDURAL COMPLICANCE ALSO A FACTOR WITH NCT STAFFING TRIGGER EFFECTIVE TIME: 15...",
       "required_tasks": [
         "mark valid candidate facts",
@@ -783,23 +735,7 @@
         "add missing gold facts with evidence_text",
         "adjudicate validator-rejected facts"
       ],
-      "rejected_facts_to_adjudicate": [
-        {
-          "fact_id": "fact-0c51c2646036b3c1",
-          "predicate": "impactingCondition",
-          "errors": [
-            "allowed_value_violation"
-          ],
-          "subject_class": "GroundDelayProgramTMI",
-          "object_class": null,
-          "object": null,
-          "value": "staffing",
-          "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING",
-          "suggested_decision": "nasa_atmonto_profile_gap_candidate",
-          "suggested_rationale": "ATCSCC uses STAFFING as an impacting condition, but the ATMONTO enum contains equipment, other, runway, volume, and weather.",
-          "suggested_action": "Decide whether STAFFING should become a profile extension value or map to other with the raw value retained in impactingConditionMessage."
-        }
-      ]
+      "rejected_facts_to_adjudicate": []
     },
     {
       "sample_id": "ATCSCC-GOLD-021",
@@ -811,7 +747,7 @@
       "annotation_status": "reviewed",
       "candidate_fact_count": 9,
       "accepted_fact_count": 7,
-      "rejected_fact_count": 2,
+      "rejected_fact_count": 1,
       "source_text_excerpt": "ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home | Products | What's New | Site Map | ATCSCC FAQ | Diversion Forums | Text-Only Version ATCSCC Advisory ATCSCC ADVZY 089 BNA/ZME 05/14/2026 CDM GROUND STOP MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2220Z GROUND STOP PERIOD: 14/2112Z - 14/2300Z DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZHU ZFW ZKC ZME ZID PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 606 / 70 / 23 NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 1243 / 100 / 48 PROBABILITY OF EXTENSION: MEDIUM IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EXTENDED UPDATE TIME OF 2300 EFFECTIVE TIME: 142224-150000 SIGNATURE: 26/05/14 22:25 FAA.gov Home | Privacy Policy | Web Policies & Notices | Contact Us Readers & Viewers: PDF Reader | MS Word Viewer | MS PowerPoint Viewer | MS Excel Viewer | WinZip",
       "required_tasks": [
         "mark valid candidate facts",
@@ -820,21 +756,6 @@
         "adjudicate validator-rejected facts"
       ],
       "rejected_facts_to_adjudicate": [
-        {
-          "fact_id": "fact-3c4247c92836f15f",
-          "predicate": "impactingCondition",
-          "errors": [
-            "allowed_value_violation"
-          ],
-          "subject_class": "GroundStopTMI",
-          "object_class": null,
-          "object": null,
-          "value": "staffing",
-          "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING",
-          "suggested_decision": "nasa_atmonto_profile_gap_candidate",
-          "suggested_rationale": "ATCSCC uses STAFFING as an impacting condition, but the ATMONTO enum contains equipment, other, runway, volume, and weather.",
-          "suggested_action": "Decide whether STAFFING should become a profile extension value or map to other with the raw value retained in impactingConditionMessage."
-        },
         {
           "fact_id": "fact-5e0a045d089d24b4",
           "predicate": "impactingConditionMessage",
@@ -862,7 +783,7 @@
       "annotation_status": "reviewed",
       "candidate_fact_count": 8,
       "accepted_fact_count": 7,
-      "rejected_fact_count": 1,
+      "rejected_fact_count": 0,
       "source_text_excerpt": "ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home | Products | What's New | Site Map | ATCSCC FAQ | Diversion Forums | Text-Only Version ATCSCC Advisory ATCSCC ADVZY 064 BNA/ZME 05/15/2026 CDM PROPOSED GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 1925Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 15/2200Z - 16/0029Z ANTICIPATED CUMULATIVE PROGRAM PERIOD: 15/2200Z - 16/0029Z ANTICIPATED PROGRAM RATE: 32 FLT INCL: ALL CONTIGUOUS US DEP DEP SCOPE: 1000 CANADIAN DEP ARPTS INCLUDED: NONE DELAY ASSIGNMENT TABLE APPLIES TO: ZME ANTICIPATED MAXIMUM DELAY: 53 ANTICIPATED AVERAGE DELAY: 26 IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: PROPOSAL ONLY. CONFERENCE AT 1945Z USER UPDATES MUST BE RECEIVED BY: 15/2000Z EFFECTIVE TIME: 151929-152059 SIGNATURE: 26/05/15 19:29 FAA.gov Home | Privacy Policy | Web Policies & Notices | Con...",
       "required_tasks": [
         "mark valid candidate facts",
@@ -870,23 +791,7 @@
         "add missing gold facts with evidence_text",
         "adjudicate validator-rejected facts"
       ],
-      "rejected_facts_to_adjudicate": [
-        {
-          "fact_id": "fact-2381cff5585d7e70",
-          "predicate": "impactingCondition",
-          "errors": [
-            "allowed_value_violation"
-          ],
-          "subject_class": "GroundDelayProgramTMI",
-          "object_class": null,
-          "object": null,
-          "value": "staffing",
-          "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING",
-          "suggested_decision": "nasa_atmonto_profile_gap_candidate",
-          "suggested_rationale": "ATCSCC uses STAFFING as an impacting condition, but the ATMONTO enum contains equipment, other, runway, volume, and weather.",
-          "suggested_action": "Decide whether STAFFING should become a profile extension value or map to other with the raw value retained in impactingConditionMessage."
-        }
-      ]
+      "rejected_facts_to_adjudicate": []
     },
     {
       "sample_id": "ATCSCC-GOLD-023",
@@ -898,7 +803,7 @@
       "annotation_status": "reviewed",
       "candidate_fact_count": 9,
       "accepted_fact_count": 7,
-      "rejected_fact_count": 2,
+      "rejected_fact_count": 1,
       "source_text_excerpt": "ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home | Products | What's New | Site Map | ATCSCC FAQ | Diversion Forums | Text-Only Version ATCSCC Advisory ATCSCC ADVZY 163 DEN/ZDV 05/20/2026 CDM GROUND STOP MESSAGE: CTL ELEMENT: DEN ELEMENT TYPE: APT ADL TIME: 2157Z GROUND STOP PERIOD: 20/2200Z - 20/2315Z DEP FACILITIES INCLUDED: (1stTier) ZLA ZLC ZDV ZKC ZAB ZMP PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 0 / 0 / 0 NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 1918 / 74 / 46 PROBABILITY OF EXTENSION: MEDIUM IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EFFECTIVE TIME: 202159-210015 SIGNATURE: 26/05/20 22:00 FAA.gov Home | Privacy Policy | Web Policies & Notices | Contact Us Readers & Viewers: PDF Reader | MS Word Viewer | MS PowerPoint Viewer | MS Excel Viewer | WinZip",
       "required_tasks": [
         "mark valid candidate facts",
@@ -907,21 +812,6 @@
         "adjudicate validator-rejected facts"
       ],
       "rejected_facts_to_adjudicate": [
-        {
-          "fact_id": "fact-e1e95b7dcb859a1c",
-          "predicate": "impactingCondition",
-          "errors": [
-            "allowed_value_violation"
-          ],
-          "subject_class": "GroundStopTMI",
-          "object_class": null,
-          "object": null,
-          "value": "staffing",
-          "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING",
-          "suggested_decision": "nasa_atmonto_profile_gap_candidate",
-          "suggested_rationale": "ATCSCC uses STAFFING as an impacting condition, but the ATMONTO enum contains equipment, other, runway, volume, and weather.",
-          "suggested_action": "Decide whether STAFFING should become a profile extension value or map to other with the raw value retained in impactingConditionMessage."
-        },
         {
           "fact_id": "fact-7e4f7e6d5ecd7a76",
           "predicate": "impactingConditionMessage",
@@ -949,7 +839,7 @@
       "annotation_status": "reviewed",
       "candidate_fact_count": 9,
       "accepted_fact_count": 7,
-      "rejected_fact_count": 2,
+      "rejected_fact_count": 1,
       "source_text_excerpt": "ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home | Products | What's New | Site Map | ATCSCC FAQ | Diversion Forums | Text-Only Version ATCSCC Advisory ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP MESSAGE: CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2129Z GROUND STOP PERIOD: 18/2130Z - 18/2245Z DEP FACILITIES INCLUDED: (Manual) ZAU ZTL ZNY ZHU ZFW ZKC ZME ZID PREVIOUS TOTAL, MAXIMUM, AVERAGE DELAYS: 0 / 0 / 0 NEW TOTAL, MAXIMUM, AVERAGE DELAYS: 901 / 75 / 39 PROBABILITY OF EXTENSION: LOW IMPACTING CONDITION: STAFFING / STAFFING COMMENTS: EFFECTIVE TIME: 182131-182345 SIGNATURE: 26/05/18 21:31 FAA.gov Home | Privacy Policy | Web Policies & Notices | Contact Us Readers & Viewers: PDF Reader | MS Word Viewer | MS PowerPoint Viewer | MS Excel Viewer | WinZip",
       "required_tasks": [
         "mark valid candidate facts",
@@ -958,21 +848,6 @@
         "adjudicate validator-rejected facts"
       ],
       "rejected_facts_to_adjudicate": [
-        {
-          "fact_id": "fact-546d313b8f16f1ca",
-          "predicate": "impactingCondition",
-          "errors": [
-            "allowed_value_violation"
-          ],
-          "subject_class": "GroundStopTMI",
-          "object_class": null,
-          "object": null,
-          "value": "staffing",
-          "evidence_text": "IMPACTING CONDITION: STAFFING / STAFFING",
-          "suggested_decision": "nasa_atmonto_profile_gap_candidate",
-          "suggested_rationale": "ATCSCC uses STAFFING as an impacting condition, but the ATMONTO enum contains equipment, other, runway, volume, and weather.",
-          "suggested_action": "Decide whether STAFFING should become a profile extension value or map to other with the raw value retained in impactingConditionMessage."
-        },
         {
           "fact_id": "fact-c1b6afb7f5738a06",
           "predicate": "impactingConditionMessage",

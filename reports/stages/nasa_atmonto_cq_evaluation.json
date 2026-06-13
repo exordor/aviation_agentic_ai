@@ -22,8 +22,8 @@
       "GroundStopTMI": 21,
       "GroundDelayProgramTMI": 16
     },
-    "gold_fact_count": 643,
-    "accepted_gold_fact_count": 462,
+    "gold_fact_count": 651,
+    "accepted_gold_fact_count": 470,
     "reviewed_missing_fact_count": 181,
     "predicate_counts": {
       "advisoryNumber": 100,
@@ -33,7 +33,7 @@
       "initiativeComments": 81,
       "controlledNASelement": 46,
       "extensionProbability": 30,
-      "impactingCondition": 22,
+      "impactingCondition": 30,
       "implementationStatus": 21,
       "reRouteReason": 20,
       "reRouteType": 19,
@@ -45,9 +45,9 @@
       "effectiveStartTime": 91,
       "issuedTime": 72,
       "controlledNASelement": 36,
+      "impactingCondition": 27,
       "initiativeComments": 24,
       "extensionProbability": 21,
-      "impactingCondition": 19,
       "impactingConditionMessage": 10,
       "implementationStatus": 6
     },
@@ -70,7 +70,7 @@
       "effectiveEndTime": 98,
       "effectiveStartTime": 98,
       "extensionProbability": 30,
-      "impactingCondition": 22,
+      "impactingCondition": 30,
       "impactingConditionMessage": 10,
       "implementationStatus": 21,
       "initiativeComments": 81,
@@ -79,16 +79,15 @@
       "reRouteType": 19
     },
     "invalid_candidate_fact_count": 104,
-    "rejected_adjudication_count": 48,
+    "rejected_adjudication_count": 40,
     "rejected_predicate_counts": {
       "impactingConditionMessage": 17,
       "controlledNASelement": 15,
-      "extensionProbability": 8,
-      "impactingCondition": 8
+      "extensionProbability": 8
     },
     "evidence": {
-      "checked_fact_count": 643,
-      "contained_fact_count": 643,
+      "checked_fact_count": 651,
+      "contained_fact_count": 651,
       "not_contained_fact_count": 0,
       "missing_evidence_fact_count": 0,
       "containment_rate": 1.0
@@ -103,8 +102,8 @@
         "label": "Rule-only",
         "available": true,
         "precision": 0.8163,
-        "recall": 0.7185,
-        "f1": 0.7643,
+        "recall": 0.7097,
+        "f1": 0.7592,
         "scoring_validity": "valid_target_schema_scoring"
       },
       {
@@ -120,9 +119,9 @@
         "system_id": "S1b_llm_canonicalized",
         "label": "LLM-only + post-hoc canonicalization",
         "available": true,
-        "precision": 0.5081,
-        "recall": 0.1462,
-        "f1": 0.2271,
+        "precision": 0.4974,
+        "recall": 0.1444,
+        "f1": 0.2238,
         "scoring_validity": "valid_target_schema_scoring"
       },
       {
@@ -130,8 +129,8 @@
         "label": "LLM + schema slice",
         "available": true,
         "precision": 0.2062,
-        "recall": 0.1866,
-        "f1": 0.1959,
+        "recall": 0.1843,
+        "f1": 0.1946,
         "scoring_validity": "valid_target_schema_scoring"
       },
       {
@@ -139,17 +138,17 @@
         "label": "LLM + schema slice + validator/repair",
         "available": true,
         "precision": 0.2423,
-        "recall": 0.1337,
-        "f1": 0.1723,
+        "recall": 0.1321,
+        "f1": 0.171,
         "scoring_validity": "valid_target_schema_scoring"
       },
       {
         "system_id": "S4_hybrid_backbone_enrichment",
         "label": "Hybrid backbone + semantic enrichment",
         "available": true,
-        "precision": 0.7168,
-        "recall": 0.7636,
-        "f1": 0.7395,
+        "precision": 0.6795,
+        "recall": 0.7619,
+        "f1": 0.7183,
         "scoring_validity": "valid_target_schema_scoring"
       }
     ]
@@ -359,14 +358,14 @@
           "predicates_evaluated": [
             "controlledNASelement"
           ],
-          "predicted_fact_count": 103,
+          "predicted_fact_count": 114,
           "gold_fact_count": 46,
           "true_positive_count": 36,
-          "false_positive_count": 67,
+          "false_positive_count": 78,
           "false_negative_count": 10,
-          "precision": 0.3495,
+          "precision": 0.3158,
           "recall": 0.7826,
-          "f1": 0.4832
+          "f1": 0.45
         }
       ],
       "best_system": {
@@ -654,22 +653,22 @@
             "implementationStatus",
             "initiativeComments"
           ],
-          "predicted_fact_count": 81,
+          "predicted_fact_count": 101,
           "gold_fact_count": 102,
-          "true_positive_count": 42,
-          "false_positive_count": 39,
-          "false_negative_count": 60,
-          "precision": 0.5185,
-          "recall": 0.4118,
-          "f1": 0.459
+          "true_positive_count": 45,
+          "false_positive_count": 56,
+          "false_negative_count": 57,
+          "precision": 0.4455,
+          "recall": 0.4412,
+          "f1": 0.4433
         }
       ],
       "best_system": {
         "system_id": "S4_hybrid_backbone_enrichment",
         "label": "Hybrid backbone + semantic enrichment",
-        "precision": 0.5185,
-        "recall": 0.4118,
-        "f1": 0.459
+        "precision": 0.4455,
+        "recall": 0.4412,
+        "f1": 0.4433
       }
     },
     {
@@ -699,11 +698,11 @@
           "initiativeComments",
           "reRouteReason"
         ],
-        "gold_fact_count": 133,
+        "gold_fact_count": 141,
         "record_count": null,
-        "predicate_record_count_sum": 133,
+        "predicate_record_count_sum": 141,
         "predicate_counts": {
-          "impactingCondition": 22,
+          "impactingCondition": 30,
           "impactingConditionMessage": 10,
           "initiativeComments": 81,
           "reRouteReason": 20
@@ -721,13 +720,13 @@
             "reRouteReason"
           ],
           "predicted_fact_count": 68,
-          "gold_fact_count": 133,
+          "gold_fact_count": 141,
           "true_positive_count": 53,
           "false_positive_count": 15,
-          "false_negative_count": 80,
+          "false_negative_count": 88,
           "precision": 0.7794,
-          "recall": 0.3985,
-          "f1": 0.5274
+          "recall": 0.3759,
+          "f1": 0.5072
         },
         {
           "system_id": "S1_llm_only",
@@ -740,10 +739,10 @@
             "reRouteReason"
           ],
           "predicted_fact_count": 0,
-          "gold_fact_count": 133,
+          "gold_fact_count": 141,
           "true_positive_count": 0,
           "false_positive_count": 0,
-          "false_negative_count": 133,
+          "false_negative_count": 141,
           "precision": null,
           "recall": 0.0,
           "f1": null
@@ -758,12 +757,12 @@
             "initiativeComments",
             "reRouteReason"
           ],
-          "predicted_fact_count": 0,
-          "gold_fact_count": 133,
+          "predicted_fact_count": 4,
+          "gold_fact_count": 141,
           "true_positive_count": 0,
-          "false_positive_count": 0,
-          "false_negative_count": 133,
-          "precision": null,
+          "false_positive_count": 4,
+          "false_negative_count": 141,
+          "precision": 0.0,
           "recall": 0.0,
           "f1": null
         },
@@ -778,13 +777,13 @@
             "reRouteReason"
           ],
           "predicted_fact_count": 137,
-          "gold_fact_count": 133,
+          "gold_fact_count": 141,
           "true_positive_count": 21,
           "false_positive_count": 116,
-          "false_negative_count": 112,
+          "false_negative_count": 120,
           "precision": 0.1533,
-          "recall": 0.1579,
-          "f1": 0.1556
+          "recall": 0.1489,
+          "f1": 0.1511
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -797,13 +796,13 @@
             "reRouteReason"
           ],
           "predicted_fact_count": 104,
-          "gold_fact_count": 133,
+          "gold_fact_count": 141,
           "true_positive_count": 28,
           "false_positive_count": 76,
-          "false_negative_count": 105,
+          "false_negative_count": 113,
           "precision": 0.2692,
-          "recall": 0.2105,
-          "f1": 0.2363
+          "recall": 0.1986,
+          "f1": 0.2286
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -815,22 +814,22 @@
             "initiativeComments",
             "reRouteReason"
           ],
-          "predicted_fact_count": 122,
-          "gold_fact_count": 133,
+          "predicted_fact_count": 145,
+          "gold_fact_count": 141,
           "true_positive_count": 65,
-          "false_positive_count": 57,
-          "false_negative_count": 68,
-          "precision": 0.5328,
-          "recall": 0.4887,
-          "f1": 0.5098
+          "false_positive_count": 80,
+          "false_negative_count": 76,
+          "precision": 0.4483,
+          "recall": 0.461,
+          "f1": 0.4546
         }
       ],
       "best_system": {
         "system_id": "S0_rule_only",
         "label": "Rule-only",
         "precision": 0.7794,
-        "recall": 0.3985,
-        "f1": 0.5274
+        "recall": 0.3759,
+        "f1": 0.5072
       }
     },
     {
@@ -977,22 +976,22 @@
             "reRouteReason",
             "reRouteType"
           ],
-          "predicted_fact_count": 187,
+          "predicted_fact_count": 221,
           "gold_fact_count": 166,
-          "true_positive_count": 77,
-          "false_positive_count": 110,
-          "false_negative_count": 89,
-          "precision": 0.4118,
-          "recall": 0.4639,
-          "f1": 0.4363
+          "true_positive_count": 79,
+          "false_positive_count": 142,
+          "false_negative_count": 87,
+          "precision": 0.3575,
+          "recall": 0.4759,
+          "f1": 0.4083
         }
       ],
       "best_system": {
-        "system_id": "S4_hybrid_backbone_enrichment",
-        "label": "Hybrid backbone + semantic enrichment",
-        "precision": 0.4118,
-        "recall": 0.4639,
-        "f1": 0.4363
+        "system_id": "S0_rule_only",
+        "label": "Rule-only",
+        "precision": 0.5357,
+        "recall": 0.3614,
+        "f1": 0.4316
       }
     },
     {
@@ -1300,22 +1299,22 @@
             "reRouteReason",
             "reRouteType"
           ],
-          "predicted_fact_count": 69,
+          "predicted_fact_count": 79,
           "gold_fact_count": 79,
-          "true_positive_count": 46,
-          "false_positive_count": 23,
-          "false_negative_count": 33,
-          "precision": 0.6667,
-          "recall": 0.5823,
-          "f1": 0.6216
+          "true_positive_count": 48,
+          "false_positive_count": 31,
+          "false_negative_count": 31,
+          "precision": 0.6076,
+          "recall": 0.6076,
+          "f1": 0.6076
         }
       ],
       "best_system": {
         "system_id": "S4_hybrid_backbone_enrichment",
         "label": "Hybrid backbone + semantic enrichment",
-        "precision": 0.6667,
-        "recall": 0.5823,
-        "f1": 0.6216
+        "precision": 0.6076,
+        "recall": 0.6076,
+        "f1": 0.6076
       }
     },
     {
@@ -1336,10 +1335,10 @@
       "gold_coverage": {
         "coverage_scope": "all_gold_facts",
         "predicates": [],
-        "gold_fact_count": 643,
+        "gold_fact_count": 651,
         "record_count": 100,
         "predicate_counts": {
-          "all_gold_facts": 643
+          "all_gold_facts": 651
         }
       },
       "system_metrics": [],
@@ -1362,10 +1361,10 @@
       "gold_coverage": {
         "coverage_scope": "all_gold_facts",
         "predicates": [],
-        "gold_fact_count": 643,
+        "gold_fact_count": 651,
         "record_count": 100,
         "predicate_counts": {
-          "all_gold_facts": 643
+          "all_gold_facts": 651
         }
       },
       "system_metrics": [],
@@ -1400,12 +1399,12 @@
           "effectiveEndTime",
           "implementationStatus"
         ],
-        "gold_fact_count": 285,
+        "gold_fact_count": 293,
         "record_count": null,
-        "predicate_record_count_sum": 284,
+        "predicate_record_count_sum": 292,
         "predicate_counts": {
           "controlledNASelement": 46,
-          "impactingCondition": 22,
+          "impactingCondition": 30,
           "effectiveStartTime": 98,
           "effectiveEndTime": 98,
           "implementationStatus": 21
@@ -1424,13 +1423,13 @@
             "implementationStatus"
           ],
           "predicted_fact_count": 298,
-          "gold_fact_count": 285,
+          "gold_fact_count": 293,
           "true_positive_count": 243,
           "false_positive_count": 55,
-          "false_negative_count": 42,
+          "false_negative_count": 50,
           "precision": 0.8154,
-          "recall": 0.8526,
-          "f1": 0.8336
+          "recall": 0.8294,
+          "f1": 0.8223
         },
         {
           "system_id": "S1_llm_only",
@@ -1444,10 +1443,10 @@
             "implementationStatus"
           ],
           "predicted_fact_count": 0,
-          "gold_fact_count": 285,
+          "gold_fact_count": 293,
           "true_positive_count": 0,
           "false_positive_count": 0,
-          "false_negative_count": 285,
+          "false_negative_count": 293,
           "precision": null,
           "recall": 0.0,
           "f1": null
@@ -1463,14 +1462,14 @@
             "impactingCondition",
             "implementationStatus"
           ],
-          "predicted_fact_count": 83,
-          "gold_fact_count": 285,
+          "predicted_fact_count": 87,
+          "gold_fact_count": 293,
           "true_positive_count": 16,
-          "false_positive_count": 67,
-          "false_negative_count": 269,
-          "precision": 0.1928,
-          "recall": 0.0561,
-          "f1": 0.0869
+          "false_positive_count": 71,
+          "false_negative_count": 277,
+          "precision": 0.1839,
+          "recall": 0.0546,
+          "f1": 0.0842
         },
         {
           "system_id": "S2_llm_schema_slice",
@@ -1484,13 +1483,13 @@
             "implementationStatus"
           ],
           "predicted_fact_count": 273,
-          "gold_fact_count": 285,
+          "gold_fact_count": 293,
           "true_positive_count": 31,
           "false_positive_count": 242,
-          "false_negative_count": 254,
+          "false_negative_count": 262,
           "precision": 0.1136,
-          "recall": 0.1088,
-          "f1": 0.1111
+          "recall": 0.1058,
+          "f1": 0.1096
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -1504,13 +1503,13 @@
             "implementationStatus"
           ],
           "predicted_fact_count": 156,
-          "gold_fact_count": 285,
+          "gold_fact_count": 293,
           "true_positive_count": 24,
           "false_positive_count": 132,
-          "false_negative_count": 261,
+          "false_negative_count": 269,
           "precision": 0.1538,
-          "recall": 0.0842,
-          "f1": 0.1088
+          "recall": 0.0819,
+          "f1": 0.1069
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -1523,22 +1522,22 @@
             "impactingCondition",
             "implementationStatus"
           ],
-          "predicted_fact_count": 352,
-          "gold_fact_count": 285,
-          "true_positive_count": 252,
-          "false_positive_count": 100,
-          "false_negative_count": 33,
-          "precision": 0.7159,
-          "recall": 0.8842,
-          "f1": 0.7912
+          "predicted_fact_count": 369,
+          "gold_fact_count": 293,
+          "true_positive_count": 255,
+          "false_positive_count": 114,
+          "false_negative_count": 38,
+          "precision": 0.6911,
+          "recall": 0.8703,
+          "f1": 0.7704
         }
       ],
       "best_system": {
         "system_id": "S0_rule_only",
         "label": "Rule-only",
         "precision": 0.8154,
-        "recall": 0.8526,
-        "f1": 0.8336
+        "recall": 0.8294,
+        "f1": 0.8223
       }
     },
     {
@@ -1570,13 +1569,13 @@
           "reRouteReason",
           "controlledNASelement"
         ],
-        "gold_fact_count": 216,
+        "gold_fact_count": 224,
         "record_count": null,
-        "predicate_record_count_sum": 215,
+        "predicate_record_count_sum": 223,
         "predicate_counts": {
           "effectiveEndTime": 98,
           "extensionProbability": 30,
-          "impactingCondition": 22,
+          "impactingCondition": 30,
           "reRouteReason": 20,
           "controlledNASelement": 46
         }
@@ -1594,13 +1593,13 @@
             "reRouteReason"
           ],
           "predicted_fact_count": 215,
-          "gold_fact_count": 216,
+          "gold_fact_count": 224,
           "true_positive_count": 167,
           "false_positive_count": 48,
-          "false_negative_count": 49,
+          "false_negative_count": 57,
           "precision": 0.7767,
-          "recall": 0.7731,
-          "f1": 0.7749
+          "recall": 0.7455,
+          "f1": 0.7608
         },
         {
           "system_id": "S1_llm_only",
@@ -1614,10 +1613,10 @@
             "reRouteReason"
           ],
           "predicted_fact_count": 0,
-          "gold_fact_count": 216,
+          "gold_fact_count": 224,
           "true_positive_count": 0,
           "false_positive_count": 0,
-          "false_negative_count": 216,
+          "false_negative_count": 224,
           "precision": null,
           "recall": 0.0,
           "f1": null
@@ -1633,14 +1632,14 @@
             "impactingCondition",
             "reRouteReason"
           ],
-          "predicted_fact_count": 101,
-          "gold_fact_count": 216,
+          "predicted_fact_count": 105,
+          "gold_fact_count": 224,
           "true_positive_count": 34,
-          "false_positive_count": 67,
-          "false_negative_count": 182,
-          "precision": 0.3366,
-          "recall": 0.1574,
-          "f1": 0.2145
+          "false_positive_count": 71,
+          "false_negative_count": 190,
+          "precision": 0.3238,
+          "recall": 0.1518,
+          "f1": 0.2067
         },
         {
           "system_id": "S2_llm_schema_slice",
@@ -1654,13 +1653,13 @@
             "reRouteReason"
           ],
           "predicted_fact_count": 233,
-          "gold_fact_count": 216,
+          "gold_fact_count": 224,
           "true_positive_count": 32,
           "false_positive_count": 201,
-          "false_negative_count": 184,
+          "false_negative_count": 192,
           "precision": 0.1373,
-          "recall": 0.1481,
-          "f1": 0.1425
+          "recall": 0.1429,
+          "f1": 0.14
         },
         {
           "system_id": "S3_llm_schema_slice_validator_repair",
@@ -1674,13 +1673,13 @@
             "reRouteReason"
           ],
           "predicted_fact_count": 152,
-          "gold_fact_count": 216,
+          "gold_fact_count": 224,
           "true_positive_count": 25,
           "false_positive_count": 127,
-          "false_negative_count": 191,
+          "false_negative_count": 199,
           "precision": 0.1645,
-          "recall": 0.1157,
-          "f1": 0.1359
+          "recall": 0.1116,
+          "f1": 0.133
         },
         {
           "system_id": "S4_hybrid_backbone_enrichment",
@@ -1693,22 +1692,22 @@
             "impactingCondition",
             "reRouteReason"
           ],
-          "predicted_fact_count": 284,
-          "gold_fact_count": 216,
+          "predicted_fact_count": 305,
+          "gold_fact_count": 224,
           "true_positive_count": 177,
-          "false_positive_count": 107,
-          "false_negative_count": 39,
-          "precision": 0.6232,
-          "recall": 0.8194,
-          "f1": 0.708
+          "false_positive_count": 128,
+          "false_negative_count": 47,
+          "precision": 0.5803,
+          "recall": 0.7902,
+          "f1": 0.6692
         }
       ],
       "best_system": {
         "system_id": "S0_rule_only",
         "label": "Rule-only",
         "precision": 0.7767,
-        "recall": 0.7731,
-        "f1": 0.7749
+        "recall": 0.7455,
+        "f1": 0.7608
       }
     }
   ],

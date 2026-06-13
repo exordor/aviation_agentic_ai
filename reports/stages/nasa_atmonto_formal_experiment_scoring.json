@@ -6,7 +6,7 @@
     "source": "frozen_reviewed_gold",
     "path": "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
     "exists": true,
-    "sha256": "8acc589642c59b1be9bd00e9d9d636900c41de1c2985f6e8957ec02606f8289a",
+    "sha256": "f668488624a43cbb7d74fd3f33731a0bf9adfa11093d185a236d86d9cfb1ac0d",
     "gold_status": {
       "record_count": 100,
       "status_counts": {
@@ -14,7 +14,7 @@
       },
       "reviewed_record_count": 100,
       "pending_record_count": 0,
-      "valid_fact_count": 462,
+      "valid_fact_count": 470,
       "missing_fact_count": 181,
       "complete": true
     },
@@ -33,7 +33,7 @@
     },
     "reviewed_record_count": 100,
     "pending_record_count": 0,
-    "valid_fact_count": 462,
+    "valid_fact_count": 470,
     "missing_fact_count": 181,
     "complete": true
   },
@@ -303,8 +303,7 @@
           "2026-05-20": 2
         },
         "priority_lane_counts": {
-          "1_rejection_adjudication": 5,
-          "2_high_cross_system_coverage": 4,
+          "2_high_cross_system_coverage": 9,
           "3_standard_review": 3
         },
         "sample_ids": [
@@ -772,13 +771,13 @@
       "semantic_metrics": {
         "available": true,
         "predicted_fact_count": 566,
-        "gold_fact_count": 643,
+        "gold_fact_count": 651,
         "true_positive_count": 462,
         "false_positive_count": 104,
-        "false_negative_count": 181,
+        "false_negative_count": 189,
         "precision": 0.8162544169611308,
-        "recall": 0.71850699844479,
-        "f1": 0.7642679900744418,
+        "recall": 0.7096774193548387,
+        "f1": 0.7592440427280197,
         "manual_semantic_correctness": 0.8162544169611308,
         "confidence_intervals": {
           "available": true,
@@ -789,8 +788,8 @@
           "sampled_source_id_count": 100,
           "intervals": {
             "f1": {
-              "low": 0.712280701754386,
-              "high": 0.8097560975609756
+              "low": 0.7082658022690438,
+              "high": 0.8042939719240298
             },
             "manual_semantic_correctness": {
               "low": 0.7534246575342466,
@@ -801,8 +800,8 @@
               "high": 0.8619329388560157
             },
             "recall": {
-              "low": 0.6656200941915228,
-              "high": 0.7770992366412214
+              "low": 0.6601208459214502,
+              "high": 0.7639751552795031
             }
           }
         },
@@ -869,13 +868,13 @@
         {
           "predicate": "impactingCondition",
           "predicted_fact_count": 20,
-          "gold_fact_count": 22,
+          "gold_fact_count": 30,
           "true_positive_count": 19,
           "false_positive_count": 1,
-          "false_negative_count": 3,
+          "false_negative_count": 11,
           "precision": 0.95,
-          "recall": 0.8636363636363636,
-          "f1": 0.9047619047619048
+          "recall": 0.6333333333333333,
+          "f1": 0.7599999999999999
         },
         {
           "predicate": "impactingConditionMessage",
@@ -949,18 +948,18 @@
           "group_id": "ground_stop_lifecycle",
           "label": "Ground stop lifecycle",
           "record_count": 26,
-          "gold_fact_count": 183,
+          "gold_fact_count": 186,
           "predicted_fact_count": 190,
           "semantic_metrics": {
             "available": true,
             "predicted_fact_count": 190,
-            "gold_fact_count": 183,
+            "gold_fact_count": 186,
             "true_positive_count": 166,
             "false_positive_count": 24,
-            "false_negative_count": 17,
+            "false_negative_count": 20,
             "precision": 0.8736842105263158,
-            "recall": 0.907103825136612,
-            "f1": 0.8900804289544235,
+            "recall": 0.8924731182795699,
+            "f1": 0.8829787234042553,
             "manual_semantic_correctness": 0.8736842105263158,
             "confidence_intervals": {
               "available": true,
@@ -971,8 +970,8 @@
               "sampled_source_id_count": 26,
               "intervals": {
                 "f1": {
-                  "low": 0.7816711590296496,
-                  "high": 0.968421052631579
+                  "low": 0.7795698924731183,
+                  "high": 0.962962962962963
                 },
                 "manual_semantic_correctness": {
                   "low": 0.772972972972973,
@@ -983,8 +982,8 @@
                   "high": 0.953125
                 },
                 "recall": {
-                  "low": 0.7934782608695652,
-                  "high": 0.9945945945945946
+                  "low": 0.7849462365591398,
+                  "high": 0.9837837837837838
                 }
               }
             }
@@ -1084,18 +1083,18 @@
           "group_id": "ground_delay_program_lifecycle",
           "label": "Ground delay program lifecycle",
           "record_count": 12,
-          "gold_fact_count": 86,
+          "gold_fact_count": 91,
           "predicted_fact_count": 87,
           "semantic_metrics": {
             "available": true,
             "predicted_fact_count": 87,
-            "gold_fact_count": 86,
+            "gold_fact_count": 91,
             "true_positive_count": 86,
             "false_positive_count": 1,
-            "false_negative_count": 0,
+            "false_negative_count": 5,
             "precision": 0.9885057471264368,
-            "recall": 1.0,
-            "f1": 0.9942196531791908,
+            "recall": 0.945054945054945,
+            "f1": 0.9662921348314606,
             "manual_semantic_correctness": 0.9885057471264368,
             "confidence_intervals": {
               "available": true,
@@ -1106,8 +1105,8 @@
               "sampled_source_id_count": 12,
               "intervals": {
                 "f1": {
-                  "low": 0.9759036144578312,
-                  "high": 1.0
+                  "low": 0.9473684210526315,
+                  "high": 0.9837837837837838
                 },
                 "manual_semantic_correctness": {
                   "low": 0.9529411764705882,
@@ -1118,8 +1117,8 @@
                   "high": 1.0
                 },
                 "recall": {
-                  "low": 1.0,
-                  "high": 1.0
+                  "low": 0.9148936170212766,
+                  "high": 0.9772727272727273
                 }
               }
             }
@@ -1394,10 +1393,10 @@
       "semantic_metrics": {
         "available": true,
         "predicted_fact_count": 0,
-        "gold_fact_count": 643,
+        "gold_fact_count": 651,
         "true_positive_count": 0,
         "false_positive_count": 0,
-        "false_negative_count": 643,
+        "false_negative_count": 651,
         "precision": 0.0,
         "recall": 0.0,
         "f1": 0.0,
@@ -1491,10 +1490,10 @@
         {
           "predicate": "impactingCondition",
           "predicted_fact_count": 0,
-          "gold_fact_count": 22,
+          "gold_fact_count": 30,
           "true_positive_count": 0,
           "false_positive_count": 0,
-          "false_negative_count": 22,
+          "false_negative_count": 30,
           "precision": 0.0,
           "recall": 0.0,
           "f1": 0.0
@@ -1571,15 +1570,15 @@
           "group_id": "ground_stop_lifecycle",
           "label": "Ground stop lifecycle",
           "record_count": 26,
-          "gold_fact_count": 183,
+          "gold_fact_count": 186,
           "predicted_fact_count": 0,
           "semantic_metrics": {
             "available": true,
             "predicted_fact_count": 0,
-            "gold_fact_count": 183,
+            "gold_fact_count": 186,
             "true_positive_count": 0,
             "false_positive_count": 0,
-            "false_negative_count": 183,
+            "false_negative_count": 186,
             "precision": 0.0,
             "recall": 0.0,
             "f1": 0.0,
@@ -1706,15 +1705,15 @@
           "group_id": "ground_delay_program_lifecycle",
           "label": "Ground delay program lifecycle",
           "record_count": 12,
-          "gold_fact_count": 86,
+          "gold_fact_count": 91,
           "predicted_fact_count": 0,
           "semantic_metrics": {
             "available": true,
             "predicted_fact_count": 0,
-            "gold_fact_count": 86,
+            "gold_fact_count": 91,
             "true_positive_count": 0,
             "false_positive_count": 0,
-            "false_negative_count": 86,
+            "false_negative_count": 91,
             "precision": 0.0,
             "recall": 0.0,
             "f1": 0.0,
@@ -1993,20 +1992,20 @@
       },
       "structural_metrics": {
         "candidate_fact_count": 454,
-        "accepted_fact_count": 185,
-        "rejected_fact_count": 269,
-        "structural_acceptance_rate": 0.40748898678414097,
-        "schema_violation_rate": 0.5925110132158591,
+        "accepted_fact_count": 189,
+        "rejected_fact_count": 265,
+        "structural_acceptance_rate": 0.41629955947136565,
+        "schema_violation_rate": 0.5837004405286343,
         "repair_applicable": false,
         "repair_attempted_fact_count": null,
         "repair_accepted_fact_count": null,
         "repair_success_rate": null,
         "status_counts": {
-          "rejected_schema": 269,
-          "repaired_accepted": 185
+          "rejected_schema": 265,
+          "repaired_accepted": 189
         },
         "error_counts": {
-          "allowed_value_violation": 35,
+          "allowed_value_violation": 31,
           "domain_violation": 25,
           "range_violation": 204,
           "unknown_object_class": 5
@@ -2014,15 +2013,15 @@
       },
       "semantic_metrics": {
         "available": true,
-        "predicted_fact_count": 185,
-        "gold_fact_count": 643,
+        "predicted_fact_count": 189,
+        "gold_fact_count": 651,
         "true_positive_count": 94,
-        "false_positive_count": 91,
-        "false_negative_count": 549,
-        "precision": 0.5081081081081081,
-        "recall": 0.14618973561430793,
-        "f1": 0.22705314009661837,
-        "manual_semantic_correctness": 0.5081081081081081,
+        "false_positive_count": 95,
+        "false_negative_count": 557,
+        "precision": 0.4973544973544973,
+        "recall": 0.1443932411674347,
+        "f1": 0.2238095238095238,
+        "manual_semantic_correctness": 0.4973544973544973,
         "confidence_intervals": {
           "available": true,
           "method": "record_bootstrap_by_source_id",
@@ -2032,20 +2031,20 @@
           "sampled_source_id_count": 100,
           "intervals": {
             "f1": {
-              "low": 0.18698224852071005,
-              "high": 0.25806451612903225
+              "low": 0.18457943925233644,
+              "high": 0.25389221556886227
             },
             "manual_semantic_correctness": {
-              "low": 0.4271356783919598,
-              "high": 0.6086956521739131
+              "low": 0.41624365482233505,
+              "high": 0.5963855421686747
             },
             "precision": {
-              "low": 0.4271356783919598,
-              "high": 0.6086956521739131
+              "low": 0.41624365482233505,
+              "high": 0.5963855421686747
             },
             "recall": {
-              "low": 0.121765601217656,
-              "high": 0.1696969696969697
+              "low": 0.12037037037037036,
+              "high": 0.1679160419790105
             }
           }
         },
@@ -2111,11 +2110,11 @@
         },
         {
           "predicate": "impactingCondition",
-          "predicted_fact_count": 0,
-          "gold_fact_count": 22,
+          "predicted_fact_count": 4,
+          "gold_fact_count": 30,
           "true_positive_count": 0,
-          "false_positive_count": 0,
-          "false_negative_count": 22,
+          "false_positive_count": 4,
+          "false_negative_count": 30,
           "precision": 0.0,
           "recall": 0.0,
           "f1": 0.0
@@ -2192,19 +2191,19 @@
           "group_id": "ground_stop_lifecycle",
           "label": "Ground stop lifecycle",
           "record_count": 26,
-          "gold_fact_count": 183,
-          "predicted_fact_count": 77,
+          "gold_fact_count": 186,
+          "predicted_fact_count": 78,
           "semantic_metrics": {
             "available": true,
-            "predicted_fact_count": 77,
-            "gold_fact_count": 183,
+            "predicted_fact_count": 78,
+            "gold_fact_count": 186,
             "true_positive_count": 44,
-            "false_positive_count": 33,
-            "false_negative_count": 139,
-            "precision": 0.5714285714285714,
-            "recall": 0.24043715846994534,
-            "f1": 0.3384615384615384,
-            "manual_semantic_correctness": 0.5714285714285714,
+            "false_positive_count": 34,
+            "false_negative_count": 142,
+            "precision": 0.5641025641025641,
+            "recall": 0.23655913978494625,
+            "f1": 0.33333333333333337,
+            "manual_semantic_correctness": 0.5641025641025641,
             "confidence_intervals": {
               "available": true,
               "method": "record_bootstrap_by_source_id",
@@ -2214,20 +2213,20 @@
               "sampled_source_id_count": 26,
               "intervals": {
                 "f1": {
-                  "low": 0.27343750000000006,
-                  "high": 0.4
+                  "low": 0.26855123674911663,
+                  "high": 0.3971631205673759
                 },
                 "manual_semantic_correctness": {
-                  "low": 0.43,
+                  "low": 0.42857142857142855,
                   "high": 0.7611940298507462
                 },
                 "precision": {
-                  "low": 0.43,
+                  "low": 0.42857142857142855,
                   "high": 0.7611940298507462
                 },
                 "recall": {
-                  "low": 0.1919191919191919,
-                  "high": 0.28342245989304815
+                  "low": 0.18888888888888888,
+                  "high": 0.2804232804232804
                 }
               }
             }
@@ -2327,19 +2326,19 @@
           "group_id": "ground_delay_program_lifecycle",
           "label": "Ground delay program lifecycle",
           "record_count": 12,
-          "gold_fact_count": 86,
-          "predicted_fact_count": 34,
+          "gold_fact_count": 91,
+          "predicted_fact_count": 37,
           "semantic_metrics": {
             "available": true,
-            "predicted_fact_count": 34,
-            "gold_fact_count": 86,
+            "predicted_fact_count": 37,
+            "gold_fact_count": 91,
             "true_positive_count": 13,
-            "false_positive_count": 21,
-            "false_negative_count": 73,
-            "precision": 0.38235294117647056,
-            "recall": 0.1511627906976744,
-            "f1": 0.21666666666666665,
-            "manual_semantic_correctness": 0.38235294117647056,
+            "false_positive_count": 24,
+            "false_negative_count": 78,
+            "precision": 0.35135135135135137,
+            "recall": 0.14285714285714285,
+            "f1": 0.20312499999999997,
+            "manual_semantic_correctness": 0.35135135135135137,
             "confidence_intervals": {
               "available": true,
               "method": "record_bootstrap_by_source_id",
@@ -2349,20 +2348,20 @@
               "sampled_source_id_count": 12,
               "intervals": {
                 "f1": {
-                  "low": 0.15517241379310345,
-                  "high": 0.2912621359223301
+                  "low": 0.14285714285714285,
+                  "high": 0.2807017543859649
                 },
                 "manual_semantic_correctness": {
-                  "low": 0.225,
-                  "high": 0.6363636363636364
+                  "low": 0.20967741935483872,
+                  "high": 0.5789473684210527
                 },
                 "precision": {
-                  "low": 0.225,
-                  "high": 0.6363636363636364
+                  "low": 0.20967741935483872,
+                  "high": 0.5789473684210527
                 },
                 "recall": {
-                  "low": 0.11235955056179775,
-                  "high": 0.2
+                  "low": 0.10416666666666667,
+                  "high": 0.1927710843373494
                 }
               }
             }
@@ -2643,13 +2642,13 @@
       "semantic_metrics": {
         "available": true,
         "predicted_fact_count": 582,
-        "gold_fact_count": 643,
+        "gold_fact_count": 651,
         "true_positive_count": 120,
         "false_positive_count": 462,
-        "false_negative_count": 523,
+        "false_negative_count": 531,
         "precision": 0.20618556701030927,
-        "recall": 0.18662519440124417,
-        "f1": 0.19591836734693877,
+        "recall": 0.18433179723502305,
+        "f1": 0.19464720194647203,
         "manual_semantic_correctness": 0.20618556701030927,
         "confidence_intervals": {
           "available": true,
@@ -2660,8 +2659,8 @@
           "sampled_source_id_count": 100,
           "intervals": {
             "f1": {
-              "low": 0.14519906323185014,
-              "high": 0.24108658743633277
+              "low": 0.1437403400309119,
+              "high": 0.23986486486486486
             },
             "manual_semantic_correctness": {
               "low": 0.15081967213114755,
@@ -2672,8 +2671,8 @@
               "high": 0.25244618395303325
             },
             "recall": {
-              "low": 0.13746223564954682,
-              "high": 0.23390894819466249
+              "low": 0.13582089552238805,
+              "high": 0.23076923076923078
             }
           }
         },
@@ -2762,13 +2761,13 @@
         {
           "predicate": "impactingCondition",
           "predicted_fact_count": 33,
-          "gold_fact_count": 22,
+          "gold_fact_count": 30,
           "true_positive_count": 10,
           "false_positive_count": 23,
-          "false_negative_count": 12,
+          "false_negative_count": 20,
           "precision": 0.30303030303030304,
-          "recall": 0.45454545454545453,
-          "f1": 0.36363636363636365
+          "recall": 0.3333333333333333,
+          "f1": 0.31746031746031744
         },
         {
           "predicate": "impactingConditionMessage",
@@ -2875,18 +2874,18 @@
           "group_id": "ground_stop_lifecycle",
           "label": "Ground stop lifecycle",
           "record_count": 26,
-          "gold_fact_count": 183,
+          "gold_fact_count": 186,
           "predicted_fact_count": 167,
           "semantic_metrics": {
             "available": true,
             "predicted_fact_count": 167,
-            "gold_fact_count": 183,
+            "gold_fact_count": 186,
             "true_positive_count": 38,
             "false_positive_count": 129,
-            "false_negative_count": 145,
+            "false_negative_count": 148,
             "precision": 0.2275449101796407,
-            "recall": 0.20765027322404372,
-            "f1": 0.21714285714285714,
+            "recall": 0.20430107526881722,
+            "f1": 0.21529745042492918,
             "manual_semantic_correctness": 0.2275449101796407,
             "confidence_intervals": {
               "available": true,
@@ -2897,8 +2896,8 @@
               "sampled_source_id_count": 26,
               "intervals": {
                 "f1": {
-                  "low": 0.12359550561797752,
-                  "high": 0.3204419889502762
+                  "low": 0.12188365650969529,
+                  "high": 0.31607629427792916
                 },
                 "manual_semantic_correctness": {
                   "low": 0.1390728476821192,
@@ -2909,8 +2908,8 @@
                   "high": 0.32941176470588235
                 },
                 "recall": {
-                  "low": 0.11351351351351352,
-                  "high": 0.3076923076923077
+                  "low": 0.11229946524064172,
+                  "high": 0.3010752688172043
                 }
               }
             }
@@ -3010,18 +3009,18 @@
           "group_id": "ground_delay_program_lifecycle",
           "label": "Ground delay program lifecycle",
           "record_count": 12,
-          "gold_fact_count": 86,
+          "gold_fact_count": 91,
           "predicted_fact_count": 66,
           "semantic_metrics": {
             "available": true,
             "predicted_fact_count": 66,
-            "gold_fact_count": 86,
+            "gold_fact_count": 91,
             "true_positive_count": 3,
             "false_positive_count": 63,
-            "false_negative_count": 83,
+            "false_negative_count": 88,
             "precision": 0.045454545454545456,
-            "recall": 0.03488372093023256,
-            "f1": 0.03947368421052632,
+            "recall": 0.03296703296703297,
+            "f1": 0.03821656050955414,
             "manual_semantic_correctness": 0.045454545454545456,
             "confidence_intervals": {
               "available": true,
@@ -3033,7 +3032,7 @@
               "intervals": {
                 "f1": {
                   "low": 0.0,
-                  "high": 0.09655172413793103
+                  "high": 0.0930232558139535
                 },
                 "manual_semantic_correctness": {
                   "low": 0.0,
@@ -3045,7 +3044,7 @@
                 },
                 "recall": {
                   "low": 0.0,
-                  "high": 0.08888888888888889
+                  "high": 0.08333333333333333
                 }
               }
             }
@@ -3324,13 +3323,13 @@
       "semantic_metrics": {
         "available": true,
         "predicted_fact_count": 355,
-        "gold_fact_count": 643,
+        "gold_fact_count": 651,
         "true_positive_count": 86,
         "false_positive_count": 269,
-        "false_negative_count": 557,
+        "false_negative_count": 565,
         "precision": 0.24225352112676057,
-        "recall": 0.13374805598755832,
-        "f1": 0.1723446893787575,
+        "recall": 0.13210445468509985,
+        "f1": 0.17097415506958252,
         "manual_semantic_correctness": 0.24225352112676057,
         "confidence_intervals": {
           "available": true,
@@ -3341,8 +3340,8 @@
           "sampled_source_id_count": 100,
           "intervals": {
             "f1": {
-              "low": 0.11397849462365592,
-              "high": 0.21359223300970873
+              "low": 0.11324786324786325,
+              "high": 0.2121504339440694
             },
             "manual_semantic_correctness": {
               "low": 0.17064846416382254,
@@ -3353,8 +3352,8 @@
               "high": 0.29941860465116277
             },
             "recall": {
-              "low": 0.08589951377633712,
-              "high": 0.16790490341753342
+              "low": 0.08507223113964688,
+              "high": 0.16593245227606462
             }
           }
         },
@@ -3432,13 +3431,13 @@
         {
           "predicate": "impactingCondition",
           "predicted_fact_count": 25,
-          "gold_fact_count": 22,
+          "gold_fact_count": 30,
           "true_positive_count": 6,
           "false_positive_count": 19,
-          "false_negative_count": 16,
+          "false_negative_count": 24,
           "precision": 0.24,
-          "recall": 0.2727272727272727,
-          "f1": 0.2553191489361702
+          "recall": 0.2,
+          "f1": 0.2181818181818182
         },
         {
           "predicate": "impactingConditionMessage",
@@ -3523,18 +3522,18 @@
           "group_id": "ground_stop_lifecycle",
           "label": "Ground stop lifecycle",
           "record_count": 26,
-          "gold_fact_count": 183,
+          "gold_fact_count": 186,
           "predicted_fact_count": 91,
           "semantic_metrics": {
             "available": true,
             "predicted_fact_count": 91,
-            "gold_fact_count": 183,
+            "gold_fact_count": 186,
             "true_positive_count": 18,
             "false_positive_count": 73,
-            "false_negative_count": 165,
+            "false_negative_count": 168,
             "precision": 0.1978021978021978,
-            "recall": 0.09836065573770492,
-            "f1": 0.13138686131386862,
+            "recall": 0.0967741935483871,
+            "f1": 0.1299638989169675,
             "manual_semantic_correctness": 0.1978021978021978,
             "confidence_intervals": {
               "available": true,
@@ -3545,8 +3544,8 @@
               "sampled_source_id_count": 26,
               "intervals": {
                 "f1": {
-                  "low": 0.04597701149425288,
-                  "high": 0.23048327137546468
+                  "low": 0.045454545454545456,
+                  "high": 0.2271062271062271
                 },
                 "manual_semantic_correctness": {
                   "low": 0.07407407407407407,
@@ -3557,8 +3556,8 @@
                   "high": 0.35802469135802467
                 },
                 "recall": {
-                  "low": 0.03333333333333333,
-                  "high": 0.1702127659574468
+                  "low": 0.03278688524590164,
+                  "high": 0.16753926701570682
                 }
               }
             }
@@ -3658,18 +3657,18 @@
           "group_id": "ground_delay_program_lifecycle",
           "label": "Ground delay program lifecycle",
           "record_count": 12,
-          "gold_fact_count": 86,
+          "gold_fact_count": 91,
           "predicted_fact_count": 50,
           "semantic_metrics": {
             "available": true,
             "predicted_fact_count": 50,
-            "gold_fact_count": 86,
+            "gold_fact_count": 91,
             "true_positive_count": 7,
             "false_positive_count": 43,
-            "false_negative_count": 79,
+            "false_negative_count": 84,
             "precision": 0.14,
-            "recall": 0.08139534883720931,
-            "f1": 0.10294117647058824,
+            "recall": 0.07692307692307693,
+            "f1": 0.09929078014184398,
             "manual_semantic_correctness": 0.14,
             "confidence_intervals": {
               "available": true,
@@ -3680,8 +3679,8 @@
               "sampled_source_id_count": 12,
               "intervals": {
                 "f1": {
-                  "low": 0.0303030303030303,
-                  "high": 0.19999999999999998
+                  "low": 0.02962962962962963,
+                  "high": 0.18867924528301888
                 },
                 "manual_semantic_correctness": {
                   "low": 0.043478260869565216,
@@ -3692,8 +3691,8 @@
                   "high": 0.3103448275862069
                 },
                 "recall": {
-                  "low": 0.022727272727272728,
-                  "high": 0.14942528735632185
+                  "low": 0.021739130434782608,
+                  "high": 0.14130434782608695
                 }
               }
             }
@@ -3944,32 +3943,32 @@
         "json_adherence": 1.0
       },
       "structural_metrics": {
-        "candidate_fact_count": 686,
-        "accepted_fact_count": 686,
+        "candidate_fact_count": 731,
+        "accepted_fact_count": 731,
         "rejected_fact_count": 0,
         "structural_acceptance_rate": 1.0,
         "schema_violation_rate": 0.0,
         "repair_applicable": true,
-        "repair_attempted_fact_count": 686,
-        "repair_accepted_fact_count": 686,
+        "repair_attempted_fact_count": 731,
+        "repair_accepted_fact_count": 731,
         "repair_success_rate": 1.0,
         "status_counts": {
           "hybrid_backbone_accepted": 567,
-          "hybrid_enrichment_accepted": 119
+          "hybrid_enrichment_accepted": 164
         },
         "error_counts": {}
       },
       "semantic_metrics": {
         "available": true,
-        "predicted_fact_count": 685,
-        "gold_fact_count": 643,
-        "true_positive_count": 491,
-        "false_positive_count": 194,
-        "false_negative_count": 152,
-        "precision": 0.7167883211678832,
-        "recall": 0.7636080870917574,
-        "f1": 0.7394578313253012,
-        "manual_semantic_correctness": 0.7167883211678832,
+        "predicted_fact_count": 730,
+        "gold_fact_count": 651,
+        "true_positive_count": 496,
+        "false_positive_count": 234,
+        "false_negative_count": 155,
+        "precision": 0.6794520547945205,
+        "recall": 0.7619047619047619,
+        "f1": 0.718320057929037,
+        "manual_semantic_correctness": 0.6794520547945205,
         "confidence_intervals": {
           "available": true,
           "method": "record_bootstrap_by_source_id",
@@ -3979,20 +3978,20 @@
           "sampled_source_id_count": 100,
           "intervals": {
             "f1": {
-              "low": 0.6923076923076923,
-              "high": 0.7757216876387862
+              "low": 0.6757369614512472,
+              "high": 0.7531556802244038
             },
             "manual_semantic_correctness": {
-              "low": 0.664756446991404,
-              "high": 0.7591463414634146
+              "low": 0.6340819022457067,
+              "high": 0.7178477690288714
             },
             "precision": {
-              "low": 0.664756446991404,
-              "high": 0.7591463414634146
+              "low": 0.6340819022457067,
+              "high": 0.7178477690288714
             },
             "recall": {
-              "low": 0.709375,
-              "high": 0.8108527131782945
+              "low": 0.7105666156202144,
+              "high": 0.8051750380517504
             }
           }
         },
@@ -4014,21 +4013,21 @@
         },
         {
           "predicate": "controlledNASelement",
-          "predicted_fact_count": 103,
+          "predicted_fact_count": 114,
           "gold_fact_count": 46,
           "true_positive_count": 36,
-          "false_positive_count": 67,
+          "false_positive_count": 78,
           "false_negative_count": 10,
-          "precision": 0.34951456310679613,
+          "precision": 0.3157894736842105,
           "recall": 0.782608695652174,
-          "f1": 0.48322147651006714
+          "f1": 0.45
         },
         {
           "predicate": "departureScope",
-          "predicted_fact_count": 2,
+          "predicted_fact_count": 3,
           "gold_fact_count": 0,
           "true_positive_count": 0,
-          "false_positive_count": 2,
+          "false_positive_count": 3,
           "false_negative_count": 0,
           "precision": 0.0,
           "recall": 0.0,
@@ -4058,25 +4057,25 @@
         },
         {
           "predicate": "extensionProbability",
-          "predicted_fact_count": 37,
+          "predicted_fact_count": 41,
           "gold_fact_count": 30,
           "true_positive_count": 24,
-          "false_positive_count": 13,
+          "false_positive_count": 17,
           "false_negative_count": 6,
-          "precision": 0.6486486486486487,
+          "precision": 0.5853658536585366,
           "recall": 0.8,
-          "f1": 0.7164179104477612
+          "f1": 0.676056338028169
         },
         {
           "predicate": "impactingCondition",
-          "predicted_fact_count": 36,
-          "gold_fact_count": 22,
+          "predicted_fact_count": 39,
+          "gold_fact_count": 30,
           "true_positive_count": 21,
-          "false_positive_count": 15,
-          "false_negative_count": 1,
-          "precision": 0.5833333333333334,
-          "recall": 0.9545454545454546,
-          "f1": 0.7241379310344828
+          "false_positive_count": 18,
+          "false_negative_count": 9,
+          "precision": 0.5384615384615384,
+          "recall": 0.7,
+          "f1": 0.608695652173913
         },
         {
           "predicate": "impactingConditionMessage",
@@ -4091,25 +4090,25 @@
         },
         {
           "predicate": "implementationStatus",
-          "predicted_fact_count": 17,
+          "predicted_fact_count": 20,
           "gold_fact_count": 21,
-          "true_positive_count": 13,
+          "true_positive_count": 16,
           "false_positive_count": 4,
-          "false_negative_count": 8,
-          "precision": 0.7647058823529411,
-          "recall": 0.6190476190476191,
-          "f1": 0.6842105263157895
+          "false_negative_count": 5,
+          "precision": 0.8,
+          "recall": 0.7619047619047619,
+          "f1": 0.7804878048780488
         },
         {
           "predicate": "initiativeComments",
-          "predicted_fact_count": 64,
+          "predicted_fact_count": 81,
           "gold_fact_count": 81,
           "true_positive_count": 29,
-          "false_positive_count": 35,
+          "false_positive_count": 52,
           "false_negative_count": 52,
-          "precision": 0.453125,
+          "precision": 0.35802469135802467,
           "recall": 0.35802469135802467,
-          "f1": 0.39999999999999997
+          "f1": 0.35802469135802467
         },
         {
           "predicate": "issuedTime",
@@ -4124,25 +4123,25 @@
         },
         {
           "predicate": "reRouteReason",
-          "predicted_fact_count": 10,
+          "predicted_fact_count": 13,
           "gold_fact_count": 20,
           "true_positive_count": 5,
-          "false_positive_count": 5,
+          "false_positive_count": 8,
           "false_negative_count": 15,
-          "precision": 0.5,
+          "precision": 0.38461538461538464,
           "recall": 0.25,
-          "f1": 0.3333333333333333
+          "f1": 0.30303030303030304
         },
         {
           "predicate": "reRouteType",
-          "predicted_fact_count": 10,
+          "predicted_fact_count": 13,
           "gold_fact_count": 19,
-          "true_positive_count": 7,
-          "false_positive_count": 3,
-          "false_negative_count": 12,
-          "precision": 0.7,
-          "recall": 0.3684210526315789,
-          "f1": 0.48275862068965514
+          "true_positive_count": 9,
+          "false_positive_count": 4,
+          "false_negative_count": 10,
+          "precision": 0.6923076923076923,
+          "recall": 0.47368421052631576,
+          "f1": 0.5625
         }
       ],
       "semantic_group_metrics": [
@@ -4150,19 +4149,19 @@
           "group_id": "ground_stop_lifecycle",
           "label": "Ground stop lifecycle",
           "record_count": 26,
-          "gold_fact_count": 183,
-          "predicted_fact_count": 224,
+          "gold_fact_count": 186,
+          "predicted_fact_count": 238,
           "semantic_metrics": {
             "available": true,
-            "predicted_fact_count": 224,
-            "gold_fact_count": 183,
+            "predicted_fact_count": 238,
+            "gold_fact_count": 186,
             "true_positive_count": 170,
-            "false_positive_count": 54,
-            "false_negative_count": 13,
-            "precision": 0.7589285714285714,
-            "recall": 0.9289617486338798,
-            "f1": 0.8353808353808354,
-            "manual_semantic_correctness": 0.7589285714285714,
+            "false_positive_count": 68,
+            "false_negative_count": 16,
+            "precision": 0.7142857142857143,
+            "recall": 0.9139784946236559,
+            "f1": 0.8018867924528302,
+            "manual_semantic_correctness": 0.7142857142857143,
             "confidence_intervals": {
               "available": true,
               "method": "record_bootstrap_by_source_id",
@@ -4172,20 +4171,20 @@
               "sampled_source_id_count": 26,
               "intervals": {
                 "f1": {
-                  "low": 0.7525252525252526,
-                  "high": 0.9016786570743407
+                  "low": 0.7238979118329466,
+                  "high": 0.8649885583524026
                 },
                 "manual_semantic_correctness": {
-                  "low": 0.6666666666666666,
-                  "high": 0.8311111111111111
+                  "low": 0.6390041493775933,
+                  "high": 0.78099173553719
                 },
                 "precision": {
-                  "low": 0.6666666666666666,
-                  "high": 0.8311111111111111
+                  "low": 0.6390041493775933,
+                  "high": 0.78099173553719
                 },
                 "recall": {
-                  "low": 0.8333333333333334,
-                  "high": 1.0
+                  "low": 0.8288770053475936,
+                  "high": 0.9847715736040609
                 }
               }
             }
@@ -4196,18 +4195,18 @@
           "label": "Reroute or route constraint",
           "record_count": 25,
           "gold_fact_count": 183,
-          "predicted_fact_count": 160,
+          "predicted_fact_count": 185,
           "semantic_metrics": {
             "available": true,
-            "predicted_fact_count": 160,
+            "predicted_fact_count": 185,
             "gold_fact_count": 183,
-            "true_positive_count": 125,
-            "false_positive_count": 35,
-            "false_negative_count": 58,
-            "precision": 0.78125,
-            "recall": 0.6830601092896175,
-            "f1": 0.7288629737609328,
-            "manual_semantic_correctness": 0.78125,
+            "true_positive_count": 130,
+            "false_positive_count": 55,
+            "false_negative_count": 53,
+            "precision": 0.7027027027027027,
+            "recall": 0.7103825136612022,
+            "f1": 0.7065217391304348,
+            "manual_semantic_correctness": 0.7027027027027027,
             "confidence_intervals": {
               "available": true,
               "method": "record_bootstrap_by_source_id",
@@ -4217,20 +4216,20 @@
               "sampled_source_id_count": 25,
               "intervals": {
                 "f1": {
-                  "low": 0.652694610778443,
-                  "high": 0.7987421383647798
+                  "low": 0.6327077747989276,
+                  "high": 0.7692307692307693
                 },
                 "manual_semantic_correctness": {
-                  "low": 0.6536312849162011,
-                  "high": 0.9090909090909091
+                  "low": 0.6062176165803109,
+                  "high": 0.8066298342541437
                 },
                 "precision": {
-                  "low": 0.6536312849162011,
-                  "high": 0.9090909090909091
+                  "low": 0.6062176165803109,
+                  "high": 0.8066298342541437
                 },
                 "recall": {
-                  "low": 0.6032608695652174,
-                  "high": 0.7527472527472527
+                  "low": 0.6453488372093024,
+                  "high": 0.7790697674418605
                 }
               }
             }
@@ -4241,18 +4240,18 @@
           "label": "Volcanic activity bulletin",
           "record_count": 19,
           "gold_fact_count": 95,
-          "predicted_fact_count": 79,
+          "predicted_fact_count": 81,
           "semantic_metrics": {
             "available": true,
-            "predicted_fact_count": 79,
+            "predicted_fact_count": 81,
             "gold_fact_count": 95,
             "true_positive_count": 57,
-            "false_positive_count": 22,
+            "false_positive_count": 24,
             "false_negative_count": 38,
-            "precision": 0.7215189873417721,
+            "precision": 0.7037037037037037,
             "recall": 0.6,
-            "f1": 0.6551724137931034,
-            "manual_semantic_correctness": 0.7215189873417721,
+            "f1": 0.6477272727272727,
+            "manual_semantic_correctness": 0.7037037037037037,
             "confidence_intervals": {
               "available": true,
               "method": "record_bootstrap_by_source_id",
@@ -4262,16 +4261,16 @@
               "sampled_source_id_count": 19,
               "intervals": {
                 "f1": {
-                  "low": 0.6440677966101696,
-                  "high": 0.6666666666666665
+                  "low": 0.6333333333333333,
+                  "high": 0.6627906976744186
                 },
                 "manual_semantic_correctness": {
-                  "low": 0.6951219512195121,
-                  "high": 0.75
+                  "low": 0.6705882352941176,
+                  "high": 0.7402597402597403
                 },
                 "precision": {
-                  "low": 0.6951219512195121,
-                  "high": 0.75
+                  "low": 0.6705882352941176,
+                  "high": 0.7402597402597403
                 },
                 "recall": {
                   "low": 0.6,
@@ -4285,19 +4284,19 @@
           "group_id": "ground_delay_program_lifecycle",
           "label": "Ground delay program lifecycle",
           "record_count": 12,
-          "gold_fact_count": 86,
-          "predicted_fact_count": 105,
+          "gold_fact_count": 91,
+          "predicted_fact_count": 106,
           "semantic_metrics": {
             "available": true,
-            "predicted_fact_count": 105,
-            "gold_fact_count": 86,
+            "predicted_fact_count": 106,
+            "gold_fact_count": 91,
             "true_positive_count": 86,
-            "false_positive_count": 19,
-            "false_negative_count": 0,
-            "precision": 0.819047619047619,
-            "recall": 1.0,
-            "f1": 0.900523560209424,
-            "manual_semantic_correctness": 0.819047619047619,
+            "false_positive_count": 20,
+            "false_negative_count": 5,
+            "precision": 0.8113207547169812,
+            "recall": 0.945054945054945,
+            "f1": 0.8730964467005076,
+            "manual_semantic_correctness": 0.8113207547169812,
             "confidence_intervals": {
               "available": true,
               "method": "record_bootstrap_by_source_id",
@@ -4307,20 +4306,20 @@
               "sampled_source_id_count": 12,
               "intervals": {
                 "f1": {
-                  "low": 0.8585365853658536,
-                  "high": 0.9392265193370166
+                  "low": 0.8333333333333334,
+                  "high": 0.9128205128205128
                 },
                 "manual_semantic_correctness": {
-                  "low": 0.7521367521367521,
-                  "high": 0.8854166666666666
+                  "low": 0.7478260869565218,
+                  "high": 0.8725490196078431
                 },
                 "precision": {
-                  "low": 0.7521367521367521,
-                  "high": 0.8854166666666666
+                  "low": 0.7478260869565218,
+                  "high": 0.8725490196078431
                 },
                 "recall": {
-                  "low": 1.0,
-                  "high": 1.0
+                  "low": 0.9148936170212766,
+                  "high": 0.9772727272727273
                 }
               }
             }
@@ -4331,18 +4330,18 @@
           "label": "Airport arrival or scheduling delay",
           "record_count": 10,
           "gold_fact_count": 55,
-          "predicted_fact_count": 74,
+          "predicted_fact_count": 77,
           "semantic_metrics": {
             "available": true,
-            "predicted_fact_count": 74,
+            "predicted_fact_count": 77,
             "gold_fact_count": 55,
             "true_positive_count": 41,
-            "false_positive_count": 33,
+            "false_positive_count": 36,
             "false_negative_count": 14,
-            "precision": 0.5540540540540541,
+            "precision": 0.5324675324675324,
             "recall": 0.7454545454545455,
-            "f1": 0.6356589147286822,
-            "manual_semantic_correctness": 0.5540540540540541,
+            "f1": 0.6212121212121212,
+            "manual_semantic_correctness": 0.5324675324675324,
             "confidence_intervals": {
               "available": true,
               "method": "record_bootstrap_by_source_id",
@@ -4352,16 +4351,16 @@
               "sampled_source_id_count": 10,
               "intervals": {
                 "f1": {
-                  "low": 0.5734265734265734,
-                  "high": 0.7017543859649122
+                  "low": 0.5616438356164384,
+                  "high": 0.6774193548387097
                 },
                 "manual_semantic_correctness": {
-                  "low": 0.45555555555555555,
-                  "high": 0.6666666666666666
+                  "low": 0.4444444444444444,
+                  "high": 0.6307692307692307
                 },
                 "precision": {
-                  "low": 0.45555555555555555,
-                  "high": 0.6666666666666666
+                  "low": 0.4444444444444444,
+                  "high": 0.6307692307692307
                 },
                 "recall": {
                   "low": 0.7017543859649122,
@@ -4623,9 +4622,9 @@
       "rationale": "S2 schema guidance reduces target-schema violation rate versus the canonicalized S1b baseline by at least 10 percentage points.",
       "evidence": [
         "s1_schema_violation_rate=1.0",
-        "s1b_schema_violation_rate=0.5925110132158591",
+        "s1b_schema_violation_rate=0.5837004405286343",
         "s2_schema_violation_rate=0.1751412429378531",
-        "S1b_llm_canonicalized_minus_s2=0.417369770278006",
+        "S1b_llm_canonicalized_minus_s2=0.40855919759078124",
         "s1_semantic_scoring_validity=invalid_direct_schema_scoring"
       ],
       "falsification_criterion": "Falsified if schema guidance does not reduce unsupported target-schema terms after a canonicalized S1b baseline exists, or if the reduction only comes from suppressing more than 25 percent of gold-supported facts."
@@ -4653,10 +4652,10 @@
         "s1_precision=0.0",
         "s3_precision=0.24225352112676057",
         "s1_f1=0.0",
-        "s3_f1=0.1723446893787575",
+        "s3_f1=0.17097415506958252",
         "s1_semantic_scoring_validity=invalid_direct_schema_scoring",
         "s0_selected_semantic_macro_f1=0.14285714285714285",
-        "s4_selected_semantic_macro_f1=0.5001008267795927",
+        "s4_selected_semantic_macro_f1=0.5486727026361172",
         "s0_deterministic_macro_f1=0.8779591836734694",
         "s4_deterministic_macro_f1=0.8779591836734694"
       ],

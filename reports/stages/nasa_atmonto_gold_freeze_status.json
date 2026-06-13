@@ -13,6 +13,6 @@
   "warning_count": 0,
   "output_exists": true,
   "output_matches_template": true,
-  "output_sha256": "8acc589642c59b1be9bd00e9d9d636900c41de1c2985f6e8957ec02606f8289a",
+  "output_sha256": "f668488624a43cbb7d74fd3f33731a0bf9adfa11093d185a236d86d9cfb1ac0d",
   "completion_gate": "The reviewed gold JSONL may be frozen only when gold annotation validation status is ready_for_scoring."
 }

@@ -838,7 +838,7 @@ def test_formal_score_report_scores_frozen_reviewed_gold(tmp_path: Path) -> None
     assert s0["structural_metrics"]["rejected_fact_count"] == 48
     assert s0["structural_metrics"]["repair_success_rate"] is None
     assert s0["semantic_metrics"]["available"] is True
-    assert s0["semantic_metrics"]["gold_fact_count"] == 643
+    assert s0["semantic_metrics"]["gold_fact_count"] == 651
     assert s0["semantic_metrics"]["true_positive_count"] == 462
     assert len(s0["semantic_group_metrics"]) == 9
     first_group = s0["semantic_group_metrics"][0]
@@ -1241,12 +1241,12 @@ def test_gold_review_worklist_summarizes_human_annotation_queue() -> None:
 
     assert worklist["record_count"] == 100
     assert worklist["selected_source_id_count"] == 100
-    assert worklist["records_with_rejections"] == 40
-    assert worklist["total_rejected_facts_to_adjudicate"] == 48
+    assert worklist["records_with_rejections"] == 35
+    assert worklist["total_rejected_facts_to_adjudicate"] == 40
     assert worklist["status_counts"] == {"reviewed": 100}
     assert worklist["suggested_decision_counts"] == {
         "extractor_normalization_bug_candidate": 8,
-        "nasa_atmonto_profile_gap_candidate": 40,
+        "nasa_atmonto_profile_gap_candidate": 32,
     }
 
     first_rejected = next(
@@ -1267,12 +1267,12 @@ def test_gold_review_workload_plan_prioritizes_manual_review_queue() -> None:
 
     assert plan["record_count"] == 100
     assert plan["batch_count"] == 10
-    assert plan["records_with_rejections"] == 40
-    assert plan["total_rejected_facts_to_adjudicate"] == 48
+    assert plan["records_with_rejections"] == 35
+    assert plan["total_rejected_facts_to_adjudicate"] == 40
     assert plan["estimated_total_review_minutes"] > 0
     assert sum(plan["complexity_counts"].values()) == 100
     assert sum(plan["priority_lane_counts"].values()) == 100
-    assert plan["priority_lane_counts"]["1_rejection_adjudication"] == 40
+    assert plan["priority_lane_counts"]["1_rejection_adjudication"] == 35
 
     first = plan["recommended_review_order"][0]
     assert first["priority_lane"] == "1_rejection_adjudication"
@@ -1344,15 +1344,15 @@ def test_gold_review_session_plan_chunks_next_manual_review_session() -> None:
     first_session = plan["sessions"][0]
     assert first_session["session_id"] == "session_01"
     assert first_session["status"] == "ready_to_apply"
-    assert first_session["record_count"] == 3
+    assert first_session["record_count"] == 4
     assert first_session["estimated_review_minutes"] == sum(
         int(record["estimated_review_minutes"]) for record in first_session["records"]
     )
     assert first_session["estimated_review_minutes"] >= 60
-    assert first_session["records"][0]["sample_id"] == "ATCSCC-GOLD-024"
-    assert first_session["records"][0]["source_id"] == "2026-05-18:136"
+    assert first_session["records"][0]["sample_id"] == "ATCSCC-GOLD-001"
+    assert first_session["records"][0]["source_id"] == "2026-05-19:032"
     assert first_session["records"][0]["decision_template"].endswith(
-        "review_decisions/batch_03.jsonl"
+        "review_decisions/batch_01.jsonl"
     )
     assert plan["next_session"] is None
 
@@ -1370,14 +1370,14 @@ def test_gold_review_priority_packets_expose_copyable_review_ids() -> None:
     assert report["record_count"] == 100
     assert report["lane_count"] == 3
     assert report["priority_lane_counts"] == {
-        "1_rejection_adjudication": 40,
-        "2_high_cross_system_coverage": 11,
+        "1_rejection_adjudication": 35,
+        "2_high_cross_system_coverage": 16,
         "3_standard_review": 49,
     }
 
     first_lane = report["lanes"][0]
     assert first_lane["lane_id"] == "1_rejection_adjudication"
-    assert first_lane["record_count"] == 40
+    assert first_lane["record_count"] == 35
     assert first_lane["records"][0]["rejected_facts_to_adjudicate"]
 
     first_cluster = next(
@@ -1540,9 +1540,9 @@ def test_gold_review_decision_progress_audits_editable_decision_files() -> None:
     assert report["ready_to_apply_record_count"] == 100
     assert report["suggested_valid_candidate_fact_count"] > 0
     assert report["rejected_fact_decision_count"] > 0
-    assert report["completed_rejected_fact_decision_count"] == 48
+    assert report["completed_rejected_fact_decision_count"] == 40
     assert report["pending_rejected_fact_decision_count"] == (
-        report["rejected_fact_decision_count"] - 48
+        report["rejected_fact_decision_count"] - 40
     )
 
     first_batch = report["batch_progress"][0]

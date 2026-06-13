@@ -3,10 +3,10 @@
 - Gold template: `data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl`
 - Annotation guide: `docs/nasa_atmonto_gold_annotation_guide.md`
 - Records: 100
-- Records with validator rejections: 40
-- Rejected facts to adjudicate: 48
+- Records with validator rejections: 35
+- Rejected facts to adjudicate: 40
 - Status counts: `{"reviewed": 100}`
-- Suggested decisions: `{"extractor_normalization_bug_candidate": 8, "nasa_atmonto_profile_gap_candidate": 40}`
+- Suggested decisions: `{"extractor_normalization_bug_candidate": 8, "nasa_atmonto_profile_gap_candidate": 32}`
 
 ## Review Queue
 
@@ -28,14 +28,14 @@
 | `ATCSCC-GOLD-014` | `2026-05-18:104` | `ReRouteTMI` | 5 | 4 | 1 | `reviewed` |
 | `ATCSCC-GOLD-015` | `2026-05-20:137` | `ReRouteTMI` | 5 | 4 | 1 | `reviewed` |
 | `ATCSCC-GOLD-016` | `2026-05-20:078` | `ReRouteTMI` | 5 | 4 | 1 | `reviewed` |
-| `ATCSCC-GOLD-017` | `2026-05-19:079` | `GroundDelayProgramTMI` | 8 | 7 | 1 | `reviewed` |
-| `ATCSCC-GOLD-018` | `2026-05-19:074` | `GroundDelayProgramTMI` | 8 | 7 | 1 | `reviewed` |
-| `ATCSCC-GOLD-019` | `2026-05-15:067` | `GroundDelayProgramTMI` | 8 | 7 | 1 | `reviewed` |
-| `ATCSCC-GOLD-020` | `2026-05-15:084` | `GroundDelayProgramTMI` | 8 | 7 | 1 | `reviewed` |
-| `ATCSCC-GOLD-021` | `2026-05-14:089` | `GroundStopTMI` | 9 | 7 | 2 | `reviewed` |
-| `ATCSCC-GOLD-022` | `2026-05-15:064` | `GroundDelayProgramTMI` | 8 | 7 | 1 | `reviewed` |
-| `ATCSCC-GOLD-023` | `2026-05-20:163` | `GroundStopTMI` | 9 | 7 | 2 | `reviewed` |
-| `ATCSCC-GOLD-024` | `2026-05-18:136` | `GroundStopTMI` | 9 | 7 | 2 | `reviewed` |
+| `ATCSCC-GOLD-017` | `2026-05-19:079` | `GroundDelayProgramTMI` | 8 | 7 | 0 | `reviewed` |
+| `ATCSCC-GOLD-018` | `2026-05-19:074` | `GroundDelayProgramTMI` | 8 | 7 | 0 | `reviewed` |
+| `ATCSCC-GOLD-019` | `2026-05-15:067` | `GroundDelayProgramTMI` | 8 | 7 | 0 | `reviewed` |
+| `ATCSCC-GOLD-020` | `2026-05-15:084` | `GroundDelayProgramTMI` | 8 | 7 | 0 | `reviewed` |
+| `ATCSCC-GOLD-021` | `2026-05-14:089` | `GroundStopTMI` | 9 | 7 | 1 | `reviewed` |
+| `ATCSCC-GOLD-022` | `2026-05-15:064` | `GroundDelayProgramTMI` | 8 | 7 | 0 | `reviewed` |
+| `ATCSCC-GOLD-023` | `2026-05-20:163` | `GroundStopTMI` | 9 | 7 | 1 | `reviewed` |
+| `ATCSCC-GOLD-024` | `2026-05-18:136` | `GroundStopTMI` | 9 | 7 | 1 | `reviewed` |
 | `ATCSCC-GOLD-025` | `2026-05-18:144` | `GroundStopTMI` | 9 | 8 | 1 | `reviewed` |
 | `ATCSCC-GOLD-026` | `2026-05-18:055` | `GroundStopTMI` | 9 | 8 | 1 | `reviewed` |
 | `ATCSCC-GOLD-027` | `2026-05-19:110` | `GroundStopTMI` | 9 | 8 | 1 | `reviewed` |
@@ -137,16 +137,8 @@
 | `ATCSCC-GOLD-014` | `fact-8aae295140e88a1f` | `extensionProbability` | `allowed_value_violation` | `extractor_normalization_bug_candidate` | PROBABILITY OF EXTENSION: MODERATE |
 | `ATCSCC-GOLD-015` | `fact-83bba681dfc4a57d` | `extensionProbability` | `allowed_value_violation` | `extractor_normalization_bug_candidate` | PROBABILITY OF EXTENSION: MODERATE |
 | `ATCSCC-GOLD-016` | `fact-25fe34b8b2db4bf7` | `extensionProbability` | `allowed_value_violation` | `extractor_normalization_bug_candidate` | PROBABILITY OF EXTENSION: MODERATE |
-| `ATCSCC-GOLD-017` | `fact-55ba0ebe57eb90f0` | `impactingCondition` | `allowed_value_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `ATCSCC-GOLD-018` | `fact-f72cd5658433c79b` | `impactingCondition` | `allowed_value_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `ATCSCC-GOLD-019` | `fact-e266b922c1167993` | `impactingCondition` | `allowed_value_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `ATCSCC-GOLD-020` | `fact-0c51c2646036b3c1` | `impactingCondition` | `allowed_value_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `ATCSCC-GOLD-021` | `fact-3c4247c92836f15f` | `impactingCondition` | `allowed_value_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
 | `ATCSCC-GOLD-021` | `fact-5e0a045d089d24b4` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `ATCSCC-GOLD-022` | `fact-2381cff5585d7e70` | `impactingCondition` | `allowed_value_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `ATCSCC-GOLD-023` | `fact-e1e95b7dcb859a1c` | `impactingCondition` | `allowed_value_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
 | `ATCSCC-GOLD-023` | `fact-7e4f7e6d5ecd7a76` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
-| `ATCSCC-GOLD-024` | `fact-546d313b8f16f1ca` | `impactingCondition` | `allowed_value_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
 | `ATCSCC-GOLD-024` | `fact-c1b6afb7f5738a06` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: STAFFING / STAFFING |
 | `ATCSCC-GOLD-025` | `fact-1d7ce7af4a29c5bd` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: WEATHER / THUNDERSTORMS |
 | `ATCSCC-GOLD-026` | `fact-4d777d2245a650f2` | `impactingConditionMessage` | `domain_violation` | `nasa_atmonto_profile_gap_candidate` | IMPACTING CONDITION: WEATHER / THUNDERSTORMS |

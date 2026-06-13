@@ -21,21 +21,21 @@
     "decision_progress_status": "ready_to_apply",
     "ready_to_apply_record_count": 100,
     "not_started_record_count": 0,
-    "completed_rejected_fact_decision_count": 48,
-    "rejected_fact_decision_count": 48,
+    "completed_rejected_fact_decision_count": 40,
+    "rejected_fact_decision_count": 40,
     "complete_batch_count": 10,
     "batch_count": 10,
     "first_priority_lane": {
       "lane_id": "1_rejection_adjudication",
       "label": "Rejected-fact adjudication first",
-      "record_count": 40,
-      "estimated_review_minutes": 941,
+      "record_count": 35,
+      "estimated_review_minutes": 799,
       "packet_markdown": "data/evaluation/nasa_atmonto/review_priority_packets/1_rejection_adjudication.md",
-      "first_sample_id": "ATCSCC-GOLD-024",
-      "first_source_id": "2026-05-18:136",
-      "first_batch_id": "batch_03",
-      "first_decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_03.jsonl",
-      "first_batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_03.md"
+      "first_sample_id": "ATCSCC-GOLD-001",
+      "first_source_id": "2026-05-19:032",
+      "first_batch_id": "batch_01",
+      "first_decision_template": "data/evaluation/nasa_atmonto/review_decisions/batch_01.jsonl",
+      "first_batch_markdown": "data/evaluation/nasa_atmonto/review_batches/batch_01.md"
     },
     "next_review_session": null,
     "next_commands": [
@@ -54,7 +54,7 @@
     },
     "reviewed_record_count": 100,
     "pending_record_count": 0,
-    "valid_fact_count": 462,
+    "valid_fact_count": 470,
     "missing_fact_count": 181,
     "complete": true
   },
@@ -207,13 +207,13 @@
     "semantic_metrics": {
       "available": true,
       "predicted_fact_count": 566,
-      "gold_fact_count": 643,
+      "gold_fact_count": 651,
       "true_positive_count": 462,
       "false_positive_count": 104,
-      "false_negative_count": 181,
+      "false_negative_count": 189,
       "precision": 0.8162544169611308,
-      "recall": 0.71850699844479,
-      "f1": 0.7642679900744418,
+      "recall": 0.7096774193548387,
+      "f1": 0.7592440427280197,
       "manual_semantic_correctness": 0.8162544169611308,
       "confidence_intervals": {
         "available": true,
@@ -224,8 +224,8 @@
         "sampled_source_id_count": 100,
         "intervals": {
           "f1": {
-            "low": 0.712280701754386,
-            "high": 0.8097560975609756
+            "low": 0.7082658022690438,
+            "high": 0.8042939719240298
           },
           "manual_semantic_correctness": {
             "low": 0.7534246575342466,
@@ -236,8 +236,8 @@
             "high": 0.8619329388560157
           },
           "recall": {
-            "low": 0.6656200941915228,
-            "high": 0.7770992366412214
+            "low": 0.6601208459214502,
+            "high": 0.7639751552795031
           }
         }
       }

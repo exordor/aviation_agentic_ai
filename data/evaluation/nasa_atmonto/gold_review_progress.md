@@ -19,13 +19,13 @@
 
 | Batch | Status | Reviewed | Pending | Candidate clusters | File |
 | --- | --- | ---: | ---: | ---: | --- |
-| `batch_01` | `complete` | 10 | 0 | 321 | `data/evaluation/nasa_atmonto/review_batches/batch_01.md` |
-| `batch_02` | `complete` | 10 | 0 | 416 | `data/evaluation/nasa_atmonto/review_batches/batch_02.md` |
-| `batch_03` | `complete` | 10 | 0 | 383 | `data/evaluation/nasa_atmonto/review_batches/batch_03.md` |
-| `batch_04` | `complete` | 10 | 0 | 367 | `data/evaluation/nasa_atmonto/review_batches/batch_04.md` |
-| `batch_05` | `complete` | 10 | 0 | 243 | `data/evaluation/nasa_atmonto/review_batches/batch_05.md` |
-| `batch_06` | `complete` | 10 | 0 | 358 | `data/evaluation/nasa_atmonto/review_batches/batch_06.md` |
-| `batch_07` | `complete` | 10 | 0 | 263 | `data/evaluation/nasa_atmonto/review_batches/batch_07.md` |
-| `batch_08` | `complete` | 10 | 0 | 255 | `data/evaluation/nasa_atmonto/review_batches/batch_08.md` |
-| `batch_09` | `complete` | 10 | 0 | 279 | `data/evaluation/nasa_atmonto/review_batches/batch_09.md` |
+| `batch_01` | `complete` | 10 | 0 | 318 | `data/evaluation/nasa_atmonto/review_batches/batch_01.md` |
+| `batch_02` | `complete` | 10 | 0 | 406 | `data/evaluation/nasa_atmonto/review_batches/batch_02.md` |
+| `batch_03` | `complete` | 10 | 0 | 378 | `data/evaluation/nasa_atmonto/review_batches/batch_03.md` |
+| `batch_04` | `complete` | 10 | 0 | 364 | `data/evaluation/nasa_atmonto/review_batches/batch_04.md` |
+| `batch_05` | `complete` | 10 | 0 | 238 | `data/evaluation/nasa_atmonto/review_batches/batch_05.md` |
+| `batch_06` | `complete` | 10 | 0 | 355 | `data/evaluation/nasa_atmonto/review_batches/batch_06.md` |
+| `batch_07` | `complete` | 10 | 0 | 260 | `data/evaluation/nasa_atmonto/review_batches/batch_07.md` |
+| `batch_08` | `complete` | 10 | 0 | 251 | `data/evaluation/nasa_atmonto/review_batches/batch_08.md` |
+| `batch_09` | `complete` | 10 | 0 | 278 | `data/evaluation/nasa_atmonto/review_batches/batch_09.md` |
 | `batch_10` | `complete` | 10 | 0 | 284 | `data/evaluation/nasa_atmonto/review_batches/batch_10.md` |

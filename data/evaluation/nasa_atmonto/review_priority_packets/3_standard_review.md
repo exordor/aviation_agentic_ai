@@ -2,9 +2,9 @@
 
 - Label: Standard source review
 - Records: 49
-- Estimated review time: 746 minutes
-- Candidate clusters: 1158
-- Cross-system clusters: 1158
+- Estimated review time: 743 minutes
+- Candidate clusters: 1142
+- Cross-system clusters: 1142
 - Rejected facts: 0
 
 ## Packet Checklist
@@ -177,16 +177,69 @@ Candidate clusters:
 | `cand-f34c3d06e78fe7ec` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-14T00:00:00Z | `fact-8e5c4018edbb061a` | `fact-8e5c4018edbb061a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 140000-140000 |
 | `cand-f7f2e52dbefe9338` | `S1_llm_only` | `forecast_vertical_extent` | SFC/FL150 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 15/1230Z SFC/FL150 N1429 W09052 - N1426 W09051 - N1419 W09106 - N1424 W09108 - N1429 W09052 |
 
+## ATCSCC-GOLD-084 / 2026-05-17:017
+
+- Batch: `batch_09`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_09.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_09.md`
+- Priority lane: `3_standard_review`
+- Complexity: `medium` (score=63, est=19 min)
+- Candidate class: `ReRouteTMI`
+- Candidate clusters: 31
+- Cross-system clusters: 31
+- Rejected facts: 0
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05172026&advn=17
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI MESSAGE: EVENT TIME: 17/1900 - 18/0200 CONSTRAINED FACILITIES: ZNY THIS ADVISORY IS FOR PLANNING PURPOSES ONLY. CUSTOMERS ARE ENCOURAGED TO COMPLY WITH ALL ATCSCC ROUTE ADVISORIES. IF NO ATCSCC ROUTE ADVISORIES ARE IN EFFECT, CUSTOMERS ARE ENCOURAGED TO FILE PUBLISHED CDR'S AND NRP PROCEDURES AROUND KNOWN FORECASTED WEATHER. THE FOLLOWING DESTINATIONS: ATL/CLT/MDW/ORD SHOULD FILE NORMAL ROUTES. ZNY/ATCSCC WILL PROVIDE ALTERNATE ROUTES TO THESE DESTINATIONS AS NEEDED. SWAP STATEMENT: **MORNING FORECAST** SWAP IS POSSIBLE SEVERE WEATHER AVOIDANCE PLANS ARE ( POSSIBLE ) FOR THE ZNY AREA TODAY/ AFTER ( 19Z ). EXPECTED IMPACT AREA( S ): ISO-SCT TS MOVG E OVR NRN...
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-0efa2ccd4ccebd00` | `S1_llm_only` | `states_planning_purpose_only` | True | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | THIS ADVISORY IS FOR PLANNING PURPOSES ONLY. |
+| `cand-12dfcfcfa0e9ccd7` | `S2_llm_schema_slice` | `reRouteReason` | WEATHER | `` | `S2_llm_schema_slice:ATCSCC-GOLD-084:fact-03-fe89937e485e` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI |
+| `cand-137fdebd730d2038` | `S1_llm_only` | `recommends_published_CDR_and_NRP_use_when_no_route_advisories` | file published CDR's and NRP procedures around known forecasted weather | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IF NO ATCSCC ROUTE ADVISORIES ARE IN EFFECT, CUSTOMERS ARE ENCOURAGED TO FILE PUBLISHED CDR'S AND NRP PROCEDURES AROUND KNOWN FORECASTED WEATHER. |
+| `cand-154a3478fd4312dc` | `S2_llm_schema_slice` | `initiativeComments` | THIS ADVISORY IS FOR PLANNING PURPOSES ONLY. | `` | `S2_llm_schema_slice:ATCSCC-GOLD-084:fact-05-0a723f977b0b` | `{"repaired_accepted": 1}` | `{}` | THIS ADVISORY IS FOR PLANNING PURPOSES ONLY. |
+| `cand-2a2d8867cd93dd12` | `S1_llm_only` | `may_have_additional_reroutes_for_effected_airways_outside_ZNY` | True | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADDITIONAL DEPARTURE REROUTES MAY BE POSSIBLE FOR IMPACTS TO EFFECTED AIRWAYS OUTSIDE ZNY. |
+| `cand-32a80b991ec164db` | `S1_llm_only` | `names_destinations_to_file_normal_routes` | ATL/CLT/MDW/ORD | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | THE FOLLOWING DESTINATIONS: ATL/CLT/MDW/ORD SHOULD FILE NORMAL ROUTES. |
+| `cand-37523eb62517f90e` | `S2_llm_schema_slice` | `initiativeComments` | EXPECTED IMPACT AREA( S ): ISO-SCT TS MOVG E OVR NRN ZDC/FAR SRN ZNY. | `` | `S2_llm_schema_slice:ATCSCC-GOLD-084:fact-07-55329cd18072` | `{"repaired_accepted": 1}` | `{}` | EXPECTED IMPACT AREA( S ): ISO-SCT TS MOVG E OVR NRN ZDC/FAR SRN ZNY. |
+| `cand-41e3047895aa39b8` | `S1_llm_only` | `possible_active_time` | AFT ( XXX )Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ZNY HOTLINE POSSIBLE AFT ( XXX )Z: 540-359-3200 PIN #2778 |
+| `cand-4692e1d165f39990` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 17 | `fact-65c96d5d5d95a928` | `fact-65c96d5d5d95a928` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI |
+| `cand-48356baef1c9b000` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-17T11:40:00Z | `fact-779511c2d280bf44` | `fact-779511c2d280bf44` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 171140-180230 |
+| `cand-5305cbb7917807c2` | `S1_llm_only` | `expects_impact_area` | ISO-SCT TS MOVG E OVR NRN ZDC/FAR SRN ZNY | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EXPECTED IMPACT AREA( S ): ISO-SCT TS MOVG E OVR NRN ZDC/FAR SRN ZNY. |
+| `cand-617eb6f00e0c7283` | `S2_llm_schema_slice` | `implementationStatus` | FYI | `` | `S2_llm_schema_slice:ATCSCC-GOLD-084:fact-01-e72e6edb8b77` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI |
+| `cand-67ea915c6eed7c08` | `S1_llm_only` | `identifies_weather_avoidance_plans_as_possible` | True | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SEVERE WEATHER AVOIDANCE PLANS ARE ( POSSIBLE ) |
+| `cand-6b9ad235923f168a` | `S1_llm_only` | `will_provide_reroutes_or_CDRs_as_necessary` | True | `` | `` | `{"rejected_schema": 3}` | `{"unknown_object_class": 3, "unknown_predicate": 3, "unknown_subject_class": 3}` | POSSIBLE REROUTES / CDR'S WILL BE PROVIDED AS NECESSARY. |
+| `cand-74f4b3cf95df1872` | `S1_llm_only` | `encourages_compliance_with` | all ATCSCC route advisories | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CUSTOMERS ARE ENCOURAGED TO COMPLY WITH ALL ATCSCC ROUTE ADVISORIES. |
+| `cand-763cec57cc5e093d` | `S2_llm_schema_slice` | `initiativeComments` | SWAP IS POSSIBLE SEVERE WEATHER AVOIDANCE PLANS ARE ( POSSIBLE ) FOR THE ZNY AREA TODAY/ AFTER ( 19Z ). | `` | `S2_llm_schema_slice:ATCSCC-GOLD-084:fact-06-a1ed573370f6` | `{"repaired_accepted": 1}` | `{}` | SWAP STATEMENT: **MORNING FORECAST** SWAP IS POSSIBLE SEVERE WEATHER AVOIDANCE PLANS ARE ( POSSIBLE ) FOR THE ZNY AREA TODAY/ AFTER ( 19Z ). |
+| `cand-77c3e973c5e43eae` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZNY | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZNY |
+| `cand-7c9c88f92df2a1ae` | `S1_llm_only` | `impact_status` | not_expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DITCH IMPACTS ARE: NOT EXPECTED |
+| `cand-8a871f260b7c132b` | `S1_llm_only` | `states_impacts_to_j6_q75_and_dc_metros` | possible | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IMPACTS TO J6-Q75 & DC METROS PSBL. |
+| `cand-9fef01d12ee6215d` | `S1_llm_only` | `identifies_constrained_facility` | ZNY | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZNY |
+| `cand-ab3ef1e8545a2aa6` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-18T02:30:00Z | `fact-d3235e4358f93a27` | `fact-d3235e4358f93a27` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 171140-180230 |
+| `cand-af4c6cfce126bcbc` | `S2_llm_schema_slice` | `reRouteType` | MISCELLANEOUS | `` | `S2_llm_schema_slice:ATCSCC-GOLD-084:fact-02-0912bff95687` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI |
+| `cand-b16fb95f8f8202ba` | `S1_llm_only` | `describes_swap_as_possible` | True | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SWAP IS POSSIBLE |
+| `cand-c4682ce485b65159` | `S1_llm_only` | `impact_status` | not_expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AZEZU-PAEPR-HANRI ( L453-Y493 ) IMPACTS ARE: NOT EXPECTED |
+| `cand-c8e2840256a89dbb` | `S1_llm_only` | `impact_status` | not_expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INTERNATIONAL DEPARTURES ( EAST GATES ) IMPACTS ARE: NOT EXPECTED |
+| `cand-cbf228d4e71f2f8c` | `S1_llm_only` | `effective_time` | 171140-180230 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 171140-180230 |
+| `cand-d2e2d5fbbe95228f` | `S2_llm_schema_slice` | `controlledNASelement` | nas:Airport | `` | `S2_llm_schema_slice:ATCSCC-GOLD-084:fact-04-b28c978a1944` | `{"repaired_accepted": 1}` | `{}` | THE FOLLOWING DESTINATIONS: ATL/CLT/MDW/ORD SHOULD FILE NORMAL ROUTES. ZNY/ATCSCC WILL PROVIDE ALTERNATE ROUTES TO THESE DESTINATIONS AS NEEDED. |
+| `cand-e387a6420f36dea8` | `S1_llm_only` | `will_provide_alternate_routes_to_destinations` | ATL/CLT/MDW/ORD | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ZNY/ATCSCC WILL PROVIDE ALTERNATE ROUTES TO THESE DESTINATIONS AS NEEDED. |
+| `cand-f2026a1c01b83167` | `S1_llm_only` | `specifies_area_and_time` | ZNY area today/ after ( 19Z ) | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FOR THE ZNY AREA TODAY/ AFTER ( 19Z ). |
+| `cand-f2602070fad5a455` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `implementationStatus` | FYI | `fact-8960d96363ea5bf5` | `fact-8960d96363ea5bf5` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | _FYI |
+| `cand-f4acd7d8dd0dfc99` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-17T11:40:00Z | `fact-5fed3c070708740f` | `fact-5fed3c070708740f` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/17 11:40 |
+
 ## ATCSCC-GOLD-038 / 2026-05-20:115
 
 - Batch: `batch_04`
 - Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_04.jsonl`
 - Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_04.md`
 - Priority lane: `3_standard_review`
-- Complexity: `medium` (score=63, est=19 min)
+- Complexity: `medium` (score=61, est=18 min)
 - Candidate class: `GroundDelayProgramTMI`
-- Candidate clusters: 31
-- Cross-system clusters: 31
+- Candidate clusters: 30
+- Cross-system clusters: 30
 - Rejected facts: 0
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=115
 
@@ -210,13 +263,12 @@ Candidate clusters:
 | `cand-4f776ce78dcd2597` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:LGA | `fact-c9bb2fa355b03464` | `fact-c9bb2fa355b03464` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: LGA |
 | `cand-5e3de266ac4eeb23` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-21T04:59:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-038:fact-06-8762570a0a5c` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 115 LGA/ZNY 05/20/2026 CDM GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: LGA ELEMENT TYPE: APT ADL TIME: 1852Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 20/21... |
 | `cand-73bfdf180d1d7434` | `S1_llm_only` | `unmapped_payload` | {'class_label': 'airport_list', 'text': 'CYHZ CYOW CYUL CYYZ CYTZ CYQB'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CANADIAN DEP ARPTS INCLUDED: CYHZ CYOW CYUL CYYZ CYTZ CYQB |
+| `cand-751f973da4958639` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `controlledNASelement` | LGA | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-038:fact-01-d273a79f7c90` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: LGA ELEMENT TYPE: APT |
 | `cand-7f9b32b34135a69f` | `S2_llm_schema_slice` | `initiativeComments` | ARR: 31 DEP: 31 TIME PLUS 30. MED HIST POP UP. GDP REVISION DUE TO THUNDERSTMORMS AND ROUTE IMPACTS. | `` | `S2_llm_schema_slice:ATCSCC-GOLD-038:fact-07-259ab909dbe4` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 115 LGA/ZNY 05/20/2026 CDM GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: LGA ELEMENT TYPE: APT ADL TIME: 1852Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 20/21... |
 | `cand-88ad5183c21e9e6f` | `S2_llm_schema_slice` | `impactingCondition` | weather | `` | `S2_llm_schema_slice:ATCSCC-GOLD-038:fact-03-4f8b4a93964a` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 115 LGA/ZNY 05/20/2026 CDM GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: LGA ELEMENT TYPE: APT ADL TIME: 1852Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 20/21... |
-| `cand-8b2a266434ef0fc7` | `S3_llm_schema_slice_validator_repair` | `controlledNASelement` | LGA | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1}` | CTL ELEMENT: LGA ELEMENT TYPE: APT |
 | `cand-8f21f844454619c3` | `S1_llm_only` | `unmapped_payload` | {'class_label': 'effective_time_range', 'text': '201857-210459'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 201857-210459 |
 | `cand-93ed92f6ae20e9b7` | `S1_llm_only` | `unmapped_payload` | {'class_label': 'center', 'text': 'ZNY'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DELAY ASSIGNMENT TABLE APPLIES TO: ZNY |
-| `cand-9dd1708be2f83131` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `impactingCondition` | weather | `fact-86487ebda6091ecb` | `fact-86487ebda6091ecb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | IMPACTING CONDITION: WEATHER / THUNDERSTORMS |
-| `cand-a030b7cd054fa548` | `S3_llm_schema_slice_validator_repair` | `impactingCondition` | weather | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1}` | IMPACTING CONDITION: WEATHER / THUNDERSTORMS |
+| `cand-9dd1708be2f83131` | `S0_rule_only, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `impactingCondition` | weather | `fact-86487ebda6091ecb` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-038:fact-02-16cd108ca4d0, fact-86487ebda6091ecb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | IMPACTING CONDITION: WEATHER / THUNDERSTORMS |
 | `cand-b3b7ec457847e36c` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-20T18:57:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-038:fact-05-d93abec3bbca` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 115 LGA/ZNY 05/20/2026 CDM GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: LGA ELEMENT TYPE: APT ADL TIME: 1852Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 20/21... |
 | `cand-b608bd2acd748b65` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-20T18:59:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-038:fact-04-e2d3384053d4` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 115 LGA/ZNY 05/20/2026 CDM GROUND DELAY PROGRAM MESSAGE: CTL ELEMENT: LGA ELEMENT TYPE: APT ADL TIME: 1852Z DELAY ASSIGNMENT MODE: UDP ARRIVALS ESTIMATED FOR: 20/21... |
 | `cand-b8fa90565d768e1d` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-21T04:59:00Z | `fact-d54a9932b1320d1e` | `fact-d54a9932b1320d1e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 201857-210459 |
@@ -229,59 +281,6 @@ Candidate clusters:
 | `cand-ec55c83854e4d643` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | ARR: 31 DEP: 31 TIME PLUS 30. MED HIST POP UP. GDP REVISION DUE TO THUNDERSTMORMS AND ROUTE IMPACTS. | `fact-4bd7aa2a51ec9f20` | `fact-4bd7aa2a51ec9f20` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: ARR: 31 DEP: 31 TIME PLUS 30. MED HIST POP UP. GDP REVISION DUE TO THUNDERSTMORMS AND ROUTE IMPACTS. |
 | `cand-ed7890f810f14261` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 115 | `fact-454b993930e032fc` | `S1b_llm_canonicalized:2026-05-20:115:fact-4a4d156590c7, fact-454b993930e032fc` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 115 LGA/ZNY 05/20/2026 CDM GROUND DELAY PROGRAM |
 | `cand-f14fa0474f1f1232` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T18:59:00Z | `fact-db7ea408e290fa36` | `fact-db7ea408e290fa36` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 18:59 |
-
-## ATCSCC-GOLD-084 / 2026-05-17:017
-
-- Batch: `batch_09`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_09.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_09.md`
-- Priority lane: `3_standard_review`
-- Complexity: `medium` (score=63, est=19 min)
-- Candidate class: `ReRouteTMI`
-- Candidate clusters: 31
-- Cross-system clusters: 31
-- Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05172026&advn=17
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI MESSAGE: EVENT TIME: 17/1900 - 18/0200 CONSTRAINED FACILITIES: ZNY THIS ADVISORY IS FOR PLANNING PURPOSES ONLY. CUSTOMERS ARE ENCOURAGED TO COMPLY WITH ALL ATCSCC ROUTE ADVISORIES. IF NO ATCSCC ROUTE ADVISORIES ARE IN EFFECT, CUSTOMERS ARE ENCOURAGED TO FILE PUBLISHED CDR'S AND NRP PROCEDURES AROUND KNOWN FORECASTED WEATHER. THE FOLLOWING DESTINATIONS: ATL/CLT/MDW/ORD SHOULD FILE NORMAL ROUTES. ZNY/ATCSCC WILL PROVIDE ALTERNATE ROUTES TO THESE DESTINATIONS AS NEEDED. SWAP STATEMENT: **MORNING FORECAST** SWAP IS POSSIBLE SEVERE WEATHER AVOIDANCE PLANS ARE ( POSSIBLE ) FOR THE ZNY AREA TODAY/ AFTER ( 19Z ). EXPECTED IMPACT AREA( S ): ISO-SCT TS MOVG E OVR NRN...
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-0b6143e9eb34b5d6` | `S2_llm_schema_slice` | `reRouteType` | MISCELLANEOUS | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI |
-| `cand-0efa2ccd4ccebd00` | `S1_llm_only` | `states_planning_purpose_only` | True | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | THIS ADVISORY IS FOR PLANNING PURPOSES ONLY. |
-| `cand-137fdebd730d2038` | `S1_llm_only` | `recommends_published_CDR_and_NRP_use_when_no_route_advisories` | file published CDR's and NRP procedures around known forecasted weather | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IF NO ATCSCC ROUTE ADVISORIES ARE IN EFFECT, CUSTOMERS ARE ENCOURAGED TO FILE PUBLISHED CDR'S AND NRP PROCEDURES AROUND KNOWN FORECASTED WEATHER. |
-| `cand-2a2d8867cd93dd12` | `S1_llm_only` | `may_have_additional_reroutes_for_effected_airways_outside_ZNY` | True | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADDITIONAL DEPARTURE REROUTES MAY BE POSSIBLE FOR IMPACTS TO EFFECTED AIRWAYS OUTSIDE ZNY. |
-| `cand-32a80b991ec164db` | `S1_llm_only` | `names_destinations_to_file_normal_routes` | ATL/CLT/MDW/ORD | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | THE FOLLOWING DESTINATIONS: ATL/CLT/MDW/ORD SHOULD FILE NORMAL ROUTES. |
-| `cand-41e3047895aa39b8` | `S1_llm_only` | `possible_active_time` | AFT ( XXX )Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ZNY HOTLINE POSSIBLE AFT ( XXX )Z: 540-359-3200 PIN #2778 |
-| `cand-4692e1d165f39990` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 17 | `fact-65c96d5d5d95a928` | `fact-65c96d5d5d95a928` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI |
-| `cand-48356baef1c9b000` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-17T11:40:00Z | `fact-779511c2d280bf44` | `fact-779511c2d280bf44` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 171140-180230 |
-| `cand-4dd9b84bfb0b9c7c` | `S2_llm_schema_slice` | `reRouteReason` | WEATHER | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI |
-| `cand-5305cbb7917807c2` | `S1_llm_only` | `expects_impact_area` | ISO-SCT TS MOVG E OVR NRN ZDC/FAR SRN ZNY | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EXPECTED IMPACT AREA( S ): ISO-SCT TS MOVG E OVR NRN ZDC/FAR SRN ZNY. |
-| `cand-6395dcbaf59fe613` | `S2_llm_schema_slice` | `implementationStatus` | FYI | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 017 DCC/ZNY 05/17/2026 ZNY SWAP_FYI |
-| `cand-67ea915c6eed7c08` | `S1_llm_only` | `identifies_weather_avoidance_plans_as_possible` | True | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SEVERE WEATHER AVOIDANCE PLANS ARE ( POSSIBLE ) |
-| `cand-68e83ff1a7ad4644` | `S2_llm_schema_slice` | `initiativeComments` | THIS ADVISORY IS FOR PLANNING PURPOSES ONLY. | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | THIS ADVISORY IS FOR PLANNING PURPOSES ONLY. |
-| `cand-6b9ad235923f168a` | `S1_llm_only` | `will_provide_reroutes_or_CDRs_as_necessary` | True | `` | `` | `{"rejected_schema": 3}` | `{"unknown_object_class": 3, "unknown_predicate": 3, "unknown_subject_class": 3}` | POSSIBLE REROUTES / CDR'S WILL BE PROVIDED AS NECESSARY. |
-| `cand-6dbe83ed14420c4c` | `S2_llm_schema_slice` | `initiativeComments` | EXPECTED IMPACT AREA( S ): ISO-SCT TS MOVG E OVR NRN ZDC/FAR SRN ZNY. | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EXPECTED IMPACT AREA( S ): ISO-SCT TS MOVG E OVR NRN ZDC/FAR SRN ZNY. |
-| `cand-74f4b3cf95df1872` | `S1_llm_only` | `encourages_compliance_with` | all ATCSCC route advisories | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CUSTOMERS ARE ENCOURAGED TO COMPLY WITH ALL ATCSCC ROUTE ADVISORIES. |
-| `cand-77c3e973c5e43eae` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZNY | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZNY |
-| `cand-7c9c88f92df2a1ae` | `S1_llm_only` | `impact_status` | not_expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DITCH IMPACTS ARE: NOT EXPECTED |
-| `cand-8a871f260b7c132b` | `S1_llm_only` | `states_impacts_to_j6_q75_and_dc_metros` | possible | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | IMPACTS TO J6-Q75 & DC METROS PSBL. |
-| `cand-9060b0a603cfa082` | `S2_llm_schema_slice` | `controlledNASelement` | nas:Airport | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | THE FOLLOWING DESTINATIONS: ATL/CLT/MDW/ORD SHOULD FILE NORMAL ROUTES. ZNY/ATCSCC WILL PROVIDE ALTERNATE ROUTES TO THESE DESTINATIONS AS NEEDED. |
-| `cand-9fef01d12ee6215d` | `S1_llm_only` | `identifies_constrained_facility` | ZNY | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZNY |
-| `cand-ab3ef1e8545a2aa6` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-18T02:30:00Z | `fact-d3235e4358f93a27` | `fact-d3235e4358f93a27` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 171140-180230 |
-| `cand-b16fb95f8f8202ba` | `S1_llm_only` | `describes_swap_as_possible` | True | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SWAP IS POSSIBLE |
-| `cand-c4682ce485b65159` | `S1_llm_only` | `impact_status` | not_expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AZEZU-PAEPR-HANRI ( L453-Y493 ) IMPACTS ARE: NOT EXPECTED |
-| `cand-c8e2840256a89dbb` | `S1_llm_only` | `impact_status` | not_expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INTERNATIONAL DEPARTURES ( EAST GATES ) IMPACTS ARE: NOT EXPECTED |
-| `cand-cbf228d4e71f2f8c` | `S1_llm_only` | `effective_time` | 171140-180230 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 171140-180230 |
-| `cand-e387a6420f36dea8` | `S1_llm_only` | `will_provide_alternate_routes_to_destinations` | ATL/CLT/MDW/ORD | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ZNY/ATCSCC WILL PROVIDE ALTERNATE ROUTES TO THESE DESTINATIONS AS NEEDED. |
-| `cand-e83bf11585c5604a` | `S2_llm_schema_slice` | `initiativeComments` | SWAP IS POSSIBLE SEVERE WEATHER AVOIDANCE PLANS ARE ( POSSIBLE ) FOR THE ZNY AREA TODAY/ AFTER ( 19Z ). | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SWAP STATEMENT: **MORNING FORECAST** SWAP IS POSSIBLE SEVERE WEATHER AVOIDANCE PLANS ARE ( POSSIBLE ) FOR THE ZNY AREA TODAY/ AFTER ( 19Z ). |
-| `cand-f2026a1c01b83167` | `S1_llm_only` | `specifies_area_and_time` | ZNY area today/ after ( 19Z ) | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FOR THE ZNY AREA TODAY/ AFTER ( 19Z ). |
-| `cand-f2602070fad5a455` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `implementationStatus` | FYI | `fact-8960d96363ea5bf5` | `fact-8960d96363ea5bf5` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | _FYI |
-| `cand-f4acd7d8dd0dfc99` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-17T11:40:00Z | `fact-5fed3c070708740f` | `fact-5fed3c070708740f` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/17 11:40 |
 
 ## ATCSCC-GOLD-100 / 2026-05-17:071
 
@@ -335,108 +334,6 @@ Candidate clusters:
 | `cand-fb4c6cd04f04f2d4` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-17T00:00:00Z | `fact-9fded4f2be652d07` | `fact-9fded4f2be652d07` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 170000-170000 |
 | `cand-fb60087f9c791397` | `S1_llm_only` | `'may_continue'}` | {'class': 'activity_continuation', 'text': 'CONT.'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS MAY CONT. |
 
-## ATCSCC-GOLD-050 / 2026-05-19:043
-
-- Batch: `batch_05`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_05.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_05.md`
-- Priority lane: `3_standard_review`
-- Complexity: `medium` (score=59, est=18 min)
-- Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 29
-- Cross-system clusters: 29
-- Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=43
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO MESSAGE: FVXX20 KNES 191422 WSI DDS:191425 VA ADVISORY DTG: 20260519/1422Z VAAC: WASHINGTON VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA SOURCE ELEV: 12346 FT AMSL ADVISORY NR: 2026/582 INFO SOURCE: GOES-19. WEBCAM. NWP MODELS. ERUPTION DETAILS: FRQT VA EMS OBS VA DTG: 19/1350Z OBS VA CLD: SFC/FL150 N1429 W09052 - N1427 W09053 - N1415 W09158 - N1429 W09209 - N1429 W09052 MOV SW 15KT FCST VA CLD +6HR: 19/2000Z SFC/FL150 N1429 W09053 - N1428 W09052 - N1402 W09156 - N1416 W09208 - N1429 W09053 FCST VA CLD +12HR: 20/0200Z SFC/FL150 N1429 W09053 - N1428 W09052 - N1404 W09158 - N1420 W09208 - N1429 W09053 FCST VA CLD +18HR: 20/0800Z SF...
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-04299106baecec89` | `S1_llm_only` | `has_volcano_identifier` | 342090 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: FUEGO 342090 |
-| `cand-1748354d26606758` | `S1_llm_only` | `estimated_extent_from_summit` | approx 70 NM WSW | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EXTG APPRX 70 NM WSW FM SUMMIT |
-| `cand-1e59bba76c557898` | `S1_llm_only` | `has_advisory_number` | 2026/582 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADVISORY NR: 2026/582 |
-| `cand-22ec16a2658812cb` | `S1_llm_only` | `expected_shift_by_time_horizon` | shift SW by T+18 HRS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | WSW MVMT EXP TO SHIFT SW BY T+18 HRS |
-| `cand-26505a51e8da3bc4` | `S1_llm_only` | `has_source_elevation` | 12346 FT AMSL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 12346 FT AMSL |
-| `cand-303a63bb0d096eb8` | `S1_llm_only` | `eruption_activity_description` | FRQT VA EMS OBS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: FRQT VA EMS OBS |
-| `cand-319ef57f78332c7e` | `S1_llm_only` | `has_advisory_date_time` | 20260519/1422Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA ADVISORY DTG: 20260519/1422Z |
-| `cand-4dedb5c38e250e6e` | `S1_llm_only` | `observed_in` | WEBCAM | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS OBSD IN WEBCAM |
-| `cand-4eaa09c8586fc0ae` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - FUEGO | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-5c4e9ac75fba9220` | `S1b_llm_canonicalized` | `advisoryNumber` | 43 | `` | `S1b_llm_canonicalized:2026-05-19:043:fact-fc0325bb927d` | `{"repaired_accepted": 1}` | `{}` | ADVISORY NR: 2026/582 |
-| `cand-6aad154464b98b10` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-19T14:25:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/19 14:25 |
-| `cand-8320c7006342b665` | `S1_llm_only` | `observed_in` | STLT IMG | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS OBSD IN WEBCAM AND STLT IMG |
-| `cand-8384b05341be71e2` | `S1_llm_only` | `based_on` | WEBCAM | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MVMT AND HGT BASED ON WEBCAM, STLT OBS AND NWP MDLS |
-| `cand-87bb111e97f8498d` | `S2_llm_schema_slice` | `advisoryNumber` | 43 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-89bd307ae9d1d5ee` | `S1_llm_only` | `observation_time` | 19/1350Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA DTG: 19/1350Z |
-| `cand-92184801dc9ef3ac` | `S1_llm_only` | `has_advisory_title` | VOLCANIC ACTIVITY BULLETIN - FUEGO | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-935e2f841e7d5561` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-19T14:22:00Z | `fact-4b893ad96835a8d7` | `fact-4b893ad96835a8d7` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 14:25 |
-| `cand-93db1e68bfca7bac` | `S1_llm_only` | `based_on` | NWP MDLS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MVMT AND HGT BASED ON WEBCAM, STLT OBS AND NWP MDLS |
-| `cand-9e7b93f320438d90` | `S1_llm_only` | `based_on` | STLT OBS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MVMT AND HGT BASED ON WEBCAM, STLT OBS AND NWP MDLS |
-| `cand-afaf801c0d8dc4eb` | `S1_llm_only` | `observed_movement_direction` | SW | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 15KT |
-| `cand-b07a0149bc89bc49` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-19T19:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-b09e7ac4ca29c533` | `S1_llm_only` | `observed_flight_level_range` | SFC/FL150 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA CLD: SFC/FL150 |
-| `cand-b1f60397af7edbf3` | `S1_llm_only` | `observed_movement_speed` | 15KT | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 15KT |
-| `cand-cf92eb9bbb161e1a` | `S1_llm_only` | `is_reported_by` | WASHINGTON VAAC | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VAAC: WASHINGTON |
-| `cand-db6c88d073002906` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T00:00:00Z | `fact-3b8e92a773cd4e11` | `fact-3b8e92a773cd4e11` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-de7615779fe65b41` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-19T00:00:00Z | `fact-8eaa87f4c3212715` | `fact-8eaa87f4c3212715` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-e4f2d514353b927d` | `S1_llm_only` | `is_located_in_area` | GUATEMALA | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: GUATEMALA |
-| `cand-eb82000d3b8597b5` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T19:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-fa1b8ebb4188190d` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 43 | `fact-469356323d380955` | `S1b_llm_canonicalized:2026-05-19:043:fact-54703aa81c16, fact-469356323d380955` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-
-## ATCSCC-GOLD-077 / 2026-05-19:001
-
-- Batch: `batch_08`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_08.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_08.md`
-- Priority lane: `3_standard_review`
-- Complexity: `medium` (score=59, est=18 min)
-- Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 29
-- Cross-system clusters: 29
-- Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=1
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL MESSAGE: FVXX24 KNES 190010 WSI DDS:190011 VA ADVISORY DTG: 20260519/0010Z VAAC: WASHINGTON VOLCANO: POPOCATEPETL 341090 PSN: N1901 W09837 AREA: MEXICO SOURCE ELEV: 17693 FT AMSL ADVISORY NR: 2026/195 INFO SOURCE: GOES-19. NWP MODELS. ERUPTION DETAILS: OCNL VA EMS EST VA DTG: 18/2356Z EST VA CLD: SFC/FL220 N1911 W09828 - N1909 W09825 - N1901 W09837 - N1901 W09837 - N1911 W09828 MOV NE 15KT FCST VA CLD +6HR: 19/0600Z SFC/FL220 N1911 W09826 - N1908 W09824 - N1901 W09837 - N1901 W09837 - N1911 W09826 FCST VA CLD +12HR: 19/1200Z NO VA EXP FCST VA CLD +18HR: 19/1800Z NO VA EXP RMK: VA NOT DETECTED IN STLT IMG. VA EMS MAY CONT. MDL GUIDANC...
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-01135dad86d3898a` | `S1_llm_only` | `forecast_status_is` | {'label': 'No volcanic ash expected', 'type': 'forecast_status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 19/1800Z NO VA EXP |
-| `cand-02befe81e9fafb0d` | `S1_llm_only` | `has_advisory_date_time` | {'label': '20260519/0010Z', 'type': 'advisory_time'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA ADVISORY DTG: 20260519/0010Z |
-| `cand-097da75ed102db97` | `S1b_llm_canonicalized` | `advisoryNumber` | 1 | `` | `S1b_llm_canonicalized:2026-05-19:001:fact-f7502b674cfb` | `{"repaired_accepted": 1}` | `{}` | ADVISORY NR: 2026/195 |
-| `cand-141fdab2d06be4af` | `S1_llm_only` | `observation_result_is` | {'label': 'Volcanic ash not detected', 'type': 'observation_result'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RMK: VA NOT DETECTED IN STLT IMG. |
-| `cand-19042885bb391bc1` | `S1_llm_only` | `movement_speed_is` | {'label': '15KT', 'type': 'speed'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV NE 15KT |
-| `cand-1e90c46027b5bd54` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T00:00:00Z | `fact-f7a02b5ba9acb313` | `fact-f7a02b5ba9acb313` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-271cb418bd5158af` | `S1_llm_only` | `has_advisory_identifier` | {'label': 'ATCSCC ADVZY 001 DCC 05/19/2026', 'type': 'advisory_identifier'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-2e50a5b90dc6c6d6` | `S1_llm_only` | `has_topic` | {'label': 'Volcanic activity bulletin for Popocatepetl', 'type': 'bulletin_topic'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-3597279457eef4b0` | `S1_llm_only` | `information_sources_include` | {'label': 'GOES-19', 'type': 'information_source'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INFO SOURCE: GOES-19. NWP MODELS. |
-| `cand-54780f9e913c93d5` | `S2_llm_schema_slice` | `advisoryNumber` | 1 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-74d6d3822f295a74` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 1 | `fact-b54fa527bc44e98c` | `S1b_llm_canonicalized:2026-05-19:001:fact-ee85887d521f, fact-b54fa527bc44e98c` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-88ca64d174f7f54f` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-19T00:10:00Z | `fact-c53bd3aff66401f4` | `fact-c53bd3aff66401f4` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 00:11 |
-| `cand-957b310ccafb7952` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-19T00:00:00Z | `fact-0b8010e63df903b9` | `fact-0b8010e63df903b9` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-96f245b3cbd0ace1` | `S1_llm_only` | `estimated_vertical_extent_is` | {'label': 'SFC/FL220', 'type': 'vertical_extent'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA CLD: SFC/FL220 |
-| `cand-9d41cc81116cc2af` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-19T00:11:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/19 00:11 |
-| `cand-a0f136b69092cfca` | `S2_llm_schema_slice, S3_llm_schema_slice_validator_repair` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL | `` | `` | `{"rejected_schema": 2}` | `{"predicate_not_object_property": 2, "unknown_object_class": 2, "unknown_subject_class": 2}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-a4f0da697fba746c` | `S1_llm_only` | `estimated_time_is` | {'label': '18/2356Z', 'type': 'time_expression'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA DTG: 18/2356Z |
-| `cand-ab14fe6982e53705` | `S1_llm_only` | `suggests_movement_toward` | {'label': 'NE through T+6', 'type': 'movement_prediction'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MDL GUIDANCE SUGGESTS NE MVMT THRU T+6. |
-| `cand-ab576cd3d739f196` | `S1_llm_only` | `forecast_time_is` | {'label': '19/0600Z', 'type': 'time_expression'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 19/0600Z SFC/FL220 N1911 W09826 - N1908 W09824 - N1901 W09837 - N1901 W09837 - N1911 W09826 |
-| `cand-b3a2cc4afbc20660` | `S1_llm_only` | `information_sources_include` | {'label': 'NWP models', 'type': 'information_source'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INFO SOURCE: GOES-19. NWP MODELS. |
-| `cand-b65b22ba3aff21b1` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-19T00:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-c4b4967d23dbe62d` | `S1_llm_only` | `moves_toward` | {'label': 'NE', 'type': 'direction'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV NE 15KT |
-| `cand-c9e4068af9a45397` | `S1_llm_only` | `located_in_area` | {'label': 'Mexico', 'type': 'geographic_area'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: MEXICO |
-| `cand-cd6e8e920a460b50` | `S1_llm_only` | `may_continue` | {'label': 'Yes', 'type': 'continuation_status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS MAY CONT. |
-| `cand-ce060656f2947954` | `S1_llm_only` | `source_elevation_is` | {'label': '17693 FT AMSL', 'type': 'elevation'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 17693 FT AMSL |
-| `cand-d5b00f1d03babea5` | `S1_llm_only` | `forecast_status_is` | {'label': 'No volcanic ash expected', 'type': 'forecast_status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 19/1200Z NO VA EXP |
-| `cand-eb771c8d76e8e440` | `S1_llm_only` | `has_advisory_number` | {'label': '2026/195', 'type': 'advisory_number'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADVISORY NR: 2026/195 |
-| `cand-ed056718a192127e` | `S1_llm_only` | `eruption_details_state` | {'label': 'Occasional volcanic ash emissions', 'type': 'eruption_detail'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: OCNL VA EMS |
-| `cand-f95801b4d5ee96df` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T19:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 190000-190000 |
-
 ## ATCSCC-GOLD-045 / 2026-05-20:150
 
 - Batch: `batch_05`
@@ -459,6 +356,7 @@ Candidate clusters:
 | Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `cand-02e3ceacfb876d0f` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZHU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZHU |
+| `cand-164c564d1f91be93` | `S2_llm_schema_slice` | `advisoryNumber` | 150 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-045:fact-01-51c888af35b3` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 150 DCC/ZHU 05/20/2026 STARSHIP PRE-MISSION ADVISORY_FYI |
 | `cand-19df9507d4045023` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T21:21:00Z | `fact-de765af190d2e7ec` | `fact-de765af190d2e7ec` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 21:21 |
 | `cand-1d5a2d0def1a992c` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-21T23:00:00Z | `fact-336735474d7cbcbc` | `fact-336735474d7cbcbc` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 202121-212300 |
 | `cand-2115441a6c3baad0` | `S1_llm_only` | `'has_affected_areas_extend_through'}` | {'label': 'Piarco FIR', 'type': 'airspace_region'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AFFECTED AREAS EXTEND FROM STARBASE, TEXAS THROUGH PIARCO FIR FROM 2230Z TO 0043Z. |
@@ -466,26 +364,75 @@ Candidate clusters:
 | `cand-295ab5086f96772b` | `S3_llm_schema_slice_validator_repair` | `effectiveStartTime` | 2026-05-20T22:30:00Z | `` | `` | `{"rejected_evidence": 1}` | `{"missing_evidence": 1}` |  |
 | `cand-33cfb0cd27e41765` | `S1_llm_only` | `'announces_tentative_launch'}` | {'label': 'SpaceX SuperHeavy Starship Flt-12 launch from Starbase, Texas on May-21-2026', 'type': 'launch_event'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SPACEX SUPERHEAVY STARSHIP FLT-12 IS TENTATIVELY SCHEDULED TO LAUNCH FROM STARBASE, TEXAS ON MAY-21-2026. |
 | `cand-45ae3789e7f59ce6` | `S3_llm_schema_slice_validator_repair` | `effectiveEndTime` | 2026-05-21T22:30:00Z | `` | `` | `{"rejected_evidence": 1}` | `{"missing_evidence": 1}` |  |
-| `cand-497d040812270aae` | `S2_llm_schema_slice` | `advisoryNumber` | 150 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 150 DCC/ZHU 05/20/2026 STARSHIP PRE-MISSION ADVISORY_FYI |
 | `cand-4cff1b1dd7b8e68c` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `implementationStatus` | FYI | `fact-d4c33b39a81c75a2` | `fact-d4c33b39a81c75a2` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | _FYI |
 | `cand-58c59c0307045382` | `S1_llm_only` | `'instructs_flight_crews_to_be_aware_of'}` | {'label': 'possible impacts', 'type': 'operational_risk'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PLEASE ENSURE FLIGHT CREWS ARE AWARE OF POSSIBLE IMPACTS |
-| `cand-604258463f1eb0c3` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-21T22:30:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EVENT TIME: 20/2230 - 21/2230 |
 | `cand-636104dd690cea73` | `S1_llm_only` | `'names_constrained_facility'}` | {'label': 'ZHU', 'type': 'air_traffic_control_facility'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZHU |
+| `cand-63a7397f13552e68` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-20T22:30:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-045:fact-05-edbbc5c7c304` | `{"repaired_accepted": 1}` | `{}` | EVENT TIME: 20/2230 - 21/2230 |
 | `cand-679173f8a21023d8` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 150 | `fact-ee99468c4964bef8` | `fact-ee99468c4964bef8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 150 DCC/ZHU 05/20/2026 STARSHIP PRE-MISSION ADVISORY_FYI |
 | `cand-68071f9cb7cd520f` | `S1_llm_only` | `'has_event_time_window'}` | {'label': '20/2230 - 21/2230', 'type': 'time_window'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EVENT TIME: 20/2230 - 21/2230 |
 | `cand-7657e5fc7a3e96a5` | `S3_llm_schema_slice_validator_repair` | `issuedTime` | 2026-05-20T21:21:00Z | `` | `` | `{"rejected_evidence": 1}` | `{"missing_evidence": 1}` |  |
 | `cand-7f458e4c84e2e3a2` | `S1_llm_only` | `'states_update_will_announce'}` | {'label': 'involved airspace released and normal traffic resumed', 'type': 'airspace_status_update'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AN UPDATE WILL BE SENT OUT ADVISING THE INVLOVED AIRSPACE IS RELEASED AND THAT NORMAL TRAFFIC HAS RESUMED. |
 | `cand-90ffe61805bda1e8` | `S1_llm_only` | `'may_trigger'}` | {'label': 'airborne holding', 'type': 'traffic_management_initiative'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RESULTING IN POSSIBLE INITIATIVES SUCH AS AIRBORNE HOLDING, ROUTE CLOSURES, AND GROUNDSTOPS. |
 | `cand-9fc5e114379bf7e3` | `S1_llm_only` | `'may_trigger'}` | {'label': 'groundstops', 'type': 'traffic_management_initiative'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RESULTING IN POSSIBLE INITIATIVES SUCH AS AIRBORNE HOLDING, ROUTE CLOSURES, AND GROUNDSTOPS. |
-| `cand-abe7a739057f2d0b` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-20T22:30:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EVENT TIME: 20/2230 - 21/2230 |
-| `cand-aef8512994086b0f` | `S2_llm_schema_slice` | `initiativeComments` | SPACEX SUPERHEAVY STARSHIP FLT-12 IS TENTATIVELY SCHEDULED TO LAUNCH FROM STARBASE, TEXAS ON MAY-21-2026. IN THE EVENT OF A MISHAP, DEBRI... | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | MESSAGE: EVENT TIME: 20/2230 - 21/2230 CONSTRAINED FACILITIES: ZHU PRE-MISSION ADVISORY: SPACEX SUPERHEAVY STARSHIP FLT-12 IS TENTATIVELY SCHEDULED TO LAUNCH FROM STARBASE, TEXA... |
+| `cand-cc59d7fd738359de` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-20T21:21:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-045:fact-02-34efb6aa87c0` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 21:21 |
 | `cand-d4801c84bfd41942` | `S3_llm_schema_slice_validator_repair` | `advisoryNumber` | 150 | `` | `` | `{"rejected_evidence": 1}` | `{"missing_evidence": 1}` |  |
-| `cand-d4b39d5aa20c6636` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-20T21:21:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/20 21:21 |
 | `cand-d5d3a9629f93f62b` | `S1_llm_only` | `'may_trigger'}` | {'label': 'route closures', 'type': 'traffic_management_initiative'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RESULTING IN POSSIBLE INITIATIVES SUCH AS AIRBORNE HOLDING, ROUTE CLOSURES, AND GROUNDSTOPS. |
 | `cand-da0f6018bbb1fc3f` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | EVENT TIME: 20/2230 - 21/2230 CONSTRAINED FACILITIES: ZHU PRE-MISSION ADVISORY: SPACEX SUPERHEAVY STARSHIP FLT-12 IS TENTATIVELY SCHEDULE... | `` | `` | `{"rejected_evidence": 1}` | `{"missing_evidence": 1}` |  |
+| `cand-dc488ef2a06d010b` | `S2_llm_schema_slice` | `initiativeComments` | SPACEX SUPERHEAVY STARSHIP FLT-12 IS TENTATIVELY SCHEDULED TO LAUNCH FROM STARBASE, TEXAS ON MAY-21-2026. IN THE EVENT OF A MISHAP, DEBRI... | `` | `S2_llm_schema_slice:ATCSCC-GOLD-045:fact-04-5976af7c6e64` | `{"repaired_accepted": 1}` | `{}` | MESSAGE: EVENT TIME: 20/2230 - 21/2230 CONSTRAINED FACILITIES: ZHU PRE-MISSION ADVISORY: SPACEX SUPERHEAVY STARSHIP FLT-12 IS TENTATIVELY SCHEDULED TO LAUNCH FROM STARBASE, TEXA... |
+| `cand-df0a9208fb693153` | `S2_llm_schema_slice` | `controlledNASelement` | ZHU | `` | `S2_llm_schema_slice:ATCSCC-GOLD-045:fact-03-8d6319c168b4` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 150 DCC/ZHU 05/20/2026 STARSHIP PRE-MISSION ADVISORY_FYI |
+| `cand-e362a93c842a196f` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-21T22:30:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-045:fact-06-b8421a09213a` | `{"repaired_accepted": 1}` | `{}` | EVENT TIME: 20/2230 - 21/2230 |
 | `cand-ecdcabf170a80ac0` | `S1_llm_only` | `'instructs_flights_to_be_fueled_accordingly'}` | {'label': 'possible impacts', 'type': 'operational_risk'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AND THAT FLIGHTS ARE FUELED ACCORDINGLY. |
-| `cand-f9df334fc8565a3c` | `S2_llm_schema_slice` | `controlledNASelement` | ZHU | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 150 DCC/ZHU 05/20/2026 STARSHIP PRE-MISSION ADVISORY_FYI |
 | `cand-fb0a46fa1ae3672d` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-20T21:21:00Z | `fact-cd6875ba2747520f` | `fact-cd6875ba2747520f` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 202121-212300 |
+
+## ATCSCC-GOLD-050 / 2026-05-19:043
+
+- Batch: `batch_05`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_05.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_05.md`
+- Priority lane: `3_standard_review`
+- Complexity: `medium` (score=57, est=17 min)
+- Candidate class: `TrafficManagementInitiative`
+- Candidate clusters: 28
+- Cross-system clusters: 28
+- Rejected facts: 0
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=43
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO MESSAGE: FVXX20 KNES 191422 WSI DDS:191425 VA ADVISORY DTG: 20260519/1422Z VAAC: WASHINGTON VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA SOURCE ELEV: 12346 FT AMSL ADVISORY NR: 2026/582 INFO SOURCE: GOES-19. WEBCAM. NWP MODELS. ERUPTION DETAILS: FRQT VA EMS OBS VA DTG: 19/1350Z OBS VA CLD: SFC/FL150 N1429 W09052 - N1427 W09053 - N1415 W09158 - N1429 W09209 - N1429 W09052 MOV SW 15KT FCST VA CLD +6HR: 19/2000Z SFC/FL150 N1429 W09053 - N1428 W09052 - N1402 W09156 - N1416 W09208 - N1429 W09053 FCST VA CLD +12HR: 20/0200Z SFC/FL150 N1429 W09053 - N1428 W09052 - N1404 W09158 - N1420 W09208 - N1429 W09053 FCST VA CLD +18HR: 20/0800Z SF...
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-04299106baecec89` | `S1_llm_only` | `has_volcano_identifier` | 342090 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: FUEGO 342090 |
+| `cand-1748354d26606758` | `S1_llm_only` | `estimated_extent_from_summit` | approx 70 NM WSW | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EXTG APPRX 70 NM WSW FM SUMMIT |
+| `cand-1e59bba76c557898` | `S1_llm_only` | `has_advisory_number` | 2026/582 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADVISORY NR: 2026/582 |
+| `cand-22ec16a2658812cb` | `S1_llm_only` | `expected_shift_by_time_horizon` | shift SW by T+18 HRS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | WSW MVMT EXP TO SHIFT SW BY T+18 HRS |
+| `cand-26505a51e8da3bc4` | `S1_llm_only` | `has_source_elevation` | 12346 FT AMSL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 12346 FT AMSL |
+| `cand-303a63bb0d096eb8` | `S1_llm_only` | `eruption_activity_description` | FRQT VA EMS OBS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: FRQT VA EMS OBS |
+| `cand-319ef57f78332c7e` | `S1_llm_only` | `has_advisory_date_time` | 20260519/1422Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA ADVISORY DTG: 20260519/1422Z |
+| `cand-4dedb5c38e250e6e` | `S1_llm_only` | `observed_in` | WEBCAM | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS OBSD IN WEBCAM |
+| `cand-513e2870ceae629d` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-19T19:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-050:fact-04-0e0eaefac4ce` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-5688449988d35541` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-19T14:25:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-050:fact-03-0a5db8561711` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 14:25 |
+| `cand-5c4e9ac75fba9220` | `S1b_llm_canonicalized` | `advisoryNumber` | 43 | `` | `S1b_llm_canonicalized:2026-05-19:043:fact-fc0325bb927d` | `{"repaired_accepted": 1}` | `{}` | ADVISORY NR: 2026/582 |
+| `cand-8320c7006342b665` | `S1_llm_only` | `observed_in` | STLT IMG | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS OBSD IN WEBCAM AND STLT IMG |
+| `cand-8384b05341be71e2` | `S1_llm_only` | `based_on` | WEBCAM | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MVMT AND HGT BASED ON WEBCAM, STLT OBS AND NWP MDLS |
+| `cand-89bd307ae9d1d5ee` | `S1_llm_only` | `observation_time` | 19/1350Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA DTG: 19/1350Z |
+| `cand-92184801dc9ef3ac` | `S1_llm_only` | `has_advisory_title` | VOLCANIC ACTIVITY BULLETIN - FUEGO | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
+| `cand-935e2f841e7d5561` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-19T14:22:00Z | `fact-4b893ad96835a8d7` | `fact-4b893ad96835a8d7` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 14:25 |
+| `cand-93db1e68bfca7bac` | `S1_llm_only` | `based_on` | NWP MDLS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MVMT AND HGT BASED ON WEBCAM, STLT OBS AND NWP MDLS |
+| `cand-9e7b93f320438d90` | `S1_llm_only` | `based_on` | STLT OBS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MVMT AND HGT BASED ON WEBCAM, STLT OBS AND NWP MDLS |
+| `cand-a53344248a4e07e4` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - FUEGO | `` | `S2_llm_schema_slice:ATCSCC-GOLD-050:fact-01-8faf02405ba6` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
+| `cand-afaf801c0d8dc4eb` | `S1_llm_only` | `observed_movement_direction` | SW | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 15KT |
+| `cand-b09e7ac4ca29c533` | `S1_llm_only` | `observed_flight_level_range` | SFC/FL150 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA CLD: SFC/FL150 |
+| `cand-b1f60397af7edbf3` | `S1_llm_only` | `observed_movement_speed` | 15KT | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 15KT |
+| `cand-cf92eb9bbb161e1a` | `S1_llm_only` | `is_reported_by` | WASHINGTON VAAC | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VAAC: WASHINGTON |
+| `cand-db6c88d073002906` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T00:00:00Z | `fact-3b8e92a773cd4e11` | `fact-3b8e92a773cd4e11` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-de7615779fe65b41` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-19T00:00:00Z | `fact-8eaa87f4c3212715` | `fact-8eaa87f4c3212715` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-deca2a7c31070528` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T19:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-050:fact-05-d7210914c4c8` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-e4f2d514353b927d` | `S1_llm_only` | `is_located_in_area` | GUATEMALA | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: GUATEMALA |
+| `cand-fa1b8ebb4188190d` | `S0_rule_only, S1b_llm_canonicalized, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 43 | `fact-469356323d380955` | `S1b_llm_canonicalized:2026-05-19:043:fact-54703aa81c16, S2_llm_schema_slice:ATCSCC-GOLD-050:fact-02-ca95cd81d018, fact-469356323d380955` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
 
 ## ATCSCC-GOLD-061 / 2026-05-15:017
 
@@ -537,56 +484,6 @@ Candidate clusters:
 | `cand-e8e6c4f1bb3be722` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - KILAUEA | `` | `S2_llm_schema_slice:ATCSCC-GOLD-061:fact-05-cd646f584495` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 017 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA |
 | `cand-fdd8f03df3fd3f0b` | `S1_llm_only` | `is the volcano named in the advisory` | Kilauea | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: KILAUEA |
 
-## ATCSCC-GOLD-072 / 2026-05-17:065
-
-- Batch: `batch_08`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_08.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_08.md`
-- Priority lane: `3_standard_review`
-- Complexity: `medium` (score=57, est=16 min)
-- Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 28
-- Cross-system clusters: 28
-- Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05172026&advn=65
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. USERS SHOULD FUEL ACCORDINGLY. EFFECTIVE TIME: 172012-180330 SIGNATURE: 26/05/17 20:12 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-0836bb48ae941599` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-17T17:20:12Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-02-45f56a27fa6a` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
-| `cand-0bb0125a03fbbbcc` | `S1_llm_only` | `'revision_relation'}` | {'label': 'Advisory 016', 'type': 'advisory_notice'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ***REPLACES / EXTENDS ADVZY 016*** |
-| `cand-0d21c78cfc18986c` | `S3_llm_schema_slice_validator_repair` | `reRouteType` | CDR | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
-| `cand-15ad88bebac63e88` | `S1_llm_only` | `'time_window_relation'}` | {'label': '17/1130 - 18/0300', 'type': 'time_window'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EVENT TIME: 17/1130 - 18/0300 |
-| `cand-23b50ba4dc81e752` | `S1_llm_only` | `'relation'}` | {'label': 'weather', 'type': 'weather_condition'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. |
-| `cand-24a3bf6042403447` | `S1_llm_only` | `'instruction'}` | {'label': 'users', 'type': 'airspace_users'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | USERS SHOULD FUEL ACCORDINGLY. |
-| `cand-27ac2635c157e0bb` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | REPLACES / EXTENDS ADVZY 016; USERS SHOULD FUEL ACCORDINGLY. | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. USERS SHOULD FUEL ACCORDINGLY. |
-| `cand-42e85615939cfaeb` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 65 | `fact-4b1a4174e270c7aa` | `fact-4b1a4174e270c7aa` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
-| `cand-5077c739350a3080` | `S3_llm_schema_slice_validator_repair` | `effectiveEndTime` | 2026-05-18T03:30:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 172012-180330 |
-| `cand-6e056cf7a018cbb0` | `S2_llm_schema_slice` | `controlledNASelement` | ORD | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-09-8c694b72b0c3` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
-| `cand-796e5b613393a7c3` | `S3_llm_schema_slice_validator_repair` | `implementationStatus` | FYI | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
-| `cand-7f9f6f2e67b5491d` | `S2_llm_schema_slice` | `initiativeComments` | EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. USE... | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-07-e05f4374ac1f` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
-| `cand-879f4f1180835934` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-18T03:03:30Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-03-057170929349` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
-| `cand-8ad7891c76a43826` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-18T03:30:00Z | `fact-07590123e8ca37d5` | `fact-07590123e8ca37d5` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 172012-180330 |
-| `cand-8d2e5d2e319a1e2c` | `S2_llm_schema_slice` | `implementationStatus` | FYI | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-04-367ced6578bf` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
-| `cand-8f27da119c90b034` | `S2_llm_schema_slice` | `advisoryNumber` | 65 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-01-bc430cc4feb7` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
-| `cand-92c263e59792f059` | `S1_llm_only` | `'relation'}` | {'label': 'ZAU', 'type': 'air_traffic_facility'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZAU |
-| `cand-a3525d075d9183c3` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-17T20:12:00Z | `fact-7b7d434662f299b0` | `fact-7b7d434662f299b0` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/17 20:12 |
-| `cand-a41dd49d06c4aafa` | `S1b_llm_canonicalized` | `advisoryNumber` | 65 | `` | `S1b_llm_canonicalized:2026-05-17:065:fact-43e765eb448e` | `{"repaired_accepted": 1}` | `{}` | ***REPLACES / EXTENDS ADVZY 016*** |
-| `cand-ac83650d3c94de8a` | `S2_llm_schema_slice` | `controlledNASelement` | ZAU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZAU |
-| `cand-ad091a658aedd71b` | `S2_llm_schema_slice` | `reRouteReason` | WEATHER | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-06-0dccdcd9c75c` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
-| `cand-ae3173c6a8d3ddc2` | `S3_llm_schema_slice_validator_repair` | `effectiveStartTime` | 2026-05-17T20:12:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 172012-180330 |
-| `cand-bc30d4766467fbd3` | `S3_llm_schema_slice_validator_repair` | `reRouteReason` | WEATHER | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. |
-| `cand-c4979921fb96e833` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZAU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZAU |
-| `cand-d86cd55b89470f37` | `S3_llm_schema_slice_validator_repair` | `controlledNASelement` | {'label': 'ZAU', 'type': 'nas:ARTCC'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZAU |
-| `cand-e2a42f88570cefc6` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-17T20:12:00Z | `fact-251e2d256e27a244` | `fact-251e2d256e27a244` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 172012-180330 |
-| `cand-e71777b347fe543f` | `S2_llm_schema_slice` | `controlledNASelement` | MDW | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-10-dfb207818f8d` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
-| `cand-fc6b0f29afb0d6cc` | `S2_llm_schema_slice` | `reRouteType` | CDR | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-05-7b49b7be1069` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
-
 ## ATCSCC-GOLD-041 / 2026-05-18:054
 
 - Batch: `batch_05`
@@ -608,7 +505,6 @@ Candidate clusters:
 
 | Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-0287280efd166879` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | SIGNATURE: 26/05/18 13:57 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/18 13:57 |
 | `cand-0d7f20c246594bb1` | `S2_llm_schema_slice` | `implementationStatus` | RQD | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD ... ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNATE ROUTING. |
 | `cand-1045c190186daf1d` | `S2_llm_schema_slice` | `reRouteReason` | WEATHER | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD ... ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNATE ROUTING. |
 | `cand-17318a6a0c6a8ef0` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-18T13:57:00Z | `fact-999fefd57f1e4856` | `fact-999fefd57f1e4856` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 181357-181630 |
@@ -617,73 +513,25 @@ Candidate clusters:
 | `cand-2cfeb9fe98b30060` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 54 | `fact-d6caf0924fa393aa` | `fact-d6caf0924fa393aa` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD |
 | `cand-32d57d45dd7a83ca` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-18T13:57:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD ... ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNATE ROUTING. |
 | `cand-36132ba27682f08d` | `S1_llm_only` | `'removes'}` | {'label': 'L455', 'type': 'route'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | *REMOVES L455* |
+| `cand-40f5c11e5e2bb44d` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-041:fact-06-13467ee643bf` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. |
 | `cand-456f37f194722a42` | `S1_llm_only` | `'is_closed_due_to'}` | {'label': 'thunderstorms', 'type': 'weather_condition'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. |
 | `cand-4cf1162854bcfe9c` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-18T16:30:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD ... ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNATE ROUTING. |
+| `cand-53082bf9b695d667` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | CONSTRAINED FACILITIES: ZNY | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-041:fact-05-807f926b7375` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | CONSTRAINED FACILITIES: ZNY |
+| `cand-5738151e1e248647` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | USERS SHOULD FILE ALTERNATE ROUTING. | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-041:fact-07-7f5cd7e57220` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | USERS SHOULD FILE ALTERNATE ROUTING. |
 | `cand-5c45f237fb294308` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-18T16:30:00Z | `fact-1c59c351822c0d5e` | `fact-1c59c351822c0d5e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 181357-181630 |
 | `cand-5caeab04cd6aef4c` | `S2_llm_schema_slice` | `reRouteType` | ROUTE | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD ... ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNATE ROUTING. |
+| `cand-7d4c44ca7a997c0a` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | SIGNATURE: 26/05/18 13:57 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-041:fact-03-2da7e936995e` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 13:57 |
 | `cand-92274698b0dbed3c` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-18T13:57:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD ... ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNATE ROUTING. |
-| `cand-9229b9ee1c03099a` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | CONSTRAINED FACILITIES: ZNY | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZNY |
 | `cand-9b2ca28d9b1e64a3` | `S1_llm_only` | `'replaces'}` | {'label': 'advisory 035', 'type': 'advisory'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ***REPLACES ADVZY 035*** |
-| `cand-a7ae44b32c339560` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD |
-| `cand-a8ca574b029dd68f` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | EVENT TIME: 18/1130 - 18/1600 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EVENT TIME: 18/1130 - 18/1600 |
 | `cand-b0d0a176accf52ca` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `implementationStatus` | RQD | `fact-5f2725815065cad1` | `fact-5f2725815065cad1` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | _RQD |
 | `cand-b5f37bebb9882144` | `S2_llm_schema_slice` | `initiativeComments` | OCEANIC ROUTE CLOSURE_RQD | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD ... ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNATE ROUTING. |
-| `cand-bdc0022818fce3cb` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | USERS SHOULD FILE ALTERNATE ROUTING. | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | USERS SHOULD FILE ALTERNATE ROUTING. |
-| `cand-ce83d0fb832a910c` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. |
+| `cand-bab2c9e87f5820a6` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | EVENT TIME: 18/1130 - 18/1600 CONSTRAINED FACILITIES: ZNY ***REPLACES ADVZY 035*** *REMOVES L455* ZNY ADVISES THAT L453 IS CLOSED DUE TO... | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-041:fact-02-181c7d233cf6` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | EVENT TIME: 18/1130 - 18/1600 CONSTRAINED FACILITIES: ZNY ***REPLACES ADVZY 035*** *REMOVES L455* ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNA... |
 | `cand-d1545d44d0f09055` | `S1b_llm_canonicalized` | `advisoryNumber` | 54 | `` | `S1b_llm_canonicalized:2026-05-18:054:fact-10d3088cc8a9` | `{"repaired_accepted": 1}` | `{}` | ***REPLACES ADVZY 035*** |
-| `cand-e01da3ff59c89ba3` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | EVENT TIME: 18/1130 - 18/1600 CONSTRAINED FACILITIES: ZNY ***REPLACES ADVZY 035*** *REMOVES L455* ZNY ADVISES THAT L453 IS CLOSED DUE TO... | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EVENT TIME: 18/1130 - 18/1600 CONSTRAINED FACILITIES: ZNY ***REPLACES ADVZY 035*** *REMOVES L455* ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNA... |
+| `cand-e418feb52b574fec` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | EVENT TIME: 18/1130 - 18/1600 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-041:fact-04-0e4b19d88937` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | EVENT TIME: 18/1130 - 18/1600 |
+| `cand-e455b48a92e25c9e` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-041:fact-01-2fcdd9f115a1` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD |
 | `cand-e45ab184a633715f` | `S1_llm_only` | `'constrains_facility'}` | {'label': 'ZNY', 'type': 'facility'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZNY |
 | `cand-f43b03e61ed3f6cc` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-18T13:57:00Z | `fact-d5bc5b6b960557bd` | `fact-d5bc5b6b960557bd` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 13:57 |
 | `cand-feed894093738348` | `S2_llm_schema_slice` | `advisoryNumber` | 54 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 054 DCC/ZNY 05/18/2026 OCEANIC ROUTE CLOSURE_RQD ... ZNY ADVISES THAT L453 IS CLOSED DUE TO THUNDERSTORMS. USERS SHOULD FILE ALTERNATE ROUTING. |
-
-## ATCSCC-GOLD-067 / 2026-05-15:030
-
-- Batch: `batch_07`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_07.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_07.md`
-- Priority lane: `3_standard_review`
-- Complexity: `medium` (score=55, est=17 min)
-- Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 27
-- Cross-system clusters: 27
-- Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05152026&advn=30
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA MESSAGE: FVXX22 KNES 151223 WSI DDS:151225 VA ADVISORY DTG: 20260515/1223Z VAAC: WASHINGTON VOLCANO: KILAUEA 332010 PSN: N1925 W15517 AREA: HAWAIIAN.IS SOURCE ELEV: 4009 FT AMSL ADVISORY NR: 2026/026 INFO SOURCE: GOES-18. HVO. HONOLULU MWO. WEBCAM. SOCIAL MEDIA. ERUPTION DETAILS: VA EMS ENDED. OBS VA DTG: 15/1201Z OBS VA CLD: VA NOT IDENTIFIABLE FROM SATELLITE DATA. FCST VA CLD +6HR: 15/1800Z NO VA EXP FCST VA CLD +12HR: 16/0000Z NO VA EXP FCST VA CLD +18HR: 16/0600Z NO VA EXP RMK: RECENT VOL EPISODE CEASED AND VA DISPERSED. RESIDUAL VA MAY LINGER IN THE LOW LEVELS NEAR THE SUMMIT. SO2, WATER VAPOR AND OTHER GASES MAY EXTEND FURTHER. ...L...
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-04f373de3af1ffe0` | `S1_llm_only` | `has_consequence` | volcanic ash dispersed | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RECENT VOL EPISODE CEASED AND VA DISPERSED. |
-| `cand-0c6ea835bf22e2a3` | `S3_llm_schema_slice_validator_repair` | `effectiveStartTime` | 2026-05-15T00:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 150000-150000 |
-| `cand-15a28fa17cb35343` | `S1_llm_only` | `has_source_elevation` | 4009 ft AMSL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 4009 FT AMSL |
-| `cand-1834d603bd7c80cf` | `S1_llm_only` | `is_located_in_area` | Hawaiian Islands | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: HAWAIIAN.IS |
-| `cand-1d103e7cedf3c2f7` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-15T12:23:00Z | `fact-853ac37fd042d171` | `fact-853ac37fd042d171` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/15 12:25 |
-| `cand-2243b4c7123eb473` | `S1_llm_only` | `has_forecast_at_plus_6_hours` | no volcanic ash expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 15/1800Z NO VA EXP |
-| `cand-263030572632cccd` | `S1_llm_only` | `may_linger_in` | the low levels near the summit | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RESIDUAL VA MAY LINGER IN THE LOW LEVELS NEAR THE SUMMIT. |
-| `cand-289261c9557b3975` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 30 | `fact-88dde419c1599eee` | `S1b_llm_canonicalized:2026-05-15:030:fact-318186f9544b, fact-88dde419c1599eee` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA |
-| `cand-367da914404ab3ec` | `S1_llm_only` | `has_forecast_at_plus_18_hours` | no volcanic ash expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 16/0600Z NO VA EXP |
-| `cand-3fa856eed3ffa673` | `S1_llm_only` | `has_advisory_number` | 2026/026 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADVISORY NR: 2026/026 |
-| `cand-51a34614b0ad548f` | `S1_llm_only` | `was_observed_at_time` | 2026-05-15T12:01Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA DTG: 15/1201Z |
-| `cand-51a5b176a0e34715` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - KILAUEA | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA |
-| `cand-711767d27c32879b` | `S2_llm_schema_slice, S3_llm_schema_slice_validator_repair` | `issuedTime` | 2026-05-15T12:25:00Z | `` | `` | `{"rejected_schema": 2}` | `{"predicate_not_object_property": 2, "unknown_object_class": 2, "unknown_subject_class": 2}` | SIGNATURE: 26/05/15 12:25 |
-| `cand-79f73afc1c2ff0e5` | `S1_llm_only` | `was_not_identifiable_from` | satellite data | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA CLD: VA NOT IDENTIFIABLE FROM SATELLITE DATA. |
-| `cand-8916645326bf8584` | `S2_llm_schema_slice` | `advisoryNumber` | 30 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA |
-| `cand-915cec3637e890e4` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-15T00:00:00Z | `fact-7221a869538b242e` | `fact-7221a869538b242e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 150000-150000 |
-| `cand-99b622462985ab3e` | `S1_llm_only` | `may_extend_further_than` | residual volcanic ash | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SO2, WATER VAPOR AND OTHER GASES MAY EXTEND FURTHER. |
-| `cand-a0748da08751ab43` | `S1_llm_only` | `effective_time_window` | 150000-150000 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 150000-150000 |
-| `cand-a3771a1351d62d35` | `S1_llm_only` | `has_forecast_at_plus_12_hours` | no volcanic ash expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 16/0000Z NO VA EXP |
-| `cand-a479102971cf6bca` | `S1_llm_only` | `uses_information_sources` | GOES-18, HVO, Honolulu MWO, webcam, social media | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INFO SOURCE: GOES-18. HVO. HONOLULU MWO. WEBCAM. SOCIAL MEDIA. |
-| `cand-b073c0b5630e82ee` | `S1_llm_only` | `has_eruption_status` | ended | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: VA EMS ENDED. |
-| `cand-b4a73320a1583393` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-15T00:00:00Z | `fact-6de5445c423395eb` | `fact-6de5445c423395eb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 150000-150000 |
-| `cand-b846b080926d07b0` | `S1_llm_only` | `has_volcano_identifier` | 332010 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: KILAUEA 332010 |
-| `cand-bb8c17c34ef25e7c` | `S3_llm_schema_slice_validator_repair` | `effectiveEndTime` | 2026-05-15T15:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 150000-150000 |
-| `cand-c12236cf2e5465f3` | `S2_llm_schema_slice` | `initiativeComments` | VA EMS ENDED. OBS VA DTG: 15/1201Z OBS VA CLD: VA NOT IDENTIFIABLE FROM SATELLITE DATA. FCST VA CLD +6HR: 15/1800Z NO VA EXP FCST VA CLD... | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: VA EMS ENDED. OBS VA DTG: 15/1201Z OBS VA CLD: VA NOT IDENTIFIABLE FROM SATELLITE DATA. FCST VA CLD +6HR: 15/1800Z NO VA EXP FCST VA CLD +12HR: 16/0000Z NO VA... |
-| `cand-edaf08f398406d89` | `S1b_llm_canonicalized` | `advisoryNumber` | 30 | `` | `S1b_llm_canonicalized:2026-05-15:030:fact-c106e41a607f` | `{"repaired_accepted": 1}` | `{}` | ADVISORY NR: 2026/026 |
-| `cand-f2f0bc571c94761b` | `S1_llm_only` | `identifies_current_hazard_as` | volcanic activity bulletin for Kilauea | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA |
 
 ## ATCSCC-GOLD-068 / 2026-05-18:126
 
@@ -734,6 +582,104 @@ Candidate clusters:
 | `cand-f47f15ceeca0b97b` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | GS CNX PERIOD: 18/2030Z - 19/0003Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-068:fact-07-ec831115a5ea` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EFFECTIVE TIME: 182033-190103 |
 | `cand-f4d9617286cd213e` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:STL | `` | `S1b_llm_canonicalized:2026-05-18:126:fact-0374dbf8862d` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: STL ELEMENT TYPE: APT ADL TIME: 2030Z GS CNX PERIOD: 18/2030Z - 19/0003Z COMMENTS: |
 
+## ATCSCC-GOLD-072 / 2026-05-17:065
+
+- Batch: `batch_08`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_08.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_08.md`
+- Priority lane: `3_standard_review`
+- Complexity: `medium` (score=55, est=16 min)
+- Candidate class: `TrafficManagementInitiative`
+- Candidate clusters: 27
+- Cross-system clusters: 27
+- Rejected facts: 0
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05172026&advn=65
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. USERS SHOULD FUEL ACCORDINGLY. EFFECTIVE TIME: 172012-180330 SIGNATURE: 26/05/17 20:12 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-0836bb48ae941599` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-17T17:20:12Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-02-45f56a27fa6a` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
+| `cand-0bb0125a03fbbbcc` | `S1_llm_only` | `'revision_relation'}` | {'label': 'Advisory 016', 'type': 'advisory_notice'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ***REPLACES / EXTENDS ADVZY 016*** |
+| `cand-15ad88bebac63e88` | `S1_llm_only` | `'time_window_relation'}` | {'label': '17/1130 - 18/0300', 'type': 'time_window'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EVENT TIME: 17/1130 - 18/0300 |
+| `cand-21cfea67cbed7452` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `reRouteReason` | WEATHER | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-072:fact-03-cfa36e8bcdae` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. |
+| `cand-23b50ba4dc81e752` | `S1_llm_only` | `'relation'}` | {'label': 'weather', 'type': 'weather_condition'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. |
+| `cand-24a3bf6042403447` | `S1_llm_only` | `'instruction'}` | {'label': 'users', 'type': 'airspace_users'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | USERS SHOULD FUEL ACCORDINGLY. |
+| `cand-2eca25b9000d6888` | `S3_llm_schema_slice_validator_repair` | `effectiveEndTime` | 2026-05-18T03:30:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-072:fact-06-4668cd3fc328` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 172012-180330 |
+| `cand-39849942b7010605` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | REPLACES / EXTENDS ADVZY 016; USERS SHOULD FUEL ACCORDINGLY. | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-072:fact-07-66695e028b74` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. USERS SHOULD FUEL ACCORDINGLY. |
+| `cand-42e85615939cfaeb` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 65 | `fact-4b1a4174e270c7aa` | `fact-4b1a4174e270c7aa` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
+| `cand-6e056cf7a018cbb0` | `S2_llm_schema_slice` | `controlledNASelement` | ORD | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-09-8c694b72b0c3` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
+| `cand-7f9f6f2e67b5491d` | `S2_llm_schema_slice` | `initiativeComments` | EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CDRS DUE TO WEATHER. USE... | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-07-e05f4374ac1f` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
+| `cand-879f4f1180835934` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-18T03:03:30Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-03-057170929349` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
+| `cand-8ad7891c76a43826` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-18T03:30:00Z | `fact-07590123e8ca37d5` | `fact-07590123e8ca37d5` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 172012-180330 |
+| `cand-8d2e5d2e319a1e2c` | `S2_llm_schema_slice` | `implementationStatus` | FYI | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-04-367ced6578bf` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
+| `cand-8f27da119c90b034` | `S2_llm_schema_slice` | `advisoryNumber` | 65 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-01-bc430cc4feb7` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
+| `cand-92c263e59792f059` | `S1_llm_only` | `'relation'}` | {'label': 'ZAU', 'type': 'air_traffic_facility'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZAU |
+| `cand-99cd03cfa1c5c9a1` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `implementationStatus` | FYI | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-072:fact-01-9b3a5bf60958` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
+| `cand-a3525d075d9183c3` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-17T20:12:00Z | `fact-7b7d434662f299b0` | `fact-7b7d434662f299b0` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/17 20:12 |
+| `cand-a41dd49d06c4aafa` | `S1b_llm_canonicalized` | `advisoryNumber` | 65 | `` | `S1b_llm_canonicalized:2026-05-17:065:fact-43e765eb448e` | `{"repaired_accepted": 1}` | `{}` | ***REPLACES / EXTENDS ADVZY 016*** |
+| `cand-a8102388957c1dc3` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `reRouteType` | CDR | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-072:fact-02-481fbb3af60f` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
+| `cand-ac83650d3c94de8a` | `S2_llm_schema_slice, S3_llm_schema_slice_validator_repair` | `controlledNASelement` | ZAU | `` | `` | `{"rejected_schema": 2}` | `{"range_violation": 2}` | CONSTRAINED FACILITIES: ZAU |
+| `cand-ad091a658aedd71b` | `S2_llm_schema_slice` | `reRouteReason` | WEATHER | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-06-0dccdcd9c75c` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
+| `cand-c4979921fb96e833` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZAU | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZAU |
+| `cand-cc26ce8be61bff4a` | `S3_llm_schema_slice_validator_repair` | `effectiveStartTime` | 2026-05-17T20:12:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-072:fact-05-f5f7a2714d1f` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 172012-180330 |
+| `cand-e2a42f88570cefc6` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-17T20:12:00Z | `fact-251e2d256e27a244` | `fact-251e2d256e27a244` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 172012-180330 |
+| `cand-e71777b347fe543f` | `S2_llm_schema_slice` | `controlledNASelement` | MDW | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-10-dfb207818f8d` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI |
+| `cand-fc6b0f29afb0d6cc` | `S2_llm_schema_slice` | `reRouteType` | CDR | `` | `S2_llm_schema_slice:ATCSCC-GOLD-072:fact-05-7b49b7be1069` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 065 DCC/ZAU 05/17/2026 ORD MDW CDRS_FYI MESSAGE: EVENT TIME: 17/1130 - 18/0300 CONSTRAINED FACILITIES: ZAU ***REPLACES / EXTENDS ADVZY 016*** ZAU IS IMPLEMENTING CD... |
+
+## ATCSCC-GOLD-077 / 2026-05-19:001
+
+- Batch: `batch_08`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_08.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_08.md`
+- Priority lane: `3_standard_review`
+- Complexity: `medium` (score=55, est=17 min)
+- Candidate class: `TrafficManagementInitiative`
+- Candidate clusters: 27
+- Cross-system clusters: 27
+- Rejected facts: 0
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=1
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL MESSAGE: FVXX24 KNES 190010 WSI DDS:190011 VA ADVISORY DTG: 20260519/0010Z VAAC: WASHINGTON VOLCANO: POPOCATEPETL 341090 PSN: N1901 W09837 AREA: MEXICO SOURCE ELEV: 17693 FT AMSL ADVISORY NR: 2026/195 INFO SOURCE: GOES-19. NWP MODELS. ERUPTION DETAILS: OCNL VA EMS EST VA DTG: 18/2356Z EST VA CLD: SFC/FL220 N1911 W09828 - N1909 W09825 - N1901 W09837 - N1901 W09837 - N1911 W09828 MOV NE 15KT FCST VA CLD +6HR: 19/0600Z SFC/FL220 N1911 W09826 - N1908 W09824 - N1901 W09837 - N1901 W09837 - N1911 W09826 FCST VA CLD +12HR: 19/1200Z NO VA EXP FCST VA CLD +18HR: 19/1800Z NO VA EXP RMK: VA NOT DETECTED IN STLT IMG. VA EMS MAY CONT. MDL GUIDANC...
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-01135dad86d3898a` | `S1_llm_only` | `forecast_status_is` | {'label': 'No volcanic ash expected', 'type': 'forecast_status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 19/1800Z NO VA EXP |
+| `cand-02befe81e9fafb0d` | `S1_llm_only` | `has_advisory_date_time` | {'label': '20260519/0010Z', 'type': 'advisory_time'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA ADVISORY DTG: 20260519/0010Z |
+| `cand-097da75ed102db97` | `S1b_llm_canonicalized` | `advisoryNumber` | 1 | `` | `S1b_llm_canonicalized:2026-05-19:001:fact-f7502b674cfb` | `{"repaired_accepted": 1}` | `{}` | ADVISORY NR: 2026/195 |
+| `cand-141fdab2d06be4af` | `S1_llm_only` | `observation_result_is` | {'label': 'Volcanic ash not detected', 'type': 'observation_result'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RMK: VA NOT DETECTED IN STLT IMG. |
+| `cand-19042885bb391bc1` | `S1_llm_only` | `movement_speed_is` | {'label': '15KT', 'type': 'speed'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV NE 15KT |
+| `cand-1e90c46027b5bd54` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T00:00:00Z | `fact-f7a02b5ba9acb313` | `fact-f7a02b5ba9acb313` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-271cb418bd5158af` | `S1_llm_only` | `has_advisory_identifier` | {'label': 'ATCSCC ADVZY 001 DCC 05/19/2026', 'type': 'advisory_identifier'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
+| `cand-2e50a5b90dc6c6d6` | `S1_llm_only` | `has_topic` | {'label': 'Volcanic activity bulletin for Popocatepetl', 'type': 'bulletin_topic'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
+| `cand-3597279457eef4b0` | `S1_llm_only` | `information_sources_include` | {'label': 'GOES-19', 'type': 'information_source'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INFO SOURCE: GOES-19. NWP MODELS. |
+| `cand-67167b774eae24e0` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T19:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-077:fact-05-71c6946a4e1a` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-74d6d3822f295a74` | `S0_rule_only, S1b_llm_canonicalized, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 1 | `fact-b54fa527bc44e98c` | `S1b_llm_canonicalized:2026-05-19:001:fact-ee85887d521f, S2_llm_schema_slice:ATCSCC-GOLD-077:fact-03-b66514161822, fact-b54fa527bc44e98c` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
+| `cand-88ca64d174f7f54f` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-19T00:10:00Z | `fact-c53bd3aff66401f4` | `fact-c53bd3aff66401f4` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 00:11 |
+| `cand-957b310ccafb7952` | `S0_rule_only, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-19T00:00:00Z | `fact-0b8010e63df903b9` | `S2_llm_schema_slice:ATCSCC-GOLD-077:fact-04-397308d0c0ce, fact-0b8010e63df903b9` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-96f245b3cbd0ace1` | `S1_llm_only` | `estimated_vertical_extent_is` | {'label': 'SFC/FL220', 'type': 'vertical_extent'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA CLD: SFC/FL220 |
+| `cand-a4f0da697fba746c` | `S1_llm_only` | `estimated_time_is` | {'label': '18/2356Z', 'type': 'time_expression'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA DTG: 18/2356Z |
+| `cand-ab14fe6982e53705` | `S1_llm_only` | `suggests_movement_toward` | {'label': 'NE through T+6', 'type': 'movement_prediction'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MDL GUIDANCE SUGGESTS NE MVMT THRU T+6. |
+| `cand-ab576cd3d739f196` | `S1_llm_only` | `forecast_time_is` | {'label': '19/0600Z', 'type': 'time_expression'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 19/0600Z SFC/FL220 N1911 W09826 - N1908 W09824 - N1901 W09837 - N1901 W09837 - N1911 W09826 |
+| `cand-b3a2cc4afbc20660` | `S1_llm_only` | `information_sources_include` | {'label': 'NWP models', 'type': 'information_source'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INFO SOURCE: GOES-19. NWP MODELS. |
+| `cand-c4b4967d23dbe62d` | `S1_llm_only` | `moves_toward` | {'label': 'NE', 'type': 'direction'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV NE 15KT |
+| `cand-c9e4068af9a45397` | `S1_llm_only` | `located_in_area` | {'label': 'Mexico', 'type': 'geographic_area'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: MEXICO |
+| `cand-cd6e8e920a460b50` | `S1_llm_only` | `may_continue` | {'label': 'Yes', 'type': 'continuation_status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS MAY CONT. |
+| `cand-ce060656f2947954` | `S1_llm_only` | `source_elevation_is` | {'label': '17693 FT AMSL', 'type': 'elevation'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 17693 FT AMSL |
+| `cand-d5b00f1d03babea5` | `S1_llm_only` | `forecast_status_is` | {'label': 'No volcanic ash expected', 'type': 'forecast_status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 19/1200Z NO VA EXP |
+| `cand-e298beb364a9b9cc` | `S2_llm_schema_slice, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL | `` | `S2_llm_schema_slice:ATCSCC-GOLD-077:fact-02-7c908a0e24ab, S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-077:fact-01-0ccc33d98c88` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 001 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
+| `cand-ea32fc75f9dff69d` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-19T00:11:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-077:fact-01-468e6ae70661` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 00:11 |
+| `cand-eb771c8d76e8e440` | `S1_llm_only` | `has_advisory_number` | {'label': '2026/195', 'type': 'advisory_number'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADVISORY NR: 2026/195 |
+| `cand-ed056718a192127e` | `S1_llm_only` | `eruption_details_state` | {'label': 'Occasional volcanic ash emissions', 'type': 'eruption_detail'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: OCNL VA EMS |
+
 ## ATCSCC-GOLD-093 / 2026-05-18:060
 
 - Batch: `batch_10`
@@ -783,54 +729,6 @@ Candidate clusters:
 | `cand-e8ddef3480df7175` | `S1_llm_only` | `'activated_diversion_recovery_tool_for'}` | {'label': 'STL Airport', 'type': 'airport'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | THE ATCSCC HAS ACTIVATED THE DIVERSION RECOVERY TOOL FOR STL AIRPORT. |
 | `cand-fe791620f05d7cf2` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZKC | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZKC |
 
-## ATCSCC-GOLD-062 / 2026-05-20:029
-
-- Batch: `batch_07`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_07.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_07.md`
-- Priority lane: `3_standard_review`
-- Complexity: `medium` (score=53, est=17 min)
-- Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 26
-- Cross-system clusters: 26
-- Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=29
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO MESSAGE: FVXX20 KNES 200210 CCA WSI DDS:200212 VA ADVISORY -CORRECTION DTG: 20260520/0210Z VAAC: WASHINGTON VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA SOURCE ELEV: 12346 FT AMSL ADVISORY NR: 2026/585 INFO SOURCE: GOES-19. NWP MODELS. ERUPTION DETAILS: ONGOING VA EMS EST VA DTG: 20/0140Z EST VA CLD: SFC/FL140 N1428 W09052 - N1428 W09052 - N1420 W09101 - N1423 W09104 - N1428 W09052 MOV SW 10KT FCST VA CLD +6HR: 20/0730Z SFC/FL140 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1423 W09103 - N1428 W09052 FCST VA CLD +12HR: 20/1330Z SFC/FL140 N1428 W09053 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09053 FCST VA CLD +18HR:...
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-03539ede3acddc42` | `S1_llm_only` | `'announces bulletin about'}` | {'label': 'volcanic activity bulletin for Fuego', 'text': 'VOLCANIC ACTIVITY BULLETIN - FUEGO'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-0b47b4c3f64a5cff` | `S1_llm_only` | `'is located in'}` | {'label': 'Guatemala', 'text': 'AREA: GUATEMALA'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA |
-| `cand-0e9c625753fcbe4c` | `S1_llm_only` | `'forecast valid at'}` | {'label': '2026-05-20 19:30Z', 'text': '20/1930Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 20/1930Z SFC/FL140 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09052 |
-| `cand-11ee12904048f60f` | `S2_llm_schema_slice` | `advisoryNumber` | 29 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-187bdb13b579f4bd` | `S1_llm_only` | `'gives reason'}` | {'label': 'weather clouds in summit area', 'text': 'WX CLDS IN SUMMIT AREA'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA. |
-| `cand-34363e02975eddb6` | `S1_llm_only` | `'has source elevation'}` | {'label': '12346 ft amsl', 'text': 'SOURCE ELEV: 12346 FT AMSL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 12346 FT AMSL |
-| `cand-49dbf4cffb0a7bb5` | `S1_llm_only` | `'has correction timestamp'}` | {'label': '2026-05-20 02:10Z', 'text': 'DTG: 20260520/0210Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA ADVISORY -CORRECTION DTG: 20260520/0210Z |
-| `cand-4bde08d0c6209e5a` | `S1_llm_only` | `'predicts continued emissions'}` | {'label': 'likely continue', 'text': 'LIKELY CONTINUE'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS LIKELY CONTINUE GIVEN RECENT ACTVTY. |
-| `cand-5005068bf2259314` | `S1_llm_only` | `'has speed'}` | {'label': '10 knots', 'text': 'MOV SW 10KT'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 10KT |
-| `cand-6fc2b57d4d8e27a4` | `S1_llm_only` | `'forecasts no change in model winds'}` | {'label': 'next 18 hours', 'text': 'NXT 18 HR'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NO CHG FCST TO MDL WINDS AT FL NXT 18 HR. |
-| `cand-78637095de6c89cd` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - FUEGO | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-79d10aefbd3fde91` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-20T00:00:00Z | `fact-6d2b82906f6b299a` | `fact-6d2b82906f6b299a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
-| `cand-8e12432071543bd1` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-20T20:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 200000-200000 |
-| `cand-91e77062fc6ee085` | `S1_llm_only` | `'has vertical extent'}` | {'label': 'surface to flight level 140', 'text': 'SFC/FL140'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA CLD: SFC/FL140 N1428 W09052 - N1428 W09052 - N1420 W09101 - N1423 W09104 - N1428 W09052 |
-| `cand-a951d3b444750dc2` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T02:10:00Z | `fact-7461d6ff933b29cb` | `fact-7461d6ff933b29cb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 02:12 |
-| `cand-aedf2766318f8126` | `S1_llm_only` | `'forecast valid at'}` | {'label': '2026-05-20 07:30Z', 'text': '20/0730Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 20/0730Z SFC/FL140 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1423 W09103 - N1428 W09052 |
-| `cand-af732b6f50f875e3` | `S1b_llm_canonicalized` | `impactingCondition` | weather clouds in summit area wx clds in summit area | `` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1}` | VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA. |
-| `cand-b0221292e3ffd50f` | `S1_llm_only` | `'estimated start time'}` | {'label': '2026-05-20 01:40Z', 'text': '20/0140Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS EST VA DTG: 20/0140Z |
-| `cand-d92fa552f8a73a89` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 29 | `fact-ff3d1c04c10e6c69` | `S1b_llm_canonicalized:2026-05-20:029:fact-d77d0dceac79, fact-ff3d1c04c10e6c69` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-db9b70461b294595` | `S1_llm_only` | `'states eruption status'}` | {'label': 'ongoing', 'text': 'ONGOING'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: ONGOING |
-| `cand-e8e62d03c93c4142` | `S1_llm_only` | `'reports detection status'}` | {'label': 'not detected on satellite', 'text': 'VA NOT DETECTED ON STLT'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA. |
-| `cand-ee234e5421e6ffdd` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-20T20:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 200000-200000 |
-| `cand-fae275b5c2185e15` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-20T02:12:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/20 02:12 |
-| `cand-fc81de610a47f111` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-20T00:00:00Z | `fact-d477602884e8e756` | `fact-d477602884e8e756` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
-| `cand-fe08dda77b540b98` | `S1_llm_only` | `'forecast valid at'}` | {'label': '2026-05-20 13:30Z', 'text': '20/1330Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 20/1330Z SFC/FL140 N1428 W09053 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09053 |
-| `cand-fe4f6b0e2ccdec45` | `S1_llm_only` | `'moves toward'}` | {'label': 'southwest', 'text': 'MOV SW 10KT'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 10KT |
-
 ## ATCSCC-GOLD-086 / 2026-05-16:046
 
 - Batch: `batch_09`
@@ -856,27 +754,27 @@ Candidate clusters:
 | `cand-078f37d973872f0a` | `S1_llm_only` | `states_eruption_details` | NOT PROVIDED | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: NOT PROVIDED |
 | `cand-0b363d1a5694336b` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-16T15:36:00Z | `fact-6f7061c63c6dc623` | `fact-6f7061c63c6dc623` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/16 15:38 |
 | `cand-0cdcf31b7acb54c8` | `S1_llm_only` | `has_position` | N5558 E16035 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PSN: N5558 E16035 |
-| `cand-120a1a33edd8e9ff` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-16T16:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 160000-160000 |
 | `cand-1dedd5ac05eb5cbd` | `S1_llm_only` | `has_subject_line` | VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 046 DCC 05/16/2026 VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY |
 | `cand-1e8ea5c7f33dbfb7` | `S1_llm_only` | `states_forecast_volcanic_ash_cloud_plus_12_hours` | NOT PROVIDED | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 17/0300Z NOT PROVIDED |
 | `cand-1f2d5d450281345e` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 46 | `fact-c9cf3a1a86f388bf` | `S1b_llm_canonicalized:2026-05-16:046:fact-d01fceda1fcf, fact-c9cf3a1a86f388bf` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 046 DCC 05/16/2026 VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY |
-| `cand-235aaa6e475751c5` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-16T16:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 160000-160000 |
 | `cand-264c9f98bffef555` | `S1_llm_only` | `has_effective_time_window` | 160000-160000 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 160000-160000 |
 | `cand-3df3714097b3d05e` | `S1_llm_only` | `includes_remarks` | PLEASE SEE FVFE01 RJTD 161200 ISSUED BY THE TOKYO VAAC THAT DESCRIBES CONDITIONS NEAR THE ANCHORAGE VAAC AREA OF RESPONSIBILITY. | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RMK: PLEASE SEE FVFE01 RJTD 161200 ISSUED BY THE TOKYO VAAC THAT DESCRIBES CONDITIONS NEAR THE ANCHORAGE VAAC AREA OF RESPONSIBILITY. |
+| `cand-5a4b9a6c9be24e60` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-16T16:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-086:fact-04-f1ba37c60391` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 160000-160000 |
 | `cand-796af776698e8cd3` | `S1_llm_only` | `has_information_source` | TOKYO VAAC | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INFO SOURCE: TOKYO VAAC. |
 | `cand-7d4176d90c5e29fc` | `S1_llm_only` | `reports_issued_datetime` | 20260516/1536Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA ADVISORY DTG: 20260516/1536Z |
 | `cand-867d45fb43613d03` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-16T00:00:00Z | `fact-647988b904d5bbcc` | `fact-647988b904d5bbcc` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 160000-160000 |
-| `cand-86bf9e76b6b18d90` | `S2_llm_schema_slice` | `advisoryNumber` | 46 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 046 |
 | `cand-8fb83001bff4211a` | `S1b_llm_canonicalized` | `advisoryNumber` | 46 | `` | `S1b_llm_canonicalized:2026-05-16:046:fact-a01dc62ec19a` | `{"repaired_accepted": 1}` | `{}` | ADVISORY NR: 2026/001 |
+| `cand-9021ae04186b74ab` | `S2_llm_schema_slice` | `advisoryNumber` | 46 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-086:fact-01-7e7933c0279a` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 046 |
+| `cand-905feca8a9f50edb` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-16T15:38:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-086:fact-02-929189028224` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/16 15:38 |
+| `cand-9745407ebe8135a7` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-16T16:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-086:fact-03-800f3a1a01be` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 160000-160000 |
 | `cand-9a03559eed29a0a2` | `S1_llm_only` | `states_forecast_volcanic_ash_cloud_plus_18_hours` | NOT PROVIDED | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 17/0900Z NOT PROVIDED |
-| `cand-b34f9a72478d0edd` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-16T15:38:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/16 15:38 |
 | `cand-bb064abb171c665f` | `S1_llm_only` | `cites_advisory_number` | 2026/001 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADVISORY NR: 2026/001 |
 | `cand-c5d488d378858983` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-16T00:00:00Z | `fact-929541e916d3c7cc` | `fact-929541e916d3c7cc` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 160000-160000 |
-| `cand-c8ab1566e3d17638` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 046 DCC 05/16/2026 VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY |
 | `cand-d0dbcdf471b89412` | `S1_llm_only` | `has_source_elevation` | 9455 FT AMSL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 9455 FT AMSL |
 | `cand-d86486a4e50b44e3` | `S1_llm_only` | `states_observed_volcanic_ash_cloud` | NOT PROVIDED | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA CLD: NOT PROVIDED |
 | `cand-e1c7fd94debae5f5` | `S1_llm_only` | `is_in_area` | KAMCHATKA | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: KAMCHATKA |
 | `cand-e88bc7c2ec2db28b` | `S1_llm_only` | `states_forecast_volcanic_ash_cloud_plus_6_hours` | NOT PROVIDED | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 16/2100Z NOT PROVIDED |
+| `cand-eebb40b237360edc` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY | `` | `S2_llm_schema_slice:ATCSCC-GOLD-086:fact-05-b72a0775eddd` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 046 DCC 05/16/2026 VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY |
 | `cand-f2027cdf9be56ce8` | `S1_llm_only` | `states_observed_volcanic_ash_datetime` | NOT PROVIDED | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA DTG: NOT PROVIDED |
 
 ## ATCSCC-GOLD-088 / 2026-05-18:021
@@ -1020,6 +918,100 @@ Candidate clusters:
 | `cand-e57efb8af8879b6e` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - SANTA | `` | `S2_llm_schema_slice:ATCSCC-GOLD-051:fact-03-6f918d244e92` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 030 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - SANTA |
 | `cand-f03f2b5a04f1bbb6` | `S1_llm_only` | `forecast position at +6 hours` | SFC/FL140 near N1446 W09133 - N1446 W09132 - N1423 W09131 - N1426 W09143 - N1446 W09133 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 14/1400Z SFC/FL140 N1446 W09133 - N1446 W09132 - N1423 W09131 - N1426 W09143 - N1446 W09133 |
 | `cand-fdfa6d00e2ef62c6` | `S1_llm_only` | `has volcano advisory bulletin` | ATCSCC ADVZY 030 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 030 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - SANTA |
+
+## ATCSCC-GOLD-062 / 2026-05-20:029
+
+- Batch: `batch_07`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_07.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_07.md`
+- Priority lane: `3_standard_review`
+- Complexity: `medium` (score=51, est=17 min)
+- Candidate class: `TrafficManagementInitiative`
+- Candidate clusters: 25
+- Cross-system clusters: 25
+- Rejected facts: 0
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=29
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO MESSAGE: FVXX20 KNES 200210 CCA WSI DDS:200212 VA ADVISORY -CORRECTION DTG: 20260520/0210Z VAAC: WASHINGTON VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA SOURCE ELEV: 12346 FT AMSL ADVISORY NR: 2026/585 INFO SOURCE: GOES-19. NWP MODELS. ERUPTION DETAILS: ONGOING VA EMS EST VA DTG: 20/0140Z EST VA CLD: SFC/FL140 N1428 W09052 - N1428 W09052 - N1420 W09101 - N1423 W09104 - N1428 W09052 MOV SW 10KT FCST VA CLD +6HR: 20/0730Z SFC/FL140 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1423 W09103 - N1428 W09052 FCST VA CLD +12HR: 20/1330Z SFC/FL140 N1428 W09053 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09053 FCST VA CLD +18HR:...
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-03539ede3acddc42` | `S1_llm_only` | `'announces bulletin about'}` | {'label': 'volcanic activity bulletin for Fuego', 'text': 'VOLCANIC ACTIVITY BULLETIN - FUEGO'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
+| `cand-0b47b4c3f64a5cff` | `S1_llm_only` | `'is located in'}` | {'label': 'Guatemala', 'text': 'AREA: GUATEMALA'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA |
+| `cand-0e9c625753fcbe4c` | `S1_llm_only` | `'forecast valid at'}` | {'label': '2026-05-20 19:30Z', 'text': '20/1930Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 20/1930Z SFC/FL140 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09052 |
+| `cand-1118098dd2978951` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - FUEGO | `` | `S2_llm_schema_slice:ATCSCC-GOLD-062:fact-05-a60fb372e075` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
+| `cand-187bdb13b579f4bd` | `S1_llm_only` | `'gives reason'}` | {'label': 'weather clouds in summit area', 'text': 'WX CLDS IN SUMMIT AREA'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA. |
+| `cand-34363e02975eddb6` | `S1_llm_only` | `'has source elevation'}` | {'label': '12346 ft amsl', 'text': 'SOURCE ELEV: 12346 FT AMSL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 12346 FT AMSL |
+| `cand-49dbf4cffb0a7bb5` | `S1_llm_only` | `'has correction timestamp'}` | {'label': '2026-05-20 02:10Z', 'text': 'DTG: 20260520/0210Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA ADVISORY -CORRECTION DTG: 20260520/0210Z |
+| `cand-4bde08d0c6209e5a` | `S1_llm_only` | `'predicts continued emissions'}` | {'label': 'likely continue', 'text': 'LIKELY CONTINUE'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS LIKELY CONTINUE GIVEN RECENT ACTVTY. |
+| `cand-5005068bf2259314` | `S1_llm_only` | `'has speed'}` | {'label': '10 knots', 'text': 'MOV SW 10KT'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 10KT |
+| `cand-66119b8494f16e08` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-20T20:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-062:fact-03-6df119be76ab` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
+| `cand-6fc2b57d4d8e27a4` | `S1_llm_only` | `'forecasts no change in model winds'}` | {'label': 'next 18 hours', 'text': 'NXT 18 HR'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NO CHG FCST TO MDL WINDS AT FL NXT 18 HR. |
+| `cand-79d10aefbd3fde91` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-20T00:00:00Z | `fact-6d2b82906f6b299a` | `fact-6d2b82906f6b299a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
+| `cand-89781fccce2afac1` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-20T02:12:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-062:fact-02-5e8b42425796` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 02:12 |
+| `cand-91e77062fc6ee085` | `S1_llm_only` | `'has vertical extent'}` | {'label': 'surface to flight level 140', 'text': 'SFC/FL140'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA CLD: SFC/FL140 N1428 W09052 - N1428 W09052 - N1420 W09101 - N1423 W09104 - N1428 W09052 |
+| `cand-a951d3b444750dc2` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T02:10:00Z | `fact-7461d6ff933b29cb` | `fact-7461d6ff933b29cb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 02:12 |
+| `cand-aedf2766318f8126` | `S1_llm_only` | `'forecast valid at'}` | {'label': '2026-05-20 07:30Z', 'text': '20/0730Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 20/0730Z SFC/FL140 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1423 W09103 - N1428 W09052 |
+| `cand-af732b6f50f875e3` | `S1b_llm_canonicalized` | `impactingCondition` | weather clouds in summit area wx clds in summit area | `` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1}` | VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA. |
+| `cand-b0221292e3ffd50f` | `S1_llm_only` | `'estimated start time'}` | {'label': '2026-05-20 01:40Z', 'text': '20/0140Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS EST VA DTG: 20/0140Z |
+| `cand-d26cc8dfedcfe16a` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-20T20:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-062:fact-04-f176829161de` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
+| `cand-d92fa552f8a73a89` | `S0_rule_only, S1b_llm_canonicalized, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 29 | `fact-ff3d1c04c10e6c69` | `S1b_llm_canonicalized:2026-05-20:029:fact-d77d0dceac79, S2_llm_schema_slice:ATCSCC-GOLD-062:fact-01-ae031b5928e7, fact-ff3d1c04c10e6c69` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | ATCSCC ADVZY 029 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
+| `cand-db9b70461b294595` | `S1_llm_only` | `'states eruption status'}` | {'label': 'ongoing', 'text': 'ONGOING'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: ONGOING |
+| `cand-e8e62d03c93c4142` | `S1_llm_only` | `'reports detection status'}` | {'label': 'not detected on satellite', 'text': 'VA NOT DETECTED ON STLT'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA. |
+| `cand-fc81de610a47f111` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-20T00:00:00Z | `fact-d477602884e8e756` | `fact-d477602884e8e756` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
+| `cand-fe08dda77b540b98` | `S1_llm_only` | `'forecast valid at'}` | {'label': '2026-05-20 13:30Z', 'text': '20/1330Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 20/1330Z SFC/FL140 N1428 W09053 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09053 |
+| `cand-fe4f6b0e2ccdec45` | `S1_llm_only` | `'moves toward'}` | {'label': 'southwest', 'text': 'MOV SW 10KT'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 10KT |
+
+## ATCSCC-GOLD-067 / 2026-05-15:030
+
+- Batch: `batch_07`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_07.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_07.md`
+- Priority lane: `3_standard_review`
+- Complexity: `medium` (score=51, est=17 min)
+- Candidate class: `TrafficManagementInitiative`
+- Candidate clusters: 25
+- Cross-system clusters: 25
+- Rejected facts: 0
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05152026&advn=30
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA MESSAGE: FVXX22 KNES 151223 WSI DDS:151225 VA ADVISORY DTG: 20260515/1223Z VAAC: WASHINGTON VOLCANO: KILAUEA 332010 PSN: N1925 W15517 AREA: HAWAIIAN.IS SOURCE ELEV: 4009 FT AMSL ADVISORY NR: 2026/026 INFO SOURCE: GOES-18. HVO. HONOLULU MWO. WEBCAM. SOCIAL MEDIA. ERUPTION DETAILS: VA EMS ENDED. OBS VA DTG: 15/1201Z OBS VA CLD: VA NOT IDENTIFIABLE FROM SATELLITE DATA. FCST VA CLD +6HR: 15/1800Z NO VA EXP FCST VA CLD +12HR: 16/0000Z NO VA EXP FCST VA CLD +18HR: 16/0600Z NO VA EXP RMK: RECENT VOL EPISODE CEASED AND VA DISPERSED. RESIDUAL VA MAY LINGER IN THE LOW LEVELS NEAR THE SUMMIT. SO2, WATER VAPOR AND OTHER GASES MAY EXTEND FURTHER. ...L...
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-04f373de3af1ffe0` | `S1_llm_only` | `has_consequence` | volcanic ash dispersed | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RECENT VOL EPISODE CEASED AND VA DISPERSED. |
+| `cand-15a28fa17cb35343` | `S1_llm_only` | `has_source_elevation` | 4009 ft AMSL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 4009 FT AMSL |
+| `cand-1834d603bd7c80cf` | `S1_llm_only` | `is_located_in_area` | Hawaiian Islands | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: HAWAIIAN.IS |
+| `cand-1d103e7cedf3c2f7` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-15T12:23:00Z | `fact-853ac37fd042d171` | `fact-853ac37fd042d171` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/15 12:25 |
+| `cand-2243b4c7123eb473` | `S1_llm_only` | `has_forecast_at_plus_6_hours` | no volcanic ash expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 15/1800Z NO VA EXP |
+| `cand-263030572632cccd` | `S1_llm_only` | `may_linger_in` | the low levels near the summit | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RESIDUAL VA MAY LINGER IN THE LOW LEVELS NEAR THE SUMMIT. |
+| `cand-289261c9557b3975` | `S0_rule_only, S1b_llm_canonicalized, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 30 | `fact-88dde419c1599eee` | `S1b_llm_canonicalized:2026-05-15:030:fact-318186f9544b, S2_llm_schema_slice:ATCSCC-GOLD-067:fact-01-494450cae8c2, fact-88dde419c1599eee` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA |
+| `cand-33a9b374ec0e35f3` | `S2_llm_schema_slice` | `initiativeComments` | VA EMS ENDED. OBS VA DTG: 15/1201Z OBS VA CLD: VA NOT IDENTIFIABLE FROM SATELLITE DATA. FCST VA CLD +6HR: 15/1800Z NO VA EXP FCST VA CLD... | `` | `S2_llm_schema_slice:ATCSCC-GOLD-067:fact-03-039c6dcd9e0f` | `{"repaired_accepted": 1}` | `{}` | ERUPTION DETAILS: VA EMS ENDED. OBS VA DTG: 15/1201Z OBS VA CLD: VA NOT IDENTIFIABLE FROM SATELLITE DATA. FCST VA CLD +6HR: 15/1800Z NO VA EXP FCST VA CLD +12HR: 16/0000Z NO VA... |
+| `cand-367da914404ab3ec` | `S1_llm_only` | `has_forecast_at_plus_18_hours` | no volcanic ash expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 16/0600Z NO VA EXP |
+| `cand-3d6952b7e0577c2a` | `S2_llm_schema_slice, S3_llm_schema_slice_validator_repair` | `issuedTime` | 2026-05-15T12:25:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-067:fact-02-a45cccf32227, S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-067:fact-02-557139c856a5` | `{"repaired_accepted": 2}` | `{}` | SIGNATURE: 26/05/15 12:25 |
+| `cand-3fa856eed3ffa673` | `S1_llm_only` | `has_advisory_number` | 2026/026 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADVISORY NR: 2026/026 |
+| `cand-51a34614b0ad548f` | `S1_llm_only` | `was_observed_at_time` | 2026-05-15T12:01Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA DTG: 15/1201Z |
+| `cand-744885b3630b0880` | `S3_llm_schema_slice_validator_repair` | `effectiveEndTime` | 2026-05-15T15:00:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-067:fact-04-7c8fbe23449a` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 150000-150000 |
+| `cand-79f73afc1c2ff0e5` | `S1_llm_only` | `was_not_identifiable_from` | satellite data | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA CLD: VA NOT IDENTIFIABLE FROM SATELLITE DATA. |
+| `cand-915cec3637e890e4` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-15T00:00:00Z | `fact-7221a869538b242e` | `fact-7221a869538b242e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 150000-150000 |
+| `cand-99b622462985ab3e` | `S1_llm_only` | `may_extend_further_than` | residual volcanic ash | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SO2, WATER VAPOR AND OTHER GASES MAY EXTEND FURTHER. |
+| `cand-a0748da08751ab43` | `S1_llm_only` | `effective_time_window` | 150000-150000 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 150000-150000 |
+| `cand-a3771a1351d62d35` | `S1_llm_only` | `has_forecast_at_plus_12_hours` | no volcanic ash expected | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 16/0000Z NO VA EXP |
+| `cand-a479102971cf6bca` | `S1_llm_only` | `uses_information_sources` | GOES-18, HVO, Honolulu MWO, webcam, social media | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | INFO SOURCE: GOES-18. HVO. HONOLULU MWO. WEBCAM. SOCIAL MEDIA. |
+| `cand-b073c0b5630e82ee` | `S1_llm_only` | `has_eruption_status` | ended | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: VA EMS ENDED. |
+| `cand-b4a73320a1583393` | `S0_rule_only, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-15T00:00:00Z | `fact-6de5445c423395eb` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-067:fact-03-0302d662a6ce, fact-6de5445c423395eb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | EFFECTIVE TIME: 150000-150000 |
+| `cand-b846b080926d07b0` | `S1_llm_only` | `has_volcano_identifier` | 332010 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: KILAUEA 332010 |
+| `cand-edaf08f398406d89` | `S1b_llm_canonicalized` | `advisoryNumber` | 30 | `` | `S1b_llm_canonicalized:2026-05-15:030:fact-c106e41a607f` | `{"repaired_accepted": 1}` | `{}` | ADVISORY NR: 2026/026 |
+| `cand-f2f0bc571c94761b` | `S1_llm_only` | `identifies_current_hazard_as` | volcanic activity bulletin for Kilauea | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA |
+| `cand-fc974ecdbc80f1e5` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - KILAUEA | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-067:fact-01-5e424de8d036` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 030 DCC 05/15/2026 VOLCANIC ACTIVITY BULLETIN - KILAUEA |
 
 ## ATCSCC-GOLD-071 / 2026-05-19:064
 
@@ -1186,27 +1178,27 @@ Candidate clusters:
 | `cand-0412cb0ba7805cb6` | `S3_llm_schema_slice_validator_repair` | `effectiveStartTime` | 2026-05-14T15:13:00 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-034:fact-03-2076759d3d5b` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED MESSAGE: EVENT TIME: 14/1513 - 14/2300 CONSTRAINED FACILITIES: ZLA THE ATCSCC HAS ACTIVATED THE DIVE... |
 | `cand-07777c06e2cad01f` | `S3_llm_schema_slice_validator_repair` | `effectiveEndTime` | 2026-05-14T23:30:00 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-034:fact-04-3c6d2c1e89f6` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED MESSAGE: EVENT TIME: 14/1513 - 14/2300 CONSTRAINED FACILITIES: ZLA THE ATCSCC HAS ACTIVATED THE DIVE... |
 | `cand-0ab4b69b693a6577` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-14T15:13:00Z | `fact-5df19ec5ad3865f2` | `fact-5df19ec5ad3865f2` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/14 15:13 |
-| `cand-13cca3d00d0f14aa` | `S2_llm_schema_slice` | `advisoryNumber` | 55 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED |
-| `cand-24d9e06c586ce773` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-14T23:30:00 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 141513-142330 |
 | `cand-2cb32915c866a2c5` | `S1_llm_only` | `has_time_range` | 14/1513 - 14/2300 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EVENT TIME: 14/1513 - 14/2300 |
 | `cand-3c9aca16c077e5a7` | `S1_llm_only` | `should_ensure_in_flight_plan_remarks` | DVRSN | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CUSTOMERS SHOULD ENSURE THAT DVRSN IS INCLUDED IN FLIGHT PLAN REMARKS OF DIVERTED AIRCRAFT. |
 | `cand-4a975efaa5d7a3fc` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | ATCSCC HAS ACTIVATED THE DIVERSION RECOVERY TOOL FOR SAN DIEGO AIRPORT. CUSTOMERS SHOULD ENSURE THAT DVRSN IS INCLUDED IN FLIGHT PLAN REM... | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-034:fact-05-7120a7a5a29a` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED MESSAGE: EVENT TIME: 14/1513 - 14/2300 CONSTRAINED FACILITIES: ZLA THE ATCSCC HAS ACTIVATED THE DIVE... |
 | `cand-4b9053488e41d2ea` | `S1_llm_only` | `activated_diversion_recovery_tool_for` | SAN Diego Airport | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | THE ATCSCC HAS ACTIVATED THE DIVERSION RECOVERY TOOL FOR SAN DIEGO AIRPORT. |
+| `cand-4c77bd7a42abff4b` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-14T15:13:00 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-034:fact-02-a7bc6fd3e296` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/14 15:13 |
 | `cand-4fc73c89477c6a93` | `S1_llm_only` | `must_include_in_flight_plan_remarks` | DVRSN | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CUSTOMERS SHOULD ENSURE THAT DVRSN IS INCLUDED IN FLIGHT PLAN REMARKS OF DIVERTED AIRCRAFT. |
 | `cand-50030bd537fef7d8` | `S1_llm_only` | `are_not_automatically_exempt_when` | ground delay program or ground stop in effect for destination airport | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NOTE THAT IF THERE IS A GROUND DELAY PROGRAM OR GROUND STOP IN EFFECT FOR THE DESTINATION AIRPORT DIVERTED FLIGHTS ARE NOT AUTOMATICALLY EXEMPT AND WILL STILL RECEIVE AN EDCT. |
 | `cand-588b7cc844378469` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:SAN | `` | `S1b_llm_canonicalized:2026-05-14:055:fact-496df15b9f8d` | `{"repaired_accepted": 1}` | `{}` | CONSTRAINED FACILITIES: ZLA |
-| `cand-66d9e5009e57da86` | `S2_llm_schema_slice` | `initiativeComments` | THE ATCSCC HAS ACTIVATED THE DIVERSION RECOVERY TOOL FOR SAN DIEGO AIRPORT. CUSTOMERS SHOULD ENSURE THAT DVRSN IS INCLUDED IN FLIGHT PLAN... | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | MESSAGE: EVENT TIME: 14/1513 - 14/2300 CONSTRAINED FACILITIES: ZLA THE ATCSCC HAS ACTIVATED THE DIVERSION RECOVERY TOOL FOR SAN DIEGO AIRPORT. CUSTOMERS SHOULD ENSURE THAT DVRSN... |
+| `cand-7c47020aa0785843` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-14T15:13:00 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-034:fact-03-d395609ccd7c` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 141513-142330 |
 | `cand-7d3891987879ba3f` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 55 | `fact-d54c79edf02f7816` | `fact-d54c79edf02f7816` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED |
 | `cand-8d5b823bfaedb4eb` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-14T15:13:00Z | `fact-bf2ad5e01d9f133e` | `fact-bf2ad5e01d9f133e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 141513-142330 |
 | `cand-9cbf640e2bce2f27` | `S1_llm_only` | `is_constrained_facility_for_event` | SAN Airport diversion recovery | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZLA |
 | `cand-ad2787f599efece8` | `S3_llm_schema_slice_validator_repair` | `issuedTime` | 2026-05-14T15:13:00 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-034:fact-02-59294808d4a1` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED MESSAGE: EVENT TIME: 14/1513 - 14/2300 CONSTRAINED FACILITIES: ZLA THE ATCSCC HAS ACTIVATED THE DIVE... |
 | `cand-ae702a5847260507` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-14T23:30:00Z | `fact-73ef91e720bccbfd` | `fact-73ef91e720bccbfd` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 141513-142330 |
-| `cand-b87e162627fa7f61` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-14T15:13:00 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/14 15:13 |
-| `cand-c1e755a2762b5407` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-14T15:13:00 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 141513-142330 |
+| `cand-be56555120ad18ee` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-14T23:30:00 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-034:fact-04-2510070f5551` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 141513-142330 |
+| `cand-c0714efb1ac0803c` | `S2_llm_schema_slice` | `initiativeComments` | THE ATCSCC HAS ACTIVATED THE DIVERSION RECOVERY TOOL FOR SAN DIEGO AIRPORT. CUSTOMERS SHOULD ENSURE THAT DVRSN IS INCLUDED IN FLIGHT PLAN... | `` | `S2_llm_schema_slice:ATCSCC-GOLD-034:fact-05-e547eac051ad` | `{"repaired_accepted": 1}` | `{}` | MESSAGE: EVENT TIME: 14/1513 - 14/2300 CONSTRAINED FACILITIES: ZLA THE ATCSCC HAS ACTIVATED THE DIVERSION RECOVERY TOOL FOR SAN DIEGO AIRPORT. CUSTOMERS SHOULD ENSURE THAT DVRSN... |
 | `cand-c9a767a61f64d088` | `S1_llm_only` | `will_still_receive` | EDCT | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NOTE THAT IF THERE IS A GROUND DELAY PROGRAM OR GROUND STOP IN EFFECT FOR THE DESTINATION AIRPORT DIVERTED FLIGHTS ARE NOT AUTOMATICALLY EXEMPT AND WILL STILL RECEIVE AN EDCT. |
 | `cand-ddc88cc74bbcd8be` | `S1_llm_only` | `will_close_at` | end of the event time specified in this advisory | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | UNLESS OTHERWISE NOTIFIED, DIVERSION RECOVERY WILL CLOSE FOR SAN AIRPORT AT THE END OF THE EVENT TIME SPECIFIED IN THIS ADVISORY. |
 | `cand-df68fa755b8806fd` | `S1_llm_only` | `will_close_for` | SAN Airport | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | UNLESS OTHERWISE NOTIFIED, DIVERSION RECOVERY WILL CLOSE FOR SAN AIRPORT AT THE END OF THE EVENT TIME SPECIFIED IN THIS ADVISORY. |
 | `cand-e367623cd654a911` | `S3_llm_schema_slice_validator_repair` | `advisoryNumber` | 55 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-034:fact-01-00ec49abeb9e` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED MESSAGE: EVENT TIME: 14/1513 - 14/2300 CONSTRAINED FACILITIES: ZLA THE ATCSCC HAS ACTIVATED THE DIVE... |
+| `cand-f6939484b1bf60ad` | `S2_llm_schema_slice` | `advisoryNumber` | 55 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-034:fact-01-1d0692617504` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED |
 
 ## ATCSCC-GOLD-060 / 2026-05-17:050
 
@@ -1241,7 +1233,6 @@ Candidate clusters:
 | `cand-5a1a2631e590e5cf` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-17T18:15:00Z | `fact-8561fa01677ffe2a` | `fact-8561fa01677ffe2a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 171815-172120 |
 | `cand-6410382993468f6f` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:APT | `` | `S1b_llm_canonicalized:2026-05-17:050:fact-51ca05f6a7eb` | `{"repaired_accepted": 1}` | `{}` | ELEMENT TYPE: APT ADL |
 | `cand-64217ab06008603f` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:DCA | `fact-16ddc1cca832d902` | `S1b_llm_canonicalized:2026-05-17:050:fact-d61e3c040407, fact-16ddc1cca832d902` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | CTL ELEMENT: DCA |
-| `cand-67e6099c84f011a8` | `S3_llm_schema_slice_validator_repair` | `controlledNASelement` | {'label': 'DCA', 'type': 'nas:Airport'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | CTL ELEMENT: DCA ELEMENT TYPE: APT ADL TIME: 1814Z GS CNX PERIOD: 17/1814Z - 17/2020Z COMMENTS: EXPECT INCREASED SCHEDULING DELAYS FOR AIRCRAFT WITHIN 1ST TIERS UNTIL 2000Z |
 | `cand-687642ff13595085` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-17T18:14:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-060:fact-05-025670412d89` | `{"repaired_accepted": 1}` | `{}` | GS CNX PERIOD: 17/1814Z - 17/2020Z |
 | `cand-6fae7db178709c59` | `S2_llm_schema_slice` | `initiativeComments` | EXPECT INCREASED SCHEDULING DELAYS FOR AIRCRAFT WITHIN 1ST TIERS UNTIL 2000Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-060:fact-07-895ed52d5319` | `{"repaired_accepted": 1}` | `{}` | COMMENTS: EXPECT INCREASED SCHEDULING DELAYS FOR AIRCRAFT WITHIN 1ST TIERS UNTIL 2000Z |
 | `cand-8059fdfca00f7fd4` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | EXPECT INCREASED SCHEDULING DELAYS FOR AIRCRAFT WITHIN 1ST TIERS UNTIL 2000Z | `fact-afbbc5df0fe0778c` | `fact-afbbc5df0fe0778c` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EXPECT INCREASED SCHEDULING DELAYS FOR AIRCRAFT WITHIN 1ST TIERS UNTIL 2000Z |
@@ -1251,6 +1242,7 @@ Candidate clusters:
 | `cand-929b6d7ed54001ea` | `S2_llm_schema_slice` | `impactingCondition` | other | `` | `S2_llm_schema_slice:ATCSCC-GOLD-060:fact-03-0183eea8e1a5` | `{"repaired_accepted": 1}` | `{}` | GS CNX |
 | `cand-9bd1d506b2ce5350` | `S2_llm_schema_slice` | `extensionProbability` | NONE | `` | `S2_llm_schema_slice:ATCSCC-GOLD-060:fact-02-76eab402da86` | `{"repaired_accepted": 1}` | `{}` | GS CNX PERIOD: 17/1814Z - 17/2020Z |
 | `cand-a0b3f974528ba2d1` | `S1_llm_only` | `warns_of_increased_scheduling_delays` | aircraft within 1st tiers until 2000Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | COMMENTS: EXPECT INCREASED SCHEDULING DELAYS FOR AIRCRAFT WITHIN 1ST TIERS UNTIL 2000Z |
+| `cand-e2c89304bfdf3dd3` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `controlledNASelement` | DCA | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-060:fact-01-b4d4eaaabd1e` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: DCA ELEMENT TYPE: APT ADL TIME: 1814Z GS CNX PERIOD: 17/1814Z - 17/2020Z COMMENTS: EXPECT INCREASED SCHEDULING DELAYS FOR AIRCRAFT WITHIN 1ST TIERS UNTIL 2000Z |
 | `cand-efbf193a7d307464` | `S1_llm_only` | `states_control_element_type` | APT ADL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ELEMENT TYPE: APT ADL |
 | `cand-fd432e92fa75a58a` | `S1_llm_only` | `states_advisory_time` | 1814Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADL TIME: 1814Z |
 
@@ -1346,52 +1338,6 @@ Candidate clusters:
 | `cand-f26f1cecc4b8bc3b` | `S0_rule_only, S2_llm_schema_slice, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 51 | `fact-6c701710a5cce2f9` | `S2_llm_schema_slice:ATCSCC-GOLD-079:fact-01-ff25d52048a2, S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-079:fact-04-d5d424795685, fact-6c701710a5cce2f9` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | ATCSCC ADVZY 051 DCC/ZNY/ZMA 05/15/2026 OCEANIC ROUTE CLOSURES_RQD |
 | `cand-f4e7cd872a8b74b2` | `S2_llm_schema_slice, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `reRouteReason` | WEATHER | `` | `S2_llm_schema_slice:ATCSCC-GOLD-079:fact-05-6ae1cb9901c2, S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-079:fact-03-41a5dab381b0` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 051 DCC/ZNY/ZMA 05/15/2026 OCEANIC ROUTE CLOSURES_RQD |
 
-## ATCSCC-GOLD-087 / 2026-05-18:107
-
-- Batch: `batch_09`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_09.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_09.md`
-- Priority lane: `3_standard_review`
-- Complexity: `medium` (score=49, est=14 min)
-- Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 24
-- Cross-system clusters: 24
-- Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=107
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES. EFFECTIVE TIME: 181933-190230 SIGNATURE: 26/05/18 19:33 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-0efa9e5cec18810a` | `S3_llm_schema_slice_validator_repair` | `controlledNASelement` | {'label': 'DENVER AIRPORT', 'type': 'nas:Airport'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES |
-| `cand-1602c895f66ad6fb` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T02:30:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS \| MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE S... |
-| `cand-2653f921c60e0622` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZDV | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZDV |
-| `cand-2ebcd1cfcf91d81a` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES. | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES. |
-| `cand-38ce9629e5ec291d` | `S1_llm_only` | `states_expected_delay_for` | DENVER AIRPORT | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES |
-| `cand-4539f375007409e5` | `S3_llm_schema_slice_validator_repair` | `issuedTime` | 2026-05-18T19:33:00 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/18 19:33 |
-| `cand-4b3eddb8230dc7b3` | `S1_llm_only` | `describes_event_time` | 18/2045 - 19/0200 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EVENT TIME: 18/2045 - 19/0200 |
-| `cand-54f4ed5c5d267c84` | `S1_llm_only` | `states_affected_departure_airports_scope` | departure airports within the first tier facilities | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES |
-| `cand-55116fa027f5c714` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T02:30:00Z | `fact-f70ef046605642c1` | `fact-f70ef046605642c1` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 181933-190230 |
-| `cand-614c3525e309a517` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:FIRST | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1}` | FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES |
-| `cand-6ac709f53bc51830` | `S1_llm_only` | `applies_to_center` | ZDV | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS |
-| `cand-6e8f89641f2f8189` | `S2_llm_schema_slice` | `initiativeComments` | ZDV users can expect TBFM / CALL-FOR-RELEASE scheduling delays to Denver Airport of 30 to 45 minutes from departure airports within the f... | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS \| MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE S... |
-| `cand-7bbd9d3d59da59dd` | `S1_llm_only` | `identifies_constrained_facilities` | ZDV | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZDV |
-| `cand-887f7319dc183b29` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-18T19:33:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS \| MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE S... |
-| `cand-91700a75a88dc84d` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-18T19:33:00Z | `fact-eb0efb535061c4eb` | `fact-eb0efb535061c4eb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 19:33 |
-| `cand-9399bf0008fcfc51` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-18T19:33:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS \| MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE S... |
-| `cand-9e5edede9f38e4c2` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-18T19:33:00Z | `fact-2712d9aed92e8a53` | `fact-2712d9aed92e8a53` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 181933-190230 |
-| `cand-a79a2dc81d0cb144` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:TIER | `` | `S1b_llm_canonicalized:2026-05-18:107:fact-7104d81ac1c7` | `{"repaired_accepted": 1}` | `{}` | FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES |
-| `cand-b580893c453f2d39` | `S1_llm_only` | `has_advisory_type` | DEN airport scheduling delays | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS |
-| `cand-b62315c345108859` | `S3_llm_schema_slice_validator_repair` | `advisoryNumber` | 107 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS |
-| `cand-bf1db667bb3d6424` | `S1_llm_only` | `states_effective_time` | 181933-190230 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 181933-190230 |
-| `cand-db10d1cfb5781f3c` | `S1_llm_only` | `states_delay_type` | TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES |
-| `cand-ec55f7cd15ea3061` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 107 | `fact-c063930bfc378e0e` | `S1b_llm_canonicalized:2026-05-18:107:fact-5d196b3619fa, fact-c063930bfc378e0e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS |
-| `cand-f6cfd4e254a9485c` | `S1_llm_only` | `states_delay_duration_range` | 30 TO 45 MINUTES | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES |
-
 ## ATCSCC-GOLD-076 / 2026-05-20:013
 
 - Batch: `batch_08`
@@ -1482,49 +1428,50 @@ Candidate clusters:
 | `cand-f76295299b384250` | `S1_llm_only` | `'DAL AND SUBS GS CX.'}` | {'label': 'ground stop cancellation for DAL and subsidiaries', 'text': 'DAL AND SUBS GS CX.'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | REMARKS: DAL AND SUBS GS CX. |
 | `cand-f92cdeb325d0f5bf` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T00:52:00Z | `fact-2656b5c4f0f1a6ef` | `fact-2656b5c4f0f1a6ef` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 00:52 |
 
-## ATCSCC-GOLD-078 / 2026-05-20:026
+## ATCSCC-GOLD-087 / 2026-05-18:107
 
-- Batch: `batch_08`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_08.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_08.md`
+- Batch: `batch_09`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_09.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_09.md`
 - Priority lane: `3_standard_review`
-- Complexity: `medium` (score=45, est=15 min)
+- Complexity: `medium` (score=47, est=14 min)
 - Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 22
-- Cross-system clusters: 22
+- Candidate clusters: 23
+- Cross-system clusters: 23
 - Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=26
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05182026&advn=107
 
 Source excerpt:
 
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO MESSAGE: FVXX20 KNES 200158 WSI DDS:200159 VA ADVISORY DTG: 20260520/0158Z VAAC: WASHINGTON VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA SOURCE ELEV: 12346 FT AMSL ADVISORY NR: 2026/584 INFO SOURCE: GOES-19. NWP MODELS. ERUPTION DETAILS: ONGOING VA EMS EST VA DTG: 20/0140Z EST VA CLD: SFC/FL140 N1428 W09052 - N1428 W09052 - N1420 W09101 - N1423 W09104 - N1428 W09052 MOV SW 10KT FCST VA CLD +6HR: 20/0730Z SFC/FL150 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1423 W09103 - N1428 W09052 FCST VA CLD +12HR: 20/1330Z SFC/FL140 N1428 W09053 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09053 FCST VA CLD +18HR: 20/1930Z SFC/FL1...
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES. EFFECTIVE TIME: 181933-190230 SIGNATURE: 26/05/18 19:33 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
 
 Candidate clusters:
 
 | Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-0a68dd55dbaa6dff` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-20T00:00:00Z | `fact-abe663e6897f67d8` | `fact-abe663e6897f67d8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
-| `cand-176659542d76057e` | `S1_llm_only` | `estimated_vertical_extent` | SFC/FL140 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 20/1330Z SFC/FL140 N1428 W09053 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09053 |
-| `cand-1ca6b0533f551ca7` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T01:58:00Z | `fact-4c4774c908371d7d` | `fact-4c4774c908371d7d` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 02:00 |
-| `cand-1d51e7e709980eb4` | `S1_llm_only` | `estimated_time_of_detection` | 20/0140Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA DTG: 20/0140Z |
-| `cand-486c0c3e4abe4e6f` | `S1_llm_only` | `has_advisory_topic` | Volcanic Activity Bulletin - Fuego | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-7098edfa28584c04` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-20T20:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 200000-200000 |
-| `cand-7387a9faa3e4ad0e` | `S1_llm_only` | `movement_direction_and_speed` | SW 10KT | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 10KT |
-| `cand-76382fac220c5a30` | `S1_llm_only` | `has_advisory_region` | Guatemala | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA |
-| `cand-83f71483dd9fc06c` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 26 | `fact-0235544ddd8026a3` | `S1b_llm_canonicalized:2026-05-20:026:fact-65d44deb1c0a, fact-0235544ddd8026a3` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-879e41ac3369ffd5` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-20T02:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/20 02:00 |
-| `cand-92b9278b9a69e678` | `S1_llm_only` | `forecast_change` | No change forecast for next 18 hours | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NO CHG FCST TO MDL WINDS AT FL NXT 18 HR. |
-| `cand-968eaa9db625c547` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - FUEGO | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-9c2bdcfdf386f396` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-20T20:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 200000-200000 |
-| `cand-9c57371426f54d28` | `S1_llm_only` | `estimated_vertical_extent` | SFC/FL140 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 20/1930Z SFC/FL140 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09052 |
-| `cand-a40908d03115aac4` | `S1_llm_only` | `likely_to_continue` | Likely continue given recent activity | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS LIKELY CONTINUE GIVEN RECENT ACTVTY. |
-| `cand-abaa368ca28ddb80` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-20T00:00:00Z | `fact-328de4ade0096b70` | `fact-328de4ade0096b70` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
-| `cand-b735f72d7ea8f240` | `S1_llm_only` | `estimated_vertical_extent` | SFC/FL150 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 20/0730Z SFC/FL150 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1423 W09103 - N1428 W09052 |
-| `cand-bd07ff4bb2517f5d` | `S1_llm_only` | `estimated_vertical_extent` | SFC/FL140 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA CLD: SFC/FL140 N1428 W09052 - N1428 W09052 - N1420 W09101 - N1423 W09104 - N1428 W09052 |
-| `cand-c081dd7cc11c407a` | `S2_llm_schema_slice` | `advisoryNumber` | 26 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
-| `cand-db1ec6bbb3891310` | `S1_llm_only` | `identifies_eruption_details` | Ongoing | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: ONGOING |
-| `cand-e5940e801f28378c` | `S1_llm_only` | `not_detected_by` | Satellite due to weather clouds in summit area | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA. |
-| `cand-fbe5166f844e52e0` | `S1_llm_only` | `has_source_elevation` | 12346 FT AMSL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 12346 FT AMSL |
+| `cand-08642cd4ac4e12d4` | `S3_llm_schema_slice_validator_repair` | `issuedTime` | 2026-05-18T19:33:00 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-087:fact-02-7df296f8eeda` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 19:33 |
+| `cand-0c2dfced8c665d9a` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `controlledNASelement` | DENVER AIRPORT | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-087:fact-03-1c671bc85954` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES |
+| `cand-1602c895f66ad6fb` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T02:30:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS \| MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE S... |
+| `cand-1cc15e7191c79c0d` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES. | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-087:fact-04-e0f7a61fbfb4` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES. |
+| `cand-2653f921c60e0622` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:ZDV | `` | `` | `{"rejected_schema": 1}` | `{"range_violation": 1}` | CONSTRAINED FACILITIES: ZDV |
+| `cand-38ce9629e5ec291d` | `S1_llm_only` | `states_expected_delay_for` | DENVER AIRPORT | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES |
+| `cand-4b3eddb8230dc7b3` | `S1_llm_only` | `describes_event_time` | 18/2045 - 19/0200 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EVENT TIME: 18/2045 - 19/0200 |
+| `cand-54f4ed5c5d267c84` | `S1_llm_only` | `states_affected_departure_airports_scope` | departure airports within the first tier facilities | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES |
+| `cand-55116fa027f5c714` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T02:30:00Z | `fact-f70ef046605642c1` | `fact-f70ef046605642c1` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 181933-190230 |
+| `cand-614c3525e309a517` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:FIRST | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1}` | FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES |
+| `cand-6ac709f53bc51830` | `S1_llm_only` | `applies_to_center` | ZDV | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS |
+| `cand-6e8f89641f2f8189` | `S2_llm_schema_slice` | `initiativeComments` | ZDV users can expect TBFM / CALL-FOR-RELEASE scheduling delays to Denver Airport of 30 to 45 minutes from departure airports within the f... | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS \| MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE S... |
+| `cand-7bbd9d3d59da59dd` | `S1_llm_only` | `identifies_constrained_facilities` | ZDV | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CONSTRAINED FACILITIES: ZDV |
+| `cand-887f7319dc183b29` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-18T19:33:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS \| MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE S... |
+| `cand-91700a75a88dc84d` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-18T19:33:00Z | `fact-eb0efb535061c4eb` | `fact-eb0efb535061c4eb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 19:33 |
+| `cand-9399bf0008fcfc51` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-18T19:33:00 | `` | `` | `{"rejected_evidence": 1}` | `{"evidence_not_found_in_source": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS \| MESSAGE: EVENT TIME: 18/2045 - 19/0200 CONSTRAINED FACILITIES: ZDV USERS CAN EXPECT TBFM / CALL-FOR-RELEASE S... |
+| `cand-9e5edede9f38e4c2` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-18T19:33:00Z | `fact-2712d9aed92e8a53` | `fact-2712d9aed92e8a53` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 181933-190230 |
+| `cand-a79a2dc81d0cb144` | `S1b_llm_canonicalized` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:TIER | `` | `S1b_llm_canonicalized:2026-05-18:107:fact-7104d81ac1c7` | `{"repaired_accepted": 1}` | `{}` | FROM DEPARTURE AIRPORTS WITHIN THE FIRST TIER FACILITIES |
+| `cand-b580893c453f2d39` | `S1_llm_only` | `has_advisory_type` | DEN airport scheduling delays | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS |
+| `cand-bf1db667bb3d6424` | `S1_llm_only` | `states_effective_time` | 181933-190230 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 181933-190230 |
+| `cand-db10d1cfb5781f3c` | `S1_llm_only` | `states_delay_type` | TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES |
+| `cand-ec55f7cd15ea3061` | `S0_rule_only, S1b_llm_canonicalized, S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 107 | `fact-c063930bfc378e0e` | `S1b_llm_canonicalized:2026-05-18:107:fact-5d196b3619fa, S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-087:fact-01-fe6687548ddf, fact-c063930bfc378e0e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | ATCSCC ADVZY 107 DEN/ZDV 05/18/2026 DEN AIRPORT SCHEDULING DELAYS |
+| `cand-f6cfd4e254a9485c` | `S1_llm_only` | `states_delay_duration_range` | 30 TO 45 MINUTES | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | USERS CAN EXPECT TBFM / CALL-FOR-RELEASE SCHEDULING DELAYS TO DENVER AIRPORT OF 30 TO 45 MINUTES |
 
 ## ATCSCC-GOLD-075 / 2026-05-18:119
 
@@ -1569,47 +1516,48 @@ Candidate clusters:
 | `cand-e1b0219a7d467c73` | `S1_llm_only` | `'moves toward'}` | {'label': 'NW'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV NW 20KT |
 | `cand-ebd5fbc6392186b1` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - PURACE | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-075:fact-02-cf2cd718f5e8` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 119 DCC 05/18/2026 VOLCANIC ACTIVITY BULLETIN - PURACE |
 
-## ATCSCC-GOLD-049 / 2026-05-19:013
+## ATCSCC-GOLD-078 / 2026-05-20:026
 
-- Batch: `batch_05`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_05.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_05.md`
+- Batch: `batch_08`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_08.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_08.md`
 - Priority lane: `3_standard_review`
-- Complexity: `medium` (score=41, est=14 min)
+- Complexity: `medium` (score=43, est=15 min)
 - Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 20
-- Cross-system clusters: 20
+- Candidate clusters: 21
+- Cross-system clusters: 21
 - Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=13
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=26
 
 Source excerpt:
 
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL MESSAGE: FVXX24 KNES 190606 WSI DDS:190609 VA ADVISORY DTG: 20260519/0606Z VAAC: WASHINGTON VOLCANO: POPOCATEPETL 341090 PSN: N1901 W09837 AREA: MEXICO SOURCE ELEV: 17693 FT AMSL ADVISORY NR: 2026/196 INFO SOURCE: GOES-19. WEBCAM. ERUPTION DETAILS: VA EMS ENDED OBS VA DTG: 19/0551Z OBS VA CLD: VA NOT IDENTIFIABLE FM STLT DATA FCST VA CLD +6HR: 19/1200Z NO VA EXP FCST VA CLD +12HR: 19/1800Z NO VA EXP FCST VA CLD +18HR: 20/0000Z NO VA EXP RMK: VA NOT DETECTED ON VARIOUS STLT PRODUCTS. WEBCAM SHOWS ONLY STEAM/GAS EMS CURRENTLY. NEW VA EMS LIKELY AT ANY TIME. ...KONON EFFECTIVE TIME: 190000-190000 SIGNATURE: 26/05/19 06:09 FAA.gov Home \|...
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO MESSAGE: FVXX20 KNES 200158 WSI DDS:200159 VA ADVISORY DTG: 20260520/0158Z VAAC: WASHINGTON VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA SOURCE ELEV: 12346 FT AMSL ADVISORY NR: 2026/584 INFO SOURCE: GOES-19. NWP MODELS. ERUPTION DETAILS: ONGOING VA EMS EST VA DTG: 20/0140Z EST VA CLD: SFC/FL140 N1428 W09052 - N1428 W09052 - N1420 W09101 - N1423 W09104 - N1428 W09052 MOV SW 10KT FCST VA CLD +6HR: 20/0730Z SFC/FL150 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1423 W09103 - N1428 W09052 FCST VA CLD +12HR: 20/1330Z SFC/FL140 N1428 W09053 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09053 FCST VA CLD +18HR: 20/1930Z SFC/FL1...
 
 Candidate clusters:
 
 | Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-02f1d920ea9e662d` | `S1_llm_only` | `'no_ash_expected_at_forecast_time'}` | {'class': 'Forecast time', 'name': '19/1800Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 19/1800Z NO VA EXP |
-| `cand-059b1a847219f77d` | `S1_llm_only` | `'no_ash_expected_at_forecast_time'}` | {'class': 'Forecast time', 'name': '20/0000Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 20/0000Z NO VA EXP |
-| `cand-108d2f7f17640892` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 13 | `fact-233e5df1a30aafcb` | `fact-233e5df1a30aafcb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-16093312a035c2f5` | `S1_llm_only` | `'not_identifiable_from_satellite_data'}` | {'class': 'Observation result', 'name': 'VA NOT IDENTIFIABLE FM STLT DATA'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA CLD: VA NOT IDENTIFIABLE FM STLT DATA |
-| `cand-16c8dc0874495318` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-19T19:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-20df0c4770a4dc72` | `S1_llm_only` | `'no_ash_expected_at_forecast_time'}` | {'class': 'Forecast time', 'name': '19/1200Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 19/1200Z NO VA EXP |
-| `cand-3873befd0a489fab` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-53f8cfb949650db6` | `S1_llm_only` | `'located_in_area'}` | {'class': 'Geographic Area', 'name': 'MEXICO'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: MEXICO |
-| `cand-62183d6e0fb0bcd4` | `S1_llm_only` | `'identifies_volcano'}` | {'class': 'Volcano', 'name': 'POPOCATEPETL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-6ce23877abf8d8f2` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-19T06:06:00Z | `fact-b1626a69866c45d8` | `fact-b1626a69866c45d8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 06:09 |
-| `cand-77471b3a8ee27dde` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-19T06:09:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/19 06:09 |
-| `cand-89f6a94bb620ddcf` | `S1_llm_only` | `'reports_steam_gas_only_currently'}` | {'class': 'Emission type', 'name': 'STEAM/GAS EMS'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | WEBCAM SHOWS ONLY STEAM/GAS EMS CURRENTLY. |
-| `cand-9d389c713999340b` | `S1_llm_only` | `'reported_source_elevation'}` | {'class': 'Elevation', 'name': '17693 FT AMSL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 17693 FT AMSL |
-| `cand-a28f8fe057d6dea8` | `S1_llm_only` | `'warns_new_ash_emission_possible_any_time'}` | {'class': 'Probability statement', 'name': 'NEW VA EMS LIKELY AT ANY TIME'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NEW VA EMS LIKELY AT ANY TIME. |
-| `cand-a328b5c1d0380afb` | `S1_llm_only` | `'ended_at_observation_time'}` | {'class': 'Observation Time', 'name': '19/0551Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS ENDED OBS VA DTG: 19/0551Z |
-| `cand-bc821fe6580fee6e` | `S2_llm_schema_slice` | `advisoryNumber` | 13 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
-| `cand-c6c154046040b81a` | `S1_llm_only` | `'indicates_not_detected_on_satellite_products'}` | {'class': 'Observation summary', 'name': 'VA NOT DETECTED ON VARIOUS STLT PRODUCTS'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RMK: VA NOT DETECTED ON VARIOUS STLT PRODUCTS. |
-| `cand-d28a03dd5916288d` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T19:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-db13defb0c82d7f1` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-19T00:00:00Z | `fact-8a3474de6dad98e1` | `fact-8a3474de6dad98e1` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
-| `cand-f84d3921e54211fe` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T00:00:00Z | `fact-f4f2e2273cc1a634` | `fact-f4f2e2273cc1a634` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-0a68dd55dbaa6dff` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-20T00:00:00Z | `fact-abe663e6897f67d8` | `fact-abe663e6897f67d8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
+| `cand-176659542d76057e` | `S1_llm_only` | `estimated_vertical_extent` | SFC/FL140 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 20/1330Z SFC/FL140 N1428 W09053 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09053 |
+| `cand-1ca6b0533f551ca7` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T01:58:00Z | `fact-4c4774c908371d7d` | `fact-4c4774c908371d7d` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 02:00 |
+| `cand-1d51e7e709980eb4` | `S1_llm_only` | `estimated_time_of_detection` | 20/0140Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA DTG: 20/0140Z |
+| `cand-420686f0e00d592d` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - FUEGO | `` | `S2_llm_schema_slice:ATCSCC-GOLD-078:fact-05-e1a788aa937b` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
+| `cand-46ac7814738b11e0` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-20T02:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-078:fact-02-0cd3ec09b21c` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 02:00 |
+| `cand-486c0c3e4abe4e6f` | `S1_llm_only` | `has_advisory_topic` | Volcanic Activity Bulletin - Fuego | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
+| `cand-7387a9faa3e4ad0e` | `S1_llm_only` | `movement_direction_and_speed` | SW 10KT | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MOV SW 10KT |
+| `cand-76382fac220c5a30` | `S1_llm_only` | `has_advisory_region` | Guatemala | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANO: FUEGO 342090 PSN: N1428 W09052 AREA: GUATEMALA |
+| `cand-83f71483dd9fc06c` | `S0_rule_only, S1b_llm_canonicalized, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 26 | `fact-0235544ddd8026a3` | `S1b_llm_canonicalized:2026-05-20:026:fact-65d44deb1c0a, S2_llm_schema_slice:ATCSCC-GOLD-078:fact-01-e0b02ecefe8b, fact-0235544ddd8026a3` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | ATCSCC ADVZY 026 DCC 05/20/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO |
+| `cand-92b9278b9a69e678` | `S1_llm_only` | `forecast_change` | No change forecast for next 18 hours | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NO CHG FCST TO MDL WINDS AT FL NXT 18 HR. |
+| `cand-9c57371426f54d28` | `S1_llm_only` | `estimated_vertical_extent` | SFC/FL140 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 20/1930Z SFC/FL140 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1424 W09104 - N1428 W09052 |
+| `cand-a40908d03115aac4` | `S1_llm_only` | `likely_to_continue` | Likely continue given recent activity | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS LIKELY CONTINUE GIVEN RECENT ACTVTY. |
+| `cand-a6161f8be7e72f38` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-20T20:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-078:fact-03-15fe8b6d5fe9` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
+| `cand-abaa368ca28ddb80` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-20T00:00:00Z | `fact-328de4ade0096b70` | `fact-328de4ade0096b70` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
+| `cand-b045a3fb9080889e` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-20T20:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-078:fact-04-1011cc6916ab` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 200000-200000 |
+| `cand-b735f72d7ea8f240` | `S1_llm_only` | `estimated_vertical_extent` | SFC/FL150 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 20/0730Z SFC/FL150 N1428 W09052 - N1427 W09052 - N1420 W09101 - N1423 W09103 - N1428 W09052 |
+| `cand-bd07ff4bb2517f5d` | `S1_llm_only` | `estimated_vertical_extent` | SFC/FL140 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EST VA CLD: SFC/FL140 N1428 W09052 - N1428 W09052 - N1420 W09101 - N1423 W09104 - N1428 W09052 |
+| `cand-db1ec6bbb3891310` | `S1_llm_only` | `identifies_eruption_details` | Ongoing | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: ONGOING |
+| `cand-e5940e801f28378c` | `S1_llm_only` | `not_detected_by` | Satellite due to weather clouds in summit area | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA. |
+| `cand-fbe5166f844e52e0` | `S1_llm_only` | `has_source_elevation` | 12346 FT AMSL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 12346 FT AMSL |
 
 ## ATCSCC-GOLD-066 / 2026-05-17:011
 
@@ -1676,12 +1624,12 @@ Candidate clusters:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `cand-1a7758f9835de490` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 192 | `fact-a9b10253ca03f333` | `fact-a9b10253ca03f333` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 192 PHL/ZNY 05/20/2026 CDM GS CNX |
 | `cand-1ada831ea280a15a` | `S1_llm_only` | `has_controlled_element` | PHL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: PHL |
-| `cand-35472c9210cc4174` | `S3_llm_schema_slice_validator_repair` | `controlledNASelement` | nas:Airport/PHL | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | CTL ELEMENT: PHL |
 | `cand-4ad6c48300bf8761` | `S1_llm_only` | `was_signed_at` | 26/05/20 23:47 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/20 23:47 |
 | `cand-6a363a3cc5a0deb7` | `S1_llm_only` | `has_applicability_period` | 20/2345Z - 21/0145Z | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PERIOD: 20/2345Z - 21/0145Z |
 | `cand-7720fed320a23a15` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | EFFECTIVE TIME: 202347-210245 SIGNATURE: 26/05/20 23:47 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Vie... | `fact-2870341fecb819ba` | `fact-2870341fecb819ba` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EFFECTIVE TIME: 202347-210245 SIGNATURE: 26/05/20 23:47 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Vie... |
 | `cand-7ad7af837b4ca1a0` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T23:47:00Z | `fact-f8312c765227927a` | `fact-f8312c765227927a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 23:47 |
 | `cand-7c0a88f2de4f40af` | `S2_llm_schema_slice` | `implementationStatus` | RQD | `` | `` | `{"rejected_schema": 1}` | `{"domain_violation": 1}` | CTL ELEMENT: PHL ELEMENT TYPE: APT ADL TIME: 2345Z GS CNX PERIOD: 20/2345Z - 21/0145Z COMMENTS: EFFECTIVE TIME: 202347-210245 |
+| `cand-83290c18789cdfdc` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `controlledNASelement` | nas:Airport/PHL | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-069:fact-01-b4560eb28c80` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: PHL |
 | `cand-84f361cfd3b38173` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:PHL | `fact-7edcb40f880f1121` | `fact-7edcb40f880f1121` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: PHL |
 | `cand-91c568411f2a0b79` | `S1_llm_only` | `announces_ground_stop_cancellation` | GS CNX | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GS CNX |
 | `cand-9dc0e60563e106b9` | `S2_llm_schema_slice` | `initiativeComments` | GS CNX | `` | `S2_llm_schema_slice:ATCSCC-GOLD-069:fact-04-aff6d85eaa5a` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: PHL ELEMENT TYPE: APT ADL TIME: 2345Z GS CNX PERIOD: 20/2345Z - 21/0145Z COMMENTS: EFFECTIVE TIME: 202347-210245 |
@@ -1758,24 +1706,24 @@ Candidate clusters:
 
 | Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-05f87111c8268a3e` | `S2_llm_schema_slice` | `controlledNASelement` | nas:LAS | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | CTL ELEMENT: LAS ELEMENT TYPE: APT |
+| `cand-01ded05b4979ae41` | `S2_llm_schema_slice` | `advisoryNumber` | 25 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-033:fact-05-619a4b276f8f` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 025 LAS/ZLA 05/18/2026 CDM GROUND DELAY PROGRAM CNX |
 | `cand-1287b7646d856ce9` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-18T07:50:00Z | `fact-0fa99c706b78e828` | `fact-0fa99c706b78e828` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 180750-181954 |
 | `cand-39355363e63c8c5a` | `S1_llm_only` | `'GDP CNX'}` | {'label': 'ground delay program cancellation', 'value': 'GDP CNX'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 025 LAS/ZLA 05/18/2026 CDM GROUND DELAY PROGRAM CNX |
-| `cand-419e20266cb43fe1` | `S2_llm_schema_slice` | `initiativeComments` | DISREGARD EDCTS FOR DEST LAS | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | COMMENTS: EFFECTIVE TIME: 180750-181954 |
 | `cand-4a1f599192a9f9b8` | `S1_llm_only` | `'DISREGARD'}` | {'label': 'EDCTS for destination LAS', 'value': 'EDCTS FOR DEST LAS'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | DISREGARD EDCTS FOR DEST LAS |
 | `cand-4f6ea6bcb991dc93` | `S1_llm_only` | `'GDP CNX PERIOD'}` | {'label': '18/0750Z - 18/1854Z', 'value': '18/0750Z - 18/1854Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GDP CNX PERIOD: 18/0750Z - 18/1854Z |
 | `cand-544bfa3ab381e86b` | `S1_llm_only` | `'ADL TIME'}` | {'label': '0750Z', 'value': '0750Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADL TIME: 0750Z |
 | `cand-5595163c7baa76f1` | `S3_llm_schema_slice_validator_repair` | `controlledNASelement` | LAS | `` | `` | `{"rejected_evidence": 1}` | `{"missing_evidence": 1}` |  |
+| `cand-573499654adda081` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-18T19:54:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-033:fact-03-1b4378ac77cb` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 180750-181954 |
 | `cand-5bccad478205a0ab` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 25 | `fact-e01a6e0c6659405a` | `S1b_llm_canonicalized:2026-05-18:025:fact-0703ee9d6045, fact-e01a6e0c6659405a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 025 LAS/ZLA 05/18/2026 CDM GROUND DELAY PROGRAM CNX |
-| `cand-776f23fba42681e5` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-18T19:54:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 180750-181954 |
-| `cand-8174e1a17e317f2e` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-18T07:50:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 180750-181954 |
 | `cand-851b995f0e0ad673` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-18T07:50:00Z | `fact-a6231c4c86e9ca39` | `fact-a6231c4c86e9ca39` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 07:50 |
-| `cand-884241e4302debb0` | `S2_llm_schema_slice` | `advisoryNumber` | 25 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 025 LAS/ZLA 05/18/2026 CDM GROUND DELAY PROGRAM CNX |
+| `cand-8cef5dd37e3ec2af` | `S2_llm_schema_slice` | `initiativeComments` | DISREGARD EDCTS FOR DEST LAS | `` | `S2_llm_schema_slice:ATCSCC-GOLD-033:fact-04-8f7d33f243bd` | `{"repaired_accepted": 1}` | `{}` | COMMENTS: EFFECTIVE TIME: 180750-181954 |
 | `cand-8ff4615cf5c01a54` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-18T19:54:00Z | `fact-7e694629ee98a3d5` | `fact-7e694629ee98a3d5` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 180750-181954 |
 | `cand-934208a4f24bd1ec` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:LAS | `fact-b2bc83d932302aa9` | `S1b_llm_canonicalized:2026-05-18:025:fact-f5a615ba9608, fact-b2bc83d932302aa9` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | CTL ELEMENT: LAS |
+| `cand-a0c8cce941c4f419` | `S2_llm_schema_slice` | `controlledNASelement` | nas:LAS | `` | `S2_llm_schema_slice:ATCSCC-GOLD-033:fact-01-3ff123b5b8e9` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: LAS ELEMENT TYPE: APT |
 | `cand-b2ffac2c71a6a27e` | `S1_llm_only` | `'CTL ELEMENT'}` | {'label': 'LAS', 'value': 'LAS'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: LAS |
 | `cand-e9008eccc798d66a` | `S1_llm_only` | `'EFFECTIVE TIME'}` | {'label': '180750-181954', 'value': '180750-181954'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 180750-181954 |
 | `cand-f425d44c55b948ff` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | EFFECTIVE TIME: 180750-181954 SIGNATURE: 26/05/18 07:50 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Vie... | `fact-5eb25f3e5c69a127` | `fact-5eb25f3e5c69a127` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EFFECTIVE TIME: 180750-181954 SIGNATURE: 26/05/18 07:50 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Vie... |
+| `cand-f5a72af8b68f0adf` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-18T07:50:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-033:fact-02-37ef2b060275` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 180750-181954 |
 | `cand-f8d8bc998262f46d` | `S1_llm_only` | `'ELEMENT TYPE'}` | {'label': 'APT ADL', 'value': 'APT ADL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ELEMENT TYPE: APT ADL |
 
 ## ATCSCC-GOLD-043 / 2026-05-19:008
@@ -1860,6 +1808,47 @@ Candidate clusters:
 | `cand-eb310468619726f5` | `S1_llm_only` | `'was_detected_at'}` | {'label': '14/1030Z', 'type': 'time'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ERUPTION DETAILS: VA EM DETECTED EST VA DTG: 14/1030Z |
 | `cand-f2e163f78efa3fbe` | `S1_llm_only` | `'has_source_elevation'}` | {'label': '15256 FT AMSL', 'type': 'elevation'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 15256 FT AMSL |
 
+## ATCSCC-GOLD-049 / 2026-05-19:013
+
+- Batch: `batch_05`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_05.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_05.md`
+- Priority lane: `3_standard_review`
+- Complexity: `light` (score=39, est=14 min)
+- Candidate class: `TrafficManagementInitiative`
+- Candidate clusters: 19
+- Cross-system clusters: 19
+- Rejected facts: 0
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05192026&advn=13
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL MESSAGE: FVXX24 KNES 190606 WSI DDS:190609 VA ADVISORY DTG: 20260519/0606Z VAAC: WASHINGTON VOLCANO: POPOCATEPETL 341090 PSN: N1901 W09837 AREA: MEXICO SOURCE ELEV: 17693 FT AMSL ADVISORY NR: 2026/196 INFO SOURCE: GOES-19. WEBCAM. ERUPTION DETAILS: VA EMS ENDED OBS VA DTG: 19/0551Z OBS VA CLD: VA NOT IDENTIFIABLE FM STLT DATA FCST VA CLD +6HR: 19/1200Z NO VA EXP FCST VA CLD +12HR: 19/1800Z NO VA EXP FCST VA CLD +18HR: 20/0000Z NO VA EXP RMK: VA NOT DETECTED ON VARIOUS STLT PRODUCTS. WEBCAM SHOWS ONLY STEAM/GAS EMS CURRENTLY. NEW VA EMS LIKELY AT ANY TIME. ...KONON EFFECTIVE TIME: 190000-190000 SIGNATURE: 26/05/19 06:09 FAA.gov Home \|...
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-006cfe5b311681e9` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-19T06:09:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-049:fact-02-3dc8ea4e9051` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 06:09 |
+| `cand-02f1d920ea9e662d` | `S1_llm_only` | `'no_ash_expected_at_forecast_time'}` | {'class': 'Forecast time', 'name': '19/1800Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +12HR: 19/1800Z NO VA EXP |
+| `cand-059b1a847219f77d` | `S1_llm_only` | `'no_ash_expected_at_forecast_time'}` | {'class': 'Forecast time', 'name': '20/0000Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +18HR: 20/0000Z NO VA EXP |
+| `cand-108d2f7f17640892` | `S0_rule_only, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 13 | `fact-233e5df1a30aafcb` | `S2_llm_schema_slice:ATCSCC-GOLD-049:fact-01-78fcb76e2170, fact-233e5df1a30aafcb` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
+| `cand-16093312a035c2f5` | `S1_llm_only` | `'not_identifiable_from_satellite_data'}` | {'class': 'Observation result', 'name': 'VA NOT IDENTIFIABLE FM STLT DATA'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | OBS VA CLD: VA NOT IDENTIFIABLE FM STLT DATA |
+| `cand-20df0c4770a4dc72` | `S1_llm_only` | `'no_ash_expected_at_forecast_time'}` | {'class': 'Forecast time', 'name': '19/1200Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCST VA CLD +6HR: 19/1200Z NO VA EXP |
+| `cand-53f8cfb949650db6` | `S1_llm_only` | `'located_in_area'}` | {'class': 'Geographic Area', 'name': 'MEXICO'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | AREA: MEXICO |
+| `cand-62183d6e0fb0bcd4` | `S1_llm_only` | `'identifies_volcano'}` | {'class': 'Volcano', 'name': 'POPOCATEPETL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
+| `cand-6ce23877abf8d8f2` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-19T06:06:00Z | `fact-b1626a69866c45d8` | `fact-b1626a69866c45d8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 06:09 |
+| `cand-797bd7ee98da2014` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-19T19:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-049:fact-03-9cf6ee7b111c` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-7f3228128becac50` | `S2_llm_schema_slice` | `initiativeComments` | VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL | `` | `S2_llm_schema_slice:ATCSCC-GOLD-049:fact-05-351f792cfa45` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL |
+| `cand-89f6a94bb620ddcf` | `S1_llm_only` | `'reports_steam_gas_only_currently'}` | {'class': 'Emission type', 'name': 'STEAM/GAS EMS'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | WEBCAM SHOWS ONLY STEAM/GAS EMS CURRENTLY. |
+| `cand-9d389c713999340b` | `S1_llm_only` | `'reported_source_elevation'}` | {'class': 'Elevation', 'name': '17693 FT AMSL'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SOURCE ELEV: 17693 FT AMSL |
+| `cand-a28f8fe057d6dea8` | `S1_llm_only` | `'warns_new_ash_emission_possible_any_time'}` | {'class': 'Probability statement', 'name': 'NEW VA EMS LIKELY AT ANY TIME'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | NEW VA EMS LIKELY AT ANY TIME. |
+| `cand-a328b5c1d0380afb` | `S1_llm_only` | `'ended_at_observation_time'}` | {'class': 'Observation Time', 'name': '19/0551Z'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | VA EMS ENDED OBS VA DTG: 19/0551Z |
+| `cand-c6c154046040b81a` | `S1_llm_only` | `'indicates_not_detected_on_satellite_products'}` | {'class': 'Observation summary', 'name': 'VA NOT DETECTED ON VARIOUS STLT PRODUCTS'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | RMK: VA NOT DETECTED ON VARIOUS STLT PRODUCTS. |
+| `cand-db13defb0c82d7f1` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-19T00:00:00Z | `fact-8a3474de6dad98e1` | `fact-8a3474de6dad98e1` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-f81c40a091064de5` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T19:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-049:fact-04-3800a3a65ebe` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+| `cand-f84d3921e54211fe` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T00:00:00Z | `fact-f4f2e2273cc1a634` | `fact-f4f2e2273cc1a634` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 190000-190000 |
+
 ## ATCSCC-GOLD-070 / 2026-05-14:014
 
 - Batch: `batch_07`
@@ -1922,25 +1911,25 @@ Candidate clusters:
 
 | Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-0606f89e0f9d7858` | `S2_llm_schema_slice` | `controlledNASelement` | BNA | `` | `S2_llm_schema_slice:ATCSCC-GOLD-080:fact-01-9a9a201eca2c` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z |
 | `cand-06f38ba189886a45` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-18T22:41:00Z | `fact-1c8975f4096b451e` | `fact-1c8975f4096b451e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 182241-190150 |
 | `cand-0a0f3532b8487b1d` | `S1_llm_only` | `'time_interval'}` | {'label': '182241-190150', 'type': 'effective_time_range'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 182241-190150 |
 | `cand-10e22368ce990b27` | `S1_llm_only` | `'headline'}` | {'label': 'ATCSCC ADVZY 148 BNA/ZME 05/18/2026 CDM GS CNX', 'type': 'advisory_headline'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 148 BNA/ZME 05/18/2026 CDM GS CNX |
-| `cand-17cf13381378c5c3` | `S2_llm_schema_slice` | `controlledNASelement` | {'label': 'BNA', 'type': 'nas:Airport'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z |
 | `cand-39268567ca4cc380` | `S1_llm_only` | `'element_type'}` | {'label': 'APT ADL', 'type': 'element_type_value'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ELEMENT TYPE: APT ADL |
 | `cand-49c2bbccc9d8e59a` | `S1_llm_only` | `'time_interval'}` | {'label': '18/2236Z - 19/0050Z', 'type': 'time_period'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PERIOD: 18/2236Z - 19/0050Z |
-| `cand-4aa4ffa209c53d30` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-18T22:41:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/18 22:41 |
 | `cand-4ead146520b970a3` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `initiativeComments` | EFFECTIVE TIME: 182241-190150 SIGNATURE: 26/05/18 22:41 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Vie... | `fact-56358f2963896fba` | `fact-56358f2963896fba` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | COMMENTS: EFFECTIVE TIME: 182241-190150 SIGNATURE: 26/05/18 22:41 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Vie... |
 | `cand-648b05addaf018ec` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `controlledNASelement` | urn:aviation-agentic-ai:nas-element:BNA | `fact-8b6307238e8cd386` | `S1b_llm_canonicalized:2026-05-18:148:fact-89c012fad318, fact-8b6307238e8cd386` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | CTL ELEMENT: BNA |
 | `cand-67ca64df3bc1d7b0` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T01:50:00Z | `fact-cca43a9fdd809ad9` | `fact-cca43a9fdd809ad9` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 182241-190150 |
-| `cand-726827abb533ab33` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-18T22:36:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z |
 | `cand-7352dc480ac48aa8` | `S1_llm_only` | `'time'}` | {'label': '2236Z', 'type': 'zulu_time'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ADL TIME: 2236Z |
+| `cand-75c24b49e2185b6d` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-18T22:41:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-080:fact-02-7e2a4add603d` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 22:41 |
 | `cand-7d7af8cc3455b208` | `S1_llm_only` | `'control_element'}` | {'label': 'BNA', 'type': 'airport_element'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA |
-| `cand-8953923c9432763e` | `S2_llm_schema_slice` | `initiativeComments` | GS CNX | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z COMMENTS: |
 | `cand-aaf0ab19ace2164c` | `S1_llm_only` | `'status_change'}` | {'label': 'GS CNX', 'type': 'operation_status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | GS CNX |
 | `cand-b8a3b529351002a4` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-18T22:41:00Z | `fact-11f32ed5f7fd403f` | `fact-11f32ed5f7fd403f` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/18 22:41 |
+| `cand-c9b0da5215fed9f8` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T00:50:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-080:fact-04-ee0f2eb29655` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z |
+| `cand-cc188b9a326d7cd6` | `S2_llm_schema_slice` | `initiativeComments` | GS CNX | `` | `S2_llm_schema_slice:ATCSCC-GOLD-080:fact-05-880691f7929a` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z COMMENTS: |
 | `cand-d1370d2225594222` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 148 | `fact-d4d441604d99241b` | `S1b_llm_canonicalized:2026-05-18:148:fact-63fd2d998088, fact-d4d441604d99241b` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 148 BNA/ZME 05/18/2026 CDM GS CNX |
-| `cand-e544f8aa1681e8df` | `S3_llm_schema_slice_validator_repair` | `controlledNASelement` | {'label': 'BNA', 'type': 'nas:Airport'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z COMMENTS: |
-| `cand-ebeceab860d3527e` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T00:50:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z |
+| `cand-daa23acfa3c60388` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-18T22:36:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-080:fact-03-7fdabb62d052` | `{"repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z |
+| `cand-ea11c95faf7ab613` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `controlledNASelement` | BNA | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-080:fact-01-a559f9659e50` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | CTL ELEMENT: BNA ELEMENT TYPE: APT ADL TIME: 2236Z GS CNX PERIOD: 18/2236Z - 19/0050Z COMMENTS: |
 
 ## ATCSCC-GOLD-090 / 2026-05-15:061
 
@@ -2123,61 +2112,23 @@ Candidate clusters:
 
 | Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-0d0f0b3919bc13a8` | `S2_llm_schema_slice` | `reRouteType` | FCA | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
-| `cand-103dc703946f5146` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1}` | MESSAGE: FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: |
 | `cand-1220edfed626dd97` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 47 | `fact-efda94514ac952f9` | `fact-efda94514ac952f9` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
-| `cand-4497725adf6f0555` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-19T14:53:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/19 14:53 |
-| `cand-48b769eb5f3bd730` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T18:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 191453-191800 |
+| `cand-259534551378e410` | `S2_llm_schema_slice` | `reRouteType` | FCA | `` | `S2_llm_schema_slice:ATCSCC-GOLD-095:fact-04-11623cb9223a` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
+| `cand-431084501cd63eb2` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-19T18:00:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-095:fact-08-2c1d41ff3624` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 191453-191800 |
 | `cand-4ad329a720562a5d` | `S1_llm_only` | `has_status_change` | has been cancelled | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. |
 | `cand-4c67bc0c63e9be17` | `S1_llm_only` | `has_message` | FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | MESSAGE: FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: |
-| `cand-57e73df87759e13f` | `S2_llm_schema_slice` | `advisoryNumber` | 47 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
-| `cand-6795d233730878ea` | `S2_llm_schema_slice` | `initiativeComments` | FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | MESSAGE: FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: |
-| `cand-8484a779672cae41` | `S2_llm_schema_slice` | `implementationStatus` | FYI | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
-| `cand-874823263ac57ffe` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-19T14:53:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 191453-191800 |
+| `cand-56a610e5712bbaac` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-19T14:53:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-095:fact-07-8b67499ac83d` | `{"repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 191453-191800 |
+| `cand-7904e2eef1ed4e5f` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-095:fact-01-2972508a1739` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | MESSAGE: FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: |
+| `cand-804ea26416a9518d` | `S2_llm_schema_slice` | `advisoryNumber` | 47 | `` | `S2_llm_schema_slice:ATCSCC-GOLD-095:fact-01-183326a48b20` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
 | `cand-a39484ee27bd5128` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-19T14:53:00Z | `fact-c8afc5a06a98268b` | `fact-c8afc5a06a98268b` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 14:53 |
 | `cand-a3d03c44b63ecbff` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-19T14:53:00Z | `fact-5bd11e3e29aa0b7a` | `fact-5bd11e3e29aa0b7a` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 191453-191800 |
-| `cand-acea76b0bfb13fc1` | `S2_llm_schema_slice` | `reRouteReason` | OTHER | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
+| `cand-c86bbff2f687dfdb` | `S2_llm_schema_slice` | `reRouteReason` | OTHER | `` | `S2_llm_schema_slice:ATCSCC-GOLD-095:fact-05-f4bd3edbc1fc` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
 | `cand-cd1e5bfc1cb2e387` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-19T18:00:00Z | `fact-e717237bc47d0030` | `fact-e717237bc47d0030` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 191453-191800 |
+| `cand-ce01e94f240fa984` | `S2_llm_schema_slice` | `implementationStatus` | FYI | `` | `S2_llm_schema_slice:ATCSCC-GOLD-095:fact-03-c32fb31c6e89` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 047 DCC 05/19/2026 REROUTE CANCELLATION |
+| `cand-e0cf60e5d7eb1ef0` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-19T14:53:00Z | `` | `S2_llm_schema_slice:ATCSCC-GOLD-095:fact-02-461bb76ef2a6` | `{"repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/19 14:53 |
 | `cand-e8f53247193e3d01` | `S1_llm_only` | `was_signed_at` | 26/05/19 14:53 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/19 14:53 |
+| `cand-ee57e4768e272504` | `S2_llm_schema_slice` | `initiativeComments` | FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: | `` | `S2_llm_schema_slice:ATCSCC-GOLD-095:fact-06-8e0df5ddee55` | `{"repaired_accepted": 1}` | `{}` | MESSAGE: FCA001:FDRER_PARTIAL HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: |
 | `cand-f48e96cfb6d98726` | `S1_llm_only` | `has_effective_time` | 191453-191800 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 191453-191800 |
-
-## ATCSCC-GOLD-048 / 2026-05-17:003
-
-- Batch: `batch_05`
-- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_05.jsonl`
-- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_05.md`
-- Priority lane: `3_standard_review`
-- Complexity: `light` (score=33, est=11 min)
-- Candidate class: `TrafficManagementInitiative`
-- Candidate clusters: 16
-- Cross-system clusters: 16
-- Rejected facts: 0
-- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05172026&advn=3
-
-Source excerpt:
-
-> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. EFFECTIVE TIME: 170043-171200 SIGNATURE: 26/05/17 00:43 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
-
-Candidate clusters:
-
-| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-08138ecf1101f27b` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 3 | `fact-e8fe95a583b44db2` | `fact-e8fe95a583b44db2` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION |
-| `cand-1d8cd86549ae6f4f` | `S3_llm_schema_slice_validator_repair` | `issuedTime` | 2026-05-17T00:43:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-02-17a922830947` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
-| `cand-20b466decc9436fd` | `S1_llm_only` | `'state'}` | {'label': 'closed', 'type': 'status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. |
-| `cand-217db584d98a952c` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-17T00:43:00Z | `fact-1d6fcf65f960dea8` | `fact-1d6fcf65f960dea8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 170043-171200 |
-| `cand-2c79096a71c90f05` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-05-caeb411a4210` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
-| `cand-314d92c01c7d5641` | `S2_llm_schema_slice` | `effectiveStartTime` | 2026-05-17T00:43:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 170043-171200 |
-| `cand-36abb1ca8be75a12` | `S2_llm_schema_slice` | `initiativeComments` | THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. |
-| `cand-3764a46d20692fd9` | `S2_llm_schema_slice` | `effectiveEndTime` | 2026-05-17T12:00:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 170043-171200 |
-| `cand-3f7bf62e61052804` | `S1_llm_only` | `'instruction'}` | {'label': 'normal ATCSCC phone lines', 'type': 'contact method'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. |
-| `cand-50eaa031cd2ea326` | `S1_llm_only` | `'time interval'}` | {'label': '170043-171200', 'type': 'time interval'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 170043-171200 |
-| `cand-6e1f1ffd0d3e29f2` | `S3_llm_schema_slice_validator_repair` | `advisoryNumber` | 3 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-01-345f198eb1c3` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
-| `cand-6f22109771e33824` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-17T12:00:00Z | `fact-2835d68338bbc70d` | `fact-2835d68338bbc70d` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 170043-171200 |
-| `cand-ab7a06497b76b3d1` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-17T00:43:00Z | `fact-683870d0cd7e977f` | `fact-683870d0cd7e977f` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/17 00:43 |
-| `cand-d3630610b6ee889d` | `S3_llm_schema_slice_validator_repair` | `effectiveEndTime` | 2026-05-17T12:00:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-04-387bfe77ffab` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
-| `cand-d3ab2bd1dd1c96d7` | `S2_llm_schema_slice` | `advisoryNumber` | 3 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION |
-| `cand-ff46fc1ce4f832c7` | `S3_llm_schema_slice_validator_repair` | `effectiveStartTime` | 2026-05-17T00:43:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-03-1e1cbe8039d5` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
 
 ## ATCSCC-GOLD-040 / 2026-05-20:197
 
@@ -2185,10 +2136,10 @@ Candidate clusters:
 - Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_04.jsonl`
 - Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_04.md`
 - Priority lane: `3_standard_review`
-- Complexity: `light` (score=31, est=11 min)
+- Complexity: `light` (score=27, est=11 min)
 - Candidate class: `ReRouteTMI`
-- Candidate clusters: 15
-- Cross-system clusters: 15
+- Candidate clusters: 13
+- Cross-system clusters: 13
 - Rejected facts: 0
 - Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05202026&advn=197
 
@@ -2200,21 +2151,54 @@ Candidate clusters:
 
 | Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cand-0151d7b5e8976bd1` | `S2_llm_schema_slice` | `controlledNASelement` | {'name': 'ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED', 'type': 'nas:Airport'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_subject_class": 1}` | ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED HAS BEEN CANCELLED. |
 | `cand-0916c4248b064e90` | `S1_llm_only` | `has_remark` | associated restrictions | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | REMARKS: ASSOCIATED RESTRICTIONS: |
-| `cand-12fca6001e102b93` | `S0_rule_only, S1b_llm_canonicalized, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 197 | `fact-94608c8d108c6d90` | `S1b_llm_canonicalized:2026-05-20:197:fact-c031bdc03a54, fact-94608c8d108c6d90` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
-| `cand-218acd50f943af4d` | `S2_llm_schema_slice` | `issuedTime` | 2026-05-20T23:59:00Z | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | SIGNATURE: 26/05/20 23:59 |
+| `cand-12fca6001e102b93` | `S0_rule_only, S1b_llm_canonicalized, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 197 | `fact-94608c8d108c6d90` | `S1b_llm_canonicalized:2026-05-20:197:fact-c031bdc03a54, S2_llm_schema_slice:ATCSCC-GOLD-040:fact-01-ebcd55973063, fact-94608c8d108c6d90` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 3}` | `{}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
 | `cand-26002cb331bb77dd` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-21T02:00:00Z | `fact-2fb41fe3e1c5b4f8` | `fact-2fb41fe3e1c5b4f8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 202359-210200 |
-| `cand-29df9dfd7d6d3015` | `S2_llm_schema_slice` | `implementationStatus` | RQD | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
-| `cand-2d953801a51fee79` | `S3_llm_schema_slice_validator_repair` | `initiativeComments` | ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | MESSAGE: ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: |
 | `cand-36a00cee0e02cedd` | `S1_llm_only` | `advisory_message_type` | reroute cancellation | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
+| `cand-5199ee0a05aed094` | `S2_llm_schema_slice` | `controlledNASelement` | ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED | `` | `S2_llm_schema_slice:ATCSCC-GOLD-040:fact-06-10c88d7c6549` | `{"repaired_accepted": 1}` | `{}` | ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED HAS BEEN CANCELLED. |
 | `cand-544d7203ee032079` | `S1_llm_only` | `cancellation_status` | cancelled | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED HAS BEEN CANCELLED. |
-| `cand-5f7265f39c9c1835` | `S2_llm_schema_slice` | `reRouteReason` | OTHER | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
-| `cand-76cf775e02890168` | `S2_llm_schema_slice` | `reRouteType` | INFORMATIONAL | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
-| `cand-8ddf61aa108b2d0b` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T23:59:00Z | `fact-7f3d018007dc419e` | `fact-7f3d018007dc419e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/20 23:59 |
+| `cand-544f3dd5a516f9c2` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-040:fact-01-9f8dddc69e52` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | MESSAGE: ZBW_NATS_ESCAPE_VIA_GOATR_MODIFIED HAS BEEN CANCELLED. REMARKS: ASSOCIATED RESTRICTIONS: |
+| `cand-58c64493e63bcbcb` | `S2_llm_schema_slice` | `reRouteType` | INFORMATIONAL | `` | `S2_llm_schema_slice:ATCSCC-GOLD-040:fact-04-20f8ab916dd8` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
+| `cand-8ddf61aa108b2d0b` | `S0_rule_only, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-20T23:59:00Z | `fact-7f3d018007dc419e` | `S2_llm_schema_slice:ATCSCC-GOLD-040:fact-02-29c423cbd92f, fact-7f3d018007dc419e` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | SIGNATURE: 26/05/20 23:59 |
 | `cand-95df21765497c626` | `S1_llm_only` | `has_effective_time` | 202359-210200 | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 202359-210200 |
-| `cand-a04d6f47a774c8e7` | `S2_llm_schema_slice` | `advisoryNumber` | 197 | `` | `` | `{"rejected_schema": 1}` | `{"predicate_not_object_property": 1, "unknown_object_class": 1, "unknown_subject_class": 1}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
+| `cand-a895cd416eb0efed` | `S2_llm_schema_slice` | `reRouteReason` | OTHER | `` | `S2_llm_schema_slice:ATCSCC-GOLD-040:fact-05-58a97ea3206b` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
+| `cand-e9c8d43e10b37fcd` | `S2_llm_schema_slice` | `implementationStatus` | RQD | `` | `S2_llm_schema_slice:ATCSCC-GOLD-040:fact-03-d77c3384508d` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 197 DCC 05/20/2026 REROUTE CANCELLATION |
 | `cand-ffda238e74aa07e9` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-20T23:59:00Z | `fact-71ee75bc4ccdad66` | `fact-71ee75bc4ccdad66` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | EFFECTIVE TIME: 202359-210200 |
+
+## ATCSCC-GOLD-048 / 2026-05-17:003
+
+- Batch: `batch_05`
+- Decision template: `data/evaluation/nasa_atmonto/review_decisions/batch_05.jsonl`
+- Batch checklist: `data/evaluation/nasa_atmonto/review_batches/batch_05.md`
+- Priority lane: `3_standard_review`
+- Complexity: `light` (score=27, est=11 min)
+- Candidate class: `TrafficManagementInitiative`
+- Candidate clusters: 13
+- Cross-system clusters: 13
+- Rejected facts: 0
+- Source URL: https://www.fly.faa.gov/adv/adv_otherdis?adv_date=05172026&advn=3
+
+Source excerpt:
+
+> ATCSCC Advisory FAA Home Air Traffic Control System Command Center ATCSCC Home \| Products \| What's New \| Site Map \| ATCSCC FAQ \| Diversion Forums \| Text-Only Version ATCSCC Advisory ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. EFFECTIVE TIME: 170043-171200 SIGNATURE: 26/05/17 00:43 FAA.gov Home \| Privacy Policy \| Web Policies & Notices \| Contact Us Readers & Viewers: PDF Reader \| MS Word Viewer \| MS PowerPoint Viewer \| MS Excel Viewer \| WinZip
+
+Candidate clusters:
+
+| Candidate | Systems | Predicate | Value/Object | S0 IDs | Schema-valid S1-S3 IDs | Validator | Errors | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `cand-08138ecf1101f27b` | `S0_rule_only, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `advisoryNumber` | 3 | `fact-e8fe95a583b44db2` | `S2_llm_schema_slice:ATCSCC-GOLD-048:fact-01-21f99547fcdd, fact-e8fe95a583b44db2` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION |
+| `cand-1d8cd86549ae6f4f` | `S3_llm_schema_slice_validator_repair` | `issuedTime` | 2026-05-17T00:43:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-02-17a922830947` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
+| `cand-20b466decc9436fd` | `S1_llm_only` | `'state'}` | {'label': 'closed', 'type': 'status'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. |
+| `cand-217db584d98a952c` | `S0_rule_only, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `effectiveStartTime` | 2026-05-17T00:43:00Z | `fact-1d6fcf65f960dea8` | `S2_llm_schema_slice:ATCSCC-GOLD-048:fact-02-4bcc13cff169, fact-1d6fcf65f960dea8` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | EFFECTIVE TIME: 170043-171200 |
+| `cand-2c79096a71c90f05` | `S3_llm_schema_slice_validator_repair, S4_hybrid_backbone_enrichment` | `initiativeComments` | THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-05-caeb411a4210` | `{"hybrid_enrichment_accepted": 1, "repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
+| `cand-344b217cbe975339` | `S2_llm_schema_slice` | `initiativeComments` | THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. | `` | `S2_llm_schema_slice:ATCSCC-GOLD-048:fact-04-e440f7004a1a` | `{"repaired_accepted": 1}` | `{}` | MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. |
+| `cand-3f7bf62e61052804` | `S1_llm_only` | `'instruction'}` | {'label': 'normal ATCSCC phone lines', 'type': 'contact method'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER ASSISTANCE. |
+| `cand-50eaa031cd2ea326` | `S1_llm_only` | `'time interval'}` | {'label': '170043-171200', 'type': 'time interval'} | `` | `` | `{"rejected_schema": 1}` | `{"unknown_object_class": 1, "unknown_predicate": 1, "unknown_subject_class": 1}` | EFFECTIVE TIME: 170043-171200 |
+| `cand-6e1f1ffd0d3e29f2` | `S3_llm_schema_slice_validator_repair` | `advisoryNumber` | 3 | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-01-345f198eb1c3` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
+| `cand-6f22109771e33824` | `S0_rule_only, S2_llm_schema_slice, S4_hybrid_backbone_enrichment` | `effectiveEndTime` | 2026-05-17T12:00:00Z | `fact-2835d68338bbc70d` | `S2_llm_schema_slice:ATCSCC-GOLD-048:fact-03-64ae1b9bbc2f, fact-2835d68338bbc70d` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 2}` | `{}` | EFFECTIVE TIME: 170043-171200 |
+| `cand-ab7a06497b76b3d1` | `S0_rule_only, S4_hybrid_backbone_enrichment` | `issuedTime` | 2026-05-17T00:43:00Z | `fact-683870d0cd7e977f` | `fact-683870d0cd7e977f` | `{"hybrid_backbone_accepted": 1, "repaired_accepted": 1}` | `{}` | SIGNATURE: 26/05/17 00:43 |
+| `cand-d3630610b6ee889d` | `S3_llm_schema_slice_validator_repair` | `effectiveEndTime` | 2026-05-17T12:00:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-04-387bfe77ffab` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
+| `cand-ff46fc1ce4f832c7` | `S3_llm_schema_slice_validator_repair` | `effectiveStartTime` | 2026-05-17T00:43:00Z | `` | `S3_llm_schema_slice_validator_repair:ATCSCC-GOLD-048:fact-03-1e1cbe8039d5` | `{"repaired_accepted": 1}` | `{}` | ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION MESSAGE: THE TERMINAL TCA/HOTLINE WEB PAGE IS NOW CLOSED. PLEASE UTILIZE NORMAL ATCSCC PHONE LINES FOR FURTHER... |
 
 ## ATCSCC-GOLD-097 / 2026-05-16:067
 
