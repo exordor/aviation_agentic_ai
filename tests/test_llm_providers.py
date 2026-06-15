@@ -24,11 +24,12 @@ def test_llm_provider_helpers_expose_shared_defaults(monkeypatch) -> None:
     monkeypatch.delenv("MODEL_NAME", raising=False)
     monkeypatch.setenv("LLM_PROVIDER", "vllm")
 
-    assert providers.SUPPORTED_LLM_PROVIDERS == frozenset({"openai", "deepseek", "newapi", "vllm"})
+    assert providers.SUPPORTED_LLM_PROVIDERS == frozenset({"openai", "deepseek", "newapi", "sub2api", "vllm"})
     assert providers.configured_llm_provider() == "vllm"
     assert providers.configured_llm_model("openai") == "gpt-4o-mini"
     assert providers.configured_llm_model("deepseek") == "deepseek-chat"
-    assert providers.configured_llm_model("newapi") == "gpt-5.4"
+    assert providers.configured_llm_model("newapi") == "glm-5.2"
+    assert providers.configured_llm_model("sub2api") == "gpt-5.5"
     assert providers.configured_llm_model("vllm") == "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8"
     assert providers.configured_llm_model("unknown-provider") == "unknown"
 
@@ -111,7 +112,7 @@ def test_get_llm_routes_newapi_to_openai_compatible_endpoint(monkeypatch) -> Non
     llm = providers.get_llm(temperature=0.2, max_tokens=789)
 
     assert llm.kwargs == {
-        "model": "gpt-5.4",
+        "model": "glm-5.2",
         "base_url": "http://localhost:3000/v1",
         "api_key": "newapi-key",
         "temperature": 0.2,
@@ -141,6 +142,52 @@ def test_get_llm_rejects_newapi_without_api_key(monkeypatch) -> None:
     monkeypatch.delenv("NEWAPI_API_KEY", raising=False)
 
     with pytest.raises(RuntimeError, match="NEWAPI_API_KEY"):
+        providers.get_llm()
+
+    assert FakeChatOpenAI.calls == []
+
+
+def test_get_llm_routes_sub2api_to_openai_compatible_endpoint(monkeypatch) -> None:
+    _install_fake_langchain_openai(monkeypatch)
+    monkeypatch.setattr(providers, "load_environment", lambda: None)
+    monkeypatch.setenv("LLM_PROVIDER", "sub2api")
+    monkeypatch.delenv("MODEL_NAME", raising=False)
+    monkeypatch.setenv("SUB2API_BASE_URL", "http://127.0.0.1:8080")
+    monkeypatch.setenv("SUB2API_API_KEY", "sub2api-key")
+
+    llm = providers.get_llm(temperature=0.2, max_tokens=789)
+
+    assert llm.kwargs == {
+        "model": "gpt-5.5",
+        "base_url": "http://127.0.0.1:8080/v1",
+        "api_key": "sub2api-key",
+        "temperature": 0.2,
+        "max_tokens": 789,
+        "timeout": 60.0,
+    }
+
+
+def test_get_llm_preserves_sub2api_base_url_with_v1_path(monkeypatch) -> None:
+    _install_fake_langchain_openai(monkeypatch)
+    monkeypatch.setattr(providers, "load_environment", lambda: None)
+    monkeypatch.setenv("LLM_PROVIDER", "sub2api")
+    monkeypatch.setenv("MODEL_NAME", "gpt-5.4")
+    monkeypatch.setenv("SUB2API_BASE_URL", "http://127.0.0.1:8080/v1")
+    monkeypatch.setenv("SUB2API_API_KEY", "sub2api-key")
+
+    llm = providers.get_llm()
+
+    assert llm.kwargs["model"] == "gpt-5.4"
+    assert llm.kwargs["base_url"] == "http://127.0.0.1:8080/v1"
+
+
+def test_get_llm_rejects_sub2api_without_api_key(monkeypatch) -> None:
+    _install_fake_langchain_openai(monkeypatch)
+    monkeypatch.setattr(providers, "load_environment", lambda: None)
+    monkeypatch.setenv("LLM_PROVIDER", "sub2api")
+    monkeypatch.delenv("SUB2API_API_KEY", raising=False)
+
+    with pytest.raises(RuntimeError, match="SUB2API_API_KEY"):
         providers.get_llm()
 
     assert FakeChatOpenAI.calls == []

@@ -401,14 +401,14 @@ def test_live_query_readiness_accepts_newapi_provider(tmp_path: Path, monkeypatc
     (tmp_path / "data" / "indexes" / "chroma").mkdir(parents=True)
     monkeypatch.setattr(web_app.importlib.util, "find_spec", lambda _module: object())
     monkeypatch.setenv("LLM_PROVIDER", "newapi")
-    monkeypatch.setenv("MODEL_NAME", "gpt-5.4")
+    monkeypatch.setenv("MODEL_NAME", "glm-5.2")
     monkeypatch.setenv("NEWAPI_API_KEY", "newapi-key")
 
     readiness = web_app.build_live_query_readiness(tmp_path, enable_live_query=True)
 
     assert readiness["enabled"] is True
     assert readiness["provider"] == "newapi"
-    assert readiness["model"] == "gpt-5.4"
+    assert readiness["model"] == "glm-5.2"
 
 
 def test_live_query_abstains_on_operational_boundary_before_runner(

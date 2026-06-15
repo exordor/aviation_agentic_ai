@@ -12,7 +12,8 @@ if TYPE_CHECKING:
 DEFAULT_LLM_MODELS: dict[str, str] = {
     "openai": "gpt-4o-mini",
     "deepseek": "deepseek-chat",
-    "newapi": "gpt-5.4",
+    "newapi": "glm-5.2",
+    "sub2api": "gpt-5.5",
     "vllm": "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8",
 }
 SUPPORTED_LLM_PROVIDERS = frozenset(DEFAULT_LLM_MODELS)
@@ -20,6 +21,7 @@ PROVIDER_API_KEY_ENV: dict[str, str] = {
     "openai": "OPENAI_API_KEY",
     "deepseek": "DEEPSEEK_API_KEY",
     "newapi": "NEWAPI_API_KEY",
+    "sub2api": "SUB2API_API_KEY",
 }
 
 
@@ -112,6 +114,18 @@ def get_llm(
                 os.getenv("NEWAPI_BASE_URL", "http://localhost:3000")
             ),
             api_key=_required_env("NEWAPI_API_KEY", provider),
+            temperature=temperature,
+            max_tokens=max_tokens,
+            timeout=timeout,
+        )
+
+    if provider == "sub2api":
+        return ChatOpenAI(
+            model=model,
+            base_url=normalize_openai_compatible_base_url(
+                os.getenv("SUB2API_BASE_URL", "http://127.0.0.1:8080")
+            ),
+            api_key=_required_env("SUB2API_API_KEY", provider),
             temperature=temperature,
             max_tokens=max_tokens,
             timeout=timeout,

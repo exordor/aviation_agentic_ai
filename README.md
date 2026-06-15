@@ -308,7 +308,7 @@ For the local NewAPI relay, keep secrets in the ignored `.env` file:
 
 ```dotenv
 LLM_PROVIDER=newapi
-MODEL_NAME=gpt-5.4
+MODEL_NAME=glm-5.2
 NEWAPI_BASE_URL=http://localhost:3000
 NEWAPI_API_KEY=<your-newapi-key>
 ```
@@ -316,6 +316,21 @@ NEWAPI_API_KEY=<your-newapi-key>
 `NEWAPI_BASE_URL` may be either the service host or the OpenAI-compatible `/v1`
 base URL; the provider normalizes `http://localhost:3000` to
 `http://localhost:3000/v1`.
+
+For the sub2api relay (Codex-subscription-backed GPT-5 models), use the
+`sub2api` provider:
+
+```dotenv
+LLM_PROVIDER=sub2api
+MODEL_NAME=gpt-5.5
+SUB2API_BASE_URL=http://127.0.0.1:8080
+SUB2API_API_KEY=<your-sub2api-key>
+```
+
+sub2api speaks the OpenAI Responses API and converts `/v1/chat/completions`
+calls to `/v1/responses` internally, so the existing chat-completions code path
+(including tool calling) works without a custom adapter. `SUB2API_BASE_URL` is
+normalized the same way as `NEWAPI_BASE_URL`.
 
 Hybrid reports keep retrieval, KG evidence, and LLM answer metrics separate.
 They also record the LLM provider/model name, Chroma collection, chunking
