@@ -318,6 +318,18 @@ def canonical_fact_key(fact: dict[str, Any]) -> FactKey:
     )
 
 
+def evidence_tolerant_fact_key(fact: dict[str, Any]) -> tuple[str, ...]:
+    """Fact identity ignoring the evidence_text span.
+
+    Matches :func:`canonical_fact_key` on source id, subject class, predicate,
+    value, object class, and datatype, so two facts that differ only in how
+    their evidence is quoted count as the same fact. This separates extraction
+    quality from evidence-citation formatting, which is useful when comparing an
+    LLM extractor against a rule baseline that cites concatenated header spans.
+    """
+    return canonical_fact_key(fact)[:6]
+
+
 def system_definitions(repo_root: Path) -> list[dict[str, Any]]:
     return [
         {
@@ -458,8 +470,8 @@ def percentile_interval(values: list[float], *, lower_q: float = 0.025, upper_q:
 
 def semantic_bootstrap_confidence_intervals(
     *,
-    prediction_keys: set[FactKey],
-    gold_keys: set[FactKey],
+    prediction_keys: set[tuple[str, ...]],
+    gold_keys: set[tuple[str, ...]],
     iterations: int = SEMANTIC_BOOTSTRAP_ITERATIONS,
     seed: int = SEMANTIC_BOOTSTRAP_SEED,
 ) -> dict[str, Any]:
@@ -562,6 +574,31 @@ def json_adherence_from_payloads(payloads: list[dict[str, Any]], selected_ids: s
     }
 
 
+def _semantic_metric_block(
+    *,
+    prediction_keys: set[tuple[str, ...]],
+    gold_keys: set[tuple[str, ...]],
+) -> dict[str, Any]:
+    true_positive = prediction_keys & gold_keys
+    values = semantic_metric_values(
+        predicted_count=len(prediction_keys),
+        gold_count=len(gold_keys),
+        true_positive_count=len(true_positive),
+    )
+    return {
+        "predicted_fact_count": len(prediction_keys),
+        "gold_fact_count": len(gold_keys),
+        "true_positive_count": len(true_positive),
+        "false_positive_count": len(prediction_keys - gold_keys),
+        "false_negative_count": len(gold_keys - prediction_keys),
+        **values,
+        "confidence_intervals": semantic_bootstrap_confidence_intervals(
+            prediction_keys=prediction_keys,
+            gold_keys=gold_keys,
+        ),
+    }
+
+
 def semantic_metrics(
     *,
     predictions: list[dict[str, Any]],
@@ -577,27 +614,19 @@ def semantic_metrics(
             "f1": None,
             "manual_semantic_correctness": None,
             "confidence_intervals": None,
+            "evidence_tolerant": None,
         }
     prediction_keys = {canonical_fact_key(fact) for fact in predictions}
-    true_positive = prediction_keys & gold_keys
-    false_positive = prediction_keys - gold_keys
-    false_negative = gold_keys - prediction_keys
-    metric_values = semantic_metric_values(
-        predicted_count=len(prediction_keys),
-        gold_count=len(gold_keys),
-        true_positive_count=len(true_positive),
-    )
+    # Evidence-tolerant keys drop the evidence_text span (the 7th key element),
+    # so facts that agree on everything except their quoted evidence match.
+    tolerant_prediction_keys = {key[:6] for key in prediction_keys}
+    tolerant_gold_keys = {key[:6] for key in gold_keys}
     return {
         "available": True,
-        "predicted_fact_count": len(prediction_keys),
-        "gold_fact_count": len(gold_keys),
-        "true_positive_count": len(true_positive),
-        "false_positive_count": len(false_positive),
-        "false_negative_count": len(false_negative),
-        **metric_values,
-        "confidence_intervals": semantic_bootstrap_confidence_intervals(
-            prediction_keys=prediction_keys,
-            gold_keys=gold_keys,
+        **_semantic_metric_block(prediction_keys=prediction_keys, gold_keys=gold_keys),
+        "evidence_tolerant": _semantic_metric_block(
+            prediction_keys=tolerant_prediction_keys,
+            gold_keys=tolerant_gold_keys,
         ),
     }
 

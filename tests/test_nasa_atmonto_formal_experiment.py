@@ -192,6 +192,49 @@ def test_semantic_metrics_compute_precision_recall_f1_when_gold_exists() -> None
     assert metrics["confidence_intervals"]["intervals"]["precision"] == {"low": 0.5, "high": 0.5}
 
 
+def test_semantic_metrics_evidence_tolerant_matches_facts_with_different_evidence() -> None:
+    # Same fact (source/subject/predicate/value/datatype) but different evidence spans:
+    # the strict metric counts it as a miss, the evidence-tolerant view as a hit.
+    gold_fact = {
+        "fact_type": "datatype_property",
+        "source_id": "2026-05-14:001",
+        "subject_class": "GroundStopTMI",
+        "predicate": "advisoryNumber",
+        "value": 32,
+        "datatype": "xsd:integer",
+        "evidence_text": "ATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD",
+    }
+    prediction = {**gold_fact, "evidence_text": "ATCSCC ADVZY 032"}
+
+    metrics = semantic_metrics(
+        predictions=[prediction],
+        gold_records=[
+            {
+                "source_id": "2026-05-14:001",
+                "gold_annotation": {
+                    "annotation_status": "reviewed",
+                    "valid_facts": [gold_fact],
+                    "missing_facts": [],
+                },
+            }
+        ],
+    )
+
+    # Strict: evidence_text differs, so no match.
+    assert metrics["available"] is True
+    assert metrics["true_positive_count"] == 0
+    assert metrics["f1"] == 0.0
+    # Evidence-tolerant: evidence_text ignored, so the fact matches.
+    tolerant = metrics["evidence_tolerant"]
+    assert tolerant["true_positive_count"] == 1
+    assert tolerant["predicted_fact_count"] == 1
+    assert tolerant["gold_fact_count"] == 1
+    assert tolerant["precision"] == 1.0
+    assert tolerant["recall"] == 1.0
+    assert tolerant["f1"] == 1.0
+    assert tolerant["confidence_intervals"]["available"] is True
+
+
 def test_semantic_metrics_keep_identical_facts_source_scoped() -> None:
     fact = {
         "fact_type": "datatype_property",
