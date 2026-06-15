@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import os
 from datetime import UTC, datetime
 from typing import Any, Callable
 
@@ -11,7 +10,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from aviation_agentic_ai.config import load_environment
 from aviation_agentic_ai.evaluation.protocol import safe_llm_metadata
-from aviation_agentic_ai.llm.providers import SUPPORTED_LLM_PROVIDERS, configured_llm_provider
+from aviation_agentic_ai.llm.providers import (
+    SUPPORTED_LLM_PROVIDERS,
+    configured_llm_provider,
+    has_required_llm_credentials,
+)
 from aviation_agentic_ai.utils.json_extraction import (
     extract_json_object as _extract_json_object_text,
 )
@@ -155,9 +158,7 @@ def llm_runtime_available() -> bool:
     provider = configured_llm_provider()
     if provider not in SUPPORTED_LLM_PROVIDERS:
         return False
-    if provider == "openai" and not os.getenv("OPENAI_API_KEY"):
-        return False
-    if provider == "deepseek" and not os.getenv("DEEPSEEK_API_KEY"):
+    if not has_required_llm_credentials(provider):
         return False
     try:
         import langchain_core.messages  # noqa: F401

@@ -304,6 +304,19 @@ uv run aviation-ai query "How does angle of attack affect lift?" --mode hybrid
 uv run aviation-ai report hybrid-rag
 ```
 
+For the local NewAPI relay, keep secrets in the ignored `.env` file:
+
+```dotenv
+LLM_PROVIDER=newapi
+MODEL_NAME=gpt-5.4
+NEWAPI_BASE_URL=http://localhost:3000
+NEWAPI_API_KEY=<your-newapi-key>
+```
+
+`NEWAPI_BASE_URL` may be either the service host or the OpenAI-compatible `/v1`
+base URL; the provider normalizes `http://localhost:3000` to
+`http://localhost:3000/v1`.
+
 Hybrid reports keep retrieval, KG evidence, and LLM answer metrics separate.
 They also record the LLM provider/model name, Chroma collection, chunking
 strategy, graph/vector top-k settings, and whether chunks/indexes/KG were

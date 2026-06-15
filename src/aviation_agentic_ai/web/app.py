@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.util
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -16,6 +15,8 @@ from aviation_agentic_ai.llm.providers import (
     SUPPORTED_LLM_PROVIDERS,
     configured_llm_model,
     configured_llm_provider,
+    has_required_llm_credentials,
+    required_api_key_env_for_provider,
 )
 from aviation_agentic_ai.paths import PROJECT_ROOT
 from aviation_agentic_ai.retrieval.hybrid import run_query
@@ -94,12 +95,11 @@ def build_live_query_readiness(
         }
 
     provider = metadata["provider"]
-    if provider == "openai" and not os.getenv("OPENAI_API_KEY"):
-        return {**base, "reason": "OPENAI_API_KEY is not configured."}
-    if provider == "deepseek" and not os.getenv("DEEPSEEK_API_KEY"):
-        return {**base, "reason": "DEEPSEEK_API_KEY is not configured."}
     if provider not in SUPPORTED_LLM_PROVIDERS:
         return {**base, "reason": f"Unsupported LLM_PROVIDER: {provider}"}
+    if not has_required_llm_credentials(provider):
+        api_key_env = required_api_key_env_for_provider(provider)
+        return {**base, "reason": f"{api_key_env} is not configured."}
 
     return {**base, "enabled": True, "reason": "Live query is ready."}
 

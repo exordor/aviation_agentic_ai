@@ -142,6 +142,25 @@ def test_dry_run_manifest_excludes_secrets(tmp_path: Path, monkeypatch) -> None:
     assert "OPENAI_API_KEY" not in manifest_text
 
 
+def test_llm_manifest_metadata_supports_newapi_without_secret(monkeypatch) -> None:
+    from aviation_agentic_ai.ontology import generation
+
+    monkeypatch.setattr(generation, "load_environment", lambda: None)
+    monkeypatch.setenv("LLM_PROVIDER", "newapi")
+    monkeypatch.setenv("MODEL_NAME", "kimi-k2.7-code")
+    monkeypatch.setenv("NEWAPI_BASE_URL", "http://localhost:3000")
+    monkeypatch.setenv("NEWAPI_API_KEY", "newapi-secret")
+
+    manifest = generation._llm_manifest_metadata()
+
+    assert manifest == {
+        "provider": "newapi",
+        "model": "kimi-k2.7-code",
+        "base_url_host": "localhost",
+    }
+    assert "newapi-secret" not in json.dumps(manifest)
+
+
 def test_non_dry_run_manifest_records_llm_failure(tmp_path: Path, monkeypatch) -> None:
     from aviation_agentic_ai.ontology import generation
     from aviation_agentic_ai.llm import providers

@@ -394,6 +394,23 @@ def test_live_query_does_not_call_runner_when_not_ready(tmp_path: Path, monkeypa
     assert response.json()["detail"]
 
 
+def test_live_query_readiness_accepts_newapi_provider(tmp_path: Path, monkeypatch) -> None:
+    from aviation_agentic_ai.web import app as web_app
+
+    _write_web_fixture(tmp_path)
+    (tmp_path / "data" / "indexes" / "chroma").mkdir(parents=True)
+    monkeypatch.setattr(web_app.importlib.util, "find_spec", lambda _module: object())
+    monkeypatch.setenv("LLM_PROVIDER", "newapi")
+    monkeypatch.setenv("MODEL_NAME", "gpt-5.4")
+    monkeypatch.setenv("NEWAPI_API_KEY", "newapi-key")
+
+    readiness = web_app.build_live_query_readiness(tmp_path, enable_live_query=True)
+
+    assert readiness["enabled"] is True
+    assert readiness["provider"] == "newapi"
+    assert readiness["model"] == "gpt-5.4"
+
+
 def test_live_query_abstains_on_operational_boundary_before_runner(
     tmp_path: Path,
     monkeypatch,

@@ -12,9 +12,22 @@ if TYPE_CHECKING:
 DEFAULT_LLM_MODELS: dict[str, str] = {
     "openai": "gpt-4o-mini",
     "deepseek": "deepseek-chat",
+    "newapi": "gpt-5.4",
     "vllm": "Qwen/Qwen3-30B-A3B-Instruct-2507-FP8",
 }
 SUPPORTED_LLM_PROVIDERS = frozenset(DEFAULT_LLM_MODELS)
+PROVIDER_API_KEY_ENV: dict[str, str] = {
+    "openai": "OPENAI_API_KEY",
+    "deepseek": "DEEPSEEK_API_KEY",
+    "newapi": "NEWAPI_API_KEY",
+}
+
+
+def normalize_openai_compatible_base_url(base_url: str) -> str:
+    normalized = base_url.rstrip("/")
+    if normalized.endswith("/v1"):
+        return normalized
+    return f"{normalized}/v1"
 
 
 def configured_llm_provider() -> str:
@@ -38,6 +51,15 @@ def _required_env(name: str, provider: str) -> str:
         f"LLM_PROVIDER={provider} requires {name}. Configure the environment before "
         "requesting an LLM, or select a provider that does not require that key."
     )
+
+
+def required_api_key_env_for_provider(provider: str) -> str | None:
+    return PROVIDER_API_KEY_ENV.get(provider)
+
+
+def has_required_llm_credentials(provider: str) -> bool:
+    api_key_env = required_api_key_env_for_provider(provider)
+    return api_key_env is None or bool(os.getenv(api_key_env))
 
 
 def get_llm(
@@ -78,6 +100,18 @@ def get_llm(
             model=model,
             base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"),
             api_key=_required_env("DEEPSEEK_API_KEY", provider),
+            temperature=temperature,
+            max_tokens=max_tokens,
+            timeout=timeout,
+        )
+
+    if provider == "newapi":
+        return ChatOpenAI(
+            model=model,
+            base_url=normalize_openai_compatible_base_url(
+                os.getenv("NEWAPI_BASE_URL", "http://localhost:3000")
+            ),
+            api_key=_required_env("NEWAPI_API_KEY", provider),
             temperature=temperature,
             max_tokens=max_tokens,
             timeout=timeout,

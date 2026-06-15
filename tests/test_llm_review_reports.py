@@ -135,6 +135,17 @@ def test_llm_runtime_available_accepts_vllm_without_api_key(monkeypatch) -> None
     assert calls == ["loaded"]
 
 
+def test_llm_runtime_available_accepts_newapi_with_api_key(monkeypatch) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(llm_review, "load_environment", lambda: calls.append("loaded"))
+    monkeypatch.setenv("LLM_PROVIDER", "newapi")
+    monkeypatch.setenv("NEWAPI_API_KEY", "newapi-key")
+    monkeypatch.setitem(sys.modules, "langchain_openai", ModuleType("langchain_openai"))
+
+    assert llm_runtime_available() is True
+    assert calls == ["loaded"]
+
+
 def test_benchmark_llm_review_marks_model_based_not_human(tmp_path: Path) -> None:
     gold = tmp_path / "gold.json"
     gold.write_text(json.dumps(_gold_payload()) + "\n", encoding="utf-8")
