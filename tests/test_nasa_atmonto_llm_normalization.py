@@ -115,6 +115,40 @@ def test_normalize_llm_fact_uses_schema_range_for_object_property_dict_payload()
     assert fact["object_label"] == "ZNY"
 
 
+def test_normalize_llm_fact_falls_back_to_value_when_object_is_null() -> None:
+    # Models such as gpt-5.5 emit explicit "object": null alongside "value" for
+    # datatype properties. The normalizer must treat a null object as absent and
+    # fall back to "value" instead of discarding it.
+    facts, skipped = normalize_llm_facts(
+        payload={
+            "facts": [
+                {
+                    "predicate": "atm:advisoryNumber",
+                    "fact_type": "datatype_property",
+                    "subject": "ATCSCC_ADVZY_2026-05-19_032",
+                    "subject_class": "atm:ReRouteTMI",
+                    "object": None,
+                    "object_class": None,
+                    "value": 32,
+                    "datatype": "xsd:integer",
+                    "evidence_text": "ATCSCC ADVZY 032",
+                }
+            ]
+        },
+        task=_task(),
+        schema_slice=_schema_slice(),
+    )
+
+    assert skipped == 0
+    assert len(facts) == 1
+    fact = facts[0]
+    assert fact["fact_type"] == "datatype_property"
+    assert fact["value"] == 32
+    assert fact["datatype"] == "xsd:integer"
+    assert "object" not in fact
+    assert "object_class" not in fact
+
+
 def test_normalize_llm_fact_uses_single_schema_domain_when_subject_class_missing() -> None:
     facts, skipped = normalize_llm_facts(
         payload={

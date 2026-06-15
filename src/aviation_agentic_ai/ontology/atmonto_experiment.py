@@ -5780,7 +5780,8 @@ def normalize_flat_llm_fact(
         normalized["fact_type"] = spec["fact_type"]
         normalized.setdefault("subject_class", first_schema_domain(spec))
         if spec["fact_type"] == "datatype_property":
-            raw_value = normalized.pop("object", normalized.get("value"))
+            object_payload = normalized.pop("object", None)
+            raw_value = object_payload if object_payload is not None else normalized.get("value")
             value, datatype = literal_value_parts(raw_value)
             normalized["value"] = value
             normalized["datatype"] = normalized.get("datatype") or datatype or spec.get("datatype")
