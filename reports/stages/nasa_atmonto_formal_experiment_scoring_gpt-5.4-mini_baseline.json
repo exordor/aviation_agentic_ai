@@ -1,0 +1,4763 @@
+{
+  "source_family": "nasa_atmonto_formal_experiment_scoring",
+  "status": "scored",
+  "protocol": "docs/experiment_protocol.md",
+  "gold_source": {
+    "source": "frozen_reviewed_gold",
+    "path": "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
+    "exists": true,
+    "sha256": "f668488624a43cbb7d74fd3f33731a0bf9adfa11093d185a236d86d9cfb1ac0d",
+    "gold_status": {
+      "record_count": 100,
+      "status_counts": {
+        "reviewed": 100
+      },
+      "reviewed_record_count": 100,
+      "pending_record_count": 0,
+      "valid_fact_count": 470,
+      "missing_fact_count": 181,
+      "complete": true
+    },
+    "validation_status": "ready_for_scoring",
+    "error_count": 0,
+    "warning_count": 0,
+    "template_validation_status": "ready_for_scoring",
+    "template_reviewed_record_count": 100,
+    "template_pending_record_count": 0,
+    "ready_for_formal_scoring": true
+  },
+  "gold_status": {
+    "record_count": 100,
+    "status_counts": {
+      "reviewed": 100
+    },
+    "reviewed_record_count": 100,
+    "pending_record_count": 0,
+    "valid_fact_count": 470,
+    "missing_fact_count": 181,
+    "complete": true
+  },
+  "semantic_groups": {
+    "source_family": "nasa_atmonto_gold_semantic_groups",
+    "status": "ready_for_stratified_reporting",
+    "gold_template": "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl",
+    "workload_plan": "reports/stages/nasa_atmonto_gold_review_workload_plan.md",
+    "semantic_groups_json": "reports/stages/nasa_atmonto_gold_semantic_groups.json",
+    "semantic_groups_markdown": "reports/stages/nasa_atmonto_gold_semantic_groups.md",
+    "record_count": 100,
+    "semantic_group_count": 9,
+    "semantic_group_counts": {
+      "ground_stop_lifecycle": 26,
+      "reroute_or_route_constraint": 25,
+      "volcanic_activity_bulletin": 19,
+      "ground_delay_program_lifecycle": 12,
+      "airport_arrival_or_scheduling_delay": 10,
+      "hotline_or_webpage_status": 3,
+      "airport_diversion_recovery": 2,
+      "special_or_flow_constraint_fyi": 2,
+      "flight_plan_drop_time_status": 1
+    },
+    "candidate_subject_class_counts": {
+      "GroundDelayProgramTMI": 16,
+      "GroundStopTMI": 21,
+      "ReRouteTMI": 23,
+      "TrafficManagementInitiative": 40
+    },
+    "source_date_counts": {
+      "2026-05-14": 10,
+      "2026-05-15": 10,
+      "2026-05-16": 8,
+      "2026-05-17": 9,
+      "2026-05-18": 21,
+      "2026-05-19": 17,
+      "2026-05-20": 25
+    },
+    "minimum_semantic_group_count": 1,
+    "groups": [
+      {
+        "group_id": "ground_stop_lifecycle",
+        "label": "Ground stop lifecycle",
+        "description": "CDM ground-stop creation, extension, and cancellation notices.",
+        "record_count": 26,
+        "candidate_subject_class_counts": {
+          "GroundDelayProgramTMI": 1,
+          "GroundStopTMI": 20,
+          "TrafficManagementInitiative": 5
+        },
+        "source_date_counts": {
+          "2026-05-14": 2,
+          "2026-05-15": 1,
+          "2026-05-16": 1,
+          "2026-05-17": 1,
+          "2026-05-18": 8,
+          "2026-05-19": 3,
+          "2026-05-20": 10
+        },
+        "priority_lane_counts": {
+          "1_rejection_adjudication": 17,
+          "2_high_cross_system_coverage": 2,
+          "3_standard_review": 7
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-021",
+          "ATCSCC-GOLD-023",
+          "ATCSCC-GOLD-024",
+          "ATCSCC-GOLD-025",
+          "ATCSCC-GOLD-026",
+          "ATCSCC-GOLD-027",
+          "ATCSCC-GOLD-028",
+          "ATCSCC-GOLD-029",
+          "ATCSCC-GOLD-030",
+          "ATCSCC-GOLD-031",
+          "ATCSCC-GOLD-032",
+          "ATCSCC-GOLD-052",
+          "ATCSCC-GOLD-053",
+          "ATCSCC-GOLD-054",
+          "ATCSCC-GOLD-055",
+          "ATCSCC-GOLD-057",
+          "ATCSCC-GOLD-058",
+          "ATCSCC-GOLD-060",
+          "ATCSCC-GOLD-068",
+          "ATCSCC-GOLD-069",
+          "ATCSCC-GOLD-073",
+          "ATCSCC-GOLD-076",
+          "ATCSCC-GOLD-080",
+          "ATCSCC-GOLD-083",
+          "ATCSCC-GOLD-091",
+          "ATCSCC-GOLD-092"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-021",
+            "headline": "ATCSCC ADVZY 089 BNA/ZME 05/14/2026 CDM GROUND STOP"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-023",
+            "headline": "ATCSCC ADVZY 163 DEN/ZDV 05/20/2026 CDM GROUND STOP"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-024",
+            "headline": "ATCSCC ADVZY 136 BNA/ZME 05/18/2026 CDM GROUND STOP"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-025",
+            "headline": "ATCSCC ADVZY 144 DTW/ZOB 05/18/2026 CDM GROUND STOP"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-026",
+            "headline": "ATCSCC ADVZY 055 STL/ZKC 05/18/2026 CDM GROUND STOP"
+          }
+        ]
+      },
+      {
+        "group_id": "reroute_or_route_constraint",
+        "label": "Reroute or route constraint",
+        "description": "Route-required, oceanic-route-closure, reroute-cancellation, CDR, or SWAP advisories.",
+        "record_count": 25,
+        "candidate_subject_class_counts": {
+          "GroundStopTMI": 1,
+          "ReRouteTMI": 20,
+          "TrafficManagementInitiative": 4
+        },
+        "source_date_counts": {
+          "2026-05-15": 2,
+          "2026-05-16": 3,
+          "2026-05-17": 3,
+          "2026-05-18": 5,
+          "2026-05-19": 4,
+          "2026-05-20": 8
+        },
+        "priority_lane_counts": {
+          "1_rejection_adjudication": 12,
+          "2_high_cross_system_coverage": 4,
+          "3_standard_review": 9
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-001",
+          "ATCSCC-GOLD-005",
+          "ATCSCC-GOLD-007",
+          "ATCSCC-GOLD-009",
+          "ATCSCC-GOLD-010",
+          "ATCSCC-GOLD-011",
+          "ATCSCC-GOLD-012",
+          "ATCSCC-GOLD-013",
+          "ATCSCC-GOLD-014",
+          "ATCSCC-GOLD-015",
+          "ATCSCC-GOLD-016",
+          "ATCSCC-GOLD-039",
+          "ATCSCC-GOLD-040",
+          "ATCSCC-GOLD-041",
+          "ATCSCC-GOLD-042",
+          "ATCSCC-GOLD-044",
+          "ATCSCC-GOLD-056",
+          "ATCSCC-GOLD-072",
+          "ATCSCC-GOLD-079",
+          "ATCSCC-GOLD-082",
+          "ATCSCC-GOLD-084",
+          "ATCSCC-GOLD-090",
+          "ATCSCC-GOLD-095",
+          "ATCSCC-GOLD-097",
+          "ATCSCC-GOLD-098"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-001",
+            "headline": "ATCSCC ADVZY 032 DCC 05/19/2026 OCEANIC ROUTE CLOSURES_RQD"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-005",
+            "headline": "ATCSCC ADVZY 059 DCC 05/19/2026 IAH HOU CDRS_FYI"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-007",
+            "headline": "ATCSCC ADVZY 051 DCC/ZDV 05/16/2026 DEN CDRS_FYI"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-009",
+            "headline": "ATCSCC ADVZY 040 DCC 05/20/2026 ROUTE RQD /FL"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-010",
+            "headline": "ATCSCC ADVZY 053 DCC 05/20/2026 ROUTE RQD /FL"
+          }
+        ]
+      },
+      {
+        "group_id": "volcanic_activity_bulletin",
+        "label": "Volcanic activity bulletin",
+        "description": "Volcanic-ash advisories carried through ATCSCC as generic traffic-management notices.",
+        "record_count": 19,
+        "candidate_subject_class_counts": {
+          "TrafficManagementInitiative": 19
+        },
+        "source_date_counts": {
+          "2026-05-14": 4,
+          "2026-05-15": 3,
+          "2026-05-16": 1,
+          "2026-05-17": 2,
+          "2026-05-18": 2,
+          "2026-05-19": 4,
+          "2026-05-20": 3
+        },
+        "priority_lane_counts": {
+          "3_standard_review": 19
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-046",
+          "ATCSCC-GOLD-047",
+          "ATCSCC-GOLD-049",
+          "ATCSCC-GOLD-050",
+          "ATCSCC-GOLD-051",
+          "ATCSCC-GOLD-061",
+          "ATCSCC-GOLD-062",
+          "ATCSCC-GOLD-066",
+          "ATCSCC-GOLD-067",
+          "ATCSCC-GOLD-070",
+          "ATCSCC-GOLD-074",
+          "ATCSCC-GOLD-075",
+          "ATCSCC-GOLD-077",
+          "ATCSCC-GOLD-078",
+          "ATCSCC-GOLD-085",
+          "ATCSCC-GOLD-086",
+          "ATCSCC-GOLD-094",
+          "ATCSCC-GOLD-096",
+          "ATCSCC-GOLD-100"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-046",
+            "headline": "ATCSCC ADVZY 040 DCC 05/18/2026 VOLCANIC ACTIVITY BULLETIN - BEZYMIANNY"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-047",
+            "headline": "ATCSCC ADVZY 033 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - PURACE"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-049",
+            "headline": "ATCSCC ADVZY 013 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - POPOCATEPETL"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-050",
+            "headline": "ATCSCC ADVZY 043 DCC 05/19/2026 VOLCANIC ACTIVITY BULLETIN - FUEGO"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-051",
+            "headline": "ATCSCC ADVZY 030 DCC 05/14/2026 VOLCANIC ACTIVITY BULLETIN - SANTA"
+          }
+        ]
+      },
+      {
+        "group_id": "ground_delay_program_lifecycle",
+        "label": "Ground delay program lifecycle",
+        "description": "CDM ground-delay program, proposed GDP, and GDP cancellation notices.",
+        "record_count": 12,
+        "candidate_subject_class_counts": {
+          "GroundDelayProgramTMI": 12
+        },
+        "source_date_counts": {
+          "2026-05-14": 1,
+          "2026-05-15": 3,
+          "2026-05-17": 1,
+          "2026-05-18": 3,
+          "2026-05-19": 2,
+          "2026-05-20": 2
+        },
+        "priority_lane_counts": {
+          "2_high_cross_system_coverage": 9,
+          "3_standard_review": 3
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-017",
+          "ATCSCC-GOLD-018",
+          "ATCSCC-GOLD-019",
+          "ATCSCC-GOLD-020",
+          "ATCSCC-GOLD-022",
+          "ATCSCC-GOLD-033",
+          "ATCSCC-GOLD-035",
+          "ATCSCC-GOLD-036",
+          "ATCSCC-GOLD-037",
+          "ATCSCC-GOLD-038",
+          "ATCSCC-GOLD-081",
+          "ATCSCC-GOLD-088"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-017",
+            "headline": "ATCSCC ADVZY 079 BNA/ZME 05/19/2026 CDM GROUND DELAY PROGRAM"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-018",
+            "headline": "ATCSCC ADVZY 074 BNA/ZME 05/19/2026 CDM PROPOSED GROUND DELAY PROGRAM"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-019",
+            "headline": "ATCSCC ADVZY 067 BNA/ZME 05/15/2026 CDM GROUND DELAY PROGRAM"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-020",
+            "headline": "ATCSCC ADVZY 084 SFO/ZOA 05/15/2026 CDM GROUND DELAY PROGRAM"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-022",
+            "headline": "ATCSCC ADVZY 064 BNA/ZME 05/15/2026 CDM PROPOSED GROUND DELAY PROGRAM"
+          }
+        ]
+      },
+      {
+        "group_id": "airport_arrival_or_scheduling_delay",
+        "label": "Airport arrival or scheduling delay",
+        "description": "Airport arrival-delay, airport-scheduling-delay, and compacted-demand notices.",
+        "record_count": 10,
+        "candidate_subject_class_counts": {
+          "TrafficManagementInitiative": 10
+        },
+        "source_date_counts": {
+          "2026-05-14": 2,
+          "2026-05-15": 1,
+          "2026-05-16": 1,
+          "2026-05-17": 1,
+          "2026-05-18": 2,
+          "2026-05-19": 2,
+          "2026-05-20": 1
+        },
+        "priority_lane_counts": {
+          "1_rejection_adjudication": 5,
+          "3_standard_review": 5
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-002",
+          "ATCSCC-GOLD-003",
+          "ATCSCC-GOLD-004",
+          "ATCSCC-GOLD-008",
+          "ATCSCC-GOLD-059",
+          "ATCSCC-GOLD-063",
+          "ATCSCC-GOLD-064",
+          "ATCSCC-GOLD-071",
+          "ATCSCC-GOLD-087",
+          "ATCSCC-GOLD-099"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-002",
+            "headline": "ATCSCC ADVZY 063 SAN/ZLA 05/15/2026 SAN AIRPORT ARRIVAL DELAYS"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-003",
+            "headline": "ATCSCC ADVZY 069 LAS/ZLA 05/18/2026 LAS AIRPORT ARRIVAL DELAYS"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-004",
+            "headline": "ATCSCC ADVZY 059 PHLC/ZNY 05/14/2026 EWR AND SATELLITE AIRPORTS ARRIVAL DELAYS"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-008",
+            "headline": "ATCSCC ADVZY 019 ZMA/DCC 05/17/2026 SOUTH FLORIDA AIRPORTS ARRIVAL DELAYS"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-059",
+            "headline": "ATCSCC ADVZY 086 MSP/ZMP 05/14/2026 MSP AIRPORT ARRIVAL DELAYS"
+          }
+        ]
+      },
+      {
+        "group_id": "hotline_or_webpage_status",
+        "label": "Hotline or webpage status",
+        "description": "TCA/hotline page activation or termination status messages.",
+        "record_count": 3,
+        "candidate_subject_class_counts": {
+          "ReRouteTMI": 2,
+          "TrafficManagementInitiative": 1
+        },
+        "source_date_counts": {
+          "2026-05-16": 1,
+          "2026-05-17": 1,
+          "2026-05-19": 1
+        },
+        "priority_lane_counts": {
+          "3_standard_review": 3
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-043",
+          "ATCSCC-GOLD-048",
+          "ATCSCC-GOLD-089"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-043",
+            "headline": "ATCSCC ADVZY 008 DCC 05/19/2026 EN ROUTE TCA/HOTLINE WEB PAGE TERMINATION"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-048",
+            "headline": "ATCSCC ADVZY 003 DCC 05/17/2026 TTCA/HOTLINE WEB PAGE TERMINATION"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-089",
+            "headline": "ATCSCC ADVZY 018 DCC 05/16/2026 EN ROUTE TCA/HOTLINE ISSUE REQUEST PAGE ACTIVATION"
+          }
+        ]
+      },
+      {
+        "group_id": "airport_diversion_recovery",
+        "label": "Airport diversion recovery",
+        "description": "Airport diversion-recovery activation notices.",
+        "record_count": 2,
+        "candidate_subject_class_counts": {
+          "GroundDelayProgramTMI": 2
+        },
+        "source_date_counts": {
+          "2026-05-14": 1,
+          "2026-05-18": 1
+        },
+        "priority_lane_counts": {
+          "3_standard_review": 2
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-034",
+          "ATCSCC-GOLD-093"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-034",
+            "headline": "ATCSCC ADVZY 055 SAN/ZLA 05/14/2026 SAN AIRPORT DIVERSION RECOVERY ACTIVATED"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-093",
+            "headline": "ATCSCC ADVZY 060 STL/ZKC 05/18/2026 STL AIRPORT DIVERSION RECOVERY ACTIVATED"
+          }
+        ]
+      },
+      {
+        "group_id": "special_or_flow_constraint_fyi",
+        "label": "Special mission or flow-constraint FYI",
+        "description": "Planning-only or FYI notices that are not clean active reroute/GDP/GS events.",
+        "record_count": 2,
+        "candidate_subject_class_counts": {
+          "ReRouteTMI": 1,
+          "TrafficManagementInitiative": 1
+        },
+        "source_date_counts": {
+          "2026-05-16": 1,
+          "2026-05-20": 1
+        },
+        "priority_lane_counts": {
+          "2_high_cross_system_coverage": 1,
+          "3_standard_review": 1
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-045",
+          "ATCSCC-GOLD-065"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-045",
+            "headline": "ATCSCC ADVZY 150 DCC/ZHU 05/20/2026 STARSHIP PRE-MISSION ADVISORY_FYI"
+          },
+          {
+            "sample_id": "ATCSCC-GOLD-065",
+            "headline": "ATCSCC ADVZY 061 DCC 05/16/2026 DEN CAPPING TUNNELING FYI"
+          }
+        ]
+      },
+      {
+        "group_id": "flight_plan_drop_time_status",
+        "label": "Flight plan drop time status",
+        "description": "Extended flight-plan drop-time implementation notices.",
+        "record_count": 1,
+        "candidate_subject_class_counts": {
+          "GroundDelayProgramTMI": 1
+        },
+        "source_date_counts": {
+          "2026-05-19": 1
+        },
+        "priority_lane_counts": {
+          "1_rejection_adjudication": 1
+        },
+        "sample_ids": [
+          "ATCSCC-GOLD-006"
+        ],
+        "example_headlines": [
+          {
+            "sample_id": "ATCSCC-GOLD-006",
+            "headline": "ATCSCC ADVZY 144 ZBW 05/19/2026 EXTENDED FLIGHT PLAN DROP TIMES IMPLEMENTED"
+          }
+        ]
+      }
+    ],
+    "use_in_experiment": "Use these groups for stratified error analysis and per-group reporting. They are not train/dev/test splits and do not create gold truth by themselves.",
+    "limitations": [
+      "Grouping is based on deterministic headline heuristics, not domain-expert taxonomy.",
+      "Small groups should be merged or reported descriptively if confidence intervals are unstable.",
+      "Ontology candidate classes and operational semantic groups intentionally differ for status/cancellation/FYI notices."
+    ]
+  },
+  "methodology_remediation": {
+    "status": "methodology_remediation",
+    "scope_statement": "The current scored run is a narrow FAA ATCSCC advisory / NASA ATMONTO ATCSCC schema-slice experiment. PDF reference documents are added only as a second source-family design for the next rerun; PDF definition/procedure metrics must not be mixed into the ATCSCC event F1 table.",
+    "source_families": [
+      {
+        "id": "A",
+        "source_family": "faa_atcscc_advisories",
+        "data_shape": "semi_structured_short_advisories",
+        "task": "TMI/event ABox extraction",
+        "preferred_system_design": "S0 deterministic backbone plus S3 semantic enrichment and validator gate",
+        "current_gold": "100 reviewed advisories from 2026-05-14 through 2026-05-20"
+      },
+      {
+        "id": "B",
+        "source_family": "faa_nasa_pdf_reference_documents",
+        "data_shape": "unstructured_or_long_form_reference_text",
+        "task": "definition, terminology, procedure, and source-mapping evidence extraction",
+        "candidate_documents": [
+          "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf",
+          "data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/7110.65BB_Bsc_w_Chg_1_and_2_dtd_1-22-26_Final.pdf",
+          "data/papers/ntrs_ontology_selection/20170006095_nasa_air_traffic_management_ontology.pdf"
+        ],
+        "allowed_predicates": [
+          "term_has_definition",
+          "term_has_alias",
+          "procedure_mentions_concept",
+          "document_defines_or_constrains",
+          "source_supports_mapping"
+        ],
+        "required_provenance_fields": [
+          "document_id",
+          "page",
+          "section",
+          "span",
+          "evidence_text"
+        ],
+        "backend_policy": {
+          "candidate_default": "hybrid_docling_pymupdf",
+          "legacy_baseline": "pymupdf_text_legacy",
+          "policy_reports": [
+            "reports/stages/pdf_extraction_comparison.md",
+            "reports/stages/pdf_backend_chunking_comparison.md"
+          ]
+        }
+      }
+    ],
+    "cross_source_metric_policy": "Compare structural conformance, evidence grounding, and canonicalization yield across source families. Report semantic F1 within each task family only."
+  },
+  "consensus_sota_remediation": {
+    "status": "rerun_design_constraint",
+    "scope_boundary": "These constraints refine the narrow ATCSCC / ATMONTO rerun. They are not a pivot to a general aviation KG or an end-to-end GraphRAG claim.",
+    "s1_interpretation": {
+      "current_system": "S1_llm_only",
+      "current_label": "invalid_direct_schema_scoring",
+      "future_raw_system": "S1_raw_open_llm",
+      "future_comparable_system": "S1b_llm_canonicalized",
+      "rule": "Report raw S1 coverage, JSON adherence, and evidence containment only. Compute target-schema precision/recall/F1 only after canonicalization."
+    },
+    "nine_stage_pipeline": [
+      "ATCSCC parsing",
+      "S0 deterministic backbone",
+      "schema-slice retrieval",
+      "LLM semantic extraction",
+      "canonicalization",
+      "validator gate",
+      "repair with trace",
+      "graph materialization",
+      "layered evaluation"
+    ],
+    "sota_adaptations": [
+      {
+        "anchor": "Extract-Define-Canonicalize",
+        "implementation": "Split open extraction from target-schema canonicalization.",
+        "claim_guardrail": "Do not score raw open LLM output with ATMONTO P/R/F1."
+      },
+      {
+        "anchor": "ontology_guided_domain_short_text_kgc",
+        "implementation": "Use 10-20 reviewed dev examples for S2/S3 by advisory type and predicate family.",
+        "claim_guardrail": "Do not draw examples from the held-out 100 scoring records."
+      },
+      {
+        "anchor": "llm_as_kg_support_module",
+        "implementation": "Use LLMs as canonicalizer, semantic enrichment module, evidence checker, and profile-gap explainer.",
+        "claim_guardrail": "Do not make pure LLM extraction the primary thesis system."
+      },
+      {
+        "anchor": "production_ontology_guided_pipeline",
+        "implementation": "Combine pattern/rule extraction, ontology-guided prompting, grounding, corroboration, and validator gating.",
+        "claim_guardrail": "Quarantine conflicts, unsupported spans, and rejected repairs."
+      },
+      {
+        "anchor": "source_family_separation",
+        "implementation": "Keep ATCSCC event extraction and PDF reference extraction in separate metric tables.",
+        "claim_guardrail": "Do not compare PDF definition F1 with ATCSCC event F1."
+      },
+      {
+        "anchor": "graph_rag_layered_evaluation",
+        "implementation": "Report KG construction, graph retrieval, and answer generation metrics as separate layers.",
+        "claim_guardrail": "Current remediation supports KG construction metrics only; no end-to-end GraphRAG answer improvement claim."
+      }
+    ],
+    "s4_merge_policy": {
+      "primary_candidate_system": "S4_hybrid_backbone_enrichment",
+      "s0_owns": [
+        "advisoryNumber",
+        "issuedTime",
+        "effectiveStartTime",
+        "effectiveEndTime",
+        "header/template fields"
+      ],
+      "s3_s4_may_add_not_overwrite": [
+        "controlledNASelement",
+        "departureScope",
+        "extensionProbability",
+        "impactingCondition",
+        "impactingConditionMessage",
+        "implementationStatus",
+        "initiativeComments",
+        "reRouteReason",
+        "reRouteType"
+      ],
+      "quarantine_conditions": [
+        "conflict",
+        "unsupported span",
+        "fuzzy-only mapping",
+        "validator rejected fact",
+        "repair-only fact with semantic-change flag"
+      ]
+    },
+    "planned_artifacts": [
+      {
+        "path": "schema/atcscc_tmi_profile.yaml",
+        "required_fields": [
+          "class",
+          "predicate_uri",
+          "label",
+          "aliases",
+          "domain",
+          "range",
+          "cardinality",
+          "allowed_enum",
+          "normalizer",
+          "validator_rule",
+          "example_spans",
+          "profile_version",
+          "source_doc",
+          "commit_hash"
+        ]
+      },
+      {
+        "component": "predicate canonicalizer"
+      },
+      {
+        "component": "enum canonicalizer"
+      },
+      {
+        "component": "entity canonicalizer"
+      },
+      {
+        "component": "time normalizer"
+      },
+      {
+        "component": "repair trace",
+        "fields": [
+          "pre_error",
+          "repair_action",
+          "post_validation_status",
+          "semantic_change_flag",
+          "evidence_status"
+        ]
+      },
+      {
+        "component": "error taxonomy",
+        "categories": [
+          "format error",
+          "predicate drift",
+          "class/domain error",
+          "range error",
+          "enum error",
+          "entity canonicalization error",
+          "unsupported span",
+          "temporal normalization error",
+          "duplicate/merge error"
+        ]
+      }
+    ],
+    "unverified_search_leads": {
+      "status": "requiring verification",
+      "rule": "Do not cite these as formal evidence until fetched and checked directly.",
+      "items": [
+        "OntoLogX",
+        "JSON-Schema-guided information extraction",
+        "Graphusion",
+        "RAKG",
+        "RAGAS",
+        "STaRK",
+        "Microsoft GraphRAG"
+      ]
+    }
+  },
+  "systems": [
+    {
+      "system_id": "S0_rule_only",
+      "label": "Rule-only",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 615,
+        "accepted_fact_count": 567,
+        "rejected_fact_count": 48,
+        "structural_acceptance_rate": 0.9219512195121952,
+        "schema_violation_rate": 0.07804878048780488,
+        "repair_applicable": false,
+        "repair_attempted_fact_count": null,
+        "repair_accepted_fact_count": null,
+        "repair_success_rate": null,
+        "status_counts": {
+          "rejected_schema": 48,
+          "repaired_accepted": 567
+        },
+        "error_counts": {
+          "allowed_value_violation": 16,
+          "domain_violation": 17,
+          "range_violation": 15
+        }
+      },
+      "semantic_metrics": {
+        "available": true,
+        "predicted_fact_count": 566,
+        "gold_fact_count": 651,
+        "true_positive_count": 462,
+        "false_positive_count": 104,
+        "false_negative_count": 189,
+        "precision": 0.8162544169611308,
+        "recall": 0.7096774193548387,
+        "f1": 0.7592440427280197,
+        "manual_semantic_correctness": 0.8162544169611308,
+        "confidence_intervals": {
+          "available": true,
+          "method": "record_bootstrap_by_source_id",
+          "level": 0.95,
+          "iterations": 200,
+          "seed": 1701,
+          "sampled_source_id_count": 100,
+          "intervals": {
+            "f1": {
+              "low": 0.7082658022690438,
+              "high": 0.8042939719240298
+            },
+            "manual_semantic_correctness": {
+              "low": 0.7534246575342466,
+              "high": 0.8619329388560157
+            },
+            "precision": {
+              "low": 0.7534246575342466,
+              "high": 0.8619329388560157
+            },
+            "recall": {
+              "low": 0.6601208459214502,
+              "high": 0.7639751552795031
+            }
+          }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
+      },
+      "property_level_semantic_metrics": [
+        {
+          "predicate": "advisoryNumber",
+          "predicted_fact_count": 100,
+          "gold_fact_count": 100,
+          "true_positive_count": 92,
+          "false_positive_count": 8,
+          "false_negative_count": 8,
+          "precision": 0.92,
+          "recall": 0.92,
+          "f1": 0.92
+        },
+        {
+          "predicate": "controlledNASelement",
+          "predicted_fact_count": 75,
+          "gold_fact_count": 46,
+          "true_positive_count": 36,
+          "false_positive_count": 39,
+          "false_negative_count": 10,
+          "precision": 0.48,
+          "recall": 0.782608695652174,
+          "f1": 0.5950413223140497
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 91,
+          "false_positive_count": 7,
+          "false_negative_count": 7,
+          "precision": 0.9285714285714286,
+          "recall": 0.9285714285714286,
+          "f1": 0.9285714285714286
+        },
+        {
+          "predicate": "effectiveStartTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 91,
+          "false_positive_count": 7,
+          "false_negative_count": 7,
+          "precision": 0.9285714285714286,
+          "recall": 0.9285714285714286,
+          "f1": 0.9285714285714286
+        },
+        {
+          "predicate": "extensionProbability",
+          "predicted_fact_count": 22,
+          "gold_fact_count": 30,
+          "true_positive_count": 21,
+          "false_positive_count": 1,
+          "false_negative_count": 9,
+          "precision": 0.9545454545454546,
+          "recall": 0.7,
+          "f1": 0.8076923076923077
+        },
+        {
+          "predicate": "impactingCondition",
+          "predicted_fact_count": 20,
+          "gold_fact_count": 30,
+          "true_positive_count": 19,
+          "false_positive_count": 1,
+          "false_negative_count": 11,
+          "precision": 0.95,
+          "recall": 0.6333333333333333,
+          "f1": 0.7599999999999999
+        },
+        {
+          "predicate": "impactingConditionMessage",
+          "predicted_fact_count": 11,
+          "gold_fact_count": 10,
+          "true_positive_count": 10,
+          "false_positive_count": 1,
+          "false_negative_count": 0,
+          "precision": 0.9090909090909091,
+          "recall": 1.0,
+          "f1": 0.9523809523809523
+        },
+        {
+          "predicate": "implementationStatus",
+          "predicted_fact_count": 7,
+          "gold_fact_count": 21,
+          "true_positive_count": 6,
+          "false_positive_count": 1,
+          "false_negative_count": 15,
+          "precision": 0.8571428571428571,
+          "recall": 0.2857142857142857,
+          "f1": 0.42857142857142855
+        },
+        {
+          "predicate": "initiativeComments",
+          "predicted_fact_count": 37,
+          "gold_fact_count": 81,
+          "true_positive_count": 24,
+          "false_positive_count": 13,
+          "false_negative_count": 57,
+          "precision": 0.6486486486486487,
+          "recall": 0.2962962962962963,
+          "f1": 0.4067796610169491
+        },
+        {
+          "predicate": "issuedTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 72,
+          "false_positive_count": 26,
+          "false_negative_count": 26,
+          "precision": 0.7346938775510204,
+          "recall": 0.7346938775510204,
+          "f1": 0.7346938775510203
+        },
+        {
+          "predicate": "reRouteReason",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 20,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 20,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "reRouteType",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 19,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 19,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "semantic_group_metrics": [
+        {
+          "group_id": "ground_stop_lifecycle",
+          "label": "Ground stop lifecycle",
+          "record_count": 26,
+          "gold_fact_count": 186,
+          "predicted_fact_count": 190,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 190,
+            "gold_fact_count": 186,
+            "true_positive_count": 166,
+            "false_positive_count": 24,
+            "false_negative_count": 20,
+            "precision": 0.8736842105263158,
+            "recall": 0.8924731182795699,
+            "f1": 0.8829787234042553,
+            "manual_semantic_correctness": 0.8736842105263158,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 26,
+              "intervals": {
+                "f1": {
+                  "low": 0.7795698924731183,
+                  "high": 0.962962962962963
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.772972972972973,
+                  "high": 0.953125
+                },
+                "precision": {
+                  "low": 0.772972972972973,
+                  "high": 0.953125
+                },
+                "recall": {
+                  "low": 0.7849462365591398,
+                  "high": 0.9837837837837838
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "reroute_or_route_constraint",
+          "label": "Reroute or route constraint",
+          "record_count": 25,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 113,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 113,
+            "gold_fact_count": 183,
+            "true_positive_count": 101,
+            "false_positive_count": 12,
+            "false_negative_count": 82,
+            "precision": 0.8938053097345132,
+            "recall": 0.5519125683060109,
+            "f1": 0.6824324324324325,
+            "manual_semantic_correctness": 0.8938053097345132,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 25,
+              "intervals": {
+                "f1": {
+                  "low": 0.6381578947368421,
+                  "high": 0.7253521126760564
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.75,
+                  "high": 0.9805825242718447
+                },
+                "precision": {
+                  "low": 0.75,
+                  "high": 0.9805825242718447
+                },
+                "recall": {
+                  "low": 0.4947916666666667,
+                  "high": 0.6045197740112994
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "volcanic_activity_bulletin",
+          "label": "Volcanic activity bulletin",
+          "record_count": 19,
+          "gold_fact_count": 95,
+          "predicted_fact_count": 76,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 76,
+            "gold_fact_count": 95,
+            "true_positive_count": 57,
+            "false_positive_count": 19,
+            "false_negative_count": 38,
+            "precision": 0.75,
+            "recall": 0.6,
+            "f1": 0.6666666666666665,
+            "manual_semantic_correctness": 0.75,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 19,
+              "intervals": {
+                "f1": {
+                  "low": 0.6666666666666665,
+                  "high": 0.6666666666666665
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.75,
+                  "high": 0.75
+                },
+                "precision": {
+                  "low": 0.75,
+                  "high": 0.75
+                },
+                "recall": {
+                  "low": 0.6,
+                  "high": 0.6
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "ground_delay_program_lifecycle",
+          "label": "Ground delay program lifecycle",
+          "record_count": 12,
+          "gold_fact_count": 91,
+          "predicted_fact_count": 87,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 87,
+            "gold_fact_count": 91,
+            "true_positive_count": 86,
+            "false_positive_count": 1,
+            "false_negative_count": 5,
+            "precision": 0.9885057471264368,
+            "recall": 0.945054945054945,
+            "f1": 0.9662921348314606,
+            "manual_semantic_correctness": 0.9885057471264368,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 12,
+              "intervals": {
+                "f1": {
+                  "low": 0.9473684210526315,
+                  "high": 0.9837837837837838
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.9529411764705882,
+                  "high": 1.0
+                },
+                "precision": {
+                  "low": 0.9529411764705882,
+                  "high": 1.0
+                },
+                "recall": {
+                  "low": 0.9148936170212766,
+                  "high": 0.9772727272727273
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_arrival_or_scheduling_delay",
+          "label": "Airport arrival or scheduling delay",
+          "record_count": 10,
+          "gold_fact_count": 55,
+          "predicted_fact_count": 63,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 63,
+            "gold_fact_count": 55,
+            "true_positive_count": 40,
+            "false_positive_count": 23,
+            "false_negative_count": 15,
+            "precision": 0.6349206349206349,
+            "recall": 0.7272727272727273,
+            "f1": 0.6779661016949152,
+            "manual_semantic_correctness": 0.6349206349206349,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 10,
+              "intervals": {
+                "f1": {
+                  "low": 0.6201550387596898,
+                  "high": 0.7339449541284404
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.5194805194805194,
+                  "high": 0.7692307692307693
+                },
+                "precision": {
+                  "low": 0.5194805194805194,
+                  "high": 0.7692307692307693
+                },
+                "recall": {
+                  "low": 0.6896551724137931,
+                  "high": 0.7692307692307693
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "hotline_or_webpage_status",
+          "label": "Hotline or webpage status",
+          "record_count": 3,
+          "gold_fact_count": 15,
+          "predicted_fact_count": 12,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 12,
+            "gold_fact_count": 15,
+            "true_positive_count": 4,
+            "false_positive_count": 8,
+            "false_negative_count": 11,
+            "precision": 0.3333333333333333,
+            "recall": 0.26666666666666666,
+            "f1": 0.2962962962962963,
+            "manual_semantic_correctness": 0.3333333333333333,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 3,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.888888888888889
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 1.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 1.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.8
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_diversion_recovery",
+          "label": "Airport diversion recovery",
+          "record_count": 2,
+          "gold_fact_count": 12,
+          "predicted_fact_count": 8,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 8,
+            "gold_fact_count": 12,
+            "true_positive_count": 0,
+            "false_positive_count": 8,
+            "false_negative_count": 12,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "special_or_flow_constraint_fyi",
+          "label": "Special mission or flow-constraint FYI",
+          "record_count": 2,
+          "gold_fact_count": 10,
+          "predicted_fact_count": 9,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 9,
+            "gold_fact_count": 10,
+            "true_positive_count": 4,
+            "false_positive_count": 5,
+            "false_negative_count": 6,
+            "precision": 0.4444444444444444,
+            "recall": 0.4,
+            "f1": 0.4210526315789474,
+            "manual_semantic_correctness": 0.4444444444444444,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.888888888888889
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 1.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 1.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.8
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "flight_plan_drop_time_status",
+          "label": "Flight plan drop time status",
+          "record_count": 1,
+          "gold_fact_count": 4,
+          "predicted_fact_count": 8,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 8,
+            "gold_fact_count": 4,
+            "true_positive_count": 4,
+            "false_positive_count": 4,
+            "false_negative_count": 0,
+            "precision": 0.5,
+            "recall": 1.0,
+            "f1": 0.6666666666666666,
+            "manual_semantic_correctness": 0.5,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 1,
+              "intervals": {
+                "f1": {
+                  "low": 0.6666666666666666,
+                  "high": 0.6666666666666666
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.5,
+                  "high": 0.5
+                },
+                "precision": {
+                  "low": 0.5,
+                  "high": 0.5
+                },
+                "recall": {
+                  "low": 1.0,
+                  "high": 1.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "system_id": "S1_llm_only",
+      "label": "LLM-only",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s1_llm_only_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 1211,
+        "accepted_fact_count": 0,
+        "rejected_fact_count": 1211,
+        "structural_acceptance_rate": 0.0,
+        "schema_violation_rate": 1.0,
+        "repair_applicable": false,
+        "repair_attempted_fact_count": null,
+        "repair_accepted_fact_count": null,
+        "repair_success_rate": null,
+        "status_counts": {
+          "rejected_evidence": 3,
+          "rejected_schema": 1208
+        },
+        "error_counts": {
+          "evidence_not_found_in_source": 3,
+          "unknown_fact_type": 35,
+          "unknown_object_class": 1176,
+          "unknown_predicate": 1211,
+          "unknown_subject_class": 1211
+        }
+      },
+      "semantic_metrics": {
+        "available": true,
+        "predicted_fact_count": 0,
+        "gold_fact_count": 651,
+        "true_positive_count": 0,
+        "false_positive_count": 0,
+        "false_negative_count": 651,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "manual_semantic_correctness": 0.0,
+        "confidence_intervals": {
+          "available": true,
+          "method": "record_bootstrap_by_source_id",
+          "level": 0.95,
+          "iterations": 200,
+          "seed": 1701,
+          "sampled_source_id_count": 100,
+          "intervals": {
+            "f1": {
+              "low": 0.0,
+              "high": 0.0
+            },
+            "manual_semantic_correctness": {
+              "low": 0.0,
+              "high": 0.0
+            },
+            "precision": {
+              "low": 0.0,
+              "high": 0.0
+            },
+            "recall": {
+              "low": 0.0,
+              "high": 0.0
+            }
+          }
+        },
+        "scoring_validity": "invalid_direct_schema_scoring",
+        "valid_for_baseline_comparison": false,
+        "interpretation": "The schema-free LLM output is JSON-adherent but all candidate facts are rejected by the target ATMONTO validator. Direct target-schema precision/recall/F1 are diagnostic zeros, not a valid semantic baseline. Use S1_raw_open_llm diagnostics and S1b_llm_canonicalized for future target-schema semantic comparisons."
+      },
+      "property_level_semantic_metrics": [
+        {
+          "predicate": "advisoryNumber",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 100,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 100,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "controlledNASelement",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 46,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 46,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "effectiveStartTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "extensionProbability",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 30,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 30,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "impactingCondition",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 30,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 30,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "impactingConditionMessage",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 10,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 10,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "implementationStatus",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 21,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 21,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "initiativeComments",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 81,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 81,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "issuedTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "reRouteReason",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 20,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 20,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "reRouteType",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 19,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 19,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "semantic_group_metrics": [
+        {
+          "group_id": "ground_stop_lifecycle",
+          "label": "Ground stop lifecycle",
+          "record_count": 26,
+          "gold_fact_count": 186,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 186,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 186,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 26,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "reroute_or_route_constraint",
+          "label": "Reroute or route constraint",
+          "record_count": 25,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 183,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 183,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 25,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "volcanic_activity_bulletin",
+          "label": "Volcanic activity bulletin",
+          "record_count": 19,
+          "gold_fact_count": 95,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 95,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 95,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 19,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "ground_delay_program_lifecycle",
+          "label": "Ground delay program lifecycle",
+          "record_count": 12,
+          "gold_fact_count": 91,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 91,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 91,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 12,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_arrival_or_scheduling_delay",
+          "label": "Airport arrival or scheduling delay",
+          "record_count": 10,
+          "gold_fact_count": 55,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 55,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 55,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 10,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "hotline_or_webpage_status",
+          "label": "Hotline or webpage status",
+          "record_count": 3,
+          "gold_fact_count": 15,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 15,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 15,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 3,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_diversion_recovery",
+          "label": "Airport diversion recovery",
+          "record_count": 2,
+          "gold_fact_count": 12,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 12,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 12,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "special_or_flow_constraint_fyi",
+          "label": "Special mission or flow-constraint FYI",
+          "record_count": 2,
+          "gold_fact_count": 10,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 10,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 10,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "flight_plan_drop_time_status",
+          "label": "Flight plan drop time status",
+          "record_count": 1,
+          "gold_fact_count": 4,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 4,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 4,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 1,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "system_id": "S1b_llm_canonicalized",
+      "label": "LLM-only + post-hoc canonicalization",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s1b_llm_canonicalized_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 454,
+        "accepted_fact_count": 189,
+        "rejected_fact_count": 265,
+        "structural_acceptance_rate": 0.41629955947136565,
+        "schema_violation_rate": 0.5837004405286343,
+        "repair_applicable": false,
+        "repair_attempted_fact_count": null,
+        "repair_accepted_fact_count": null,
+        "repair_success_rate": null,
+        "status_counts": {
+          "rejected_schema": 265,
+          "repaired_accepted": 189
+        },
+        "error_counts": {
+          "allowed_value_violation": 31,
+          "domain_violation": 25,
+          "range_violation": 204,
+          "unknown_object_class": 5
+        }
+      },
+      "semantic_metrics": {
+        "available": true,
+        "predicted_fact_count": 189,
+        "gold_fact_count": 651,
+        "true_positive_count": 94,
+        "false_positive_count": 95,
+        "false_negative_count": 557,
+        "precision": 0.4973544973544973,
+        "recall": 0.1443932411674347,
+        "f1": 0.2238095238095238,
+        "manual_semantic_correctness": 0.4973544973544973,
+        "confidence_intervals": {
+          "available": true,
+          "method": "record_bootstrap_by_source_id",
+          "level": 0.95,
+          "iterations": 200,
+          "seed": 1701,
+          "sampled_source_id_count": 100,
+          "intervals": {
+            "f1": {
+              "low": 0.18457943925233644,
+              "high": 0.25389221556886227
+            },
+            "manual_semantic_correctness": {
+              "low": 0.41624365482233505,
+              "high": 0.5963855421686747
+            },
+            "precision": {
+              "low": 0.41624365482233505,
+              "high": 0.5963855421686747
+            },
+            "recall": {
+              "low": 0.12037037037037036,
+              "high": 0.1679160419790105
+            }
+          }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
+      },
+      "property_level_semantic_metrics": [
+        {
+          "predicate": "advisoryNumber",
+          "predicted_fact_count": 84,
+          "gold_fact_count": 100,
+          "true_positive_count": 60,
+          "false_positive_count": 24,
+          "false_negative_count": 40,
+          "precision": 0.7142857142857143,
+          "recall": 0.6,
+          "f1": 0.6521739130434783
+        },
+        {
+          "predicate": "controlledNASelement",
+          "predicted_fact_count": 83,
+          "gold_fact_count": 46,
+          "true_positive_count": 16,
+          "false_positive_count": 67,
+          "false_negative_count": 30,
+          "precision": 0.1927710843373494,
+          "recall": 0.34782608695652173,
+          "f1": 0.24806201550387602
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "effectiveStartTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "extensionProbability",
+          "predicted_fact_count": 18,
+          "gold_fact_count": 30,
+          "true_positive_count": 18,
+          "false_positive_count": 0,
+          "false_negative_count": 12,
+          "precision": 1.0,
+          "recall": 0.6,
+          "f1": 0.7499999999999999
+        },
+        {
+          "predicate": "impactingCondition",
+          "predicted_fact_count": 4,
+          "gold_fact_count": 30,
+          "true_positive_count": 0,
+          "false_positive_count": 4,
+          "false_negative_count": 30,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "impactingConditionMessage",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 10,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 10,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "implementationStatus",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 21,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 21,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "initiativeComments",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 81,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 81,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "issuedTime",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 98,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 98,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "reRouteReason",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 20,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 20,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "reRouteType",
+          "predicted_fact_count": 0,
+          "gold_fact_count": 19,
+          "true_positive_count": 0,
+          "false_positive_count": 0,
+          "false_negative_count": 19,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "semantic_group_metrics": [
+        {
+          "group_id": "ground_stop_lifecycle",
+          "label": "Ground stop lifecycle",
+          "record_count": 26,
+          "gold_fact_count": 186,
+          "predicted_fact_count": 78,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 78,
+            "gold_fact_count": 186,
+            "true_positive_count": 44,
+            "false_positive_count": 34,
+            "false_negative_count": 142,
+            "precision": 0.5641025641025641,
+            "recall": 0.23655913978494625,
+            "f1": 0.33333333333333337,
+            "manual_semantic_correctness": 0.5641025641025641,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 26,
+              "intervals": {
+                "f1": {
+                  "low": 0.26855123674911663,
+                  "high": 0.3971631205673759
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.42857142857142855,
+                  "high": 0.7611940298507462
+                },
+                "precision": {
+                  "low": 0.42857142857142855,
+                  "high": 0.7611940298507462
+                },
+                "recall": {
+                  "low": 0.18888888888888888,
+                  "high": 0.2804232804232804
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "reroute_or_route_constraint",
+          "label": "Reroute or route constraint",
+          "record_count": 25,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 24,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 24,
+            "gold_fact_count": 183,
+            "true_positive_count": 9,
+            "false_positive_count": 15,
+            "false_negative_count": 174,
+            "precision": 0.375,
+            "recall": 0.04918032786885246,
+            "f1": 0.08695652173913043,
+            "manual_semantic_correctness": 0.375,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 25,
+              "intervals": {
+                "f1": {
+                  "low": 0.03980099502487562,
+                  "high": 0.12935323383084577
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.20833333333333334,
+                  "high": 0.5
+                },
+                "precision": {
+                  "low": 0.20833333333333334,
+                  "high": 0.5
+                },
+                "recall": {
+                  "low": 0.021621621621621623,
+                  "high": 0.07428571428571429
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "volcanic_activity_bulletin",
+          "label": "Volcanic activity bulletin",
+          "record_count": 19,
+          "gold_fact_count": 95,
+          "predicted_fact_count": 26,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 26,
+            "gold_fact_count": 95,
+            "true_positive_count": 17,
+            "false_positive_count": 9,
+            "false_negative_count": 78,
+            "precision": 0.6538461538461539,
+            "recall": 0.17894736842105263,
+            "f1": 0.2809917355371901,
+            "manual_semantic_correctness": 0.6538461538461539,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 19,
+              "intervals": {
+                "f1": {
+                  "low": 0.2280701754385965,
+                  "high": 0.3140495867768595
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.5625,
+                  "high": 0.7727272727272727
+                },
+                "precision": {
+                  "low": 0.5625,
+                  "high": 0.7727272727272727
+                },
+                "recall": {
+                  "low": 0.1368421052631579,
+                  "high": 0.2
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "ground_delay_program_lifecycle",
+          "label": "Ground delay program lifecycle",
+          "record_count": 12,
+          "gold_fact_count": 91,
+          "predicted_fact_count": 37,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 37,
+            "gold_fact_count": 91,
+            "true_positive_count": 13,
+            "false_positive_count": 24,
+            "false_negative_count": 78,
+            "precision": 0.35135135135135137,
+            "recall": 0.14285714285714285,
+            "f1": 0.20312499999999997,
+            "manual_semantic_correctness": 0.35135135135135137,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 12,
+              "intervals": {
+                "f1": {
+                  "low": 0.14285714285714285,
+                  "high": 0.2807017543859649
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.20967741935483872,
+                  "high": 0.5789473684210527
+                },
+                "precision": {
+                  "low": 0.20967741935483872,
+                  "high": 0.5789473684210527
+                },
+                "recall": {
+                  "low": 0.10416666666666667,
+                  "high": 0.1927710843373494
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_arrival_or_scheduling_delay",
+          "label": "Airport arrival or scheduling delay",
+          "record_count": 10,
+          "gold_fact_count": 55,
+          "predicted_fact_count": 20,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 20,
+            "gold_fact_count": 55,
+            "true_positive_count": 10,
+            "false_positive_count": 10,
+            "false_negative_count": 45,
+            "precision": 0.5,
+            "recall": 0.18181818181818182,
+            "f1": 0.26666666666666666,
+            "manual_semantic_correctness": 0.5,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 10,
+              "intervals": {
+                "f1": {
+                  "low": 0.20779220779220778,
+                  "high": 0.3287671232876712
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.3333333333333333,
+                  "high": 0.75
+                },
+                "precision": {
+                  "low": 0.3333333333333333,
+                  "high": 0.75
+                },
+                "recall": {
+                  "low": 0.14035087719298245,
+                  "high": 0.22641509433962265
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "hotline_or_webpage_status",
+          "label": "Hotline or webpage status",
+          "record_count": 3,
+          "gold_fact_count": 15,
+          "predicted_fact_count": 1,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 1,
+            "gold_fact_count": 15,
+            "true_positive_count": 0,
+            "false_positive_count": 1,
+            "false_negative_count": 15,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 3,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_diversion_recovery",
+          "label": "Airport diversion recovery",
+          "record_count": 2,
+          "gold_fact_count": 12,
+          "predicted_fact_count": 2,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 2,
+            "gold_fact_count": 12,
+            "true_positive_count": 0,
+            "false_positive_count": 2,
+            "false_negative_count": 12,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "special_or_flow_constraint_fyi",
+          "label": "Special mission or flow-constraint FYI",
+          "record_count": 2,
+          "gold_fact_count": 10,
+          "predicted_fact_count": 0,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 0,
+            "gold_fact_count": 10,
+            "true_positive_count": 0,
+            "false_positive_count": 0,
+            "false_negative_count": 10,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "flight_plan_drop_time_status",
+          "label": "Flight plan drop time status",
+          "record_count": 1,
+          "gold_fact_count": 4,
+          "predicted_fact_count": 1,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 1,
+            "gold_fact_count": 4,
+            "true_positive_count": 1,
+            "false_positive_count": 0,
+            "false_negative_count": 3,
+            "precision": 1.0,
+            "recall": 0.25,
+            "f1": 0.4,
+            "manual_semantic_correctness": 1.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 1,
+              "intervals": {
+                "f1": {
+                  "low": 0.4,
+                  "high": 0.4
+                },
+                "manual_semantic_correctness": {
+                  "low": 1.0,
+                  "high": 1.0
+                },
+                "precision": {
+                  "low": 1.0,
+                  "high": 1.0
+                },
+                "recall": {
+                  "low": 0.25,
+                  "high": 0.25
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "system_id": "S2_llm_schema_slice",
+      "label": "LLM + schema slice",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 708,
+        "accepted_fact_count": 584,
+        "rejected_fact_count": 124,
+        "structural_acceptance_rate": 0.8248587570621468,
+        "schema_violation_rate": 0.1751412429378531,
+        "repair_applicable": false,
+        "repair_attempted_fact_count": null,
+        "repair_accepted_fact_count": null,
+        "repair_success_rate": null,
+        "status_counts": {
+          "rejected_evidence": 97,
+          "rejected_schema": 27,
+          "repaired_accepted": 584
+        },
+        "error_counts": {
+          "allowed_value_violation": 3,
+          "datatype_value_not_datetime": 1,
+          "domain_violation": 4,
+          "evidence_not_found_in_source": 64,
+          "missing_evidence": 33,
+          "range_violation": 6,
+          "unknown_fact_type": 9,
+          "unknown_object_class": 7,
+          "unknown_predicate": 15,
+          "unknown_subject_class": 10
+        }
+      },
+      "semantic_metrics": {
+        "available": true,
+        "predicted_fact_count": 582,
+        "gold_fact_count": 651,
+        "true_positive_count": 120,
+        "false_positive_count": 462,
+        "false_negative_count": 531,
+        "precision": 0.20618556701030927,
+        "recall": 0.18433179723502305,
+        "f1": 0.19464720194647203,
+        "manual_semantic_correctness": 0.20618556701030927,
+        "confidence_intervals": {
+          "available": true,
+          "method": "record_bootstrap_by_source_id",
+          "level": 0.95,
+          "iterations": 200,
+          "seed": 1701,
+          "sampled_source_id_count": 100,
+          "intervals": {
+            "f1": {
+              "low": 0.1437403400309119,
+              "high": 0.23986486486486486
+            },
+            "manual_semantic_correctness": {
+              "low": 0.15081967213114755,
+              "high": 0.25244618395303325
+            },
+            "precision": {
+              "low": 0.15081967213114755,
+              "high": 0.25244618395303325
+            },
+            "recall": {
+              "low": 0.13582089552238805,
+              "high": 0.23076923076923078
+            }
+          }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
+      },
+      "property_level_semantic_metrics": [
+        {
+          "predicate": "advisoryNumber",
+          "predicted_fact_count": 63,
+          "gold_fact_count": 100,
+          "true_positive_count": 30,
+          "false_positive_count": 33,
+          "false_negative_count": 70,
+          "precision": 0.47619047619047616,
+          "recall": 0.3,
+          "f1": 0.3680981595092025
+        },
+        {
+          "predicate": "allowedRoute",
+          "predicted_fact_count": 1,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 1,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "controlledNASelement",
+          "predicted_fact_count": 76,
+          "gold_fact_count": 46,
+          "true_positive_count": 0,
+          "false_positive_count": 76,
+          "false_negative_count": 46,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "departureScope",
+          "predicted_fact_count": 5,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 5,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "predicted_fact_count": 69,
+          "gold_fact_count": 98,
+          "true_positive_count": 6,
+          "false_positive_count": 63,
+          "false_negative_count": 92,
+          "precision": 0.08695652173913043,
+          "recall": 0.061224489795918366,
+          "f1": 0.0718562874251497
+        },
+        {
+          "predicate": "effectiveStartTime",
+          "predicted_fact_count": 70,
+          "gold_fact_count": 98,
+          "true_positive_count": 8,
+          "false_positive_count": 62,
+          "false_negative_count": 90,
+          "precision": 0.11428571428571428,
+          "recall": 0.08163265306122448,
+          "f1": 0.09523809523809522
+        },
+        {
+          "predicate": "extensionProbability",
+          "predicted_fact_count": 32,
+          "gold_fact_count": 30,
+          "true_positive_count": 11,
+          "false_positive_count": 21,
+          "false_negative_count": 19,
+          "precision": 0.34375,
+          "recall": 0.36666666666666664,
+          "f1": 0.3548387096774193
+        },
+        {
+          "predicate": "impactingCondition",
+          "predicted_fact_count": 33,
+          "gold_fact_count": 30,
+          "true_positive_count": 10,
+          "false_positive_count": 23,
+          "false_negative_count": 20,
+          "precision": 0.30303030303030304,
+          "recall": 0.3333333333333333,
+          "f1": 0.31746031746031744
+        },
+        {
+          "predicate": "impactingConditionMessage",
+          "predicted_fact_count": 2,
+          "gold_fact_count": 10,
+          "true_positive_count": 0,
+          "false_positive_count": 2,
+          "false_negative_count": 10,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "implementationStatus",
+          "predicted_fact_count": 25,
+          "gold_fact_count": 21,
+          "true_positive_count": 7,
+          "false_positive_count": 18,
+          "false_negative_count": 14,
+          "precision": 0.28,
+          "recall": 0.3333333333333333,
+          "f1": 0.30434782608695654
+        },
+        {
+          "predicate": "includesARTCC",
+          "predicted_fact_count": 7,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 7,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "includesAirport",
+          "predicted_fact_count": 1,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 1,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "initiativeComments",
+          "predicted_fact_count": 79,
+          "gold_fact_count": 81,
+          "true_positive_count": 6,
+          "false_positive_count": 73,
+          "false_negative_count": 75,
+          "precision": 0.0759493670886076,
+          "recall": 0.07407407407407407,
+          "f1": 0.075
+        },
+        {
+          "predicate": "issuedTime",
+          "predicted_fact_count": 70,
+          "gold_fact_count": 98,
+          "true_positive_count": 28,
+          "false_positive_count": 42,
+          "false_negative_count": 70,
+          "precision": 0.4,
+          "recall": 0.2857142857142857,
+          "f1": 0.3333333333333333
+        },
+        {
+          "predicate": "reRouteReason",
+          "predicted_fact_count": 23,
+          "gold_fact_count": 20,
+          "true_positive_count": 5,
+          "false_positive_count": 18,
+          "false_negative_count": 15,
+          "precision": 0.21739130434782608,
+          "recall": 0.25,
+          "f1": 0.23255813953488372
+        },
+        {
+          "predicate": "reRouteType",
+          "predicted_fact_count": 24,
+          "gold_fact_count": 19,
+          "true_positive_count": 9,
+          "false_positive_count": 15,
+          "false_negative_count": 10,
+          "precision": 0.375,
+          "recall": 0.47368421052631576,
+          "f1": 0.4186046511627907
+        },
+        {
+          "predicate": "withinARTCC",
+          "predicted_fact_count": 2,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 2,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "semantic_group_metrics": [
+        {
+          "group_id": "ground_stop_lifecycle",
+          "label": "Ground stop lifecycle",
+          "record_count": 26,
+          "gold_fact_count": 186,
+          "predicted_fact_count": 167,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 167,
+            "gold_fact_count": 186,
+            "true_positive_count": 38,
+            "false_positive_count": 129,
+            "false_negative_count": 148,
+            "precision": 0.2275449101796407,
+            "recall": 0.20430107526881722,
+            "f1": 0.21529745042492918,
+            "manual_semantic_correctness": 0.2275449101796407,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 26,
+              "intervals": {
+                "f1": {
+                  "low": 0.12188365650969529,
+                  "high": 0.31607629427792916
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.1390728476821192,
+                  "high": 0.32941176470588235
+                },
+                "precision": {
+                  "low": 0.1390728476821192,
+                  "high": 0.32941176470588235
+                },
+                "recall": {
+                  "low": 0.11229946524064172,
+                  "high": 0.3010752688172043
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "reroute_or_route_constraint",
+          "label": "Reroute or route constraint",
+          "record_count": 25,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 187,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 187,
+            "gold_fact_count": 183,
+            "true_positive_count": 32,
+            "false_positive_count": 155,
+            "false_negative_count": 151,
+            "precision": 0.1711229946524064,
+            "recall": 0.17486338797814208,
+            "f1": 0.17297297297297298,
+            "manual_semantic_correctness": 0.1711229946524064,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 25,
+              "intervals": {
+                "f1": {
+                  "low": 0.10526315789473684,
+                  "high": 0.24581005586592178
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.09937888198757763,
+                  "high": 0.2529411764705882
+                },
+                "precision": {
+                  "low": 0.09937888198757763,
+                  "high": 0.2529411764705882
+                },
+                "recall": {
+                  "low": 0.09941520467836257,
+                  "high": 0.25
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "volcanic_activity_bulletin",
+          "label": "Volcanic activity bulletin",
+          "record_count": 19,
+          "gold_fact_count": 95,
+          "predicted_fact_count": 71,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 71,
+            "gold_fact_count": 95,
+            "true_positive_count": 34,
+            "false_positive_count": 37,
+            "false_negative_count": 61,
+            "precision": 0.4788732394366197,
+            "recall": 0.35789473684210527,
+            "f1": 0.40963855421686746,
+            "manual_semantic_correctness": 0.4788732394366197,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 19,
+              "intervals": {
+                "f1": {
+                  "low": 0.33121019108280253,
+                  "high": 0.47398843930635837
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.4057971014492754,
+                  "high": 0.5441176470588235
+                },
+                "precision": {
+                  "low": 0.4057971014492754,
+                  "high": 0.5441176470588235
+                },
+                "recall": {
+                  "low": 0.2736842105263158,
+                  "high": 0.43157894736842106
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "ground_delay_program_lifecycle",
+          "label": "Ground delay program lifecycle",
+          "record_count": 12,
+          "gold_fact_count": 91,
+          "predicted_fact_count": 66,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 66,
+            "gold_fact_count": 91,
+            "true_positive_count": 3,
+            "false_positive_count": 63,
+            "false_negative_count": 88,
+            "precision": 0.045454545454545456,
+            "recall": 0.03296703296703297,
+            "f1": 0.03821656050955414,
+            "manual_semantic_correctness": 0.045454545454545456,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 12,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0930232558139535
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.1206896551724138
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.1206896551724138
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.08333333333333333
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_arrival_or_scheduling_delay",
+          "label": "Airport arrival or scheduling delay",
+          "record_count": 10,
+          "gold_fact_count": 55,
+          "predicted_fact_count": 35,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 35,
+            "gold_fact_count": 55,
+            "true_positive_count": 3,
+            "false_positive_count": 32,
+            "false_negative_count": 52,
+            "precision": 0.08571428571428572,
+            "recall": 0.05454545454545454,
+            "f1": 0.06666666666666667,
+            "manual_semantic_correctness": 0.08571428571428572,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 10,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.11363636363636363
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.14285714285714285
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.14285714285714285
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.11320754716981132
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "hotline_or_webpage_status",
+          "label": "Hotline or webpage status",
+          "record_count": 3,
+          "gold_fact_count": 15,
+          "predicted_fact_count": 17,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 17,
+            "gold_fact_count": 15,
+            "true_positive_count": 5,
+            "false_positive_count": 12,
+            "false_negative_count": 10,
+            "precision": 0.29411764705882354,
+            "recall": 0.3333333333333333,
+            "f1": 0.3125,
+            "manual_semantic_correctness": 0.29411764705882354,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 3,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.6666666666666665
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.75
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.75
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.6
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_diversion_recovery",
+          "label": "Airport diversion recovery",
+          "record_count": 2,
+          "gold_fact_count": 12,
+          "predicted_fact_count": 11,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 11,
+            "gold_fact_count": 12,
+            "true_positive_count": 3,
+            "false_positive_count": 8,
+            "false_negative_count": 9,
+            "precision": 0.2727272727272727,
+            "recall": 0.25,
+            "f1": 0.2608695652173913,
+            "manual_semantic_correctness": 0.2727272727272727,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.5
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.5
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.5
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.5
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "special_or_flow_constraint_fyi",
+          "label": "Special mission or flow-constraint FYI",
+          "record_count": 2,
+          "gold_fact_count": 10,
+          "predicted_fact_count": 22,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 22,
+            "gold_fact_count": 10,
+            "true_positive_count": 2,
+            "false_positive_count": 20,
+            "false_negative_count": 8,
+            "precision": 0.09090909090909091,
+            "recall": 0.2,
+            "f1": 0.12500000000000003,
+            "manual_semantic_correctness": 0.09090909090909091,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.3636363636363636
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.3333333333333333
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.3333333333333333
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.4
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "flight_plan_drop_time_status",
+          "label": "Flight plan drop time status",
+          "record_count": 1,
+          "gold_fact_count": 4,
+          "predicted_fact_count": 6,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 6,
+            "gold_fact_count": 4,
+            "true_positive_count": 0,
+            "false_positive_count": 6,
+            "false_negative_count": 4,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 1,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "system_id": "S3_llm_schema_slice_validator_repair",
+      "label": "LLM + schema slice + validator/repair",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 396,
+        "accepted_fact_count": 355,
+        "rejected_fact_count": 41,
+        "structural_acceptance_rate": 0.8964646464646465,
+        "schema_violation_rate": 0.10353535353535354,
+        "repair_applicable": true,
+        "repair_attempted_fact_count": 396,
+        "repair_accepted_fact_count": 355,
+        "repair_success_rate": 0.8964646464646465,
+        "status_counts": {
+          "rejected_evidence": 19,
+          "rejected_schema": 22,
+          "repaired_accepted": 355
+        },
+        "error_counts": {
+          "allowed_value_violation": 1,
+          "evidence_not_found_in_source": 1,
+          "missing_evidence": 18,
+          "range_violation": 16,
+          "unknown_fact_type": 2,
+          "unknown_object_class": 3,
+          "unknown_predicate": 5,
+          "unknown_subject_class": 3
+        }
+      },
+      "semantic_metrics": {
+        "available": true,
+        "predicted_fact_count": 355,
+        "gold_fact_count": 651,
+        "true_positive_count": 86,
+        "false_positive_count": 269,
+        "false_negative_count": 565,
+        "precision": 0.24225352112676057,
+        "recall": 0.13210445468509985,
+        "f1": 0.17097415506958252,
+        "manual_semantic_correctness": 0.24225352112676057,
+        "confidence_intervals": {
+          "available": true,
+          "method": "record_bootstrap_by_source_id",
+          "level": 0.95,
+          "iterations": 200,
+          "seed": 1701,
+          "sampled_source_id_count": 100,
+          "intervals": {
+            "f1": {
+              "low": 0.11324786324786325,
+              "high": 0.2121504339440694
+            },
+            "manual_semantic_correctness": {
+              "low": 0.17064846416382254,
+              "high": 0.29941860465116277
+            },
+            "precision": {
+              "low": 0.17064846416382254,
+              "high": 0.29941860465116277
+            },
+            "recall": {
+              "low": 0.08507223113964688,
+              "high": 0.16593245227606462
+            }
+          }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
+      },
+      "property_level_semantic_metrics": [
+        {
+          "predicate": "advisoryNumber",
+          "predicted_fact_count": 27,
+          "gold_fact_count": 100,
+          "true_positive_count": 11,
+          "false_positive_count": 16,
+          "false_negative_count": 89,
+          "precision": 0.4074074074074074,
+          "recall": 0.11,
+          "f1": 0.1732283464566929
+        },
+        {
+          "predicate": "controlledNASelement",
+          "predicted_fact_count": 41,
+          "gold_fact_count": 46,
+          "true_positive_count": 0,
+          "false_positive_count": 41,
+          "false_negative_count": 46,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "departureScope",
+          "predicted_fact_count": 5,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 5,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "predicted_fact_count": 36,
+          "gold_fact_count": 98,
+          "true_positive_count": 1,
+          "false_positive_count": 35,
+          "false_negative_count": 97,
+          "precision": 0.027777777777777776,
+          "recall": 0.01020408163265306,
+          "f1": 0.014925373134328358
+        },
+        {
+          "predicate": "effectiveStartTime",
+          "predicted_fact_count": 36,
+          "gold_fact_count": 98,
+          "true_positive_count": 4,
+          "false_positive_count": 32,
+          "false_negative_count": 94,
+          "precision": 0.1111111111111111,
+          "recall": 0.04081632653061224,
+          "f1": 0.05970149253731343
+        },
+        {
+          "predicate": "extensionProbability",
+          "predicted_fact_count": 32,
+          "gold_fact_count": 30,
+          "true_positive_count": 9,
+          "false_positive_count": 23,
+          "false_negative_count": 21,
+          "precision": 0.28125,
+          "recall": 0.3,
+          "f1": 0.29032258064516125
+        },
+        {
+          "predicate": "impactingCondition",
+          "predicted_fact_count": 25,
+          "gold_fact_count": 30,
+          "true_positive_count": 6,
+          "false_positive_count": 19,
+          "false_negative_count": 24,
+          "precision": 0.24,
+          "recall": 0.2,
+          "f1": 0.2181818181818182
+        },
+        {
+          "predicate": "impactingConditionMessage",
+          "predicted_fact_count": 2,
+          "gold_fact_count": 10,
+          "true_positive_count": 0,
+          "false_positive_count": 2,
+          "false_negative_count": 10,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "implementationStatus",
+          "predicted_fact_count": 18,
+          "gold_fact_count": 21,
+          "true_positive_count": 13,
+          "false_positive_count": 5,
+          "false_negative_count": 8,
+          "precision": 0.7222222222222222,
+          "recall": 0.6190476190476191,
+          "f1": 0.6666666666666666
+        },
+        {
+          "predicate": "includesAirport",
+          "predicted_fact_count": 3,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 3,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "initiativeComments",
+          "predicted_fact_count": 59,
+          "gold_fact_count": 81,
+          "true_positive_count": 13,
+          "false_positive_count": 46,
+          "false_negative_count": 68,
+          "precision": 0.22033898305084745,
+          "recall": 0.16049382716049382,
+          "f1": 0.1857142857142857
+        },
+        {
+          "predicate": "issuedTime",
+          "predicted_fact_count": 35,
+          "gold_fact_count": 98,
+          "true_positive_count": 8,
+          "false_positive_count": 27,
+          "false_negative_count": 90,
+          "precision": 0.22857142857142856,
+          "recall": 0.08163265306122448,
+          "f1": 0.12030075187969923
+        },
+        {
+          "predicate": "reRouteReason",
+          "predicted_fact_count": 18,
+          "gold_fact_count": 20,
+          "true_positive_count": 9,
+          "false_positive_count": 9,
+          "false_negative_count": 11,
+          "precision": 0.5,
+          "recall": 0.45,
+          "f1": 0.4736842105263158
+        },
+        {
+          "predicate": "reRouteType",
+          "predicted_fact_count": 18,
+          "gold_fact_count": 19,
+          "true_positive_count": 12,
+          "false_positive_count": 6,
+          "false_negative_count": 7,
+          "precision": 0.6666666666666666,
+          "recall": 0.631578947368421,
+          "f1": 0.6486486486486486
+        }
+      ],
+      "semantic_group_metrics": [
+        {
+          "group_id": "ground_stop_lifecycle",
+          "label": "Ground stop lifecycle",
+          "record_count": 26,
+          "gold_fact_count": 186,
+          "predicted_fact_count": 91,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 91,
+            "gold_fact_count": 186,
+            "true_positive_count": 18,
+            "false_positive_count": 73,
+            "false_negative_count": 168,
+            "precision": 0.1978021978021978,
+            "recall": 0.0967741935483871,
+            "f1": 0.1299638989169675,
+            "manual_semantic_correctness": 0.1978021978021978,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 26,
+              "intervals": {
+                "f1": {
+                  "low": 0.045454545454545456,
+                  "high": 0.2271062271062271
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.07407407407407407,
+                  "high": 0.35802469135802467
+                },
+                "precision": {
+                  "low": 0.07407407407407407,
+                  "high": 0.35802469135802467
+                },
+                "recall": {
+                  "low": 0.03278688524590164,
+                  "high": 0.16753926701570682
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "reroute_or_route_constraint",
+          "label": "Reroute or route constraint",
+          "record_count": 25,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 136,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 136,
+            "gold_fact_count": 183,
+            "true_positive_count": 45,
+            "false_positive_count": 91,
+            "false_negative_count": 138,
+            "precision": 0.33088235294117646,
+            "recall": 0.2459016393442623,
+            "f1": 0.28213166144200624,
+            "manual_semantic_correctness": 0.33088235294117646,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 25,
+              "intervals": {
+                "f1": {
+                  "low": 0.17333333333333337,
+                  "high": 0.3588039867109634
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.21014492753623187,
+                  "high": 0.43661971830985913
+                },
+                "precision": {
+                  "low": 0.21014492753623187,
+                  "high": 0.43661971830985913
+                },
+                "recall": {
+                  "low": 0.14942528735632185,
+                  "high": 0.3230769230769231
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "volcanic_activity_bulletin",
+          "label": "Volcanic activity bulletin",
+          "record_count": 19,
+          "gold_fact_count": 95,
+          "predicted_fact_count": 17,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 17,
+            "gold_fact_count": 95,
+            "true_positive_count": 8,
+            "false_positive_count": 9,
+            "false_negative_count": 87,
+            "precision": 0.47058823529411764,
+            "recall": 0.08421052631578947,
+            "f1": 0.14285714285714282,
+            "manual_semantic_correctness": 0.47058823529411764,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 19,
+              "intervals": {
+                "f1": {
+                  "low": 0.020618556701030927,
+                  "high": 0.25396825396825395
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.25,
+                  "high": 0.5714285714285714
+                },
+                "precision": {
+                  "low": 0.25,
+                  "high": 0.5714285714285714
+                },
+                "recall": {
+                  "low": 0.010526315789473684,
+                  "high": 0.16842105263157894
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "ground_delay_program_lifecycle",
+          "label": "Ground delay program lifecycle",
+          "record_count": 12,
+          "gold_fact_count": 91,
+          "predicted_fact_count": 50,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 50,
+            "gold_fact_count": 91,
+            "true_positive_count": 7,
+            "false_positive_count": 43,
+            "false_negative_count": 84,
+            "precision": 0.14,
+            "recall": 0.07692307692307693,
+            "f1": 0.09929078014184398,
+            "manual_semantic_correctness": 0.14,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 12,
+              "intervals": {
+                "f1": {
+                  "low": 0.02962962962962963,
+                  "high": 0.18867924528301888
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.043478260869565216,
+                  "high": 0.3103448275862069
+                },
+                "precision": {
+                  "low": 0.043478260869565216,
+                  "high": 0.3103448275862069
+                },
+                "recall": {
+                  "low": 0.021739130434782608,
+                  "high": 0.14130434782608695
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_arrival_or_scheduling_delay",
+          "label": "Airport arrival or scheduling delay",
+          "record_count": 10,
+          "gold_fact_count": 55,
+          "predicted_fact_count": 31,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 31,
+            "gold_fact_count": 55,
+            "true_positive_count": 4,
+            "false_positive_count": 27,
+            "false_negative_count": 51,
+            "precision": 0.12903225806451613,
+            "recall": 0.07272727272727272,
+            "f1": 0.09302325581395349,
+            "manual_semantic_correctness": 0.12903225806451613,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 10,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.1818181818181818
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.25
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.25
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.1509433962264151
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "hotline_or_webpage_status",
+          "label": "Hotline or webpage status",
+          "record_count": 3,
+          "gold_fact_count": 15,
+          "predicted_fact_count": 11,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 11,
+            "gold_fact_count": 15,
+            "true_positive_count": 0,
+            "false_positive_count": 11,
+            "false_negative_count": 15,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 3,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_diversion_recovery",
+          "label": "Airport diversion recovery",
+          "record_count": 2,
+          "gold_fact_count": 12,
+          "predicted_fact_count": 11,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 11,
+            "gold_fact_count": 12,
+            "true_positive_count": 4,
+            "false_positive_count": 7,
+            "false_negative_count": 8,
+            "precision": 0.36363636363636365,
+            "recall": 0.3333333333333333,
+            "f1": 0.34782608695652173,
+            "manual_semantic_correctness": 0.36363636363636365,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.7272727272727272
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.8
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.8
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.6666666666666666
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "special_or_flow_constraint_fyi",
+          "label": "Special mission or flow-constraint FYI",
+          "record_count": 2,
+          "gold_fact_count": 10,
+          "predicted_fact_count": 5,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 5,
+            "gold_fact_count": 10,
+            "true_positive_count": 0,
+            "false_positive_count": 5,
+            "false_negative_count": 10,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "flight_plan_drop_time_status",
+          "label": "Flight plan drop time status",
+          "record_count": 1,
+          "gold_fact_count": 4,
+          "predicted_fact_count": 3,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 3,
+            "gold_fact_count": 4,
+            "true_positive_count": 0,
+            "false_positive_count": 3,
+            "false_negative_count": 4,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 1,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "system_id": "S4_hybrid_backbone_enrichment",
+      "label": "Hybrid backbone + semantic enrichment",
+      "expected_output": "data/experiments/nasa_atmonto/formal/s4_hybrid_backbone_enrichment_predictions.jsonl",
+      "output_exists": true,
+      "available": true,
+      "reason": null,
+      "json_metrics": {
+        "attempted_record_count": 100,
+        "line_count": 100,
+        "valid_json_payload_count": 100,
+        "invalid_json_line_count": 0,
+        "invalid_payload_count": 0,
+        "duplicate_output_record_count": 0,
+        "missing_output_record_count": 0,
+        "json_adherence": 1.0
+      },
+      "structural_metrics": {
+        "candidate_fact_count": 736,
+        "accepted_fact_count": 736,
+        "rejected_fact_count": 0,
+        "structural_acceptance_rate": 1.0,
+        "schema_violation_rate": 0.0,
+        "repair_applicable": true,
+        "repair_attempted_fact_count": 728,
+        "repair_accepted_fact_count": 728,
+        "repair_success_rate": 1.0,
+        "status_counts": {
+          "hybrid_backbone_accepted": 567,
+          "hybrid_backbone_derived_accepted": 8,
+          "hybrid_enrichment_accepted": 161
+        },
+        "error_counts": {}
+      },
+      "semantic_metrics": {
+        "available": true,
+        "predicted_fact_count": 735,
+        "gold_fact_count": 651,
+        "true_positive_count": 504,
+        "false_positive_count": 231,
+        "false_negative_count": 147,
+        "precision": 0.6857142857142857,
+        "recall": 0.7741935483870968,
+        "f1": 0.7272727272727272,
+        "manual_semantic_correctness": 0.6857142857142857,
+        "confidence_intervals": {
+          "available": true,
+          "method": "record_bootstrap_by_source_id",
+          "level": 0.95,
+          "iterations": 200,
+          "seed": 1701,
+          "sampled_source_id_count": 100,
+          "intervals": {
+            "f1": {
+              "low": 0.6812865497076023,
+              "high": 0.7627365356622998
+            },
+            "manual_semantic_correctness": {
+              "low": 0.6397919375812744,
+              "high": 0.7270306258322237
+            },
+            "precision": {
+              "low": 0.6397919375812744,
+              "high": 0.7270306258322237
+            },
+            "recall": {
+              "low": 0.717391304347826,
+              "high": 0.8201219512195121
+            }
+          }
+        },
+        "scoring_validity": "valid_target_schema_scoring",
+        "valid_for_baseline_comparison": true,
+        "interpretation": "Target-schema precision/recall/F1 are interpretable for this system."
+      },
+      "property_level_semantic_metrics": [
+        {
+          "predicate": "advisoryNumber",
+          "predicted_fact_count": 100,
+          "gold_fact_count": 100,
+          "true_positive_count": 92,
+          "false_positive_count": 8,
+          "false_negative_count": 8,
+          "precision": 0.92,
+          "recall": 0.92,
+          "f1": 0.92
+        },
+        {
+          "predicate": "controlledNASelement",
+          "predicted_fact_count": 114,
+          "gold_fact_count": 46,
+          "true_positive_count": 36,
+          "false_positive_count": 78,
+          "false_negative_count": 10,
+          "precision": 0.3157894736842105,
+          "recall": 0.782608695652174,
+          "f1": 0.45
+        },
+        {
+          "predicate": "departureScope",
+          "predicted_fact_count": 3,
+          "gold_fact_count": 0,
+          "true_positive_count": 0,
+          "false_positive_count": 3,
+          "false_negative_count": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "predicate": "effectiveEndTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 91,
+          "false_positive_count": 7,
+          "false_negative_count": 7,
+          "precision": 0.9285714285714286,
+          "recall": 0.9285714285714286,
+          "f1": 0.9285714285714286
+        },
+        {
+          "predicate": "effectiveStartTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 91,
+          "false_positive_count": 7,
+          "false_negative_count": 7,
+          "precision": 0.9285714285714286,
+          "recall": 0.9285714285714286,
+          "f1": 0.9285714285714286
+        },
+        {
+          "predicate": "extensionProbability",
+          "predicted_fact_count": 41,
+          "gold_fact_count": 30,
+          "true_positive_count": 24,
+          "false_positive_count": 17,
+          "false_negative_count": 6,
+          "precision": 0.5853658536585366,
+          "recall": 0.8,
+          "f1": 0.676056338028169
+        },
+        {
+          "predicate": "impactingCondition",
+          "predicted_fact_count": 44,
+          "gold_fact_count": 30,
+          "true_positive_count": 29,
+          "false_positive_count": 15,
+          "false_negative_count": 1,
+          "precision": 0.6590909090909091,
+          "recall": 0.9666666666666667,
+          "f1": 0.7837837837837838
+        },
+        {
+          "predicate": "impactingConditionMessage",
+          "predicted_fact_count": 12,
+          "gold_fact_count": 10,
+          "true_positive_count": 10,
+          "false_positive_count": 2,
+          "false_negative_count": 0,
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1": 0.9090909090909091
+        },
+        {
+          "predicate": "implementationStatus",
+          "predicted_fact_count": 20,
+          "gold_fact_count": 21,
+          "true_positive_count": 16,
+          "false_positive_count": 4,
+          "false_negative_count": 5,
+          "precision": 0.8,
+          "recall": 0.7619047619047619,
+          "f1": 0.7804878048780488
+        },
+        {
+          "predicate": "initiativeComments",
+          "predicted_fact_count": 81,
+          "gold_fact_count": 81,
+          "true_positive_count": 29,
+          "false_positive_count": 52,
+          "false_negative_count": 52,
+          "precision": 0.35802469135802467,
+          "recall": 0.35802469135802467,
+          "f1": 0.35802469135802467
+        },
+        {
+          "predicate": "issuedTime",
+          "predicted_fact_count": 98,
+          "gold_fact_count": 98,
+          "true_positive_count": 72,
+          "false_positive_count": 26,
+          "false_negative_count": 26,
+          "precision": 0.7346938775510204,
+          "recall": 0.7346938775510204,
+          "f1": 0.7346938775510203
+        },
+        {
+          "predicate": "reRouteReason",
+          "predicted_fact_count": 13,
+          "gold_fact_count": 20,
+          "true_positive_count": 5,
+          "false_positive_count": 8,
+          "false_negative_count": 15,
+          "precision": 0.38461538461538464,
+          "recall": 0.25,
+          "f1": 0.30303030303030304
+        },
+        {
+          "predicate": "reRouteType",
+          "predicted_fact_count": 13,
+          "gold_fact_count": 19,
+          "true_positive_count": 9,
+          "false_positive_count": 4,
+          "false_negative_count": 10,
+          "precision": 0.6923076923076923,
+          "recall": 0.47368421052631576,
+          "f1": 0.5625
+        }
+      ],
+      "semantic_group_metrics": [
+        {
+          "group_id": "ground_stop_lifecycle",
+          "label": "Ground stop lifecycle",
+          "record_count": 26,
+          "gold_fact_count": 186,
+          "predicted_fact_count": 240,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 240,
+            "gold_fact_count": 186,
+            "true_positive_count": 173,
+            "false_positive_count": 67,
+            "false_negative_count": 13,
+            "precision": 0.7208333333333333,
+            "recall": 0.9301075268817204,
+            "f1": 0.812206572769953,
+            "manual_semantic_correctness": 0.7208333333333333,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 26,
+              "intervals": {
+                "f1": {
+                  "low": 0.7314814814814815,
+                  "high": 0.8764568764568764
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.6431535269709544,
+                  "high": 0.7886178861788617
+                },
+                "precision": {
+                  "low": 0.6431535269709544,
+                  "high": 0.7886178861788617
+                },
+                "recall": {
+                  "low": 0.8360655737704918,
+                  "high": 1.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "reroute_or_route_constraint",
+          "label": "Reroute or route constraint",
+          "record_count": 25,
+          "gold_fact_count": 183,
+          "predicted_fact_count": 185,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 185,
+            "gold_fact_count": 183,
+            "true_positive_count": 130,
+            "false_positive_count": 55,
+            "false_negative_count": 53,
+            "precision": 0.7027027027027027,
+            "recall": 0.7103825136612022,
+            "f1": 0.7065217391304348,
+            "manual_semantic_correctness": 0.7027027027027027,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 25,
+              "intervals": {
+                "f1": {
+                  "low": 0.6327077747989276,
+                  "high": 0.7692307692307693
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.6062176165803109,
+                  "high": 0.8066298342541437
+                },
+                "precision": {
+                  "low": 0.6062176165803109,
+                  "high": 0.8066298342541437
+                },
+                "recall": {
+                  "low": 0.6453488372093024,
+                  "high": 0.7790697674418605
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "volcanic_activity_bulletin",
+          "label": "Volcanic activity bulletin",
+          "record_count": 19,
+          "gold_fact_count": 95,
+          "predicted_fact_count": 81,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 81,
+            "gold_fact_count": 95,
+            "true_positive_count": 57,
+            "false_positive_count": 24,
+            "false_negative_count": 38,
+            "precision": 0.7037037037037037,
+            "recall": 0.6,
+            "f1": 0.6477272727272727,
+            "manual_semantic_correctness": 0.7037037037037037,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 19,
+              "intervals": {
+                "f1": {
+                  "low": 0.6333333333333333,
+                  "high": 0.6627906976744186
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.6705882352941176,
+                  "high": 0.7402597402597403
+                },
+                "precision": {
+                  "low": 0.6705882352941176,
+                  "high": 0.7402597402597403
+                },
+                "recall": {
+                  "low": 0.6,
+                  "high": 0.6
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "ground_delay_program_lifecycle",
+          "label": "Ground delay program lifecycle",
+          "record_count": 12,
+          "gold_fact_count": 91,
+          "predicted_fact_count": 109,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 109,
+            "gold_fact_count": 91,
+            "true_positive_count": 91,
+            "false_positive_count": 18,
+            "false_negative_count": 0,
+            "precision": 0.8348623853211009,
+            "recall": 1.0,
+            "f1": 0.9099999999999999,
+            "manual_semantic_correctness": 0.8348623853211009,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 12,
+              "intervals": {
+                "f1": {
+                  "low": 0.8737864077669902,
+                  "high": 0.9411764705882353
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.7758620689655172,
+                  "high": 0.8888888888888888
+                },
+                "precision": {
+                  "low": 0.7758620689655172,
+                  "high": 0.8888888888888888
+                },
+                "recall": {
+                  "low": 1.0,
+                  "high": 1.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_arrival_or_scheduling_delay",
+          "label": "Airport arrival or scheduling delay",
+          "record_count": 10,
+          "gold_fact_count": 55,
+          "predicted_fact_count": 77,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 77,
+            "gold_fact_count": 55,
+            "true_positive_count": 41,
+            "false_positive_count": 36,
+            "false_negative_count": 14,
+            "precision": 0.5324675324675324,
+            "recall": 0.7454545454545455,
+            "f1": 0.6212121212121212,
+            "manual_semantic_correctness": 0.5324675324675324,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 10,
+              "intervals": {
+                "f1": {
+                  "low": 0.5616438356164384,
+                  "high": 0.6774193548387097
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.4444444444444444,
+                  "high": 0.6307692307692307
+                },
+                "precision": {
+                  "low": 0.4444444444444444,
+                  "high": 0.6307692307692307
+                },
+                "recall": {
+                  "low": 0.7017543859649122,
+                  "high": 0.8076923076923077
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "hotline_or_webpage_status",
+          "label": "Hotline or webpage status",
+          "record_count": 3,
+          "gold_fact_count": 15,
+          "predicted_fact_count": 15,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 15,
+            "gold_fact_count": 15,
+            "true_positive_count": 4,
+            "false_positive_count": 11,
+            "false_negative_count": 11,
+            "precision": 0.26666666666666666,
+            "recall": 0.26666666666666666,
+            "f1": 0.26666666666666666,
+            "manual_semantic_correctness": 0.26666666666666666,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 3,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.8000000000000002
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.8
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.8
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.8
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "airport_diversion_recovery",
+          "label": "Airport diversion recovery",
+          "record_count": 2,
+          "gold_fact_count": 12,
+          "predicted_fact_count": 10,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 10,
+            "gold_fact_count": 12,
+            "true_positive_count": 0,
+            "false_positive_count": 10,
+            "false_negative_count": 12,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "manual_semantic_correctness": 0.0,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 0.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "special_or_flow_constraint_fyi",
+          "label": "Special mission or flow-constraint FYI",
+          "record_count": 2,
+          "gold_fact_count": 10,
+          "predicted_fact_count": 9,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 9,
+            "gold_fact_count": 10,
+            "true_positive_count": 4,
+            "false_positive_count": 5,
+            "false_negative_count": 6,
+            "precision": 0.4444444444444444,
+            "recall": 0.4,
+            "f1": 0.4210526315789474,
+            "manual_semantic_correctness": 0.4444444444444444,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 2,
+              "intervals": {
+                "f1": {
+                  "low": 0.0,
+                  "high": 0.888888888888889
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.0,
+                  "high": 1.0
+                },
+                "precision": {
+                  "low": 0.0,
+                  "high": 1.0
+                },
+                "recall": {
+                  "low": 0.0,
+                  "high": 0.8
+                }
+              }
+            }
+          }
+        },
+        {
+          "group_id": "flight_plan_drop_time_status",
+          "label": "Flight plan drop time status",
+          "record_count": 1,
+          "gold_fact_count": 4,
+          "predicted_fact_count": 9,
+          "semantic_metrics": {
+            "available": true,
+            "predicted_fact_count": 9,
+            "gold_fact_count": 4,
+            "true_positive_count": 4,
+            "false_positive_count": 5,
+            "false_negative_count": 0,
+            "precision": 0.4444444444444444,
+            "recall": 1.0,
+            "f1": 0.6153846153846153,
+            "manual_semantic_correctness": 0.4444444444444444,
+            "confidence_intervals": {
+              "available": true,
+              "method": "record_bootstrap_by_source_id",
+              "level": 0.95,
+              "iterations": 200,
+              "seed": 1701,
+              "sampled_source_id_count": 1,
+              "intervals": {
+                "f1": {
+                  "low": 0.6153846153846153,
+                  "high": 0.6153846153846153
+                },
+                "manual_semantic_correctness": {
+                  "low": 0.4444444444444444,
+                  "high": 0.4444444444444444
+                },
+                "precision": {
+                  "low": 0.4444444444444444,
+                  "high": 0.4444444444444444
+                },
+                "recall": {
+                  "low": 1.0,
+                  "high": 1.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "rejection_adjudication": {
+    "source_family": "nasa_atmonto_rejection_adjudication",
+    "input_rejection_analysis": "reports/stages/nasa_atmonto_rejection_error_analysis.json",
+    "rejected_fact_count": 288,
+    "grouped_fact_count": 288,
+    "group_count": 4,
+    "decision_counts_by_fact": {
+      "extractor_bug": 13,
+      "profile_gap": 275
+    },
+    "confidence_counts_by_fact": {
+      "high": 266,
+      "medium": 22
+    },
+    "pending_fact_count": 0,
+    "property_level_complete": true,
+    "boundary": "This artifact finalizes property-level error categories for the 288 pilot rejections. It does not automatically approve profile extensions or convert validator-rejected facts into semantic gold facts."
+  },
+  "claim_statuses": [
+    {
+      "id": "C1",
+      "label": "Runtime NASA ATMONTO profile feasibility",
+      "status": "supported_by_pilot",
+      "rationale": "The pilot generated the schema catalog, ATCSCC schema slice, and validated candidate-fact artifact. This remains a schema-engineering claim.",
+      "evidence": [
+        "data/ontology/curated/nasa_atmonto_schema_catalog.json",
+        "data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json",
+        "data/processed/nasa_atmonto/extraction/2026-05-14/atcscc_schema_slice_validated.jsonl"
+      ]
+    },
+    {
+      "id": "C2",
+      "label": "Schema-slice constraint benefit",
+      "status": "supported",
+      "rationale": "S2 schema guidance reduces target-schema violation rate versus the canonicalized S1b baseline by at least 10 percentage points.",
+      "evidence": [
+        "S1b_llm_canonicalized structural metrics",
+        "S2_llm_schema_slice structural metrics"
+      ]
+    },
+    {
+      "id": "C3",
+      "label": "Validator/repair benefit",
+      "status": "supported",
+      "rationale": "S3 meets the repair-success threshold and preserves semantic correctness.",
+      "evidence": [
+        "S2_llm_schema_slice structural and semantic metrics",
+        "S3_llm_schema_slice_validator_repair structural and semantic metrics"
+      ]
+    },
+    {
+      "id": "C4",
+      "label": "Rejection analysis utility",
+      "status": "supported",
+      "rationale": "All 288 rejections have final property-level action labels: {\"extractor_bug\": 13, \"profile_gap\": 275}.",
+      "evidence": [
+        "reports/stages/nasa_atmonto_rejection_error_analysis.md",
+        "reports/stages/nasa_atmonto_rejection_adjudication.md"
+      ]
+    }
+  ],
+  "hypothesis_statuses": [
+    {
+      "id": "H1",
+      "label": "Schema guidance reduces structural drift",
+      "status": "supported",
+      "rationale": "S2 schema guidance reduces target-schema violation rate versus the canonicalized S1b baseline by at least 10 percentage points.",
+      "evidence": [
+        "s1_schema_violation_rate=1.0",
+        "s1b_schema_violation_rate=0.5837004405286343",
+        "s2_schema_violation_rate=0.1751412429378531",
+        "S1b_llm_canonicalized_minus_s2=0.40855919759078124",
+        "s1_semantic_scoring_validity=invalid_direct_schema_scoring"
+      ],
+      "falsification_criterion": "Falsified if schema guidance does not reduce unsupported target-schema terms after a canonicalized S1b baseline exists, or if the reduction only comes from suppressing more than 25 percent of gold-supported facts."
+    },
+    {
+      "id": "H2",
+      "label": "Validator/repair improves valid yield",
+      "status": "supported",
+      "rationale": "S3 meets the repair-success threshold and preserves semantic correctness.",
+      "evidence": [
+        "s2_accepted_fact_count=584",
+        "s3_accepted_fact_count=355",
+        "s3_repair_success_rate=0.8964646464646465",
+        "s2_manual_semantic_correctness=0.20618556701030927",
+        "s3_manual_semantic_correctness=0.24225352112676057"
+      ],
+      "falsification_criterion": "Falsified if S3 repair success is below 15 percent of initially invalid facts, or if S3 manual semantic correctness is more than 5 percentage points lower than S2."
+    },
+    {
+      "id": "H3",
+      "label": "Hybrid backbone plus enrichment improves selected semantic predicates",
+      "status": "supported",
+      "rationale": "S4 improves the selected semantic predicate macro-F1 over S0 while preserving deterministic-field macro-F1 within tolerance.",
+      "evidence": [
+        "s1_precision=0.0",
+        "s3_precision=0.24225352112676057",
+        "s1_f1=0.0",
+        "s3_f1=0.17097415506958252",
+        "s1_semantic_scoring_validity=invalid_direct_schema_scoring",
+        "s0_selected_semantic_macro_f1=0.14285714285714285",
+        "s4_selected_semantic_macro_f1=0.5486727026361172",
+        "s0_deterministic_macro_f1=0.8779591836734694",
+        "s4_deterministic_macro_f1=0.8779591836734694"
+      ],
+      "falsification_criterion": "Falsified if S4 hybrid does not improve selected semantic predicate F1 over S0 while preserving deterministic-field F1 within the pre-registered tolerance."
+    },
+    {
+      "id": "H4",
+      "label": "Rejection triage produces actionable engineering decisions",
+      "status": "supported",
+      "rationale": "All 288 rejections have final property-level action labels: {\"extractor_bug\": 13, \"profile_gap\": 275}.",
+      "evidence": [
+        "rejected_fact_count=288",
+        "final_decision_counts_by_fact={\"extractor_bug\": 13, \"profile_gap\": 275}"
+      ],
+      "falsification_criterion": "Falsified if more than 20 percent of rejected facts remain manual-review-only after review, or if profile extensions cannot be tied to source evidence and NASA ATMONTO terms."
+    }
+  ],
+  "completion_audit": {
+    "overall_status": "formal_experiment_complete",
+    "blocking_requirement_ids": [],
+    "requirements": [
+      {
+        "id": "R0",
+        "requirement": "Position the current NASA ATMONTO loop as pilot / feasibility evidence, not a completed formal experiment.",
+        "status": "satisfied",
+        "evidence": "docs/experiment_protocol.md contains pilot/feasibility boundary and bronze-until-reviewed language."
+      },
+      {
+        "id": "R1",
+        "requirement": "Sample 80-120 ATCSCC advisories for the formal gold set.",
+        "status": "satisfied",
+        "evidence": "sample_size=100; manifest=data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json"
+      },
+      {
+        "id": "R2",
+        "requirement": "Freeze reviewed gold annotations before semantic scoring.",
+        "status": "satisfied",
+        "evidence": "gold_source=frozen_reviewed_gold; template_reviewed=100; template_pending=0"
+      },
+      {
+        "id": "R3",
+        "requirement": "Define the corrected system suite: S0, diagnostic S1, S1b, S2, S3, and S4.",
+        "status": "satisfied",
+        "evidence": "systems=S0_rule_only,S1_llm_only,S1b_llm_canonicalized,S2_llm_schema_slice,S3_llm_schema_slice_validator_repair,S4_hybrid_backbone_enrichment"
+      },
+      {
+        "id": "R4",
+        "requirement": "Run all corrected-stage systems on the identical sampled records.",
+        "status": "satisfied",
+        "evidence": "{\"S0_rule_only\": true, \"S1_llm_only\": true, \"S1b_llm_canonicalized\": true, \"S2_llm_schema_slice\": true, \"S3_llm_schema_slice_validator_repair\": true, \"S4_hybrid_backbone_enrichment\": true}"
+      },
+      {
+        "id": "R5",
+        "requirement": "Define JSON, schema, semantic, repair, and manual-correctness metrics.",
+        "status": "satisfied",
+        "evidence": "docs/experiment_protocol.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json"
+      },
+      {
+        "id": "R6",
+        "requirement": "Report JSON adherence, schema violation rate, precision/recall/F1, repair success, and manual semantic correctness.",
+        "status": "satisfied",
+        "evidence": "all_system_outputs=True; all_semantic_metrics_available=True"
+      },
+      {
+        "id": "R7",
+        "requirement": "Account for all pilot rejections in property-level error analysis.",
+        "status": "satisfied",
+        "evidence": "rejected_fact_count=288; grouped_fact_count=288"
+      },
+      {
+        "id": "R8",
+        "requirement": "Finalize whether each rejection group is extractor bug, NASA ATMONTO profile gap, source ambiguity, or manual-review-only.",
+        "status": "satisfied",
+        "evidence": "{\"extractor_bug\": 13, \"profile_gap\": 275}"
+      },
+      {
+        "id": "R9",
+        "requirement": "Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4.",
+        "status": "satisfied",
+        "evidence": "{\"C1\": \"supported_by_pilot\", \"C2\": \"supported\", \"C3\": \"supported\", \"C4\": \"supported\", \"H1\": \"supported\", \"H2\": \"supported\", \"H3\": \"supported\", \"H4\": \"supported\"}"
+      },
+      {
+        "id": "R10",
+        "requirement": "Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria.",
+        "status": "satisfied",
+        "evidence": "docs/experiment_protocol.md"
+      }
+    ],
+    "claim_boundary": "A satisfied audit means the formal experiment can be reported; pending items must remain described as pilot/prepared-state evidence."
+  },
+  "missing_required_inputs": [],
+  "metrics_reported": [
+    "json_adherence",
+    "structural_acceptance_rate",
+    "schema_violation_rate",
+    "triple_precision",
+    "triple_recall",
+    "triple_f1",
+    "semantic_group_triple_precision_recall_f1",
+    "repair_success_rate",
+    "manual_semantic_correctness"
+  ],
+  "claim_boundary": "Formal metrics are descriptive until all four systems have predictions and the frozen reviewed gold set is available."
+}
