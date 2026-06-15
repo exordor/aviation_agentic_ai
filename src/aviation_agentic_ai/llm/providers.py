@@ -67,7 +67,8 @@ def has_required_llm_credentials(provider: str) -> bool:
 def get_llm(
     temperature: float = 0.3,
     max_tokens: int = 4096,
-    timeout: float | None = 60.0,
+    timeout: float | None = 120.0,
+    reasoning_effort: str | None = None,
 ) -> "BaseChatModel":
     """Return a LangChain-compatible chat model from environment configuration."""
     if not (0.0 <= temperature <= 2.0):
@@ -120,6 +121,13 @@ def get_llm(
         )
 
     if provider == "sub2api":
+        # gpt-5.x are reasoning models; reasoning_effort controls latency vs.
+        # deliberation. Default to "medium" (low only saved ~14% latency in
+        # tests, not worth the quality drop). Override via
+        # SUB2API_REASONING_EFFORT (low|medium|high) for specific workloads.
+        effective_reasoning_effort = reasoning_effort or os.getenv(
+            "SUB2API_REASONING_EFFORT", "medium"
+        )
         return ChatOpenAI(
             model=model,
             base_url=normalize_openai_compatible_base_url(
@@ -129,6 +137,7 @@ def get_llm(
             temperature=temperature,
             max_tokens=max_tokens,
             timeout=timeout,
+            reasoning_effort=effective_reasoning_effort,
         )
 
     if provider == "vllm":

@@ -53,7 +53,7 @@ def test_get_llm_uses_environment_loader_and_openai_defaults(monkeypatch) -> Non
         "api_key": "sk-test",
         "temperature": 0.1,
         "max_tokens": 123,
-        "timeout": 60.0,
+        "timeout": 120.0,
     }
 
 
@@ -73,7 +73,7 @@ def test_get_llm_routes_deepseek_to_openai_compatible_endpoint(monkeypatch) -> N
         "api_key": "deepseek-key",
         "temperature": 0.0,
         "max_tokens": 456,
-        "timeout": 60.0,
+        "timeout": 120.0,
     }
 
 
@@ -117,7 +117,7 @@ def test_get_llm_routes_newapi_to_openai_compatible_endpoint(monkeypatch) -> Non
         "api_key": "newapi-key",
         "temperature": 0.2,
         "max_tokens": 789,
-        "timeout": 60.0,
+        "timeout": 120.0,
     }
 
 
@@ -163,7 +163,8 @@ def test_get_llm_routes_sub2api_to_openai_compatible_endpoint(monkeypatch) -> No
         "api_key": "sub2api-key",
         "temperature": 0.2,
         "max_tokens": 789,
-        "timeout": 60.0,
+        "timeout": 120.0,
+        "reasoning_effort": "medium",
     }
 
 
@@ -208,7 +209,7 @@ def test_get_llm_routes_vllm_to_local_openai_compatible_endpoint(monkeypatch) ->
         "api_key": "not-needed",
         "temperature": 0.3,
         "max_tokens": 4096,
-        "timeout": 60.0,
+        "timeout": 120.0,
     }
 
 
