@@ -11,6 +11,7 @@ old evidence without letting old framing control the thesis story.
 | New-thread compact context | `docs/thread_handoff.md` |
 | Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
+| Pipeline authority and architecture principles | `docs/pipeline_authority_model.md` |
 | Documentation tiers and maintenance rules | `docs/documentation_maintenance.md` |
 | Documentation scope and historical-document risk | `docs/context_hygiene_audit.md` |
 | Tracked file-family context inventory | `docs/tracked_context_inventory.md` |
@@ -36,6 +37,7 @@ old evidence without letting old framing control the thesis story.
 | Topic | Document |
 | --- | --- |
 | ATCSCC application schema overview | `reports/stages/atcscc_ontology_profile_overview.md` |
+| CQ answerability matrix | `docs/atcscc_cq_answerability_matrix.md` |
 | Semantic requirements | `reports/stages/atcscc_semantic_requirements.md` |
 | Rejection/profile-gap analysis | `reports/stages/nasa_atmonto_rejection_adjudication.md` |
 | Prediction output validation | `reports/stages/nasa_atmonto_prediction_output_validation.md` |

@@ -75,7 +75,7 @@ current repository state:
 | Scope gate | `docs/thesis_positioning.md` and this document state that the work is schema-constrained Agentic KG-RAG, not ontology engineering or live ATC decision support. |
 | Data gate | `reports/stages/atcscc_data_format_and_processing_flow.md` documents the ATCSCC source format, frozen snapshot, processed JSONL shape, and reviewed 100-record gold set. |
 | Schema/profile gate | `reports/stages/atcscc_ontology_profile_overview.md` documents the NASA ATMONTO-derived ATCSCC profile, slice size, properties, constraints, and profile-gap policy. |
-| CQ gate | `reports/stages/nasa_atmonto_competency_questions.md` keeps exactly 12 primary CQs with fields, metrics, failure modes, and deferred cross-source questions. |
+| CQ gate | `reports/stages/nasa_atmonto_competency_questions.md` keeps exactly 12 primary CQs with fields, metrics, failure modes, and deferred cross-source questions. `docs/atcscc_cq_answerability_matrix.md` defines where those CQs are expected, conditional, or out of scope for each advisory type. |
 | Experiment gate | Extraction, agentic loop, retrieval, answer-generation, and reviewer-defense reports are present and linked from `docs/documentation_map.md`. |
 | Claim-safety gate | `reports/stages/nasa_atmonto_sota_goal_audit.md` and `reports/stages/nasa_atmonto_reviewer_defense_audit.md` pass for internal diagnostic and retrospective case-study claims, while keeping human review, expert certification, operational use, and domain-general proof false unless separately completed. |
 | Reproducibility gate | Report regeneration commands do not create unintended dirty diffs; `uv run ruff check .` and `uv run pytest -q` pass before merging. |
@@ -170,7 +170,10 @@ autonomy.
 ## Next Writing Deliverables
 
 - A concise method figure with five blocks: source, schema, agentic extraction,
-  event graph/KG-RAG, evaluation.
+  event graph/KG-RAG, evaluation. Use `docs/pipeline_authority_model.md` to
+  separate build, verification, and cross-cutting authority layers.
+- A compact CQ answerability matrix showing which advisory-type / field-family
+  cells are expected, conditional, or no-claim.
 - A thesis chapter outline using the four RQs above.
 - A results table grouped by extraction, agentic loop, retrieval, answers, and
   failure review.
