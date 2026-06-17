@@ -62,6 +62,7 @@
 | `nasa_atmonto_s7_retrieval` | True | atcscc_s7_source_bounded_317 | n/a | retrieval, graph_paths, evaluation_protocol | False | False |
 | `nasa_atmonto_s7_graph_health` | True | atcscc_s7_source_bounded_317 | n/a | retrieval, graph_paths, claim_safety | False | False |
 | `nasa_atmonto_s7_llm_answer_generation` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, graph_paths, safety_abstention | False | True |
+| `nasa_atmonto_s7_vector_only_llm_answer_generation` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, retrieval | False | True |
 | `nasa_atmonto_s7_human_review_candidates` | True | atcscc_s7_review_candidate_queue_9 | n/a | answer_generation, llm_review_scaffold, failure_analysis | False | False |
 | `nasa_atmonto_s7_broad_answer_review_packet` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, llm_review_scaffold, failure_analysis | False | False |
 | `nasa_atmonto_s7_answer_review_decisions` | True | atcscc_s7_source_bounded_60 | n/a | answer_generation, human_review_scaffold, claim_safety, failure_analysis | False | False |
@@ -75,7 +76,7 @@
 | --- | --- | --- | --- | --- |
 | RQ1 schema-constrained event extraction | nasa_atmonto_formal_experiment_scoring, nasa_atmonto_prediction_output_validation, nasa_atmonto_cq_evaluation, atcscc_ontology_profile_overview | schema validity, structural acceptance rate, triple precision/recall/F1, evidence-span containment, provenance completeness | strong | Semantic correctness remains reviewed-subset/profile-relative, not full ontology correctness. |
 | RQ2 agentic validation-refinement | nasa_atmonto_s5_s6_agentic_loop, nasa_atmonto_s5_s6_independent_agentic_run, nasa_atmonto_s5_s6_live_agentic_pilot, nasa_atmonto_s5_s6_live_agentic_full_run, nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic | schema violation rate, repair count, quarantine/rejection count, unsupported relation rate, post-loop extraction F1 | moderate | The agent loop is not autonomous ontology construction; it is a bounded diagnostic and repair loop for advisory-event extraction. |
-| RQ3 KG-RAG grounding vs vector-only RAG | nasa_atmonto_s7_retrieval, nasa_atmonto_s7_graph_health, nasa_atmonto_s7_llm_answer_generation | answer-set F1, target-source hit rate, citation precision, citation recall, evidence faithfulness, unsupported claim rate | moderate | This is source-bounded ATCSCC evidence, not a universal claim that GraphRAG beats vector-only retrieval. |
+| RQ3 KG-RAG grounding vs vector-only RAG | nasa_atmonto_s7_retrieval, nasa_atmonto_s7_graph_health, nasa_atmonto_s7_llm_answer_generation, nasa_atmonto_s7_vector_only_llm_answer_generation | answer-set F1, target-source hit rate, citation precision, citation recall, evidence faithfulness, unsupported claim rate, vector-only vs KG-RAG head-to-head correctness | moderate-strong | Same-question head-to-head on 30 ATCSCC questions: KG-RAG correctness 0.9667 vs matched vector-only 0.5000, unsupported-claim 0.0167 vs 0.5000 (gain concentrated on entity/cause/status templates). Source-bounded ATCSCC evidence; not a universal claim that GraphRAG beats vector-only retrieval. |
 | RQ4 failure modes and human-review boundary | nasa_atmonto_s7_llm_answer_generation, nasa_atmonto_s7_human_review_candidates, nasa_atmonto_s7_answer_review_import, nasa_atmonto_s7_answer_review_decisions, nasa_atmonto_s7_candidate_adjudication, nasa_atmonto_s7_profile_decision, nasa_atmonto_reviewer_defense_audit | failure candidate count, profile/gold-boundary failures, Unsupported Claim Rate, Abstention Correctness, human_review_completed, expert_certification_completed | moderate | Human/expert review remains separate from automated diagnostics; operational ATC use remains out of scope. |
 
 ## Dataset Usage Matrix
@@ -101,14 +102,15 @@
 
 | Metric group | Key numbers |
 | --- | --- |
-| vector-only benchmark v2 | Recall@5=0.475, Recall@10=0.475, MRR@5=0.3268, NDCG@10=0.3869 |
-| lexical hybrid benchmark v2 | Recall@5=0.5167, Recall@10=0.5917, MRR@5=0.3417, NDCG@10=0.443, Context Recall=0.7375 |
+| vector-only benchmark v2 (PHAK Ch.4, NOT ATCSCC) | Recall@5=0.475, Recall@10=0.475, MRR@5=0.3268, NDCG@10=0.3869. Do NOT compare to ATCSCC S7 numbers (different source family). |
+| lexical hybrid benchmark v2 (PHAK Ch.4, NOT ATCSCC) | Recall@5=0.5167, Recall@10=0.5917, MRR@5=0.3417, NDCG@10=0.443, Context Recall=0.7375. Do NOT compare to ATCSCC S7 numbers. |
 | traversal hybrid | Recall@5=0.4583, Path Recall@5=0.6583, Path Precision@5=0.6522 (heuristic or model-reviewed; no human review) |
 | sufficiency | Abstention Accuracy=1.0, False Answer Rate=0.0, False Abstention Rate=0.29 |
 | robustness | Abstention Correctness=1.0, False Answer Rate=0.0, Boundary Violations=0 |
 | benchmark reviewed subset | Labels=60, Review Status=llm_review_pending_not_human_certified, External Expert Certified=False |
 | answer-eval benchmark subset | Answers=0, Status=pending_answer_generation, Unmatched Gold Labels=45, Hybrid Faithfulness=0.0, Score Method=deterministic_heuristic |
-| ATCSCC S7 LLM answer generation | Selected=60, Best mode=routed_token_matched_live_tfidf_graphrag, Correctness=0.9667, Citation precision=1.0, Citation recall=0.6084, Unsupported claim rate=0.0167, Human-review candidates=9 (queue only; no human review), Adjudicated profile/gold-boundary failures=3, Strict metrics changed=False, Profile-decision what-if corrected records=3, Profile/gold changed=False, What-if replaces main=False |
+| ATCSCC S7 LLM answer generation (KG-RAG) | Selected=60, Best mode=routed_token_matched_live_tfidf_graphrag, Correctness=0.9667, Citation precision=1.0, Citation recall=0.6084, Unsupported claim rate=0.0167, Human-review candidates=9 (queue only; no human review), Adjudicated profile/gold-boundary failures=3, Strict metrics changed=False, Profile-decision what-if corrected records=3, Profile/gold changed=False, What-if replaces main=False |
+| ATCSCC S7 vector-only LLM answer (matched head-to-head) | Selected=60, Mode=token_matched_live_tfidf_vector (no graph), Correctness=0.5000, Unsupported claim rate=0.5000, Citation recall=0.3722, Abstention correctness=0.9667. On the 30 matched questions vs KG-RAG: 0.5000 vs 0.9667 correctness, 0.5000 vs 0.0167 unsupported. Gain concentrated on AFFECTED-NAS-ELEMENTS/CAUSE-CONDITION/STATUS-ACTION templates. |
 | chunking benchmark v2 | Top-k best=structure_aware_large (Recall@5=0.85), Fixed-budget best=recursive_medium (Recall@5=0.79), Partial methods=['hierarchical_parent_child'] |
 | PDF extraction backend | Recommended=hybrid_docling_pymupdf (candidate_default_not_final), legacy false headings=113, Docling heading recall=1.0, hybrid repairs=14, hybrid Recall@5=0.77 |
 | KG | Provenance Completeness=1.0, Evidence-in-source Rate=1.0, Valid Triples=448 |

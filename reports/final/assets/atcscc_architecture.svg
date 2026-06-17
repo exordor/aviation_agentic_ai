@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .block { stroke: #334155; stroke-width: 1.5; }
+      .src    { fill: #eff6ff; }
+      .schema { fill: #f5f3ff; }
+      .agent  { fill: #fff7ed; }
+      .graph  { fill: #ecfdf5; }
+      .rag    { fill: #fef2f2; }
+      .title  { font-size: 15px; font-weight: 700; fill: #0f172a; }
+      .sub    { font-size: 11px; fill: #475569; }
+      .stage  { font-size: 11px; font-weight: 600; fill: #1e293b; }
+      .arrow  { stroke: #334155; stroke-width: 2; fill: none; }
+      .hdr    { font-size: 22px; font-weight: 800; fill: #0f172a; }
+      .subhdr { font-size: 13px; fill: #64748b; }
+      .tag    { font-size: 10px; font-weight: 700; fill: #b45309; letter-spacing: 0.5px; }
+    </style>
+  </defs>
+
+  <!-- Header -->
+  <text x="40" y="42" class="hdr">Schema-Constrained Agentic KG-RAG over FAA ATCSCC Advisories</text>
+  <text x="40" y="64" class="subhdr">Five-block method: retrospective, source-bounded; not operational ATC support</text>
+
+  <!-- Block 1: Source -->
+  <rect x="40"  y="150" width="190" height="180" rx="10" class="block src"/>
+  <text x="135" y="178" text-anchor="middle" class="title">1 · Advisory Source</text>
+  <text x="135" y="200" text-anchor="middle" class="sub">FAA ATCSCC advisories</text>
+  <text x="135" y="216" text-anchor="middle" class="sub">(retrospective snapshot)</text>
+  <text x="135" y="244" text-anchor="middle" class="stage">867 pages → 100 reviewed</text>
+  <text x="135" y="262" text-anchor="middle" class="sub">GroundDelay · GroundStop</text>
+  <text x="135" y="278" text-anchor="middle" class="sub">ReRoute · TrafficMgmt</text>
+  <text x="135" y="306" text-anchor="middle" class="tag">SEMI-STRUCTURED TEXT</text>
+
+  <!-- Block 2: Schema -->
+  <rect x="265" y="150" width="190" height="180" rx="10" class="block schema"/>
+  <text x="360" y="178" text-anchor="middle" class="title">2 · Application Schema</text>
+  <text x="360" y="200" text-anchor="middle" class="sub">NASA ATMONTO-derived</text>
+  <text x="360" y="216" text-anchor="middle" class="sub">ATCSCC profile (slice)</text>
+  <text x="360" y="244" text-anchor="middle" class="stage">18 classes · 22 props</text>
+  <text x="360" y="262" text-anchor="middle" class="sub">evidence-span required</text>
+  <text x="360" y="278" text-anchor="middle" class="sub">profile-gap policy</text>
+  <text x="360" y="306" text-anchor="middle" class="tag">CONSTRAINT, NOT ONTOLOGY</text>
+
+  <!-- Block 3: Agentic extraction -->
+  <rect x="490" y="150" width="220" height="180" rx="10" class="block agent"/>
+  <text x="600" y="178" text-anchor="middle" class="title">3 · Agentic Extraction</text>
+  <text x="600" y="200" text-anchor="middle" class="sub">S0 rule → S1–S4 LLM</text>
+  <text x="600" y="216" text-anchor="middle" class="sub">extractor · validator</text>
+  <text x="600" y="244" text-anchor="middle" class="stage">refiner · critic loop</text>
+  <text x="600" y="262" text-anchor="middle" class="sub">repair / reject / quarantine</text>
+  <text x="600" y="278" text-anchor="middle" class="sub">auditable decisions</text>
+  <text x="600" y="306" text-anchor="middle" class="tag">VALIDATION GATE</text>
+
+  <!-- Block 4: Event graph -->
+  <rect x="745" y="150" width="190" height="180" rx="10" class="block graph"/>
+  <text x="840" y="178" text-anchor="middle" class="title">4 · Event Graph</text>
+  <text x="840" y="200" text-anchor="middle" class="sub">advisory events with</text>
+  <text x="840" y="216" text-anchor="middle" class="sub">evidence spans</text>
+  <text x="840" y="244" text-anchor="middle" class="stage">448 valid triples</text>
+  <text x="840" y="262" text-anchor="middle" class="sub">provenance 1.0</text>
+  <text x="840" y="278" text-anchor="middle" class="sub">evidence-in-source 1.0</text>
+  <text x="840" y="306" text-anchor="middle" class="tag">EVIDENCE-LINKED FACTS</text>
+
+  <!-- Block 5: KG-RAG + Eval -->
+  <rect x="970" y="150" width="190" height="180" rx="10" class="block rag"/>
+  <text x="1065" y="178" text-anchor="middle" class="title">5 · KG-RAG + Eval</text>
+  <text x="1065" y="200" text-anchor="middle" class="sub">vector · graph · hybrid</text>
+  <text x="1065" y="216" text-anchor="middle" class="sub">routed retrieval</text>
+  <text x="1065" y="244" text-anchor="middle" class="stage">answers + citations</text>
+  <text x="1065" y="262" text-anchor="middle" class="sub">unsupported-claim check</text>
+  <text x="1065" y="278" text-anchor="middle" class="sub">failure review boundary</text>
+  <text x="1065" y="306" text-anchor="middle" class="tag">LAYERED METRICS</text>
+
+  <!-- Arrows between blocks -->
+  <line x1="232" y1="240" x2="263" y2="240" class="arrow" marker-end="url(#arrow)"/>
+  <line x1="457" y1="240" x2="488" y2="240" class="arrow" marker-end="url(#arrow)"/>
+  <line x1="712" y1="240" x2="743" y2="240" class="arrow" marker-end="url(#arrow)"/>
+  <line x1="937" y1="240" x2="968" y2="240" class="arrow" marker-end="url(#arrow)"/>
+
+  <!-- Bottom: RQ mapping -->
+  <line x1="40" y1="380" x2="1160" y2="380" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="40" y="410" class="title">Research questions mapped to blocks</text>
+
+  <rect x="40"  y="428" width="270" height="78" rx="6" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="54" y="450" class="stage">RQ1 · Schema-constrained extraction</text>
+  <text x="54" y="470" class="sub">S0 F1=0.759 · S4 F1=0.727 · 0 violations</text>
+  <text x="54" y="488" class="sub">→ blocks 2,3</text>
+
+  <rect x="330" y="428" width="270" height="78" rx="6" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="344" y="450" class="stage">RQ2 · Agentic validation-refinement</text>
+  <text x="344" y="470" class="sub">auditable repair/reject; S3→S4 gating</text>
+  <text x="344" y="488" class="sub">→ block 3</text>
+
+  <rect x="620" y="428" width="270" height="78" rx="6" fill="#fef2f2" stroke="#fca5a5"/>
+  <text x="634" y="450" class="stage">RQ3 · KG-RAG vs vector-only</text>
+  <text x="634" y="470" class="sub">0.967 vs 0.500 correctness (same Qs)</text>
+  <text x="634" y="488" class="sub">→ blocks 4,5</text>
+
+  <rect x="910" y="428" width="250" height="78" rx="6" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="924" y="450" class="stage">RQ4 · Failure &amp; review boundary</text>
+  <text x="924" y="470" class="sub">9 review candidates; 3 boundary fails</text>
+  <text x="924" y="488" class="sub">→ block 5</text>
+</svg>

@@ -25,6 +25,16 @@ S7_LLM_ANSWER_MODES: tuple[str, ...] = (
     "routed_token_matched_live_tfidf_graphrag",
     "routed_token_matched_dense_graphrag",
 )
+# Vector-only LLM answer baseline: `token_matched_live_tfidf_vector` is the
+# token-matched, budget-controlled variant of the live lexical-vector retriever
+# that the S7 answer-generation source report stores per case. It carries
+# fused_chunks but NO graph_triples (graph_triples == 0), so it is a clean
+# vector-only arm against the routed KG-RAG mode
+# (`routed_token_matched_live_tfidf_graphrag`), which uses the same retriever
+# plus critic-gated graph context and routing. This gives a same-question,
+# same-retriever head-to-head for the RQ3 claim. Kept separate from
+# S7_LLM_ANSWER_MODES so the default KG-RAG comparison is unchanged.
+S7_VECTOR_ONLY_LLM_ANSWER_MODES: tuple[str, ...] = ("token_matched_live_tfidf_vector",)
 LLM_ANSWER_PROMPT_VERSION = "nasa_atmonto_s7_llm_answer_v3_route_partial"
 LLMAnswerRunner = Callable[[str, str, float, int], str]
 ROUTE_SEMANTICS_TEMPLATE_ID = "QT-Q01-ROUTE-SEMANTICS"
