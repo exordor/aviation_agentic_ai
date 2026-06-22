@@ -48,7 +48,7 @@
 
 ## Interpretation
 
-- **Primary Finding:** The full live LLM agentic run is operationally robust but substantially weaker than the deterministic source-derived S5/S6 control. The gap is caused mainly by live extractor recall and precision, not by runtime failures.
-- **Critic Effect:** The S6 critic/refiner layer removes 50 facts, raising precision from 0.5047 to 0.5299 but lowering recall from 0.4199 to 0.3997, leaving F1 essentially unchanged.
+- **Primary Finding:** The full live LLM agentic run is operationally robust but much weaker than the deterministic source-derived S5/S6 control. The gap is caused mainly by live extractor recall and precision, not by runtime failures.
+- **Critic Effect:** The S6 critic/refiner layer removes 50 facts, raising precision from 0.5047 to 0.5299 but lowering recall from 0.4199 to 0.3997, leaving F1 nearly flat (0.4517 vs 0.4514).
 - **Refiner Effect:** The refiner triggered safety fallback on 96 of 100 records, so current S6 quality should be attributed mostly to deterministic validation plus critic filtering, not to successful LLM rewriting.
 - **Thesis Claim:** Use the full run as negative/diagnostic SOTA-comparison evidence: multi-agent orchestration and hard gates are executable and auditable, but unconstrained live LLM extraction does not beat a domain-specific deterministic extractor for semi-structured ATCSCC advisories.

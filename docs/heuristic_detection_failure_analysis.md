@@ -222,9 +222,9 @@ PROPOSITION_CUE_RE = re.compile(
 definitional or descriptive sentence in technical prose contains "is" — not only
 proposition-like atomic claims.
 
-**Impact:** The `proposition_like` strategy is effectively a sentence-length
-chunker with a bias toward sentences containing "is". It does not isolate
-atomic propositions; it just segments around a common word.
+**Impact:** The `proposition_like` strategy acts as a sentence-length chunker
+with a bias toward sentences containing "is". It does not isolate atomic
+propositions; it just segments around a common word.
 
 Additionally, the regex misses key proposition indicators common in aviation
 text: `defines`, `determines`, `influences`, `depends on`, `characterized by`,
