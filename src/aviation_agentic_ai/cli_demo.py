@@ -8,8 +8,7 @@ precomputed artifacts, so the demo runs offline (no LLM/API keys required):
       -> S4 hybrid graph facts (with evidence spans)
       -> KG-RAG vs vector-only retrieval + answer (with citations)
 
-This is the live, reproducible counterpart of the thesis method figure. It
-reads only from tracked artifacts under
+Reads only from tracked artifacts under
 ``data/experiments/nasa_atmonto/formal/`` and the S7 answer-generation report.
 """
 

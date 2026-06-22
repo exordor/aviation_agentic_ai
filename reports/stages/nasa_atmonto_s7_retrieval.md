@@ -84,7 +84,7 @@ Per-template mechanism (vector-only arm): vector-only ties or wins on
 `QT-Q01-ROUTE-SEMANTICS` (1.0), but collapses on
 `QT-Q01-AFFECTED-NAS-ELEMENTS` (0.0, unsupported=1.0),
 `QT-Q01-CAUSE-CONDITION` (0.0, unsupported=1.0), and
-`QT-Q01-STATUS-ACTION` (0.0, unsupported=1.0). These are exactly the
+`QT-Q01-STATUS-ACTION` (0.0, unsupported=1.0). These are the
 entity/cause/status templates where pure text retrieval cannot recover the
 structured predicate facts that the critic-gated graph supplies, and where the
 router deliberately selects graph context.
@@ -95,9 +95,9 @@ matched vector-only arm, with the gain concentrated on relation-oriented
 templates. The Retrieval-only `Answer F1` gap above is narrower (routed 0.9833
 vs token-matched tfidf 0.8235) than the LLM answer gap, indicating the graph's
 value is larger at the answer-correctness layer than at the retrieval-layer F1
-proxy. This is still retrospective, source-bounded evidence on 30 questions;
-it is not a claim that GraphRAG universally beats vector-only retrieval, and it
-is not human or expert review.
+proxy. This is retrospective, source-bounded evidence on 30 questions; it is
+not a claim that GraphRAG universally beats vector-only retrieval, and it is
+not human or expert review.
 
 ## Claim Boundary
 

@@ -8,7 +8,7 @@
 ## Abstract
 
 This project studies evidence-grounded question answering over retrospective
-FAA ATCSCC advisories — public, semi-structured operational notices describing
+FAA ATCSCC advisories: public, semi-structured operational notices describing
 traffic-management initiatives, affected NAS elements, effective time windows,
 and causes. The contribution is a reproducible method that uses a lightweight
 NASA ATMONTO-derived application schema to constrain advisory event extraction,
@@ -28,7 +28,7 @@ defined once in §1.4.
 ATCSCC advisories are the primary public record of national-level
 traffic-management initiatives in the US National Airspace System (NAS). Because
 many facts in each advisory are visible in the source text and checkable against
-evidence spans, they are a useful case study for evidence-grounded extraction —
+evidence spans, they are a useful case study for evidence-grounded extraction,
 but they are not clean tabular data, so naive extraction over- or
 under-generates.
 
@@ -240,7 +240,7 @@ Bootstrap 95% CIs (F1): S0 0.708–0.804, S2 0.144–0.240, S4 0.681–0.763.
 extractor for these semi-structured advisories (F1 0.759), and S4 hybrid
 enrichment (0.727) preserves deterministic correctness while adding semantic
 fields with zero schema violations. The pure-LLM arms (S1b/S2/S3) are markedly
-weaker — a negative result consistent with semi-structured short-text
+weaker, a negative result consistent with semi-structured short-text
 extraction being hard for unconstrained LLMs. The schema constraint is
 effective: S1b's structural acceptance is only 0.42 versus S2/S3/S4 ≥ 0.82, and
 unconstrained open LLM output (S1) scores zero against the target schema,
@@ -255,7 +255,7 @@ S5/S6 live agentic full run over 100 reviewed samples is a bounded
 extraction-layer method artifact. Per the claim boundary, the loop is a
 diagnostic and repair framework; it is not autonomous ontology construction,
 and deterministic parsing remains stronger than live LLM extraction on these
-advisories — a negative method result reported directly.
+advisories, a negative method result reported directly.
 
 **Evidence spine:** `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.md`,
 `..._diagnostic.md`, `reports/stages/nasa_atmonto_cq_evaluation.md`.
@@ -267,8 +267,8 @@ advisories — a negative method result reported directly.
 Recall@5 is non-discriminating on ATCSCC (0.6845 for most modes including the
 real `live_tfidf_vector` baseline); the signal is in Answer F1 and abstention.
 Forcing graph context everywhere (`graph_only`, `hybrid_graphrag`) collapses on
-abstention (F1 0.5205, abstention-correct 0.01) — the router exists precisely
-to suppress graph use on abstention/time-window templates.
+abstention (F1 0.5205, abstention-correct 0.01); the router suppresses graph
+use on abstention/time-window templates.
 
 | Mode | Recall@5 | Answer F1 | Abstention correct |
 | --- | ---: | ---: | ---: |
@@ -292,9 +292,9 @@ Per-template mechanism (vector-only arm): it ties or wins on
 `QT-Q01-ROUTE-SEMANTICS` (1.0), but collapses on
 `QT-Q01-AFFECTED-NAS-ELEMENTS` (0.0, unsupported=1.0),
 `QT-Q01-CAUSE-CONDITION` (0.0, unsupported=1.0), and
-`QT-Q01-STATUS-ACTION` (0.0, unsupported=1.0) — exactly the templates where
-pure text retrieval cannot recover structured predicate facts and where the
-router selects graph context.
+`QT-Q01-STATUS-ACTION` (0.0, unsupported=1.0): the templates where pure text
+retrieval cannot recover structured predicate facts and where the router
+selects graph context.
 
 **Reading (RQ3):** On this source-bounded ATCSCC benchmark, KG-RAG
 approximately doubles answer correctness and cuts the unsupported-claim rate by
@@ -302,7 +302,7 @@ approximately doubles answer correctness and cuts the unsupported-claim rate by
 relation-oriented templates. The Retrieval-only Answer-F1 gap is narrower than
 the LLM-answer gap, indicating the graph's value is larger at the
 answer-correctness layer than at the retrieval-F1 proxy. This is retrospective,
-source-bounded evidence on 30 questions — not a universal GraphRAG claim.
+source-bounded evidence on 30 questions, not a universal GraphRAG claim.
 
 **Evidence spine:** `reports/stages/nasa_atmonto_s7_retrieval.md` (head-to-head
 section), `reports/stages/nasa_atmonto_s7_llm_answer_generation.json` (KG-RAG),
@@ -328,8 +328,8 @@ error, profile/gold-boundary gap, answer overreach, and human-review cases.
 
 ### 8.1 What the evidence supports
 
-- The application schema effectively constrains which advisory event fields and
-  relations enter the graph (S1b structural acceptance 0.42 vs S2/S4 ≥ 0.82).
+- The application schema constrains which advisory event fields and relations
+  enter the graph (S1b structural acceptance 0.42 vs S2/S4 ≥ 0.82).
 - Accepted facts preserve source IDs and evidence spans at the artifact level.
 - KG-RAG's gain over vector-only is concentrated on relation-oriented templates
   and operates at the answer-correctness layer, not retrieval recall.
@@ -338,7 +338,7 @@ error, profile/gold-boundary gap, answer overreach, and human-review cases.
 
 ### 8.2 Negative results reported directly
 
-- Pure-LLM extraction (S1b/S2/S3) underperforms deterministic S0 — agentic
+- Pure-LLM extraction (S1b/S2/S3) underperforms deterministic S0; agentic
   orchestration is useful for audit and repair, not autonomous ontology
   construction.
 - Forcing graph context everywhere hurts abstention handling; the router, not
