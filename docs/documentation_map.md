@@ -9,6 +9,7 @@ old evidence without letting old framing control the thesis story.
 | Purpose | Document |
 | --- | --- |
 | New-thread compact context | `docs/thread_handoff.md` |
+| Master-project scope lock | `docs/master_project_scope_lock.md` |
 | Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
 | Pipeline authority and architecture principles | `docs/pipeline_authority_model.md` |
@@ -64,6 +65,7 @@ old evidence without letting old framing control the thesis story.
 | Method-paper migration plan | `reports/stages/method_paper_migration_experiment_plan.md` |
 | Multi-agent method adaptation | `reports/stages/multi_agent_pipeline_method_adaptation.md` |
 | Claim KG / GraphRAG paper adaptation | `reports/stages/claim_kg_graphrag_paper_adaptation.md` |
+| Gold-deposit ontology-to-KG paper analysis | `reports/stages/minerals_16_00050_paper_analysis.md` |
 | CHATATC paper analysis | `reports/stages/chatatc_paper_analysis.md` |
 | Paper figure gallery workflow | `docs/research_paper_analysis_protocol.md`, `scripts/build_paper_figure_gallery.py` |
 

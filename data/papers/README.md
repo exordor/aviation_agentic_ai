@@ -70,6 +70,20 @@ Curated notes belong in `reports/stages/` and should use
   - `reports/stages/claim_kg_graphrag_paper_adaptation.md`
   - `reports/stages/claim_kg_graphrag_figures_analysis.md`
 
+- Title: "Gold Deposit Ontology Guides Large Language Model to Transform Text
+  into Knowledge Graphs for Gold Deposits"
+- Authors: Jinhao Zhu, Yueying Wang, Wanying Tong, Shengmiao Li, Mingguo Wang,
+  and Chengbin Wang
+- Venue / year: Minerals 2026, 16, 50
+- DOI: https://doi.org/10.3390/min16010050
+- Local ignored PDF name: `minerals-16-00050-v2.pdf`
+- Use in this project: cross-domain method reference for ontology/schema-guided
+  LLM extraction, entity alignment, KG visualization/querying, and model
+  performance-cost evaluation. It is geoscience evidence, not aviation
+  evidence.
+- Inspection artifacts: `tmp/pdfs/minerals_16_00050/`
+- Curated analysis: `reports/stages/minerals_16_00050_paper_analysis.md`
+
 ## arXiv Method Candidates Downloaded for Cross-Domain Transfer
 
 These PDFs were downloaded locally on 2026-06-02 as candidates for the

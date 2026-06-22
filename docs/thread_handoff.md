@@ -18,9 +18,10 @@ construction or live ATC decision support.
 
 For a new thread, read only these files first:
 
-1. `docs/documentation_map.md`
-2. `docs/context_hygiene_audit.md`
-3. `docs/tracked_context_inventory.md`
+1. `docs/master_project_scope_lock.md`
+2. `docs/documentation_map.md`
+3. `docs/context_hygiene_audit.md`
+4. `docs/tracked_context_inventory.md`
 
 This keeps startup context small. Load additional files only when the task needs
 their layer:
