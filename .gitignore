@@ -44,6 +44,11 @@ models/
 # NASA ATMONTO raw snapshots and ad-hoc smoke outputs.
 /data/raw/nasa_atmonto/
 /data/experiments/nasa_atmonto/formal/smoke/
+# Exploratory gpt-5.5 evidence-handling pilot runs (10/100 records, prompt
+# variants not recorded); not formal thesis artifacts. Summarized inline if
+# referenced rather than tracked.
+/data/experiments/nasa_atmonto/formal/gpt55_s2_evidence_only/
+/data/experiments/nasa_atmonto/formal/gpt55_s2_evidence_variant/
 
 # Model and vector-store artifacts
 *.faiss

@@ -35,6 +35,12 @@ TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
         "help": "Run a hybrid retrieval query.",
     },
     {
+        "module": "aviation_agentic_ai.cli_demo",
+        "attribute": "demo",
+        "name": "demo",
+        "help": "Trace one ATCSCC advisory through extraction -> KG -> KG-RAG answer (offline).",
+    },
+    {
         "module": "aviation_agentic_ai.cli_kg",
         "attribute": "kg",
         "name": "kg",

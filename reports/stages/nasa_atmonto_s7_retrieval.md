@@ -50,6 +50,55 @@ Method note: Answer-set F1 treats a correct expected abstention as recovering th
 - Rejected facts: 20
 - Rejected values: ADDS, ADVZY, ARE, CAN, INTO, THAT, USERS
 
+## Head-to-Head: Vector-only vs KG-RAG LLM Answers (Same ATCSCC Questions)
+
+This section records a same-question, same-retriever LLM answer comparison that
+fixes a measurement gap in the dashboard's RQ3 evidence. Earlier
+`benchmark_v2` retrieval Recall@5 numbers (e.g. 0.475) are PHAK Chapter 4
+results and must **not** be compared to the ATCSCC S7 numbers below; the two
+datasets are different source families.
+
+The comparison runs the same LLM answer generator (`gpt-5.4-mini`,
+`nasa_atmonto_s7_llm_answer_v3_route_partial`) over the same frozen retrieved
+contexts, on the same 30 ATCSCC competency questions. The two arms differ only
+in retrieval mode:
+
+- **Vector-only** = `token_matched_live_tfidf_vector` (live lexical-vector
+  retriever, budget-controlled, **no graph triples**).
+- **KG-RAG** = `routed_token_matched_live_tfidf_graphrag` (same live
+  lexical-vector retriever + critic-gated advisory event graph + template
+  routing).
+
+| Mode | Questions | Answer correctness | Unsupported claim rate | Citation recall |
+| --- | ---: | ---: | ---: | ---: |
+| KG-RAG (routed, graph+critic) | 30 | **0.9667** | **0.0167** | 0.6084 |
+| Vector-only (live tfidf, no graph) | 30 | 0.5000 | 0.5000 | 0.3722 |
+
+Artifacts: `reports/stages/nasa_atmonto_s7_llm_answer_generation.json`
+(KG-RAG, committed) and
+`reports/stages/nasa_atmonto_s7_vector_only_llm_answer_generation.json`
+(vector-only, 60-case run; the 30 KG-RAG questions are a subset).
+
+Per-template mechanism (vector-only arm): vector-only ties or wins on
+`QT-A01-ABSTENTION-FIELDS` (1.0), `QT-Q01-TIME-WINDOW` (1.0), and
+`QT-Q01-ROUTE-SEMANTICS` (1.0), but collapses on
+`QT-Q01-AFFECTED-NAS-ELEMENTS` (0.0, unsupported=1.0),
+`QT-Q01-CAUSE-CONDITION` (0.0, unsupported=1.0), and
+`QT-Q01-STATUS-ACTION` (0.0, unsupported=1.0). These are the
+entity/cause/status templates where pure text retrieval cannot recover the
+structured predicate facts that the critic-gated graph supplies, and where the
+router deliberately selects graph context.
+
+Reading: on this source-bounded ATCSCC benchmark, KG-RAG approximately doubles
+answer correctness and cuts the unsupported-claim rate by ~30x versus the
+matched vector-only arm, with the gain concentrated on relation-oriented
+templates. The Retrieval-only `Answer F1` gap above is narrower (routed 0.9833
+vs token-matched tfidf 0.8235) than the LLM answer gap, indicating the graph's
+value is larger at the answer-correctness layer than at the retrieval-layer F1
+proxy. This is retrospective, source-bounded evidence on 30 questions; it is
+not a claim that GraphRAG universally beats vector-only retrieval, and it is
+not human or expert review.
+
 ## Claim Boundary
 
-This report evaluates retrieval-context availability, graph path support, answer-set recovery, live lexical-vector retrieval, dense-vector retrieval, and token-budget controls. It does not prove operational GraphRAG performance.
+This report evaluates retrieval-context availability, graph path support, answer-set recovery, live lexical-vector retrieval, dense-vector retrieval, token-budget controls, and a matched vector-only vs KG-RAG LLM answer head-to-head. It does not prove operational GraphRAG performance.
