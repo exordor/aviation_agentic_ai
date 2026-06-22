@@ -8,36 +8,29 @@
 ## Abstract
 
 This project studies evidence-grounded question answering over retrospective
-FAA ATCSCC advisories. ATCSCC advisories are public, semi-structured operational
-notices describing traffic-management initiatives, affected NAS elements, route
-or airport constraints, effective time windows, and causes. The contribution is
-not a complete aviation ontology. The contribution is a reproducible method that
-uses a lightweight NASA ATMONTO-derived application schema to constrain advisory
-event extraction, an agentic validator/refiner/critic loop to repair or reject
-candidate facts before graph insertion, and a source-bounded KG-RAG evaluation
-that compares graph-augmented retrieval against a matched vector-only baseline.
+FAA ATCSCC advisories — public, semi-structured operational notices describing
+traffic-management initiatives, affected NAS elements, effective time windows,
+and causes. The contribution is a reproducible method that uses a lightweight
+NASA ATMONTO-derived application schema to constrain advisory event extraction,
+an agentic validator/refiner/critic loop to repair or reject candidate facts
+before graph insertion, and a source-bounded KG-RAG evaluation comparing
+graph-augmented retrieval against a matched vector-only baseline.
 
-The headline empirical result is a same-question, same-retriever head-to-head:
-on 30 ATCSCC competency questions, KG-RAG (routed, critic-gated graph + lexical
-vector) reaches 0.967 answer correctness and 0.017 unsupported-claim rate,
-versus 0.500 and 0.500 for the matched vector-only arm — with the gain
-concentrated on relation-oriented templates where pure text retrieval cannot
-recover structured predicate facts. The work is retrospective and
-source-bounded; it does not claim GraphRAG universally beats vector-only
-retrieval, and it is not operational ATC decision support.
+The headline result is a same-question, same-retriever head-to-head on 30 ATCSCC
+questions: KG-RAG reaches 0.967 answer correctness and 0.017 unsupported-claim
+rate, versus 0.500 and 0.500 for the vector-only arm. Claim boundaries are
+defined once in §1.4.
 
 ## Chapter 1. Introduction
 
 ### 1.1 Motivation
 
-Air Traffic Control System Command Center (ATCSCC) advisories are the primary
-public record of national-level traffic-management initiatives in the US
-National Airspace System (NAS). They are short, semi-structured texts: each
-advisory carries an identifier, affected NAS elements, an effective time window,
-a cause/condition, and free-text operational context. Because many facts are
-visible in the source text and checkable against evidence spans, they are a
-useful case study for evidence-grounded information extraction — but they are
-not clean tabular data, so naive extraction over- or under-generates.
+ATCSCC advisories are the primary public record of national-level
+traffic-management initiatives in the US National Airspace System (NAS). Because
+many facts in each advisory are visible in the source text and checkable against
+evidence spans, they are a useful case study for evidence-grounded extraction —
+but they are not clean tabular data, so naive extraction over- or
+under-generates.
 
 ### 1.2 Problem and Contribution
 
@@ -48,9 +41,7 @@ question answering and citation quality?
 
 The methodological contribution is the integration of four mature areas under
 one bounded source family: schema-guided extraction, KG quality evaluation,
-GraphRAG diagnostics, and multi-agent validation. The safe novelty claim is
-**methodological integration under a bounded source family**, not a new general
-GraphRAG algorithm or a complete aviation ontology.
+GraphRAG diagnostics, and multi-agent validation.
 
 ### 1.3 Research Questions
 
@@ -174,7 +165,7 @@ FAA ATCSCC advisories
   -> vector / graph / hybrid / routed KG-RAG + answer generation, citation checks, failure review
 ```
 
-### 5.1 Extraction stages (RQ1)
+### 5.1 Extraction stages
 
 - **S0** rule-only deterministic backbone over advisory templates.
 - **S1/S1b** LLM-only (raw open extraction, drift diagnostic) and canonicalized
@@ -184,13 +175,13 @@ FAA ATCSCC advisories
 - **S4** hybrid backbone enrichment: S0 deterministic backbone + LLM semantic
   enrichment, gated so deterministic fields cannot be overwritten.
 
-### 5.2 Agentic loop (RQ2)
+### 5.2 Agentic loop
 
 Role-separated extractor / validator / refiner / critic artifacts record repair
 and rejection outcomes. The loop is an auditable diagnostic and repair
 framework; it is not autonomous ontology construction.
 
-### 5.3 KG-RAG evaluation (RQ3)
+### 5.3 KG-RAG evaluation
 
 Retrieval modes over frozen ATCSCC contexts: `source_oracle`, lexical-vector
 proxies, `live_tfidf_vector` (real lexical retriever), `dense_embedding_vector`
@@ -198,7 +189,7 @@ proxies, `live_tfidf_vector` (real lexical retriever), `dense_embedding_vector`
 routed mode uses template routing: graph context for entity/cause/status/route
 templates; vector/source for time-window and abstention templates.
 
-### 5.4 Failure review (RQ4)
+### 5.4 Failure review
 
 Automated consistency diagnostics, a human-review candidate packet, candidate
 adjudication, and a profile-decision what-if. Automated diagnostics are an
@@ -337,13 +328,11 @@ error, profile/gold-boundary gap, answer overreach, and human-review cases.
 
 ### 8.1 What the evidence supports
 
-- The application schema constrains which advisory event fields and relations
-  enter the graph (schema validity, structural acceptance, profile-gap
-  handling).
-- Accepted facts preserve source IDs and evidence spans at the artifact level
-  (provenance completeness 1.0).
-- KG-RAG adds inspectable structured evidence and improves answer correctness
-  on relation-oriented ATCSCC questions on this benchmark.
+- The application schema effectively constrains which advisory event fields and
+  relations enter the graph (S1b structural acceptance 0.42 vs S2/S4 ≥ 0.82).
+- Accepted facts preserve source IDs and evidence spans at the artifact level.
+- KG-RAG's gain over vector-only is concentrated on relation-oriented templates
+  and operates at the answer-correctness layer, not retrieval recall.
 - The agentic loop is a useful auditable repair/rejection framework even though
   deterministic extraction remains stronger on semi-structured advisories.
 
@@ -352,17 +341,17 @@ error, profile/gold-boundary gap, answer overreach, and human-review cases.
 - Pure-LLM extraction (S1b/S2/S3) underperforms deterministic S0 — agentic
   orchestration is useful for audit and repair, not autonomous ontology
   construction.
-- Forcing graph context everywhere hurts abstention handling (F1 0.52); the
-  router, not unconditional graph use, is what helps.
+- Forcing graph context everywhere hurts abstention handling; the router, not
+  unconditional graph use, is what helps.
 - Recall@5 is non-discriminating on ATCSCC; KG-RAG's win is at the
   answer-correctness layer, not retrieval recall.
 
 ### 8.3 What the evidence does not support
 
-Complete aviation-domain ontology coverage, operational ATC decision support,
-operational safety certification, universal KG-RAG superiority, and semantic
-correctness beyond reviewed evidence. Human/expert review remains separate from
-automated diagnostics.
+See §1.4 for the full claim boundary. In short: the results support a bounded
+source-bounded method, not complete ontology coverage, operational use,
+universal GraphRAG superiority, or correctness beyond reviewed evidence.
+Human/expert review remains separate from automated diagnostics.
 
 ## Chapter 9. Threats to Validity
 
@@ -385,16 +374,14 @@ automated diagnostics.
 ## Chapter 10. Conclusion
 
 This project implements a reproducible schema-constrained Agentic KG-RAG
-prototype over retrospective FAA ATCSCC advisories. The application schema
-constrains focused advisory-event extraction and supports deterministic
-validation; accepted facts carry source provenance and evidence spans; the
-agentic loop provides inspectable repair and rejection signals; and a matched
-head-to-head shows KG-RAG improves answer correctness and reduces unsupported
-claims on relation-oriented ATCSCC questions relative to a vector-only
-baseline. Remaining failures and human-review requirements are explicitly
-categorized. The thesis claims a bounded method for evidence-grounded advisory
-QA, not a certified aviation ontology or a live operational decision-support
-system.
+prototype over retrospective FAA ATCSCC advisories. The schema constrains
+extraction and supports deterministic validation; accepted facts carry source
+provenance and evidence spans; the agentic loop provides inspectable repair and
+rejection signals; and a matched head-to-head shows KG-RAG improves answer
+correctness and reduces unsupported claims on relation-oriented questions
+relative to a vector-only baseline. Remaining failures and human-review
+requirements are explicitly categorized (§7.4). Claim boundaries are stated in
+§1.4.
 
 ### Reproducibility
 
