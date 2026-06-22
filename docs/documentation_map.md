@@ -11,6 +11,7 @@ old evidence without letting old framing control the thesis story.
 | New-thread compact context | `docs/thread_handoff.md` |
 | Master-project scope lock | `docs/master_project_scope_lock.md` |
 | Research mainline, RQs, and validation gates | `docs/research_mainline.md` |
+| Thesis writing spine | `docs/thesis_writing_spine.md` |
 | Formal thesis framing and claim safety | `docs/thesis_positioning.md` |
 | Pipeline authority and architecture principles | `docs/pipeline_authority_model.md` |
 | Documentation tiers and maintenance rules | `docs/documentation_maintenance.md` |

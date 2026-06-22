@@ -91,6 +91,9 @@ REPORT_SOURCES: dict[str, str] = {
     "nasa_atmonto_s7_llm_answer_generation": (
         "reports/stages/nasa_atmonto_s7_llm_answer_generation.json"
     ),
+    "nasa_atmonto_s7_vector_only_llm_answer_generation": (
+        "reports/stages/nasa_atmonto_s7_vector_only_llm_answer_generation.json"
+    ),
     "nasa_atmonto_s7_human_review_candidates": (
         "reports/stages/nasa_atmonto_s7_human_review_candidates.json"
     ),
@@ -271,6 +274,10 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
             "graph_paths",
             "safety_abstention",
         ),
+        "nasa_atmonto_s7_vector_only_llm_answer_generation": (
+            "answer_generation",
+            "retrieval",
+        ),
         "nasa_atmonto_s7_human_review_candidates": (
             "answer_generation",
             "llm_review_scaffold",
@@ -353,6 +360,9 @@ def _report_inventory(reports: dict[str, dict[str, Any]], root: Path) -> list[di
         "nasa_atmonto_s7_retrieval": "atcscc_s7_source_bounded_317",
         "nasa_atmonto_s7_graph_health": "atcscc_s7_source_bounded_317",
         "nasa_atmonto_s7_llm_answer_generation": "atcscc_s7_source_bounded_60",
+        "nasa_atmonto_s7_vector_only_llm_answer_generation": (
+            "atcscc_s7_source_bounded_60"
+        ),
         "nasa_atmonto_s7_human_review_candidates": "atcscc_s7_review_candidate_queue_9",
         "nasa_atmonto_s7_broad_answer_review_packet": "atcscc_s7_source_bounded_60",
         "nasa_atmonto_s7_answer_review_decisions": "atcscc_s7_source_bounded_60",
@@ -441,6 +451,10 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     multisource = reports.get("multisource_retrieval_smoke", {})
     implementation_remediation = reports.get("deepseek_v4pro_implementation_remediation", {})
     s7_llm_answers = reports.get("nasa_atmonto_s7_llm_answer_generation", {})
+    s7_vector_only_answers = reports.get(
+        "nasa_atmonto_s7_vector_only_llm_answer_generation",
+        {},
+    )
     s7_review_candidates = reports.get("nasa_atmonto_s7_human_review_candidates", {})
     s7_candidate_adjudication = reports.get("nasa_atmonto_s7_candidate_adjudication", {})
     s7_profile_decision = reports.get("nasa_atmonto_s7_profile_decision", {})
@@ -459,6 +473,17 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     )
     if not isinstance(s7_answer_modes, dict):
         s7_answer_modes = {}
+    s7_vector_answer_modes = _metric(
+        s7_vector_only_answers,
+        "answer_quality",
+        "aggregate_by_mode",
+        default={},
+    )
+    if not isinstance(s7_vector_answer_modes, dict):
+        s7_vector_answer_modes = {}
+    vector_only_metrics = s7_vector_answer_modes.get("token_matched_live_tfidf_vector", {})
+    if not isinstance(vector_only_metrics, dict):
+        vector_only_metrics = {}
     best_s7_mode, best_s7_metrics = _best_s7_answer_mode(s7_answer_modes)
     return {
         "vector_only": {
@@ -568,6 +593,13 @@ def _primary_results(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "best_mode": best_s7_mode,
             "best_mode_metrics": best_s7_metrics,
             "aggregate_by_mode": s7_answer_modes,
+            "vector_only_metrics": vector_only_metrics,
+            "vector_only_selected_case_count": _metric(
+                s7_vector_only_answers,
+                "metadata",
+                "selected_case_count",
+                default=0,
+            ),
             "human_review_candidate_count": _metric(
                 s7_review_candidates,
                 "metadata",
@@ -1307,6 +1339,7 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 "nasa_atmonto_s7_retrieval",
                 "nasa_atmonto_s7_graph_health",
                 "nasa_atmonto_s7_llm_answer_generation",
+                "nasa_atmonto_s7_vector_only_llm_answer_generation",
             ],
             "primary_metrics": [
                 "answer-set F1",
@@ -1315,15 +1348,20 @@ def _rq_evidence_matrix(primary: dict[str, Any]) -> list[dict[str, Any]]:
                 "citation recall",
                 "evidence faithfulness",
                 "unsupported claim rate",
+                "matched vector-only vs KG-RAG correctness",
             ],
             "current_result_summary": (
-                "S7 reports vector, graph, and routed modes separately. Best selected "
-                "LLM diagnostic correctness="
+                "S7 reports vector, graph, and routed modes separately. Matched "
+                "head-to-head diagnostic: KG-RAG correctness="
                 f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('answer_correctness')} "
-                "with unsupported claim rate="
-                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')}."
+                "vs vector-only correctness="
+                f"{primary['s7_llm_answer_generation']['vector_only_metrics'].get('answer_correctness')}; "
+                "KG-RAG unsupported claim rate="
+                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')} "
+                "vs vector-only unsupported claim rate="
+                f"{primary['s7_llm_answer_generation']['vector_only_metrics'].get('unsupported_claim_rate')}."
             ),
-            "claim_strength": "moderate",
+            "claim_strength": "moderate-strong",
             "remaining_gaps": (
                 "This is source-bounded ATCSCC evidence, not a universal claim that "
                 "GraphRAG beats vector-only retrieval."
@@ -1641,284 +1679,151 @@ def write_thesis_experiment_dashboard_json(
     return write_json_report(result, output_path)
 
 
+def _format_metric(value: Any) -> str:
+    if isinstance(value, float):
+        return f"{value:.4f}".rstrip("0").rstrip(".")
+    if value is None:
+        return "n/a"
+    return str(value)
+
+
+def _concise_dashboard_markdown_lines(result: dict[str, Any]) -> list[str]:
+    primary = result["primary_results"]
+    s7 = primary["s7_llm_answer_generation"]
+    kg_metrics = s7["best_mode_metrics"]
+    vector_metrics = s7["vector_only_metrics"]
+    checks = result["consistency_checks"]
+    return [
+        "# Master Project Dashboard",
+        "",
+        "## Outcome",
+        "",
+        "Evidence-grounded, schema-constrained Agentic KG-RAG over retrospective "
+        "FAA ATCSCC advisories.",
+        "",
+        "This dashboard is the human-readable project display surface. The full "
+        "machine-readable evidence inventory remains in "
+        "`reports/stages/thesis_experiment_dashboard.json`.",
+        "",
+        "## Demo Path",
+        "",
+        "```bash",
+        "uv run aviation-ai demo",
+        "uv run aviation-ai report thesis-experiment-dashboard",
+        "uv run aviation-ai report web-demo-smoke",
+        "```",
+        "",
+        "Primary live-presentation path: `aviation-ai demo`. It runs offline over "
+        "precomputed ATCSCC artifacts and traces one advisory through source text, "
+        "S0 deterministic extraction, S4 evidence-linked graph facts, and S7 "
+        "KG-RAG versus vector-only answers.",
+        "",
+        "## Pipeline",
+        "",
+        "```text",
+        "ATCSCC advisory",
+        "  -> lightweight schema/profile",
+        "  -> S0/S1/S2/S3/S4 extraction systems",
+        "  -> validator/refiner/critic diagnostics",
+        "  -> evidence-linked advisory event graph",
+        "  -> vector / graph / routed KG-RAG",
+        "  -> source-bounded answers and failure review",
+        "```",
+        "",
+        "## Research Questions",
+        "",
+        "| RQ | Claim strength | Evidence reports | Remaining boundary |",
+        "| --- | --- | --- | --- |",
+        *[
+            (
+                f"| {row['rq']} | {row['claim_strength']} | "
+                f"{', '.join(row['evidence_reports'])} | {row['remaining_gaps']} |"
+            )
+            for row in result["rq_to_evidence_matrix"]
+        ],
+        "",
+        "## Key Results",
+        "",
+        "| Layer | Result | Interpretation |",
+        "| --- | --- | --- |",
+        (
+            "| Extraction / KG | "
+            f"Provenance completeness={_format_metric(primary['kg']['provenance_completeness'])}; "
+            f"evidence-in-source rate={_format_metric(primary['kg']['evidence_in_source_rate'])}; "
+            f"valid triples={_format_metric(primary['kg']['valid_triples'])} | "
+            "Accepted facts are source-bounded artifacts, not universal semantic truth. |"
+        ),
+        (
+            "| Agentic loop | "
+            "S5/S6 live full-run diagnostics are present | "
+            "The loop is an auditable repair/rejection mechanism, not autonomous ontology construction. |"
+        ),
+        (
+            "| KG-RAG answer generation | "
+            f"Best mode={s7['best_mode']}; correctness="
+            f"{_format_metric(kg_metrics.get('answer_correctness'))}; "
+            f"citation precision={_format_metric(kg_metrics.get('citation_precision'))}; "
+            f"citation recall={_format_metric(kg_metrics.get('citation_recall'))}; "
+            f"unsupported claim rate={_format_metric(kg_metrics.get('unsupported_claim_rate'))} | "
+            "Supports a source-bounded grounding claim. |"
+        ),
+        (
+            "| Matched vector-only comparison | "
+            f"vector-only correctness={_format_metric(vector_metrics.get('answer_correctness'))}; "
+            f"vector-only unsupported claim rate="
+            f"{_format_metric(vector_metrics.get('unsupported_claim_rate'))} | "
+            "Useful RQ3 contrast, but not a universal GraphRAG superiority claim. |"
+        ),
+        (
+            "| Review boundary | "
+            f"human-review candidates={s7['human_review_candidate_count']}; "
+            f"profile/gold-boundary failures={s7['profile_or_gold_boundary_failures']}; "
+            "human review=false | "
+            "Automated diagnostics remain separate from human or expert review. |"
+        ),
+        "",
+        "## Demonstration Script",
+        "",
+        "1. State the boundary: retrospective ATCSCC advisories, not live ATC support.",
+        "2. Run `uv run aviation-ai demo` and show the single-advisory trace.",
+        "3. Point to the S0 deterministic facts and S4 evidence-linked graph facts.",
+        "4. Compare the KG-RAG and vector-only answer arms for the same advisory.",
+        "5. Open this dashboard and use the RQ table to connect demo behavior to thesis claims.",
+        "6. End with failure boundaries: profile gaps, unsupported facts, and human review remain explicit.",
+        "",
+        "## Claim Boundary",
+        "",
+        "- The project is a bounded schema-constrained Agentic KG-RAG prototype.",
+        "- The schema/profile is an engineering constraint, not a complete aviation ontology.",
+        "- The event graph is source-bounded and evidence-linked.",
+        "- KG-RAG is evaluated as a grounding and citation diagnostic, not as universal superiority.",
+        "- Automated review does not replace human or external expert review.",
+        "- The system is not live operational ATC decision support.",
+        "",
+        "## Current Checks",
+        "",
+        f"- Every RQ has evidence report: {checks['every_rq_has_evidence_report']}",
+        f"- Primary metrics have report evidence: {checks['primary_thesis_metrics_have_report_evidence']}",
+        f"- Unsafe claim patterns found: {not checks['no_unsafe_claim_patterns']}",
+        f"- Automated consistency passed: {checks['automated_consistency_passed']}",
+        f"- Claim readiness passed: {checks['claim_readiness_passed']}",
+        "",
+        "## Next Writing Step",
+        "",
+        "Write the thesis spine from this dashboard: title, abstract, method figure, "
+        "experiment table, RQ-by-RQ results, and limitations. Do not add new "
+        "workstreams unless they directly patch one of these rows.",
+    ]
+
+
 def write_thesis_experiment_dashboard_markdown(
     result: dict[str, Any],
     output_path: str | Path,
 ) -> Path:
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    lines = [
-        "# Thesis Experiment Dashboard",
-        "",
-        "- Source policy: aggregate existing reports; do not recompute experiments unnecessarily.",
-        "- Scoring policy: layered metrics; no mixed overall score.",
-        f"- Advisory boundary: {result['metadata']['advisory_boundary']}",
-        "",
-        "## Experiment Inventory",
-        "",
-        "| Report | Present | Dataset | Questions | Layers | Human review present | LLM review available |",
-        "| --- | ---: | --- | ---: | --- | ---: | ---: |",
-    ]
-    for item in result["experiment_inventory"]:
-        lines.append(
-            f"| `{item['report_name']}` | {item['present']} | {item['dataset_used']} | "
-            f"{item['questions_count']} | {', '.join(item['metric_layers_covered'])} | "
-            f"{item['human_review_present']} | {item['llm_review_available']} |"
-        )
-
-    lines.extend(
-        [
-            "",
-            "## RQ-To-Evidence Matrix",
-            "",
-            "| RQ | Evidence reports | Primary metrics | Claim strength | Remaining gaps |",
-            "| --- | --- | --- | --- | --- |",
-        ]
-    )
-    for row in result["rq_to_evidence_matrix"]:
-        lines.append(
-            f"| {row['rq']} | {', '.join(row['evidence_reports'])} | "
-            f"{', '.join(row['primary_metrics'])} | {row['claim_strength']} | "
-            f"{row['remaining_gaps']} |"
-        )
-
-    lines.extend(
-        [
-            "",
-            "## Dataset Usage Matrix",
-            "",
-            "| Dataset | Purpose | Evidence role | Main claim support | Limitations |",
-            "| --- | --- | --- | --- | --- |",
-        ]
-    )
-    for row in result["dataset_usage_matrix"]:
-        lines.append(
-            f"| {row['dataset']} | {row['purpose']} | {row['evidence_role']} | "
-            f"{row['can_support_thesis_main_claim']} | {row['limitations']} |"
-        )
-
-    primary = result["primary_results"]
-    lines.extend(
-        [
-            "",
-            "## Primary Results",
-            "",
-            "| Metric group | Key numbers |",
-            "| --- | --- |",
-            (
-                "| vector-only benchmark v2 | "
-                f"Recall@5={primary['vector_only']['recall_at_5']}, "
-                f"Recall@10={primary['vector_only']['recall_at_10']}, "
-                f"MRR@5={primary['vector_only']['mrr_at_5']}, "
-                f"NDCG@10={primary['vector_only']['ndcg_at_10']} |"
-            ),
-            (
-                "| lexical hybrid benchmark v2 | "
-                f"Recall@5={primary['best_lexical_hybrid']['recall_at_5']}, "
-                f"Recall@10={primary['best_lexical_hybrid']['recall_at_10']}, "
-                f"MRR@5={primary['best_lexical_hybrid']['mrr_at_5']}, "
-                f"NDCG@10={primary['best_lexical_hybrid']['ndcg_at_10']}, "
-                f"Context Recall={primary['best_lexical_hybrid']['context_recall']} |"
-            ),
-            (
-                "| traversal hybrid | "
-                f"Recall@5={primary['traversal_hybrid']['recall_at_5']}, "
-                f"Path Recall@5={primary['traversal_hybrid']['path_recall_at_5']}, "
-                f"Path Precision@5={primary['traversal_hybrid']['path_precision_at_5']} "
-                "(heuristic or model-reviewed; no human review) |"
-            ),
-            (
-                "| sufficiency | "
-                f"Abstention Accuracy={primary['sufficiency']['abstention_accuracy']}, "
-                f"False Answer Rate={primary['sufficiency']['false_answer_rate']}, "
-                f"False Abstention Rate={primary['sufficiency']['false_abstention_rate']} |"
-            ),
-            (
-                "| robustness | "
-                f"Abstention Correctness={primary['robustness']['abstention_correctness']}, "
-                f"False Answer Rate={primary['robustness']['false_answer_rate']}, "
-                "Boundary Violations="
-                f"{primary['robustness']['advisory_boundary_violation_count']} |"
-            ),
-            (
-                "| benchmark reviewed subset | "
-                f"Labels={primary['benchmark_reviewed_subset']['labels_total']}, "
-                f"Review Status={primary['benchmark_reviewed_subset']['review_status']}, "
-                "External Expert Certified="
-                f"{primary['benchmark_reviewed_subset']['external_aviation_expert_certified']} |"
-            ),
-            (
-                "| answer-eval benchmark subset | "
-                f"Answers={primary['answer_evaluation_benchmark_subset']['answers_total']}, "
-                f"Status={primary['answer_evaluation_benchmark_subset']['evaluation_status']}, "
-                "Unmatched Gold Labels="
-                f"{primary['answer_evaluation_benchmark_subset']['unmatched_gold_labels']}, "
-                "Hybrid Faithfulness="
-                f"{primary['answer_evaluation_benchmark_subset']['hybrid_faithfulness']}, "
-                "Score Method=deterministic_heuristic |"
-            ),
-            (
-                "| ATCSCC S7 LLM answer generation | "
-                f"Selected={primary['s7_llm_answer_generation']['selected_case_count']}, "
-                f"Best mode={primary['s7_llm_answer_generation']['best_mode']}, "
-                "Correctness="
-                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('answer_correctness')}, "
-                "Citation precision="
-                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('citation_precision')}, "
-                "Citation recall="
-                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('citation_recall')}, "
-                "Unsupported claim rate="
-                f"{primary['s7_llm_answer_generation']['best_mode_metrics'].get('unsupported_claim_rate')}, "
-                "Human-review candidates="
-                f"{primary['s7_llm_answer_generation']['human_review_candidate_count']} "
-                "(queue only; no human review), "
-                "Adjudicated profile/gold-boundary failures="
-                f"{primary['s7_llm_answer_generation']['profile_or_gold_boundary_failures']}, "
-                "Strict metrics changed="
-                f"{primary['s7_llm_answer_generation']['strict_main_metrics_changed_by_adjudication']}, "
-                "Profile-decision what-if corrected records="
-                f"{primary['s7_llm_answer_generation']['profile_decision_corrected_record_count']}, "
-                "Profile/gold changed="
-                f"{primary['s7_llm_answer_generation']['profile_decision_gold_or_profile_changed']}, "
-                "What-if replaces main="
-                f"{primary['s7_llm_answer_generation']['profile_decision_what_if_metrics_replace_main']} |"
-            ),
-            (
-                "| chunking benchmark v2 | "
-                f"Top-k best={primary['chunking_benchmark_v2']['topk_best_strategy']} "
-                f"(Recall@5={primary['chunking_benchmark_v2']['topk_recall_at_5_supported']}), "
-                f"Fixed-budget best={primary['chunking_benchmark_v2']['budget_best_strategy']} "
-                f"(Recall@5={primary['chunking_benchmark_v2']['budget_recall_at_5_supported']}), "
-                f"Partial methods={primary['chunking_benchmark_v2']['partial_methods']} |"
-            ),
-            (
-                "| PDF extraction backend | "
-                f"Recommended={primary['pdf_extraction_backend']['recommended_backend']} "
-                f"({primary['pdf_extraction_backend']['recommended_status']}), "
-                "legacy false headings="
-                f"{primary['pdf_extraction_backend']['legacy_false_heading_count']}, "
-                "Docling heading recall="
-                f"{primary['pdf_extraction_backend']['docling_heading_recall']}, "
-                "hybrid repairs="
-                f"{primary['pdf_extraction_backend']['hybrid_repair_count']}, "
-                "hybrid Recall@5="
-                f"{primary['pdf_extraction_backend']['hybrid_retrieval_recall_at_5']} |"
-            ),
-            (
-                "| KG | "
-                f"Provenance Completeness={primary['kg']['provenance_completeness']}, "
-                f"Evidence-in-source Rate={primary['kg']['evidence_in_source_rate']}, "
-                f"Valid Triples={primary['kg']['valid_triples']} |"
-            ),
-            (
-                "| NASA source expansion | "
-                f"Status={primary['nasa_source_expansion']['status']}, "
-                "discovered URLs="
-                f"{primary['nasa_source_expansion']['landing_page_discovery']['discovered_unique_urls']}, "
-                "covered URLs="
-                f"{primary['nasa_source_expansion']['landing_page_discovery']['covered_unique_urls']}, "
-                f"corpus pages={primary['nasa_source_expansion']['ingested_pages']}, "
-                f"valid pages={primary['nasa_source_expansion']['valid_pages']}, "
-                f"experiment valid pages={primary['nasa_source_expansion']['experiment_valid_pages']}/"
-                f"{primary['nasa_source_expansion']['experiment_pages']}, "
-                f"KG triples={primary['nasa_source_expansion']['kg_dry_run']['triples_total']}, "
-                "FAA+NASA smoke Recall@5="
-                f"{primary['nasa_source_expansion']['multisource_smoke']['faa_plus_nasa_recall_at_5']} |"
-            ),
-            (
-                "| triple semantic review | "
-                f"Sample={primary['triple_semantic_review']['sample_size']}, "
-                f"reviewed={primary['triple_semantic_review']['reviewed']}, "
-                f"needs_review={primary['triple_semantic_review']['needs_review']} |"
-            ),
-            (
-                "| LLM review status | "
-                f"Benchmark reviewed={primary['llm_review_status']['benchmark']['llm_reviewed']}, "
-                "triple evidence support="
-                f"{primary['llm_review_status']['triple_semantic']['evidence_support_rate']}, "
-                "graph path relevance="
-                f"{primary['llm_review_status']['graph_paths']['path_relevance_rate']}, "
-                "answer judge correctness="
-                f"{primary['llm_review_status']['answer_judge']['correctness_rate']}, "
-                "S7 selected="
-                f"{primary['s7_llm_answer_generation']['selected_case_count']}, "
-                "S7 review candidates="
-                f"{primary['s7_llm_answer_generation']['human_review_candidate_count']}, "
-                "S7 adjudicated boundary failures="
-                f"{primary['s7_llm_answer_generation']['profile_or_gold_boundary_failures']}, "
-                "human review=false |"
-            ),
-            (
-                "| implementation review remediation | "
-                f"Status={primary['implementation_review_remediation']['status']}, "
-                f"implemented={primary['implementation_review_remediation']['implemented_items']}, "
-                f"verified already fixed="
-                f"{primary['implementation_review_remediation']['verified_already_fixed_items']}, "
-                f"deferred={primary['implementation_review_remediation']['deferred_items']}, "
-                "metrics changed="
-                f"{primary['implementation_review_remediation']['scientific_metrics_changed']} |"
-            ),
-        ]
-    )
-
-    ci = primary["sufficiency"].get("confidence_intervals", {})
-    if ci:
-        lines.extend(["", "## Safety Confidence Intervals", ""])
-        lines.append("| Metric | Mean | 95% CI | n |")
-        lines.append("| --- | ---: | --- | ---: |")
-        for metric, values in ci.items():
-            if metric == "ci_policy" or not isinstance(values, dict):
-                continue
-            lines.append(
-                f"| {metric} | {values.get('mean')} | "
-                f"{values.get('lower')} - {values.get('upper')} | {values.get('n')} |"
-            )
-
-    failure = result["failure_mode_summary"]
-    lines.extend(["", "## Failure-Mode Summary", ""])
-    lines.append(f"- Graph failure categories: {failure['graph_failure_categories']}")
-    lines.append(
-        "- Chunking failure-card samples: "
-        f"{failure.get('chunking_failure_card_samples', {})}"
-    )
-    lines.append(
-        "- False abstention on supported questions: "
-        f"{failure['false_abstention_on_supported_question']}"
-    )
-    lines.append(
-        "- Machine-seeded benchmark wording findings: "
-        f"{failure['machine_seeded_benchmark_wording']}"
-    )
-    lines.append(
-        "- Missing LLM triple review items: "
-        f"{failure['missing_llm_triple_review']}"
-    )
-
-    lines.extend(["", "## LLM Review Status", ""])
-    lines.append(
-        "`deterministic`, `heuristic`, `llm_judge`, and `human_review` metrics are "
-        "reported separately. Human review is absent and external expert certification is false."
-    )
-    lines.append(f"- Benchmark LLM review: {primary['llm_review_status']['benchmark']}")
-    lines.append(f"- Triple semantic LLM review: {primary['llm_review_status']['triple_semantic']}")
-    lines.append(f"- Graph path LLM review: {primary['llm_review_status']['graph_paths']}")
-    lines.append(f"- Answer generation subset: {primary['llm_review_status']['answer_generation']}")
-    lines.append(f"- Answer LLM judge: {primary['llm_review_status']['answer_judge']}")
-    lines.append(f"- LLM review consistency: {primary['llm_review_status']['consistency']}")
-
-    lines.extend(["", "## Thesis-Ready Claim Summary", ""])
-    for claim in result["thesis_ready_claim_summary"]:
-        lines.append(
-            f"- **{claim['claim']}** Safe wording: {claim['safe_wording']} "
-            f"Limitations: {claim['limitations']} Avoid: {claim['unsafe_wording_to_avoid']}"
-        )
-
-    checks = result["consistency_checks"]
-    lines.extend(["", "## Consistency Checks", ""])
-    for key, value in checks.items():
-        if key != "unsafe_hits":
-            lines.append(f"- `{key}`: {value}")
-    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    concise_lines = _concise_dashboard_markdown_lines(result)
+    path.write_text("\n".join(concise_lines).rstrip() + "\n", encoding="utf-8")
     return path
 
 

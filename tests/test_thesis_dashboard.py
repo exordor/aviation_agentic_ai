@@ -233,6 +233,32 @@ def _write_dashboard_fixture(root: Path) -> None:
         },
     )
     _write_json(
+        stages / "nasa_atmonto_s7_vector_only_llm_answer_generation.json",
+        {
+            "status": "s7_llm_answer_generation_evaluated",
+            "metadata": {
+                "prompt_version": "fixture_prompt",
+                "reviewer_model": "fixture-model",
+                "selected_case_count": 60,
+                "max_cases_per_template": 10,
+            },
+            "answer_quality": {
+                "aggregate_by_mode": {
+                    "token_matched_live_tfidf_vector": {
+                        "selected_total": 60,
+                        "llm_answered_total": 60,
+                        "answer_correctness": 0.5,
+                        "citation_precision": 1.0,
+                        "citation_recall": 0.3722,
+                        "evidence_faithfulness": 0.5,
+                        "unsupported_claim_rate": 0.5,
+                        "abstention_correctness": 0.9667,
+                    }
+                }
+            },
+        },
+    )
+    _write_json(
         stages / "nasa_atmonto_s7_human_review_candidates.json",
         {
             "metadata": {
@@ -405,6 +431,8 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     s7 = result["primary_results"]["s7_llm_answer_generation"]
     assert s7["selected_case_count"] == 60
     assert s7["best_mode"] == "routed_token_matched_live_tfidf_graphrag"
+    assert s7["vector_only_selected_case_count"] == 60
+    assert s7["vector_only_metrics"]["answer_correctness"] == 0.5
     assert s7["human_review_candidate_count"] == 9
     assert s7["profile_or_gold_boundary_failures"] == 3
     assert s7["strict_main_metrics_changed_by_adjudication"] is False
@@ -414,6 +442,7 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     }
     source_names = {row["report_name"] for row in result["experiment_inventory"]}
     assert "nasa_atmonto_s7_answer_review_import" in source_names
+    assert "nasa_atmonto_s7_vector_only_llm_answer_generation" in source_names
     assert result["primary_results"]["llm_review_status"]["human_review"] is False
     remediation = result["primary_results"]["implementation_review_remediation"]
     assert remediation["implemented_items"] == 1
@@ -426,6 +455,11 @@ def test_thesis_dashboard_report_generation_and_matrices(tmp_path: Path) -> None
     assert pdf_backend["docling_section_header_hits"] == 12
     assert pdf_backend["hybrid_repair_count"] == 14
     assert result["consistency_checks"]["no_unsafe_claim_patterns"]
+    dashboard_text = md_path.read_text(encoding="utf-8")
+    assert "Master Project Dashboard" in dashboard_text
+    assert "uv run aviation-ai demo" in dashboard_text
+    assert "Experiment Inventory" not in dashboard_text
+    assert "Matched vector-only comparison" in dashboard_text
 
 
 def test_workflow_runner_references_existing_cli_commands() -> None:

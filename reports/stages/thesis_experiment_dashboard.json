@@ -900,6 +900,19 @@
       "report_name": "nasa_atmonto_s7_llm_answer_generation"
     },
     {
+      "dataset_used": "atcscc_s7_source_bounded_60",
+      "human_review_present": false,
+      "llm_review_available": true,
+      "metric_layers_covered": [
+        "answer_generation",
+        "retrieval"
+      ],
+      "path": "reports/stages/nasa_atmonto_s7_vector_only_llm_answer_generation.json",
+      "present": true,
+      "questions_count": "n/a",
+      "report_name": "nasa_atmonto_s7_vector_only_llm_answer_generation"
+    },
+    {
       "dataset_used": "atcscc_s7_review_candidate_queue_9",
       "human_review_present": false,
       "llm_review_available": false,
@@ -1394,7 +1407,24 @@
       "reviewer_model": "gpt-5.4-mini",
       "selected_case_count": 60,
       "status": "s7_llm_answer_generation_evaluated",
-      "strict_main_metrics_changed_by_adjudication": false
+      "strict_main_metrics_changed_by_adjudication": false,
+      "vector_only_metrics": {
+        "abstention_correctness": 0.9667,
+        "answer_correctness": 0.5,
+        "avg_estimated_context_tokens": 31.23,
+        "citation_precision": 1.0,
+        "citation_recall": 0.3722,
+        "evidence_faithfulness": 0.5,
+        "failed_total": 0,
+        "llm_answered_total": 60,
+        "not_run_total": 0,
+        "selected_total": 60,
+        "status_counts": {
+          "answered": 60
+        },
+        "unsupported_claim_rate": 0.5
+      },
+      "vector_only_selected_case_count": 60
     },
     "standalone_traversal": {
       "path_coverage": 0.75,
@@ -1578,12 +1608,13 @@
       "rq": "RQ2 agentic validation-refinement"
     },
     {
-      "claim_strength": "moderate",
-      "current_result_summary": "S7 reports vector, graph, and routed modes separately. Best selected LLM diagnostic correctness=0.9667 with unsupported claim rate=0.0167.",
+      "claim_strength": "moderate-strong",
+      "current_result_summary": "S7 reports vector, graph, and routed modes separately. Matched head-to-head diagnostic: KG-RAG correctness=0.9667 vs vector-only correctness=0.5; KG-RAG unsupported claim rate=0.0167 vs vector-only unsupported claim rate=0.5.",
       "evidence_reports": [
         "nasa_atmonto_s7_retrieval",
         "nasa_atmonto_s7_graph_health",
-        "nasa_atmonto_s7_llm_answer_generation"
+        "nasa_atmonto_s7_llm_answer_generation",
+        "nasa_atmonto_s7_vector_only_llm_answer_generation"
       ],
       "primary_metrics": [
         "answer-set F1",
@@ -1591,7 +1622,8 @@
         "citation precision",
         "citation recall",
         "evidence faithfulness",
-        "unsupported claim rate"
+        "unsupported claim rate",
+        "matched vector-only vs KG-RAG correctness"
       ],
       "remaining_gaps": "This is source-bounded ATCSCC evidence, not a universal claim that GraphRAG beats vector-only retrieval.",
       "rq": "RQ3 KG-RAG grounding vs vector-only RAG"
