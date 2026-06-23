@@ -1,9 +1,9 @@
 # End-to-End Agentic KG-RAG Architecture
 
-> Status: design document. Specifies how to turn the current single-pass
-> extraction pipeline into a two-layer autonomous Agent with a feedback loop
-> (L1) and end-to-end orchestration (L2). No code is changed by this document;
-> it is a blueprint for later implementation.
+> Status: design plus implementation tracker. L1 Extraction Loop Agent is now
+> implemented as a small additive runtime path under
+> `src/aviation_agentic_ai/agents/`; L2 end-to-end orchestration remains planned.
+> The new runtime does not alter the scored S0-S7 artifacts.
 
 ## 1. Goals and Non-Goals
 
@@ -125,7 +125,7 @@ L2 reuses L1; L1 is independently useful and testable on its own.
 
 ### 4.1 Runtime and state
 
-New subpackage `src/aviation_agentic_ai/agents/`. A small controller class holds
+Implemented subpackage `src/aviation_agentic_ai/agents/`. A small controller class holds
 per-advisory state:
 
 ```python
@@ -204,7 +204,7 @@ evidence-not-contained / text-artifact cases, exactly as in the live pilot.
 | `critic_reasons` | `agentic_loop/independent_run_agents.py:87-101` | deterministic critic guard + repair_planner fallback |
 | `evidence_tolerant_fact_key` | `ontology/atmonto_experiment.py:321-330` | fact identity for seen/blocked/accepted sets (§4.6); `canonical_fact_key` (which includes evidence) is only for strict dedup scoring |
 | `_profile_normalize_live_record` | `live_pilot_agents.py:342-362` | ISO datetime / subject-class normalization |
-| repair_planner prompt | new (`agents/repair_planner.py`) | emits `repair_targets` + `blocked_keys`; reuses CQ route map |
+| `repair_planner` prompt | `agents/repair_planner.py` | emits `repair_targets` + `blocked_keys`; reuses CQ route map |
 
 ### 4.5 New artifact: traces
 
@@ -516,8 +516,8 @@ class AgentState(TypedDict, total=False):
 @dataclass
 class ExtractionResult:
     facts: list[dict]
+    blocked: list[dict]
     trace: ExtractionTrace        # L1 trace (see §4.5)
-    schema_valid: bool
     metadata: dict                # follows *_run_metadata.json contract
 
 @dataclass
@@ -541,6 +541,31 @@ class AnswerWithCitations:
 | refiner | final accepted_by_key | `{facts[]}` copied from accepted (safety gate, no new facts) |
 
 ## 8. Artifact and Testing Conventions
+
+### 8.0 Current L1 implementation status
+
+The implemented L1 MVP is intentionally narrower than the full L2 roadmap:
+
+- Runtime: `src/aviation_agentic_ai/agents/extraction_agent.py`
+- Data contracts: `src/aviation_agentic_ai/agents/types.py`
+- Repair-planner prompt and parsing: `src/aviation_agentic_ai/agents/repair_planner.py`
+- Behavioral tests: `tests/test_agents_extraction_agent.py`
+
+The current runnable verification path is:
+
+```bash
+uv run pytest -q tests/test_agents_extraction_agent.py
+```
+
+This test path uses a fake `AgentInvoker`; it proves loop behavior and merge
+invariants without calling a live LLM. The existing project demo remains:
+
+```bash
+uv run aviation-ai demo
+```
+
+That demo shows the current ATCSCC source-to-KG-RAG trace, not the new L1 repair
+loop as a scored result.
 
 ### 8.1 Metadata artifact
 
@@ -642,7 +667,7 @@ calls most thesis-aligned.
 
 | Phase | Scope | Est. effort |
 | --- | --- | --- |
-| 1 | L1 Extraction Loop Agent + `AgentRuntime` + state machine + merge invariants (§4.6) + behavioral tests (§8.2, fake invoker, no LLM) | 1–2 days |
+| 1 | L1 Extraction Loop Agent + state machine + merge invariants (§4.6) + behavioral tests (§8.2, fake invoker, no LLM) | implemented MVP |
 | 2 | L2 End-to-End Orchestrator skeleton + **Path B** retrieval (lift live retrievers) + `ROUTED_TEMPLATE_MODES` router + JSON-schema answer + ATCSCC boundary gate | 1 day |
 | 3 | `aviation-ai agent` CLI subcommand + end-to-end test + doc sync | 1 day |
 | 4 (optional) | Path A runtime adapter (Chroma + `run_retrieval` + free-text answer) as a fallback/spike; only if Path B lift proves costly | 1 day |
