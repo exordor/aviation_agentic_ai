@@ -1,0 +1,13 @@
+{
+  "system_id": "L1_agentic_extraction_batch",
+  "run_status": "completed",
+  "runner": "artifact_replay_l1_extraction_agent",
+  "requires_llm": false,
+  "live_llm_run": false,
+  "sample_size": 8,
+  "max_iterations": 2,
+  "prediction_record_count": 8,
+  "prediction_output": "data/experiments/nasa_atmonto/formal/l1_agent_batch_predictions.jsonl",
+  "run_metadata_output": "data/experiments/nasa_atmonto/formal/l1_agent_batch_run_metadata.json",
+  "claim_boundary": "This is a small-batch, artifact-replay L1 Agent-loop experiment. It exercises the bounded extractor-validator-critic-repair-refiner loop without live LLM calls. Use it as reproducible evidence that the L1 loop can reduce emitted schema and support errors on the sampled ATCSCC corpus; do not cite it as external expert certification or live operational ATC support."
+}

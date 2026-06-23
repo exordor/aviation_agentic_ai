@@ -41,6 +41,19 @@ class OntologyGenerationResult:
     validation_message: str
 
 
+@dataclass(frozen=True)
+class _PromptMessage:
+    content: str
+
+
+def _prompt_message(prompt: str) -> Any:
+    try:
+        from langchain_core.messages import HumanMessage
+    except ImportError:
+        return _PromptMessage(content=prompt)
+    return HumanMessage(content=prompt)
+
+
 class SRDArtifact(BaseModel):
     """Structured Semantic Requirements Document generated for a source page."""
 
@@ -115,15 +128,7 @@ def _load_cqs(cq_path: str | Path) -> dict[str, list[dict[str, Any]]]:
 
 
 def _invoke_text(llm: Any, prompt: str) -> str:
-    try:
-        from langchain_core.messages import HumanMessage
-    except ImportError as exc:
-        raise RuntimeError(
-            "Ontology generation requires optional ontology-generation dependencies. "
-            "Install with: uv sync --extra ontology-generation"
-        ) from exc
-
-    response = llm.invoke([HumanMessage(content=prompt)])
+    response = llm.invoke([_prompt_message(prompt)])
     return str(getattr(response, "content", response)).strip()
 
 

@@ -9,6 +9,10 @@ from aviation_agentic_ai.paths import project_relative_path
 from aviation_agentic_ai.reporting.atmonto.agentic_loop.loop import (
     write_nasa_atmonto_agentic_loop,
 )
+from aviation_agentic_ai.reporting.atmonto.agentic_loop.l1_batch_experiment import (
+    DEFAULT_SAMPLE_SIZE,
+    write_nasa_atmonto_l1_agent_batch_experiment,
+)
 from aviation_agentic_ai.reporting.atmonto.core.answer_generation import (
     write_nasa_atmonto_answer_generation,
 )
@@ -574,6 +578,124 @@ def register_nasa_report_commands(report: click.Group) -> None:
             click.echo(
                 f"Agentic loop status: {result['status']} with "
                 f"{len(result['code_review_triggers'])} code-review trigger(s)."
+            )
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
+
+    @report.command("nasa-atmonto-l1-agent-batch")
+    @click.option(
+        "--input-records",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="ATCSCC formal input records JSONL.",
+    )
+    @click.option(
+        "--baseline-predictions",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Baseline prediction JSONL used for the first extractor pass.",
+    )
+    @click.option(
+        "--repair-predictions",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Repair artifact prediction JSONL replayed in the second extractor pass.",
+    )
+    @click.option(
+        "--schema-slice",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="ATCSCC schema slice JSON.",
+    )
+    @click.option(
+        "--cq-manifest",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="ATCSCC CQ route manifest.",
+    )
+    @click.option(
+        "--prediction-output",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Output JSONL for L1 batch prediction records.",
+    )
+    @click.option(
+        "--run-metadata-output",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Output JSON for L1 batch run metadata.",
+    )
+    @click.option(
+        "--sample-size",
+        type=int,
+        default=DEFAULT_SAMPLE_SIZE,
+        show_default=True,
+        help="Maximum matched ATCSCC records to run.",
+    )
+    @click.option(
+        "--max-iterations",
+        type=int,
+        default=2,
+        show_default=True,
+        help="L1 repair-loop iteration budget.",
+    )
+    @click.option(
+        "--output-dir",
+        type=click.Path(path_type=Path),
+        default=None,
+        help="Directory for L1 batch report outputs.",
+    )
+    @click.option(
+        "--report-name",
+        default="nasa_atmonto_l1_agent_batch_experiment",
+        show_default=True,
+        help="Output report stem.",
+    )
+    def report_nasa_atmonto_l1_agent_batch(
+        input_records: Path | None,
+        baseline_predictions: Path | None,
+        repair_predictions: Path | None,
+        schema_slice: Path | None,
+        cq_manifest: Path | None,
+        prediction_output: Path | None,
+        run_metadata_output: Path | None,
+        sample_size: int,
+        max_iterations: int,
+        output_dir: Path | None,
+        report_name: str,
+    ) -> None:
+        """Run the small-batch L1 ATCSCC Agent-loop before/after experiment."""
+        try:
+            config = load_default_config()
+            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
+            report_kwargs = {
+                "output_dir": report_dir,
+                "report_name": report_name,
+                "sample_size": sample_size,
+                "max_iterations": max_iterations,
+            }
+            if input_records is not None:
+                report_kwargs["input_records_path"] = input_records
+            if baseline_predictions is not None:
+                report_kwargs["baseline_predictions_path"] = baseline_predictions
+            if repair_predictions is not None:
+                report_kwargs["repair_predictions_path"] = repair_predictions
+            if schema_slice is not None:
+                report_kwargs["schema_slice_path"] = schema_slice
+            if cq_manifest is not None:
+                report_kwargs["cq_manifest_path"] = cq_manifest
+            if prediction_output is not None:
+                report_kwargs["prediction_output_path"] = prediction_output
+            if run_metadata_output is not None:
+                report_kwargs["run_metadata_output_path"] = run_metadata_output
+            json_path, md_path, result = write_nasa_atmonto_l1_agent_batch_experiment(
+                **report_kwargs
+            )
+            click.echo(f"Wrote {project_relative_path(json_path)}")
+            click.echo(f"Wrote {project_relative_path(md_path)}")
+            click.echo(
+                f"L1 agent batch status: {result['status']} with "
+                f"{result['metadata']['record_count']} record(s)."
             )
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc

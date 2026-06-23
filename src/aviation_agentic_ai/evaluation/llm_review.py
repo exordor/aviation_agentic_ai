@@ -161,7 +161,6 @@ def llm_runtime_available() -> bool:
     if not has_required_llm_credentials(provider):
         return False
     try:
-        import langchain_core.messages  # noqa: F401
         import langchain_openai  # noqa: F401
     except ImportError:
         return False
