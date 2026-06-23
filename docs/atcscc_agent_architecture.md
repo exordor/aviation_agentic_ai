@@ -11,8 +11,9 @@
 
 - Turn the current **single-pass linear pipeline** (extractor → validator →
   critic → refiner, each called at most once) into an Agent with a **feedback
-  loop**: when the critic finds problems, it can drive a re-extraction with
-  targeted repair guidance, bounded by an iteration budget.
+  loop**: when the critic drops facts or the repair_planner finds gaps, the
+  repair_planner drives a re-extraction with targeted repair guidance, bounded
+  by an iteration budget.
 - Add an **end-to-end orchestration layer** that connects extraction to the
   retrieval and answer stages, so one call takes an advisory and returns a
   cited answer.
@@ -88,11 +89,12 @@ flowchart TD
     subgraph L1["L1 — Extraction Loop Agent"]
         EX["extractor<br/>(LLM)"]
         VAL["validator<br/>(deterministic)"]
-        CR["critic<br/>(LLM + deterministic guard)"]
-        RF["refiner<br/>(LLM, safety-gated)"]
-        EX --> VAL --> CR
-        CR -- "repair_targets &amp; budget left" --> EX
-        CR -- "accept / reject" --> RF --> FACTS["accepted facts<br/>with evidence spans"]
+        CR["critic<br/>(LLM, drop-only)"]
+        RP["repair_planner<br/>(LLM + deterministic fallback)"]
+        RF["refiner<br/>(LLM, copy-only safety gate)"]
+        EX --> VAL --> CR --> RP
+        RP -- "repair_targets &amp; budget left" --> EX
+        RP -- "accept / reject" --> RF --> FACTS["accepted facts<br/>with evidence spans"]
     end
 
     FACTS --> L2
@@ -106,7 +108,7 @@ flowchart TD
         GRAPH --> ROUTE --> RET --> ANS --> SELF
     end
 
-    SELF --> OUT["AnswerWithCitations + AgentTrace"]
+    SELF --> OUT["AnswerWithCitations + EndToEndTrace"]
 ```
 
 - **L1 (Extraction Loop Agent)** owns the feedback loop over extractor /
@@ -198,29 +200,47 @@ evidence-not-contained / text-artifact cases, exactly as in the live pilot.
 | `_refiner_messages` | `live_pilot_agents.py:297-329` | refiner safety gate |
 | `validate_prediction_record` | `ontology/atmonto_minimal_loop.py` | deterministic validation |
 | `critic_reasons` | `agentic_loop/independent_run_agents.py:87-101` | deterministic critic guard + repair_planner fallback |
-| `canonical_fact_key` | `ontology/atmonto_experiment.py` | dedup key for seen facts |
+| `evidence_tolerant_fact_key` | `ontology/atmonto_experiment.py:321-330` | fact identity for seen/blocked/accepted sets (§4.6); `canonical_fact_key` (which includes evidence) is only for strict dedup scoring |
 | `_profile_normalize_live_record` | `live_pilot_agents.py:342-362` | ISO datetime / subject-class normalization |
 | repair_planner prompt | new (`agents/repair_planner.py`) | emits `repair_targets` + `blocked_keys`; reuses CQ route map |
 
-### 4.5 New artifact: AgentTrace
+### 4.5 New artifact: traces
 
-Each `run` returns an `AgentTrace` recording every iteration, so the loop is
-auditable:
+Each `run` returns a trace recording every iteration, so the loop is auditable.
+Per the reviewer, traces are split by layer so the role enum is unambiguous:
 
 ```python
+# L1 roles only
+EXTRACTION_ROLES = {"extractor", "validator", "critic", "repair_planner", "refiner"}
+
 @dataclass
-class AgentStep:
+class ExtractionStep:
     iteration: int
-    role: str            # "extractor" | "validator" | "critic" | "refiner"
+    role: str            # one of EXTRACTION_ROLES
     input_summary: dict  # what was passed in
-    output_summary: dict # accepted/rejected counts, critic reasons
+    output_summary: dict # accepted/rejected counts, critic reasons, repair_targets
     raw_response_len: int
 
 @dataclass
-class AgentTrace:
-    steps: list[AgentStep]
+class ExtractionTrace:
+    steps: list[ExtractionStep]
     iterations_used: int
     budget_exhausted: bool
+
+# L2 adds its own roles; EndToEndTrace wraps the L1 trace plus L2 steps
+END_TO_END_ROLES = {"boundary_gate", "router", "retriever", "answerer", "self_eval"}
+
+@dataclass
+class EndToEndStep:
+    role: str            # one of END_TO_END_ROLES
+    input_summary: dict
+    output_summary: dict # e.g. router: {template_id, mode, route_confidence}
+    raw_response_len: int
+
+@dataclass
+class EndToEndTrace:
+    extraction: ExtractionTrace   # the full L1 trace
+    l2_steps: list[EndToEndStep]  # boundary_gate → router → retriever → answerer → self_eval
 ```
 
 The trace is written alongside results, following the metadata conventions in
@@ -228,41 +248,78 @@ Section 8.
 
 ### 4.6 Merge invariants (between iterations)
 
-The reviewer flagged that the loop never defines whether a repair extraction is
-a full replacement, a patch, or a delta, so a repair pass could lose good facts
-or re-admit rejected ones. This section fixes that. The loop state holds three
-keyed sets, all keyed by `canonical_fact_key` (`ontology/atmonto_experiment.py`):
+The first review flagged that the loop never defines whether a repair extraction
+is a full replacement, a patch, or a delta. This section fixes that, and also
+corrects a key-identity bug caught in the second review.
 
-- `accepted_by_key: dict[key, fact]` — facts that passed validator + critic.
-- `blocked_keys: set[key]` — facts dropped by the critic or repair_planner.
+**Key identity — use `evidence_tolerant_fact_key`, not `canonical_fact_key`.**
+`canonical_fact_key` (`ontology/atmonto_experiment.py:308-318`) includes
+`evidence_text` as its 7th element. Because the evidence span is *part of the
+key*, "same canonical key but different evidence" is impossible — an earlier
+draft of this invariant was self-contradictory. Fact identity across iterations
+therefore uses `evidence_tolerant_fact_key` (`atmonto_experiment.py:321-330`),
+which returns `canonical_fact_key(fact)[:6]` (everything except evidence). The
+evidence span is tracked **separately** so re-grounding is observable:
+
+- `identity(fact) = evidence_tolerant_fact_key(fact)` — 6-tuple (source, subject
+  class, predicate, value, object class, datatype).
+- `evidence_hash(fact) = hash(compact_text(evidence_text))` — the evidence span
+  only, used to detect re-grounding.
+
+**Loop state (all keyed by identity):**
+
+- `accepted_by_key: dict[identity, AcceptedFact]` where
+  `AcceptedFact = {fact, evidence_hash, iteration}`.
+- `blocked: dict[identity, BlockedReason]` where
+  `BlockedReason = {reason, evidence_hash}`.
 - `current_candidate_facts` — the latest extractor output (this iteration only).
 
 **Invariants (must hold at every loop exit):**
 
 1. **Accepted facts persist.** `accepted_by_key` is never cleared between
    iterations. A repair pass cannot drop a previously accepted fact.
-2. **Rejected keys stay blocked unless changed with new evidence.** A key in
-   `blocked_keys` is only re-admitted if a later extraction produces a fact with
-   the same canonical key but a *different* `evidence_text` (i.e. the extractor
+2. **Rejected identities stay blocked unless re-grounded with new evidence.**
+   An identity in `blocked` is only re-admitted if a later extraction produces
+   the same identity with a *different* `evidence_hash` (i.e. the extractor
    actually re-grounded it, not just echoed it). Re-echoing a blocked fact with
-   identical evidence is silently dropped and recorded in the trace.
+   identical evidence is silently dropped and recorded in the trace. This is now
+   well-defined because identity (6-tuple) and evidence (hash) are separate.
 3. **Final facts = prior accepted + validated repairs.** At `done`, the result
-   `facts` list is exactly `accepted_by_key.values()`, i.e. the union of facts
-   accepted in any iteration. A fact accepted in iteration 0 and untouched by
-   repair is still present.
-4. **No cross-iteration duplicates.** Because keys are canonical, a repaired
-   fact that matches an accepted key updates it in place rather than appending.
+   `facts` list is exactly `[a.fact for a in accepted_by_key.values()]`. A fact
+   accepted in iteration 0 and untouched by repair is still present.
+4. **No cross-iteration duplicates.** Identities are unique in
+   `accepted_by_key`, so a repair cannot append a duplicate.
 
-**Merge procedure on each extractor output:**
+**Merge procedure on each extractor output (never overwrites an accepted fact
+without re-validation):**
 
 ```
 for fact in current_candidate_facts:
-    key = canonical_fact_key(fact)
-    if key in blocked_keys and evidence_unchanged(fact, blocked): skip + trace
-    elif key in accepted_by_key: accepted_by_key[key] = fact  # update in place
-    else: run validator + critic on fact; if accepted -> accepted_by_key[key]=fact
-                                       if rejected -> blocked_keys.add(key)
+    ident = evidence_tolerant_fact_key(fact)
+    ev    = evidence_hash(fact)
+    if ident in blocked:
+        prev = blocked[ident]
+        if ev == prev.evidence_hash:
+            trace(skip, "blocked_unchanged_evidence"); continue
+        # re-grounded: fall through to full re-validation below
+    if ident in accepted_by_key:
+        # NEVER replace without re-validating the new payload (reviewer P1 #2)
+        candidate = run_validator_and_critic(fact)   # same path as a new fact
+        if candidate.accepted and candidate.evidence_hash != accepted_by_key[ident].evidence_hash:
+            accepted_by_key[ident] = candidate   # replace with better-grounded copy
+        else:
+            trace(skip, "accepted_unchanged_or_revalidation_failed")
+        continue
+    # genuinely new identity
+    candidate = run_validator_and_critic(fact)
+    if candidate.accepted: accepted_by_key[ident] = candidate
+    else:                  blocked[ident] = BlockedReason(candidate.reason, ev)
 ```
+
+Replacement of an already-accepted identity therefore happens **only** when the
+new payload passes validator + critic *and* carries different evidence. A
+matching identity with the same evidence is a no-op (skip). This closes the
+"overwrite accepted without re-validation" hole.
 
 **Required tests (Phase 1 acceptance, see Section 8.2):**
 
@@ -270,8 +327,12 @@ for fact in current_candidate_facts:
   iteration 0 is completed after one repair pass; the final facts include it.
 - `test_repair_does_not_drop_prior_accepted`: a fact accepted in iteration 0
   survives a repair pass even if the repair extraction omits it.
-- `test_rejected_fact_not_re_admitted`: a dropped fact re-emitted with identical
-  evidence stays blocked; re-emitted with new evidence can be re-admitted.
+- `test_rejected_fact_not_re_admitted`: a dropped identity re-emitted with
+  identical evidence stays blocked; re-emitted with new evidence can be
+  re-admitted (requires the evidence-tolerant identity + separate evidence hash).
+- `test_accepted_not_silently_overwritten`: an accepted identity re-emitted with
+  a malformed payload is not replaced unless the new payload passes validator +
+  critic.
 
 ### 4.7 The refiner's role (explicit)
 
@@ -315,6 +376,24 @@ Two designs, one per retrieval path (Section 6):
   `routed_underlying_mode` (`answer_scoring.py:349`). Requires a
   `question → template_id` classifier (keyword match against the ATCSCC query
   templates in `data/evaluation/nasa_atmonto/atcscc_cq_query_templates.json`).
+
+**Path B unknown-template handling (required, not optional).** The reviewer
+flagged that `routed_underlying_mode` silently defaults unknown template IDs to
+`vector_rag`, so a classifier miss would *quietly avoid graph retrieval* on a
+demo question that actually needs it. The Agent must not inherit that silent
+default. The router returns one of three outcomes:
+
+- a known `template_id` → its mapped mode (as today);
+- `unknown_template` → the Agent treats this as **low-confidence**: it runs the
+  hybrid path but records `route_confidence=low` in the trace, and the
+  post-answer self-eval (§5.2) applies a stricter abstain threshold. It does
+  *not* silently fall back to vector-only;
+- `out_of_scope` → the ATCSCC boundary gate (§5.2) abstains before retrieval.
+
+**Required Path B tests:** for each of the six ATCSCC templates, a paraphrased
+question (not the canonical CQ wording) must still resolve to the correct
+template; an unrelated question must classify as `unknown_template` (not a wrong
+known template). These cover the classifier's precision and its failure mode.
 
 ### 5.2 Self-evaluation / abstention
 
@@ -411,13 +490,13 @@ class AgentState(TypedDict, total=False):
     validator_results: list[dict]
     critic_payload: dict                     # drop_fact_ids, concerns, global_notes
     repair_targets: list[dict]               # repair_planner output (extraction advice)
-    accepted_by_key: dict[tuple, dict]       # persists across iterations (Invariant 1)
-    blocked_keys: dict[tuple, str]           # key -> reason; re-admit only on new evidence (Invariant 2)
+    accepted_by_key: dict[tuple, dict]       # identity(evidence_tolerant_fact_key) -> AcceptedFact; persists (Invariant 1)
+    blocked: dict[tuple, dict]               # identity -> BlockedReason(reason, evidence_hash); re-admit only on new evidence (Invariant 2)
 
 @dataclass
 class ExtractionResult:
     facts: list[dict]
-    trace: AgentTrace
+    trace: ExtractionTrace        # L1 trace (see §4.5)
     schema_valid: bool
     metadata: dict                # follows *_run_metadata.json contract
 
@@ -428,7 +507,7 @@ class AnswerWithCitations:
     abstain: bool
     citations: list[dict]
     rationale: str
-    trace: AgentTrace             # spans L1 + L2
+    trace: EndToEndTrace          # spans L1 + L2 (see §4.5)
 ```
 
 ### 7.2 Per-role JSON schemas
@@ -480,9 +559,13 @@ claim, not just the seam):**
   (proves the loop fixes a known validator/critic failure).
 - `test_repair_does_not_drop_prior_accepted`: a fact accepted in iteration 0
   survives a repair pass even if the repair extraction omits it (Invariant 1).
-- `test_rejected_fact_not_re_admitted`: a dropped fact re-emitted with identical
-  evidence stays blocked; re-emitted with new evidence can be re-admitted
-  (Invariant 2).
+- `test_rejected_fact_not_re_admitted`: a dropped identity re-emitted with
+  identical evidence stays blocked; re-emitted with new evidence can be
+  re-admitted (requires `evidence_tolerant_fact_key` identity + separate
+  evidence hash — see §4.6).
+- `test_accepted_not_silently_overwritten`: an accepted identity re-emitted with
+  a malformed payload is not replaced unless the new payload passes validator +
+  critic (§4.6 merge rule).
 - `test_unsupported_stays_quarantined`: a fact failing the deterministic
   `critic_reasons` guard (duplicate / evidence-not-contained / text-artifact)
   is never accepted, regardless of repair iterations.
