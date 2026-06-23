@@ -145,13 +145,14 @@ class ExtractionAgent:
 ### 4.2 State machine
 
 ```
-init → extract → validate → critique ──┬─ (repair_targets & iters<max) → extract
-                                        ├─ (accept) → refine → done
-                                        └─ (reject all) → done (empty)
+init → extract → validate → critic → repair_planner ──┬─ (repair_targets & iters<max) → extract
+                                                       ├─ (accept) → refine → done
+                                                       └─ (reject all) → done (empty)
 ```
 
-Transitions are decided by the combined critic + repair-planner output
-(Section 4.3) and the budget.
+Transitions are decided by the combined critic + repair_planner output
+(Section 4.3) and the budget. Note the loop-back edge originates at
+`repair_planner`, not `critic` — matching the Mermaid diagram in Section 3.
 
 ### 4.3 Roles: critic stays drop-only; a separate repair_planner drives the loop
 
@@ -263,8 +264,10 @@ evidence span is tracked **separately** so re-grounding is observable:
 
 - `identity(fact) = evidence_tolerant_fact_key(fact)` — 6-tuple (source, subject
   class, predicate, value, object class, datatype).
-- `evidence_hash(fact) = hash(compact_text(evidence_text))` — the evidence span
-  only, used to detect re-grounding.
+- `evidence_hash(fact) = sha256(compact_text(evidence_text).encode("utf-8")).hexdigest()` —
+  the evidence span only, used to detect re-grounding. **Must be a stable
+  digest, not Python's built-in `hash()`**, which is randomized per process and
+  would make traces/metadata non-reproducible.
 
 **Loop state (all keyed by identity):**
 
@@ -289,6 +292,10 @@ evidence span is tracked **separately** so re-grounding is observable:
    accepted in iteration 0 and untouched by repair is still present.
 4. **No cross-iteration duplicates.** Identities are unique in
    `accepted_by_key`, so a repair cannot append a duplicate.
+5. **Accepted and blocked sets are disjoint.** An identity is in at most one of
+   `accepted_by_key` / `blocked` at any time. When a re-grounded blocked fact is
+   admitted, the merge procedure removes it from `blocked` (see below); when an
+   accepted identity is replaced, it stays only in `accepted_by_key`.
 
 **Merge procedure on each extractor output (never overwrites an accepted fact
 without re-validation):**
@@ -297,24 +304,27 @@ without re-validation):**
 for fact in current_candidate_facts:
     ident = evidence_tolerant_fact_key(fact)
     ev    = evidence_hash(fact)
-    if ident in blocked:
-        prev = blocked[ident]
-        if ev == prev.evidence_hash:
-            trace(skip, "blocked_unchanged_evidence"); continue
-        # re-grounded: fall through to full re-validation below
-    if ident in accepted_by_key:
-        # NEVER replace without re-validating the new payload (reviewer P1 #2)
-        candidate = run_validator_and_critic(fact)   # same path as a new fact
-        if candidate.accepted and candidate.evidence_hash != accepted_by_key[ident].evidence_hash:
-            accepted_by_key[ident] = candidate   # replace with better-grounded copy
-        else:
-            trace(skip, "accepted_unchanged_or_revalidation_failed")
-        continue
-    # genuinely new identity
+    # (a) blocked with unchanged evidence: stay blocked
+    if ident in blocked and ev == blocked[ident].evidence_hash:
+        trace(skip, "blocked_unchanged_evidence"); continue
+    # (b) accepted with unchanged evidence: no-op (never overwrite w/o re-validation)
+    if ident in accepted_by_key and ev == accepted_by_key[ident].evidence_hash:
+        trace(skip, "accepted_unchanged_evidence"); continue
+    # (c) otherwise: run the FULL validator+critic path on the new payload
     candidate = run_validator_and_critic(fact)
-    if candidate.accepted: accepted_by_key[ident] = candidate
-    else:                  blocked[ident] = BlockedReason(candidate.reason, ev)
+    if candidate.accepted:
+        accepted_by_key[ident] = candidate          # add or replace
+        blocked.pop(ident, None)                     # maintain disjointness (Invariant 5)
+    else:
+        blocked[ident] = BlockedReason(candidate.reason, ev)  # add or refresh reason
 ```
+
+The old `if/elif` shape had a leak: a re-grounded blocked fact could "fall
+through" to validation and be accepted without removing its `blocked[ident]`
+entry, leaving the identity in both sets. The rewrite routes every
+non-skip fact through one validation block, and **always** pops `blocked[ident]`
+on acceptance and refreshes it on rejection, so the accepted/blocked sets stay
+disjoint (Invariant 5).
 
 Replacement of an already-accepted identity therefore happens **only** when the
 new payload passes validator + critic *and* carries different evidence. A
@@ -333,6 +343,12 @@ matching identity with the same evidence is a no-op (skip). This closes the
 - `test_accepted_not_silently_overwritten`: an accepted identity re-emitted with
   a malformed payload is not replaced unless the new payload passes validator +
   critic.
+- `test_accepted_and_blocked_disjoint`: after a blocked identity is re-grounded
+  and admitted, it is removed from `blocked` and present only in
+  `accepted_by_key` (Invariant 5); the two sets never share a key.
+- `test_evidence_hash_reproducible`: the recorded `evidence_hash` is identical
+  across two process runs for the same evidence span (guards against using
+  Python's randomized `hash()`).
 
 ### 4.7 The refiner's role (explicit)
 
@@ -350,8 +366,10 @@ keeps the "no new facts at the gate" safety property intact.
 
 ```python
 class EndToEndAgent:
-    def __init__(self, schema_slice, route_map, retrieval_path="A",
+    def __init__(self, schema_slice, route_map, retrieval_path="B",
                  max_iterations=2):
+        # retrieval_path defaults to "B" (the recommended, S7-aligned path).
+        # Path A is opt-in only; see Section 6.
         self.extraction = ExtractionAgent(schema_slice, route_map, max_iterations)
         ...
 
@@ -566,6 +584,11 @@ claim, not just the seam):**
 - `test_accepted_not_silently_overwritten`: an accepted identity re-emitted with
   a malformed payload is not replaced unless the new payload passes validator +
   critic (§4.6 merge rule).
+- `test_accepted_and_blocked_disjoint`: a re-grounded blocked identity, once
+  admitted, is removed from `blocked` and present only in `accepted_by_key`
+  (Invariant 5).
+- `test_evidence_hash_reproducible`: the recorded `evidence_hash` matches across
+  two process runs (uses a stable digest, not Python's randomized `hash()`).
 - `test_unsupported_stays_quarantined`: a fact failing the deterministic
   `critic_reasons` guard (duplicate / evidence-not-contained / text-artifact)
   is never accepted, regardless of repair iterations.
