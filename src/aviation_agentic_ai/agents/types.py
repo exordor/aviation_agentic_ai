@@ -58,3 +58,21 @@ class ExtractionResult:
                 "events": self.trace.events,
             },
         }
+
+
+@dataclass
+class EndToEndTrace:
+    extraction: ExtractionTrace | None = None
+    l2_steps: list[dict[str, Any]] = field(default_factory=list)
+
+
+@dataclass
+class EndToEndAnswer:
+    question: str
+    answer: str
+    answer_values: list[str]
+    citations: list[dict[str, Any]]
+    abstain: bool
+    rationale: str
+    trace: EndToEndTrace
+    metadata: dict[str, Any]
