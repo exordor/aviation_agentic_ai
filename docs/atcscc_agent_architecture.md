@@ -112,8 +112,9 @@ flowchart TD
 ```
 
 - **L1 (Extraction Loop Agent)** owns the feedback loop over extractor /
-  validator / critic / refiner. It produces evidence-linked facts. It is the
-  component with the clearest autonomy value (extraction-quality gains).
+  validator / critic / repair_planner / refiner. It produces evidence-linked
+  facts. It is the component with the clearest autonomy value
+  (extraction-quality gains).
 - **L2 (End-to-End Orchestrator)** calls L1 as a sub-step, then builds a graph,
   routes, retrieves, and answers with citations. It adds the routing and
   self-evaluation decisions.
@@ -354,8 +355,9 @@ matching identity with the same evidence is a no-op (skip). This closes the
 
 Per the reviewer's open question: **repair happens before the refiner; the
 refiner remains a copy-only safety gate.** The loop's repair work (extractor
-re-runs driven by repair_planner) all occurs in the extract→validate→critique
-cycle. The refiner runs once, at the end, over the final `accepted_by_key`, and
+re-runs driven by repair_planner) all occurs in the
+extract→validate→critic→repair_planner loop. The refiner runs once, at the end,
+over the final `accepted_by_key`, and
 it is still forbidden from adding predicates/values/evidence (per
 `_refiner_messages`, live_pilot_agents.py:303-309). Its sole job is to produce
 the canonical output payload and to quarantine any fact that slipped through
@@ -483,7 +485,7 @@ no Chroma) + `ROUTED_TEMPLATE_MODES` router + S7 JSON-schema answer prompt
 | Criterion | Path A | Path B |
 | --- | --- | --- |
 | Time to working | Faster (functions exist, just wire ATCSCC data) | Medium (lift + adapter layer) |
-| Routing quality | Weak (must build classifier) | Strong (proven `ROUTED_TEMPLATE_MODES`) |
+| Routing quality | Weak (must build classifier) | Strong after template classification; mode map reused, classifier tested (§5.1) |
 | Alignment with thesis evidence | Low (PHAK-style path) | High (matches S7 RQ3 results) |
 | External deps | Chroma + langchain-openai | None extra |
 | Answer contract | Free-text | Structured JSON with abstain |
