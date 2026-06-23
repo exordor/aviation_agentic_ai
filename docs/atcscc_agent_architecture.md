@@ -148,33 +148,39 @@ init → extract → validate → critique ──┬─ (repair_targets & iters<
                                         └─ (reject all) → done (empty)
 ```
 
-Transitions are decided by the critic output (Section 4.3) and the budget.
+Transitions are decided by the combined critic + repair-planner output
+(Section 4.3) and the budget.
 
-### 4.3 The feedback contract (the core change)
+### 4.3 Roles: critic stays drop-only; a separate repair_planner drives the loop
 
-The critic's output JSON today is `{drop_fact_ids, concerns, global_notes}`
-(`_critic_messages`, live_pilot_agents.py:282-291). The Agent **extends** this
-with an optional `repair_targets` field that drives re-extraction:
+The reviewer correctly flagged that overloading the critic with
+`repair_targets` conflicts with its current contract. The reused critic prompt
+is explicitly a drop-only reviewer (`_critic_messages`,
+live_pilot_agents.py:268-273): *"Drop facts only when they are duplicate, not
+actually supported... Do not propose new facts."* Asking it to also propose
+missing fields would break that safety property.
 
-```json
-{
-  "drop_fact_ids": ["f3"],
-  "concerns": [
-    {"fact_id": "f7", "reason": "missing cause predicate for this ground stop"}
-  ],
-  "global_notes": [],
-  "repair_targets": [
-    {"scope": "cause_predicate", "hint": "re-extract impactingCondition from the MESSAGE block"}
-  ]
-}
-```
+**Resolution: keep the critic drop-only and add a separate `repair_planner`
+role.** The critic and repair_planner run back-to-back on the same validated
+facts; their outputs are independent:
+
+| Role | Contract | Source |
+| --- | --- | --- |
+| critic | drop-only: `{drop_fact_ids, concerns, global_notes}` (unchanged) | `_critic_messages` (live_pilot_agents.py:253-294), reused verbatim |
+| repair_planner (new) | `{repair_targets, blocked_keys}` — extraction *instructions*, never accepted facts | new prompt; deterministic fallback using `critic_reasons` (independent_run_agents.py:87-101) + CQ route map gaps |
+
+The repair_planner inspects the critic's `concerns` and the CQ route map to
+emit targeted extraction instructions, e.g. "re-extract
+`impactingCondition` from the MESSAGE block." Its output is **advice to the
+extractor**, not facts that enter the graph. This preserves the critic's safety
+property and keeps a single, testable place where repair decisions are made.
 
 Control logic:
 
 - If `repair_targets` is non-empty AND `iteration < max_iterations` → loop back
-  to `extract`, passing a **repair prompt** that appends the critic's
-  concerns/repair_targets to `_extractor_messages`. The extractor sees prior
-  rejected facts so it does not repeat them.
+  to `extract`, passing a **repair prompt** that appends the repair_planner's
+  targets and the prior rejected fact keys (so the extractor does not repeat
+  them). Merge of the new extraction follows Section 4.6.
 - Otherwise → proceed to `refine` with the accepted facts, or terminate if all
   facts were dropped.
 
@@ -188,12 +194,13 @@ evidence-not-contained / text-artifact cases, exactly as in the live pilot.
 | --- | --- | --- |
 | `AgentInvoker` type | `live_pilot_agents.py:38` | LLM seam |
 | `_extractor_messages` | `live_pilot_agents.py:222-250` | extractor prompt template |
-| `_critic_messages` | `live_pilot_agents.py:253-294` | critic prompt template (extended with `repair_targets`) |
+| `_critic_messages` | `live_pilot_agents.py:253-294` | critic prompt template (reused unchanged) |
 | `_refiner_messages` | `live_pilot_agents.py:297-329` | refiner safety gate |
 | `validate_prediction_record` | `ontology/atmonto_minimal_loop.py` | deterministic validation |
-| `critic_reasons` | `agentic_loop/independent_run_agents.py:87-101` | deterministic critic guard |
+| `critic_reasons` | `agentic_loop/independent_run_agents.py:87-101` | deterministic critic guard + repair_planner fallback |
 | `canonical_fact_key` | `ontology/atmonto_experiment.py` | dedup key for seen facts |
 | `_profile_normalize_live_record` | `live_pilot_agents.py:342-362` | ISO datetime / subject-class normalization |
+| repair_planner prompt | new (`agents/repair_planner.py`) | emits `repair_targets` + `blocked_keys`; reuses CQ route map |
 
 ### 4.5 New artifact: AgentTrace
 
@@ -218,6 +225,65 @@ class AgentTrace:
 
 The trace is written alongside results, following the metadata conventions in
 Section 8.
+
+### 4.6 Merge invariants (between iterations)
+
+The reviewer flagged that the loop never defines whether a repair extraction is
+a full replacement, a patch, or a delta, so a repair pass could lose good facts
+or re-admit rejected ones. This section fixes that. The loop state holds three
+keyed sets, all keyed by `canonical_fact_key` (`ontology/atmonto_experiment.py`):
+
+- `accepted_by_key: dict[key, fact]` — facts that passed validator + critic.
+- `blocked_keys: set[key]` — facts dropped by the critic or repair_planner.
+- `current_candidate_facts` — the latest extractor output (this iteration only).
+
+**Invariants (must hold at every loop exit):**
+
+1. **Accepted facts persist.** `accepted_by_key` is never cleared between
+   iterations. A repair pass cannot drop a previously accepted fact.
+2. **Rejected keys stay blocked unless changed with new evidence.** A key in
+   `blocked_keys` is only re-admitted if a later extraction produces a fact with
+   the same canonical key but a *different* `evidence_text` (i.e. the extractor
+   actually re-grounded it, not just echoed it). Re-echoing a blocked fact with
+   identical evidence is silently dropped and recorded in the trace.
+3. **Final facts = prior accepted + validated repairs.** At `done`, the result
+   `facts` list is exactly `accepted_by_key.values()`, i.e. the union of facts
+   accepted in any iteration. A fact accepted in iteration 0 and untouched by
+   repair is still present.
+4. **No cross-iteration duplicates.** Because keys are canonical, a repaired
+   fact that matches an accepted key updates it in place rather than appending.
+
+**Merge procedure on each extractor output:**
+
+```
+for fact in current_candidate_facts:
+    key = canonical_fact_key(fact)
+    if key in blocked_keys and evidence_unchanged(fact, blocked): skip + trace
+    elif key in accepted_by_key: accepted_by_key[key] = fact  # update in place
+    else: run validator + critic on fact; if accepted -> accepted_by_key[key]=fact
+                                       if rejected -> blocked_keys.add(key)
+```
+
+**Required tests (Phase 1 acceptance, see Section 8.2):**
+
+- `test_repair_adds_missing_field`: a record missing `impactingCondition` in
+  iteration 0 is completed after one repair pass; the final facts include it.
+- `test_repair_does_not_drop_prior_accepted`: a fact accepted in iteration 0
+  survives a repair pass even if the repair extraction omits it.
+- `test_rejected_fact_not_re_admitted`: a dropped fact re-emitted with identical
+  evidence stays blocked; re-emitted with new evidence can be re-admitted.
+
+### 4.7 The refiner's role (explicit)
+
+Per the reviewer's open question: **repair happens before the refiner; the
+refiner remains a copy-only safety gate.** The loop's repair work (extractor
+re-runs driven by repair_planner) all occurs in the extract→validate→critique
+cycle. The refiner runs once, at the end, over the final `accepted_by_key`, and
+it is still forbidden from adding predicates/values/evidence (per
+`_refiner_messages`, live_pilot_agents.py:303-309). Its sole job is to produce
+the canonical output payload and to quarantine any fact that slipped through
+outside the S5 contract (`_final_facts`, live_pilot_agents.py:449-475). This
+keeps the "no new facts at the gate" safety property intact.
 
 ## 5. L2 Design: End-to-End Orchestrator
 
@@ -252,12 +318,35 @@ Two designs, one per retrieval path (Section 6):
 
 ### 5.2 Self-evaluation / abstention
 
-- Pre-retrieval gate: reuse `evaluate_evidence_sufficiency`
-  (`retrieval/sufficiency.py:160-222`) to short-circuit out-of-scope questions
-  (same pattern as `web/app.py:242-257`).
-- Post-answer self-eval: the JSON-schema answer prompt (Section 6, Path B)
+- **Pre-retrieval ATCSCC boundary gate (new):** the reviewer flagged that the
+  existing `evaluate_evidence_sufficiency` (`retrieval/sufficiency.py:160-222`)
+  is built around generic aviation boundary triggers and `training_question`
+  logic, not ATCSCC advisory CQ scope, so it can mis-abstain or give false
+  confidence. L2 uses a new ATCSCC-specific boundary gate instead. It accepts a
+  question only if all of:
+  - the question concerns a **retrospective ATCSCC advisory** in the known
+    source/advisory scope (the formal sample / reviewed gold families);
+  - it does **not** request live operational instruction, current weather, or
+    NOTAM freshness;
+  - it does **not** exceed the known source scope (e.g. asking about facilities
+    or routes outside the snapshot).
+  Otherwise the gate abstains with a reason. The generic
+  `evaluate_evidence_sufficiency` may be reused only as an outer fallback for
+  aviation-domain out-of-scope detection, not as the ATCSCC scope decider.
+- **Post-answer self-eval:** the JSON-schema answer prompt (Section 6, Path B)
   already emits `abstain` and `rationale`; L2 honors `abstain=true` by
   returning a "no grounded answer" result instead of forcing an answer.
+
+### 5.3 L2 scope: demo/runtime, not a new scoring path
+
+To resolve the reviewer's open question: **L2 is a thesis/demo runtime, not an
+experiment that produces new scored artifacts.** It composes existing,
+individually-scored components (L1 extraction, retrieval, answer generation)
+into a live callable for demonstration and qualitative inspection. It does not
+re-score the S0–S7 results, does not write into the formal experiment
+directories, and its outputs are not cited as new experimental evidence. Any
+quantitative claim about the Agent would require a separate, future scored
+run with its own gold comparison; that is explicitly out of scope here.
 
 ## 6. Two Retrieval Paths
 
@@ -318,11 +407,12 @@ AgentInvoker = Callable[[list[dict[str, str]]], str]   # live_pilot_agents.py:38
 # New (agents/types.py)
 class AgentState(TypedDict, total=False):
     iteration: int
-    candidate_facts: list[dict]
+    candidate_facts: list[dict]              # this iteration's extractor output
     validator_results: list[dict]
-    critic_payload: dict          # drop_fact_ids, concerns, repair_targets
-    accepted_facts: list[dict]
-    quarantined: list[dict]
+    critic_payload: dict                     # drop_fact_ids, concerns, global_notes
+    repair_targets: list[dict]               # repair_planner output (extraction advice)
+    accepted_by_key: dict[tuple, dict]       # persists across iterations (Invariant 1)
+    blocked_keys: dict[tuple, str]           # key -> reason; re-admit only on new evidence (Invariant 2)
 
 @dataclass
 class ExtractionResult:
@@ -345,10 +435,11 @@ class AnswerWithCitations:
 
 | Role | Input | Output (JSON) |
 | --- | --- | --- |
-| extractor | advisory + schema menu + (iteration>1: prior rejections + repair_targets) | `{source_id, source_family, facts[]}` |
+| extractor | advisory + schema menu + (iteration>1: prior blocked keys + repair_targets) | `{source_id, source_family, facts[]}` |
 | validator | facts + source text + schema slice | `[{accepted, errors, warnings, validated_fact}]` (deterministic) |
-| critic | S5 facts + CQ routes + validator rejections | `{drop_fact_ids, concerns[], global_notes[], repair_targets[]}` (repair_targets is the new field) |
-| refiner | critic-allowed facts | `{facts[]}` copied from allowed (safety gate) |
+| critic | S5 facts + CQ routes + validator rejections | `{drop_fact_ids, concerns[], global_notes[]}` (unchanged, drop-only) |
+| repair_planner | critic concerns + CQ route map gaps | `{repair_targets[], blocked_keys[]}` (extraction advice, never facts) |
+| refiner | final accepted_by_key | `{facts[]}` copied from accepted (safety gate, no new facts) |
 
 ## 8. Artifact and Testing Conventions
 
@@ -367,16 +458,37 @@ Write `*_run_metadata.json` following the existing contract
 
 ### 8.2 Testing
 
+Seam tests (necessary but, as the reviewer noted, insufficient on their own):
+
 - **Invoker injection seam**: every LLM-dependent method takes
   `invoker: AgentInvoker | None = None`; tests pass a content-dispatch fake
   function (pattern: `tests/test_nasa_atmonto_s5_s6_live_agentic_pilot.py:140-197`).
 - **Fake invoker dispatch**: branch on `messages[0]["content"]` to identify the
-  role (e.g. `"Extractor agent" in system`), return canned JSON.
+  role (e.g. `"Extractor agent" in system`, `"Critic agent"`,
+  `"Repair planner"`, `"Refiner agent"`), return canned JSON.
 - **Fixtures**: write minimal JSONL/JSON into `tmp_path` and pass
   `repo_root=tmp_path` so tests never touch the real repo.
 - **Assertion target**: the returned `ExtractionResult` / `AnswerWithCitations`
   dict, not stdout. Assert `metadata["live_llm_run"] is False` to prove no real
   LLM ran.
+
+**Behavioral acceptance tests (Phase 1 gate — verify the loop's research
+claim, not just the seam):**
+
+- `test_repair_adds_missing_field`: a record missing `impactingCondition` in
+  iteration 0 is completed after one repair pass; the final facts include it
+  (proves the loop fixes a known validator/critic failure).
+- `test_repair_does_not_drop_prior_accepted`: a fact accepted in iteration 0
+  survives a repair pass even if the repair extraction omits it (Invariant 1).
+- `test_rejected_fact_not_re_admitted`: a dropped fact re-emitted with identical
+  evidence stays blocked; re-emitted with new evidence can be re-admitted
+  (Invariant 2).
+- `test_unsupported_stays_quarantined`: a fact failing the deterministic
+  `critic_reasons` guard (duplicate / evidence-not-contained / text-artifact)
+  is never accepted, regardless of repair iterations.
+- `test_budget_exhausted_recorded`: when repair keeps failing, the loop stops at
+  `max_iterations`, sets `budget_exhausted=True` in the trace, and returns the
+  best accepted set rather than looping forever.
 
 ### 8.3 CLI registration
 
@@ -399,20 +511,33 @@ structure (`@click.command`, `raise click.ClickException` on error).
 
 ### 8.5 Module placement
 
-New subpackage `src/aviation_agentic_ai/agents/` (there is no existing
-`agents/` dir). Files: `types.py`, `extraction_agent.py` (L1),
-`end_to_end_agent.py` (L2), `runtime.py` (retrieval adapters for Path A/B),
-`cli_agent.py`. Lazy-import optional LLM deps with a helpful `RuntimeError`
-(idiom: `providers.py:79-85`).
+The reviewer flagged an inconsistency between the CLI module path and the
+module-placement section. Resolved to match the existing repo pattern
+(`cli_demo.py`, `cli_query.py` live at the package root; implementation lives
+under a subpackage):
+
+- **CLI command file**: `src/aviation_agentic_ai/cli_agent.py` (top-level, like
+  `cli_query.py`). Registered in `TOP_LEVEL_COMMANDS` (Section 8.3).
+- **Implementation subpackage**: `src/aviation_agentic_ai/agents/` (new; there
+  is no existing `agents/` dir). Files: `types.py`, `extraction_agent.py` (L1),
+  `end_to_end_agent.py` (L2), `repair_planner.py`, `runtime.py` (retrieval
+  adapters for Path A/B), `boundary_gate.py` (ATCSCC scope gate).
+- `cli_agent.py` is a thin wrapper that imports from `agents/`. Lazy-import
+  optional LLM deps with a helpful `RuntimeError` (idiom: `providers.py:79-85`).
 
 ## 9. Implementation Roadmap
 
+The roadmap now implements the **recommended Path B before Path A**, matching
+the recommendation in Section 6. Path A is demoted to an optional fallback /
+spike, so the first end-to-end implementation optimizes the path the document
+calls most thesis-aligned.
+
 | Phase | Scope | Est. effort |
 | --- | --- | --- |
-| 1 | L1 Extraction Loop Agent + `AgentRuntime` + state machine + tests (fake invoker, no LLM) | 1–2 days |
-| 2 | L2 End-to-End Orchestrator skeleton + Path A retrieval + answer | 1 day |
-| 3 | Path B retrieval (lift live retrievers) + `ROUTED_TEMPLATE_MODES` router + JSON-schema answer | 1 day |
-| 4 | `aviation-ai agent` CLI subcommand + end-to-end test + doc sync | 1 day |
+| 1 | L1 Extraction Loop Agent + `AgentRuntime` + state machine + merge invariants (§4.6) + behavioral tests (§8.2, fake invoker, no LLM) | 1–2 days |
+| 2 | L2 End-to-End Orchestrator skeleton + **Path B** retrieval (lift live retrievers) + `ROUTED_TEMPLATE_MODES` router + JSON-schema answer + ATCSCC boundary gate | 1 day |
+| 3 | `aviation-ai agent` CLI subcommand + end-to-end test + doc sync | 1 day |
+| 4 (optional) | Path A runtime adapter (Chroma + `run_retrieval` + free-text answer) as a fallback/spike; only if Path B lift proves costly | 1 day |
 
 Each phase is independently testable and committable. Phase 1 delivers the
 clearest autonomy value (the feedback loop) on its own.
