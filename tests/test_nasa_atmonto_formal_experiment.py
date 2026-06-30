@@ -1832,7 +1832,11 @@ def test_run_llm_prediction_system_requires_prompt_batch(
         uses_schema_slice=False,
         uses_validator_repair=False,
     )
-    monkeypatch.setattr(atmonto_experiment, "SYSTEMS", (*SYSTEMS, missing_prompt_system))
+    # Patch SYSTEMS on the defining submodule: run_llm_prediction_system resolves
+    # systems via system_by_id(), which reads _system_defs.SYSTEMS. The package
+    # __init__ re-export is a separate binding, so patching the source module is
+    # the only target that affects the code under test.
+    monkeypatch.setattr(atmonto_experiment._system_defs, "SYSTEMS", (*SYSTEMS, missing_prompt_system))
     with pytest.raises(ValueError, match="does not define a prompt batch"):
         run_llm_prediction_system(system_id="S_missing_prompt_batch", repo_root=tmp_path)
 
