@@ -95,8 +95,6 @@ Report directories are intentionally separated:
 - `reports/stages/`: current dashboard entrypoints such as `index.md` and
   `index.json`
 - `reports/archive/`: archived stage artifacts and run evidence
-- `reports/reviews/`: review inputs that are indexed but not archived by
-  hygiene commands
 - `reports/final/`: final deliverables such as `project_report.md`
 
 ## Quick Start
@@ -571,9 +569,9 @@ CQs, not expert gold annotations.
 
 ## Review Reports
 
-Important agent, code, and research reviews are recorded under `reports/reviews/`
-as Markdown plus JSON. Each review finding includes severity, evidence,
-recommendation, and status; each action includes priority, target, and status.
+Historical adversarial and implementation reviews (2026-05/06) were archived
+under `reports/phak_era_archive/reviews/`; the thesis has incorporated their
+findings.
 Aggregate review progress with:
 
 ```bash

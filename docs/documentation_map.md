@@ -164,7 +164,6 @@ clean; they can include ignored local archives when explicit paths are supplied.
 | `docs/*.md` | canonical docs; PHAK-era protocols archived under `docs/archive/phak_era/`. |
 | `reports/stages/*` | mixed; current ATCSCC evidence, method literature, and legacy experiment reports live together. |
 | `reports/final/*` | mostly historical/transitional; current ATCSCC entry files are explicitly named `atcscc_*`. |
-| `reports/reviews/*` | historical review evidence; useful for audit trail, not thesis entry context. |
 | `data/evaluation/nasa_atmonto/*` | current evaluation evidence; load only for gold/review tasks. |
 | `data/raw/nasa_bga_aerodynamics/*` | tracked transfer-pilot corpus; not current ATCSCC mainline. |
 
@@ -175,7 +174,7 @@ clean; they can include ignored local archives when explicit paths are supplied.
 | `docs/archive/phak_era/*` | Describe the earlier aviation-training prototype; can make the thesis look ontology-first. | Historical method evolution only. |
 | Early `reports/stages/benchmark_*`, `chunking_*`, `hybrid_rag_*`, `retrieval_ablation*`, `graphrag_review.*`, `kg_validation.*`, `web_demo_*` | Mix PHAK/web-demo evidence with current ATCSCC terminology. | Negative results, method evolution, or explicit comparison. |
 | `reports/final/project_*`, `reports/final/defense_deck_outline.md`, old deck source JSON | Final-style but mostly pre-ATCSCC. | Presentation format reference or manually reviewed reusable fragments. |
-| `reports/reviews/*` and root `reports/*review*.md` | Review trails from earlier branches may include stale issue lists or resolved risks. | Audit history only after checking current dashboard and reviewer-defense audit. |
+| `reports/phak_era_archive/reviews/*` and root `reports/*review*.md` | Archived 2026-05/06 adversarial/implementation review trails; the thesis has incorporated their findings. | Audit history only. |
 | `data/cqs/06_phak_*.json` | Historical PHAK benchmark and gold data. | Load only for explicit PHAK benchmark or historical comparison tasks. |
 
 ### Current-Use Families
