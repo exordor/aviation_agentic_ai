@@ -39,11 +39,6 @@ models/
 /reports/final/*.inspect.ndjson
 /reports/final/assets/
 !reports/final/templates/
-!reports/final/aviation_graphrag_defense_deck.pptx
-!reports/final/atcscc_defense_deck.pptx
-
-# Local KG browser galleries and materialized-graph preview snapshots.
-/reports/final/assets/kg_ontology_browser/
 
 # Local archived data (kept outside Git; see AGENTS.md source-family boundaries).
 /data/archive/
