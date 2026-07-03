@@ -6,8 +6,9 @@ protocols live in `docs/`.
 ## Default Context
 
 - For a new thread, start from `docs/thread_handoff.md`, then
-  `docs/master_project_scope_lock.md`, `docs/documentation_map.md`,
-  `docs/context_hygiene_audit.md`, and `docs/tracked_context_inventory.md`.
+  `docs/master_project_scope_lock.md` and `docs/documentation_map.md`
+  (which absorbs the former context-hygiene audit, maintenance guide, and
+  tracked-context inventory).
 - Keep the active plugin/skill surface minimal. Use task-specific skills only
   when their trigger matches the current action; do not treat broad research,
   design, or document-generation skills as default context.

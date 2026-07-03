@@ -150,9 +150,9 @@ Only `primary_method_reference`, `evaluation_reference`, and
 
 If the paper changes project direction, update the relevant protocol or report:
 
-- `docs/experiment_workflow.md`;
 - `docs/experiment_protocol.md`;
-- `docs/nasa_atmonto_experiment_design.md`;
+- `docs/experiment_protocol.md`;
+- `docs/archive/phak_era/nasa_atmonto_experiment_design.md`;
 - a focused `reports/stages/*_paper_adaptation.md` or
   `reports/stages/*_figures_analysis.md` file.
 

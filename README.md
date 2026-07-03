@@ -45,7 +45,7 @@ Primary current assets:
 - Research mainline: `docs/research_mainline.md`
 - Documentation map: `docs/documentation_map.md`
 - Thesis positioning: `docs/thesis_positioning.md`
-- Experiment workflow: `docs/experiment_workflow.md`
+- Experiment workflow: `docs/experiment_protocol.md`
 - Formal ATCSCC protocol: `docs/experiment_protocol.md`
 - ATCSCC data processing flow:
   `reports/stages/atcscc_data_format_and_processing_flow.md`
@@ -269,14 +269,14 @@ failure cards. The fixed-budget mode writes
 independent hardening commands write implementation-audit, top-k sensitivity, and
 category-analysis reports. These commands are not included in `thesis-all` or
 the default thesis report generation targets by design. The protocol is
-documented in `docs/chunking_experiment_protocol.md`.
+documented in `docs/archive/phak_era/chunking_experiment_protocol.md`.
 
 PDF extraction is evaluated separately from chunking. The recommended candidate
 backend for structure-aware PDF chunking is `hybrid_docling_pymupdf`: Docling
 supplies section/table/list structure while PyMuPDF supplies fast text-fidelity
 comparison and conservative text repair. The legacy PyMuPDF heading heuristic
 remains available only as a baseline. This policy is documented in
-`docs/pdf_extraction_backend_policy.md`; the commands above write
+`docs/archive/phak_era/pdf_extraction_backend_policy.md`; the commands above write
 `reports/stages/pdf_extraction_comparison.*`,
 `reports/stages/pdf_hybrid_repair_report.*`, and
 `reports/stages/pdf_backend_chunking_comparison.*`.
@@ -366,7 +366,7 @@ uv run aviation-ai report triple-semantic-review --sample-size 100
 uv run aviation-ai report answer-eval --gold-labels data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json --report-name answer_evaluation_benchmark_subset
 ```
 
-The evaluation protocol is documented in `docs/evaluation_protocol.md`. It maps
+The evaluation protocol is documented in `docs/experiment_protocol.md`. It maps
 mainstream RAGAS-style, ARES-style, IR, GraphRAG, ontology/KG, and aviation
 safety metrics to this project. The project reports layered metrics and does not
 claim or compute a single mixed overall score.
@@ -409,7 +409,7 @@ reports do not overclaim a small subset as the full NASA landing-page corpus.
 Start with `docs/documentation_map.md` and `docs/research_mainline.md`. The
 current thesis route is **schema-constrained Agentic KG-RAG over retrospective
 FAA ATCSCC advisories**, not a general aviation ontology thesis. The canonical
-experiment workflow is documented in `docs/experiment_workflow.md`; it connects
+experiment workflow is documented in `docs/experiment_protocol.md`; it connects
 the four research questions, source scope, extraction baselines, agentic
 validation/refinement, KG-RAG retrieval, answer-generation diagnostics, failure
 analysis, and claim boundaries.

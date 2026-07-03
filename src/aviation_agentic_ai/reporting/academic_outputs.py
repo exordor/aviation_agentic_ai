@@ -110,7 +110,7 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
             {
                 "claim": "The curated ontology is the explainable active schema for KG extraction.",
                 "evidence_sources": [
-                    "docs/ontology_design.md",
+                    "docs/archive/phak_era/ontology_design.md",
                     "reports/stages/curated_ontology_evaluation.json",
                     "configs/extraction_profile.yaml",
                 ],
@@ -441,7 +441,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "A vector-only RAG baseline can retrieve relevant pages, but it does not expose "
         "typed relations such as causes, affects, hasCondition, or supportedByEvidence. "
         "The project therefore uses an ontology-constrained KG to add interpretable "
-        "evidence structure. Sources: `docs/ontology_design.md`, "
+        "evidence structure. Sources: `docs/archive/phak_era/ontology_design.md`, "
         "`configs/extraction_profile.yaml`.",
         "",
         "## 3. Methodology",
@@ -573,7 +573,7 @@ def build_academic_report_markdown(summary: dict[str, Any]) -> str:
         "report. It maps research questions to datasets, metrics, reports, current "
         "claim strength, and remaining gaps. Sources: "
         "`reports/stages/thesis_experiment_dashboard.json`, "
-        "`docs/experiment_workflow.md`.",
+        "`docs/experiment_protocol.md`.",
         "",
         f"Dashboard consistency checks passed="
         f"{metrics['thesis_dashboard']['consistency_passed']}. The dashboard reports "
@@ -720,7 +720,7 @@ def build_defense_notes(summary: dict[str, Any]) -> dict[str, Any]:
                     "can be explained."
                 ),
                 "evidence_sources": [
-                    "docs/ontology_design.md",
+                    "docs/archive/phak_era/ontology_design.md",
                     "reports/stages/curated_ontology_evaluation.json",
                 ],
             },
@@ -731,7 +731,7 @@ def build_defense_notes(summary: dict[str, Any]) -> dict[str, Any]:
                     "defend clearly. The curated ontology is smaller, modular, and aligned "
                     "with KG extraction properties."
                 ),
-                "evidence_sources": ["docs/ontology_design.md"],
+                "evidence_sources": ["docs/archive/phak_era/ontology_design.md"],
             },
             {
                 "question": "What does GraphRAG add if vector retrieval already has high Recall@5?",
@@ -893,7 +893,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
             ),
             "visual": "ontology module diagram",
             "evidence_sources": [
-                "docs/ontology_design.md",
+                "docs/archive/phak_era/ontology_design.md",
                 "reports/stages/curated_ontology_evaluation.json",
             ],
             "speaker_note": "Explain why the baseline ontology is not the main narrative object.",

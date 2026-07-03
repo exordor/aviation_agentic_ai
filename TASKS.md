@@ -36,7 +36,7 @@ Related goals: G2, G3, G4, G5.
 - [x] Verify local runtime and test environment.
   - Evidence: `uv run ruff check .`, `uv run pytest`.
 - [x] Create an explainable curated ontology as the active KG schema.
-  - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/ontology_design.md`.
+  - Evidence: `data/ontology/curated/06_phak_ch4_0.curated.ttl`, `docs/archive/phak_era/ontology_design.md`.
   - Acceptance: curated ontology is TBox-only, has 35 classes, 9 object properties, complete label/comment coverage, and passes ontology evaluation.
 - [x] Run full chunking comparison for all strategies.
   - Command: `uv run aviation-ai report chunking-comparison`
@@ -215,9 +215,9 @@ Related goals: G2, G3, G4, G6, G8, G9.
   - Evidence: `cost_latency` blocks in `reports/stages/retrieval_ablation.json`, `reports/stages/kg_extraction_comparison.json`, `reports/stages/answer_evaluation.json`, and `reports/stages/robustness_evaluation.json`.
   - Acceptance: structure-aware quality gains can be discussed alongside cost and runtime overhead.
 - [x] Define the next-document expansion protocol.
-  - Candidate output: `docs/document_expansion_protocol.md`.
+  - Candidate output: `docs/archive/phak_era/document_expansion_protocol.md`.
   - Scope: document metadata, section schema, source type, revision/date, page range, section hierarchy, and advisory risk level.
-  - Evidence: `docs/document_expansion_protocol.md`.
+  - Evidence: `docs/archive/phak_era/document_expansion_protocol.md`.
   - Acceptance: no emergency/procedure manual is added until its metadata and section schema can be validated.
 - [x] Implement benchmark-v2 chunking experiment hardening.
   - Commands:

@@ -941,3 +941,160 @@ The formal experiment is complete only when all of these are true:
   inconclusive status.
 - All artifacts needed to reproduce the study are committed or explicitly listed
   as external/manual inputs.
+
+## Layered Evaluation Policy
+
+This project uses layered evaluation: each subsystem is measured separately so
+that tradeoffs are not hidden inside a single custom score. Schema-guided
+extraction, agentic validation/refinement, retrieval, graph evidence, answer
+generation, and failure/human-review boundaries are distinct evidence layers.
+
+### Why There Is No Overall Score
+
+The project does not compute a mixed overall score. A single score would
+combine metrics with different meanings, denominators, and risk profiles.
+Recall@5 is an information-retrieval metric, provenance completeness is an
+extraction/KG-construction metric, and unsupported claim rate is an answer
+metric. Averaging them would let a high retrieval score hide unsupported
+answers, or a clean schema score hide poor retrieval. The thesis should report
+metric groups side by side. GraphRAG should not be claimed to improve Recall@k
+unless the retrieval results support that specific claim.
+
+### Primary Metrics By Layer
+
+The extraction-layer metrics (JSON adherence, schema violation rate, triple
+P/R/F1, structural acceptance) are defined earlier in this protocol. The
+remaining layers, which are not extraction metrics, are:
+
+**Retrieval**: Recall@5, Recall@10, MRR@5, MRR@10, NDCG@10, Precision@5,
+Context Precision@5, Context Recall. Precision@5 and Context Precision@5 use
+intentionally different denominators (fixed cutoff vs returned-hit count) and
+must not be treated as interchangeable. Bootstrap CIs are deterministic mean
+intervals; if a CI block has `n=0`, the statistic is undefined for that subset.
+
+**Graph Evidence And Paths**: Key Entity Coverage, Relation Coverage, Path
+Recall@k, Path Precision@k, Supporting Path Rate, Average Path Length,
+Irrelevant Path Rate. Path metrics are currently heuristic (entity, relation,
+source-page, and gold-chunk overlap) where no model-based graph path review is
+cited, and must be reported as heuristic diagnostics.
+
+**Answer Generation**: Faithfulness, Answer Correctness, Answer Relevance,
+Citation Completeness, Citation Precision, Citation Recall. Deterministic
+reports use source-citation and answer-key overlap heuristics. Optional
+LLM-as-judge fields must be marked as such and not confused with human review.
+
+**Application Schema And KG Construction**: RDF/OWL parse validity, label/comment
+coverage, domain/range completeness, unsupported class/property count,
+provenance completeness, evidence-in-source rate, LLM-estimated triple semantic
+correctness. Triple semantic correctness is not fabricated: reviewed
+source-bounded labels or explicit model-review artifacts must be cited.
+
+**Failure And Human-Review Boundary**: Abstention Accuracy, False Answer Rate,
+False Abstention Rate, Advisory Boundary Violation Count, Risk Category
+Accuracy, failure candidate count, profile/gold-boundary failure count,
+human-review completion status, expert-certification status. These are
+safety-sensitive for aviation and thesis claims.
+
+**Secondary Metrics**: first relevant rank, retrieved chunk/page IDs, average
+related/supporting triple count, graph path count, answer presence, retrieval
+stability, citation stability, KG evidence stability, cost, latency, index
+size, report runtime.
+
+### Layer-To-Report Mapping
+
+| Layer | Project reports | Primary metrics |
+| --- | --- | --- |
+| Schema-constrained extraction | `nasa_atmonto_formal_experiment_scoring.json`, `nasa_atmonto_prediction_output_validation.json`, `nasa_atmonto_cq_evaluation.json` | schema validity, structural acceptance, accepted/rejected facts, precision, recall, F1, provenance completeness |
+| Agentic validation/refinement | `nasa_atmonto_s5_s6_agentic_loop.json`, `nasa_atmonto_s5_s6_live_agentic_full_run*.json` | violation reduction, repair/quarantine outcomes, critic rejection, post-loop F1 |
+| Retrieval and graph evidence | `nasa_atmonto_s7_retrieval.json`, `nasa_atmonto_s7_graph_health.json` | answer-set F1, target-source hit rate, graph-use rate, graph-context availability, path support |
+| Answer generation | `nasa_atmonto_answer_generation.json`, `nasa_atmonto_s7_answer_generation.json`, `nasa_atmonto_s7_llm_answer_generation.json` | answer correctness, evidence faithfulness, citation precision, citation recall, unsupported claim rate, abstention correctness |
+| Failure and review boundary | `nasa_atmonto_s7_*review*.json`, `nasa_atmonto_reviewer_defense_audit.json`, `nasa_atmonto_sota_goal_audit.json` | failure candidates, profile/gold-boundary cases, human-review completion, expert-certification status |
+
+Sufficiency evaluation is reported in two modes. The primary benchmark mode is
+gold-aided (uses expected chunks and evidence spans). The secondary evidence-only
+diagnostic does not use gold labels and relies on retrieved-context overlap plus
+boundary risk terms. These modes must not be described as the same deployment
+behavior.
+
+### LLM-As-Judge Limitations
+
+LLM-as-judge evaluation is useful for faithfulness, answer relevance, and
+answer correctness, but: judge prompts and model versions affect scores;
+judges can reward fluent but weakly grounded answers; judges can miss aviation
+boundary violations; repeated runs may not be stable unless model, prompt, and
+temperature are fixed; LLM judgment is not external aviation expert
+certification. Deterministic metrics and provenance checks are the default.
+LLM-as-judge fields must be explicitly marked when used.
+
+## Procedure Navigation
+
+The end-to-end pipeline produces explicit artifacts at each stage. This section
+indexes the primary report(s) for each step so a reviewer can read the pipeline
+in order. Earlier sections of this protocol define the systems under test and
+metrics; this section maps stages to their evidence reports.
+
+```text
+FAA ATCSCC advisories
+  -> source snapshot and advisory parser
+  -> lightweight ATCSCC application schema/profile
+  -> extraction systems and baselines (S0 rule / S1 open LLM / S1b canonicalized
+     / S2 schema-slice / S3 validator-repair / S4 hybrid backbone)
+  -> agentic validation-refinement loop (extractor -> validator -> refiner -> critic)
+  -> advisory event graph / fact store
+  -> vector, graph, and routed KG-RAG retrieval
+  -> answer generation and citation checks
+  -> failure analysis and human-review boundary
+```
+
+- **Step 0 — Lock claim boundary**: `docs/thesis_positioning.md`,
+  `reports/stages/thesis_claims_review.md`,
+  `reports/stages/nasa_atmonto_reviewer_defense_audit.md`. The thesis is not
+  ontology construction; the schema/profile is an engineering constraint;
+  GraphRAG is source-bounded grounding evidence, not a universal Recall@k
+  winner; automated diagnostics are not human review.
+- **Step 1 — Define source corpus**: `reports/stages/atcscc_source_brief.md`,
+  `reports/stages/atcscc_data_format_and_processing_flow.md`,
+  `reports/stages/atcscc_event_centric_extraction_framing.md`. ATCSCC advisories
+  are the main QA corpus; FAA/NASA PDFs and NASR support terminology only.
+- **Step 2 — Define application schema**:
+  `reports/stages/atcscc_ontology_profile_overview.md`,
+  `data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json`.
+- **Step 3 — Prepare gold and baselines**:
+  `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`,
+  `reports/stages/nasa_atmonto_gold_annotation_validation.md`,
+  `reports/stages/nasa_atmonto_prediction_output_validation.md`.
+- **Step 4 — Score extraction**: `reports/stages/nasa_atmonto_formal_experiment_scoring.md`,
+  `reports/stages/nasa_atmonto_rejection_adjudication.md`,
+  `reports/stages/nasa_atmonto_cq_evaluation.md`.
+- **Step 5 — Agentic validation-refinement**:
+  `reports/stages/nasa_atmonto_s5_s6_agentic_loop.md`,
+  `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md`.
+- **Step 6 — Retrieval and graph health**: `reports/stages/nasa_atmonto_s7_retrieval.md`,
+  `reports/stages/nasa_atmonto_s7_graph_health.md`.
+- **Step 7 — Answer generation**: `reports/stages/nasa_atmonto_s7_answer_generation.md`,
+  `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`,
+  `reports/stages/nasa_atmonto_s7_llm_failure_review.md`.
+- **Step 8 — Failure and review boundary**:
+  `reports/stages/nasa_atmonto_s7_human_review_candidates.md`,
+  `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`,
+  `reports/stages/nasa_atmonto_s7_profile_decision.md`.
+- **Step 9 — Synthesize thesis claims**: `reports/stages/thesis_claims_review.md`,
+  `reports/stages/thesis_experiment_dashboard.md`,
+  `reports/stages/nasa_atmonto_sota_goal_audit.md`,
+  `reports/stages/nasa_atmonto_reviewer_defense_audit.md`.
+
+### Recommended Regeneration Commands
+
+```bash
+uv sync --extra dev --extra graphrag
+uv run aviation-ai report thesis-claims
+uv run aviation-ai report nasa-atmonto-answer-generation
+uv run python scripts/build_nasa_atmonto_sota_goal_audit.py
+uv run python scripts/build_nasa_atmonto_reviewer_defense_audit.py
+uv run aviation-ai report thesis-experiment-dashboard
+uv run ruff check .
+uv run pytest -q
+```
+
+Use `reports/stages/thesis_experiment_dashboard.md` as the current state table,
+not as a substitute for reading the underlying reports.

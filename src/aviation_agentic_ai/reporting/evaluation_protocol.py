@@ -365,7 +365,7 @@ def build_evaluation_protocol_review(
     ]
     return {
         "metadata": {
-            "protocol_doc": "docs/evaluation_protocol.md",
+            "protocol_doc": "docs/experiment_protocol.md",
             "scoring_policy": "layered_metrics_no_mixed_overall_score",
             "project_root": project_relative_path(root, base=root),
         },

@@ -19,23 +19,21 @@ construction or live ATC decision support.
 For a new thread, read only these files first:
 
 1. `docs/master_project_scope_lock.md`
-2. `docs/documentation_map.md`
-3. `docs/context_hygiene_audit.md`
-4. `docs/tracked_context_inventory.md`
+2. `docs/documentation_map.md` (absorbs the former context-hygiene audit,
+   maintenance guide, and tracked-context inventory)
 
 This keeps startup context small. Load additional files only when the task needs
 their layer:
 
 - thesis framing: `docs/thesis_positioning.md`, `docs/research_mainline.md`;
-- experiment execution: `docs/experiment_workflow.md`,
-  `docs/evaluation_protocol.md`;
+- experiment execution and metrics: `docs/experiment_protocol.md`;
 - current evidence synthesis: `reports/stages/thesis_experiment_dashboard.md`;
 - reviewer/SOTA defense:
   `reports/stages/nasa_atmonto_reviewer_defense_audit.md`,
   `reports/stages/nasa_atmonto_sota_goal_audit.md`.
 
 Before opening a long-running new thread, also use the recommended Codex client
-state in `docs/documentation_maintenance.md#codex-skill-and-plugin-hygiene`:
+state in `docs/documentation_map.md#codex-skill-and-plugin-hygiene`:
 keep only the needed plugins and load task-specific skills on demand.
 
 ## Startup Validation

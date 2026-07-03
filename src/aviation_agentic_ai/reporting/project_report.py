@@ -870,7 +870,7 @@ def _dashboard_project_report(evidence: dict[str, Any], dashboard: dict[str, Any
             "",
             "## Evaluation protocol",
             "",
-            "The evaluation protocol is defined in `docs/evaluation_protocol.md` and "
+            "The evaluation protocol is defined in `docs/experiment_protocol.md` and "
             "audited by `reports/stages/evaluation_protocol_review.json`. Primary "
             "metrics include Recall@5/@10, MRR@5/@10, NDCG@10, Precision@5, Context "
             "Precision@5, Context Recall, graph path metrics, citation metrics, KG "

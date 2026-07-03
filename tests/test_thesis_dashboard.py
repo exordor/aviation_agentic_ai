@@ -19,7 +19,7 @@ def _write_dashboard_fixture(root: Path) -> None:
     (root / "docs").mkdir(parents=True)
     (root / "reports" / "final").mkdir(parents=True)
     (root / "docs" / "thesis_positioning.md").write_text("layered evaluation\n", encoding="utf-8")
-    (root / "docs" / "experiment_workflow.md").write_text("workflow\n", encoding="utf-8")
+    (root / "docs" / "experiment_protocol.md").write_text("workflow\n", encoding="utf-8")
     _write_json(
         stages / "thesis_claims_review.json",
         {

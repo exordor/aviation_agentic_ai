@@ -83,9 +83,9 @@ answer sets, evidence traceability, citation behavior, and failure diagnosis.
 | Failure and human-review boundary | failure category counts, abstention correctness, profile/gold-boundary cases, human-review completion status | Measure what remains unresolved and which claims require review. |
 
 The thesis must not collapse these layers into a single mixed overall score.
-The full metric protocol is documented in `docs/evaluation_protocol.md` and can
+The full metric protocol is documented in `docs/experiment_protocol.md` and can
 be audited with `uv run aviation-ai report evaluation-protocol`. The full thesis
-experiment sequence is documented in `docs/experiment_workflow.md` and
+experiment sequence is documented in `docs/experiment_protocol.md` and
 summarized by `uv run aviation-ai report thesis-experiment-dashboard`.
 
 ## Claim Safety Matrix

@@ -6,9 +6,9 @@ This file does not define a separate project scope. Use `AGENTS.md` as the
 authoritative repository instruction file, then start new work from:
 
 1. `docs/thread_handoff.md`
-2. `docs/documentation_map.md`
-3. `docs/context_hygiene_audit.md`
-4. `docs/tracked_context_inventory.md`
+2. `docs/master_project_scope_lock.md`
+3. `docs/documentation_map.md` (absorbs the former context-hygiene audit,
+   maintenance guide, and tracked-context inventory)
 
 ## Current Scope
 

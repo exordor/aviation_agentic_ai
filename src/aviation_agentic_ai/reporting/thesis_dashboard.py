@@ -1520,7 +1520,7 @@ def _consistency_checks(
     ) is not True
     scanned_paths = [
         root / "docs" / "thesis_positioning.md",
-        root / "docs" / "experiment_workflow.md",
+        root / "docs" / "experiment_protocol.md",
         root / "reports" / "stages" / "thesis_experiment_dashboard.md",
         root / "reports" / "final" / "project_report.md",
         root / "reports" / "final" / "project_academic_report.md",
