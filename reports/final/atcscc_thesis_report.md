@@ -69,17 +69,19 @@ reviewed evidence.
 ## Chapter 2. Background and Related Work
 
 > Skeleton — populated from existing annotated-bibliography artifacts. To be
-> written as integrated prose.
+> written as integrated prose. Inline citation markers `[N]` refer to
+> `reports/final/references.md`.
 
 The project is positioned at the intersection of four method areas rather than
 as a claim that ATCSCC ontology research is itself a large SOTA field.
 
-| SOTA area | What this thesis borrows | What this thesis contributes |
-| --- | --- | --- |
-| Schema-guided / ontology-guided IE | Domain schema constrains classes, predicates, values, output contracts | A source-native ATCSCC advisory-event profile with evidence-span requirements and profile-gap handling |
-| Knowledge-graph quality evaluation | Separate completeness, correctness, conformance, provenance, error repair | A layered metric protocol (schema validity, evidence support, extraction F1, retrieval, answer grounding, review boundaries) |
-| GraphRAG and citation-faithful QA | Compare vector, graph, hybrid, routed retrieval | A source-bounded ATCSCC KG-RAG benchmark with answer-set, citation, unsupported-claim, and abstention diagnostics |
-| Multi-agent validation/refinement | Role-separated extractor, validator, refiner, critic loops | An auditable agentic loop for extraction repair/rejection under hard schema and evidence gates |
+| SOTA area | What this thesis borrows | What this thesis contributes | Key references |
+| --- | --- | --- | --- |
+| Schema-guided / ontology-guided IE | Domain schema constrains classes, predicates, values, output contracts | A source-native ATCSCC advisory-event profile with evidence-span requirements and profile-gap handling | Text2KGBench [18]; ontology methodology [14]; ontology-grounded KG construction [19], [20], [21] |
+| Knowledge-graph quality evaluation | Separate completeness, correctness, conformance, provenance, error repair | A layered metric protocol (schema validity, evidence support, extraction F1, retrieval, answer grounding, review boundaries) | KG surveys [8], [9]; auto-KG-construction survey [10]; KG quality survey [11]; KG completeness [12] |
+| GraphRAG and citation-faithful QA | Compare vector, graph, hybrid, routed retrieval | A source-bounded ATCSCC KG-RAG benchmark with answer-set, citation, unsupported-claim, and abstention diagnostics | GraphRAG surveys [24], [25]; Local-to-Global GraphRAG [22]; HybridRAG [23]; GraphRAG evaluation [26]–[29]; RAG evaluation [30]–[32] |
+| Multi-agent validation/refinement | Role-separated extractor, validator, refiner, critic loops | An auditable agentic loop for extraction repair/rejection under hard schema and evidence gates | Multi-agent ontology generation [19]; LLM-KG survey [13] |
+| Aviation / ATM ontology and KG | Source vocabulary and schema backbone | A source-native ATCSCC advisory-event profile derived from ATMONTO | NASA ATMONTO [1]; AIRM-ATMONTO matching [2]; ATM KG [3]; flight-safety ontology [4]; ATM ontological reasoning [5]; ATM semantic interoperability [6]; CHATATC [7]; competency questions [15]–[17] |
 
 **Source material (annotated bibliography, ready to integrate):**
 `reports/stages/agentic_ontology_graphrag_mainline_literature_search.md`
@@ -95,7 +97,9 @@ AIRM/ATM ontology matching),
 
 The study uses a retrospective ATCSCC snapshot (advisories 2026-05-14 through
 2026-05-20). Source family is kept separate from FAA/NASA reference PDFs, NASR
-data, and weather data.
+data, and weather data. Unlike conversational ATC strategic-flow assistants
+such as CHATATC [7], this work targets retrospective advisory-event extraction
+and evidence-grounded QA, not live decision support.
 
 | Layer | Records | Artifact |
 | --- | ---: | --- |
@@ -122,8 +126,11 @@ constraints) each tied to an evidence span.
 
 ## Chapter 4. Application Schema / Profile
 
-The ontology stack has three layers: external NASA ATMONTO OWL → parsed schema
-catalog → ATCSCC schema slice → extraction JSON schema.
+The ontology stack has three layers: external NASA ATMONTO OWL [1] → parsed
+schema catalog → ATCSCC schema slice → extraction JSON schema. The ATMONTO
+reference ontology [1], [2] provides the vocabulary; the AIRM-ATMONTO alignment
+[2] motivates keeping the schema bounded to ATCSCC advisory events rather than
+the full NAS.
 
 | Component | Count |
 | --- | ---: |
@@ -170,7 +177,9 @@ FAA ATCSCC advisories
 - **S0** rule-only deterministic backbone over advisory templates.
 - **S1/S1b** LLM-only (raw open extraction, drift diagnostic) and canonicalized
   to the target schema (the comparable LLM baseline).
-- **S2** schema-slice LLM extraction (gpt-5.4-mini).
+- **S2** schema-slice LLM extraction (gpt-5.4-mini); the schema-guided setting
+  follows the ontology-driven extraction paradigm benchmarked by Text2KGBench
+  [18].
 - **S3** validator-repair: deterministic validator + LLM refiner.
 - **S4** hybrid backbone enrichment: S0 deterministic backbone + LLM semantic
   enrichment, gated so deterministic fields cannot be overwritten.
@@ -179,7 +188,9 @@ FAA ATCSCC advisories
 
 Role-separated extractor / validator / refiner / critic artifacts record repair
 and rejection outcomes. The loop is an auditable diagnostic and repair
-framework; it is not autonomous ontology construction.
+framework; it is not autonomous ontology construction. The role-separated agent
+design is inspired by multi-agent LLM ontology-generation work [19] and the
+broader LLM-empowered KG-construction literature [13], [10].
 
 ### 5.3 KG-RAG evaluation
 
@@ -187,7 +198,11 @@ Retrieval modes over frozen ATCSCC contexts: `source_oracle`, lexical-vector
 proxies, `live_tfidf_vector` (real lexical retriever), `dense_embedding_vector`
 (all-MiniLM-L6-v2), `graph_only`, `hybrid_graphrag`, and routed variants. The
 routed mode uses template routing: graph context for entity/cause/status/route
-templates; vector/source for time-window and abstention templates.
+templates; vector/source for time-window and abstention templates. The
+graph-augmented retrieval design follows the GraphRAG survey literature
+[24], [25] and the hybrid KG+vector paradigm of HybridRAG [23] and the
+Local-to-Global GraphRAG [22]; recent benchmark and comparison work [26]–[29]
+motivates reporting graph benefit separately from retrieval recall.
 
 ### 5.4 Failure review
 
@@ -213,7 +228,9 @@ explicit metrics, tracked artifacts, and a pass/fail interpretation.
 | Failure and review boundary | failure category counts, abstention correctness, profile/gold-boundary cases |
 
 Bootstrap 95% CIs are reported for extraction F1 (record-bootstrap by source_id,
-200 iterations, seed 1701).
+200 iterations, seed 1701). The answer-evaluation metric design borrows from
+the RAGAs [30] and ARES [31] automated RAG-evaluation frameworks and the
+broader RAG-evaluation survey [32].
 
 **Evidence spine:** `docs/experiment_protocol.md`, `docs/research_mainline.md`.
 
@@ -389,6 +406,16 @@ requirements are explicitly categorized (§7.4). Claim boundaries are stated in
 - RQ3 vector-only arm: `uv run python scripts/build_nasa_atmonto_s7_llm_answer_generation.py --run-llm --modes vector-only --report-name nasa_atmonto_s7_vector_only_llm_answer_generation`
 - Quality gates: `uv run ruff check .` and `uv run pytest -q`
 
+## Chapter 11. References
+
+The full numbered reference list is maintained in
+`reports/final/references.md` (32 entries, grouped by topic). Citation markers
+`[N]` below refer to that list. Entries are grouped as: (A) Aviation/ATM
+ontology and KG [1]–[7]; (B) KG surveys and quality [8]–[13]; (C) ontology
+engineering and competency questions [14]–[17]; (D) schema-guided and LLM-based
+KG construction [18]–[21]; (E) RAG methods [22]–[23]; (F) GraphRAG surveys
+[24]–[29]; (G) RAG and GraphRAG evaluation [30]–[32].
+
 ---
 
 ## Chapter Completeness Table
@@ -396,7 +423,7 @@ requirements are explicitly categorized (§7.4). Claim boundaries are stated in
 | Chapter | Status | Notes |
 | --- | --- | --- |
 | 1 Introduction | filled | |
-| 2 Background / Related Work | skeleton | annotated bibliography + SOTA matrix ready to integrate into prose |
+| 2 Background / Related Work | skeleton | annotated bibliography + SOTA matrix ready to integrate into prose; inline citations [1]–[32] added |
 | 3 Data and Task Definition | filled | |
 | 4 Application Schema / Profile | filled | |
 | 5 Method | filled | |
