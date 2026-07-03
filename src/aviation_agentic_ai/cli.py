@@ -100,15 +100,11 @@ REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
     {
         "module": "aviation_agentic_ai.cli_report_thesis",
         "attribute": "register_thesis_report_commands",
-        "commands": (
-            "project",
-            "thesis-claims",
-            "evaluation-protocol",
-            "thesis-experiment-dashboard",
-            "academic-paper",
-            "defense-notes",
-            "defense-deck-outline",
-        ),
+            "commands": (
+                "thesis-claims",
+                "evaluation-protocol",
+                "thesis-experiment-dashboard",
+            ),
     },
     {
         "module": "aviation_agentic_ai.cli_report_evaluation",

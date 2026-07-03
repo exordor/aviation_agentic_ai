@@ -32,7 +32,7 @@ Related goals: G2, G3, G4, G5.
 - [x] Clean report clutter by archiving old stage reports.
   - Evidence: `reports/stages/index.md`, `reports/archive/stages/2026-05-18/`.
 - [x] Generate the first model-assisted project report draft.
-  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.
+  - Evidence: `reports/phak_era_archive/project_report.md`, `reports/phak_era_archive/project_report_sources.json`.
 - [x] Verify local runtime and test environment.
   - Evidence: `uv run ruff check .`, `uv run pytest`.
 - [x] Create an explainable curated ontology as the active KG schema.
@@ -74,7 +74,7 @@ Related goals: G2, G3, G4, G5.
 - [x] Regenerate the final project report after experiment reports exist.
   - Commands:
     - `uv run aviation-ai report project --no-ai`
-  - Evidence: `reports/final/project_report.md`, `reports/final/project_report_sources.json`.
+  - Evidence: `reports/phak_era_archive/project_report.md`, `reports/phak_era_archive/project_report_sources.json`.
   - Current scope: deterministic evidence has been refreshed; postpone `--ai` until the chunking and Hybrid RAG outputs are reviewed.
   - Acceptance: final report replaces TBD / Not yet run sections with evidence-backed results where available.
 - [x] Generate draft chunk/span gold labels and evidence-level evaluation.
@@ -131,16 +131,16 @@ Related goals: G1, G5, G6, G7, G8.
 - [x] Update `README.md` after real experiment results are available.
   - Acceptance: README no longer points to archived stage filenames as if they were current files.
 - [x] Complete deterministic final and academic reports.
-  - Evidence: `reports/final/project_report.md`, `reports/final/project_academic_report.md`, `reports/final/project_academic_report_sources.json`.
+  - Evidence: `reports/phak_era_archive/project_report.md`, `reports/phak_era_archive/project_academic_report.md`, `reports/phak_era_archive/project_academic_report_sources.json`.
   - Acceptance: includes motivation, architecture, ontology design, KG deliverable, GraphRAG pipeline, chunking comparison, vector/graph/hybrid analysis, limitations, advisory boundary, and reproducibility appendix.
 - [x] Add project-defense notes and academic PPT outline.
-  - Evidence: `reports/final/project_defense_notes.md`, `reports/final/project_defense_notes.json`, `reports/final/defense_deck_outline.md`, `reports/final/aviation_graphrag_defense_deck_sources.json`.
+  - Evidence: `reports/phak_era_archive/project_defense_notes.md`, `reports/phak_era_archive/project_defense_notes.json`, `reports/phak_era_archive/defense_deck_outline.md`, `reports/phak_era_archive/aviation_graphrag_defense_deck_sources.json`.
   - Acceptance: answers what was built, why ontology is needed, why KG is a deliverable, why GraphRAG is used, why chunking strategies are compared, and where the system can fail.
 - [x] Generate academic defense PPT and illustrative visual assets.
   - Commands:
     - `uv run aviation-ai report defense-deck-outline`
     - `node scripts/build_defense_deck.mjs`
-  - Evidence: `reports/final/atcscc_defense_deck_outline.md`, `reports/final/aviation_graphrag_defense_deck_sources.json`. (The PHAK-era `aviation_graphrag_defense_deck.pptx` deck, `*_illustrative.png` assets, generated SVG fallbacks, and the `visual_assets_manifest.json` were retired; reviewer-facing decks now use the TU Clausthal template under `reports/final/templates/`.)
+  - Evidence: `reports/final/atcscc_defense_deck_outline.md`, `reports/phak_era_archive/aviation_graphrag_defense_deck_sources.json`. (The PHAK-era `aviation_graphrag_defense_deck.pptx` deck, `*_illustrative.png` assets, generated SVG fallbacks, and the `visual_assets_manifest.json` were retired; reviewer-facing decks now use the TU Clausthal template under `reports/final/templates/`.)
   - Acceptance: PPT uses evidence-backed action titles, source citations, an artifact-index appendix, and zero layout-check errors/warnings.
 - [x] Implement a minimal web interface demonstrator.
   - Command: `uv run aviation-ai web serve`
@@ -236,7 +236,7 @@ Related goals: G2, G3, G4, G6, G8, G9.
     - `reports/stages/chunking_category_analysis_benchmark_v2.md`
     - `reports/stages/chunking_failure_cards_benchmark_v2.md`
     - `reports/stages/thesis_experiment_dashboard.md`
-    - `reports/final/project_report.md`
+    - `reports/phak_era_archive/project_report.md`
   - Result: 14 benchmark-v2 strategies were evaluated over 120 labels. Default top-k supported Recall@5 ranks `fixed_large` first at 0.86; fixed 4000-character context budget ranks `recursive_medium` first at 0.79. Top-k winners vary by k, and category winners vary by question type.
   - Implementation status: `embedding_semantic` used the `sentence_transformers` backend in the generated run; `hierarchical_parent_child` remains partial child-index/parent-metadata retrieval; `proposition_like` remains proposition-only; `structure_aware_medium` and `structure_aware_large` now produce larger structure-aware chunks than legacy `structure_aware`.
   - Acceptance: reports explicitly avoid a universal best-chunker claim, separate supported labels from insufficient-evidence diagnostics, include confidence intervals and failure cards, and keep the new commands outside default thesis generation.

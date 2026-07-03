@@ -303,9 +303,6 @@ EVIDENCE_GAPS = [
 DEFAULT_SCAN_PATHS = (
     "README.md",
     "GOALS.md",
-    "reports/final/project_report.md",
-    "reports/final/project_academic_report.md",
-    "reports/final/project_defense_notes.md",
 )
 
 _SAFE_CONTEXT_MARKERS = (

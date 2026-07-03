@@ -195,7 +195,7 @@ Automated consistency diagnostics, a human-review candidate packet, candidate
 adjudication, and a profile-decision what-if. Automated diagnostics are an
 internal error-discovery layer, not human review or expert certification.
 
-**Evidence spine:** `docs/experiment_workflow.md`,
+**Evidence spine:** `docs/experiment_protocol.md`,
 `reports/stages/atcscc_agentic_artifact_contract.md`,
 `reports/stages/nasa_atmonto_formal_experiment_scoring.md`.
 
@@ -215,7 +215,7 @@ explicit metrics, tracked artifacts, and a pass/fail interpretation.
 Bootstrap 95% CIs are reported for extraction F1 (record-bootstrap by source_id,
 200 iterations, seed 1701).
 
-**Evidence spine:** `docs/evaluation_protocol.md`, `docs/research_mainline.md`.
+**Evidence spine:** `docs/experiment_protocol.md`, `docs/research_mainline.md`.
 
 ## Chapter 7. Experiments and Results
 

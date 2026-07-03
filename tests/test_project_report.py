@@ -3,9 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from click.testing import CliRunner
 
-from aviation_agentic_ai.cli import main
 from aviation_agentic_ai.reporting.project_report import (
     build_project_evidence_pack,
     build_project_report_draft,
@@ -399,62 +397,3 @@ def test_project_report_compacts_expansion_reports(tmp_path: Path) -> None:
     assert "result" not in robustness["case_summaries"][0]
 
 
-def test_cli_report_project_no_ai_writes_outputs(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli_report_thesis
-
-    def fake_writer(output_dir, **kwargs):
-        output = Path(output_dir)
-        output.mkdir(parents=True, exist_ok=True)
-        md_path = output / "project_report.md"
-        sources_path = output / "project_report_sources.json"
-        md_path.write_text("# report\n", encoding="utf-8")
-        sources_path.write_text("{}\n", encoding="utf-8")
-        return md_path, sources_path, {"used_ai": kwargs.get("use_ai", False)}
-
-    monkeypatch.setattr(cli_report_thesis, "write_project_report", fake_writer)
-    result = CliRunner().invoke(
-        main,
-        [
-            "report",
-            "project",
-            "--no-ai",
-            "--output-dir",
-            str(tmp_path / "final"),
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    assert "Generated deterministic project report" in result.output
-    assert (tmp_path / "final" / "project_report.md").exists()
-
-
-def test_cli_report_project_ai_uses_writer_flag(tmp_path: Path, monkeypatch) -> None:
-    from aviation_agentic_ai import cli_report_thesis
-
-    calls = {}
-
-    def fake_writer(output_dir, **kwargs):
-        calls["use_ai"] = kwargs.get("use_ai")
-        output = Path(output_dir)
-        output.mkdir(parents=True, exist_ok=True)
-        md_path = output / "project_report.md"
-        sources_path = output / "project_report_sources.json"
-        md_path.write_text("# report\n", encoding="utf-8")
-        sources_path.write_text("{}\n", encoding="utf-8")
-        return md_path, sources_path, {"used_ai": kwargs.get("use_ai", False)}
-
-    monkeypatch.setattr(cli_report_thesis, "write_project_report", fake_writer)
-    result = CliRunner().invoke(
-        main,
-        [
-            "report",
-            "project",
-            "--ai",
-            "--output-dir",
-            str(tmp_path / "final"),
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    assert calls["use_ai"] is True
-    assert "Generated model-polished project report" in result.output

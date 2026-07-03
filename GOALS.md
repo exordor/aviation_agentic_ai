@@ -105,7 +105,7 @@ Success criteria:
 
 - `reports/stages/` remains a compact dashboard.
 - Historical stage artifacts are archived rather than deleted.
-- `reports/final/project_report.md` is generated from evidence sources and does not invent missing results.
+- `reports/phak_era_archive/project_report.md` is generated from evidence sources and does not invent missing results.
 - Missing experiments are explicitly marked TBD / Not yet run until evidence exists.
 
 Current status: report hygiene, deterministic final report, academic-style
@@ -223,11 +223,11 @@ readiness evidence.
 
 | Goal | Main evidence | Execution tasks |
 | --- | --- | --- |
-| G1 | `GOALS.md`, `README.md`, `reports/final/project_report.md`, optional local note `tmp/goal.md` | `TASKS.md` P2 |
+| G1 | `GOALS.md`, `README.md`, `reports/phak_era_archive/project_report.md`, optional local note `tmp/goal.md` | `TASKS.md` P2 |
 | G2 | `data/ontology/`, `configs/extraction_profile.yaml`, KG reports | `TASKS.md` P0/P1 |
 | G3 | chunk/index/query CLI outputs, Hybrid RAG report | `TASKS.md` P0 |
 | G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports, `reports/stages/final_evaluation_review.md`, `reports/stages/evidence_cards.md` | `TASKS.md` P0/P1 |
-| G5 | `reports/stages/index.md`, `reports/final/project_report.md`, `reports/final/project_academic_report.md`, defense PPT | `TASKS.md` P2 |
+| G5 | `reports/stages/index.md`, `reports/phak_era_archive/project_report.md`, `reports/phak_era_archive/project_academic_report.md`, defense PPT | `TASKS.md` P2 |
 | G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
 | G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TASKS.md` P2 |
 | G8 | `docs/thesis_positioning.md`, final report, academic report, comparison reports, evidence cards, defense notes, defense PPT | `TASKS.md` P1/P2 |

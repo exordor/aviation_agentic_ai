@@ -163,12 +163,6 @@ def build_hygiene_plan(
         "categories": categories,
         "final_report_readiness": {
             "stage_index": project_relative_path(stage_path / "index.json", base=base),
-            "project_report": project_relative_path(
-                Path("reports/final/project_report.md"), base=base
-            ),
-            "sources": project_relative_path(
-                Path("reports/final/project_report_sources.json"), base=base
-            ),
             "ready": True,
         },
     }
@@ -261,8 +255,7 @@ def write_stage_index_markdown(index: dict[str, Any], output_path: str | Path) -
             "",
             "## Final Report",
             "",
-            f"- Draft: `{index['final_report_readiness']['project_report']}`",
-            f"- Sources: `{index['final_report_readiness']['sources']}`",
+            f"- Stage index: `{index['final_report_readiness']['stage_index']}`",
             "",
         ]
     )

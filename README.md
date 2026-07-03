@@ -620,8 +620,8 @@ Markdown report:
 uv run aviation-ai report project --ai
 ```
 
-The project report command writes `reports/final/project_report.md` and
-`reports/final/project_report_sources.json`. The model prompt is constrained to the
+The project report command writes `reports/phak_era_archive/project_report.md` and
+`reports/phak_era_archive/project_report_sources.json`. The model prompt is constrained to the
 evidence pack, must cite source file paths, and must mark missing results as
 `TBD` or `Not yet run`.
 
@@ -635,8 +635,8 @@ uv run aviation-ai report defense-deck-outline
 node scripts/build_defense_deck.mjs
 ```
 
-These commands write `reports/final/project_academic_report.md`,
-`reports/final/project_defense_notes.md`, illustrative PNG visuals with local
+These commands write `reports/phak_era_archive/project_academic_report.md`,
+`reports/phak_era_archive/project_defense_notes.md`, illustrative PNG visuals with local
 deterministic SVG fallbacks under
 `reports/final/assets/`, and
 `reports/final/aviation_graphrag_defense_deck.pptx`. The PNG visuals are

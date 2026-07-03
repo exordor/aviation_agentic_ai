@@ -39,7 +39,7 @@
 - Role: `method`
 - Claim: The active ontology has 35 classes and 9 object properties.
 - Visual: ontology module diagram
-- Sources: `docs/ontology_design.md`, `reports/stages/curated_ontology_evaluation.json`
+- Sources: `docs/archive/phak_era/ontology_design.md`, `reports/stages/curated_ontology_evaluation.json`
 - Speaker note: Explain why the baseline ontology is not the main narrative object.
 
 ### 5. KG extraction is useful only because every triple is validator-gated
@@ -138,8 +138,8 @@
 - `data/kg/06_phak_ch4_0.structure_aware.kg.jsonl`
 - `data/kg/06_phak_ch4_0.structure_aware.kg.ttl`
 - `data/ontology/curated/06_phak_ch4_0.curated.ttl`
-- `docs/document_expansion_protocol.md`
-- `docs/ontology_design.md`
+- `docs/archive/phak_era/document_expansion_protocol.md`
+- `docs/archive/phak_era/ontology_design.md`
 - `docs/thesis_positioning.md`
 - `reports/final/assets/kg_evidence_illustrative.png`
 - `reports/final/assets/pipeline_hero_illustrative.png`

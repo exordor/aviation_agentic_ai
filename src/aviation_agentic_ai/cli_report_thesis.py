@@ -6,15 +6,9 @@ import click
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.paths import project_relative_path
-from aviation_agentic_ai.reporting.academic_outputs import (
-    write_academic_report,
-    write_defense_deck_outline,
-    write_defense_notes,
-)
 from aviation_agentic_ai.reporting.evaluation_protocol import (
     write_evaluation_protocol_review,
 )
-from aviation_agentic_ai.reporting.project_report import write_project_report
 from aviation_agentic_ai.reporting.thesis_claims import write_thesis_claims_review
 from aviation_agentic_ai.reporting.thesis_dashboard import (
     write_thesis_experiment_dashboard,
@@ -22,45 +16,6 @@ from aviation_agentic_ai.reporting.thesis_dashboard import (
 
 
 def register_thesis_report_commands(report: click.Group) -> None:
-    @report.command("project")
-    @click.option(
-        "--output-dir",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Directory for final project report outputs.",
-    )
-    @click.option(
-        "--stage-index",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Stage index JSON to use as primary evidence.",
-    )
-    @click.option("--ai/--no-ai", "use_ai", default=False, show_default=True)
-    @click.option("--temperature", type=float, default=0.0, show_default=True)
-    @click.option("--max-tokens", type=int, default=4096, show_default=True)
-    def report_project(
-        output_dir: Path | None,
-        stage_index: Path | None,
-        use_ai: bool,
-        temperature: float,
-        max_tokens: int,
-    ) -> None:
-        """Generate the final project report from curated evidence."""
-        try:
-            output = output_dir or resolve_project_path("reports/final")
-            md_path, sources_path, result = write_project_report(
-                output,
-                stage_index_path=stage_index,
-                use_ai=use_ai,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
-            click.echo(f"Wrote {project_relative_path(md_path)}")
-            click.echo(f"Wrote {project_relative_path(sources_path)}")
-            mode = "model-polished" if result["used_ai"] else "deterministic"
-            click.echo(f"Generated {mode} project report.")
-        except Exception as exc:
-            raise click.ClickException(str(exc)) from exc
 
     @report.command("thesis-claims")
     @click.option(
@@ -143,101 +98,5 @@ def register_thesis_report_commands(report: click.Group) -> None:
                 "Built thesis experiment dashboard; consistency checks passed="
                 f"{result['consistency_checks']['all_passed']}."
             )
-        except Exception as exc:
-            raise click.ClickException(str(exc)) from exc
-
-    @report.command("academic-paper")
-    @click.option(
-        "--output-dir",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Directory for academic report outputs.",
-    )
-    @click.option(
-        "--stage-index",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Stage index JSON to use as primary evidence.",
-    )
-    @click.option("--ai/--no-ai", "use_ai", default=False, show_default=True)
-    def report_academic_paper(
-        output_dir: Path | None,
-        stage_index: Path | None,
-        use_ai: bool,
-    ) -> None:
-        """Generate a paper-style academic project report from evidence."""
-        try:
-            if use_ai:
-                raise click.ClickException(
-                    "AI polishing is intentionally disabled for this command in v1. "
-                    "Use --no-ai and review the deterministic draft."
-                )
-            output = output_dir or resolve_project_path("reports/final")
-            md_path, sources_path, result = write_academic_report(
-                output,
-                stage_index_path=stage_index,
-            )
-            click.echo(f"Wrote {project_relative_path(md_path)}")
-            click.echo(f"Wrote {project_relative_path(sources_path)}")
-            click.echo(
-                "Generated deterministic academic report from "
-                f"{len(result['summary']['source_paths'])} evidence sources."
-            )
-        except Exception as exc:
-            raise click.ClickException(str(exc)) from exc
-
-    @report.command("defense-notes")
-    @click.option(
-        "--output-dir",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Directory for defense note outputs.",
-    )
-    @click.option(
-        "--stage-index",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Stage index JSON to use as primary evidence.",
-    )
-    def report_defense_notes(output_dir: Path | None, stage_index: Path | None) -> None:
-        """Generate project defense notes and Q&A from evidence."""
-        try:
-            output = output_dir or resolve_project_path("reports/final")
-            md_path, json_path, notes = write_defense_notes(
-                output,
-                stage_index_path=stage_index,
-            )
-            click.echo(f"Wrote {project_relative_path(md_path)}")
-            click.echo(f"Wrote {project_relative_path(json_path)}")
-            click.echo(f"Generated {len(notes['qa_pairs'])} defense Q&A pairs.")
-        except Exception as exc:
-            raise click.ClickException(str(exc)) from exc
-
-    @report.command("defense-deck-outline")
-    @click.option(
-        "--output-dir",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Directory for defense deck outline outputs.",
-    )
-    @click.option(
-        "--stage-index",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Stage index JSON to use as primary evidence.",
-    )
-    def report_defense_deck_outline(
-        output_dir: Path | None, stage_index: Path | None
-    ) -> None:
-        """Generate an academic PPT outline and source pack."""
-        try:
-            output = output_dir or resolve_project_path("reports/final")
-            md_path, json_path, outline = write_defense_deck_outline(
-                output,
-                stage_index_path=stage_index,
-            )
-            click.echo(f"Wrote {project_relative_path(md_path)}")
-            click.echo(f"Wrote {project_relative_path(json_path)}")
-            click.echo(f"Generated {len(outline['slides'])} slide outlines.")
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc
