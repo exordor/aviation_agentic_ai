@@ -29,6 +29,28 @@ models/
 /reports/stages/paper_figure_gallery.html
 /reports/stages/paper_figure_gallery_manifest.json
 
+# Reviewer-facing deck artifacts (PPTX/POTX) and their inspection dumps.
+# Keep the editable TU template under reports/final/templates/ tracked, plus
+# the PPTX style validator and its doc. Generated decks and intermediate
+# render/inspection outputs are backed up outside Git.
+/reports/final/*.pptx
+/reports/final/*.potx
+/reports/final/*.bak.pptx
+/reports/final/*.inspect.ndjson
+/reports/final/assets/
+!reports/final/templates/
+!reports/final/aviation_graphrag_defense_deck.pptx
+!reports/final/atcscc_defense_deck.pptx
+
+# Local KG browser galleries and materialized-graph preview snapshots.
+/reports/final/assets/kg_ontology_browser/
+
+# Local archived data (kept outside Git; see AGENTS.md source-family boundaries).
+/data/archive/
+
+# Materialized fact-graph preview snapshots (regenerable from the pipeline).
+/reports/stages/atcscc_materialized_fact_graph.preview.json
+
 # Locally downloaded paper PDFs; keep citations in data/papers/README.md.
 /data/papers/*.pdf
 
