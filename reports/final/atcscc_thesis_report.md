@@ -238,6 +238,21 @@ broader RAG-evaluation survey [32].
 
 ### 7.1 Experiment A — Schema-constrained advisory event extraction (RQ1)
 
+**Experimental framing.** RQ1 asks whether schema-constrained LLM extraction
+can produce *valid* and evidence-linked records — a feasibility question, not a
+SOTA-competitiveness question. The six systems S0–S4 form a controlled
+component-ablation ladder (rule baseline → schema-free LLM → schema-slice LLM
+→ +validator/repair → +hybrid enrichment), mirroring the schema-guided
+ablation design of Text2KGBench [18] and the LLM-KG-construction evaluation
+methodology of [13], [10]. Each step isolates one design choice (schema
+presence, validator, hybridization). The study deliberately uses a single LLM
+(gpt-5.4-mini) to hold the model constant while varying the extraction
+contract; cross-LLM generalization is discussed as a threat to external
+validity (§9). No external SOTA baseline (e.g., a fine-tuned RE model or a
+published system's reported F1) is included, because the ATCSCC advisory-event
+task has no prior benchmark to benchmark against; this is itself part of the
+contribution (a first profile and gold set for this source family).
+
 Scored against the frozen 100-record reviewed gold set, strict semantic F1.
 Provenance completeness = 1.0, evidence-in-source rate = 1.0, valid triples =
 448.
@@ -253,16 +268,20 @@ Provenance completeness = 1.0, evidence-in-source rate = 1.0, valid triples =
 
 Bootstrap 95% CIs (F1): S0 0.708–0.804, S2 0.144–0.240, S4 0.681–0.763.
 
-**Reading (RQ1):** The deterministic S0 backbone is the strongest single
-extractor for these semi-structured advisories (F1 0.759), and S4 hybrid
-enrichment (0.727) preserves deterministic correctness while adding semantic
-fields with zero schema violations. The pure-LLM arms (S1b/S2/S3) are markedly
-weaker, a negative result consistent with semi-structured short-text
-extraction being hard for unconstrained LLMs. The schema constraint is
-effective: S1b's structural acceptance is only 0.42 versus S2/S3/S4 ≥ 0.82, and
-unconstrained open LLM output (S1) scores zero against the target schema,
-confirming that raw open LLM extraction must not be scored with target-schema
-P/R/F1.
+**Reading (RQ1).** Two findings carry over to the broader schema-guided IE
+literature [18], [13]. First, schema presence sharply raises structural
+acceptance: S1b's 0.42 versus S2/S3/S4 ≥ 0.82 reproduces the well-documented
+schema-as-constraint benefit. Second, on semi-structured short text a
+deterministic backbone (S0, F1 0.759) can outperform unconstrained LLM
+extraction (S1b/S2/S3 ≤ 0.22), a negative result consistent with the
+observation in the KG-construction surveys [10], [13] that LLMs struggle on
+short, template-driven text where surface patterns are reliable. The hybrid
+S4 (F1 0.727, zero schema violations) shows deterministic backbones and LLM
+semantic enrichment can be combined without corrupting structural correctness.
+Raw open-LLM output (S1) scores zero against the target schema, confirming
+that schema-free extraction must not be evaluated with target-schema P/R/F1.
+These are component-level feasibility findings on one ATCSCC sample; they are
+not claims that S0/S4 beats published systems.
 
 ### 7.2 Experiment B — Agentic validation and CQ queryability (RQ2)
 
@@ -381,6 +400,13 @@ Human/expert review remains separate from automated diagnostics.
   LLM; the only varying factor is retrieval mode (graph presence + routing).
 - **External validity:** 30 matched questions on one source family over one
   advisory week; not domain-general proof.
+- **External validity (extraction):** S0–S4 use a single LLM (gpt-5.4-mini)
+  with one prompt per arm and no external SOTA baseline; the absolute F1
+  values are therefore not directly comparable to published IE systems, and
+  cross-model replication is needed before generalizing the component-level
+  findings. The ablation structure (schema presence, validator, hybridization)
+  follows the standard design of [18], [13], but the effect sizes are
+  specific to ATCSCC advisory text.
 - **Conclusion validity:** bootstrap CIs reported for extraction F1; RQ3 is a
   fixed-budget LLM run, not human review.
 
