@@ -51,7 +51,6 @@ instead of editing the PHAK-era deliverables in place:
 | --- | --- |
 | Thesis-facing report skeleton | `reports/final/atcscc_thesis_report_outline.md` |
 | Defense deck outline | `reports/final/atcscc_defense_deck_outline.md` |
-| Figure asset manifest | `reports/final/atcscc_visual_assets_manifest.json` |
 | Source pack | `reports/final/atcscc_thesis_report_sources.json` |
 
 The package should cite the current stage evidence, not `reports/stages/index.md`

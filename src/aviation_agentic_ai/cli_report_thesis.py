@@ -10,7 +10,6 @@ from aviation_agentic_ai.reporting.academic_outputs import (
     write_academic_report,
     write_defense_deck_outline,
     write_defense_notes,
-    write_visual_assets,
 )
 from aviation_agentic_ai.reporting.evaluation_protocol import (
     write_evaluation_protocol_review,
@@ -240,27 +239,5 @@ def register_thesis_report_commands(report: click.Group) -> None:
             click.echo(f"Wrote {project_relative_path(md_path)}")
             click.echo(f"Wrote {project_relative_path(json_path)}")
             click.echo(f"Generated {len(outline['slides'])} slide outlines.")
-        except Exception as exc:
-            raise click.ClickException(str(exc)) from exc
-
-    @report.command("visual-assets")
-    @click.option(
-        "--output-dir",
-        type=click.Path(path_type=Path),
-        default=None,
-        help="Directory for final visual assets.",
-    )
-    def report_visual_assets(output_dir: Path | None) -> None:
-        """Generate SVG fallback assets and record any externally generated PNG assets."""
-        try:
-            output = output_dir or resolve_project_path("reports/final")
-            paths, manifest = write_visual_assets(output)
-            for path in paths:
-                click.echo(f"Wrote {project_relative_path(path)}")
-            click.echo(
-                "Wrote visual asset manifest; illustrative PNG assets present: "
-                f"{manifest['uses_gateway_or_api']}. "
-                "No credentials or gateway URL were recorded."
-            )
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc

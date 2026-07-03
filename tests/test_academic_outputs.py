@@ -11,7 +11,6 @@ from aviation_agentic_ai.reporting.academic_outputs import (
     write_academic_report,
     write_defense_deck_outline,
     write_defense_notes,
-    write_visual_assets,
 )
 
 
@@ -75,26 +74,9 @@ def test_defense_deck_outline_is_academic_structured_argument(tmp_path: Path) ->
     assert payload["metrics_snapshot"]["hybrid_rag"]
 
 
-def test_visual_assets_are_local_svg_without_gateway(tmp_path: Path) -> None:
-    paths, manifest = write_visual_assets(tmp_path)
-
-    assert manifest["generation_method"] == "local_deterministic_svg_fallbacks"
-    assert manifest["uses_gateway_or_api"] is False
-    assert all(path.exists() for path in paths)
-    assert all(
-        asset["fallback_exists"]
-        for asset in manifest["assets"]
-        if asset["fallback_path"]
-    )
-    assert (tmp_path / "assets" / "project_cover.svg").read_text(
-        encoding="utf-8"
-    ).startswith("<svg")
-
-
 def test_cli_academic_outputs_write_expected_files(tmp_path: Path) -> None:
     runner = CliRunner()
     commands = [
-        ["report", "visual-assets", "--output-dir", str(tmp_path)],
         [
             "report",
             "academic-paper",
@@ -129,4 +111,3 @@ def test_cli_academic_outputs_write_expected_files(tmp_path: Path) -> None:
     assert (tmp_path / "project_academic_report.md").exists()
     assert (tmp_path / "project_defense_notes.json").exists()
     assert (tmp_path / "aviation_graphrag_defense_deck_sources.json").exists()
-    assert (tmp_path / "assets" / "visual_assets_manifest.json").exists()

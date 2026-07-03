@@ -16,29 +16,6 @@ ACADEMIC_SKILLS = [
     "academic-paper-reviewer",
     "academic-pptx",
     "Presentations",
-    "local-deterministic-svg-assets",
-    "optional-visual-relay-assets",
-]
-
-VISUAL_ASSETS = [
-    {
-        "path": "reports/final/assets/project_cover.svg",
-        "fallback_path": None,
-        "purpose": "Apple-style title-slide cover visual for the defense deck.",
-        "visual_role": "Illustrative aviation GraphRAG research cover; no embedded text.",
-    },
-    {
-        "path": "reports/final/assets/pipeline_overview.svg",
-        "fallback_path": None,
-        "purpose": "Large pipeline hero visual for PDF -> chunks -> KG -> Hybrid RAG.",
-        "visual_role": "Illustrative aviation GraphRAG pipeline hero; no embedded text.",
-    },
-    {
-        "path": "reports/final/assets/ontology_kg_graphrag_concept.svg",
-        "fallback_path": None,
-        "purpose": "Reusable KG evidence visual for ontology and GraphRAG slides.",
-        "visual_role": "Illustrative aviation KG evidence component; no embedded text.",
-    },
 ]
 
 
@@ -429,7 +406,6 @@ def build_academic_summary(evidence: dict[str, Any]) -> dict[str, Any]:
         else [],
         "graphrag_interpretations": graphrag_review.get("interpretations", []),
         "advisory_boundary": evidence.get("advisory_boundary", ""),
-        "visual_assets": VISUAL_ASSETS,
         "source_policy": evidence.get("source_policy", {}),
     }
 
@@ -885,7 +861,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
             "title": "Ontology-constrained GraphRAG makes aviation handbook answers auditable",
             "role": "title",
             "claim": "The project turns PHAK Chapter 4 into an evidence-grounded GraphRAG demo.",
-            "visual": "reports/final/assets/project_cover.svg",
+            "visual": "GraphRAG research cover diagram",
             "evidence_sources": common_sources,
             "speaker_note": "Open with the problem, the source document, and the advisory boundary.",
         },
@@ -903,7 +879,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
             "title": "The pipeline preserves traceability from PDF text to grounded answers",
             "role": "method",
             "claim": "Each answer can be traced through chunks, KG triples, retrieval mode, and citations.",
-            "visual": "reports/final/assets/pipeline_overview.svg",
+            "visual": "PDF to Hybrid RAG pipeline diagram",
             "evidence_sources": ["README.md", "configs/default.yaml"],
             "speaker_note": "Walk left-to-right through the pipeline.",
         },
@@ -930,7 +906,7 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
                 f"Fixed-window KG has {metrics['kg']['fixed_window_triples']} triples; "
                 f"structure-aware KG has {metrics['kg']['structure_aware_triples']} triples."
             ),
-            "visual": "reports/final/assets/ontology_kg_graphrag_concept.svg",
+            "visual": "ontology-constrained KG evidence diagram",
             "evidence_sources": [
                 "reports/stages/kg_validation.json",
                 "reports/stages/structure_aware_kg_validation.json",
@@ -1062,7 +1038,6 @@ def build_defense_deck_outline(summary: dict[str, Any]) -> dict[str, Any]:
             "rule": "one action title and one evidence object per slide",
         },
         "metrics_snapshot": metrics,
-        "visual_assets": summary["visual_assets"],
         "slides": slides,
         "qa_checklist": [
             "Every content slide has an action title.",
@@ -1124,210 +1099,6 @@ def _write_markdown(markdown: str, output_path: Path) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(markdown.rstrip() + "\n", encoding="utf-8")
     return output_path
-
-
-def build_visual_asset_svgs() -> dict[str, str]:
-    return {
-        "project_cover.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024" role="img" aria-label="Aviation GraphRAG academic cover diagram">
-  <rect width="1536" height="1024" fill="#f8fafc"/>
-  <rect x="96" y="112" width="1344" height="800" rx="48" fill="#ffffff" stroke="#d8e2ee" stroke-width="3"/>
-  <path d="M230 650 C470 555 718 565 1120 394" fill="none" stroke="#1f4e79" stroke-width="10" stroke-linecap="round" opacity="0.12"/>
-  <path d="M260 674 C515 585 766 594 1194 426" fill="none" stroke="#2e75b6" stroke-width="5" stroke-linecap="round" opacity="0.22"/>
-  <g fill="#ffffff" stroke="#8fb3d8" stroke-width="3">
-    <rect x="212" y="216" width="240" height="300" rx="20"/>
-    <rect x="242" y="246" width="240" height="300" rx="20" opacity="0.9"/>
-    <rect x="272" y="276" width="240" height="300" rx="20" opacity="0.85"/>
-  </g>
-  <g stroke="#b8c8da" stroke-width="8" stroke-linecap="round">
-    <line x1="310" y1="344" x2="468" y2="344"/>
-    <line x1="310" y1="404" x2="472" y2="404"/>
-    <line x1="310" y1="464" x2="430" y2="464"/>
-  </g>
-  <g stroke="#1f4e79" stroke-width="5" opacity="0.82">
-    <line x1="710" y1="326" x2="836" y2="262"/>
-    <line x1="710" y1="326" x2="890" y2="392"/>
-    <line x1="836" y1="262" x2="1012" y2="322"/>
-    <line x1="890" y1="392" x2="1012" y2="322"/>
-    <line x1="890" y1="392" x2="1038" y2="506"/>
-    <line x1="1012" y1="322" x2="1156" y2="438"/>
-  </g>
-  <g fill="#ffffff" stroke="#2e75b6" stroke-width="5">
-    <circle cx="710" cy="326" r="36"/>
-    <circle cx="836" cy="262" r="30"/>
-    <circle cx="890" cy="392" r="34"/>
-    <circle cx="1012" cy="322" r="38"/>
-    <circle cx="1038" cy="506" r="30"/>
-    <circle cx="1156" cy="438" r="36"/>
-  </g>
-  <g fill="#eaf3fb" stroke="#2e75b6" stroke-width="3" opacity="0.95">
-    <rect x="660" y="628" width="428" height="44" rx="22"/>
-    <rect x="718" y="696" width="428" height="44" rx="22"/>
-    <rect x="776" y="764" width="428" height="44" rx="22"/>
-  </g>
-  <circle cx="1214" cy="224" r="78" fill="#1f4e79" opacity="0.08"/>
-  <circle cx="1250" cy="224" r="42" fill="#2e75b6" opacity="0.18"/>
-</svg>
-""",
-        "pipeline_overview.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024" role="img" aria-label="PDF to Hybrid RAG pipeline diagram">
-  <rect width="1536" height="1024" fill="#ffffff"/>
-  <defs>
-    <marker id="arrow" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
-      <path d="M0,0 L16,8 L0,16 z" fill="#1f4e79"/>
-    </marker>
-  </defs>
-  <g fill="#f8fafc" stroke="#9fb6ce" stroke-width="3">
-    <rect x="80" y="368" width="170" height="220" rx="20"/>
-    <rect x="280" y="330" width="170" height="78" rx="20"/>
-    <rect x="280" y="430" width="170" height="78" rx="20"/>
-    <rect x="280" y="530" width="170" height="78" rx="20"/>
-    <rect x="530" y="292" width="210" height="128" rx="24"/>
-    <rect x="530" y="500" width="210" height="128" rx="24"/>
-    <rect x="820" y="292" width="220" height="128" rx="24"/>
-    <rect x="820" y="500" width="220" height="128" rx="24"/>
-    <rect x="1128" y="386" width="250" height="160" rx="28"/>
-  </g>
-  <g stroke="#1f4e79" stroke-width="5" fill="none" marker-end="url(#arrow)">
-    <path d="M250 478 H278"/>
-    <path d="M450 370 H524"/>
-    <path d="M450 470 C490 470 490 356 524 356"/>
-    <path d="M450 570 C490 570 490 564 524 564"/>
-    <path d="M740 356 H814"/>
-    <path d="M740 564 H814"/>
-    <path d="M1040 356 C1090 356 1088 440 1122 440"/>
-    <path d="M1040 564 C1090 564 1088 492 1122 492"/>
-  </g>
-  <g stroke="#2e75b6" stroke-width="5" fill="#ffffff">
-    <circle cx="595" cy="346" r="18"/>
-    <circle cx="638" cy="376" r="18"/>
-    <circle cx="684" cy="344" r="18"/>
-    <line x1="595" y1="346" x2="638" y2="376"/>
-    <line x1="638" y1="376" x2="684" y2="344"/>
-    <circle cx="892" cy="548" r="18"/>
-    <circle cx="942" cy="528" r="18"/>
-    <circle cx="980" cy="574" r="18"/>
-    <line x1="892" y1="548" x2="942" y2="528"/>
-    <line x1="942" y1="528" x2="980" y2="574"/>
-  </g>
-  <g fill="#1f4e79" opacity="0.18">
-    <rect x="118" y="424" width="96" height="12" rx="6"/>
-    <rect x="118" y="464" width="96" height="12" rx="6"/>
-    <rect x="118" y="504" width="70" height="12" rx="6"/>
-    <circle cx="1242" cy="466" r="54"/>
-    <rect x="1196" y="458" width="118" height="16" rx="8" fill="#2e75b6"/>
-  </g>
-</svg>
-""",
-        "ontology_kg_graphrag_concept.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024" role="img" aria-label="Ontology constrained KG evidence for GraphRAG">
-  <rect width="1536" height="1024" fill="#ffffff"/>
-  <path d="M104 720 C378 604 638 618 1008 420 C1164 336 1288 282 1410 248" fill="none" stroke="#1f4e79" stroke-width="12" opacity="0.08"/>
-  <g fill="#f8fafc" stroke="#9fb6ce" stroke-width="3">
-    <rect x="116" y="196" width="270" height="90" rx="20"/>
-    <rect x="116" y="322" width="270" height="90" rx="20"/>
-    <rect x="116" y="448" width="270" height="90" rx="20"/>
-    <rect x="116" y="574" width="270" height="90" rx="20"/>
-    <rect x="116" y="700" width="270" height="90" rx="20"/>
-  </g>
-  <g stroke="#b8c8da" stroke-width="8" stroke-linecap="round">
-    <line x1="158" y1="242" x2="314" y2="242"/>
-    <line x1="158" y1="368" x2="306" y2="368"/>
-    <line x1="158" y1="494" x2="330" y2="494"/>
-    <line x1="158" y1="620" x2="286" y2="620"/>
-    <line x1="158" y1="746" x2="318" y2="746"/>
-  </g>
-  <g stroke="#1f4e79" stroke-width="5" fill="none">
-    <path d="M386 242 C488 242 488 346 588 346"/>
-    <path d="M386 368 C492 368 488 440 588 440"/>
-    <path d="M386 494 C488 494 492 534 588 534"/>
-    <path d="M386 620 C492 620 488 628 588 628"/>
-    <path d="M386 746 C492 746 488 722 588 722"/>
-  </g>
-  <g stroke="#2e75b6" stroke-width="5" fill="#ffffff">
-    <circle cx="628" cy="346" r="32"/>
-    <circle cx="754" cy="292" r="32"/>
-    <circle cx="850" cy="384" r="32"/>
-    <circle cx="724" cy="506" r="32"/>
-    <circle cx="894" cy="572" r="32"/>
-    <circle cx="768" cy="706" r="32"/>
-    <line x1="628" y1="346" x2="754" y2="292"/>
-    <line x1="754" y1="292" x2="850" y2="384"/>
-    <line x1="628" y1="346" x2="724" y2="506"/>
-    <line x1="724" y1="506" x2="894" y2="572"/>
-    <line x1="724" y1="506" x2="768" y2="706"/>
-    <line x1="850" y1="384" x2="894" y2="572"/>
-  </g>
-  <g fill="#f8fafc" stroke="#9fb6ce" stroke-width="3">
-    <rect x="1056" y="250" width="324" height="108" rx="24"/>
-    <rect x="1056" y="414" width="324" height="108" rx="24"/>
-    <rect x="1056" y="578" width="324" height="160" rx="28"/>
-  </g>
-  <g stroke="#1f4e79" stroke-width="5" fill="none" marker-end="url(#arrow2)">
-    <path d="M926 572 C990 572 990 632 1050 632"/>
-    <path d="M926 384 C990 384 990 304 1050 304"/>
-  </g>
-  <defs>
-    <marker id="arrow2" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
-      <path d="M0,0 L16,8 L0,16 z" fill="#1f4e79"/>
-    </marker>
-  </defs>
-  <g fill="#2e75b6" opacity="0.2">
-    <rect x="1100" y="302" width="180" height="14" rx="7"/>
-    <rect x="1100" y="466" width="210" height="14" rx="7"/>
-    <rect x="1100" y="640" width="222" height="14" rx="7"/>
-    <rect x="1100" y="686" width="150" height="14" rx="7"/>
-  </g>
-</svg>
-""",
-    }
-
-
-def write_visual_assets(output_dir: str | Path) -> tuple[list[Path], dict[str, Any]]:
-    output = Path(output_dir)
-    asset_dir = output / "assets"
-    asset_dir.mkdir(parents=True, exist_ok=True)
-    written: list[Path] = []
-    for filename, svg in build_visual_asset_svgs().items():
-        path = asset_dir / filename
-        path.write_text(svg, encoding="utf-8")
-        written.append(path)
-    manifest_assets: list[dict[str, Any]] = []
-    ai_asset_present = False
-    for asset in VISUAL_ASSETS:
-        asset_path = asset_dir / Path(asset["path"]).name
-        fallback = asset.get("fallback_path")
-        fallback_path = asset_dir / Path(fallback).name if fallback else None
-        exists = asset_path.exists()
-        if exists and asset_path.suffix.lower() == ".png":
-            ai_asset_present = True
-        manifest_assets.append(
-            {
-                **asset,
-                "exists": exists,
-                "fallback_exists": fallback_path.exists() if fallback_path else False,
-            }
-        )
-    manifest = {
-        "generated_at": _now(),
-        "generation_method": (
-            "illustrative_png_assets_with_local_svg_fallbacks"
-            if ai_asset_present
-            else "local_deterministic_svg_fallbacks"
-        ),
-        "uses_gateway_or_api": ai_asset_present,
-        "api_metadata_policy": "No API key, token, or base URL is recorded in this manifest.",
-        "assets": manifest_assets,
-        "local_fallback_assets": [
-            {
-                "path": f"reports/final/assets/{filename}",
-                "exists": (asset_dir / filename).exists(),
-                "purpose": "Deterministic SVG fallback for reproducible report builds.",
-            }
-            for filename in sorted(build_visual_asset_svgs())
-        ],
-    }
-    manifest_path = asset_dir / "visual_assets_manifest.json"
-    write_json_report(manifest, manifest_path)
-    written.append(manifest_path)
-    return written, manifest
 
 
 def write_academic_report(

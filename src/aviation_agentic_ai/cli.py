@@ -108,7 +108,6 @@ REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
             "academic-paper",
             "defense-notes",
             "defense-deck-outline",
-            "visual-assets",
         ),
     },
     {

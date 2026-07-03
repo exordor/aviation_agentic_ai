@@ -138,11 +138,10 @@ Related goals: G1, G5, G6, G7, G8.
   - Acceptance: answers what was built, why ontology is needed, why KG is a deliverable, why GraphRAG is used, why chunking strategies are compared, and where the system can fail.
 - [x] Generate academic defense PPT and illustrative visual assets.
   - Commands:
-    - `uv run aviation-ai report visual-assets`
     - `uv run aviation-ai report defense-deck-outline`
     - `node scripts/build_defense_deck.mjs`
-  - Evidence: `reports/final/aviation_graphrag_defense_deck.pptx`, `reports/final/assets/*_illustrative.png`, `reports/final/assets/*.svg`, `reports/final/assets/visual_assets_manifest.json`.
-  - Acceptance: PPT uses evidence-backed action titles, illustrative presentation visuals with local SVG fallbacks, source citations, an artifact-index appendix, and zero layout-check errors/warnings.
+  - Evidence: `reports/final/atcscc_defense_deck_outline.md`, `reports/final/aviation_graphrag_defense_deck_sources.json`. (The PHAK-era `aviation_graphrag_defense_deck.pptx` deck, `*_illustrative.png` assets, generated SVG fallbacks, and the `visual_assets_manifest.json` were retired; reviewer-facing decks now use the TU Clausthal template under `reports/final/templates/`.)
+  - Acceptance: PPT uses evidence-backed action titles, source citations, an artifact-index appendix, and zero layout-check errors/warnings.
 - [x] Implement a minimal web interface demonstrator.
   - Command: `uv run aviation-ai web serve`
   - Evidence: `reports/stages/web_demo_readiness.md`

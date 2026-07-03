@@ -81,25 +81,6 @@ offline demo behavior and must be attributed below.
   - If used directly, wrap it behind project-owned interfaces.
   - If source/templates are copied or adapted, document the copied files and preserve attribution.
 
-## Generated Presentation Assets
-
-### Illustrative Explanatory Images
-
-- Local generated assets:
-  `reports/final/assets/*_illustrative.png`
-- Local deterministic fallbacks:
-  `reports/final/assets/*.svg`
-- Manifest:
-  `reports/final/assets/visual_assets_manifest.json`
-- Use in this project:
-  - Presentation-only visuals for the final academic defense deck.
-  - They illustrate the project pipeline, KG evidence, and web demo narrative.
-- Integration rule:
-  - Metrics, labels, source citations, and artifact paths remain editable PPT
-    objects backed by local reports.
-  - The manifest records whether illustrative PNG assets are present but never records
-    API keys, tokens, gateway credentials, or private endpoint URLs.
-
 ## Runtime And Tooling Dependencies
 
 - ChromaDB is used as a local vector index backend; generated collections under

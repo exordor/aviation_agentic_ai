@@ -17,7 +17,6 @@ from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "reports" / "final" / "atcscc_defense_deck.pptx"
-ARCH = ROOT / "reports" / "final" / "assets" / "atcscc_architecture.svg"
 
 SLIDE_W = Inches(13.333)
 SLIDE_H = Inches(7.5)
@@ -151,7 +150,6 @@ def main() -> int:
     _add_image_slide(
         prs,
         "Method: Five-Block Architecture",
-        "See reports/final/assets/atcscc_architecture.svg (PNG render recommended for the deck).\n"
         "advisory → schema → agentic extraction (S0–S4 + validator/refiner/critic) → "
         "evidence-linked event graph → vector/graph/hybrid/routed KG-RAG → answers + citations.\n\n"
         "Reproduce end-to-end:  uv run aviation-ai demo   (offline, no API key)",
