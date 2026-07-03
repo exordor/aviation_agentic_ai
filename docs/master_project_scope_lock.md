@@ -36,7 +36,7 @@ The final master project needs only the following deliverables.
 | Agentic validation/refinement loop | Tests whether validator/refiner/critic steps reduce schema and evidence failures. | `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md` |
 | KG-RAG answer-generation comparison | Tests vector, graph, and hybrid/routed retrieval for source-grounded answers. | `reports/stages/nasa_atmonto_s7_retrieval.md`, `reports/stages/nasa_atmonto_s7_llm_answer_generation.md` |
 | Failure and claim-safety audit | Defines what remains unresolved and where human review is required. | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md` |
-| Thesis synthesis | Turns the evidence into the final research story. | `docs/research_mainline.md`, `docs/thesis_positioning.md`, `reports/stages/thesis_experiment_dashboard.md` |
+| Thesis synthesis | Turns the evidence into the final research story. | `docs/research_mainline.md`, `docs/thesis_positioning.md`, `reports/stages/nasa_atmonto_experiment_chapter_draft.md` |
 
 If a proposed task does not strengthen one of these deliverables, it should be
 deferred.

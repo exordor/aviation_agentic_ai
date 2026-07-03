@@ -22,7 +22,7 @@ and `tracked_context_inventory.md` (merged here to remove redundancy).
 | LLM review protocol | `docs/llm_review_protocol.md` |
 | Presentation style harness | `docs/presentation_style_harness.md` |
 | Final deliverable directory status | `reports/final/README.md` |
-| Current dashboard synthesis | `reports/stages/thesis_experiment_dashboard.md` |
+| Current dashboard synthesis | `reports/stages/nasa_atmonto_s7_retrieval.md` |
 | Reviewer-defense guardrails | `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
 
 The minimal new-thread startup pack is intentionally small:
@@ -96,7 +96,7 @@ as the current thesis entry point:
 
 Historical reports may still be cited for method evolution or negative results,
 but current thesis claims should be routed through `docs/research_mainline.md`,
-`docs/thesis_positioning.md`, and `reports/stages/thesis_experiment_dashboard.md`.
+`docs/thesis_positioning.md`, and `reports/stages/nasa_atmonto_s7_retrieval.md`.
 
 ### Secondary Reading Set (Per-File Risk)
 
@@ -228,7 +228,7 @@ certified/operational assistant claims.
 | --- | --- | --- | --- |
 | T0 canonical framing | `docs/` | `thesis_positioning.md`, `research_mainline.md`, `documentation_map.md` | Update when the thesis scope, RQs, claim boundaries, or entry points change. |
 | T1 protocols and scope control | `docs/` | `experiment_protocol.md`, `research_paper_analysis_protocol.md` | Update when the reproducible workflow, scoring rules, or paper-intake process changes. |
-| T2 current thesis evidence | `reports/stages/` | `nasa_atmonto_formal_experiment_scoring.md`, `nasa_atmonto_s7_retrieval.md`, `thesis_experiment_dashboard.md` | Keep as generated or reviewed evidence; cite through the dashboard and this map. |
+| T2 current thesis evidence | `reports/stages/` | `nasa_atmonto_formal_experiment_scoring.md`, `nasa_atmonto_s7_retrieval.md`, `nasa_atmonto_experiment_chapter_draft.md` | Keep as generated or reviewed evidence; cite through this map. |
 | T3 source/schema explainers | `reports/stages/` | `atcscc_data_format_and_processing_flow.md`, `atcscc_ontology_profile_overview.md` | Keep thesis-facing and readable; update when data/profile boundaries change. |
 | T4 method migration and paper analysis | `reports/stages/`, `data/papers/README.md` | `claim_kg_graphrag_paper_adaptation.md`, `multi_agent_pipeline_method_adaptation.md` | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
 | T5 historical artifacts | `docs/archive/phak_era/`, `reports/stages/`, `reports/final/` | PHAK reports, old web-demo reports, old final report drafts | Preserve for provenance, but do not let them override current ATCSCC framing. |
@@ -302,7 +302,7 @@ When documents disagree, use this precedence:
 3. `docs/research_mainline.md`
 4. `docs/experiment_protocol.md`
 5. this map (`docs/documentation_map.md`)
-6. `reports/stages/thesis_experiment_dashboard.md`
+6. `reports/stages/nasa_atmonto_s7_retrieval.md`
 7. Latest SOTA/reviewer-defense audit reports
 8. Older stage reports
 
@@ -316,7 +316,7 @@ docs/thread_handoff.md
   -> docs/thesis_positioning.md
   -> docs/research_mainline.md
   -> docs/experiment_protocol.md
-  -> reports/stages/thesis_experiment_dashboard.md
+  -> reports/stages/nasa_atmonto_s7_retrieval.md
   -> reports/stages/nasa_atmonto_reviewer_defense_audit.md
 ```
 

@@ -10,9 +10,6 @@ from aviation_agentic_ai.reporting.evaluation_protocol import (
     write_evaluation_protocol_review,
 )
 from aviation_agentic_ai.reporting.thesis_claims import write_thesis_claims_review
-from aviation_agentic_ai.reporting.thesis_dashboard import (
-    write_thesis_experiment_dashboard,
-)
 
 
 def register_thesis_report_commands(report: click.Group) -> None:
@@ -73,30 +70,6 @@ def register_thesis_report_commands(report: click.Group) -> None:
             click.echo(
                 "Reviewed evaluation protocol metrics; pending gaps: "
                 f"{len(result['missing_or_pending_metrics'])}."
-            )
-        except Exception as exc:
-            raise click.ClickException(str(exc)) from exc
-
-    @report.command("thesis-experiment-dashboard")
-    @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
-    @click.option("--report-name", default="thesis_experiment_dashboard", show_default=True)
-    def report_thesis_experiment_dashboard(
-        output_dir: Path | None,
-        report_name: str,
-    ) -> None:
-        """Aggregate thesis experiment reports into an RQ-oriented dashboard."""
-        try:
-            config = load_default_config()
-            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-            json_path, md_path, result = write_thesis_experiment_dashboard(
-                report_dir,
-                report_name=report_name,
-            )
-            click.echo(f"Wrote {project_relative_path(json_path)}")
-            click.echo(f"Wrote {project_relative_path(md_path)}")
-            click.echo(
-                "Built thesis experiment dashboard; consistency checks passed="
-                f"{result['consistency_checks']['all_passed']}."
             )
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc

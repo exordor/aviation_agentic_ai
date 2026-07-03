@@ -86,7 +86,6 @@ The thesis must not collapse these layers into a single mixed overall score.
 The full metric protocol is documented in `docs/experiment_protocol.md` and can
 be audited with `uv run aviation-ai report evaluation-protocol`. The full thesis
 experiment sequence is documented in `docs/experiment_protocol.md` and
-summarized by `uv run aviation-ai report thesis-experiment-dashboard`.
 
 ## Claim Safety Matrix
 

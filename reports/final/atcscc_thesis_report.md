@@ -64,7 +64,7 @@ certification, universal KG-RAG superiority, and semantic correctness beyond
 reviewed evidence.
 
 **Evidence spine:** `docs/thesis_positioning.md`, `docs/research_mainline.md`,
-`reports/stages/thesis_experiment_dashboard.md`.
+`reports/stages/nasa_atmonto_s7_retrieval.md`.
 
 ## Chapter 2. Background and Related Work
 

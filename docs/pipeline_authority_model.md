@@ -48,7 +48,7 @@ The design principle is:
 | Completeness auditor | CQ coverage, source-observable field coverage, profile-gap register, recall diagnostics | CQ evaluation, profile decision, rejection adjudication |
 | Schema spine | NASA ATMONTO-derived ATCSCC application schema/profile plus CQs and constraints | `docs/thesis_positioning.md`, schema/profile reports |
 | External boundary | NewAPI LLM provider, vector index, graph store, local runtime dependencies | provider metadata and run manifests |
-| Sign-off dossier | Thesis dashboard, claim review, reviewer-defense audit, optional human-review packet | `reports/stages/thesis_experiment_dashboard.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
+| Sign-off dossier | Thesis dashboard, claim review, reviewer-defense audit, optional human-review packet | `reports/stages/nasa_atmonto_s7_retrieval.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
 | Product layer | Web demo, defense deck, report renderer | Must remain retrospective and non-operational |
 
 ## Support Assessment

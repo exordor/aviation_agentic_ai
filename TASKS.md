@@ -226,7 +226,6 @@ Related goals: G2, G3, G4, G6, G8, G9.
     - `uv run aviation-ai report chunking-comparison-v2 --evaluation-mode fixed_context_budget`
     - `uv run aviation-ai report chunking-topk-sensitivity-v2`
     - `uv run aviation-ai report chunking-category-analysis-v2`
-    - `uv run aviation-ai report thesis-experiment-dashboard`
     - `uv run aviation-ai report project --no-ai`
   - Evidence:
     - `reports/stages/chunking_implementation_audit.md`
@@ -235,7 +234,7 @@ Related goals: G2, G3, G4, G6, G8, G9.
     - `reports/stages/chunking_topk_sensitivity_benchmark_v2.md`
     - `reports/stages/chunking_category_analysis_benchmark_v2.md`
     - `reports/stages/chunking_failure_cards_benchmark_v2.md`
-    - `reports/stages/thesis_experiment_dashboard.md`
+    - `reports/stages/nasa_atmonto_s7_retrieval.md`
     - `reports/phak_era_archive/project_report.md`
   - Result: 14 benchmark-v2 strategies were evaluated over 120 labels. Default top-k supported Recall@5 ranks `fixed_large` first at 0.86; fixed 4000-character context budget ranks `recursive_medium` first at 0.79. Top-k winners vary by k, and category winners vary by question type.
   - Implementation status: `embedding_semantic` used the `sentence_transformers` backend in the generated run; `hierarchical_parent_child` remains partial child-index/parent-metadata retrieval; `proposition_like` remains proposition-only; `structure_aware_medium` and `structure_aware_large` now produce larger structure-aware chunks than legacy `structure_aware`.

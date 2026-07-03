@@ -27,7 +27,7 @@ their layer:
 
 - thesis framing: `docs/thesis_positioning.md`, `docs/research_mainline.md`;
 - experiment execution and metrics: `docs/experiment_protocol.md`;
-- current evidence synthesis: `reports/stages/thesis_experiment_dashboard.md`;
+- current evidence synthesis: `reports/stages/nasa_atmonto_s7_retrieval.md`;
 - reviewer/SOTA defense:
   `reports/stages/nasa_atmonto_reviewer_defense_audit.md`,
   `reports/stages/nasa_atmonto_sota_goal_audit.md`.

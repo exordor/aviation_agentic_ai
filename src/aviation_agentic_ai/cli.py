@@ -103,7 +103,6 @@ REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
             "commands": (
                 "thesis-claims",
                 "evaluation-protocol",
-                "thesis-experiment-dashboard",
             ),
     },
     {

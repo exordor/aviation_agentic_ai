@@ -17,7 +17,7 @@ Use these documents as the primary source chain:
 4. `docs/experiment_protocol.md`
 5. `reports/stages/atcscc_data_format_and_processing_flow.md`
 6. `reports/stages/atcscc_ontology_profile_overview.md`
-7. `reports/stages/thesis_experiment_dashboard.md`
+7. `reports/stages/nasa_atmonto_s7_retrieval.md`
 8. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 9. `reports/stages/nasa_atmonto_sota_goal_audit.md`
 
@@ -41,7 +41,7 @@ source-grounded KG-RAG evaluation.
 | 4. Application Schema/Profile | Explain why the full ATMONTO ontology is not used wholesale and how the ATCSCC profile constrains extraction. | `reports/stages/atcscc_ontology_profile_overview.md`, `reports/stages/nasa_atmonto_competency_questions.md` |
 | 5. Method | Present the end-to-end pipeline: source parser, schema-constrained extractor, validator/refiner/critic loop, event graph, vector/graph/hybrid retrieval, answer verifier. | `docs/experiment_protocol.md`, `reports/stages/atcscc_agentic_artifact_contract.md` |
 | 6. Evaluation Design | Define RQs, baselines, metrics, pass/fail gates, and no-overall-score policy. | `docs/research_mainline.md`, `docs/experiment_protocol.md` |
-| 7. Results | Report extraction, agentic loop, retrieval, answer generation, and failure-review results separately. | `reports/stages/thesis_experiment_dashboard.md`, S0-S7 stage reports |
+| 7. Results | Report extraction, agentic loop, retrieval, answer generation, and failure-review results separately. | `reports/stages/nasa_atmonto_s7_retrieval.md`, S0-S7 stage reports |
 | 8. Discussion | Explain what the results support, what remains weak, and why negative/diagnostic results matter. | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md` |
 | 9. Threats to Validity | Separate source-boundary, schema-boundary, gold-review, automated-review, and operational-boundary limitations. | `docs/thesis_positioning.md`, reviewer-defense audit |
 | 10. Conclusion | Summarize contribution and future work without overclaiming ontology completeness, domain generality, or live operational use. | `docs/research_mainline.md` |
@@ -71,7 +71,7 @@ source-grounded KG-RAG evaluation.
 | --- | --- | --- |
 | T1: RQ to validation matrix | Show experiment layer, baselines, metrics, artifacts, and pass/fail criteria. | `docs/research_mainline.md` |
 | T2: ATCSCC source fields to profile terms | Defend source-observable completeness and profile scope. | `reports/stages/atcscc_data_format_and_processing_flow.md`, `reports/stages/atcscc_ontology_profile_overview.md` |
-| T3: Baseline comparison | Compare S0-S7 extraction and KG-RAG systems without one mixed overall score. | `reports/stages/thesis_experiment_dashboard.md` |
+| T3: Baseline comparison | Compare S0-S7 extraction and KG-RAG systems without one mixed overall score. | `reports/stages/nasa_atmonto_s7_retrieval.md` |
 | T4: Claim safety matrix | Safe wording versus unsafe wording. | `docs/thesis_positioning.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
 
 ## Claims To Preserve

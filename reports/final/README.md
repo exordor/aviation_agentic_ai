@@ -11,7 +11,7 @@ For the current ATCSCC thesis route, start with:
 4. `docs/research_mainline.md`
 5. `docs/documentation_map.md`
 6. `docs/experiment_protocol.md`
-7. `reports/stages/thesis_experiment_dashboard.md`
+7. `reports/stages/nasa_atmonto_s7_retrieval.md`
 8. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 
 ## Current Status

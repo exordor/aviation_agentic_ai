@@ -2,7 +2,7 @@ SNAPSHOT_DATE ?= 2026-06-01
 PAPER ?=
 SLUG ?=
 
-.PHONY: validate reports-core reports-main-experiments reports-review thesis-dashboard thesis-all airm-o paper-inspect sync-windows sync-windows-dry-run sync-windows-list
+.PHONY: validate reports-core reports-main-experiments reports-review thesis-all airm-o paper-inspect sync-windows sync-windows-dry-run sync-windows-list
 
 validate:
 	uv run ruff check .
@@ -31,9 +31,6 @@ reports-review:
 	uv run aviation-ai report answer-eval-subset
 	uv run aviation-ai report answer-eval --gold-labels data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json --report-name answer_evaluation_benchmark_subset
 
-thesis-dashboard:
-	uv run aviation-ai report thesis-experiment-dashboard
-
 airm-o:
 	uv run python scripts/collect_airm_o_pipeline.py --snapshot-date $(SNAPSHOT_DATE)
 
@@ -50,4 +47,4 @@ sync-windows-dry-run:
 sync-windows-list:
 	uv run python scripts/sync_windows_workspace.py --list-only
 
-thesis-all: reports-core reports-main-experiments reports-review thesis-dashboard validate
+thesis-all: reports-core reports-main-experiments reports-review validate

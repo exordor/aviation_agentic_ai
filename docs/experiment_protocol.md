@@ -1079,7 +1079,7 @@ FAA ATCSCC advisories
   `reports/stages/nasa_atmonto_s7_candidate_adjudication.md`,
   `reports/stages/nasa_atmonto_s7_profile_decision.md`.
 - **Step 9 — Synthesize thesis claims**: `reports/stages/thesis_claims_review.md`,
-  `reports/stages/thesis_experiment_dashboard.md`,
+  `reports/stages/nasa_atmonto_s7_retrieval.md`,
   `reports/stages/nasa_atmonto_sota_goal_audit.md`,
   `reports/stages/nasa_atmonto_reviewer_defense_audit.md`.
 
@@ -1091,10 +1091,9 @@ uv run aviation-ai report thesis-claims
 uv run aviation-ai report nasa-atmonto-answer-generation
 uv run python scripts/build_nasa_atmonto_sota_goal_audit.py
 uv run python scripts/build_nasa_atmonto_reviewer_defense_audit.py
-uv run aviation-ai report thesis-experiment-dashboard
 uv run ruff check .
 uv run pytest -q
 ```
 
-Use `reports/stages/thesis_experiment_dashboard.md` as the current state table,
+Use `reports/stages/nasa_atmonto_s7_retrieval.md` as the current state table,
 not as a substitute for reading the underlying reports.

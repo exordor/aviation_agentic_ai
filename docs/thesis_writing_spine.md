@@ -37,7 +37,7 @@ and KG-RAG answer evaluation over FAA ATCSCC advisories.
 | Evidence-linked advisory-event extraction | `reports/stages/nasa_atmonto_formal_experiment_scoring.md` |
 | Agentic validation/refinement diagnostics | `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md` |
 | Source-bounded KG-RAG answer comparison | `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`, `reports/stages/nasa_atmonto_s7_vector_only_llm_answer_generation.md` |
-| Failure and claim-safety boundary | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/thesis_experiment_dashboard.md` |
+| Failure and claim-safety boundary | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_s7_retrieval.md` |
 
 ## Method Figure Plan
 
@@ -78,8 +78,7 @@ accepted fact is checked against schema and evidence boundaries.
 
 Use the concise dashboard as the source of current headline numbers:
 
-- `reports/stages/thesis_experiment_dashboard.md`
-- `uv run aviation-ai report thesis-experiment-dashboard`
+- `reports/stages/nasa_atmonto_s7_retrieval.md`
 
 Current headline results:
 

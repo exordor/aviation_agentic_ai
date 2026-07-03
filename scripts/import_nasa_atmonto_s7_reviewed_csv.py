@@ -17,9 +17,6 @@ from aviation_agentic_ai.reporting.atmonto.s7.answer_review_decisions import (
 from aviation_agentic_ai.reporting.atmonto.audit.sota_goal_audit import (
     write_nasa_atmonto_sota_goal_audit,
 )
-from aviation_agentic_ai.reporting.thesis_dashboard import (
-    write_thesis_experiment_dashboard,
-)
 
 
 def main() -> int:
@@ -91,16 +88,11 @@ def main() -> int:
         sota_json, sota_md, _sota = write_nasa_atmonto_sota_goal_audit(
             output_dir=output_dir,
         )
-        dashboard_json, dashboard_md, _dashboard = write_thesis_experiment_dashboard(
-            output_dir,
-        )
         refreshed = {
             "decisions_json": str(decisions_json),
             "decisions_markdown": str(decisions_md),
             "sota_json": str(sota_json),
             "sota_markdown": str(sota_md),
-            "dashboard_json": str(dashboard_json),
-            "dashboard_markdown": str(dashboard_md),
         }
     print(
         json.dumps(

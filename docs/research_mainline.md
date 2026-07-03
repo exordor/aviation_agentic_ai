@@ -128,8 +128,7 @@ Use this order when writing the thesis or preparing slides:
    `nasa_atmonto_s7_graph_health.md`
 6. Answer-generation diagnostics: `nasa_atmonto_s7_llm_answer_generation.md`
 7. Failure and review boundary: `nasa_atmonto_reviewer_defense_audit.md`
-8. Thesis synthesis: `thesis_experiment_dashboard.md`,
-   `nasa_atmonto_experiment_chapter_draft.md`
+8. Thesis synthesis: `nasa_atmonto_experiment_chapter_draft.md`
 
 ## How Literature Fits
 
