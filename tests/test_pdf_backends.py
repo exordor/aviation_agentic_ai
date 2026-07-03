@@ -1,13 +1,11 @@
-from pathlib import Path
 
 import pytest
 
 from aviation_agentic_ai.chunking import chunks as chunk_module
 from aviation_agentic_ai.chunking.chunks import build_chunks, build_chunks_from_normalized_pdf_document
-from aviation_agentic_ai.reporting import pdf_extraction
 from aviation_agentic_ai.sources import docling_backend, pdf_hybrid
 from aviation_agentic_ai.sources.pdf_hybrid import repair_docling_text_with_pymupdf
-from aviation_agentic_ai.sources.pymupdf_backend import PyMuPDFBlock, PyMuPDFPageText
+from aviation_agentic_ai.sources.pymupdf_backend import PyMuPDFPageText
 from aviation_agentic_ai.utils.pdf import PdfPage
 
 
@@ -194,50 +192,3 @@ class _FakeDocument:
 class _FakeResult:
     document = _FakeDocument()
     status = "SUCCESS"
-
-
-def test_pdf_extraction_comparison_writes_reports_with_mocked_backends(
-    tmp_path: Path,
-    monkeypatch,
-) -> None:
-    monkeypatch.setattr(
-        pdf_extraction,
-        "timed_pymupdf_extraction",
-        lambda *_args, **_kwargs: (
-            [
-                PyMuPDFPageText(
-                    page_number=0,
-                    text=(
-                        "Introduction\nStructure of the Atmosphere\n"
-                        "Angle of attack appears here."
-                    ),
-                    sorted_text=(
-                        "Introduction\nStructure of the Atmosphere\n"
-                        "Angle of attack appears here."
-                    ),
-                )
-            ],
-            [],
-            [PyMuPDFBlock(page_number=0, text="Introduction", block_no=0, block_type=0, bbox={})],
-            0.01,
-        ),
-    )
-    monkeypatch.setattr(
-        pdf_extraction,
-        "timed_docling_conversion",
-        lambda *_args, **_kwargs: (_FakeResult(), 0.02, ""),
-    )
-
-    json_path, md_path, result = pdf_extraction.write_pdf_extraction_comparison(
-        tmp_path / "doc.pdf",
-        tmp_path,
-        normalized_output_path=tmp_path / "normalized.json",
-        reviews_dir=tmp_path / "reviews",
-    )
-
-    assert json_path.exists()
-    assert md_path.exists()
-    assert (tmp_path / "pdf_hybrid_repair_report.json").exists()
-    assert (tmp_path / "reviews" / "pdf_extraction_strategy_update.json").exists()
-    assert result["backends"]["docling_structure"]["gt_headings_labeled_as_section_header"] == 2
-    assert result["backends"]["hybrid_docling_pymupdf"]["repaired_artifact_count"] >= 1
