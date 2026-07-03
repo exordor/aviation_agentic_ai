@@ -96,7 +96,6 @@ REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
         "attribute": "register_thesis_report_commands",
         "commands": (
             "thesis-claims",
-            "evaluation-protocol",
         ),
     },
     {

@@ -6,9 +6,6 @@ import click
 
 from aviation_agentic_ai.config import load_default_config, resolve_project_path
 from aviation_agentic_ai.paths import project_relative_path
-from aviation_agentic_ai.reporting.evaluation_protocol import (
-    write_evaluation_protocol_review,
-)
 from aviation_agentic_ai.reporting.thesis_claims import write_thesis_claims_review
 
 
@@ -49,27 +46,6 @@ def register_thesis_report_commands(report: click.Group) -> None:
             click.echo(
                 f"Reviewed thesis claims; unsafe claims found: "
                 f"{result['metadata']['unsafe_claims_total']}."
-            )
-        except Exception as exc:
-            raise click.ClickException(str(exc)) from exc
-
-    @report.command("evaluation-protocol")
-    @click.option("--output-dir", type=click.Path(path_type=Path), default=None)
-    @click.option("--report-name", default="evaluation_protocol_review", show_default=True)
-    def report_evaluation_protocol(output_dir: Path | None, report_name: str) -> None:
-        """Summarize layered mainstream RAG/GraphRAG/KG evaluation coverage."""
-        try:
-            config = load_default_config()
-            report_dir = output_dir or resolve_project_path(config["paths"]["stage_report_dir"])
-            json_path, md_path, result = write_evaluation_protocol_review(
-                report_dir,
-                report_name=report_name,
-            )
-            click.echo(f"Wrote {project_relative_path(json_path)}")
-            click.echo(f"Wrote {project_relative_path(md_path)}")
-            click.echo(
-                "Reviewed evaluation protocol metrics; pending gaps: "
-                f"{len(result['missing_or_pending_metrics'])}."
             )
         except Exception as exc:
             raise click.ClickException(str(exc)) from exc

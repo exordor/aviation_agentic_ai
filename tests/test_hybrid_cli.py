@@ -362,32 +362,3 @@ def test_cli_report_nasa_atmonto_answer_generation_uses_mocked_writer(
     assert result.exit_code == 0, result.output
     assert "Generated 6 ATCSCC answer-eval labels" in result.output
     assert "critic-gate rejected 1 S4 facts" in result.output
-
-
-def test_cli_report_evaluation_protocol_uses_mocked_writer(
-    tmp_path: Path,
-    monkeypatch,
-) -> None:
-    from aviation_agentic_ai import cli_report_thesis
-
-    def fake_writer(*_args, **_kwargs):
-        json_path = tmp_path / "evaluation_protocol_review.json"
-        md_path = tmp_path / "evaluation_protocol_review.md"
-        json_path.write_text("{}\n", encoding="utf-8")
-        md_path.write_text("# report\n", encoding="utf-8")
-        return json_path, md_path, {"missing_or_pending_metrics": [{}, {}]}
-
-    monkeypatch.setattr(cli_report_thesis, "write_evaluation_protocol_review", fake_writer)
-
-    result = CliRunner().invoke(
-        main,
-        [
-            "report",
-            "evaluation-protocol",
-            "--output-dir",
-            str(tmp_path),
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    assert "pending gaps: 2" in result.output
