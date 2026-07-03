@@ -287,7 +287,7 @@ CLAIM_SAFETY_MATRIX = [
         "unsafe_wording_to_avoid": "The method is proven domain-general.",
         "evidence_files": [
             "reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md",
-            "reports/stages/nasa_bga_domain_transfer_pilot.json",
+            "reports/phak_era_archive/stages/nasa_bga_domain_transfer_pilot.json",
         ],
     },
 ]

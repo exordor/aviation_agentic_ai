@@ -129,7 +129,7 @@ SOTA_REQUIREMENTS: tuple[dict[str, Any], ...] = (
         "status": "mostly_satisfied",
         "evidence": [
             "reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md",
-            "reports/stages/nasa_bga_domain_transfer_pilot.md",
+            "reports/phak_era_archive/stages/nasa_bga_domain_transfer_pilot.md",
             "templates/agentic_artifact_contract.md",
         ],
         "limitation": (
@@ -169,7 +169,7 @@ def build_nasa_atmonto_sota_goal_audit(
         root / "reports/stages/nasa_atmonto_s7_automated_adversarial_review.json"
     )
     second_domain_transfer = read_json_object_or_empty(
-        root / "reports/stages/nasa_bga_domain_transfer_pilot.json"
+        root / "reports/phak_era_archive/stages/nasa_bga_domain_transfer_pilot.json"
     )
     status_counts: dict[str, int] = {}
     for item in requirements:

@@ -248,8 +248,8 @@ def source_family_methodology_boundaries(repo_root: Path) -> dict[str, Any]:
                     "candidate_default": "hybrid_docling_pymupdf",
                     "legacy_baseline": "pymupdf_text_legacy",
                     "policy_reports": [
-                        "reports/stages/pdf_extraction_comparison.md",
-                        "reports/stages/pdf_backend_chunking_comparison.md",
+                        "reports/phak_era_archive/stages/pdf_extraction_comparison.md",
+                        "reports/phak_era_archive/stages/pdf_backend_chunking_comparison.md",
                     ],
                 },
             },

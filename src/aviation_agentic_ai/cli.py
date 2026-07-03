@@ -8,13 +8,6 @@ import click
 
 TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
     {
-        "module": "aviation_agentic_ai.cli_web",
-        "attribute": "web",
-        "name": "web",
-        "help": "Local web demo commands.",
-        "subcommands": ("serve",),
-    },
-    {
         "module": "aviation_agentic_ai.cli_chunk",
         "attribute": "chunk_group",
         "name": "chunk",

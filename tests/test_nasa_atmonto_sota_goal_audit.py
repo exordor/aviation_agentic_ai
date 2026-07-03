@@ -74,7 +74,7 @@ def _write_all_evidence(tmp_path: Path, *, human_review_completed: bool = False)
         },
     )
     _write_json(
-        tmp_path / "reports/stages/nasa_bga_domain_transfer_pilot.json",
+        tmp_path / "reports/phak_era_archive/stages/nasa_bga_domain_transfer_pilot.json",
         {
             "status": "second_domain_transfer_pilot_created",
             "metadata": {"transfer_domain": "NASA Beginner's Guide to Aerodynamics"},
