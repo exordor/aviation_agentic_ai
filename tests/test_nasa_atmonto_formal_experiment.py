@@ -369,9 +369,9 @@ def _setup_formal_experiment_fixture(
             rejection_dst = tmp_path / "reports/stages/nasa_atmonto_rejection_error_analysis.json"
             rejection_dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(rejection_src, rejection_dst)
-        protocol_src = repo / "docs/experiment_protocol.md"
+        protocol_src = repo / "EXPERIMENTS.md"
         if protocol_src.exists():
-            protocol_dst = tmp_path / "docs/experiment_protocol.md"
+            protocol_dst = tmp_path / "EXPERIMENTS.md"
             protocol_dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(protocol_src, protocol_dst)
 

@@ -457,7 +457,7 @@ def formal_completion_audit(
             "id": "R0",
             "requirement": "Position the current NASA ATMONTO loop as pilot / feasibility evidence, not a completed formal experiment.",
             "status": "satisfied" if pilot_positioning else "incomplete_claim_boundary",
-            "evidence": "docs/experiment_protocol.md contains pilot/feasibility boundary and bronze-until-reviewed language.",
+            "evidence": "EXPERIMENTS.md contains pilot/feasibility boundary and bronze-until-reviewed language.",
         },
         {
             "id": "R1",
@@ -515,7 +515,7 @@ def formal_completion_audit(
             "id": "R5",
             "requirement": "Define JSON, schema, semantic, repair, and manual-correctness metrics.",
             "status": "satisfied",
-            "evidence": "docs/experiment_protocol.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json",
+            "evidence": "EXPERIMENTS.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json",
         },
         {
             "id": "R6",
@@ -557,7 +557,7 @@ def formal_completion_audit(
             "id": "R10",
             "requirement": "Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria.",
             "status": "satisfied" if protocol_fixed else "incomplete_protocol",
-            "evidence": "docs/experiment_protocol.md",
+            "evidence": "EXPERIMENTS.md",
         },
     ]
     blockers = [
@@ -612,7 +612,7 @@ def build_formal_experiment_score_report(
         rejection_analysis=rejection_analysis,
         rejection_adjudication=rejection_adjudication,
     )
-    protocol_text = (repo_root / "docs/experiment_protocol.md").read_text(encoding="utf-8")
+    protocol_text = (repo_root / "EXPERIMENTS.md").read_text(encoding="utf-8")
     completion_audit = formal_completion_audit(
         manifest=manifest,
         protocol_text=protocol_text,
@@ -639,7 +639,7 @@ def build_formal_experiment_score_report(
     return {
         "source_family": "nasa_atmonto_formal_experiment_scoring",
         "status": "scored" if not missing_inputs else "pending_required_inputs",
-        "protocol": "docs/experiment_protocol.md",
+        "protocol": "EXPERIMENTS.md",
         "gold_source": {
             key: value
             for key, value in gold_source.items()
@@ -1079,7 +1079,7 @@ def build_formal_experiment_readiness(
     return {
         "source_family": "nasa_atmonto_formal_experiment_readiness",
         "status": status,
-        "protocol": "docs/experiment_protocol.md",
+        "protocol": "EXPERIMENTS.md",
         "gold_manifest": project_relative_path(repo_root / GOLD_MANIFEST_PATH, repo_root),
         "gold_template": project_relative_path(repo_root / GOLD_TEMPLATE_PATH, repo_root),
         "manual_review_artifacts": {

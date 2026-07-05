@@ -55,7 +55,7 @@ def test_nasa_atmonto_rejection_analysis_covers_all_rejected_facts() -> None:
 
 
 def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() -> None:
-    protocol = Path("docs/experiment_protocol.md").read_text(encoding="utf-8")
+    protocol = Path("EXPERIMENTS.md").read_text(encoding="utf-8")
 
     for required in [
         "pilot / feasibility study",
@@ -123,7 +123,7 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
 
 
 def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
-    protocol = Path("docs/experiment_protocol.md").read_text(encoding="utf-8")
+    protocol = Path("EXPERIMENTS.md").read_text(encoding="utf-8")
 
     assert "supported on the corrected stage" in protocol
     assert "S1b/S4 corrected-stage derived outputs" in protocol
@@ -138,7 +138,7 @@ def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
 
 
 def test_experiment_protocol_repair_metric_boundary_matches_s3_loop() -> None:
-    protocol = Path("docs/experiment_protocol.md").read_text(encoding="utf-8")
+    protocol = Path("EXPERIMENTS.md").read_text(encoding="utf-8")
 
     assert "enter the S3 validator/repair loop as initially invalid" in protocol
     assert "initially invalid S2 facts" not in protocol
