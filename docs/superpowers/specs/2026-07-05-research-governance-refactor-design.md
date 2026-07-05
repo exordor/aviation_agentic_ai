@@ -201,8 +201,14 @@ Each step is one commit. Branch off `main` first (`refactor/research-governance-
 - `git mv` the six spine docs + `TASKS.md` into `docs/archive/governance_era/`.
 - Add `docs/archive/governance_era/README.md` documenting the supersession.
 - Run full `uv run ruff check .` and `uv run pytest -q`.
-- Regenerate `reports/stages/nasa_atmonto_formal_experiment_scoring.json` + readiness JSON (if a regen command exists in `REPRODUCIBILITY.md`) to capture the `protocol: EXPERIMENTS.md` change; commit message notes the expected diff.
+- Do **not** regenerate `nasa_atmonto_formal_experiment_scoring.json` / readiness JSON here. JSON regeneration is deferred to a follow-up commit so the refactor PR stays text + code-path only.
 - Commit: `refactor: archive docs/ governance spine into docs/archive/governance_era/`.
+
+**Follow-up commit (after the 6-commit refactor lands) — JSON regeneration.**
+- Run the regeneration command listed in `REPRODUCIBILITY.md` to refresh `reports/stages/nasa_atmonto_formal_experiment_scoring.json` and `nasa_atmonto_formal_experiment_readiness.json`.
+- Inspect the diff: the only refactor-related change should be `"protocol": "docs/experiment_protocol.md"` → `"protocol": "EXPERIMENTS.md"`. Any other delta is from unrelated input drift and must be reported, not silently committed.
+- Commit: `chore: regenerate formal-experiment JSON against EXPERIMENTS.md protocol path`.
+- Out of refactor scope; tracked here only so it is not forgotten.
 
 ## 9. Verification
 
@@ -216,15 +222,15 @@ Each step is one commit. Branch off `main` first (`refactor/research-governance-
 
 | Risk | Mitigation |
 |---|---|
-| Generated report JSON drift after `_audit_reports.py` path change | Document expected diff in Commit 6 message; regenerate via the command listed in `REPRODUCIBILITY.md`. |
+| Generated report JSON drift after `_audit_reports.py` path change | Expected `protocol: EXPERIMENTS.md` change is deferred to a follow-up commit (§8); Commit 6 leaves the JSON stale on purpose. Follow-up commit inspects the diff and reports any unrelated input drift before committing. |
 | Missed string literal causes test failure | Commit 1 runs the two protocol tests before any other step; literals catalogued in §6.3. |
 | Stale link in a `reports/final/` source-JSON breaks a deck rebuild | §7.2 retargets `reports/final/**` files; deck sources under `reports/phak_era_archive/` are explicitly left stale (archived provenance). |
 | Scope-lock constraint accidentally weakened during rewrite | §5 rule 1; `DECISION_LOG.md` entries map 1:1 to original scope-lock sections so any drift is auditable. |
 | `documentation_map.md` Document-Precedence chain becomes orphaned | Replaced by `RESEARCH_AUDIT.md` navigation map; old chain preserved in archive for provenance. |
 | Large single PR is hard to review | Six incremental commits, each independently buildable. |
 
-## 11. Open Questions For Spec Review
+## 11. Resolved Questions
 
-- **Q1.** Branch name `refactor/research-governance-framework` — acceptable, or do you want a different name?
-- **Q2.** Push policy: the workspace says push both `origin` (GitLab) and `github` after merging to `main`. For this refactor branch, push both remotes too, or GitLab only until merged?
-- **Q3.** Should the regenerated `nasa_atmonto_formal_experiment_scoring.json` / readiness JSON be regenerated in Commit 6, or left for a follow-up so the refactor PR stays text-only? (Regen may pull in unrelated dirty diffs from other changed inputs.)
+- **Q1 — Branch name:** User does not care; keep `refactor/research-governance-framework`.
+- **Q2 — Push policy:** Do not push during development. User will run a GPT review on the branch, then merge. No remote push happens until merge; post-merge push follows the standard workspace rule (both `origin` GitLab and `github` GitHub for `main`).
+- **Q3 — JSON regeneration:** Deferred. Commit 6 does **not** regenerate the formal-experiment JSON. A separate follow-up commit (out of refactor scope, tracked in §8) regenerates it so the refactor PR stays text + code-path only and the JSON diff can be audited in isolation.
