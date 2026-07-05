@@ -135,6 +135,7 @@ Migration approach: keep the relevant protocol sections intact in `EXPERIMENTS.m
 | File | Action |
 |---|---|
 | `AGENTS.md` | Rewrite Default Context paragraph (lines 7–17): startup pack becomes `RESEARCH_AUDIT.md` → `RESEARCH_OVERVIEW.md` → `ARTIFACT_INDEX.md`. Retarget any other spine link. |
+| `RESEARCH_OVERVIEW.md` | Retarget spine-path references inside verbatim-migrated sections: Minimum Deliverable Set "Thesis synthesis" row references `docs/research_mainline.md` / `docs/thesis_positioning.md`; Stop Rule items reference `docs/documentation_map.md` / `docs/research_mainline.md` / `docs/thesis_positioning.md`. Apply the §7.1 retarget table. (These were carried verbatim from source during Task 3 and would otherwise dangle after Commit 6 archives the spine.) |
 | `CLAUDE.md` | Same retargeting as `AGENTS.md`. |
 | `README.md` | Retarget spine links at lines 45–49, 76, 182, 364, 404, 407, 456. |
 | `GOALS.md` | Retarget `thesis_positioning.md` at lines 116, 233 → `RESEARCH_OVERVIEW.md`. |

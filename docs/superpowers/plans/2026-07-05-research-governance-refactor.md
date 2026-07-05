@@ -431,7 +431,7 @@ After writing, verify scope-lock constraints survived intact:
 uv run python -c "
 from pathlib import Path
 text = Path('RESEARCH_OVERVIEW.md').read_text()
-for s in ['Evidence-Grounded Schema-Constrained Agentic KG-RAG','The ontology/profile is an engineering constraint','Non-Goals','complete aviation ontology thesis','Default decision: defer','Stop Rule','GraphRAG universally improves Recall@k']:
+for s in ['Evidence-Grounded Schema-Constrained Agentic KG-RAG','The ontology/profile is an engineering constraint','Non-Goals','A full aviation ontology thesis','Default decision: defer','Stop Rule','GraphRAG universally improves Recall@k']:
     assert s in text, s
 print('scope-lock constraints present')
 "
@@ -1135,6 +1135,7 @@ git commit -m "refactor: add RESEARCH_AUDIT entry point; migrate TASKS to TODO
 
 **Files (modify in place — link retargets only):**
 - `AGENTS.md`, `CLAUDE.md`, `README.md`, `GOALS.md`
+- `RESEARCH_OVERVIEW.md` — retarget spine-path references inside verbatim-migrated sections (Minimum Deliverable Set "Thesis synthesis" row; Stop Rule items 1–2) per spec §7.1 retarget table. These were carried verbatim from source during Task 3 and would dangle after Commit 6 archives the spine.
 - `docs/thesis_writing_spine.md`, `docs/research_paper_analysis_protocol.md`, `docs/atcscc_agent_architecture.md`, `docs/pipeline_authority_model.md`
 - `reports/stages/index.md`, `reports/final/README.md`, `reports/final/atcscc_thesis_report.md`, `reports/final/atcscc_thesis_report_outline.md`, `reports/final/atcscc_defense_deck_outline.md`, `reports/final/atcscc_agent_plan_storyboard.md`, `reports/final/figure_descriptions.md`
 - `reports/stages/thesis_claims_review.md`, `reports/stages/thesis_claims_review.json`
