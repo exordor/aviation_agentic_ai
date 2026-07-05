@@ -1,6 +1,6 @@
 # Research Questions
 
-> Migrated on 2026-07-05 from `docs/research_mainline.md`, `docs/thesis_positioning.md`, and `docs/master_project_scope_lock.md`. Sources preserved under `docs/archive/governance_era/`.
+> Migrated on 2026-07-05 from `docs/research_mainline.md`, `docs/thesis_positioning.md`, and `docs/master_project_scope_lock.md`. Until the archive commit lands, the source files remain in place under `docs/`; afterward they will be preserved under `docs/archive/governance_era/`.
 
 The project keeps exactly four research questions. Any additional question should be folded into one of these four, or moved to future work.
 
@@ -17,7 +17,7 @@ ATCSCC advisories are a narrow but useful case study for evidence-grounded extra
 ### Related Hypotheses
 
 - H1 (schema guidance reduces structural drift after canonicalization)
-- H3 (hybrid backbone + enrichment improves selected semantic predicates)
+- H5 (hybrid backbone + enrichment improves selected semantic predicates)
 
 ### Related Experiments
 
@@ -98,7 +98,8 @@ The thesis must keep automated diagnostics separate from human or expert review 
 
 ### Related Hypotheses
 
-- H4 (rejection triage produces actionable engineering decisions; failure analysis separates extractor errors, profile/gold-boundary gaps, retrieval context errors, answer overreach, human-review cases)
+- H4 (failure analysis separates extraction errors, profile/gold-boundary gaps, retrieval context errors, answer overreach, human-review cases)
+- H6 (rejection triage produces actionable engineering decisions)
 
 ### Related Experiments
 

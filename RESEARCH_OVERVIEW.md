@@ -1,6 +1,6 @@
 # Research Overview
 
-> Migrated on 2026-07-05 from `docs/thesis_positioning.md`, `docs/research_mainline.md`, and `docs/master_project_scope_lock.md` as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). Sources preserved under `docs/archive/governance_era/`.
+> Migrated on 2026-07-05 from `docs/thesis_positioning.md`, `docs/research_mainline.md`, and `docs/master_project_scope_lock.md` as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). Until the archive commit lands, the source files remain in place under `docs/`; afterward they will be preserved under `docs/archive/governance_era/`.
 
 ## Research Area
 
@@ -155,7 +155,8 @@ answer sets, evidence traceability, citation behavior, and failure diagnosis.
 The thesis must not collapse these layers into a single mixed overall score.
 The full metric protocol is documented in `EXPERIMENTS.md` and can
 be audited with `uv run aviation-ai report evaluation-protocol`. The full thesis
-experiment sequence is documented in `EXPERIMENTS.md` and
+experiment sequence is documented in `EXPERIMENTS.md`, including systems under
+test, baselines, metrics, and the experimental procedure.
 
 ## Claim Safety Matrix
 
