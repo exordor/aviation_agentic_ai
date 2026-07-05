@@ -1,6 +1,6 @@
 # Experiments
 
-> Migrated from `docs/experiment_protocol.md` on 2026-07-05 as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). The original is preserved under `docs/archive/governance_era/experiment_protocol.md`. This file is the live protocol referenced by `_audit_reports.py` and the formal-experiment tests.
+> Migrated from `docs/experiment_protocol.md` on 2026-07-05 as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). Until the archive commit lands, `docs/experiment_protocol.md` remains in place as a historical copy; afterward it will be preserved under `docs/archive/governance_era/experiment_protocol.md`. This file is the live protocol referenced by `_audit_reports.py` and the formal-experiment tests.
 
 ## Material Passport
 
