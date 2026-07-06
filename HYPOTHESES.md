@@ -1,6 +1,6 @@
 # Hypotheses
 
-> Migrated on 2026-07-05 from `docs/experiment_protocol.md` §Hypotheses And Falsification Criteria and `docs/thesis_positioning.md` §Hypotheses. Until the archive commit lands, the source files remain in place under `docs/`; afterward they will be preserved under `docs/archive/governance_era/`.
+> Migrated on 2026-07-05 from `docs/experiment_protocol.md` §Hypotheses And Falsification Criteria and `docs/thesis_positioning.md` §Hypotheses. The source files (now archived under `docs/archive/governance_era/`) were migrated on 2026-07-05.
 
 ## Canonical vs operational numbering
 

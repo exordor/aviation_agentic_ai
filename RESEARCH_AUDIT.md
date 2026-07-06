@@ -1,6 +1,6 @@
 # Research Audit
 
-> This is the new thread entry point. It replaces the start-here role of `docs/thread_handoff.md` and `docs/documentation_map.md`. Until the archive commit lands, both remain in place under `docs/`; afterward they will be preserved under `docs/archive/governance_era/`. For a new thread, read this file first, then follow the navigation map below.
+> This is the new thread entry point. It replaces the start-here role of `docs/thread_handoff.md` and `docs/documentation_map.md`. Both (now archived under `docs/archive/governance_era/`) were migrated on 2026-07-05. For a new thread, read this file first, then follow the navigation map below.
 
 ## 1. Project Snapshot
 

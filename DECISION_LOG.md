@@ -147,7 +147,7 @@ Con: cross-source comparison is limited to structural conformance, evidence grou
 
 ### Date
 
-(same as documentation_map.md)
+(same as ARTIFACT_INDEX.md's source)
 
 ### Context
 
@@ -155,7 +155,31 @@ The repo mixes canonical framing, protocols, current evidence, source explainers
 
 ### Decision
 
-Use the six documentation tiers (T0–T6) from `docs/documentation_map.md` §Document Tiers. New material routes per the "Where New Documents Should Go" table.
+Use the six documentation tiers (T0–T6) below and the "Where New Documents Should Go" routing table to keep canonical framing, current evidence, source explainers, paper analyses, historical artifacts, and generated side artifacts from polluting each other.
+
+### Document Tiers
+
+| Tier | Location | Examples | Maintenance rule |
+| --- | --- | --- | --- |
+| T0 canonical framing | `docs/` | `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`, `ARTIFACT_INDEX.md` | Update when the thesis scope, RQs, claim boundaries, or entry points change. |
+| T1 protocols and scope control | `docs/` | `EXPERIMENTS.md`, `docs/research_paper_analysis_protocol.md` | Update when the reproducible workflow, scoring rules, or paper-intake process changes. |
+| T2 current thesis evidence | `reports/stages/` | `nasa_atmonto_formal_experiment_scoring.md`, `nasa_atmonto_s7_retrieval.md`, `nasa_atmonto_experiment_chapter_draft.md` | Keep as generated or reviewed evidence; cite through this map. |
+| T3 source/schema explainers | `reports/stages/` | `atcscc_data_format_and_processing_flow.md`, `atcscc_ontology_profile_overview.md` | Keep thesis-facing and readable; update when data/profile boundaries change. |
+| T4 method migration and paper analysis | `reports/stages/`, `data/papers/README.md` | `claim_kg_graphrag_paper_adaptation.md`, `multi_agent_pipeline_method_adaptation.md` | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
+| T5 historical artifacts | `docs/archive/phak_era/`, `reports/stages/`, `reports/final/` | PHAK reports, old web-demo reports, old final report drafts | Preserve for provenance, but do not let them override current ATCSCC framing. |
+| T6 generated side artifacts | `reports/stages/*.json`, `.csv`, `.html`, `.log` | report JSON, review packets, worksheets, logs | Track only if they support a current dashboard/audit/chapter claim; otherwise keep under ignored output paths. |
+
+### Where New Documents Should Go
+
+| New material | Destination | Required follow-up |
+| --- | --- | --- |
+| Change to thesis scope, RQs, or contribution claims | `RESEARCH_OVERVIEW.md` and `RESEARCH_QUESTIONS.md` | Update this map. |
+| Change to experiment order, metrics, or regeneration commands | `EXPERIMENTS.md` | Verify report commands remain reproducible. |
+| New source-family explanation | `reports/stages/<source>_source_brief.md` or `<source>_data_format_and_processing_flow.md` | Decide whether it is primary, reference-only, transfer-pilot, or out of scope. |
+| New schema/profile explanation | `reports/stages/<source>_ontology_profile_overview.md` | State whether it is a full ontology, application profile, mapping layer, or runtime output schema. |
+| New experiment result | `reports/stages/<experiment>.md` plus JSON when generated | Link it from the dashboard or leave it as secondary evidence. |
+| New paper analysis | `reports/stages/<paper>_paper_analysis.md`, `<paper>_figures_analysis.md`, or `<paper>_paper_adaptation.md` | Register the paper in `data/papers/README.md` when it influences method design. |
+| Final report or defense material | `reports/final/` | Ensure it cites current docs, not legacy stage index material. |
 
 ### Reason
 

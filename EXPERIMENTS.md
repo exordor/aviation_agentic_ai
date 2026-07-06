@@ -1,6 +1,6 @@
 # Experiments
 
-> Migrated from `docs/experiment_protocol.md` on 2026-07-05 as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). Until the archive commit lands, `docs/experiment_protocol.md` remains in place as a historical copy; afterward it will be preserved under `docs/archive/governance_era/experiment_protocol.md`. This file is the live protocol referenced by `_audit_reports.py` and the formal-experiment tests.
+> Migrated from `docs/experiment_protocol.md` on 2026-07-05 as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). `docs/experiment_protocol.md` (now archived under `docs/archive/governance_era/experiment_protocol.md`) was migrated on 2026-07-05. This file is the live protocol referenced by `_audit_reports.py` and the formal-experiment tests.
 
 ## Material Passport
 
@@ -1048,7 +1048,7 @@ FAA ATCSCC advisories
   -> failure analysis and human-review boundary
 ```
 
-- **Step 0 — Lock claim boundary**: `docs/thesis_positioning.md`,
+- **Step 0 — Lock claim boundary**: `RESEARCH_OVERVIEW.md`,
   `reports/stages/thesis_claims_review.md`,
   `reports/stages/nasa_atmonto_reviewer_defense_audit.md`. The thesis is not
   ontology construction; the schema/profile is an engineering constraint;

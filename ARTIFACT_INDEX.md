@@ -1,6 +1,6 @@
 # Artifact Index
 
-> Migrated on 2026-07-05 from `docs/documentation_map.md` Context Inventory, Ignored Local Material, and Artifact Management Policy sections. Until the archive commit lands, `docs/documentation_map.md` remains in place under `docs/`; afterward it will be preserved under `docs/archive/governance_era/documentation_map.md`.
+> Migrated on 2026-07-05 from `docs/documentation_map.md` Context Inventory, Ignored Local Material, and Artifact Management Policy sections. `docs/documentation_map.md` (now archived under `docs/archive/governance_era/documentation_map.md`) was migrated on 2026-07-05.
 
 ## Artifact Type Vocabulary
 

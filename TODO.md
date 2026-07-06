@@ -1,6 +1,6 @@
 # TODO
 
-> Migrated on 2026-07-05 from `TASKS.md`. Until the archive commit lands, `TASKS.md` remains in place under the repo root; afterward it will be preserved under `docs/archive/governance_era/TASKS.md`. Concrete execution tasks live here. Durable project outcomes and scope boundaries live in `GOALS.md`. A task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.
+> Migrated on 2026-07-05 from `TASKS.md`. `TASKS.md` (now archived under `docs/archive/governance_era/TASKS.md`) was migrated on 2026-07-05. Concrete execution tasks live here. Durable project outcomes and scope boundaries live in `GOALS.md`. A task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.
 
 Last updated: 2026-05-30.
 

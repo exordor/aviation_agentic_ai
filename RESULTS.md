@@ -1,6 +1,6 @@
 # Results
 
-> Migrated on 2026-07-05 from `docs/master_project_scope_lock.md` §Minimum Deliverable Set and `docs/documentation_map.md` §Experiment Evidence. Until the archive commit lands, those source files remain in place under `docs/`; afterward they will be preserved under `docs/archive/governance_era/`. No new claims — every row points at an existing evidence artifact.
+> Migrated on 2026-07-05 from `docs/master_project_scope_lock.md` §Minimum Deliverable Set and `docs/documentation_map.md` §Experiment Evidence. Those source files (now archived under `docs/archive/governance_era/`) were migrated on 2026-07-05. No new claims — every row points at an existing evidence artifact.
 
 ## Deliverables And Evidence
 

@@ -1,6 +1,6 @@
 # Reproducibility
 
-> Migrated on 2026-07-05 from `docs/experiment_protocol.md` §Recommended Regeneration Commands, `docs/thread_handoff.md` §Verification Defaults, and `README.md` §Quick Start. Until the archive commit lands, those source files remain in place under `docs/`; afterward they will be preserved under `docs/archive/governance_era/`.
+> Migrated on 2026-07-05 from `docs/experiment_protocol.md` §Recommended Regeneration Commands, `docs/thread_handoff.md` §Verification Defaults, and `README.md` §Quick Start. Those source files (now archived under `docs/archive/governance_era/`) were migrated on 2026-07-05.
 
 ## Environment
 

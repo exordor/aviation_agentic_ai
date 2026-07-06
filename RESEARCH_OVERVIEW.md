@@ -1,6 +1,6 @@
 # Research Overview
 
-> Migrated on 2026-07-05 from `docs/thesis_positioning.md`, `docs/research_mainline.md`, and `docs/master_project_scope_lock.md` as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). Until the archive commit lands, the source files remain in place under `docs/`; afterward they will be preserved under `docs/archive/governance_era/`.
+> Migrated on 2026-07-05 from `docs/thesis_positioning.md`, `docs/research_mainline.md`, and `docs/master_project_scope_lock.md` as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). The source files (now archived under `docs/archive/governance_era/`) were migrated on 2026-07-05.
 
 ## Research Area
 
@@ -260,6 +260,20 @@ The project is ready to write up when these are true:
 4. Remaining gaps are listed as limitations or future work rather than becoming
    new experiments.
 5. Verification commands pass for the final code and documentation state.
+
+## Figure Boundary
+
+The thesis needs a small number of high-value figures only.
+
+| Figure | Purpose |
+|---|---|
+| System overview | Show source, schema, agentic extraction, event graph, KG-RAG, and evaluation. |
+| ATCSCC source-to-fact example | Show one advisory span mapped to event facts and evidence ids. |
+| Schema/profile slice | Show the lightweight application schema, not full ATMONTO. |
+| Agentic loop | Show extractor, validator, refiner, critic, and rejection/repair artifacts. |
+| Results summary | Show layered metrics and failure categories. |
+
+Paper figure galleries and PDF extraction assets are research support tools, not final deliverables.
 
 ## Evidence Gaps Before Thesis Submission
 
