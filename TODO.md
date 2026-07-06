@@ -2,7 +2,7 @@
 
 > Migrated on 2026-07-05 from `TASKS.md`. `TASKS.md` (now archived under `docs/archive/governance_era/TASKS.md`) was migrated on 2026-07-05. Concrete execution tasks live here. Durable project outcomes and scope boundaries live in `GOALS.md`. A task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.
 
-Last updated: 2026-05-30.
+Last updated: 2026-07-05 (migrated from `TASKS.md`, last updated 2026-05-30, on 2026-07-05; subsequent edits update this date).
 
 ## Status Legend
 
@@ -253,7 +253,7 @@ Related goals: G5.
   - Candidate scope: auth check, project check, issue creation, pipeline status, report publishing.
   - Acceptance: uses `.env` token locally, never prints token, and tests mock HTTP calls.
 - [ ] Use GitLab issues or milestones to mirror this task board if stronger tracking is needed.
-  - Acceptance: repo-local `TASKS.md` remains the source of truth, or a clear sync policy is documented.
+  - Acceptance: repo-local `TODO.md` remains the source of truth, or a clear sync policy is documented.
 
 ## Maintenance Rules
 

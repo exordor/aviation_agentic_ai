@@ -6,7 +6,6 @@
 
 - Audit date: 2026-07-06
 - Current branch: refactor/research-governance-framework
-- Last commit: 0bf437e70f74dd199c08759b7d473a6fc2e18a5d
 - Main language: Python (`uv` workspace).
 - Main framework: custom CLI (`aviation-ai`) over `pyproject.toml`.
 - Current thesis line: Agentic KG-RAG for evidence-grounded question answering over retrospective FAA ATCSCC advisories.

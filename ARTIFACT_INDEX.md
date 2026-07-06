@@ -10,8 +10,9 @@
 
 | Family | Default context status |
 | --- | --- |
-| Root project docs | mixed; `AGENTS.md` is authoritative, `CLAUDE.md` is a compatibility shim, `README.md` and `GOALS.md` are project references, `TASKS.md` is execution backlog only. |
-| `docs/*.md` | canonical docs; PHAK-era protocols archived under `docs/archive/phak_era/`. |
+| Root project docs | mixed; `AGENTS.md` is authoritative, `CLAUDE.md` is a compatibility shim, `README.md` and `GOALS.md` are project references, `TODO.md` is execution backlog only. |
+| Root research-governance files | canonical; `RESEARCH_AUDIT.md` is the thread entry point, with `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`, `RESULTS.md`, `ARTIFACT_INDEX.md`, `DECISION_LOG.md`, `REPRODUCIBILITY.md` as the canonical governance surface. |
+| `docs/*.md` | protocols and architecture (e.g. `docs/research_paper_analysis_protocol.md`, `docs/atcscc_agent_architecture.md`, `docs/pipeline_authority_model.md`, `docs/thesis_writing_spine.md`); PHAK-era protocols archived under `docs/archive/phak_era/`; former governance spine archived under `docs/archive/governance_era/`. |
 | `reports/stages/*` | mixed; current ATCSCC evidence, method literature, and legacy experiment reports live together. |
 | `reports/final/*` | mostly historical/transitional; current ATCSCC entry files are explicitly named `atcscc_*`. |
 | `data/evaluation/nasa_atmonto/*` | current evaluation evidence; load only for gold/review tasks. |

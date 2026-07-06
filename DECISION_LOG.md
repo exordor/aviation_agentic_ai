@@ -161,8 +161,8 @@ Use the six documentation tiers (T0–T6) below and the "Where New Documents Sho
 
 | Tier | Location | Examples | Maintenance rule |
 | --- | --- | --- | --- |
-| T0 canonical framing | `docs/` | `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`, `ARTIFACT_INDEX.md` | Update when the thesis scope, RQs, claim boundaries, or entry points change. |
-| T1 protocols and scope control | `docs/` | `EXPERIMENTS.md`, `docs/research_paper_analysis_protocol.md` | Update when the reproducible workflow, scoring rules, or paper-intake process changes. |
+| T0 canonical framing | repo root | `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`, `ARTIFACT_INDEX.md` (entry point: `RESEARCH_AUDIT.md`) | Update when the thesis scope, RQs, claim boundaries, or entry points change. |
+| T1 protocols and scope control | repo root + `docs/` | `EXPERIMENTS.md`, `docs/research_paper_analysis_protocol.md` | Update when the reproducible workflow, scoring rules, or paper-intake process changes. |
 | T2 current thesis evidence | `reports/stages/` | `nasa_atmonto_formal_experiment_scoring.md`, `nasa_atmonto_s7_retrieval.md`, `nasa_atmonto_experiment_chapter_draft.md` | Keep as generated or reviewed evidence; cite through this map. |
 | T3 source/schema explainers | `reports/stages/` | `atcscc_data_format_and_processing_flow.md`, `atcscc_ontology_profile_overview.md` | Keep thesis-facing and readable; update when data/profile boundaries change. |
 | T4 method migration and paper analysis | `reports/stages/`, `data/papers/README.md` | `claim_kg_graphrag_paper_adaptation.md`, `multi_agent_pipeline_method_adaptation.md` | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
