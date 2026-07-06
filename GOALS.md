@@ -2,7 +2,7 @@
 
 Last updated: 2026-05-30
 
-This file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TASKS.md`.
+This file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TODO.md`.
 
 ## Goal vs Task
 
@@ -113,7 +113,7 @@ report, project-defense notes, illustrative visual assets with local SVG
 fallbacks, and an editable academic defense PPTX are available under
 `reports/final/`. Final evaluation and web smoke evidence are recorded under
 `reports/stages/`. Thesis positioning is documented in
-`docs/thesis_positioning.md`, with deterministic claim review output under
+`RESEARCH_OVERVIEW.md`, with deterministic claim review output under
 `reports/stages/thesis_claims_review.md` when regenerated.
 
 ## G6 - Future Advisory QA Boundary
@@ -223,12 +223,12 @@ readiness evidence.
 
 | Goal | Main evidence | Execution tasks |
 | --- | --- | --- |
-| G1 | `GOALS.md`, `README.md`, `reports/phak_era_archive/project_report.md`, optional local note `tmp/goal.md` | `TASKS.md` P2 |
-| G2 | `data/ontology/`, `configs/extraction_profile.yaml`, KG reports | `TASKS.md` P0/P1 |
-| G3 | chunk/index/query CLI outputs, Hybrid RAG report | `TASKS.md` P0 |
-| G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports, `reports/stages/final_evaluation_review.md`, `reports/stages/evidence_cards.md` | `TASKS.md` P0/P1 |
-| G5 | `reports/stages/index.md`, `reports/phak_era_archive/project_report.md`, `reports/phak_era_archive/project_academic_report.md`, defense PPT | `TASKS.md` P2 |
-| G6 | advisory boundary text, final report limitations | `TASKS.md` P1/P2 |
-| G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TASKS.md` P2 |
-| G8 | `docs/thesis_positioning.md`, final report, academic report, comparison reports, evidence cards, defense notes, defense PPT | `TASKS.md` P1/P2 |
-| G9 | benchmark v2 labels, ablation reports, robustness reports, cost/latency reports, chunking-v2 hardening reports | `TASKS.md` P3 |
+| G1 | `GOALS.md`, `README.md`, `reports/phak_era_archive/project_report.md`, optional local note `tmp/goal.md` | `TODO.md` P2 |
+| G2 | `data/ontology/`, `configs/extraction_profile.yaml`, KG reports | `TODO.md` P0/P1 |
+| G3 | chunk/index/query CLI outputs, Hybrid RAG report | `TODO.md` P0 |
+| G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports, `reports/stages/final_evaluation_review.md`, `reports/stages/evidence_cards.md` | `TODO.md` P0/P1 |
+| G5 | `reports/stages/index.md`, `reports/phak_era_archive/project_report.md`, `reports/phak_era_archive/project_academic_report.md`, defense PPT | `TODO.md` P2 |
+| G6 | advisory boundary text, final report limitations | `TODO.md` P1/P2 |
+| G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TODO.md` P2 |
+| G8 | `RESEARCH_OVERVIEW.md`, final report, academic report, comparison reports, evidence cards, defense notes, defense PPT | `TODO.md` P1/P2 |
+| G9 | benchmark v2 labels, ablation reports, robustness reports, cost/latency reports, chunking-v2 hardening reports | `TODO.md` P3 |

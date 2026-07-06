@@ -1,7 +1,7 @@
 {
   "source_family": "nasa_atmonto_formal_experiment_scoring",
   "status": "scored",
-  "protocol": "docs/experiment_protocol.md",
+  "protocol": "EXPERIMENTS.md",
   "gold_source": {
     "source": "frozen_reviewed_gold",
     "path": "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl",
@@ -4682,7 +4682,7 @@
         "id": "R0",
         "requirement": "Position the current NASA ATMONTO loop as pilot / feasibility evidence, not a completed formal experiment.",
         "status": "satisfied",
-        "evidence": "docs/experiment_protocol.md contains pilot/feasibility boundary and bronze-until-reviewed language."
+        "evidence": "EXPERIMENTS.md contains pilot/feasibility boundary and bronze-until-reviewed language."
       },
       {
         "id": "R1",
@@ -4712,7 +4712,7 @@
         "id": "R5",
         "requirement": "Define JSON, schema, semantic, repair, and manual-correctness metrics.",
         "status": "satisfied",
-        "evidence": "docs/experiment_protocol.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json"
+        "evidence": "EXPERIMENTS.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json"
       },
       {
         "id": "R6",
@@ -4742,7 +4742,7 @@
         "id": "R10",
         "requirement": "Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria.",
         "status": "satisfied",
-        "evidence": "docs/experiment_protocol.md"
+        "evidence": "EXPERIMENTS.md"
       }
     ],
     "claim_boundary": "A satisfied audit means the formal experiment can be reported; pending items must remain described as pilot/prepared-state evidence."

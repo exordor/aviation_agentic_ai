@@ -5,8 +5,8 @@ protocols live in `docs/`.
 
 ## Default Context
 
-- For a new thread, start from `docs/thread_handoff.md`, then
-  `docs/master_project_scope_lock.md` and `docs/documentation_map.md`
+- For a new thread, start from `RESEARCH_AUDIT.md` (project snapshot and
+  navigation map), then `RESEARCH_OVERVIEW.md` and `ARTIFACT_INDEX.md`
   (which absorbs the former context-hygiene audit, maintenance guide, and
   tracked-context inventory).
 - Keep the active plugin/skill surface minimal. Use task-specific skills only

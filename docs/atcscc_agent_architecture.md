@@ -27,7 +27,7 @@
   it does not re-score history.
 - Do not claim the Agent is autonomous ontology construction or operational ATC
   decision support. It remains a diagnostic/repair framework under the same
-  claim boundaries stated in `docs/thesis_positioning.md`.
+  claim boundaries stated in `RESEARCH_OVERVIEW.md`.
 - Do not introduce a heavyweight framework (LangGraph state graphs, etc.)
   unless a later decision calls for it. The first version is a small,
   dependency-light controller.
@@ -684,7 +684,7 @@ clearest autonomy value (the feedback loop) on its own.
 - **Cost / latency**: each repair pass is an extra LLM round-trip. The budget
   (`max_iterations`) bounds this; default 2 keeps cost predictable.
 - **Claim safety**: the Agent remains a diagnostic and repair framework under
-  the boundaries in `docs/thesis_positioning.md`. It is not autonomous ontology
+  the boundaries in `RESEARCH_OVERVIEW.md`. It is not autonomous ontology
   construction, not operational ATC support, and not a universal GraphRAG
   claim. The Agent's trace must record every decision so outputs stay auditable.
 

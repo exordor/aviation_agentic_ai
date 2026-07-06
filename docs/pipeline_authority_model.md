@@ -46,7 +46,7 @@ The design principle is:
 | Graph health | Entity/fact/path availability, graph-use diagnostics, CQ coverage | `reports/stages/nasa_atmonto_s7_graph_health.md`, `reports/stages/nasa_atmonto_cq_query_evaluation.md` |
 | Correctness auditor | Evidence containment, unsupported relation checks, reviewed-subset precision/recall/F1, citation faithfulness | extraction scoring, answer review, reviewer-defense audit |
 | Completeness auditor | CQ coverage, source-observable field coverage, profile-gap register, recall diagnostics | CQ evaluation, profile decision, rejection adjudication |
-| Schema spine | NASA ATMONTO-derived ATCSCC application schema/profile plus CQs and constraints | `docs/thesis_positioning.md`, schema/profile reports |
+| Schema spine | NASA ATMONTO-derived ATCSCC application schema/profile plus CQs and constraints | `RESEARCH_OVERVIEW.md`, schema/profile reports |
 | External boundary | NewAPI LLM provider, vector index, graph store, local runtime dependencies | provider metadata and run manifests |
 | Sign-off dossier | Thesis dashboard, claim review, reviewer-defense audit, optional human-review packet | `reports/stages/nasa_atmonto_s7_retrieval.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
 | Product layer | Web demo, defense deck, report renderer | Must remain retrospective and non-operational |

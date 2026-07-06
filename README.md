@@ -42,11 +42,11 @@ aviation ontology or as the thesis object.
 
 Primary current assets:
 
-- Research mainline: `docs/research_mainline.md`
-- Documentation map: `docs/documentation_map.md`
-- Thesis positioning: `docs/thesis_positioning.md`
-- Experiment workflow: `docs/experiment_protocol.md`
-- Formal ATCSCC protocol: `docs/experiment_protocol.md`
+- Research mainline: `RESEARCH_OVERVIEW.md`
+- Documentation map: `ARTIFACT_INDEX.md`
+- Thesis positioning: `RESEARCH_OVERVIEW.md`
+- Experiment workflow: `EXPERIMENTS.md`
+- Formal ATCSCC protocol: `EXPERIMENTS.md`
 - ATCSCC data processing flow:
   `reports/stages/atcscc_data_format_and_processing_flow.md`
 - ATCSCC schema/profile overview:
@@ -73,7 +73,7 @@ FAA ATCSCC advisories
 ```
 
 The project is CLI-first so every stage can be reproduced and evaluated before a
-service or user interface is added. Use `docs/documentation_map.md` to find the
+service or user interface is added. Use `ARTIFACT_INDEX.md` to find the
 current canonical reports.
 
 ## Project Layout
@@ -179,7 +179,7 @@ aviation-ai report stages
 
 ## Current Research Direction
 
-The current research direction is defined in `docs/research_mainline.md`:
+The current research direction is defined in `RESEARCH_OVERVIEW.md`:
 
 > Agentic KG-RAG for evidence-grounded question answering over retrospective
 > FAA ATCSCC advisories.
@@ -361,7 +361,7 @@ uv run aviation-ai report triple-semantic-review --sample-size 100
 uv run aviation-ai report answer-eval --gold-labels data/cqs/06_phak_ch4_0.answer_eval_subset.gold.json --report-name answer_evaluation_benchmark_subset
 ```
 
-The evaluation protocol is documented in `docs/experiment_protocol.md`. It maps
+The evaluation protocol is documented in `EXPERIMENTS.md`. It maps
 mainstream RAGAS-style, ARES-style, IR, GraphRAG, ontology/KG, and aviation
 safety metrics to this project. The project reports layered metrics and does not
 claim or compute a single mixed overall score.
@@ -401,10 +401,10 @@ reports do not overclaim a small subset as the full NASA landing-page corpus.
 
 ## Thesis Experiment Workflow
 
-Start with `docs/documentation_map.md` and `docs/research_mainline.md`. The
+Start with `RESEARCH_AUDIT.md` and `RESEARCH_OVERVIEW.md`. The
 current thesis route is **schema-constrained Agentic KG-RAG over retrospective
 FAA ATCSCC advisories**, not a general aviation ontology thesis. The canonical
-experiment workflow is documented in `docs/experiment_protocol.md`; it connects
+experiment workflow is documented in `EXPERIMENTS.md`; it connects
 the four research questions, source scope, extraction baselines, agentic
 validation/refinement, KG-RAG retrieval, answer-generation diagnostics, failure
 analysis, and claim boundaries.
@@ -453,7 +453,7 @@ limitations, transferable ideas, and claim-safety boundaries.
 
 ## Thesis Positioning And Claim Safety
 
-The thesis positioning document is `docs/thesis_positioning.md`. It records the
+The thesis positioning document is `RESEARCH_OVERVIEW.md`. It records the
 revised claim, research questions, hypotheses, claim safety matrix, and evidence
 gaps before thesis submission. Generate the deterministic claim review with:
 

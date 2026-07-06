@@ -98,7 +98,7 @@ The final master project needs only the following deliverables.
 | Agentic validation/refinement loop | Tests whether validator/refiner/critic steps reduce schema and evidence failures. | `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md` |
 | KG-RAG answer-generation comparison | Tests vector, graph, and hybrid/routed retrieval for source-grounded answers. | `reports/stages/nasa_atmonto_s7_retrieval.md`, `reports/stages/nasa_atmonto_s7_llm_answer_generation.md` |
 | Failure and claim-safety audit | Defines what remains unresolved and where human review is required. | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md` |
-| Thesis synthesis | Turns the evidence into the final research story. | `docs/research_mainline.md`, `docs/thesis_positioning.md`, `reports/stages/nasa_atmonto_experiment_chapter_draft.md` |
+| Thesis synthesis | Turns the evidence into the final research story. | `RESEARCH_OVERVIEW.md`, `reports/stages/nasa_atmonto_experiment_chapter_draft.md` |
 
 If a proposed task does not strengthen one of these deliverables, it should be
 deferred.
@@ -253,9 +253,9 @@ The project is ready to write up when these are true:
 
 1. The frozen ATCSCC data, schema/profile, extraction results, agentic loop,
    KG-RAG results, and failure audit are all linked from
-   `docs/documentation_map.md`.
-2. `docs/research_mainline.md` and `docs/thesis_positioning.md` tell the same
-   story.
+   `ARTIFACT_INDEX.md`.
+2. The research-overview, research-questions, and claim-safety sections in
+   `RESEARCH_OVERVIEW.md` tell the same story.
 3. Every major claim in the thesis draft maps to one tracked evidence artifact.
 4. Remaining gaps are listed as limitations or future work rather than becoming
    new experiments.

@@ -54,7 +54,7 @@ Portable source anchors to use instead of internal citations:
 - W3C SHACL Recommendation: RDF data-graph validation against shapes graphs.
 - W3C PROV-O Recommendation: OWL2 ontology for representing provenance in RDF.
 - Local protocol and scoring artifacts:
-  `docs/experiment_protocol.md`,
+  `EXPERIMENTS.md`,
   `docs/nasa_atmonto_gold_annotation_guide.md`, and
   `reports/stages/nasa_atmonto_formal_experiment_scoring.md`.
 

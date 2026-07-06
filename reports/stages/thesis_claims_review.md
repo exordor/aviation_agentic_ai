@@ -61,7 +61,7 @@ No unsupported unsafe claims were found in the scanned files outside explicit li
 ## Evidence Files
 
 - `data/ontology/curated/nasa_atmonto_atcscc_extraction_schema.json`: present
-- `docs/thesis_positioning.md`: present
+- `RESEARCH_OVERVIEW.md`: present
 - `reports/stages/atcscc_ontology_profile_overview.md`: present
 - `reports/stages/domain_agnostic_ontology_kg_graphrag_methodology_roadmap.md`: present
 - `reports/stages/nasa_atmonto_cq_evaluation.json`: present

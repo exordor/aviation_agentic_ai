@@ -1,7 +1,7 @@
 # Figure Descriptions for the ATCSCC Thesis Report
 
 This document specifies the **content** of the five figures required by the
-thesis Figure Boundary (`docs/master_project_scope_lock.md`). It does not
+thesis Figure Boundary (`RESEARCH_OVERVIEW.md`). It does not
 contain rendered images; each entry is a detailed specification to be used as a
 prompt or reference for figure generation (e.g., via ChatGPT, a diagramming
 tool, or matplotlib).

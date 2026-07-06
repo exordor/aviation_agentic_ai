@@ -1,7 +1,7 @@
 {
   "source_family": "nasa_atmonto_formal_experiment_readiness",
   "status": "ready_for_scoring",
-  "protocol": "docs/experiment_protocol.md",
+  "protocol": "EXPERIMENTS.md",
   "gold_manifest": "data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json",
   "gold_template": "data/evaluation/nasa_atmonto/atcscc_gold_annotation_template.jsonl",
   "manual_review_artifacts": {

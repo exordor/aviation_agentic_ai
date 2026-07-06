@@ -1,8 +1,8 @@
 # Thesis Writing Spine
 
 This document turns the current project into a writeable master-project
-structure. It should be used after `docs/master_project_scope_lock.md` and
-`docs/research_mainline.md`.
+structure. It should be used after `DECISION_LOG.md` and
+`RESEARCH_OVERVIEW.md`.
 
 ## Working Title
 

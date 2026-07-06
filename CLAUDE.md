@@ -5,9 +5,9 @@ Compatibility instructions for tools that read this file.
 This file does not define a separate project scope. Use `AGENTS.md` as the
 authoritative repository instruction file, then start new work from:
 
-1. `docs/thread_handoff.md`
-2. `docs/master_project_scope_lock.md`
-3. `docs/documentation_map.md` (absorbs the former context-hygiene audit,
+1. `RESEARCH_AUDIT.md`
+2. `RESEARCH_OVERVIEW.md`
+3. `ARTIFACT_INDEX.md` (absorbs the former context-hygiene audit,
    maintenance guide, and tracked-context inventory)
 
 ## Current Scope

@@ -1,7 +1,7 @@
 # NASA ATMONTO Formal Experiment Scoring
 
 - Status: `scored`
-- Protocol: `docs/experiment_protocol.md`
+- Protocol: `EXPERIMENTS.md`
 
 ## Gold Source
 
@@ -167,17 +167,17 @@
 
 | Requirement | Status | Evidence |
 | --- | --- | --- |
-| `R0` Position the current NASA ATMONTO loop as pilot / feasibility evidence, not a completed formal experiment. | `satisfied` | docs/experiment_protocol.md contains pilot/feasibility boundary and bronze-until-reviewed language. |
+| `R0` Position the current NASA ATMONTO loop as pilot / feasibility evidence, not a completed formal experiment. | `satisfied` | EXPERIMENTS.md contains pilot/feasibility boundary and bronze-until-reviewed language. |
 | `R1` Sample 80-120 ATCSCC advisories for the formal gold set. | `satisfied` | sample_size=100; manifest=data/evaluation/nasa_atmonto/atcscc_gold_sample_manifest.json |
 | `R2` Freeze reviewed gold annotations before semantic scoring. | `satisfied` | gold_source=frozen_reviewed_gold; template_reviewed=100; template_pending=0 |
 | `R3` Define the corrected system suite: S0, diagnostic S1, S1b, S2, S3, and S4. | `satisfied` | systems=S0_rule_only,S1_llm_only,S1b_llm_canonicalized,S2_llm_schema_slice,S3_llm_schema_slice_validator_repair,S4_hybrid_backbone_enrichment |
 | `R4` Run all corrected-stage systems on the identical sampled records. | `satisfied` | {"S0_rule_only": true, "S1_llm_only": true, "S1b_llm_canonicalized": true, "S2_llm_schema_slice": true, "S3_llm_schema_slice_validator_repair": true, "S4_hybrid_backbone_enrichment": true} |
-| `R5` Define JSON, schema, semantic, repair, and manual-correctness metrics. | `satisfied` | docs/experiment_protocol.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json |
+| `R5` Define JSON, schema, semantic, repair, and manual-correctness metrics. | `satisfied` | EXPERIMENTS.md and reports/stages/nasa_atmonto_formal_experiment_scoring.json |
 | `R6` Report JSON adherence, schema violation rate, precision/recall/F1, repair success, and manual semantic correctness. | `satisfied` | all_system_outputs=True; all_semantic_metrics_available=True |
 | `R7` Account for all pilot rejections in property-level error analysis. | `satisfied` | rejected_fact_count=288; grouped_fact_count=288 |
 | `R8` Finalize whether each rejection group is extractor bug, NASA ATMONTO profile gap, source ambiguity, or manual-review-only. | `satisfied` | {"extractor_bug": 13, "profile_gap": 275} |
 | `R9` Assign supported, falsified, or inconclusive status to claims C1-C4 and hypotheses H1-H4. | `satisfied` | {"C1": "supported_by_pilot", "C2": "supported", "C3": "supported", "C4": "supported", "H1": "supported", "H2": "supported", "H3": "supported", "H4": "supported"} |
-| `R10` Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria. | `satisfied` | docs/experiment_protocol.md |
+| `R10` Fix the protocol artifact with claims, hypotheses, baselines, metrics, and falsification criteria. | `satisfied` | EXPERIMENTS.md |
 
 ## Missing Required Inputs
 

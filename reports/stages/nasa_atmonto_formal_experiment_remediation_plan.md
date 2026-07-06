@@ -15,7 +15,7 @@
 - Formal scoring JSON:
   `reports/stages/nasa_atmonto_formal_experiment_scoring.json`
 - Protocol:
-  `docs/experiment_protocol.md`
+  `EXPERIMENTS.md`
 - Frozen reviewed gold:
   `data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl`
 - External research export:
@@ -533,7 +533,7 @@ because schema violation decreases. Use these criteria:
 5. Add a second PDF source-family pilot using PCG / JO 7110.65BB passages,
    keeping PDF definition/procedure extraction separate from ATCSCC event
    extraction.
-6. Update `docs/experiment_protocol.md` to revise H3, clarify S1 scoring, and
+6. Update `EXPERIMENTS.md` to revise H3, clarify S1 scoring, and
    describe source-family boundaries.
 7. Regenerate `reports/stages/nasa_atmonto_formal_experiment_scoring.*`.
 8. Add a short remediation appendix explaining why the original all-zero S1 was

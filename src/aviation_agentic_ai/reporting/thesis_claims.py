@@ -472,7 +472,7 @@ def _evidence_file_status(project_root: Path) -> list[dict[str, Any]]:
             for row in CLAIM_SAFETY_MATRIX
             for evidence_file in row["evidence_files"]
         }
-        | {"docs/thesis_positioning.md"}
+        | {"RESEARCH_OVERVIEW.md"}
     )
     return [
         {

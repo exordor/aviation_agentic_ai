@@ -19,7 +19,7 @@
   - `data/evaluation/nasa_atmonto/review_decisions/batch_08.jsonl`
   - `data/evaluation/nasa_atmonto/review_decisions/batch_09.jsonl`
   - `data/evaluation/nasa_atmonto/review_decisions/batch_10.jsonl`
-- Protocol: `docs/experiment_protocol.md`
+- Protocol: `EXPERIMENTS.md`
 - Annotation guide: `docs/nasa_atmonto_gold_annotation_guide.md`
 
 ## Review Roles

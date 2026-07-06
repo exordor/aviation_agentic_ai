@@ -5,12 +5,12 @@ It is not the canonical entry point for the current thesis story.
 
 For the current ATCSCC thesis route, start with:
 
-1. `docs/thread_handoff.md`
-2. `docs/documentation_map.md`
-3. `docs/thesis_positioning.md`
-4. `docs/research_mainline.md`
-5. `docs/documentation_map.md`
-6. `docs/experiment_protocol.md`
+1. `RESEARCH_AUDIT.md`
+2. `RESEARCH_AUDIT.md`
+3. `RESEARCH_OVERVIEW.md`
+4. `RESEARCH_OVERVIEW.md`
+5. `RESEARCH_AUDIT.md`
+6. `EXPERIMENTS.md`
 7. `reports/stages/nasa_atmonto_s7_retrieval.md`
 8. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 

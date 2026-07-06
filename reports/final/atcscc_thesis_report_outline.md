@@ -11,10 +11,10 @@ Working title:
 
 Use these documents as the primary source chain:
 
-1. `docs/thesis_positioning.md`
-2. `docs/research_mainline.md`
-3. `docs/experiment_protocol.md`
-4. `docs/experiment_protocol.md`
+1. `RESEARCH_OVERVIEW.md`
+2. `RESEARCH_OVERVIEW.md`
+3. `EXPERIMENTS.md`
+4. `EXPERIMENTS.md`
 5. `reports/stages/atcscc_data_format_and_processing_flow.md`
 6. `reports/stages/atcscc_ontology_profile_overview.md`
 7. `reports/stages/nasa_atmonto_s7_retrieval.md`
@@ -35,16 +35,16 @@ source-grounded KG-RAG evaluation.
 
 | Chapter | Purpose | Primary evidence |
 | --- | --- | --- |
-| 1. Introduction | Define the problem, motivation, scope, and contribution. | `docs/thesis_positioning.md`, `docs/research_mainline.md` |
+| 1. Introduction | Define the problem, motivation, scope, and contribution. | `RESEARCH_OVERVIEW.md`, `RESEARCH_OVERVIEW.md` |
 | 2. Background and Related Work | Position against ontology-guided extraction, KG quality, GraphRAG, and multi-agent validation. | `reports/stages/agentic_ontology_graphrag_mainline_literature_search.md`, `reports/stages/sota_comparison_matrix.md`, paper-analysis reports |
 | 3. Data and Task Definition | Explain FAA ATCSCC advisories, source format, frozen snapshot, and source-family boundary. | `reports/stages/atcscc_data_format_and_processing_flow.md`, `reports/stages/atcscc_source_brief.md` |
 | 4. Application Schema/Profile | Explain why the full ATMONTO ontology is not used wholesale and how the ATCSCC profile constrains extraction. | `reports/stages/atcscc_ontology_profile_overview.md`, `reports/stages/nasa_atmonto_competency_questions.md` |
-| 5. Method | Present the end-to-end pipeline: source parser, schema-constrained extractor, validator/refiner/critic loop, event graph, vector/graph/hybrid retrieval, answer verifier. | `docs/experiment_protocol.md`, `reports/stages/atcscc_agentic_artifact_contract.md` |
-| 6. Evaluation Design | Define RQs, baselines, metrics, pass/fail gates, and no-overall-score policy. | `docs/research_mainline.md`, `docs/experiment_protocol.md` |
+| 5. Method | Present the end-to-end pipeline: source parser, schema-constrained extractor, validator/refiner/critic loop, event graph, vector/graph/hybrid retrieval, answer verifier. | `EXPERIMENTS.md`, `reports/stages/atcscc_agentic_artifact_contract.md` |
+| 6. Evaluation Design | Define RQs, baselines, metrics, pass/fail gates, and no-overall-score policy. | `RESEARCH_QUESTIONS.md`, `EXPERIMENTS.md` |
 | 7. Results | Report extraction, agentic loop, retrieval, answer generation, and failure-review results separately. | `reports/stages/nasa_atmonto_s7_retrieval.md`, S0-S7 stage reports |
 | 8. Discussion | Explain what the results support, what remains weak, and why negative/diagnostic results matter. | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md` |
-| 9. Threats to Validity | Separate source-boundary, schema-boundary, gold-review, automated-review, and operational-boundary limitations. | `docs/thesis_positioning.md`, reviewer-defense audit |
-| 10. Conclusion | Summarize contribution and future work without overclaiming ontology completeness, domain generality, or live operational use. | `docs/research_mainline.md` |
+| 9. Threats to Validity | Separate source-boundary, schema-boundary, gold-review, automated-review, and operational-boundary limitations. | `RESEARCH_OVERVIEW.md`, reviewer-defense audit |
+| 10. Conclusion | Summarize contribution and future work without overclaiming ontology completeness, domain generality, or live operational use. | `RESEARCH_OVERVIEW.md` |
 
 ## Research Questions And Evidence
 
@@ -59,20 +59,20 @@ source-grounded KG-RAG evaluation.
 
 | Figure | Message | Source |
 | --- | --- | --- |
-| F1: System overview | ATCSCC advisories flow through schema-constrained extraction, agentic validation, event graph construction, and KG-RAG evaluation. | `docs/research_mainline.md` |
+| F1: System overview | ATCSCC advisories flow through schema-constrained extraction, agentic validation, event graph construction, and KG-RAG evaluation. | `RESEARCH_OVERVIEW.md` |
 | F2: Data format example | ATCSCC is semi-structured: title/header, message block, effective time, signature. | `reports/stages/atcscc_data_format_and_processing_flow.md` |
 | F3: Schema/profile boundary | Full NASA ATMONTO is sliced into an ATCSCC application profile and runtime extraction schema. | `reports/stages/atcscc_ontology_profile_overview.md` |
 | F4: Agentic loop | Extractor, validator, refiner, and critic exchange structured artifacts under evidence gates. | `reports/stages/atcscc_agentic_artifact_contract.md` |
-| F5: Evaluation stack | Extraction metrics, agentic-loop metrics, retrieval/answer metrics, and review-boundary metrics stay separate. | `docs/experiment_protocol.md` |
+| F5: Evaluation stack | Extraction metrics, agentic-loop metrics, retrieval/answer metrics, and review-boundary metrics stay separate. | `EXPERIMENTS.md` |
 
 ## Required Tables
 
 | Table | Purpose | Source |
 | --- | --- | --- |
-| T1: RQ to validation matrix | Show experiment layer, baselines, metrics, artifacts, and pass/fail criteria. | `docs/research_mainline.md` |
+| T1: RQ to validation matrix | Show experiment layer, baselines, metrics, artifacts, and pass/fail criteria. | `RESEARCH_QUESTIONS.md` |
 | T2: ATCSCC source fields to profile terms | Defend source-observable completeness and profile scope. | `reports/stages/atcscc_data_format_and_processing_flow.md`, `reports/stages/atcscc_ontology_profile_overview.md` |
 | T3: Baseline comparison | Compare S0-S7 extraction and KG-RAG systems without one mixed overall score. | `reports/stages/nasa_atmonto_s7_retrieval.md` |
-| T4: Claim safety matrix | Safe wording versus unsafe wording. | `docs/thesis_positioning.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
+| T4: Claim safety matrix | Safe wording versus unsafe wording. | `RESEARCH_OVERVIEW.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
 
 ## Claims To Preserve
 

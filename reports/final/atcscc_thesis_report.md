@@ -63,7 +63,7 @@ coverage, live operational ATC decision support, operational safety
 certification, universal KG-RAG superiority, and semantic correctness beyond
 reviewed evidence.
 
-**Evidence spine:** `docs/thesis_positioning.md`, `docs/research_mainline.md`,
+**Evidence spine:** `RESEARCH_OVERVIEW.md`, `RESEARCH_OVERVIEW.md`,
 `reports/stages/nasa_atmonto_s7_retrieval.md`.
 
 ## Chapter 2. Background and Related Work
@@ -210,7 +210,7 @@ Automated consistency diagnostics, a human-review candidate packet, candidate
 adjudication, and a profile-decision what-if. Automated diagnostics are an
 internal error-discovery layer, not human review or expert certification.
 
-**Evidence spine:** `docs/experiment_protocol.md`,
+**Evidence spine:** `EXPERIMENTS.md`,
 `reports/stages/atcscc_agentic_artifact_contract.md`,
 `reports/stages/nasa_atmonto_formal_experiment_scoring.md`.
 
@@ -232,7 +232,7 @@ Bootstrap 95% CIs are reported for extraction F1 (record-bootstrap by source_id,
 the RAGAs [30] and ARES [31] automated RAG-evaluation frameworks and the
 broader RAG-evaluation survey [32].
 
-**Evidence spine:** `docs/experiment_protocol.md`, `docs/research_mainline.md`.
+**Evidence spine:** `EXPERIMENTS.md`, `RESEARCH_OVERVIEW.md`.
 
 ## Chapter 7. Experiments and Results
 
@@ -410,7 +410,7 @@ Human/expert review remains separate from automated diagnostics.
 - **Conclusion validity:** bootstrap CIs reported for extraction F1; RQ3 is a
   fixed-budget LLM run, not human review.
 
-**Evidence spine:** `docs/thesis_positioning.md`,
+**Evidence spine:** `RESEARCH_OVERVIEW.md`,
 `reports/stages/nasa_atmonto_reviewer_defense_audit.md`,
 `reports/stages/nasa_atmonto_sota_goal_audit.md`.
 

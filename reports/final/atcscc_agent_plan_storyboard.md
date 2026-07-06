@@ -39,7 +39,7 @@ planned L2 end-to-end Agent.
 | 6 | Planned L2 | L2 composes L1 with graph build, retrieval, answer generation, citation, and abstention. | Layered architecture diagram | `docs/atcscc_agent_architecture.md`; `reports/final/assets/architecture/atcscc_architecture_01_layered_system.png` |
 | 7 | Planned L2 | Path B is the preferred L2 route because it reuses the existing ATCSCC S7 retrieval contracts. | Path A vs Path B trade-off table | `docs/atcscc_agent_architecture.md`; `reporting/atmonto/core/live_retrieval.py` |
 | 8 | Existing evidence | Existing results support KG-RAG grounding on ATCSCC, but they do not yet prove Agent-loop uplift. | KPI bars plus claim-boundary callout | `reports/stages/nasa_atmonto_s7_retrieval.md`; `reports/final/assets/architecture/atcscc_architecture_04_evaluation.png` |
-| 9 | Boundary | The deliverable is a bounded, testable Agentic KG-RAG pipeline rather than autonomous ontology construction. | Boundary table | `docs/thesis_positioning.md`; `docs/master_project_scope_lock.md` |
+| 9 | Boundary | The deliverable is a bounded, testable Agentic KG-RAG pipeline rather than autonomous ontology construction. | Boundary table | `RESEARCH_OVERVIEW.md`; `DECISION_LOG.md` |
 | 10 | Next experiment | The next experiment scores L1 repair-loop outputs against the same evidence and grounding metrics. | Roadmap / conclusion slide | `docs/atcscc_agent_architecture.md`; `tests/test_agents_extraction_agent.py` |
 
 ## Demo And Verification Paths
