@@ -1295,6 +1295,38 @@ git commit -m "refactor: retarget canonical-doc links to new root-level research
 **Files:**
 - Move: six docs/ spine files + `TASKS.md` into `docs/archive/governance_era/`
 - Create: `docs/archive/governance_era/README.md`
+- Modify: `EXPERIMENTS.md`, `DECISION_LOG.md`, `RESEARCH_OVERVIEW.md` (Task 6 review cleanup — see Step 0)
+
+- [ ] **Step 0: Retarget non-provenance spine references flagged in Task 6 review**
+
+Task 6's critical rules forbade touching the 9 root files (except RESEARCH_OVERVIEW.md's migrated Stop Rule / Deliverables refs, which Task 6 itself handled). The Task 6 code-quality review found three non-provenance spine references inside root files that were carried verbatim during Tasks 3–5 and would dangle after this commit archives the spine. Fix them now, before the archive move, so the verification greps in Steps 4–5 stay clean.
+
+1. `EXPERIMENTS.md:1051` — the "Step 0 — Lock claim boundary" directive references `docs/thesis_positioning.md`. Retarget to `RESEARCH_OVERVIEW.md` (claim-boundary content now lives there). Make ONLY this single path-string edit; do not touch any other line in EXPERIMENTS.md (the test-required literals must survive).
+2. `DECISION_LOG.md:158` — D006 Decision text says "Use the six documentation tiers (T0–T6) from `docs/documentation_map.md` §Document Tiers." Retarget to `ARTIFACT_INDEX.md` (per §7.1 table). Make ONLY this single path-string edit.
+3. `DECISION_LOG.md:150` — D006 Date line says "(same as `documentation_map.md`)". Retarget to "(same as `ARTIFACT_INDEX.md`'s source)" or simply "(see ARTIFACT_INDEX.md provenance)". Make ONLY this single edit.
+4. `RESEARCH_OVERVIEW.md` — add the `## Figure Boundary` section (the five-figure table from `docs/master_project_scope_lock.md` lines ~112–124, copied verbatim) so that `reports/final/figure_descriptions.md:4`'s retargeted link (which Task 6 pointed at RESEARCH_OVERVIEW.md for "thesis Figure Boundary") actually lands on the named section. Insert the new `## Figure Boundary` section after the existing "## Stop Rule" section. The table content:
+   ```markdown
+   ## Figure Boundary
+
+   The thesis needs a small number of high-value figures only.
+
+   | Figure | Purpose |
+   |---|---|
+   | System overview | Show source, schema, agentic extraction, event graph, KG-RAG, and evaluation. |
+   | ATCSCC source-to-fact example | Show one advisory span mapped to event facts and evidence ids. |
+   | Schema/profile slice | Show the lightweight application schema, not full ATMONTO. |
+   | Agentic loop | Show extractor, validator, refiner, critic, and rejection/repair artifacts. |
+   | Results summary | Show layered metrics and failure categories. |
+
+   Paper figure galleries and PDF extraction assets are research support tools, not final deliverables.
+   ```
+   (Copy this verbatim from master_project_scope_lock.md §Figure Boundary — verify the row text matches the source before committing.)
+
+After these four edits, run a quick sanity check:
+```bash
+grep -nE "docs/(thesis_positioning|documentation_map)\.md" EXPERIMENTS.md DECISION_LOG.md RESEARCH_OVERVIEW.md
+```
+Expected: only the provenance-header lines (line 3 of each) and the RESEARCH_OVERVIEW "Sources preserved under" mention — NOT the Step 0 / D006 / Date lines. If the Step 0 / D006 / Date lines still show the old paths, the edits didn't land.
 
 - [ ] **Step 1: Create the archive directory and move the spine files**
 
