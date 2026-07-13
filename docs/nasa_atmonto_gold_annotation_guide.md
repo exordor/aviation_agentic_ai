@@ -20,7 +20,7 @@
 
 ## Annotation Goal
 
-Each sampled ATCSCC advisory needs a reviewed gold annotation so S0-S3 can be
+Each sampled ATCSCC advisory needs a reviewed gold annotation so all extraction conditions can be
 scored on the same 100 records. The gold set is the evaluation target for
 triple precision, recall, F1, and manual semantic correctness. NASA ATMONTO is
 the schema constraint, not the ground truth by itself.
@@ -105,10 +105,10 @@ conditions hold:
 Use these review outcomes consistently:
 
 - True positive: a system fact satisfies the rubric and belongs in
-  `valid_facts`, or in `missing_facts` when copied from a schema-valid S1-S3
+  `valid_facts`, or in `missing_facts` when copied from a schema-valid raw schema-free LLM diagnostic-validator-and-repair condition
   candidate.
 - False positive: a system fact is structurally accepted but fails the rubric;
-  put its candidate ID in `invalid_candidate_fact_ids` when it comes from S0.
+  put its candidate ID in `invalid_candidate_fact_ids` when it comes from deterministic rule baseline.
 - False negative: a source-supported fact needed for the gold set was not
   produced by the candidate path; enter it manually in `missing_facts`.
 - Profile-gap candidate: the source supports the fact, but the current NASA
@@ -141,7 +141,7 @@ When in doubt, keep the record pending and add a note rather than marking it
 `reviewed`.
 
 Use `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.jsonl` as a
-coverage checklist after reading the source text. It aggregates S0-S3 candidate
+coverage checklist after reading the source text. It aggregates candidate
 facts and validator outcomes, but it is not gold truth; source evidence and this
 guide remain authoritative for the final annotation.
 
@@ -157,7 +157,7 @@ The workload plan is only a queue planner; it does not create gold truth.
 
 Use `data/evaluation/nasa_atmonto/review_priority_packets/index.md` for the
 actual priority-ordered review packets. These packets put source excerpts,
-candidate facts, copyable S0/S1-S3 fact IDs, and rejected-fact adjudication
+candidate facts, copyable deterministic rule baseline/raw schema-free LLM diagnostic-validator-and-repair condition fact IDs, and rejected-fact adjudication
 items in the same Markdown page. Final decisions still belong in the JSONL
 files under `data/evaluation/nasa_atmonto/review_decisions/`.
 
@@ -172,7 +172,7 @@ to audit decision-level progress before applying the draft. This catches
 records that are still pending, missing rejected-fact decisions, or contain
 unknown candidate IDs.
 
-Decision templates include `suggested_valid_candidate_fact_ids` for S0 facts
+Decision templates include `suggested_valid_candidate_fact_ids` for deterministic rule baseline facts
 that passed schema validation. These are copy aids only: copy an ID into
 `valid_candidate_fact_ids` only after checking that the fact is supported by the
 source text.
@@ -185,13 +185,13 @@ checking the source evidence.
 
 Decision files support two accepted-fact paths:
 
-- `valid_candidate_fact_ids`: S0 rule-baseline candidate IDs copied into
+- `valid_candidate_fact_ids`: deterministic rule baseline rule-baseline candidate IDs copied into
   `valid_facts`.
-- `valid_cross_system_fact_ids`: schema-valid S1-S3 candidate IDs copied into
+- `valid_cross_system_fact_ids`: schema-valid raw schema-free LLM diagnostic-validator-and-repair condition candidate IDs copied into
   `missing_facts` with `source_system_id` provenance. Use this only after
   checking the source text; the cross-system package is a checklist, not truth.
 
-Free-form or corrected facts that cannot be copied directly from S0-S3 should
+Free-form or corrected facts that cannot be copied directly from any extraction condition should
 still be entered manually in `missing_facts`.
 
 After each batch update, run

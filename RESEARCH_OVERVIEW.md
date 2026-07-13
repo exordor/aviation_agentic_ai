@@ -6,19 +6,22 @@
 
 - Schema-constrained, evidence-grounded information extraction.
 - Agentic validation/refinement loops for KG construction.
-- Source-bounded KG-RAG question answering.
+- Authority-grounded cross-source KG-RAG question answering.
 - Retrospective FAA ATCSCC advisory analysis.
 
 ## Problem Statement
 
 The project studies evidence-grounded question answering over retrospective FAA
-ATCSCC advisories. ATCSCC advisories are semi-structured operational notices:
+ATCSCC advisories linked to bounded authority and observation sources. ATCSCC
+advisories are semi-structured operational notices:
 they contain identifiers, affected NAS elements, route or airport constraints,
 effective time windows, causes, and free-text operational context. The research
 problem is not to build a complete aviation ontology. The research problem is to
 extract advisory-event knowledge with explicit schema constraints and evidence
-spans, then evaluate whether that structured graph improves grounded question
-answering.
+spans, align facility codes and operational abbreviations against versioned
+registries, link a controlled 68-record cohort to NASR and weather evidence,
+then evaluate whether the cross-source graph improves grounded question
+answering without turning association into causal claims.
 
 The prototype therefore treats the ontology/profile as an engineering
 constraint. The main method is schema-constrained, evidence-grounded Agentic
@@ -28,33 +31,39 @@ KG-RAG.
 
 The project outcome is one bounded thesis-grade system study:
 
-**Evidence-Grounded Schema-Constrained Agentic KG-RAG for FAA ATCSCC
+**Authority-Grounded Cross-Source Agentic KG-RAG for Retrospective FAA ATCSCC
 Advisories.**
 
 The thesis studies how a lightweight application schema constrains LLM
-extraction from retrospective FAA ATCSCC advisories, how validator/refiner/critic
-loops change extraction quality, and whether the resulting advisory event graph
-improves source-grounded question answering and citation diagnostics.
+extraction from retrospective FAA ATCSCC advisories, how autonomous
+validator/refiner/critic and context-alignment agents change extraction quality,
+and whether a graph linking advisories, authority registries, NAS facilities,
+and contemporaneous METAR/TAF evidence improves grounded question answering and
+citation diagnostics.
 
 The ontology/profile is an engineering constraint. It is not the research object.
 
 ## Single-Sentence Contribution
 
 This project builds and evaluates a schema-constrained, evidence-linked
-Agentic KG-RAG pipeline that extracts advisory-event facts from FAA ATCSCC
-notices, validates and repairs candidate facts before graph insertion, and uses
-the resulting event graph for source-bounded question answering.
+multi-agent KG-RAG pipeline that extracts FAA ATCSCC event facts, autonomously
+aligns facility codes and operational abbreviations through versioned authority
+snapshots, links a controlled cohort to contemporaneous weather evidence, and
+answers with explicit source-declaration, observation/forecast, and
+system-association evidence layers.
 
 ## Revised Thesis Claim
 
 This thesis investigates a retrospective and source-bounded claim: for FAA
-ATCSCC advisories, a lightweight NASA ATMONTO-derived application schema can
-constrain LLM extraction of advisory events, support agentic
-validation/refinement, and provide an inspectable advisory event graph for
-KG-RAG question answering. The system is evaluated with layered metrics:
+ATCSCC advisories, a lightweight NASA ATMONTO-derived application schema plus
+versioned FAA-derived authority registries can constrain extraction and entity
+alignment, support autonomous agentic validation/refinement, and provide an
+inspectable cross-source event graph for KG-RAG question answering. The system
+is evaluated with layered metrics:
 schema-valid extraction, evidence-linked relation correctness on reviewed
 subsets, repair/critic behavior, retrieval and answer quality, citation quality,
-and failure/human-review boundaries are reported separately.
+cross-source evidence-layer coverage, abstention/quarantine behavior, and the
+independent scientific-review boundary are reported separately.
 
 The thesis does not claim that the ATCSCC schema is a complete aviation
 ontology, that GraphRAG universally improves retrieval, or that the system is
@@ -76,12 +85,13 @@ repair, and evidence tracing explicit.
 The research contribution is a bounded method:
 
 ```text
-retrospective advisory text
+retrospective advisory text + versioned terminology/NASR/weather snapshots
   -> schema-constrained extraction
+  -> facility/abbreviation alignment with autonomous confidence gates
   -> agentic validation/refinement/critic loop
-  -> advisory event graph with evidence spans
-  -> vector / graph / routed KG-RAG
-  -> source-grounded answers and failure analysis
+  -> cross-source event graph with provenance and typed evidence links
+  -> source-only / linked-text / KG-layered answer comparison
+  -> evidence-layered answers, abstention, and failure analysis
 ```
 
 ## Research Scope
@@ -94,10 +104,13 @@ The final master project needs only the following deliverables.
 |---|---|---|
 | Frozen ATCSCC data profile | Defines the retrospective source family and source format. | `reports/stages/atcscc_data_format_and_processing_flow.md` |
 | Lightweight ATCSCC schema/profile | Defines allowed event fields, predicates, and profile gaps. | `reports/stages/atcscc_ontology_profile_overview.md` |
+| Versioned authority and source snapshots | Defines reproducible facility-code, operational-term, and weather inputs with source URL, effective date, and checksum. | `configs/cross_source_v1.yaml`, `data/sources/faa_atcscc_terms_v1.yaml` |
+| Autonomous two-layer alignment | Aligns facility codes and operational abbreviations; ambiguous cases must be accepted by context evidence or quarantined. | `src/aviation_agentic_ai/cross_source/`, `data/evaluation/cross_source/` |
+| Controlled cross-source cohort | Links the 68 connectable advisories to authority, NASR, and contemporaneous METAR/TAF evidence without causal overstatement. | `data/evaluation/cross_source/v1/automated_regression_v1.jsonl` |
 | Schema-constrained extraction experiment | Tests rule, LLM, schema, repair, and hybrid extraction variants. | `reports/stages/nasa_atmonto_formal_experiment_scoring.md` |
-| Agentic validation/refinement loop | Tests whether validator/refiner/critic steps reduce schema and evidence failures. | `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md` |
-| KG-RAG answer-generation comparison | Tests vector, graph, and hybrid/routed retrieval for source-grounded answers. | `reports/stages/nasa_atmonto_s7_retrieval.md`, `reports/stages/nasa_atmonto_s7_llm_answer_generation.md` |
-| Failure and claim-safety audit | Defines what remains unresolved and where human review is required. | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md` |
+| Agentic validation/refinement loop | Tests whether validator/refiner/critic steps reduce schema and evidence failures. | Agentic full-run diagnostic; see `ARTIFACT_INDEX.md`. |
+| KG-RAG answer-generation comparison | Tests source-only, linked-text, and KG-layered cross-source answering alongside the existing vector/graph/routed evaluation. | Retrieval, answer-generation, and cross-source evaluation reports; see `ARTIFACT_INDEX.md`. |
+| Failure and claim-safety audit | Defines autonomous rejection/quarantine behavior and separates runtime autonomy from independent research evaluation. | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md`, `reports/stages/cross_source_mainline_evaluation.md` |
 | Thesis synthesis | Turns the evidence into the final research story. | `RESEARCH_OVERVIEW.md`, `reports/stages/nasa_atmonto_experiment_chapter_draft.md` |
 
 If a proposed task does not strengthen one of these deliverables, it should be
@@ -118,7 +131,8 @@ explicitly reopened.
 - A broad multi-domain transfer study.
 - A production dashboard.
 - A separate paper-gallery or PDF-mining product.
-- A new data-source integration campaign.
+- Unbounded source expansion beyond the versioned terminology, NASR/facility,
+  and weather profiles admitted by the cross-source V2 protocol.
 - A large fine-tuning or model-training project.
 
 These topics can appear in related work, limitations, or future work, but they
@@ -134,8 +148,15 @@ should not create new core implementation tracks.
   roles that records repair and rejection outcomes.
 - A reproducible vector, graph, and hybrid KG-RAG evaluation pipeline over
   retrospective ATCSCC advisories.
+- A versioned two-layer canonicalization protocol for facility identifiers and
+  operational abbreviations, with deterministic acceptance and contextual
+  quarantine gates.
+- A cross-source answer contract that separates source declarations,
+  contemporaneous observations/forecasts, and system associations, and forbids
+  converting correlation into deterministic causation.
 - A layered evaluation and claim-boundary protocol that separates schema
-  validity, evidence support, answer quality, and human-review requirements.
+  validity, evidence support, answer quality, autonomous runtime behavior, and
+  independent scientific evaluation.
 
 ## Evaluation Philosophy
 
@@ -150,7 +171,9 @@ answer sets, evidence traceability, citation behavior, and failure diagnosis.
 | Evidence support | evidence-span coverage, unsupported relation rate, provenance completeness, reviewed-subset precision/recall/F1 | Measure whether accepted facts can be traced to advisory text. |
 | Agentic loop behavior | violation reduction, repair success, critic rejection count, post-loop extraction F1 | Measure whether validation/refinement improves extraction quality. |
 | Retrieval and KG-RAG answer quality | answer-set F1, target-source hit rate, citation precision/recall, evidence faithfulness | Measure whether vector, graph, and hybrid modes support grounded answers. |
-| Failure and human-review boundary | failure category counts, abstention correctness, profile/gold-boundary cases, human-review completion status | Measure what remains unresolved and which claims require review. |
+| Authority and ambiguity alignment | authoritative-map accuracy, contextual-target accuracy, quarantine accuracy, out-of-registry acceptance count | Measure whether canonical identifiers and ambiguous abbreviations are resolved safely. |
+| Cross-source answer contract | required evidence-layer coverage, required citation-layer coverage, abstention correctness, causal-overstatement count | Measure whether linked answers remain attributable and epistemically bounded. |
+| Autonomous failure boundary | failure category counts, abstention correctness, quarantine/rejection counts, independent-evaluation status | Measure whether runtime proceeds without human dependency while unresolved scientific claims remain explicit. |
 
 The thesis must not collapse these layers into a single mixed overall score.
 The full metric protocol is documented in `EXPERIMENTS.md` and can
@@ -164,8 +187,9 @@ test, baselines, metrics, and the experimental procedure.
 | --- | --- | --- | --- | --- |
 | Lightweight schema constrains advisory event extraction. | ATCSCC profile terms, schema validation, and prediction-output validation reports constrain accepted event fields. | strong | The application schema constrains which advisory event fields and relations can enter the graph. | The ontology fully models aviation knowledge. |
 | Accepted facts preserve provenance. | KG and prediction validation reports check source IDs and evidence spans. | strong | Accepted facts carry source-bounded provenance checked by deterministic validation. | Every KG triple is semantically correct. |
-| Agentic validation improves extraction quality. | S5/S6 reports record validator, refiner, critic, repair, and rejection behavior. | moderate | The agentic loop reduces specific schema and support failures in the current ATCSCC pipeline. | Autonomous agents construct a correct ontology. |
-| KG-RAG improves grounded ATCSCC QA. | S7 retrieval, graph-health, and LLM answer-generation diagnostics report answer-set, citation, and target-source metrics. | moderate | KG-RAG improves some source-bounded grounding diagnostics on this benchmark. | GraphRAG is always more accurate than vector retrieval. |
+| Agentic validation improves extraction quality. | Validator, refiner, critic, repair, and rejection reports. | moderate | The agentic loop reduces specific schema and support failures in the current ATCSCC pipeline. | Autonomous agents construct a correct ontology. |
+| KG-RAG improves grounded ATCSCC QA. | Retrieval, graph-health, and LLM answer-generation diagnostics report answer-set, citation, and target-source metrics. | moderate | KG-RAG improves some source-bounded grounding diagnostics on this benchmark. | GraphRAG is always more accurate than vector retrieval. |
+| Cross-source KG-RAG adds attributable context. | Versioned authority snapshots, 68-record linking cohort, typed answer layers, and matched component baselines. | strong on component/process metrics | Cross-source links add separately cited authority, observation/forecast, and system-association context on the controlled cohort. | Weather or graph links prove the cause of an advisory. |
 | The system can answer operational ATC questions. | The advisory boundary limits the system to retrospective research diagnostics. | not supported | The system analyzes retrospective advisories and must not be used for live operational decisions. | The system can support operational flight or ATC decisions. |
 | The benchmark is externally expert certified. | Current labels and diagnostics are project/thesis evidence with documented review gaps. | not supported | The benchmark is thesis-oriented and source-bounded, with explicit review limitations. | The benchmark is externally aviation-expert certified. |
 
@@ -180,14 +204,16 @@ test, baselines, metrics, and the experimental procedure.
   signals.
 - KG-RAG adds structured evidence and citation diagnostics in the current
   source-bounded benchmark.
-- Remaining failures and human-review requirements are explicitly categorized.
+- Remaining failures and independent-evaluation boundaries are explicitly categorized.
 
 ## What The Thesis Must Not Claim
 
 - The ATCSCC application schema is a complete aviation ontology.
 - NASA ATMONTO is treated as complete ground truth for ATCSCC advisories.
 - GraphRAG universally improves Recall@k or answer accuracy.
-- Automated diagnostics replace human or expert review.
+- Runtime agents eliminate mandatory human intervention for acceptance,
+  quarantine, and abstention; this does not eliminate independent scientific
+  evaluation or external expert validation.
 - The benchmark is externally aviation-expert certified.
 - The system is operationally safe for live ATC or flight decisions.
 
@@ -201,15 +227,18 @@ test, baselines, metrics, and the experimental procedure.
   advisories.
 - KG-RAG adds structured evidence and citation diagnostics for source-bounded
   ATCSCC QA.
-- Remaining failures can be categorized into extraction, retrieval, profile/gold
-  boundary, answer-overreach, and human-review cases.
+- Cross-source V2 adds versioned authority alignment, contemporaneous weather
+  context, typed evidence layers, and autonomous quarantine/abstention.
+- Remaining failures can be categorized into extraction, alignment, linking,
+  retrieval, evidence-layer, and answer-overreach cases.
 
 ## Claims To Avoid
 
 - The project builds a complete aviation ontology.
 - NASA ATMONTO is complete ground truth for ATCSCC advisories.
 - GraphRAG universally outperforms vector-only RAG.
-- Automated review replaces human or expert review.
+- Runtime autonomy is externally certified or replaces independent scientific
+  evaluation.
 - The system is safe for live ATC or flight decisions.
 - The method is proven domain-general.
 
@@ -223,8 +252,8 @@ ontology research is itself a large SOTA field.
 | --- | --- | --- |
 | Schema-guided / ontology-guided information extraction | Use a domain schema to constrain classes, predicates, values, and output contracts. | A source-native ATCSCC advisory-event profile with evidence-span requirements and profile-gap handling. |
 | Knowledge-graph quality evaluation | Separate completeness, correctness, conformance, provenance, and error repair. | A layered metric protocol that reports schema validity, evidence support, extraction F1, retrieval quality, answer grounding, and review boundaries separately. |
-| GraphRAG and citation-faithful QA | Compare vector, graph, hybrid, and routed retrieval instead of assuming graph retrieval is always better. | A source-bounded ATCSCC KG-RAG benchmark with answer-set, citation, unsupported-claim, and abstention diagnostics. |
-| Multi-agent validation/refinement | Use role-separated extractor, validator, refiner, and critic loops. | An auditable agentic loop for extraction repair and rejection under hard schema and evidence gates. |
+| GraphRAG and citation-faithful QA | Compare source-only, linked-text, graph, hybrid, and routed retrieval instead of assuming graph retrieval is always better. | A cross-source ATCSCC KG-RAG benchmark with evidence-layer, citation, unsupported-claim, and abstention diagnostics. |
+| Multi-agent validation/refinement | Use role-separated source, extractor, alignment, linker, validator, answer, and critic roles. | An auditable autonomous loop for extraction repair, ambiguity quarantine, source linking, and rejection under hard schema and evidence gates. |
 
 The safe novelty claim is therefore methodological integration under a bounded
 source family: the thesis adapts schema-guided extraction, KG quality
@@ -241,7 +270,7 @@ When a new idea appears, classify it before doing work.
 |---|---|
 | Strengthens an existing locked deliverable | Implement only the smallest required change. |
 | Improves writing, figure clarity, or claim safety | Add to the relevant thesis/report document. |
-| Requires new data, new benchmark, new platform, or new dashboard | Move to future work. |
+| Requires a source outside the admitted cross-source profiles, a new benchmark, platform, or dashboard | Move to future work. |
 | Changes the research question | Reject unless the scope lock is explicitly reopened. |
 | Only useful for exploration | Keep as ignored local notes or a short literature note. |
 
@@ -251,8 +280,8 @@ Default decision: defer.
 
 The project is ready to write up when these are true:
 
-1. The frozen ATCSCC data, schema/profile, extraction results, agentic loop,
-   KG-RAG results, and failure audit are all linked from
+1. The frozen ATCSCC and cross-source snapshots, schema/profile, extraction and
+   alignment results, agentic loop, KG-RAG results, and failure audit are linked from
    `ARTIFACT_INDEX.md`.
 2. The research-overview, research-questions, and claim-safety sections in
    `RESEARCH_OVERVIEW.md` tell the same story.
@@ -267,7 +296,7 @@ The thesis needs a small number of high-value figures only.
 
 | Figure | Purpose |
 |---|---|
-| System overview | Show source, schema, agentic extraction, event graph, KG-RAG, and evaluation. |
+| System overview | Show versioned sources, schema, multi-agent gates, cross-source graph, KG-RAG, and evaluation. |
 | ATCSCC source-to-fact example | Show one advisory span mapped to event facts and evidence ids. |
 | Schema/profile slice | Show the lightweight application schema, not full ATMONTO. |
 | Agentic loop | Show extractor, validator, refiner, critic, and rejection/repair artifacts. |
@@ -277,7 +306,11 @@ Paper figure galleries and PDF extraction assets are research support tools, not
 
 ## Evidence Gaps Before Thesis Submission
 
-- Need final reviewed subset for triple-level and answer-level correctness.
+- Replicate the hard ambiguity result across additional abbreviation families.
+- Add an independent linker baseline; the current linked-text arm shares
+  accepted links with the KG system.
+- External aviation-expert certification remains optional future validation,
+  not a runtime dependency or a prerequisite for the current bounded claims.
 - Need explicit comparison against a naive/unconstrained extraction baseline.
 - Need clearer reporting of repair success and rejection reasons across the
   agentic loop.

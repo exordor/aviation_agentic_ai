@@ -52,12 +52,12 @@ Keep exactly four RQs: schema-constrained extraction, agentic validation-refinem
 
 ### Alternatives Considered
 
-- Adding a fifth RQ for cross-source transfer.
-- Treating ontology completeness as an RQ.
+- Adding a fifth research question for cross-source transfer.
+- Treating ontology completeness as an research question.
 
 ### Consequences
 
-Pro: each RQ has an experiment layer, metrics, artifacts, pass/fail interpretation.
+Pro: each research question has an experiment layer, metrics, artifacts, pass/fail interpretation.
 Con: cross-source and ontology-completeness work is future work only.
 
 ## D003 — Layered metrics, no overall score
@@ -155,19 +155,22 @@ The repo mixes canonical framing, protocols, current evidence, source explainers
 
 ### Decision
 
-Use the six documentation tiers (T0–T6) below and the "Where New Documents Should Go" routing table to keep canonical framing, current evidence, source explainers, paper analyses, historical artifacts, and generated side artifacts from polluting each other.
+Use the descriptively named documentation layers below and the "Where New
+Documents Should Go" routing table to keep canonical framing, current evidence,
+source explainers, paper analyses, historical artifacts, and generated side
+artifacts from polluting each other.
 
 ### Document Tiers
 
 | Tier | Location | Examples | Maintenance rule |
 | --- | --- | --- | --- |
-| T0 canonical framing | repo root | `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`, `ARTIFACT_INDEX.md` (entry point: `RESEARCH_AUDIT.md`) | Update when the thesis scope, RQs, claim boundaries, or entry points change. |
-| T1 protocols and scope control | repo root + `docs/` | `EXPERIMENTS.md`, `docs/research_paper_analysis_protocol.md` | Update when the reproducible workflow, scoring rules, or paper-intake process changes. |
-| T2 current thesis evidence | `reports/stages/` | `nasa_atmonto_formal_experiment_scoring.md`, `nasa_atmonto_s7_retrieval.md`, `nasa_atmonto_experiment_chapter_draft.md` | Keep as generated or reviewed evidence; cite through this map. |
-| T3 source/schema explainers | `reports/stages/` | `atcscc_data_format_and_processing_flow.md`, `atcscc_ontology_profile_overview.md` | Keep thesis-facing and readable; update when data/profile boundaries change. |
-| T4 method migration and paper analysis | `reports/stages/`, `data/papers/README.md` | `claim_kg_graphrag_paper_adaptation.md`, `multi_agent_pipeline_method_adaptation.md` | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
-| T5 historical artifacts | `docs/archive/phak_era/`, `reports/stages/`, `reports/final/` | PHAK reports, old web-demo reports, old final report drafts | Preserve for provenance, but do not let them override current ATCSCC framing. |
-| T6 generated side artifacts | `reports/stages/*.json`, `.csv`, `.html`, `.log` | report JSON, review packets, worksheets, logs | Track only if they support a current dashboard/audit/chapter claim; otherwise keep under ignored output paths. |
+| Canonical framing | repo root | `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`, `ARTIFACT_INDEX.md` | Update when the thesis scope, research questions, claim boundaries, or entry points change. |
+| Protocols and scope control | repo root + `docs/` | `EXPERIMENTS.md`, `docs/research_paper_analysis_protocol.md` | Update when the reproducible workflow, scoring rules, or paper-intake process changes. |
+| Current thesis evidence | `reports/stages/` | formal scoring, retrieval, and chapter-draft reports | Keep as generated or reviewed evidence; cite through this map. |
+| Source and schema explainers | `reports/stages/` | ATCSCC data-flow and ontology-profile reports | Keep thesis-facing and readable; update when data/profile boundaries change. |
+| Method migration and paper analysis | `reports/stages/`, `data/papers/README.md` | adaptation and analysis reports | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
+| Historical artifacts | `docs/archive/phak_era/`, `reports/stages/`, `reports/final/` | old prototype and report drafts | Preserve for provenance, but do not let them override current ATCSCC framing. |
+| Generated side artifacts | `reports/stages/*.json`, `.csv`, `.html`, `.log` | report JSON, review packets, worksheets, logs | Track only if they support a current dashboard/audit/chapter claim; otherwise keep under ignored output paths. |
 
 ### Where New Documents Should Go
 
@@ -195,3 +198,79 @@ Use the six documentation tiers (T0–T6) below and the "Where New Documents Sho
 
 Pro: clear precedence chain (now anchored at RESEARCH_AUDIT.md after this refactor).
 Con: tier discipline requires upkeep; stale tier assignments cause context pollution.
+
+## D007 — Cross-source multi-agent work stays on an additive V2 track
+
+### Date
+
+2026-07-13
+
+### Context
+
+The project already contains an ATCSCC extraction loop and a minimal end-to-end
+agent, while NASR and AviationWeather snapshots exist outside the scored
+single-source thesis evaluation. Cross-source answers also require facility-code
+and operational-abbreviation alignment before weather evidence can be linked
+safely.
+
+### Decision
+
+Keep the scored ATCSCC thesis path frozen and build cross-source abbreviation
+alignment and evidence-layered answers as an additive V2 subsystem. Use a
+lightweight supervisor with explicit node/state contracts so the scheduler can
+later migrate to a state-graph framework without rewriting the nodes.
+
+### Reason
+
+- Preserves current thesis claims and reviewed artifacts.
+- Makes source, entity, terminology, temporal, and answer authority explicit.
+- Allows the first cross-source cohort to be evaluated separately before any
+  thesis-scope decision.
+
+### Alternatives Considered
+
+- Reopen the thesis and replace the current single-source evaluation.
+- Use autonomous source agents with LLM-mediated identity and evidence fusion.
+- Introduce a state-graph framework before the node contracts are stable.
+
+### Consequences
+
+Pro: the V2 path is reproducible, reviewable, and isolated from current thesis evidence.
+Con: cross-source results cannot be presented as current thesis findings without a separate evaluation and scope decision.
+
+## Decision: Promote Cross-Source V2 Into The Thesis Mainline
+
+### Date
+
+2026-07-13
+
+### Context
+
+The additive subsystem is implemented over pinned source snapshots, the
+68-record cohort is reproducible, ambiguity gates are autonomous, and a
+separate mainline evaluation now compares matched answer modes and stress-tests
+`GS` ambiguity.
+
+### Decision
+
+Supersede the earlier additive-only scope boundary. Cross-source V2 is part of
+the thesis mainline under the agentic validation, cross-source grounding, and
+autonomous failure questions. Retain the existing single-source extraction
+and routed KG-RAG experiments as the foundation rather than replacing them.
+
+### Evidence Gate
+
+- 20 ambiguity cases: accepted-target accuracy 1.00, quarantine accuracy 1.00,
+  zero out-of-registry acceptances.
+- 24 matched answers: required evidence/citation-layer coverage 0.25
+  source-only, 0.75 linked-text, and 1.00 KG-layered.
+- Independent Evaluation Agent: 24/24 pass; causal-overstatement count 0.
+
+### Consequences
+
+Pro: the thesis now evaluates an authority-grounded, genuinely cross-source
+Agentic KG-RAG method with autonomous runtime gates.
+
+Con: the result remains a component evaluation over one cohort and one
+ambiguity family. The linked-text arm shares accepted links, and the automated
+evaluator is not external aviation-expert certification.

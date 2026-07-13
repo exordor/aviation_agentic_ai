@@ -1,11 +1,12 @@
 # Aviation Agentic AI
 
 Aviation Agentic AI is a research prototype for schema-constrained,
-evidence-grounded Agentic KG-RAG over retrospective FAA ATCSCC advisories. It
+authority-grounded cross-source Agentic KG-RAG over retrospective FAA ATCSCC advisories. It
 extracts advisory-event facts from semi-structured FAA traffic-management
 notices, validates them against a lightweight NASA ATMONTO-derived application
 schema, and evaluates whether an advisory event graph improves source-bounded
-question answering and citation quality.
+question answering and citation quality across versioned terminology,
+facility, observation, and forecast evidence.
 
 The project focuses on a practical research question: can LLM extraction,
 agentic validation/refinement, and KG-RAG retrieval produce valid,
@@ -17,6 +18,16 @@ Recall@k over vector-only RAG. It evaluates a narrower claim:
 schema-constrained KG-RAG can add inspectable advisory-event evidence,
 source-grounded citations, and failure-boundary diagnostics, with each metric
 layer reported separately.
+
+Cross-source V2 is now part of the thesis mainline. It aligns FAA facility codes and
+operational abbreviations, links the frozen 68-advisory JFK/EWR/LGA cohort to
+NASR and AviationWeather records, and emits evidence-layered retrospective
+answers. Its architecture and claim boundary are documented in
+`docs/cross_source_multi_agent_v2_design.md`; its 20-case ambiguity challenge,
+24-case matched baselines, and independent Evaluation Agent audit are reported
+in `reports/stages/cross_source_mainline_evaluation.md`.
+The canonical graph can also be projected and loaded into Neo4j for interactive
+inspection; see `docs/neo4j_visualization.md`.
 
 ## What This Project Demonstrates
 
@@ -35,8 +46,8 @@ layer reported separately.
 ## Current Prototype
 
 The current implementation centers on a 100-record reviewed ATCSCC advisory
-experiment, S0-S4 extraction baselines, S5/S6 agentic validation diagnostics,
-and S7 retrieval/answer-generation diagnostics. NASA ATMONTO is used as a
+experiment, six named extraction conditions, agentic validation diagnostics,
+and retrieval/answer-generation diagnostics. NASA ATMONTO is used as a
 reference vocabulary and lightweight schema/profile backbone, not as a complete
 aviation ontology or as the thesis object.
 
@@ -53,7 +64,7 @@ Primary current assets:
   `reports/stages/atcscc_ontology_profile_overview.md`
 - Formal extraction scoring:
   `reports/stages/nasa_atmonto_formal_experiment_scoring.md`
-- Thesis dashboard: `reports/stages/nasa_atmonto_s7_retrieval.md`
+- Thesis dashboard: retrieval and answer-generation report listed in `ARTIFACT_INDEX.md`
 
 Historical PHAK/PDF ontology, chunking, KG, and web-demo artifacts remain in the
 repository as background evidence and legacy prototype material. They are not
@@ -65,7 +76,7 @@ the current thesis entry point.
 FAA ATCSCC advisories
   -> source snapshot and advisory parser
   -> lightweight ATCSCC application schema/profile
-  -> S0-S4 extraction baselines
+  -> named extraction baselines
   -> extractor / validator / refiner / critic loop
   -> advisory event graph with evidence spans
   -> vector / graph / hybrid / routed KG-RAG
@@ -428,9 +439,10 @@ uv run aviation-ai report project --no-ai
 uv run aviation-ai report academic-paper --no-ai
 ```
 
-The dashboard command writes `reports/stages/nasa_atmonto_s7_retrieval.json`
+The dashboard command writes the machine-readable retrieval report listed in
+`ARTIFACT_INDEX.md`
 and `.md`. It aggregates existing reports into an experiment inventory,
-RQ-to-evidence matrix, dataset usage matrix, primary results table,
+research question-to-evidence matrix, dataset usage matrix, primary results table,
 failure-mode summary, and thesis-ready claim summary. It does not recompute
 experiments, fabricate human review results, or produce a mixed overall score.
 `all_passed=false` can be expected while model-based benchmark, triple, answer,

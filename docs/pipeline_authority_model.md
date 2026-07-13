@@ -40,8 +40,8 @@ The design principle is:
 | --- | --- | --- |
 | Source documents | FAA ATCSCC advisory HTML/text snapshots | `reports/stages/atcscc_data_format_and_processing_flow.md` |
 | Source intake | Advisory parser, source IDs, evidence spans, provenance fields | `data/experiments/nasa_atmonto/formal/input_records.jsonl` |
-| Claim extractor | Event/slot/fact proposer for advisory number, TMI type, target, cause, time window, status, route information | S1/S2/S3/S4 prediction artifacts |
-| Graph builder | Advisory event graph / fact store built from accepted facts | S4/S5/S6 graph and S7 graph-health reports |
+| Claim extractor | Event/slot/fact proposer for advisory number, TMI type, target, cause, time window, status, route information | raw schema-free LLM diagnostic/schema-guided LLM condition/validator-and-repair condition/hybrid backbone condition prediction artifacts |
+| Graph builder | Advisory event graph / fact store built from accepted facts | hybrid backbone condition/agentic validation stage/agentic refinement stage graph and retrieval-and-answer stage graph-health reports |
 | Schema gate | ATCSCC profile, controlled vocabulary, schema validation, SHACL/JSON-schema checks | `reports/stages/atcscc_ontology_profile_overview.md`, prediction-output validation reports |
 | Graph health | Entity/fact/path availability, graph-use diagnostics, CQ coverage | `reports/stages/nasa_atmonto_s7_graph_health.md`, `reports/stages/nasa_atmonto_cq_query_evaluation.md` |
 | Correctness auditor | Evidence containment, unsupported relation checks, reviewed-subset precision/recall/F1, citation faithfulness | extraction scoring, answer review, reviewer-defense audit |

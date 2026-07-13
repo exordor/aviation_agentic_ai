@@ -1,9 +1,9 @@
 # End-to-End Agentic KG-RAG Architecture
 
-> Status: design plus implementation tracker. L1 Extraction Loop Agent is now
-> implemented as a small additive runtime path under
-> `src/aviation_agentic_ai/agents/`; L2 end-to-end orchestration remains planned.
-> The new runtime does not alter the scored S0-S7 artifacts.
+> Status: design plus implementation tracker. The Extraction Loop Agent is now
+> implemented as a bounded thesis-mainline runtime path under
+> `src/aviation_agentic_ai/agents/`; end-to-end orchestration remains planned.
+> The new runtime does not alter the scored extraction-to-answer artifacts.
 
 ## 1. Goals and Non-Goals
 
@@ -22,7 +22,7 @@
 
 ### Non-Goals
 
-- Do not alter the verified S0–S7 experimental results or the scored
+- Do not alter the verified extraction-to-answer experimental results or the scored
   artifacts. The Agent is a new runtime path that *composes* those components;
   it does not re-score history.
 - Do not claim the Agent is autonomous ontology construction or operational ATC
@@ -56,7 +56,7 @@ Evidence that it is single-pass, not a loop:
   "missing cause" never triggers a re-extraction.
 - The refiner is a *safety gate*, not a repair step: `_final_facts`
   (live_pilot_agents.py:449-475) quarantines any fact the refiner added outside
-  the S5 contract; the refiner is explicitly told "Do not add new predicates,
+  the agentic validation stage contract; the refiner is explicitly told "Do not add new predicates,
   values, classes, or evidence" (`_refiner_messages`,
   live_pilot_agents.py:303-309).
 
@@ -72,21 +72,21 @@ operates on pre-built PHAK artifacts and exposes only 3 retrieval modes.
 | Stack | Location | Modes | Runtime? | Data |
 | --- | --- | --- | --- | --- |
 | `run_query` / `run_retrieval` | `retrieval/hybrid.py:333-458` | `graph` / `vector` / `hybrid` | Yes | PHAK (Chroma index + KGTriple JSONL) |
-| S7 retrieval (14 modes) | `reporting/atmonto/s7/retrieval.py:47-62` | 14 incl. routed | No (report builder) | ATCSCC frozen contexts |
+| Thesis retrieval evaluation (14 modes) | `reporting/atmonto/s7/retrieval.py:47-62` | 14 incl. routed | No (report builder) | ATCSCC frozen contexts |
 
-The S7 router (`ROUTED_TEMPLATE_MODES`,
+The thesis retrieval router (`ROUTED_TEMPLATE_MODES`,
 `reporting/atmonto/core/answer_scoring.py:25-32`) and the live TF-IDF/dense
 retrievers (`reporting/atmonto/core/live_retrieval.py:45-199`) are
-self-contained and callable, but currently invoked only inside the offline S7
+self-contained and callable, but currently invoked only inside the offline retrieval-and-answer stage
 report builder.
 
 ## 3. Layered Architecture Overview
 
 ```mermaid
 flowchart TD
-    ADV["advisory text + schema_slice"] --> L1
+    ADV["advisory text + schema_slice"] --> EXTRACT_LOOP
 
-    subgraph L1["L1 — Extraction Loop Agent"]
+    subgraph EXTRACT_LOOP["Extraction Loop Agent"]
         EX["extractor<br/>(LLM)"]
         VAL["validator<br/>(deterministic)"]
         CR["critic<br/>(LLM, drop-only)"]
@@ -97,12 +97,12 @@ flowchart TD
         RP -- "accept / reject" --> RF --> FACTS["accepted facts<br/>with evidence spans"]
     end
 
-    FACTS --> L2
+    FACTS --> ORCHESTRATOR
 
-    subgraph L2["L2 — End-to-End Orchestrator"]
+    subgraph ORCHESTRATOR["End-to-End Orchestrator"]
         GRAPH["build graph<br/>from facts"]
         ROUTE["route<br/>(question → mode)"]
-        RET["retrieve<br/>(Path A or Path B)"]
+        RET["retrieve<br/>(legacy Chroma path or thesis-aligned retrieval path)"]
         ANS["answer + citations<br/>(JSON-schema prompt)"]
         SELF["self-eval / abstain"]
         GRAPH --> ROUTE --> RET --> ANS --> SELF
@@ -111,17 +111,17 @@ flowchart TD
     SELF --> OUT["AnswerWithCitations + EndToEndTrace"]
 ```
 
-- **L1 (Extraction Loop Agent)** owns the feedback loop over extractor /
+- The **Extraction Loop Agent** owns the feedback loop over extractor /
   validator / critic / repair_planner / refiner. It produces evidence-linked
   facts. It is the component with the clearest autonomy value
   (extraction-quality gains).
-- **L2 (End-to-End Orchestrator)** calls L1 as a sub-step, then builds a graph,
+- The **End-to-End Orchestrator** calls extraction loop as a sub-step, then builds a graph,
   routes, retrieves, and answers with citations. It adds the routing and
   self-evaluation decisions.
 
-L2 reuses L1; L1 is independently useful and testable on its own.
+End-to-end orchestration reuses the extraction loop; the extraction loop is independently useful and testable on its own.
 
-## 4. L1 Design: Extraction Loop Agent
+## 4. Extraction Loop Agent Design
 
 ### 4.1 Runtime and state
 
@@ -194,7 +194,7 @@ evidence-not-contained / text-artifact cases, exactly as in the live pilot.
 
 ### 4.4 Reused components (with locations)
 
-| Component | Location | Role in L1 |
+| Component | Location | Role in extraction loop |
 | --- | --- | --- |
 | `AgentInvoker` type | `live_pilot_agents.py:38` | LLM seam |
 | `_extractor_messages` | `live_pilot_agents.py:222-250` | extractor prompt template |
@@ -212,7 +212,7 @@ Each `run` returns a trace recording every iteration, so the loop is auditable.
 Per the reviewer, traces are split by layer so the role enum is unambiguous:
 
 ```python
-# L1 roles only
+# extraction loop roles only
 EXTRACTION_ROLES = {"extractor", "validator", "critic", "repair_planner", "refiner"}
 
 @dataclass
@@ -229,7 +229,7 @@ class ExtractionTrace:
     iterations_used: int
     budget_exhausted: bool
 
-# L2 adds its own roles; EndToEndTrace wraps the L1 trace plus L2 steps
+# end-to-end orchestration adds its own roles; EndToEndTrace wraps the extraction loop trace plus end-to-end orchestration steps
 END_TO_END_ROLES = {"boundary_gate", "router", "retriever", "answerer", "self_eval"}
 
 @dataclass
@@ -241,7 +241,7 @@ class EndToEndStep:
 
 @dataclass
 class EndToEndTrace:
-    extraction: ExtractionTrace   # the full L1 trace
+    extraction: ExtractionTrace   # the full extraction loop trace
     l2_steps: list[EndToEndStep]  # boundary_gate → router → retriever → answerer → self_eval
 ```
 
@@ -361,17 +361,16 @@ over the final `accepted_by_key`, and
 it is still forbidden from adding predicates/values/evidence (per
 `_refiner_messages`, live_pilot_agents.py:303-309). Its sole job is to produce
 the canonical output payload and to quarantine any fact that slipped through
-outside the S5 contract (`_final_facts`, live_pilot_agents.py:449-475). This
+outside the agentic validation stage contract (`_final_facts`, live_pilot_agents.py:449-475). This
 keeps the "no new facts at the gate" safety property intact.
 
-## 5. L2 Design: End-to-End Orchestrator
+## 5. End-to-End Orchestrator Design
 
 ```python
 class EndToEndAgent:
-    def __init__(self, schema_slice, route_map, retrieval_path="B",
+    def __init__(self, schema_slice, route_map, retrieval_path="thesis_aligned",
                  max_iterations=2):
-        # retrieval_path defaults to "B" (the recommended, S7-aligned path).
-        # Path A is opt-in only; see Section 6.
+        # The thesis-aligned retrieval path is the default.
         self.extraction = ExtractionAgent(schema_slice, route_map, max_iterations)
         ...
 
@@ -389,15 +388,15 @@ class EndToEndAgent:
 
 Two designs, one per retrieval path (Section 6):
 
-- **Path A**: a new `question → {graph, vector, hybrid}` classifier. No
+- **legacy Chroma path**: a new `question → {graph, vector, hybrid}` classifier. No
   existing runtime router; either a keyword heuristic on top of
   `detect_risk_category` (`retrieval/sufficiency.py`) or a small LLM call.
-- **Path B**: reuse `ROUTED_TEMPLATE_MODES` (`answer_scoring.py:25-32`) and
+- **thesis-aligned retrieval path**: reuse `ROUTED_TEMPLATE_MODES` (`answer_scoring.py:25-32`) and
   `routed_underlying_mode` (`answer_scoring.py:349`). Requires a
   `question → template_id` classifier (keyword match against the ATCSCC query
   templates in `data/evaluation/nasa_atmonto/atcscc_cq_query_templates.json`).
 
-**Path B unknown-template handling (required, not optional).** The reviewer
+**thesis-aligned retrieval path unknown-template handling (required, not optional).** The reviewer
 flagged that `routed_underlying_mode` silently defaults unknown template IDs to
 `vector_rag`, so a classifier miss would *quietly avoid graph retrieval* on a
 demo question that actually needs it. The Agent must not inherit that silent
@@ -410,7 +409,7 @@ default. The router returns one of three outcomes:
   *not* silently fall back to vector-only;
 - `out_of_scope` → the ATCSCC boundary gate (§5.2) abstains before retrieval.
 
-**Required Path B tests:** for each of the six ATCSCC templates, a paraphrased
+**Required thesis-aligned retrieval path tests:** for each of the six ATCSCC templates, a paraphrased
 question (not the canonical CQ wording) must still resolve to the correct
 template; an unrelated question must classify as `unknown_template` (not a wrong
 known template). These cover the classifier's precision and its failure mode.
@@ -421,7 +420,7 @@ known template). These cover the classifier's precision and its failure mode.
   existing `evaluate_evidence_sufficiency` (`retrieval/sufficiency.py:160-222`)
   is built around generic aviation boundary triggers and `training_question`
   logic, not ATCSCC advisory CQ scope, so it can mis-abstain or give false
-  confidence. L2 uses a new ATCSCC-specific boundary gate instead. It accepts a
+  confidence. The orchestrator uses a new ATCSCC-specific boundary gate instead. It accepts a
   question only if all of:
   - the question concerns a **retrospective ATCSCC advisory** in the known
     source/advisory scope (the formal sample / reviewed gold families);
@@ -432,17 +431,17 @@ known template). These cover the classifier's precision and its failure mode.
   Otherwise the gate abstains with a reason. The generic
   `evaluate_evidence_sufficiency` may be reused only as an outer fallback for
   aviation-domain out-of-scope detection, not as the ATCSCC scope decider.
-- **Post-answer self-eval:** the JSON-schema answer prompt (Section 6, Path B)
-  already emits `abstain` and `rationale`; L2 honors `abstain=true` by
+- **Post-answer self-eval:** the JSON-schema answer prompt (Section 6, thesis-aligned retrieval path)
+  already emits `abstain` and `rationale`; The orchestrator honors `abstain=true` by
   returning a "no grounded answer" result instead of forcing an answer.
 
-### 5.3 L2 scope: demo/runtime, not a new scoring path
+### 5.3 Orchestrator scope: demo/runtime, not a new scoring path
 
-To resolve the reviewer's open question: **L2 is a thesis/demo runtime, not an
+To resolve the reviewer's open question: **the orchestrator is a thesis/demo runtime, not an
 experiment that produces new scored artifacts.** It composes existing,
-individually-scored components (L1 extraction, retrieval, answer generation)
+individually-scored components (extraction, retrieval, answer generation)
 into a live callable for demonstration and qualitative inspection. It does not
-re-score the S0–S7 results, does not write into the formal experiment
+re-score the extraction-to-answer results, does not write into the formal experiment
 directories, and its outputs are not cited as new experimental evidence. Any
 quantitative claim about the Agent would require a separate, future scored
 run with its own gold comparison; that is explicitly out of scope here.
@@ -451,7 +450,7 @@ run with its own gold comparison; that is explicitly out of scope here.
 
 Both paths are designed; implementation picks one (or both) per phase.
 
-### Path A — Existing `run_query` stack
+### legacy Chroma path — Existing `run_query` stack
 
 Reuses `build_kg_graph` (`retrieval/graph_traversal.py:150`) +
 `run_retrieval` (`retrieval/hybrid.py:333`, 3 modes) +
@@ -462,19 +461,19 @@ Reuses `build_kg_graph` (`retrieval/graph_traversal.py:150`) +
 | Reuse | `build_kg_graph` + `run_retrieval` + `generate_grounded_answer` |
 | Build cost | Adapter: ATCSCC fact → `KGTriple` (kg/extraction.py:49-67); build a Chroma index once |
 | Router | None exists runtime; must write a `question → mode` classifier |
-| Answer prompt | Free-text (`generate_grounded_answer`); weaker than S7's JSON-schema |
+| Answer prompt | Free-text (`generate_grounded_answer`); weaker than structured thesis answer contract |
 | Dependencies | Requires Chroma index + langchain-openai |
 
-### Path B — Lift S7 live retrievers to runtime
+### thesis-aligned retrieval path — Lift retrieval-and-answer stage live retrievers to runtime
 
 Reuses `build_live_tfidf_source_index` / `query_live_tfidf_source_index` /
 dense variants (`reporting/atmonto/core/live_retrieval.py:45-199`, pure Python,
-no Chroma) + `ROUTED_TEMPLATE_MODES` router + S7 JSON-schema answer prompt
+no Chroma) + `ROUTED_TEMPLATE_MODES` router + structured answer prompt
 (`reporting/atmonto/s7/llm_answer_generation.py:250-294`).
 
 | Aspect | Detail |
 | --- | --- |
-| Reuse | live TF-IDF/dense retrievers + `ROUTED_TEMPLATE_MODES` + S7 answer prompt |
+| Reuse | live TF-IDF/dense retrievers + `ROUTED_TEMPLATE_MODES` + structured answer prompt |
 | Build cost | Adapter: lift retrievers out of the report builder into a runtime module; wrap as callable |
 | Router | `ROUTED_TEMPLATE_MODES` + `question → template_id` classifier |
 | Answer prompt | JSON-schema (`abstain`, `answer_values`, `citations`, `rationale`); better for an Agent |
@@ -482,17 +481,18 @@ no Chroma) + `ROUTED_TEMPLATE_MODES` router + S7 JSON-schema answer prompt
 
 ### Trade-off matrix
 
-| Criterion | Path A | Path B |
+| Criterion | legacy Chroma path | thesis-aligned retrieval path |
 | --- | --- | --- |
 | Time to working | Faster (functions exist, just wire ATCSCC data) | Medium (lift + adapter layer) |
 | Routing quality | Weak (must build classifier) | Strong after template classification; mode map reused, classifier tested (§5.1) |
-| Alignment with thesis evidence | Low (PHAK-style path) | High (matches S7 RQ3 results) |
+| Alignment with thesis evidence | Low (legacy prototype path) | High (matches current retrieval and KG-RAG grounding results) |
 | External deps | Chroma + langchain-openai | None extra |
 | Answer contract | Free-text | Structured JSON with abstain |
 
-**Recommendation**: implement Path B as the primary path (it aligns with the
-RQ3 evidence and needs no Chroma), with Path A as a fallback if the lift proves
-costly. The two paths share the L1 extraction layer and the L2 orchestrator
+**Recommendation**: implement thesis-aligned retrieval path as the primary path (it aligns with the
+current KG-RAG grounding evidence and needs no Chroma), with the legacy Chroma
+path as a fallback if the lift proves
+costly. The two paths share the extraction layer and the orchestrator
 skeleton; only the `_retrieve` / `_route` / `_answer` methods differ.
 
 ## 7. Interface Contracts
@@ -517,7 +517,7 @@ class AgentState(TypedDict, total=False):
 class ExtractionResult:
     facts: list[dict]
     blocked: list[dict]
-    trace: ExtractionTrace        # L1 trace (see §4.5)
+    trace: ExtractionTrace        # extraction loop trace (see §4.5)
     metadata: dict                # follows *_run_metadata.json contract
 
 @dataclass
@@ -527,7 +527,7 @@ class AnswerWithCitations:
     abstain: bool
     citations: list[dict]
     rationale: str
-    trace: EndToEndTrace          # spans L1 + L2 (see §4.5)
+    trace: EndToEndTrace          # spans extraction loop + end-to-end orchestration (see §4.5)
 ```
 
 ### 7.2 Per-role JSON schemas
@@ -536,15 +536,15 @@ class AnswerWithCitations:
 | --- | --- | --- |
 | extractor | advisory + schema menu + (iteration>1: prior blocked keys + repair_targets) | `{source_id, source_family, facts[]}` |
 | validator | facts + source text + schema slice | `[{accepted, errors, warnings, validated_fact}]` (deterministic) |
-| critic | S5 facts + CQ routes + validator rejections | `{drop_fact_ids, concerns[], global_notes[]}` (unchanged, drop-only) |
+| critic | validated facts + CQ routes + validator rejections | `{drop_fact_ids, concerns[], global_notes[]}` (unchanged, drop-only) |
 | repair_planner | critic concerns + CQ route map gaps | `{repair_targets[], blocked_keys[]}` (extraction advice, never facts) |
 | refiner | final accepted_by_key | `{facts[]}` copied from accepted (safety gate, no new facts) |
 
 ## 8. Artifact and Testing Conventions
 
-### 8.0 Current L1 implementation status
+### 8.0 Current Extraction Loop Implementation Status
 
-The implemented L1 MVP is intentionally narrower than the full L2 roadmap:
+The implemented minimum viable extraction loop is intentionally narrower than the full end-to-end orchestration roadmap:
 
 - Runtime: `src/aviation_agentic_ai/agents/extraction_agent.py`
 - Data contracts: `src/aviation_agentic_ai/agents/types.py`
@@ -564,7 +564,7 @@ invariants without calling a live LLM. The existing project demo remains:
 uv run aviation-ai demo
 ```
 
-That demo shows the current ATCSCC source-to-KG-RAG trace, not the new L1 repair
+That demo shows the current ATCSCC source-to-KG-RAG trace, not the new repair
 loop as a scored result.
 
 ### 8.1 Metadata artifact
@@ -652,32 +652,32 @@ under a subpackage):
 - **CLI command file**: `src/aviation_agentic_ai/cli_agent.py` (top-level, like
   `cli_query.py`). Registered in `TOP_LEVEL_COMMANDS` (Section 8.3).
 - **Implementation subpackage**: `src/aviation_agentic_ai/agents/` (new; there
-  is no existing `agents/` dir). Files: `types.py`, `extraction_agent.py` (L1),
-  `end_to_end_agent.py` (L2), `repair_planner.py`, `runtime.py` (retrieval
-  adapters for Path A/B), `boundary_gate.py` (ATCSCC scope gate).
+  is no existing `agents/` dir). Files: `types.py`, `extraction_agent.py` ,
+  `end_to_end_agent.py` , `repair_planner.py`, `runtime.py` (retrieval
+  adapters), `boundary_gate.py` (ATCSCC scope gate).
 - `cli_agent.py` is a thin wrapper that imports from `agents/`. Lazy-import
   optional LLM deps with a helpful `RuntimeError` (idiom: `providers.py:79-85`).
 
 ## 9. Implementation Roadmap
 
-The roadmap now implements the **recommended Path B before Path A**, matching
-the recommendation in Section 6. Path A is demoted to an optional fallback /
+The roadmap now implements the **recommended thesis-aligned retrieval path before legacy Chroma path**, matching
+the recommendation in Section 6. legacy Chroma path is demoted to an optional fallback /
 spike, so the first end-to-end implementation optimizes the path the document
 calls most thesis-aligned.
 
 | Phase | Scope | Est. effort |
 | --- | --- | --- |
-| 1 | L1 Extraction Loop Agent + state machine + merge invariants (§4.6) + behavioral tests (§8.2, fake invoker, no LLM) | implemented MVP |
-| 2 | L2 End-to-End Orchestrator skeleton + **Path B** retrieval (lift live retrievers) + `ROUTED_TEMPLATE_MODES` router + JSON-schema answer + ATCSCC boundary gate | 1 day |
+| 1 | The Extraction Loop Agent + state machine + merge invariants (§4.6) + behavioral tests (§8.2, fake invoker, no LLM) | implemented MVP |
+| 2 | End-to-End Orchestrator skeleton + **thesis-aligned retrieval path** retrieval (lift live retrievers) + `ROUTED_TEMPLATE_MODES` router + JSON-schema answer + ATCSCC boundary gate | 1 day |
 | 3 | `aviation-ai agent` CLI subcommand + end-to-end test + doc sync | 1 day |
-| 4 (optional) | Path A runtime adapter (Chroma + `run_retrieval` + free-text answer) as a fallback/spike; only if Path B lift proves costly | 1 day |
+| 4 (optional) | legacy Chroma path runtime adapter (Chroma + `run_retrieval` + free-text answer) as a fallback/spike; only if thesis-aligned retrieval path lift proves costly | 1 day |
 
 Each phase is independently testable and committable. Phase 1 delivers the
 clearest autonomy value (the feedback loop) on its own.
 
 ## 10. Risks and Boundaries
 
-- **LLM extraction quality**: measured S2/S3 F1 is weaker than deterministic S0
+- **LLM extraction quality**: measured schema-guided LLM condition/validator-and-repair condition F1 is weaker than deterministic parsing
   (see `reports/stages/nasa_atmonto_formal_experiment_scoring.md`). The loop
   may not close the gap; this must be validated in Phase 1 tests rather than
   assumed.

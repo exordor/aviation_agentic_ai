@@ -11,7 +11,7 @@ For the current ATCSCC thesis route, start with:
 4. `RESEARCH_OVERVIEW.md`
 5. `RESEARCH_AUDIT.md`
 6. `EXPERIMENTS.md`
-7. `reports/stages/nasa_atmonto_s7_retrieval.md`
+7. Retrieval and answer-generation evidence listed in `ARTIFACT_INDEX.md`
 8. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 
 ## Current Status
@@ -30,7 +30,7 @@ final-report pass explicitly regenerates or replaces them.
 | File | Status | Notes |
 | --- | --- | --- |
 | `atcscc_thesis_report_outline.md` | current ATCSCC thesis outline | Use as the current final-package starting point. It maps chapters, RQs, figures, tables, and claim boundaries to current ATCSCC evidence. |
-| `atcscc_defense_deck_outline.md` | current ATCSCC defense deck outline | Use as the current slide-spine starting point. It separates title, motivation, data, schema/profile, method, RQ matrix, results, failure boundary, SOTA positioning, and appendix slides. |
+| `atcscc_defense_deck_outline.md` | current ATCSCC defense deck outline | Use as the current slide-spine starting point. It separates title, motivation, data, schema/profile, method, research-question matrix, results, failure boundary, SOTA positioning, and appendix slides. |
 | `project_report.md` | transitional, not final thesis manuscript | Generated from the thesis dashboard and now includes ATCSCC evidence, but still opens with aviation-training / PHAK framing. Use only as a source of reusable sections after manual review. |
 | `project_report_sources.json` | provenance for transitional report | Large generated source pack. Keep for provenance, not as a reading entry point. Do not load it as current narrative context. |
 | `project_academic_report.md` | historical PHAK-era final draft | Focuses on FAA PHAK Chapter 4, curated ontology, and the original handbook GraphRAG prototype. Do not cite as the current ATCSCC thesis story. |

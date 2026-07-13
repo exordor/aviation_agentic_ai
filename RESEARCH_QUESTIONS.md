@@ -1,115 +1,147 @@
 # Research Questions
 
-> Migrated on 2026-07-05 from `docs/research_mainline.md`, `docs/thesis_positioning.md`, and `docs/master_project_scope_lock.md`. The source files (now archived under `docs/archive/governance_era/`) were migrated on 2026-07-05.
+> Revised on 2026-07-13. Questions and hypotheses use descriptive names rather
+> than internal numeric codes.
 
-The project keeps exactly four research questions. Any additional question should be folded into one of these four, or moved to future work.
+## Schema-Constrained Extraction And Canonicalization
 
-## RQ1: Schema-constrained extraction
+### Question
 
-### Description
+Can schema-constrained extraction and canonicalization produce valid,
+evidence-linked event records from retrospective ATCSCC advisories?
 
-Can schema-constrained LLM extraction produce valid and evidence-linked event records from ATCSCC advisories?
+### Why It Matters
 
-### Motivation
-
-ATCSCC advisories are a narrow but useful case study for evidence-grounded extraction because many facts are visible in the source text and can be checked against evidence spans, so the question is whether a schema constraint can turn that visibility into valid, evidence-linked event records.
-
-### Related Hypotheses
-
-- H1 (schema guidance reduces structural drift after canonicalization)
-- H5 (hybrid backbone + enrichment improves selected semantic predicates)
-
-### Related Experiments
-
-- Extraction layer: S0/S1/S1b/S2/S3/S4 over the frozen 100-record reviewed gold sample.
-- Evidence: `reports/stages/nasa_atmonto_formal_experiment_scoring.md`, `reports/stages/nasa_atmonto_prediction_output_validation.md`, `reports/stages/nasa_atmonto_cq_evaluation.md`.
-
-### Current Evidence
-
-The schema-constrained or validator-gated system improves valid evidence-linked facts over weakly constrained LLM output, while deterministic fields remain protected.
-
-### Status
-
-active
-
-## RQ2: Agentic validation-refinement
-
-### Description
-
-Does an agentic validation-refinement loop reduce schema violations and unsupported relations?
-
-### Motivation
-
-A validator/refiner/critic loop makes repair and rejection of candidate facts auditable before graph insertion, so the question is whether that loop actually reduces schema violations and unsupported relations rather than silently passing them through.
+ATCSCC notices combine reliable template fields with semantic operational
+fields. The experiment tests whether deterministic parsing, a lightweight
+ATMONTO-derived profile, and constrained enrichment preserve supported facts
+while preventing schema drift.
 
 ### Related Hypotheses
 
-- H2 (validator/repair improves valid yield)
+- Schema guidance reduces structural drift after canonicalization.
+- Deterministic backbone plus semantic enrichment improves selected predicates.
 
-### Related Experiments
+### Evidence
 
-- Agentic loop: extractor / validator / refiner / critic over ATCSCC candidate facts; independent and live S5/S6 runs.
-- Evidence: `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run.md`, `reports/stages/nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md`, `reports/stages/nasa_atmonto_agentic_loop.md`.
+- Six extraction conditions over the frozen 100-record reviewed sample:
+  deterministic rules, raw schema-free LLM extraction, canonicalized LLM
+  extraction, schema-guided extraction, validator/repair, and hybrid enrichment.
+- `reports/stages/nasa_atmonto_formal_experiment_scoring.md`.
+- `reports/stages/nasa_atmonto_prediction_output_validation.md`.
 
-### Current Evidence
+### Current Answer
 
-The loop produces auditable repair/rejection decisions and reduces specific schema or support failures without silently overwriting protected deterministic facts.
+Supported on the current source-bounded experiment. Deterministic parsing is
+strongest for template fields; hybrid extraction improves selected semantic
+predicates while retaining evidence and schema gates.
 
-### Status
+## Agentic Validation And Autonomous Ambiguity Alignment
 
-active
+### Question
 
-## RQ3: KG-RAG grounding
+Can agentic validation and autonomous context alignment reduce unsupported
+facts and either resolve or quarantine ambiguous aviation abbreviations before
+they enter the canonical graph?
 
-### Description
+### Why It Matters
 
-Does KG-RAG improve evidence grounding and citation quality compared with vector-only RAG?
-
-### Motivation
-
-Graph evidence is useful only when it improves source-bounded answer sets, evidence traceability, citation behavior, and failure diagnosis, so the question is whether KG-RAG beats vector-only RAG on those dimensions rather than on raw Recall@k.
-
-### Related Hypotheses
-
-- H3 (KG-RAG improves source-bounded grounding, answer-set quality, citation behavior on relation-oriented questions; vector-only can remain sufficient for simple source-local questions)
-
-### Related Experiments
-
-- Retrieval and answer generation: source-only, vector RAG, graph-only, token-matched GraphRAG, routed/hybrid KG-RAG.
-- Evidence: `reports/stages/nasa_atmonto_s7_retrieval.md`, `reports/stages/nasa_atmonto_s7_graph_health.md`, `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`.
-
-### Current Evidence
-
-KG/hybrid modes improve at least some relation-oriented grounding or citation diagnostics while vector-only remains a fair baseline for source-local questions.
-
-### Status
-
-active
-
-## RQ4: Failure boundary
-
-### Description
-
-What failure types remain, and where does human review remain necessary?
-
-### Motivation
-
-The thesis must keep automated diagnostics separate from human or expert review and enumerate the failure types that remain unresolved, so the question is which failure categories survive the pipeline and which of them still require human adjudication.
+Facility identifiers and ATCSCC contractions are prerequisites for cross-source
+links. A manual adjudication dependency does not meet the system goal, while
+unrestricted LLM alignment can silently corrupt the graph. The method combines
+authority registries, contextual ranking, critic thresholds, and fail-closed
+quarantine.
 
 ### Related Hypotheses
 
-- H4 (failure analysis separates extraction errors, profile/gold-boundary gaps, retrieval context errors, answer overreach, human-review cases)
-- H6 (rejection triage produces actionable engineering decisions)
+- Validator and repair improve structurally valid yield.
+- Authority-grounded context alignment resolves discriminating cases and
+  quarantines neutral or conflicting ambiguity.
 
-### Related Experiments
+### Evidence
 
-- Reviewer-defense, answer-review, profile-decision, claim-safety audits.
-- Evidence: `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md`, `reports/stages/nasa_atmonto_s7_profile_decision.md`.
+- Validator, refiner, and critic diagnostics over the reviewed extraction set.
+- Facility and terminology alignment over all 718 advisories.
+- Twenty Ground Stop, Glide Slope, neutral, and conflicting `GS` cases.
+- `docs/cross_source_multi_agent_v2_design.md`.
 
-### Current Evidence
+### Current Answer
 
-The thesis explicitly separates automated diagnostics from human or expert review and lists remaining failure types with claim impact.
+Supported on the current experiments. The pinned advisory run accepts 8,403
+mappings, including 68 contextual `GS` decisions. The hard challenge achieves
+1.00 accepted-target accuracy, 1.00 quarantine accuracy, and zero
+out-of-registry acceptances. This covers one ambiguity family rather than
+universal acronym disambiguation.
 
-### Status
+## Cross-Source KG-RAG Grounding
 
-active
+### Question
+
+Does authority-grounded cross-source KG-RAG improve evidence coverage,
+citation support, and unsupported-claim control over matched source-only and
+linked-text baselines?
+
+### Why It Matters
+
+The graph is useful only if canonical facility and term identity plus explicit
+evidence layers improve relation-oriented answers. Facility/time association
+must remain separate from source-declared causality. Simple source-local
+questions may still be better served without graph traversal.
+
+### Related Hypotheses
+
+- Routed KG-RAG improves source-bounded grounding on relation-oriented
+  questions while vector retrieval remains sufficient for simpler questions.
+- KG-layered cross-source answers improve required evidence and citation
+  coverage over matched source-only and linked-text baselines.
+
+### Evidence
+
+- A 317-case single-source retrieval benchmark and a 30-question vector-only
+  versus routed KG-RAG answer comparison.
+- The frozen 68-record JFK/EWR/LGA cohort linked to METAR and TAF.
+- Twenty-four identical cross-source questions evaluated with source-only,
+  linked-text, and KG-layered answers.
+- Neo4j is an inspectability surface rather than the research comparison.
+
+### Current Answer
+
+Supported within the matched component design. Routed graph use helps
+relation-oriented questions. In the 24 cross-source cases, required evidence
+and citation-layer coverage is 1.00 for KG-layered answers versus 0.75 for
+linked text and 0.25 for source-only answers, with zero causal overstatements.
+
+## Autonomous Failure And Abstention Boundary
+
+### Question
+
+Which extraction, alignment, linking, retrieval, answer, and abstention
+failures remain, and how reliably can the runtime quarantine them without human
+intervention?
+
+### Why It Matters
+
+Runtime autonomy and scientific validation are separate. The workflow must
+accept, quarantine, reject, or abstain without a manual queue. The thesis must
+still evaluate whether those decisions match independent expectations and must
+report unsupported claims and causal overstatement explicitly.
+
+### Related Hypotheses
+
+- Failure analysis separates actionable error categories.
+- Rejection triage produces actionable engineering decisions.
+- Low-information or conflicting ambiguity is quarantined.
+
+### Evidence
+
+- Rejection adjudication and answer-failure reports.
+- Cross-source alignment quarantine and Answer Evidence Critic artifacts.
+- The hard ambiguity challenge and 24-case matched evaluation.
+
+### Current Answer
+
+Supported for the declared failure taxonomy and automated properties. The
+runtime has no human-review dependency; the hard challenge reaches 1.00
+quarantine accuracy, all answer modes preserve expected abstention, and the
+independent Evaluation Agent passes 24/24 cross-source evidence audits.
+External expert certification remains outside the claim.

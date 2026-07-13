@@ -19,8 +19,8 @@ Read in this order when entering the project:
 |---|---|---|
 | 1 | `RESEARCH_AUDIT.md` (this file) | Project snapshot and navigation. |
 | 2 | `RESEARCH_OVERVIEW.md` | Problem, claim, scope, contributions, claim-safety matrix, SOTA positioning. |
-| 3 | `RESEARCH_QUESTIONS.md` | RQ1–RQ4 in Description/Motivation/Related Hypotheses/Related Experiments/Current Evidence/Status form. |
-| 4 | `HYPOTHESES.md` | H1–H6 table + falsification criteria. |
+| 3 | `RESEARCH_QUESTIONS.md` | Four descriptively named questions with motivation, hypotheses, evidence, and current answer. |
+| 4 | `HYPOTHESES.md` | Descriptively named hypotheses with falsification criteria. |
 | 5 | `EXPERIMENTS.md` | Full formal-experiment protocol: systems, gold, metrics, procedure, completion gate, layered evaluation. |
 | 6 | `RESULTS.md` | Deliverables and evidence rows with Observation/Evidence/Interpretation/Confidence. |
 | 7 | `ARTIFACT_INDEX.md` | Tracked, non-default, and ignored artifact families; artifact management policy. |

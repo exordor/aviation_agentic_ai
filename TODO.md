@@ -2,7 +2,7 @@
 
 > Migrated on 2026-07-05 from `TASKS.md`. `TASKS.md` (now archived under `docs/archive/governance_era/TASKS.md`) was migrated on 2026-07-05. Concrete execution tasks live here. Durable project outcomes and scope boundaries live in `GOALS.md`. A task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.
 
-Last updated: 2026-07-05 (migrated from `TASKS.md`, last updated 2026-05-30, on 2026-07-05; subsequent edits update this date).
+Last updated: 2026-07-13.
 
 ## Status Legend
 
@@ -13,11 +13,29 @@ Last updated: 2026-07-05 (migrated from `TASKS.md`, last updated 2026-05-30, on 
 
 ## Active Task Queue
 
-1. Decide whether the next chunking iteration should implement full parent-return retrieval for `hierarchical_parent_child` and parent-context return for `proposition_like`, or keep them as partial diagnostic methods.
-2. Add embedding/index backend comparison after benchmark-v2 retrieval and chunking hardening results are reviewed.
-3. Strengthen robustness abstention behavior, because the first deterministic robustness run has abstention correctness = 0.6.
-4. If needed, rerun Hybrid RAG answer generation on the expanded or benchmark-v2 subsets instead of only the original 10-CQ answer set.
-5. Decide whether to expose benchmark-v2 chunking/category/failure evidence in the web demo or keep it as report-only thesis evidence.
+1. [x] Promote cross-source V2 into the thesis mainline and freeze the closure plan.
+2. [x] Align `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`,
+   `HYPOTHESES.md`, `RESULTS.md`, `EXPERIMENTS.md`, and this task board.
+3. [x] Run a hard `GS` ambiguity challenge covering Ground Stop, Glide Slope,
+   neutral, and conflicting contexts.
+4. [x] Run matched source-only, linked-text, and KG-layered answer baselines on
+   the same 24-question snapshot and report evidence-layer, citation-layer,
+   abstention, alignment, and causal-overstatement metrics separately.
+5. [x] Audit all 24 cross-source answers with an independent deterministic
+   Evaluation Agent and keep that result separate from external expert certification.
+6. [x] Update the thesis Methods, Results, Discussion, Limitations, and
+   Conclusion from the generated evidence, then verify the full repository.
+   - Evidence: `reports/final/atcscc_thesis_report.md`,
+     `reports/stages/cross_source_mainline_evaluation.md`.
+   - Verification: `uv run ruff check .` passed; `uv run pytest -q` passed
+     with 380 tests; `git diff --check` passed.
+
+Canonical execution plan:
+`docs/cross_source_thesis_mainline_closure_plan.md`.
+
+The older PHAK/chunking tasks below are retained as historical or optional
+backlog. They are not the active ATCSCC thesis mainline unless explicitly
+reactivated.
 
 Related goals: G2, G3, G4, G6, G8, G9 in `GOALS.md`.
 

@@ -88,17 +88,16 @@ def test_experiment_protocol_fixes_systems_metrics_and_falsification_criteria() 
         "end-to-end GraphRAG answer improvement",
         "requiring verification",
         "JSON-Schema-guided information extraction",
-        "S0: Rule-Only",
-        "S1: LLM-Only",
-        "S2: LLM + Schema Slice",
-        "S3: LLM + Schema Slice + Validator/Repair",
-        "S4: Hybrid Backbone + Semantic Enrichment",
+        "Deterministic Rule Baseline",
+        "Raw Schema-Free LLM Diagnostic",
+        "Schema-Guided LLM Extraction",
+        "Schema-Guided LLM With Validator And Repair",
+        "Hybrid Backbone Plus Semantic Enrichment",
         "Baselines And Comparators",
-        "S0 rule-only",
-        "S1 LLM-only",
-        "S1_raw_open_llm",
-        "S1b_llm_canonicalized",
-        "S4_hybrid_backbone_enrichment",
+        "Deterministic rules",
+        "Raw schema-free LLM",
+        "Canonicalized schema-free extraction",
+        "Hybrid backbone enrichment",
         "invalid_direct_schema_scoring",
         "JSON Adherence",
         "Schema Violation Rate",
@@ -126,7 +125,7 @@ def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
     protocol = Path("EXPERIMENTS.md").read_text(encoding="utf-8")
 
     assert "supported on the corrected stage" in protocol
-    assert "S1b/S4 corrected-stage derived outputs" in protocol
+    assert "six named extraction" in protocol
     assert "supported on the reviewed 100-record sample" in protocol
     assert "Semantic Stratification" in protocol
     assert "data/evaluation/nasa_atmonto/atcscc_gold_v1.reviewed.jsonl" in protocol
@@ -137,11 +136,11 @@ def test_experiment_protocol_matches_current_atmonto_claim_status() -> None:
     assert "Current status: not yet tested." not in protocol
 
 
-def test_experiment_protocol_repair_metric_boundary_matches_s3_loop() -> None:
+def test_experiment_protocol_repair_metric_boundary_matches_validator_loop() -> None:
     protocol = Path("EXPERIMENTS.md").read_text(encoding="utf-8")
 
-    assert "enter the S3 validator/repair loop as initially invalid" in protocol
-    assert "initially invalid S2 facts" not in protocol
+    assert "enter the validator/repair loop as initially invalid" in protocol
+    assert "initially invalid schema-guided facts" not in protocol
     assert "must be created by running the LLM prediction runner" not in protocol
     assert "must not be fabricated or manually filled" in protocol
     assert "100 usable records before scoring" in protocol

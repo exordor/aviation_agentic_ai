@@ -17,6 +17,8 @@
 | `reports/final/*` | mostly historical/transitional; current ATCSCC entry files are explicitly named `atcscc_*`. |
 | `data/evaluation/nasa_atmonto/*` | current evaluation evidence; load only for gold/review tasks. |
 | `data/raw/nasa_bga_aerodynamics/*` | tracked transfer-pilot corpus; not current ATCSCC mainline. |
+| `docs/cross_source_multi_agent_v2_design.md` | approved cross-source mainline architecture and implementation contract. |
+| `data/evaluation/cross_source/v1/*` | current hard ambiguity challenge and 24-case automated evaluation inputs plus superseded review history. |
 
 ## Tracked But Non-Default Families
 
@@ -35,6 +37,8 @@
 | `reports/stages/atcscc_*` | ATCSCC source, schema, validation, repair, and graph-use explainers. |
 | `reports/stages/nasa_atmonto_*` | Current formal experiment scoring, agentic loop, retrieval, answer generation, and reviewer-defense evidence. |
 | `data/evaluation/nasa_atmonto/*` | Gold review, CQ query templates, candidate review, and review packets. |
+| `data/evaluation/cross_source/v1/*` | Cross-source mainline challenge/evaluation inputs and superseded review history. |
+| `reports/stages/cross_source_mainline_evaluation.*` | Current matched baseline, hard ambiguity, and independent Evaluation Agent results. |
 | `reports/stages/*sota*`, `*method*`, `*paper_analysis*`, `*paper_adaptation*` | Related work and method migration, not direct experiment evidence unless linked by the dashboard. |
 
 ## Ignored Local Material
@@ -51,7 +55,7 @@ The repository intentionally tracks bounded thesis-evidence artifacts needed to
 reproduce the current ATCSCC claims:
 
 - reviewed gold and review-decision artifacts under `data/evaluation/nasa_atmonto/`;
-- formal S0-S7 prediction and run-metadata artifacts under
+- formal extraction, validation, retrieval, and answer-generation artifacts under
   `data/experiments/nasa_atmonto/formal/`;
 - stage-report JSON/Markdown files that feed the thesis dashboard, SOTA audit,
   reviewer-defense audit, and chapter draft.
@@ -62,6 +66,15 @@ large, environment-specific, or easy to rebuild: raw NASA ATMONTO snapshots unde
 `data/experiments/nasa_atmonto/formal/smoke/`; vector indexes, chunks, local
 paper PDFs, temporary PDF extraction assets, gallery HTML/manifest files,
 historical local archives under `reports/archive/`, and `outputs/`.
+
+Cross-source normalized registries, decisions, links, RDF graphs, and Neo4j
+property-graph projections under
+`data/processed/cross_source/` and `data/kg/cross_source/` are also generated
+and ignored. Rebuild them from the tracked config and pinned local source
+snapshots. Only the bounded challenge/evaluation inputs and superseded review
+history under `data/evaluation/cross_source/v1/` are tracked. Regression success
+is internal evidence conformance and remains distinct from external expert
+certification.
 
 Future large experiment outputs should enter Git only when they are referenced
 by the thesis dashboard or a claim-safety audit. Otherwise place them under an

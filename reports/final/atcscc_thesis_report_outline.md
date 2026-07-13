@@ -17,7 +17,7 @@ Use these documents as the primary source chain:
 4. `EXPERIMENTS.md`
 5. `reports/stages/atcscc_data_format_and_processing_flow.md`
 6. `reports/stages/atcscc_ontology_profile_overview.md`
-7. `reports/stages/nasa_atmonto_s7_retrieval.md`
+7. Retrieval and answer-generation evidence listed in `ARTIFACT_INDEX.md`
 8. `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 9. `reports/stages/nasa_atmonto_sota_goal_audit.md`
 
@@ -41,19 +41,19 @@ source-grounded KG-RAG evaluation.
 | 4. Application Schema/Profile | Explain why the full ATMONTO ontology is not used wholesale and how the ATCSCC profile constrains extraction. | `reports/stages/atcscc_ontology_profile_overview.md`, `reports/stages/nasa_atmonto_competency_questions.md` |
 | 5. Method | Present the end-to-end pipeline: source parser, schema-constrained extractor, validator/refiner/critic loop, event graph, vector/graph/hybrid retrieval, answer verifier. | `EXPERIMENTS.md`, `reports/stages/atcscc_agentic_artifact_contract.md` |
 | 6. Evaluation Design | Define RQs, baselines, metrics, pass/fail gates, and no-overall-score policy. | `RESEARCH_QUESTIONS.md`, `EXPERIMENTS.md` |
-| 7. Results | Report extraction, agentic loop, retrieval, answer generation, and failure-review results separately. | `reports/stages/nasa_atmonto_s7_retrieval.md`, S0-S7 stage reports |
+| 7. Results | Report extraction, agentic loop, retrieval, answer generation, and failure-review results separately. | Retrieval and extraction reports listed in `ARTIFACT_INDEX.md` |
 | 8. Discussion | Explain what the results support, what remains weak, and why negative/diagnostic results matter. | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_sota_goal_audit.md` |
 | 9. Threats to Validity | Separate source-boundary, schema-boundary, gold-review, automated-review, and operational-boundary limitations. | `RESEARCH_OVERVIEW.md`, reviewer-defense audit |
 | 10. Conclusion | Summarize contribution and future work without overclaiming ontology completeness, domain generality, or live operational use. | `RESEARCH_OVERVIEW.md` |
 
 ## Research Questions And Evidence
 
-| RQ | Short wording | Main report evidence |
+| Research question | Short wording | Main report evidence |
 | --- | --- | --- |
-| RQ1 | Can schema-constrained extraction produce valid and evidence-linked event records? | `nasa_atmonto_formal_experiment_scoring.md`, `nasa_atmonto_prediction_output_validation.md`, `nasa_atmonto_cq_evaluation.md` |
-| RQ2 | Does an agentic validation-refinement loop reduce schema violations and unsupported relations? | `nasa_atmonto_s5_s6_live_agentic_full_run.md`, `nasa_atmonto_s5_s6_live_agentic_full_run_diagnostic.md` |
-| RQ3 | Does KG-RAG improve evidence grounding and citation quality compared with vector-only RAG? | `nasa_atmonto_s7_retrieval.md`, `nasa_atmonto_s7_graph_health.md`, `nasa_atmonto_s7_llm_answer_generation.md` |
-| RQ4 | What failure types remain, and where is human review still necessary? | `nasa_atmonto_s7_candidate_adjudication.md`, `nasa_atmonto_s7_profile_decision.md`, `nasa_atmonto_reviewer_defense_audit.md` |
+| extraction question | Can schema-constrained extraction produce valid and evidence-linked event records? | `nasa_atmonto_formal_experiment_scoring.md`, `nasa_atmonto_prediction_output_validation.md`, `nasa_atmonto_cq_evaluation.md` |
+| Agentic validation and ambiguity | Does an agentic validation-refinement loop reduce schema violations and unsupported relations? | Agentic evidence listed in `ARTIFACT_INDEX.md` |
+| Cross-source KG-RAG | Does KG-RAG improve evidence grounding and citation quality compared with vector-only RAG? | Retrieval and answer evidence listed in `ARTIFACT_INDEX.md` |
+| Autonomous failure boundary | What failure types remain, and how are they contained without a manual queue? | Failure evidence listed in `ARTIFACT_INDEX.md` |
 
 ## Required Figures
 
@@ -69,10 +69,10 @@ source-grounded KG-RAG evaluation.
 
 | Table | Purpose | Source |
 | --- | --- | --- |
-| T1: RQ to validation matrix | Show experiment layer, baselines, metrics, artifacts, and pass/fail criteria. | `RESEARCH_QUESTIONS.md` |
-| T2: ATCSCC source fields to profile terms | Defend source-observable completeness and profile scope. | `reports/stages/atcscc_data_format_and_processing_flow.md`, `reports/stages/atcscc_ontology_profile_overview.md` |
-| T3: Baseline comparison | Compare S0-S7 extraction and KG-RAG systems without one mixed overall score. | `reports/stages/nasa_atmonto_s7_retrieval.md` |
-| T4: Claim safety matrix | Safe wording versus unsafe wording. | `RESEARCH_OVERVIEW.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
+| Research question validation matrix | Show experiment layer, baselines, metrics, artifacts, and pass/fail criteria. | `RESEARCH_QUESTIONS.md` |
+| ATCSCC source fields to profile terms | Defend source-observable completeness and profile scope. | `reports/stages/atcscc_data_format_and_processing_flow.md`, `reports/stages/atcscc_ontology_profile_overview.md` |
+| Baseline comparison | Compare extraction and KG-RAG systems without one mixed overall score. | Retrieval evidence listed in `ARTIFACT_INDEX.md` |
+| Claim safety matrix | Safe wording versus unsafe wording. | `RESEARCH_OVERVIEW.md`, `reports/stages/nasa_atmonto_reviewer_defense_audit.md` |
 
 ## Claims To Preserve
 

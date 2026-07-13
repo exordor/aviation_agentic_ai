@@ -103,7 +103,7 @@ This gives a defensible explanation for keeping the CQ count small:
 | --- | --- | --- |
 | Encode matrix as data | `data/evaluation/nasa_atmonto/atcscc_cq_answerability_matrix.json` or equivalent | Keep it small and reviewed before using it as a scoring contract. |
 | Link CQs to field families | CQ artifact or schema/profile metadata | Each CQ should declare mandatory, conditional, and no-claim advisory types. |
-| Add scoring diagnostics | CQ evaluation and S7 answer reports | Report expected-field recall, no-claim false positives, and abstention correctness. |
+| Add scoring diagnostics | CQ evaluation and retrieval-and-answer stage answer reports | Report expected-field recall, no-claim false positives, and abstention correctness. |
 | Add dashboard summary | Thesis dashboard | Show matrix coverage so reviewers know which cells are supported by data. |
 | Update method figure | Architecture / evaluation figure | Use a small matrix inset to explain task-relative completeness. |
 

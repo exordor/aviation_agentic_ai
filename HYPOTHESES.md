@@ -1,99 +1,123 @@
-# Hypotheses
+# Research Hypotheses
 
-> Migrated on 2026-07-05 from `docs/experiment_protocol.md` §Hypotheses And Falsification Criteria and `docs/thesis_positioning.md` §Hypotheses. The source files (now archived under `docs/archive/governance_era/`) were migrated on 2026-07-05.
+> Revised on 2026-07-13. Hypotheses use descriptive names rather than internal
+> numeric codes. Machine artifact names remain unchanged for reproducibility.
 
-## Canonical vs operational numbering
+## Summary
 
-This file uses conceptual hypothesis IDs (H1–H4) as the canonical reference, drawn from the thesis positioning. The formal experiment protocol (`EXPERIMENTS.md` §Hypotheses And Falsification Criteria) carries operational hypotheses with falsification criteria; its operational H3 (S4 hybrid extraction) and H4 (rejection triage) are renumbered here as canonical H5 and H6 to avoid clashing with the conceptual H3 (KG-RAG grounding) and H4 (failure taxonomy). The mapping:
+| Hypothesis | Primary comparison or evidence | Status |
+| --- | --- | --- |
+| Schema guidance reduces structural drift after canonicalization | Canonicalized schema-free extraction versus schema-guided extraction | supported on the corrected stage |
+| Validator and repair improve structurally valid yield | Schema-guided extraction before and after validator/repair | supported on the reviewed 100-record sample |
+| Routed KG-RAG improves source-bounded grounding | Vector, graph, hybrid, and routed retrieval over the 317-case benchmark | partially supported: routing helps relation-oriented questions; unconditional graph use hurts abstention |
+| Failure analysis separates actionable error categories | Rejection reports, alignment quarantine, answer critic, and independent audit | supported on the current taxonomy |
+| Deterministic backbone plus semantic enrichment improves selected predicates | Hybrid extraction versus the deterministic baseline | supported for the selected semantic predicate family |
+| Rejection triage produces actionable engineering decisions | Property-level rejection analysis | supported |
+| Authority-grounded context alignment resolves or quarantines ambiguity | Twenty Ground Stop, Glide Slope, neutral, and conflicting cases | supported: target and quarantine accuracy 1.00, zero out-of-registry acceptances |
+| KG-layered cross-source answers improve evidence coverage | Twenty-four matched source-only, linked-text, and KG-layered questions | supported: layer/citation coverage 1.00 versus 0.75 and 0.25, with zero causal overstatements |
 
-| Canonical (this file) | EXPERIMENTS.md operational | Hypothesis |
-|---|---|---|
-| H1 | H1 | Schema guidance reduces structural drift after canonicalization. |
-| H2 | H2 | Validator/repair improves valid yield. |
-| H3 | (new) | KG-RAG improves source-bounded grounding, answer-set quality, and citation behavior. |
-| H4 | (new) | Failure analysis separates extraction, profile/gold-boundary, retrieval, answer-overreach, and human-review cases. |
-| H5 | H3 | Hybrid backbone + enrichment improves selected semantic predicates. |
-| H6 | H4 | Rejection triage produces actionable engineering decisions. |
+Status vocabulary: `pending`, `supported`, `rejected`, `partially_supported`,
+`inconclusive`, `abandoned`, `needs_replication`.
 
-## Hypothesis Table
+## Schema Guidance Reduces Structural Drift
 
-| ID | Hypothesis | Related RQ | Primary comparison / evidence | Status |
-|---|---|---|---|---|
-| H1 | Schema guidance reduces structural drift after canonicalization. | RQ1 | S2 vs S1b | supported on the corrected stage |
-| H2 | Validator/repair improves valid yield. | RQ2 | S3 vs S2 | supported on the reviewed 100-record sample |
-| H3 | KG-RAG improves source-bounded grounding, answer-set quality, and citation behavior on relation-oriented ATCSCC questions. | RQ3 | vector vs graph vs hybrid vs routed modes in `reports/stages/nasa_atmonto_s7_retrieval.md` | partially supported — routed GraphRAG improves grounding; non-routed hybrid/graph-only degrade answer F1 and abstention; vector-only remains sufficient for source-local questions |
-| H4 | Failure analysis separates extraction errors, profile/gold-boundary gaps, retrieval context errors, answer overreach, and human-review cases. | RQ4 | `reports/stages/nasa_atmonto_reviewer_defense_audit.md`, `reports/stages/nasa_atmonto_rejection_adjudication.md`, `reports/stages/nasa_atmonto_s7_llm_failure_review.md` | supported at category level; human-answer-review and expert-certification gates still open |
-| H5 | Hybrid backbone + enrichment improves selected semantic predicates. | RQ1 / RQ3 | S4 vs S0 for selected semantic predicates | supported on the corrected stage for the selected semantic predicate family |
-| H6 | Rejection triage produces actionable engineering decisions. | RQ4 | rejection-error analysis coverage | supported at property level |
+Compared with schema-free extraction after canonicalization, schema-guided
+extraction should reduce unsupported target-schema terms and schema violations.
 
-Status vocabulary: `pending`, `supported`, `rejected`, `partially_supported`, `inconclusive`, `abandoned`, `needs_replication`.
+- Primary comparison: canonicalized schema-free extraction versus
+  schema-guided extraction.
+- Falsified if schema-guided extraction does not reduce the violation rate by at
+  least ten percentage points, or bootstrap confidence intervals show no
+  practical separation.
+- Secondary failure mode: lower violations are achieved only by suppressing
+  more than 25 percent of gold-supported facts.
+- Current interpretation: supported on the corrected stage. Directly scoring
+  raw schema-free output remains an interface-failure diagnostic rather than a
+  fair semantic comparison.
 
-## H1: Schema Guidance Reduces Structural Drift After Canonicalization
+## Validator And Repair Improve Valid Yield
 
-Compared with `S1b_llm_canonicalized`, `LLM + schema slice` will reduce
-unsupported target-schema terms and schema violation rate.
+Adding the validator and repair loop should increase structurally accepted
+facts while preserving reviewed semantic correctness.
 
-- Primary comparison: S2 vs S1b.
-- Falsified if S2 schema violation rate is not lower than S1b by at least 10
-  percentage points, or if bootstrap confidence intervals show no practical
-  separation.
-- Secondary failure mode: S2 achieves lower violations only by suppressing more
-  than 25 percent of gold-supported facts relative to S1b.
-- Current interpretation: supported on the corrected stage. S1 direct schema
-  scoring remains an interface-failure diagnostic, while
-  `S1b_llm_canonicalized` provides the comparable canonicalized baseline.
+- Primary comparison: schema-guided extraction before and after
+  validator/repair.
+- Falsified if repair succeeds on fewer than 15 percent of initially invalid
+  facts, or reviewed semantic correctness falls by more than five percentage
+  points.
 
-## H2: Validator/Repair Improves Valid Yield
+## Routed KG-RAG Improves Source-Bounded Grounding
 
-Compared with `LLM + schema slice`, `LLM + schema slice + validator/repair` will
-increase structurally accepted facts while preserving manual semantic correctness.
+Graph-aware retrieval should improve relation-oriented answers, evidence
+grounding, and citation behavior, while vector retrieval may remain sufficient
+for source-local questions.
 
-- Primary comparison: S3 vs S2.
-- Falsified if S3 structural repair success rate is below 15 percent of facts
-  that enter the S3 validator/repair loop as initially invalid, or if S3 manual
-  semantic correctness is more than 5 percentage points lower than S2.
+- Primary comparison: graph-only, hybrid, routed graph, and vector-only modes
+  over the same 317 cases.
+- Falsified if graph-aware modes improve no retrieval or answer-grounding
+  diagnostic, or gains occur only in undeployable source-oracle conditions.
+- Current interpretation: partially supported. Routed graph use reaches answer
+  F1 around 0.98 and abstention correctness 1.00; unconditional graph and hybrid
+  use degrade answer quality and abstention.
 
-## H3: KG-RAG Improves Source-Bounded Grounding, Answer-Set Quality, And Citation Behavior
+## Failure Analysis Separates Actionable Categories
 
-KG-RAG modes (graph-only, hybrid, routed GraphRAG) should improve source-bounded grounding, answer-set quality, and citation behavior on relation-oriented ATCSCC questions compared with vector-only retrieval, while vector-only retrieval can remain sufficient for simple source-local questions.
+Residual failures should be assignable to extraction, alignment, linking,
+retrieval context, answer overreach, or evaluation-boundary categories.
 
-- Primary comparison: graph-only / hybrid / routed GraphRAG vs vector-only modes over the 317-case S7 retrieval benchmark.
-- Primary evidence: `reports/stages/nasa_atmonto_s7_retrieval.md`, `reports/stages/nasa_atmonto_s7_llm_answer_generation.md`.
-- Falsified if KG/hybrid/routed modes do not improve any retrieval or answer-grounding diagnostic (Recall@5, target-source hit rate, answer-set F1, citation precision/recall, evidence faithfulness, abstention correctness) versus vector-only on the source-bounded benchmark, or if observed gains appear only on source-oracle modes that are not deployable.
-- Secondary failure mode: gains appear only when the graph has direct gold-path support and disappear under live retrieval.
-- Current interpretation: partially supported. Routed GraphRAG reaches answer-set F1 ≈ 0.98 and abstention correctness = 1.0 matching the source oracle, while graph-only/hybrid modes without routing degrade answer F1 and abstention; vector-only remains a fair baseline for source-local questions.
+- Falsified if a substantial share of failures cannot be assigned or the
+  runtime silently accepts low-information conflicts.
+- Current interpretation: supported on the current taxonomy. The independent
+  Evaluation Agent passes 24/24 cross-source audits; external expert
+  certification remains outside the claim.
 
-## H4: Failure Analysis Separates Error Categories
+## Deterministic Backbone Plus Enrichment Improves Selected Predicates
 
-The remaining failures can be separated into extraction errors, profile/gold-boundary gaps, retrieval context errors, answer overreach, and cases requiring human review.
+The candidate extraction system combines deterministic parsing with
+schema-constrained semantic enrichment.
 
-- Primary evidence: `reports/stages/nasa_atmonto_reviewer_defense_audit.md` (claim-scope gates), `reports/stages/nasa_atmonto_rejection_adjudication.md` (extractor_bug vs profile_gap adjudication), `reports/stages/nasa_atmonto_s7_llm_failure_review.md` (answer-level failures).
-- Falsified if a substantial fraction of failures cannot be assigned to one of these categories, or if the human-review and expert-certification gates cannot be stated as explicit open boundary conditions.
-- Current interpretation: supported at category level. Categories are enumerable; the internal-diagnostic package is complete while human-answer-review and external-expert-certification remain explicitly open.
+- Primary comparison: hybrid extraction versus the deterministic baseline for
+  reroute reason, reroute type, and implementation status.
+- Preservation criterion: hybrid extraction must preserve performance on
+  advisory number and effective-time fields within the registered tolerance.
+- Falsified if semantic predicates do not improve or deterministic fields are
+  materially harmed.
 
-## H5: Hybrid Backbone Plus Enrichment Improves Selected Semantic Predicates
+## Rejection Triage Produces Actionable Engineering Decisions
 
-The next candidate system should combine the deterministic ATCSCC parser with
-schema-constrained LLM enrichment.
+Most rejected facts should be classifiable into a small set of property-level
+causes.
 
-- Primary comparison: S4 vs S0 for selected semantic predicates where S0 is
-  weak, especially `reRouteReason`, `reRouteType`, and
-  `implementationStatus`.
-- Preservation criterion: S4 must preserve S0 F1 for deterministic fields such
-  as `advisoryNumber`, `issuedTime`, `effectiveStartTime`, and
-  `effectiveEndTime` within a pre-registered tolerance.
-- Falsified if S4 does not improve the selected semantic predicate family or if
-  it materially harms deterministic-field F1.
-- Current interpretation: supported on the corrected stage for the selected
-  semantic predicate family. This is not an aggregate end-to-end GraphRAG or
-  general aviation KG claim.
+- Falsified if more than 20 percent remain unresolved after deterministic
+  adjudication, or a proposed profile extension lacks source evidence and a
+  corresponding ontology term.
 
-## H6: Rejection Triage Produces Actionable Engineering Decisions
+## Authority-Grounded Alignment Resolves Or Quarantines Ambiguity
 
-Most rejected facts should be classifiable into a small set of actionable
-property-level causes.
+For registry-supplied `GS` candidates, traffic-management cues should resolve
+to Ground Stop, instrument-approach cues should resolve to Glide Slope, and
+neutral or conflicting contexts should be quarantined.
 
-- Primary evidence: `reports/stages/nasa_atmonto_rejection_error_analysis.md`.
-- Falsified if more than 20 percent of rejected facts remain
-  `manual_review_required` after review, or if a proposed profile extension
-  cannot be tied to source evidence and a NASA ATMONTO term.
+- Falsified if accepted-target accuracy or quarantine accuracy is below 0.95,
+  or any out-of-registry target enters the canonical graph.
+- Current interpretation: supported on the twenty-case challenge: 14/14
+  accepted targets, 6/6 quarantines, and zero out-of-registry acceptances.
+- Claim boundary: this covers one documented abbreviation family rather than
+  universal acronym disambiguation.
+
+## KG-Layered Cross-Source Answers Improve Evidence Coverage
+
+On identical questions and pinned source records, KG-layered answers should
+cover more required evidence and citation layers than source-only and
+linked-text answers while preserving the non-causal association boundary.
+
+- Primary metrics: evidence-layer coverage, citation-layer coverage,
+  abstention accuracy, alignment-explanation accuracy, and Evidence Critic
+  failures.
+- Falsified if KG-layered answers do not improve both coverage measures over
+  both baselines, or introduce any causal-overstatement failure.
+- Current interpretation: supported on 24 matched questions. Evidence and
+  citation coverage is 0.25 for source-only, 0.75 for linked text, and 1.00 for
+  KG-layered answers; causal-overstatement count is zero.
+- Claim boundary: this is a deterministic component ablation, not a broad LLM
+  or GraphRAG benchmark.

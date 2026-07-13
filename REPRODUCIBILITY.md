@@ -43,6 +43,47 @@ uv run ruff check .
 uv run pytest -q
 ```
 
+## Run the Cross-source Thesis Mainline
+
+This path is part of the scored thesis mainline. It runs offline from
+pinned ATCSCC, AviationWeather, NASR, and FAA terminology artifacts. The V1
+`refresh` command validates and checksums configured local files; it does not
+download newer files implicitly.
+
+```bash
+uv run aviation-ai cross-source refresh \
+  --config configs/cross_source_v1.yaml \
+  --source all \
+  --as-of 2026-05-20 \
+  --activate
+uv run aviation-ai cross-source align \
+  --config configs/cross_source_v1.yaml \
+  --context-mode autonomous
+uv run aviation-ai cross-source build \
+  --config configs/cross_source_v1.yaml
+uv run aviation-ai cross-source neo4j-export \
+  --config configs/cross_source_v1.yaml
+uv run aviation-ai cross-source answer \
+  --config configs/cross_source_v1.yaml \
+  --source-id 2026-05-20:089 \
+  --question "What did ATCSCC state, and what weather evidence is associated with EWR?"
+uv run aviation-ai cross-source evaluate \
+  --config configs/cross_source_v1.yaml \
+  --benchmark data/evaluation/cross_source/v1/automated_regression_v1.jsonl
+uv run aviation-ai cross-source evaluate-mainline
+```
+
+`align`, `build`, `answer`, and `evaluate` never refresh sources. Ambiguous
+terms such as `GS` are ranked by the autonomous Context Alignment Agent. A
+mapping enters the canonical graph only after the score and margin gates pass;
+otherwise it enters `alignment_quarantine.jsonl` and the answer path abstains.
+The mainline command adds matched baselines, the hard ambiguity challenge, and
+an independent deterministic evidence audit. This is not external
+aviation-expert certification.
+The build and `neo4j-export` commands also create a canonical Neo4j property
+graph projection. Loading and Browser queries are documented in
+`docs/neo4j_visualization.md`.
+
 ## Run Experiments
 
 The full formal-experiment procedure lives in `EXPERIMENTS.md` §Experimental Procedure. The regeneration commands below refresh the thesis-evidence reports:
@@ -69,6 +110,15 @@ After regeneration, the following tracked artifacts refresh:
 - `reports/stages/nasa_atmonto_sota_goal_audit.md`
 - `reports/stages/nasa_atmonto_reviewer_defense_audit.md`
 
+The cross-source V2 build also creates ignored, reproducible local outputs under:
+
+- `data/processed/cross_source/cross-source-2026-05-v1/`
+- `data/kg/cross_source/cross-source-2026-05-v1/`
+
+The active tracked regression input is
+`data/evaluation/cross_source/v1/automated_regression_v1.jsonl`; the earlier
+review-round files are retained only as design history.
+
 The formal-scoring JSON (`reports/stages/nasa_atmonto_formal_experiment_scoring.json`) and readiness JSON embed a `protocol` field that now reads `EXPERIMENTS.md`; regenerating those JSONs is a separate follow-up step (spec §8 follow-up commit).
 
 ## Verification Defaults
@@ -81,4 +131,6 @@ The formal-scoring JSON (`reports/stages/nasa_atmonto_formal_experiment_scoring.
 ## Known Issues
 
 - PDF source-family B (FAA/NASA reference PDFs) is a planned second pilot; its extraction pipeline is not in the regeneration commands above.
-- LLM-dependent steps (S1/S2/S3 prediction runs) require API access; the regeneration commands above cover only deterministic report builders.
+- LLM-dependent schema-free, schema-guided, and validator/repair prediction
+  runs require API access; the regeneration commands above cover only
+  deterministic report builders.

@@ -28,7 +28,7 @@ is a rounded rectangle; arrows show data flow.
 ┌────────────────┐    ┌──────────────────┐    ┌─────────────────────┐
 │ 1. ATCSCC       │───▶│ 2. Application    │───▶│ 3. Extraction +      │
 │ advisories      │    │ schema / profile  │    │ agentic loop         │
-│ (HTML pages)    │    │ (ATMONTO slice)   │    │ S0–S4 + validator/   │
+│ (HTML pages)    │    │ (ATMONTO slice)   │    │ deterministic rule baseline–hybrid backbone condition + validator/   │
 │                 │    │                   │    │ refiner/critic       │
 └────────────────┘    └──────────────────┘    └──────────┬──────────┘
                                                           │
@@ -44,8 +44,8 @@ is a rounded rectangle; arrows show data flow.
   100 reviewed gold sample".
 - **Block 2:** label "Application schema/profile", sub-label "ATMONTO slice:
   18 classes, 11 obj props, 11 dt props". A small schema icon.
-- **Block 3:** label "Extraction + agentic loop", sub-label "S0 rule / S1b
-  canon / S2 slice / S3 repair / S4 hybrid". Inside or beside it, a small
+- **Block 3:** label "Extraction + agentic loop", sub-label "deterministic rule baseline rule / canonicalized schema-free LLM condition
+  canon / schema-guided LLM condition slice / validator-and-repair condition repair / hybrid backbone condition hybrid". Inside or beside it, a small
   circular sub-diagram: extractor → validator → refiner → critic with a
   "repair/reject" branch.
 - **Block 4:** label "KG-RAG retrieval + answer generation", sub-label
@@ -175,7 +175,7 @@ A circular/loop diagram with four role nodes and two decision branches:
                        ▼
               ┌────────────────┐
               │   Extractor     │
-              │  (S1b/S2/S4)   │
+              │  (canonicalized schema-free LLM condition/schema-guided LLM condition/hybrid backbone condition)   │
               └───────┬────────┘
                       │ candidate facts
                       ▼
@@ -209,7 +209,7 @@ Annotate the reject branch with "profile/gold-boundary gap" and "unsupported
 span" labels (the §7.4 failure categories).
 
 **Data source:** §5.2 agentic loop text; §7.2 repair success numbers
-(S3 repair 0.8965; S4 repair 1.0, quarantine 0); §7.4 failure categories
+(validator-and-repair condition repair 0.8965; hybrid backbone condition repair 1.0, quarantine 0); §7.4 failure categories
 (extraction error, unsupported relation, evidence-span miss,
 profile/gold-boundary gap, answer overreach, abstention error).
 
@@ -225,7 +225,7 @@ clear accept/reject branches (green/red), the reject branch leading to a
 end of §7).
 
 **Purpose:** Visualize the two headline result comparisons that tables alone
-communicate poorly: (a) the S0–S4 extraction F1 spread, and (b) the KG-RAG vs
+communicate poorly: (a) the deterministic rule baseline–hybrid backbone condition extraction F1 spread, and (b) the KG-RAG vs
 vector-only answer-quality gap.
 
 **Content description:**
@@ -238,15 +238,15 @@ A vertical bar chart, 6 bars, one per system, F1 on the y-axis (0.0–1.0):
 
 | System | F1 | Bar color note |
 |---|---|---|
-| S0 rule-only | 0.759 | dark (deterministic, strongest) |
-| S1b LLM canon | 0.224 | light |
-| S2 schema-slice | 0.195 | light |
-| S3 validator-repair | 0.171 | light |
-| S4 hybrid | 0.727 | dark (deterministic backbone + enrichment) |
-| S1 LLM-only | 0.000 | hatch (diagnostic only, scored zero vs target schema) |
+| deterministic rule baseline rule-only | 0.759 | dark (deterministic, strongest) |
+| canonicalized schema-free LLM condition LLM canon | 0.224 | light |
+| schema-guided LLM condition schema-slice | 0.195 | light |
+| validator-and-repair condition validator-repair | 0.171 | light |
+| hybrid backbone condition hybrid | 0.727 | dark (deterministic backbone + enrichment) |
+| raw schema-free LLM diagnostic LLM-only | 0.000 | hatch (diagnostic only, scored zero vs target schema) |
 
 Add error bars for the systems with bootstrap 95% CIs:
-S0 0.708–0.804; S2 0.144–0.240; S4 0.681–0.763.
+deterministic rule baseline 0.708–0.804; schema-guided LLM condition 0.144–0.240; hybrid backbone condition 0.681–0.763.
 
 Title: "Schema-constrained extraction F1 (100 reviewed advisories)".
 
@@ -269,6 +269,6 @@ Title: "KG-RAG vs vector-only (same 30 questions, same LLM)".
 
 **Style guidance:** Clean bar charts, no chart-junk. Two accent colors
 (deterministic vs LLM in panel a; KG-RAG vs vector in panel b). Error bars on
-panel (a) for systems with CIs. Annotate the S1=0 bar as "diagnostic baseline".
+panel (a) for systems with CIs. Annotate the raw schema-free LLM diagnostic=0 bar as "diagnostic baseline".
 Label axes and units clearly. These are the figures a reviewer will scrutinize
 most — accuracy over aesthetics.

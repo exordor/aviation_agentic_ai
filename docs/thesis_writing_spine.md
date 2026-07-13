@@ -58,21 +58,21 @@ accepted fact is checked against schema and evidence boundaries.
 
 ## Experiment Table Plan
 
-| RQ | Systems compared | Primary metrics | Evidence |
+| research question | Systems compared | Primary metrics | Evidence |
 |---|---|---|---|
-| RQ1 schema-constrained extraction | S0, S1, S1b, S2, S3, S4 | schema validity, structural acceptance, precision/recall/F1, provenance | formal scoring and prediction validation reports |
-| RQ2 agentic loop | pre-loop, validator, refiner, critic, post-loop | violation reduction, repair/rejection, unsupported relation rate | S5/S6 diagnostic reports |
-| RQ3 KG-RAG grounding | vector-only, graph/routed KG-RAG | answer correctness, citation precision/recall, unsupported claim rate | S7 retrieval and LLM answer-generation reports |
-| RQ4 failure boundary | automated diagnostics, review queue, adjudication | failure categories, profile/gold-boundary cases, human-review status | reviewer-defense and S7 adjudication reports |
+| Schema-constrained extraction | deterministic rules, schema-free LLM, canonicalized LLM, schema-guided LLM, validator/repair, hybrid enrichment | schema validity, structural acceptance, precision/recall/F1, provenance | formal scoring and prediction validation reports |
+| Agentic validation | pre-loop, validator, refiner, critic, post-loop | violation reduction, repair/rejection, unsupported relation rate | agentic diagnostic reports |
+| KG-RAG grounding | vector-only, graph, and routed KG-RAG | answer correctness, citation precision/recall, unsupported claim rate | retrieval and LLM answer-generation reports |
+| Autonomous failure boundary | automated diagnostics, quarantine, adjudication, independent audit | failure categories, profile/gold-boundary cases, abstention status | reviewer-defense and adjudication reports |
 
-## RQ-To-Evidence Map
+## research question-To-Evidence Map
 
-| RQ | Safe claim | Evidence status |
+| research question | Safe claim | Evidence status |
 |---|---|---|
-| RQ1 | Schema constraints improve the validity and auditability of accepted advisory-event facts. | Strong for current source-bounded artifacts. |
-| RQ2 | The agentic loop provides auditable repair and rejection behavior. | Moderate; useful as diagnostics, not autonomous ontology construction. |
-| RQ3 | KG-RAG improves selected source-bounded grounding diagnostics against vector-only answers. | Moderate-strong for current S7 matched comparison; not universal GraphRAG superiority. |
-| RQ4 | Remaining errors are categorized and human-review boundaries are explicit. | Moderate; automated diagnostics exist, external expert certification does not. |
+| Schema-constrained extraction | Schema constraints improve the validity and auditability of accepted advisory-event facts. | Strong for current source-bounded artifacts. |
+| Agentic validation | The agentic loop provides auditable repair and rejection behavior. | Moderate; useful as diagnostics, not autonomous ontology construction. |
+| KG-RAG grounding | KG-RAG improves selected source-bounded grounding diagnostics against vector-only answers. | Moderate-strong for the current matched comparison; not universal GraphRAG superiority. |
+| Autonomous failure boundary | Remaining errors are categorized and runtime gates are explicit. | Moderate; automated diagnostics exist, external expert certification does not. |
 
 ## Result Numbers To Reuse Carefully
 
@@ -85,10 +85,10 @@ Current headline results:
 - KG provenance completeness: 1.0
 - KG evidence-in-source rate: 1.0
 - valid triples: 448
-- S7 KG-RAG correctness: 0.9667
-- S7 KG-RAG citation precision: 1.0
-- S7 KG-RAG citation recall: 0.6084
-- S7 KG-RAG unsupported claim rate: 0.0167
+- KG-RAG correctness: 0.9667
+- KG-RAG citation precision: 1.0
+- KG-RAG citation recall: 0.6084
+- KG-RAG unsupported claim rate: 0.0167
 - matched vector-only correctness: 0.5
 - matched vector-only unsupported claim rate: 0.5
 - human-review candidates: 9
@@ -131,13 +131,13 @@ Unsafe:
    - Agentic validation/refinement.
    - Event graph and KG-RAG.
 4. Experiments
-   - RQ1 extraction.
-   - RQ2 agentic loop.
-   - RQ3 retrieval/answer generation.
-   - RQ4 failure and review boundary.
+   - Schema-constrained extraction.
+   - Agentic validation and ambiguity alignment.
+   - Retrieval and answer generation.
+   - Autonomous failure and audit boundary.
 5. Results
    - Layered table, no mixed overall score.
-   - RQ-by-RQ interpretation.
+   - research question-by-research question interpretation.
 6. Discussion
    - Why schema and evidence boundaries matter.
    - Where graph evidence helps.

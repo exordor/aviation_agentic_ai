@@ -4,11 +4,10 @@
 
 ## Material Passport
 
-- Artifact: formal experiment protocol for the NASA ATMONTO ATCSCC KG extraction
-  study and source-family remediation.
-- Status: protocol, reviewed 100-record gold set, S0-S3 prediction outputs,
-  S1b/S4 corrected-stage derived outputs, rejection triage, and formal scoring
-  artifacts prepared.
+- Artifact: formal experiment protocol for the NASA ATMONTO ATCSCC extraction
+  study and the authority-grounded cross-source Agentic KG-RAG mainline.
+- Status: protocol, reviewed 100-record gold set, six named extraction
+  conditions, rejection triage, and formal scoring artifacts prepared.
 - Prior stage: pilot / feasibility study.
 - Pilot evidence:
   - `reports/stages/nasa_atmonto_minimal_loop_validation.md`
@@ -48,6 +47,80 @@
   protocol does not support live aviation operations, operational advisories,
   flight planning, dispatch, ATC decisions, or safety certification.
 
+## Cross-Source Mainline Protocol
+
+Cross-source V2 is a main thesis experiment, not a future-work add-on. It keeps
+the 718 retrospective advisories as the event corpus, applies terminology and
+facility alignment to all records, and limits weather linking and answer
+evaluation to the predeclared 68-record connectable cohort.
+
+The source families remain separately versioned and scored:
+
+| Source profile | Role | Main metrics |
+| --- | --- | --- |
+| ATCSCC advisory | Source declaration and event facts | extraction validity, evidence support, answer source coverage |
+| FAA ATCSCC terminology | Operational abbreviation authority | authoritative/contextual target accuracy, out-of-registry acceptance |
+| NASR/facility registry | Canonical facility identity | unique canonical-ID rate, alias resolution, unresolved/conflict rate |
+| METAR observation | Contemporaneous observation | temporal-link validity, observation citation-layer coverage |
+| TAF forecast | Contemporaneous forecast | temporal-link validity, forecast citation-layer coverage |
+
+Every snapshot must record a version, effective date, source URL, checksum, and
+refresh provenance. A Source Agent performs explicit refresh; ordinary runs use
+the pinned local snapshot for reproducibility.
+
+The runtime gate is autonomous:
+
+1. A unique authority mapping is accepted.
+2. An ambiguous abbreviation is sent to the context-alignment agent, which
+   records candidates, evidence, method, and confidence.
+3. Low-confidence, neutral, conflicting, or out-of-registry cases are
+   quarantined and excluded from the canonical graph.
+4. The answer agent may use only critic-accepted links; missing required
+   evidence causes abstention.
+
+Runtime autonomy does not remove scientific review. Automated policy
+conformance, hard ambiguity challenge accuracy, and independent semantic answer
+review are reported as separate evidence layers.
+
+### Cross-Source Systems Under Test
+
+All answer systems use the same pinned snapshots, 24 questions, cohort records,
+and expected evidence obligations.
+
+| System | Evidence available | Purpose |
+| --- | --- | --- |
+| Source only | Advisory source declaration only | Measures the source-local lower bound. |
+| Linked text | Advisory plus the same accepted observation/forecast text, without graph association statements | Isolates additional text evidence from the typed KG answer contract. |
+| Cross-source KG | Advisory, observation/forecast, typed system associations, canonical alignment, and per-layer citations | Tests the full cross-source method. |
+
+The linked-text baseline intentionally shares the accepted record linkage with
+the KG system. It is a component ablation of graph-typed evidence and answer
+contract behavior, not a benchmark of independent entity-linking algorithms.
+
+### Cross-Source Metrics And Gates
+
+- required evidence-layer coverage;
+- required citation-layer coverage;
+- abstention correctness;
+- expected alignment-explanation coverage;
+- evidence-critic failure count;
+- causal-overstatement count;
+- Ground Stop/Glide Slope target accuracy on accepted hard cases;
+- quarantine accuracy on neutral and conflicting hard cases;
+- out-of-registry acceptance count.
+
+No mixed overall score is permitted. The ambiguity-alignment hypothesis is supported only if accepted hard
+cases achieve target accuracy >= 0.95, quarantine cases achieve accuracy >=
+0.95, and no out-of-registry target is accepted. The cross-source evidence hypothesis is supported only if the
+KG-layered system improves required evidence and citation-layer coverage over
+both matched baselines without increasing incorrect abstention or causal
+overstatement.
+
+The 24-question automated set is a policy-regression benchmark. A separately
+selected 20-30 item subset is required for independent semantic answer review;
+until that review is complete, the thesis may claim contract conformance and
+component-level improvement, not externally validated answer correctness.
+
 ## Current Pilot Positioning
 
 The current NASA ATMONTO ATCSCC loop is a pilot / feasibility study. It proves
@@ -78,7 +151,7 @@ yield, but their semantic F1 tables must remain task-specific.
 
 | Source family | Data shape | Extraction task | Primary design |
 | --- | --- | --- | --- |
-| `faa_atcscc_advisories` | Semi-structured short FAA ATCSCC advisories. | TMI/event ABox extraction. | S0 deterministic backbone plus S3 semantic enrichment and validator gate. |
+| `faa_atcscc_advisories` | Semi-structured short FAA ATCSCC advisories. | TMI/event ABox extraction. | deterministic rule baseline deterministic backbone plus validator-and-repair condition semantic enrichment and validator gate. |
 | `faa_nasa_pdf_reference_documents` | Long-form PDF reference text with definitions, procedures, tables, and section hierarchy. | Terminology, definition, procedure, and source-mapping evidence extraction. | Section-aware PDF chunking plus constrained extraction; no event-instance predicates. |
 
 Source family A is the current scored corpus. The previous run used 100 reviewed
@@ -128,16 +201,15 @@ The current SOTA-facing reports are:
 - `reports/stages/atcscc_graph_use_plan.md`
 - `reports/stages/nasa_atmonto_s7_retrieval.md`
 
-The current all-zero `S1_llm_only` result is treated as an ontology-interface
-and canonicalization failure. `S1_raw_open_llm` is a drift diagnostic and must
-not report target-schema precision, recall, or F1. `S1b_llm_canonicalized`
-maps open facts into the ATMONTO profile and is the comparable baseline for
-S2/S3/S4.
+The all-zero raw schema-free result is treated as an ontology-interface and
+canonicalization failure. Open extraction is a drift diagnostic and must not
+report target-schema precision, recall, or F1. Canonicalized open extraction
+maps facts into the ATMONTO profile and provides the comparable LLM baseline.
 
 The next rerun should follow a nine-stage pipeline:
 
 1. ATCSCC parsing.
-2. S0 deterministic backbone.
+2. deterministic rule baseline deterministic backbone.
 3. Schema-slice retrieval.
 4. LLM semantic extraction.
 5. Canonicalization.
@@ -146,9 +218,9 @@ The next rerun should follow a nine-stage pipeline:
 8. Graph materialization.
 9. Layered evaluation.
 
-The first S7 graph-use gate now includes a retrieval-only run over 317
+The first retrieval-and-answer stage graph-use gate now includes a retrieval-only run over 317
 CQ-derived cases and a deterministic answer-generation rerun over the same
-S7 labels. It reports source/vector proxy, token-matched vector proxy, live
+retrieval-and-answer stage labels. It reports source/vector proxy, token-matched vector proxy, live
 TF-IDF lexical-vector retrieval, token-matched live lexical-vector retrieval,
 dense embedding retrieval, graph-only, hybrid, and routed GraphRAG modes. This
 is sufficient to evaluate route policy, graph path support, abstention behavior,
@@ -159,25 +231,25 @@ contexts and reports CQ-template breakdowns. A graph-health report summarizes
 topology, graph-context availability, path support, answer-set recovery, and
 abstention behavior by CQ group. This is still not a broad online LLM GraphRAG
 benchmark or live operational GraphRAG system. Graph modes traverse a
-materialized ATCSCC source-predicate-fact graph built from critic-gated S4 facts.
+materialized ATCSCC source-predicate-fact graph built from critic-gated hybrid backbone condition facts.
 
 The Extract-Define-Canonicalize design separates open extraction from
 target-schema scoring. Ontology-guided short-text KGC motivates 10-20
-`reviewed_dev_examples` for S2/S3, selected by advisory type and predicate
+`reviewed_dev_examples` for schema-guided LLM condition/validator-and-repair condition, selected by advisory type and predicate
 family. These examples must come from a development split outside the
 held-out 100 scoring records.
 
 LLMs are used as canonicalizers, semantic enrichment modules, evidence checkers,
 and profile-gap explainers. They are not the primary thesis system by
 themselves. The primary candidate for the next ATCSCC extraction rerun is
-`S4_hybrid_backbone_enrichment`: pattern/rule extraction plus ontology-guided
+hybrid backbone enrichment: pattern/rule extraction plus ontology-guided
 prompting, grounding, corroboration, validator gating, and review quarantine.
 
-S4 merge rules:
+hybrid backbone condition merge rules:
 
-- S0 wins for `advisoryNumber`, `issuedTime`, `effectiveStartTime`,
+- deterministic rule baseline wins for `advisoryNumber`, `issuedTime`, `effectiveStartTime`,
   `effectiveEndTime`, and other header/template fields.
-- S3/S4 may add, but not overwrite, semantic facts such as `reRouteReason`,
+- validator-and-repair condition/hybrid backbone condition may add, but not overwrite, semantic facts such as `reRouteReason`,
   `reRouteType`, and `implementationStatus`.
 - Conflicts, unsupported spans, fuzzy-only mappings, validator-rejected facts,
   and repair-only facts with semantic-change flags go to log/review/quarantine.
@@ -208,7 +280,7 @@ They are search leads only until directly fetched and checked.
 
 ## Research Claims
 
-### C1: Runtime NASA ATMONTO Profile Feasibility
+### Runtime NASA ATMONTO Profile Feasibility
 
 NASA ATMONTO OWL/XML can be transformed into a usable runtime schema catalog and
 ATCSCC schema slice for KG extraction and validation.
@@ -218,34 +290,34 @@ ATCSCC schema slice for KG extraction and validation.
 - Current status: supported by the pilot.
 - Limit: this is a schema engineering claim, not an extraction-accuracy claim.
 
-### C2: Schema-Slice Constraint Benefit
+### Schema-Slice Constraint Benefit
 
 An LLM using the ATCSCC schema slice should produce fewer unsupported terms and
 domain/range violations than a schema-free extractor after the schema-free
 output has a documented canonicalization bridge.
 
 - Evidence required: lower schema violation rate for `LLM + schema slice` than
-  `S1b_llm_canonicalized` on the same gold-sampled records.
+  canonicalized schema-free extraction on the same gold-sampled records.
 - Current status: inconclusive for semantic baseline comparison. The saved
-  `S1_llm_only` run is JSON-adherent but all 1211 facts are rejected by direct
+  raw schema-free run is JSON-adherent but all 1211 facts are rejected by direct
   ATMONTO target-schema scoring, so its P/R/F1 are
   `invalid_direct_schema_scoring` diagnostics rather than a valid LLM-only
   semantic baseline.
 
-### C3: Validator/Repair Benefit
+### Validator And Repair Benefit
 
 Adding the validator/repair loop should improve structurally valid yield without
 reducing manual semantic correctness below the LLM + schema-slice condition.
 
 - Evidence required: repair success rate, post-repair schema violation rate, and
   manual semantic correctness on the same gold sample.
-- Current status: supported on the reviewed 100-record sample: S3 improves
-  structural acceptance versus S2 and does not reduce manual semantic
-  correctness in the frozen-gold scoring report. This is not evidence that S3
-  beats an unconstrained LLM semantic baseline until `S1b_llm_canonicalized` is
+- Current status: supported on the reviewed 100-record sample: validator-and-repair condition improves
+  structural acceptance versus schema-guided LLM condition and does not reduce manual semantic
+  correctness in the frozen-gold scoring report. This is not evidence that validator-and-repair condition
+  beats an unconstrained LLM semantic baseline until canonicalized schema-free output is
   added.
 
-### C4: Rejection Analysis Utility
+### Rejection Analysis Utility
 
 Property-level rejection analysis should separate extractor bugs from NASA
 ATMONTO runtime-profile gaps.
@@ -258,7 +330,7 @@ ATMONTO runtime-profile gaps.
   facts. This does not automatically approve profile extensions or semantic gold
   facts.
 
-### C5: Source-Family Separation
+### Source-Family Separation
 
 ATCSCC advisories and PDF reference documents should be evaluated as separate
 source families with task-specific semantic metrics.
@@ -272,49 +344,51 @@ source families with task-specific semantic metrics.
 
 ## Hypotheses And Falsification Criteria
 
-### H1: Schema Guidance Reduces Structural Drift After Canonicalization
+### Schema Guidance Reduces Structural Drift After Canonicalization
 
-Compared with `S1b_llm_canonicalized`, `LLM + schema slice` will reduce
+Compared with canonicalized schema-free extraction, schema-guided extraction
+will reduce
 unsupported target-schema terms and schema violation rate.
 
-- Primary comparison: S2 vs S1b.
-- Falsified if S2 schema violation rate is not lower than S1b by at least 10
+- Primary comparison: schema-guided LLM condition vs canonicalized schema-free LLM condition.
+- Falsified if schema-guided LLM condition schema violation rate is not lower than canonicalized schema-free LLM condition by at least 10
   percentage points, or if bootstrap confidence intervals show no practical
   separation.
-- Secondary failure mode: S2 achieves lower violations only by suppressing more
-  than 25 percent of gold-supported facts relative to S1b.
-- Current interpretation: supported on the corrected stage. S1 direct schema
-  scoring remains an interface-failure diagnostic, while
-  `S1b_llm_canonicalized` provides the comparable canonicalized baseline.
+- Secondary failure mode: schema-guided LLM condition achieves lower violations only by suppressing more
+  than 25 percent of gold-supported facts relative to canonicalized schema-free LLM condition.
+- Current interpretation: supported on the corrected stage. Direct scoring of
+  raw schema-free output remains an interface-failure diagnostic; the
+  canonicalized form is the fair baseline.
 
-### H2: Validator/Repair Improves Valid Yield
+### Validator And Repair Improve Valid Yield
 
 Compared with `LLM + schema slice`, `LLM + schema slice + validator/repair` will
 increase structurally accepted facts while preserving manual semantic correctness.
 
-- Primary comparison: S3 vs S2.
-- Falsified if S3 structural repair success rate is below 15 percent of facts
-  that enter the S3 validator/repair loop as initially invalid, or if S3 manual
-  semantic correctness is more than 5 percentage points lower than S2.
+- Primary comparison: validator-and-repair condition vs schema-guided LLM condition.
+- Falsified if structural repair succeeds on fewer than 15 percent of facts
+  that enter the validator/repair loop as initially invalid, or if reviewed
+  semantic correctness is more than five percentage points lower than the
+  schema-guided condition.
 
-### H3: Hybrid Backbone Plus Enrichment Improves Selected Semantic Predicates
+### Hybrid Backbone Plus Enrichment Improves Selected Semantic Predicates
 
 The next candidate system should combine the deterministic ATCSCC parser with
 schema-constrained LLM enrichment.
 
-- Primary comparison: S4 vs S0 for selected semantic predicates where S0 is
+- Primary comparison: hybrid backbone condition vs deterministic rule baseline for selected semantic predicates where deterministic rule baseline is
   weak, especially `reRouteReason`, `reRouteType`, and
   `implementationStatus`.
-- Preservation criterion: S4 must preserve S0 F1 for deterministic fields such
+- Preservation criterion: hybrid backbone condition must preserve deterministic rule baseline F1 for deterministic fields such
   as `advisoryNumber`, `issuedTime`, `effectiveStartTime`, and
   `effectiveEndTime` within a pre-registered tolerance.
-- Falsified if S4 does not improve the selected semantic predicate family or if
+- Falsified if hybrid backbone condition does not improve the selected semantic predicate family or if
   it materially harms deterministic-field F1.
 - Current interpretation: supported on the corrected stage for the selected
   semantic predicate family. This is not an aggregate end-to-end GraphRAG or
   general aviation KG claim.
 
-### H4: Rejection Triage Produces Actionable Engineering Decisions
+### Rejection Triage Produces Actionable Engineering Decisions
 
 Most rejected facts should be classifiable into a small set of actionable
 property-level causes.
@@ -416,7 +490,7 @@ session should use an assisted adjudication workflow:
 
 - Primary screening: a configured review model proposes accepted facts,
   rejected-fact decisions, profile-gap candidates, and missing-fact candidates
-  from the source text plus S0-S3 candidate package.
+  from the source text plus the combined extraction-candidate package.
 - Source-evidence review: an independent reviewer checks whether every accepted
   fact has a specific advisory evidence span and whether any obvious
   source-supported fact was omitted.
@@ -454,10 +528,10 @@ Prepared execution files:
 
 - Common input records: `data/experiments/nasa_atmonto/formal/input_records.jsonl`
 - System specs: `data/experiments/nasa_atmonto/formal/system_specs.json`
-- S0 baseline predictions: `data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl`
-- S1 prompt batch: `data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl`
-- S2 prompt batch: `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
-- S3 prompt batch: `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
+- deterministic rule baseline baseline predictions: `data/experiments/nasa_atmonto/formal/s0_rule_only_predictions.jsonl`
+- raw schema-free LLM diagnostic prompt batch: `data/experiments/nasa_atmonto/formal/s1_llm_only_prompt_batch.jsonl`
+- schema-guided LLM condition prompt batch: `data/experiments/nasa_atmonto/formal/s2_llm_schema_slice_prompt_batch.jsonl`
+- validator-and-repair condition prompt batch: `data/experiments/nasa_atmonto/formal/s3_llm_schema_slice_validator_repair_prompt_batch.jsonl`
 - LLM prediction runner: `scripts/run_nasa_atmonto_llm_predictions.py`
 - Saved-response reprocessor:
   `scripts/reprocess_nasa_atmonto_llm_predictions.py`
@@ -465,7 +539,7 @@ Prepared execution files:
 - Prediction-output validation report: `reports/stages/nasa_atmonto_prediction_output_validation.md`
 
 These files fix the common sample, deterministic baseline, prompt batches, and
-saved S1-S3 prediction outputs. The LLM outputs must come from the prediction
+saved LLM prediction outputs. The LLM outputs must come from the prediction
 runner or from deterministic reprocessing of committed `raw_response` fields;
 they must not be fabricated or manually filled. The prediction-output validation
 report records whether every system has 100 usable records before scoring.
@@ -474,26 +548,27 @@ report records whether every system has 100 usable records before scoring.
 
 The current scored ATCSCC run uses the original four saved systems plus two
 corrected-stage derived systems on the identical 100-record advisory sample.
-S1 direct target-schema scoring remains a diagnostic artifact because a
-schema-free output was scored without canonicalization; S1b and S4 are the
+Direct target-schema scoring of raw schema-free output remains a diagnostic
+artifact because it lacks canonicalization; canonicalized schema-free output
+and the hybrid backbone are the
 corrected comparators.
 
 | System | Role | Comparator Question |
 | --- | --- | --- |
-| S0 rule-only | Deterministic parser baseline | How much can a low-cost rule extractor recover before LLMs? |
-| S1 LLM-only | Historical direct-scoring diagnostic | How much target-schema interface failure appears without ontology terms or canonicalization? |
-| S2 LLM + schema slice | Schema-guided extraction condition | Does a compact ATCSCC slice reduce unsupported terms? |
-| S3 LLM + schema slice + validator/repair | Full ontology-constrained loop | Does validation/repair improve accepted yield without semantic loss? |
+| Deterministic rules | Deterministic parser baseline | How much can a low-cost rule extractor recover before LLMs? |
+| Raw schema-free LLM | Historical direct-scoring diagnostic | How much target-schema interface failure appears without ontology terms or canonicalization? |
+| Schema-guided LLM | Schema-guided extraction condition | Does a compact ATCSCC slice reduce unsupported terms? |
+| Schema-guided LLM with validator/repair | Full ontology-constrained loop | Does validation/repair improve accepted yield without semantic loss? |
 
 The corrected next-rerun suite should add:
 
 | System | Role | Scoring boundary |
 | --- | --- | --- |
-| `S1_raw_open_llm` | Schema-free open extraction with generic entities, events, attributes, relations, times, evidence spans, and confidence. | Raw JSON, evidence, coverage, and drift diagnostics only; no direct ATMONTO P/R/F1. |
-| `S1b_llm_canonicalized` | Post-hoc canonicalization bridge from S1 raw output into the ATMONTO fact schema. | Target-schema P/R/F1 after canonicalization. Implemented as a deterministic corrected-stage derivation from saved S1 facts. |
-| `S4_hybrid_backbone_enrichment` | S0 deterministic backbone plus S3 semantic enrichment and validator gate. | Primary candidate system for ATCSCC event extraction. Implemented as a deterministic corrected-stage merge from saved S0 and S3 facts. |
+| Open schema-free extraction | Generic entities, events, attributes, relations, times, evidence spans, and confidence. | Raw JSON, evidence, coverage, and drift diagnostics only; no direct target-schema P/R/F1. |
+| Canonicalized schema-free extraction | Post-hoc mapping of open output into the ATMONTO fact schema. | Target-schema P/R/F1 after canonicalization. |
+| Hybrid backbone enrichment | Deterministic parsing plus validated semantic enrichment. | Primary candidate for ATCSCC event extraction. |
 
-### S0: Rule-Only
+### Deterministic Rule Baseline
 
 The existing deterministic ATCSCC extractor runs without an LLM. It uses
 surface patterns and aligned time fields to produce candidate facts.
@@ -504,7 +579,7 @@ surface patterns and aligned time fields to produce candidate facts.
 - Expected strength: high format stability and evidence anchoring.
 - Expected weakness: brittle pattern matching, accepted false positives, limited recall.
 
-### S1: LLM-Only
+### Raw Schema-Free LLM Diagnostic
 
 An LLM extracts facts from advisory text without NASA ATMONTO classes,
 properties, or schema slice guidance. The output is converted into the common
@@ -514,12 +589,12 @@ fact schema for evaluation.
 - Constraint: no ontology term list in the prompt.
 - Validator role: post-hoc measurement only; no repair loop.
 - Current interpretation: `invalid_direct_schema_scoring` for semantic
-  P/R/F1. The saved S1 run produced JSON, but all 1211 facts were rejected by
+  P/R/F1. The saved raw schema-free LLM diagnostic run produced JSON, but all 1211 facts were rejected by
   the target ATMONTO validator. This is evidence that an open baseline needs
-  `S1_raw_open_llm` plus `S1b_llm_canonicalized`, not evidence that the LLM
+  open extraction plus canonicalization, not evidence that the LLM
   extracted no useful information.
 
-### S2: LLM + Schema Slice
+### Schema-Guided LLM Extraction
 
 An LLM receives only the ATCSCC schema slice, not the full NASA OWL files. It
 must emit JSON in the common extraction schema.
@@ -529,24 +604,25 @@ must emit JSON in the common extraction schema.
   `data/ontology/curated/nasa_atmonto_atcscc_schema_slice.json`.
 - Validator role: post-hoc measurement only; no repair loop.
 
-### S3: LLM + Schema Slice + Validator/Repair
+### Schema-Guided LLM With Validator And Repair
 
-The S2 output is passed through the custom validator. Invalid outputs receive one
+Schema-guided output is passed through the custom validator. Invalid outputs receive one
 repair opportunity with validator errors and evidence requirements.
 
 - Purpose: test the complete ontology-constrained extraction loop.
 - Repair budget: one repair attempt per invalid payload.
 - Validator role: gate final structurally accepted facts and record rejected facts.
 
-### S4: Hybrid Backbone + Semantic Enrichment
+### Hybrid Backbone Plus Semantic Enrichment
 
-S4 is the recommended next ATCSCC system rather than a replacement for S0. It
-should merge S0 and S3 with predicate-family rules:
+The hybrid backbone is the recommended ATCSCC system rather than a replacement
+for deterministic parsing. It combines deterministic facts and validated
+semantic enrichment with predicate-family rules:
 
-- Preserve S0 facts for semi-structured deterministic fields:
+- Preserve deterministic facts for semi-structured fields:
   `advisoryNumber`, `issuedTime`, `effectiveStartTime`, and
   `effectiveEndTime`.
-- Use S3 as semantic enrichment for predicates where S0 is weak, especially
+- Use validated semantic enrichment for predicates where deterministic parsing is weak, especially
   `reRouteReason`, `reRouteType`, `implementationStatus`, and evidence-rich
   comments.
 - Quarantine conflicts, unsupported spans, fuzzy-only mappings, and repair-only
@@ -640,13 +716,13 @@ target-schema semantic scores:
 canonicalization_yield = canonicalized_target_schema_facts / raw_open_facts
 ```
 
-`S1_raw_open_llm` has no direct target-schema semantic F1. Only
-`S1b_llm_canonicalized` can enter target-schema precision/recall/F1.
+Raw open extraction has no direct target-schema semantic F1. Only its
+canonicalized output can enter target-schema precision/recall/F1.
 
 ### Repair Success Rate
 
 Report repair success only for systems with an explicit repair loop, currently
-S3 (`LLM + Schema Slice + Validator/Repair`). For S0-S2, this metric is
+the validator-and-repair condition. For conditions without an explicit repair loop, this metric is
 `not_applicable`; their validator pass rate is the structural acceptance rate.
 When repair is enabled, report both structural and semantic repair success.
 
@@ -719,28 +795,27 @@ uv run python scripts/run_nasa_atmonto_minimal_loop.py --all-records
 uv run python scripts/prepare_nasa_atmonto_experiment_protocol.py
 ```
 
-3. Generate formal input records, S0 predictions, S1/S2/S3 prompt batches,
-   S1b/S4 derived predictions when their source outputs exist, readiness
+3. Generate formal input records, deterministic rule baseline predictions, raw schema-free LLM diagnostic/schema-guided LLM condition/validator-and-repair condition prompt batches,
+   canonicalized schema-free LLM condition/hybrid backbone condition derived predictions when their source outputs exist, readiness
    report, and the scoring report.
 
 ```bash
 uv run python scripts/run_nasa_atmonto_formal_experiment.py
 ```
 
-4. Run S1, S2, and S3 from the prepared prompt batches on the same 100 source
-   records. Use the committed S0 prediction file as the deterministic baseline.
+4. Run raw schema-free LLM diagnostic, schema-guided LLM condition, and validator-and-repair condition from the prepared prompt batches on the same 100 source
+   records. Use the committed deterministic rule baseline prediction file as the deterministic baseline.
 
-```bash
-uv run python scripts/run_nasa_atmonto_llm_predictions.py S1_llm_only --resume
-uv run python scripts/run_nasa_atmonto_llm_predictions.py S2_llm_schema_slice --resume
-uv run python scripts/run_nasa_atmonto_llm_predictions.py S3_llm_schema_slice_validator_repair --resume
-```
+The prediction runner reads the configured, descriptively named conditions from
+`data/experiments/nasa_atmonto/formal/system_specs.json`. Run each configured
+condition on the same 100 source records and resume interrupted runs through the
+runner's documented options.
 
 For a connectivity smoke test, use `--limit 1`. Limited runs write to
 `data/experiments/nasa_atmonto/formal/smoke/` by default, so they cannot
-overwrite the formal S1/S2/S3 prediction files used by scoring.
+overwrite the formal raw schema-free LLM diagnostic/schema-guided LLM condition/validator-and-repair condition prediction files used by scoring.
 
-5. Validate S1/S1b/S2/S3/S4 prediction JSONL files and run metadata before
+5. Validate raw schema-free LLM diagnostic/canonicalized schema-free LLM condition/schema-guided LLM condition/validator-and-repair condition/hybrid backbone condition prediction JSONL files and run metadata before
    scoring.
 
 ```bash
@@ -763,20 +838,14 @@ uv run python scripts/reprocess_nasa_atmonto_llm_predictions.py all
 ```
 
 This reprocessing step is an adapter repair, not a new model run. It should be
-reported separately from S3 validator/repair because it fixes experiment I/O
+reported separately from validator-and-repair condition validator/repair because it fixes experiment I/O
 shape rather than asking the model to change its extraction.
 
-For the remediation rerun, replace the direct S1 semantic comparison with:
+For the remediation rerun, replace the direct raw schema-free LLM diagnostic semantic comparison with:
 
-```bash
-# planned names; implementation may split generation and canonicalization
-uv run python scripts/run_nasa_atmonto_llm_predictions.py S1_raw_open_llm --resume
-uv run python scripts/canonicalize_nasa_atmonto_open_llm.py S1_raw_open_llm
-```
-
-The raw S1 output should contain generic entities, events, attributes,
+The raw schema-free output should contain generic entities, events, attributes,
 relations, quantities/times, evidence spans, and confidence. The canonicalizer
-creates `S1b_llm_canonicalized`; only S1b enters ATMONTO target-schema
+creates the comparable canonicalized output; only that output enters ATMONTO target-schema
 precision/recall/F1.
 
 For PDF source-family B, create a separate passage-level input set and do not
@@ -799,15 +868,15 @@ uv run python scripts/prepare_nasa_atmonto_gold_review_priority_packets.py
 ```
 
 Use `data/evaluation/nasa_atmonto/atcscc_system_candidate_review.md` as a
-coverage checklist during annotation. It aggregates S0-S3 candidate facts by
+coverage checklist during annotation. It aggregates candidate facts across extraction conditions by
 sample and marks validator acceptance/rejection, but it is not reviewed gold and
 must not override source-text review.
 
-The structured decision templates expose both `valid_candidate_fact_ids` for S0
-rule-baseline facts and `valid_cross_system_fact_ids` for schema-valid S1-S3
-facts. Applying reviewed decisions copies S0 facts into `valid_facts` and
+The structured decision templates expose both `valid_candidate_fact_ids` for deterministic rule baseline
+rule-baseline facts and `valid_cross_system_fact_ids` for schema-valid raw schema-free LLM diagnostic-validator-and-repair condition
+facts. Applying reviewed decisions copies deterministic rule baseline facts into `valid_facts` and
 schema-valid cross-system facts into `missing_facts` with provenance. This keeps
-the gold set source-reviewed while avoiding manual retyping of correct S1-S3
+the gold set source-reviewed while avoiding manual retyping of correct raw schema-free LLM diagnostic-validator-and-repair condition
 candidate facts.
 
 7. Complete manual annotation in
@@ -840,12 +909,12 @@ candidate facts.
 
    Use `data/evaluation/nasa_atmonto/review_priority_packets/index.md` to work
    through those priority lanes without switching between the workload table,
-   batch files, and decision templates. The packets expose copyable S0 IDs for
-   `valid_candidate_fact_ids` and schema-valid S1-S3 IDs for
+   batch files, and decision templates. The packets expose copyable deterministic rule baseline IDs for
+   `valid_candidate_fact_ids` and schema-valid raw schema-free LLM diagnostic-validator-and-repair condition IDs for
    `valid_cross_system_fact_ids`.
 
    Decision templates also include `suggested_valid_candidate_fact_ids`, which
-   lists S0 facts that passed structural validation. These are copy aids only;
+   lists deterministic rule baseline facts that passed structural validation. These are copy aids only;
    they become gold only after source review and explicit copy into
    `valid_candidate_fact_ids`.
 
@@ -913,7 +982,7 @@ as pilot/prepared-state evidence, not as a completed formal experiment.
 - property-level metric table;
 - rejection/error taxonomy;
 - examples of true positives, false positives, false negatives, and repairs;
-- claim status table for C1-C4 and H1-H4.
+- claim and hypothesis status table using descriptive names.
 
 ## Reporting Rules
 
@@ -934,12 +1003,14 @@ as pilot/prepared-state evidence, not as a completed formal experiment.
 The formal experiment is complete only when all of these are true:
 
 - 100 sampled advisories have reviewed gold annotations.
-- S0, diagnostic S1, S1b, S2, S3, and S4 have run on the identical sample.
+- Deterministic rules, raw schema-free LLM, canonicalized schema-free LLM,
+  schema-guided LLM, validator/repair, and hybrid enrichment have run on the
+  identical sample.
 - JSON adherence, schema violation rate, triple precision/recall/F1, repair
-  success for S3, structural acceptance for all systems, and manual semantic
+  success for validator-and-repair condition, structural acceptance for all systems, and manual semantic
   correctness are reported.
 - The 288 pilot rejections have reviewed property-level decisions.
-- Claims C1-C4 and hypotheses H1-H4 have explicit supported, falsified, or
+- All research claims and hypotheses have explicit supported, falsified, or
   inconclusive status.
 - All artifacts needed to reproduce the study are committed or explicitly listed
   as external/manual inputs.
@@ -1039,8 +1110,9 @@ metrics; this section maps stages to their evidence reports.
 FAA ATCSCC advisories
   -> source snapshot and advisory parser
   -> lightweight ATCSCC application schema/profile
-  -> extraction systems and baselines (S0 rule / S1 open LLM / S1b canonicalized
-     / S2 schema-slice / S3 validator-repair / S4 hybrid backbone)
+  -> extraction systems and baselines (deterministic rules / raw schema-free LLM
+     / canonicalized schema-free LLM / schema-guided LLM / validator-repair
+     / hybrid backbone)
   -> agentic validation-refinement loop (extractor -> validator -> refiner -> critic)
   -> advisory event graph / fact store
   -> vector, graph, and routed KG-RAG retrieval

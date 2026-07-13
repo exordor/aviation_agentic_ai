@@ -43,7 +43,7 @@ The harness inspects PPTX OOXML directly and checks:
     implementation-oriented filenames;
 - long grey generated text is rejected, because detailed explanation belongs in
   speaker notes, not visible slide captions;
-- internal stage labels such as `S7` do not appear in reviewer-facing slide text.
+- internal stage labels such as `retrieval-and-answer stage` do not appear in reviewer-facing slide text.
 - text-only slides use the school-style list pattern: no rounded-card layout,
   3-5 bullets, body text at least 20 pt equivalent, and no overlong bullet
   sentences.
