@@ -61,6 +61,12 @@ models/
 # NASA ATMONTO raw snapshots and ad-hoc smoke outputs.
 /data/raw/nasa_atmonto/
 /data/experiments/nasa_atmonto/formal/smoke/
+
+# Reproducible cross-source runtime outputs. Keep the config, source registry,
+# review benchmark, and build code tracked; rebuild these normalized/graph
+# artifacts from the pinned snapshots.
+/data/processed/cross_source/
+/data/kg/cross_source/
 # Exploratory gpt-5.5 evidence-handling pilot runs (10/100 records, prompt
 # variants not recorded); not formal thesis artifacts. Summarized inline if
 # referenced rather than tracked.

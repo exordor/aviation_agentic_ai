@@ -42,6 +42,9 @@ web = [
 ontogpt = [
   "ontogpt>=1.1",
 ]
+neo4j = [
+  "neo4j>=6.0,<7",
+]
 dev = [
   "pytest>=8.0",
   "ruff>=0.6",

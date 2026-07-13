@@ -1,0 +1,61 @@
+snapshot_set_id: cross-source-2026-05-v1
+
+cohort:
+  advisory_input: data/processed/nasa_atmonto/aligned/2026-05-14/atcscc_advisories.jsonl
+  airport_codes: [JFK, EWR, LGA, KJFK, KEWR, KLGA]
+  expected_record_count: 68
+
+sources:
+  atcscc_advisories: data/processed/nasa_atmonto/aligned/2026-05-14/atcscc_advisories.jsonl
+  stationinfo: data/processed/nasa_atmonto/source/2026-05-14/aviationweather_stationinfo.jsonl
+  metar: data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_metar.jsonl
+  taf: data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_taf.jsonl
+  nasr_zip: data/raw/nasa_atmonto/2026-05-14/faa_nasr/28DaySubscription_Effective_2026-05-14.zip
+  nasr_manifest: data/raw/nasa_atmonto/2026-05-14/faa_nasr/manifest.json
+  pilot_controller_glossary: data/raw/nasa_atmonto/2026-06-01/faa_reference_documents/PCG_Bsc_w_Chg_1_and_2_dtd_1-22-26.pdf
+  term_seed: data/sources/faa_atcscc_terms_v1.yaml
+
+source_metadata:
+  atcscc_advisories:
+    effective_start: 2026-05-14
+  aviationweather:
+    effective_start: 2026-05-14
+  faa_nasr:
+    effective_start: 2026-05-14
+  faa_pilot_controller_glossary:
+    effective_start: 2026-01-22
+  faa_atcscc_terms:
+    effective_start: 2026-03-19
+
+source_urls:
+  faa_atcscc: https://www.fly.faa.gov/adv/advADB.jsp
+  faa_contractions: https://www.faa.gov/regulations_policies/orders_notices/index.cfm/go/document.current/documentNumber/7340.2
+  faa_pilot_controller_glossary: https://www.faa.gov/air_traffic/publications/atpubs/pcg_html/
+  faa_tmi_glossary: https://www.fly.faa.gov/fly/FAQ/Acronyms/acronyms.html
+  faa_nasr: https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/2026-05-14
+  aviationweather: https://connect.aviationweather.gov/data/api/
+
+authority_priority:
+  facility: [faa_nasr, aviationweather_stationinfo, nasa_atmonto]
+  terminology: [faa_jo_7340_2, faa_pilot_controller_glossary, faa_tmi_glossary]
+
+alignment:
+  context_accept_threshold: 0.90
+  minimum_candidate_margin: 0.20
+  quarantine_threshold: 0.60
+  reject_out_of_registry_targets: true
+
+temporal_linking:
+  metar_before_minutes: 60
+  metar_after_minutes: 60
+  require_taf_validity_overlap: true
+
+answering:
+  require_citations: true
+  forbid_inferred_causality: true
+  require_evidence_layers: true
+
+paths:
+  processed_root: data/processed/cross_source/cross-source-2026-05-v1
+  kg_root: data/kg/cross_source/cross-source-2026-05-v1
+  evaluation_root: data/evaluation/cross_source/v1

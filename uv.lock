@@ -323,6 +323,9 @@ graphrag = [
     { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sentence-transformers" },
 ]
+neo4j = [
+    { name = "neo4j" },
+]
 ontogpt = [
     { name = "ontogpt" },
 ]
@@ -346,6 +349,7 @@ requires-dist = [
     { name = "langchain", marker = "extra == 'ontology-generation'", specifier = ">=0.2" },
     { name = "langchain-openai", marker = "extra == 'ontology-generation'", specifier = ">=0.1" },
     { name = "langgraph", marker = "extra == 'ontology-generation'", specifier = ">=0.2" },
+    { name = "neo4j", marker = "extra == 'neo4j'", specifier = ">=6.0,<7" },
     { name = "networkx", marker = "extra == 'graphrag'", specifier = ">=3.2" },
     { name = "ontogpt", marker = "extra == 'ontogpt'", specifier = ">=1.1" },
     { name = "pdfplumber", specifier = ">=0.11.9" },
@@ -363,7 +367,7 @@ requires-dist = [
     { name = "tenacity", specifier = ">=9.1" },
     { name = "uvicorn", marker = "extra == 'web'", specifier = ">=0.30" },
 ]
-provides-extras = ["ontology-generation", "graphrag", "web", "ontogpt", "dev"]
+provides-extras = ["ontology-generation", "graphrag", "web", "ontogpt", "neo4j", "dev"]
 
 [[package]]
 name = "babel"
@@ -3346,6 +3350,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2d/e8/67d1ee6839980a56a2b0b10a1e2a30e701f133ddbecf7d50ccd6bd76b943/ndex2-3.11.0.tar.gz", hash = "sha256:3fbf4d96254f0e85a2162c9f77d970687fe5a41622671a553111238e81350512", size = 236514, upload-time = "2025-07-23T16:55:59.364Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1b/cb/091207dc0927363e48b2f92f79a8d8551a237842f535a8141ec533a16068/ndex2-3.11.0-py2.py3-none-any.whl", hash = "sha256:cafb2efa38e9faf3f7e47805429d2498cfd127b5a452df020bf3c8e199c9c072", size = 78233, upload-time = "2025-07-23T16:55:56.503Z" },
+]
+
+[[package]]
+name = "neo4j"
+version = "6.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ce/f4/aaa4ac19adae4b01bc742b63afd2672a77e7351566f02721e713e4b863ee/neo4j-6.2.0.tar.gz", hash = "sha256:e1e246b65b572bd8ea97f9e0e721b7d40a5ce53e53d0007c29aef63e4f9124d9", size = 241459, upload-time = "2026-05-04T07:35:41.428Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e6/cf/1c3795866cefaac6e648d4e98c373cafd97810f6e317c307371007ab4abb/neo4j-6.2.0-py3-none-any.whl", hash = "sha256:b87abdd13a5cc2e3bd51026926c2f20ac38fa3febe98c340520dce19e97388d0", size = 327824, upload-time = "2026-05-04T07:35:39.604Z" },
 ]
 
 [[package]]

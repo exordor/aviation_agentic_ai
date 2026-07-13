@@ -1,0 +1,106 @@
+version: faa-atcscc-terms-v1
+effective_date: 2026-03-19
+terms:
+  - abbreviation: ADVZY
+    preferred_label: Advisory
+    category: status_or_action
+    aliases: [ADZY]
+    source_refs: [faa_tmi_glossary, faa_jo_7340_2]
+  - abbreviation: AFP
+    preferred_label: Airspace Flow Program
+    category: traffic_management_initiative
+    denotes_schema_term: atm:AirspaceFlowProgramTMI
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: ARTCC
+    preferred_label: Air Route Traffic Control Center
+    category: facility_type
+    denotes_schema_term: nas:ARTCC
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: ATCSCC
+    preferred_label: Air Traffic Control System Command Center
+    category: facility_type
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: CDM
+    preferred_label: Collaborative Decision Making
+    category: flow_management
+    source_refs: [faa_tmi_glossary]
+  - abbreviation: CNX
+    preferred_label: Cancelled
+    category: status_or_action
+    aliases: [CANCELLED, CANCELED]
+    source_refs: [faa_jo_7340_2]
+  - abbreviation: CTOP
+    preferred_label: Collaborative Trajectory Options Program
+    category: traffic_management_initiative
+    source_refs: [faa_pilot_controller_glossary]
+  - abbreviation: EDCT
+    preferred_label: Expect Departure Clearance Time
+    category: flow_management
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: FCA
+    preferred_label: Flow Constrained Area
+    category: route_or_airspace
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: FEA
+    preferred_label: Flow Evaluation Area
+    category: route_or_airspace
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: GDP
+    preferred_label: Ground Delay Program
+    category: traffic_management_initiative
+    denotes_schema_term: atm:GroundDelayProgramTMI
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: GS
+    preferred_label: Ground Stop
+    category: traffic_management_initiative
+    denotes_schema_term: atm:GroundStopTMI
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: GS
+    preferred_label: Glide Slope
+    category: operational_procedure
+    source_refs: [faa_pilot_controller_glossary]
+  - abbreviation: MIT
+    preferred_label: Miles in Trail
+    category: traffic_management_initiative
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: MINIT
+    preferred_label: Minutes in Trail
+    category: traffic_management_initiative
+    source_refs: [faa_tmi_glossary]
+  - abbreviation: NAS
+    preferred_label: National Airspace System
+    category: route_or_airspace
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: NRP
+    preferred_label: North American Route Program
+    category: operational_procedure
+    source_refs: [faa_pilot_controller_glossary]
+  - abbreviation: RR
+    preferred_label: Required Reroute
+    category: traffic_management_initiative
+    source_refs: [faa_tmi_glossary]
+  - abbreviation: RQD
+    preferred_label: Required
+    category: status_or_action
+    source_refs: [faa_jo_7340_2]
+  - abbreviation: SWAP
+    preferred_label: Severe Weather Avoidance Plan
+    category: traffic_management_initiative
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: TMI
+    preferred_label: Traffic Management Initiative
+    category: traffic_management_initiative
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: TMU
+    preferred_label: Traffic Management Unit
+    category: facility_type
+    source_refs: [faa_tmi_glossary, faa_pilot_controller_glossary]
+  - abbreviation: TSTMS
+    preferred_label: Thunderstorms
+    category: weather
+    aliases: [TS, TSRA]
+    source_refs: [faa_jo_7340_2]
+  - abbreviation: WX
+    preferred_label: Weather
+    category: weather
+    source_refs: [faa_jo_7340_2]

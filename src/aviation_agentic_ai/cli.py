@@ -76,6 +76,22 @@ TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
         "help": "Source ingestion commands.",
         "subcommands": ("ingest-nasa",),
     },
+    {
+        "module": "aviation_agentic_ai.cli_cross_source",
+        "attribute": "cross_source_group",
+        "name": "cross-source",
+        "help": "Versioned abbreviation alignment and retrospective cross-source QA.",
+        "subcommands": (
+            "refresh",
+            "align",
+            "build",
+            "neo4j-export",
+            "neo4j-load",
+            "answer",
+            "evaluate",
+            "evaluate-mainline",
+        ),
+    },
 )
 
 REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
