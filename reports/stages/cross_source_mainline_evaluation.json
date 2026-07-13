@@ -1,0 +1,2833 @@
+{
+  "ambiguity_challenge": {
+    "cases": [
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Ground Stop",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:f5313e25d80874a0",
+            "method": "context_agent",
+            "rationale": "Matched: traffic-management GS syntax",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:f5313e25d80874a0",
+            "method": "context_agent",
+            "rationale": "No glide-slope cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          }
+        ],
+        "case_id": "gs-ground-01",
+        "category": "ground_stop",
+        "expected_status": "accepted",
+        "expected_target_label": "Ground Stop",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "CDM GS FOR EWR"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Ground Stop",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:f6c94c0d5d1ff658",
+            "method": "context_agent",
+            "rationale": "Matched: traffic-management GS syntax",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:f6c94c0d5d1ff658",
+            "method": "context_agent",
+            "rationale": "No glide-slope cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          }
+        ],
+        "case_id": "gs-ground-02",
+        "category": "ground_stop",
+        "expected_status": "accepted",
+        "expected_target_label": "Ground Stop",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "ATCSCC GS FOR JFK"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Ground Stop",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:2c05296d92662da3",
+            "method": "context_agent",
+            "rationale": "Matched: GS cancellation syntax",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:2c05296d92662da3",
+            "method": "context_agent",
+            "rationale": "No glide-slope cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          }
+        ],
+        "case_id": "gs-ground-03",
+        "category": "ground_stop",
+        "expected_status": "accepted",
+        "expected_target_label": "Ground Stop",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "GS CNX FOR LGA"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Ground Stop",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:ad431ecd96ddcc61",
+            "method": "context_agent",
+            "rationale": "Matched: GS cancellation syntax",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:ad431ecd96ddcc61",
+            "method": "context_agent",
+            "rationale": "No glide-slope cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          }
+        ],
+        "case_id": "gs-ground-04",
+        "category": "ground_stop",
+        "expected_status": "accepted",
+        "expected_target_label": "Ground Stop",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "GS CANCELLED FOR EWR"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Ground Stop",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:2a70d02ab57760e4",
+            "method": "context_agent",
+            "rationale": "Matched: GS cancellation syntax",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:2a70d02ab57760e4",
+            "method": "context_agent",
+            "rationale": "No glide-slope cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          }
+        ],
+        "case_id": "gs-ground-05",
+        "category": "ground_stop",
+        "expected_status": "accepted",
+        "expected_target_label": "Ground Stop",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "GS CANCELLATION NOTICE FOR JFK"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Ground Stop",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:25fdc5c0da83ea2f",
+            "method": "context_agent",
+            "rationale": "Matched: TMI control field",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:25fdc5c0da83ea2f",
+            "method": "context_agent",
+            "rationale": "No glide-slope cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          }
+        ],
+        "case_id": "gs-ground-06",
+        "category": "ground_stop",
+        "expected_status": "accepted",
+        "expected_target_label": "Ground Stop",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "EWR GS; CTL ELEMENT EWR"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Ground Stop",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:b5cd192c0e7276dc",
+            "method": "context_agent",
+            "rationale": "Matched: TMI control field",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:b5cd192c0e7276dc",
+            "method": "context_agent",
+            "rationale": "No glide-slope cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          }
+        ],
+        "case_id": "gs-ground-07",
+        "category": "ground_stop",
+        "expected_status": "accepted",
+        "expected_target_label": "Ground Stop",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "DEP FACILITIES EWR; GS IN EFFECT"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Ground Stop",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:58e10e8b0ad90ada",
+            "method": "context_agent",
+            "rationale": "Matched: TMI control field",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:58e10e8b0ad90ada",
+            "method": "context_agent",
+            "rationale": "No glide-slope cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          }
+        ],
+        "case_id": "gs-ground-08",
+        "category": "ground_stop",
+        "expected_status": "accepted",
+        "expected_target_label": "Ground Stop",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "GROUND DELAY PROGRAM; GS FOR JFK"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:5dae3fbf1f9b3b4a",
+            "method": "context_agent",
+            "rationale": "Matched: instrument-approach context",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:5dae3fbf1f9b3b4a",
+            "method": "context_agent",
+            "rationale": "No traffic-management cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-glide-01",
+        "category": "glide_slope",
+        "expected_status": "accepted",
+        "expected_target_label": "Glide Slope",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "ILS GS OUT OF SERVICE"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:7e3dec8d26bb156d",
+            "method": "context_agent",
+            "rationale": "Matched: instrument-approach context",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:7e3dec8d26bb156d",
+            "method": "context_agent",
+            "rationale": "No traffic-management cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-glide-02",
+        "category": "glide_slope",
+        "expected_status": "accepted",
+        "expected_target_label": "Glide Slope",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "LOCALIZER GS CHECK"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:906a56f39101c7f7",
+            "method": "context_agent",
+            "rationale": "Matched: instrument-approach context",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:906a56f39101c7f7",
+            "method": "context_agent",
+            "rationale": "No traffic-management cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-glide-03",
+        "category": "glide_slope",
+        "expected_status": "accepted",
+        "expected_target_label": "Glide Slope",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "INSTRUMENT APPROACH GS UNAVAILABLE"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:88e4035643a65f81",
+            "method": "context_agent",
+            "rationale": "Matched: instrument-approach context",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:88e4035643a65f81",
+            "method": "context_agent",
+            "rationale": "No traffic-management cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-glide-04",
+        "category": "glide_slope",
+        "expected_status": "accepted",
+        "expected_target_label": "Glide Slope",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "ILS APPROACH; GS MONITORED"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:16f78e5306662313",
+            "method": "context_agent",
+            "rationale": "Matched: instrument-approach context",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:16f78e5306662313",
+            "method": "context_agent",
+            "rationale": "No traffic-management cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-glide-05",
+        "category": "glide_slope",
+        "expected_status": "accepted",
+        "expected_target_label": "Glide Slope",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "LOCALIZER STATUS: GS NORMAL"
+      },
+      {
+        "actual_status": "accepted",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.96,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.98,
+            "mention_id": "mention:463a7f6f5bc287d1",
+            "method": "context_agent",
+            "rationale": "Matched: instrument-approach context",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.02,
+            "mention_id": "mention:463a7f6f5bc287d1",
+            "method": "context_agent",
+            "rationale": "No traffic-management cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-glide-06",
+        "category": "glide_slope",
+        "expected_status": "accepted",
+        "expected_target_label": "Glide Slope",
+        "gate_score": 0.98,
+        "status_match": true,
+        "target_match": true,
+        "text": "INSTRUMENT APPROACH EQUIPMENT GS TEST"
+      },
+      {
+        "actual_status": "quarantined",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.0,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:90e85638e47b3598",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:90e85638e47b3598",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-neutral-01",
+        "category": "neutral",
+        "expected_status": "quarantined",
+        "expected_target_label": null,
+        "gate_score": 0.5,
+        "status_match": true,
+        "target_match": null,
+        "text": "REFERENCE GS STATUS"
+      },
+      {
+        "actual_status": "quarantined",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.0,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:8ebc79925c030726",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:8ebc79925c030726",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-neutral-02",
+        "category": "neutral",
+        "expected_status": "quarantined",
+        "expected_target_label": null,
+        "gate_score": 0.5,
+        "status_match": true,
+        "target_match": null,
+        "text": "GS INFORMATION UPDATE"
+      },
+      {
+        "actual_status": "quarantined",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.0,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:2d2ad5ae3b64ab25",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:2d2ad5ae3b64ab25",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-neutral-03",
+        "category": "neutral",
+        "expected_status": "quarantined",
+        "expected_target_label": null,
+        "gate_score": 0.5,
+        "status_match": true,
+        "target_match": null,
+        "text": "VERIFY GS ENTRY"
+      },
+      {
+        "actual_status": "quarantined",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.0,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:839e69b04e4167e0",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:839e69b04e4167e0",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-conflict-01",
+        "category": "conflicting",
+        "expected_status": "quarantined",
+        "expected_target_label": null,
+        "gate_score": 0.5,
+        "status_match": true,
+        "target_match": null,
+        "text": "ATCSCC GS NOTICE; ILS EQUIPMENT"
+      },
+      {
+        "actual_status": "quarantined",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.0,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:6605bbd773b2bded",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:6605bbd773b2bded",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-conflict-02",
+        "category": "conflicting",
+        "expected_status": "quarantined",
+        "expected_target_label": null,
+        "gate_score": 0.5,
+        "status_match": true,
+        "target_match": null,
+        "text": "CDM GS FOR EWR; LOCALIZER CHECK"
+      },
+      {
+        "actual_status": "quarantined",
+        "actual_target_label": "Glide Slope",
+        "candidate_margin": 0.0,
+        "candidates": [
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:ced93e9f6a502775",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:operational_procedure:GS",
+            "target_label": "Glide Slope",
+            "target_type": "operational_procedure"
+          },
+          {
+            "authority_sources": [
+              "faa_pilot_controller_glossary",
+              "faa_tmi_glossary"
+            ],
+            "gate_score": 0.5,
+            "mention_id": "mention:ced93e9f6a502775",
+            "method": "context_agent",
+            "rationale": "No discriminating context cue matched.",
+            "target_id": "urn:aviation-agentic-ai:term:traffic_management_initiative:GS",
+            "target_label": "Ground Stop",
+            "target_type": "traffic_management_initiative"
+          }
+        ],
+        "case_id": "gs-conflict-03",
+        "category": "conflicting",
+        "expected_status": "quarantined",
+        "expected_target_label": null,
+        "gate_score": 0.5,
+        "status_match": true,
+        "target_match": null,
+        "text": "GS CNX; INSTRUMENT APPROACH EQUIPMENT"
+      }
+    ],
+    "challenge_role": "authored hard-case evaluation, not external expert gold",
+    "snapshot_set_id": "cross-source-2026-05-v1",
+    "summary": {
+      "accepted_target_accuracy": 1.0,
+      "accepted_target_cases": 14,
+      "cases": 20,
+      "out_of_registry_acceptance_count": 0,
+      "quarantine_accuracy": 1.0,
+      "quarantine_cases": 6
+    }
+  },
+  "answer_baselines": {
+    "benchmark_role": "matched component evaluation, not independent semantic gold",
+    "cases": [
+      {
+        "case_id": "cs-v1-ewr-01",
+        "question": "What does the advisory state about EWR, and which METAR observations and TAF forecasts are associated by facility and time?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-14:059",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-ewr-02",
+        "question": "For EWR in this retrospective advisory, separate the FAA source statement from contemporaneous METAR and overlapping TAF evidence.",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-17:037",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-ewr-03",
+        "question": "What does GS mean in this EWR advisory, and what cross-source weather evidence supports that interpretation?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-19:139",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": false,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": false,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": true,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-ewr-04",
+        "question": "What did ATCSCC report for the EWR GDP cancellation, and what observation and forecast records overlap it?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:020",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-ewr-05",
+        "question": "For this EWR SWAP advisory, distinguish the advisory claim, contemporaneous observations, forecasts, and system-created associations.",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:084",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-ewr-06",
+        "question": "What did ATCSCC state about EWR weather and SWAP, and what METAR and TAF evidence is associated without claiming causation?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:089",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-ewr-07",
+        "question": "Summarize the retrospective EWR GDP source statement and list the facility- and time-matched METAR and TAF evidence separately.",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:149",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-ewr-08",
+        "question": "Which source statement and weather records can be connected to EWR in this advisory, and what are the limits of that connection?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:184",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-jfk-01",
+        "question": "What does the advisory state about JFK, and which METAR observations and TAF forecasts overlap by accepted facility identity and time?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-17:043",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-jfk-02",
+        "question": "For the JFK TMI advisory, separate the ATCSCC assertion, observation evidence, forecast evidence, and non-causal system associations.",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-17:045",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-jfk-03",
+        "question": "What did the source say about the JFK and EWR SWAP situation, and what linked weather evidence is available for the accepted airport mappings?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-19:050",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-jfk-04",
+        "question": "What does GS mean in this JFK advisory, and can the system use that expansion in a cross-source answer?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-19:138",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": false,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": false,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": true,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-jfk-05",
+        "question": "What did ATCSCC state for the JFK GDP cancellation, and which observations and forecasts are associated during its interval?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:030",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-jfk-06",
+        "question": "For the KJFK, KEWR, and KLGA MIT advisory, what source assertion and cross-source weather evidence can be reported without causal overstatement?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:100",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-jfk-07",
+        "question": "Summarize the JFK GDP source statement and keep the matching METAR, TAF, and system-association evidence in separate layers.",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:159",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-jfk-08",
+        "question": "What retrospective source and weather evidence is linked to JFK in this advisory, and why is the link not proof of causation?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:165",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-lga-01",
+        "question": "What does the advisory state about LGA, and which METAR observations and TAF forecasts are associated by accepted facility and temporal rules?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-16:045",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-lga-02",
+        "question": "For this LGA advisory, distinguish the FAA source assertion from observation, forecast, and system-association evidence.",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-17:014",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-lga-03",
+        "question": "What does GS mean in this LGA advisory, and should the abbreviation enter the canonical KG or answer?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-19:140",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": false,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": false,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": true,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-lga-04",
+        "question": "How should GS be interpreted for the JFK and LGA advisory, and what weather evidence supports the interpretation?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:016",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": false,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": false,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": true,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-lga-05",
+        "question": "What did ATCSCC report for the LGA GDP cancellation, and what METAR and TAF records overlap it?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:025",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-lga-06",
+        "question": "Summarize the LGA GDP source statement and list contemporaneous observations, forecasts, and non-causal associations separately.",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:115",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-lga-07",
+        "question": "For the KEWR, KJFK, and KLGA TMI advisory, what cross-source evidence can be linked and what can the system not infer?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:137",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      },
+      {
+        "case_id": "cs-v1-lga-08",
+        "question": "Which source assertion and weather records are associated with LGA in this advisory, and how should correlation be described?",
+        "required_evidence_layers": [
+          "forecast",
+          "observation",
+          "source_assertion",
+          "system_association"
+        ],
+        "source_id": "2026-05-20:185",
+        "systems": {
+          "B0_source_only": {
+            "abstain": false,
+            "cited_layers": [
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [
+              "non-abstaining answer is missing observation/forecast evidence"
+            ],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.25,
+            "required_evidence_layer_coverage": 0.25
+          },
+          "B1_linked_text": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion"
+            ],
+            "required_citation_layer_coverage": 0.75,
+            "required_evidence_layer_coverage": 0.75
+          },
+          "S_cross_source_kg": {
+            "abstain": false,
+            "cited_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "evidence_critic_errors": [],
+            "expected_abstain_match": true,
+            "expected_alignment_match": null,
+            "present_layers": [
+              "forecast",
+              "observation",
+              "source_assertion",
+              "system_association"
+            ],
+            "required_citation_layer_coverage": 1.0,
+            "required_evidence_layer_coverage": 1.0
+          }
+        }
+      }
+    ],
+    "snapshot_set_id": "cross-source-2026-05-v1",
+    "systems": {
+      "B0_source_only": {
+        "alignment_explanation_accuracy": 0.0,
+        "cases": 24,
+        "causal_overstatement_count": 0,
+        "evidence_critic_failures": 24,
+        "expected_abstain_accuracy": 1.0,
+        "required_citation_layer_coverage": 0.25,
+        "required_evidence_layer_coverage": 0.25
+      },
+      "B1_linked_text": {
+        "alignment_explanation_accuracy": 0.0,
+        "cases": 24,
+        "causal_overstatement_count": 0,
+        "evidence_critic_failures": 0,
+        "expected_abstain_accuracy": 1.0,
+        "required_citation_layer_coverage": 0.75,
+        "required_evidence_layer_coverage": 0.75
+      },
+      "S_cross_source_kg": {
+        "alignment_explanation_accuracy": 1.0,
+        "cases": 24,
+        "causal_overstatement_count": 0,
+        "evidence_critic_failures": 0,
+        "expected_abstain_accuracy": 1.0,
+        "required_citation_layer_coverage": 1.0,
+        "required_evidence_layer_coverage": 1.0
+      }
+    }
+  },
+  "independent_answer_audit": {
+    "cases": [
+      {
+        "case_id": "cs-v1-ewr-01",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-14:059",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-ewr-02",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-17:037",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-ewr-03",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-19:139",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-ewr-04",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:020",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-ewr-05",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:084",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-ewr-06",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:089",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-ewr-07",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:149",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-ewr-08",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:184",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-jfk-01",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-17:043",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-jfk-02",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-17:045",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-jfk-03",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-19:050",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-jfk-04",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-19:138",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-jfk-05",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:030",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-jfk-06",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:100",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-jfk-07",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:159",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-jfk-08",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:165",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-lga-01",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-16:045",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-lga-02",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-17:014",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-lga-03",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-19:140",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-lga-04",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:016",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-lga-05",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:025",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-lga-06",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:115",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-lga-07",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:137",
+        "verdict": "pass"
+      },
+      {
+        "case_id": "cs-v1-lga-08",
+        "checks": {
+          "all_statements_cited": true,
+          "evidence_critic_pass": true,
+          "expected_abstain_match": true,
+          "expected_alignment_match": true,
+          "layer_separation": true,
+          "source_evidence_exact": true,
+          "system_links_registered": true,
+          "weather_sources_registered": true
+        },
+        "source_id": "2026-05-20:185",
+        "verdict": "pass"
+      }
+    ],
+    "evaluator": "independent deterministic Evaluation Agent",
+    "review_boundary": "Independent evidence and policy audit; not external aviation-expert certification.",
+    "snapshot_set_id": "cross-source-2026-05-v1",
+    "summary": {
+      "cases": 24,
+      "failed": 0,
+      "pass_rate": 1.0,
+      "passed": 24
+    }
+  },
+  "snapshot_set_id": "cross-source-2026-05-v1"
+}

@@ -1,0 +1,20 @@
+{"case_id":"gs-ground-01","category":"ground_stop","text":"CDM GS FOR EWR","expected_status":"accepted","expected_target_label":"Ground Stop"}
+{"case_id":"gs-ground-02","category":"ground_stop","text":"ATCSCC GS FOR JFK","expected_status":"accepted","expected_target_label":"Ground Stop"}
+{"case_id":"gs-ground-03","category":"ground_stop","text":"GS CNX FOR LGA","expected_status":"accepted","expected_target_label":"Ground Stop"}
+{"case_id":"gs-ground-04","category":"ground_stop","text":"GS CANCELLED FOR EWR","expected_status":"accepted","expected_target_label":"Ground Stop"}
+{"case_id":"gs-ground-05","category":"ground_stop","text":"GS CANCELLATION NOTICE FOR JFK","expected_status":"accepted","expected_target_label":"Ground Stop"}
+{"case_id":"gs-ground-06","category":"ground_stop","text":"EWR GS; CTL ELEMENT EWR","expected_status":"accepted","expected_target_label":"Ground Stop"}
+{"case_id":"gs-ground-07","category":"ground_stop","text":"DEP FACILITIES EWR; GS IN EFFECT","expected_status":"accepted","expected_target_label":"Ground Stop"}
+{"case_id":"gs-ground-08","category":"ground_stop","text":"GROUND DELAY PROGRAM; GS FOR JFK","expected_status":"accepted","expected_target_label":"Ground Stop"}
+{"case_id":"gs-glide-01","category":"glide_slope","text":"ILS GS OUT OF SERVICE","expected_status":"accepted","expected_target_label":"Glide Slope"}
+{"case_id":"gs-glide-02","category":"glide_slope","text":"LOCALIZER GS CHECK","expected_status":"accepted","expected_target_label":"Glide Slope"}
+{"case_id":"gs-glide-03","category":"glide_slope","text":"INSTRUMENT APPROACH GS UNAVAILABLE","expected_status":"accepted","expected_target_label":"Glide Slope"}
+{"case_id":"gs-glide-04","category":"glide_slope","text":"ILS APPROACH; GS MONITORED","expected_status":"accepted","expected_target_label":"Glide Slope"}
+{"case_id":"gs-glide-05","category":"glide_slope","text":"LOCALIZER STATUS: GS NORMAL","expected_status":"accepted","expected_target_label":"Glide Slope"}
+{"case_id":"gs-glide-06","category":"glide_slope","text":"INSTRUMENT APPROACH EQUIPMENT GS TEST","expected_status":"accepted","expected_target_label":"Glide Slope"}
+{"case_id":"gs-neutral-01","category":"neutral","text":"REFERENCE GS STATUS","expected_status":"quarantined","expected_target_label":null}
+{"case_id":"gs-neutral-02","category":"neutral","text":"GS INFORMATION UPDATE","expected_status":"quarantined","expected_target_label":null}
+{"case_id":"gs-neutral-03","category":"neutral","text":"VERIFY GS ENTRY","expected_status":"quarantined","expected_target_label":null}
+{"case_id":"gs-conflict-01","category":"conflicting","text":"ATCSCC GS NOTICE; ILS EQUIPMENT","expected_status":"quarantined","expected_target_label":null}
+{"case_id":"gs-conflict-02","category":"conflicting","text":"CDM GS FOR EWR; LOCALIZER CHECK","expected_status":"quarantined","expected_target_label":null}
+{"case_id":"gs-conflict-03","category":"conflicting","text":"GS CNX; INSTRUMENT APPROACH EQUIPMENT","expected_status":"quarantined","expected_target_label":null}
