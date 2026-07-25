@@ -47,6 +47,7 @@
 | --- | --- |
 | `reports/archive/` | Local archive of obsolete stage reports; keep out of thesis-writing context. |
 | `outputs/` | Runtime outputs and scratch material that may combine multiple branches or stale experiments. |
+| `data/runs/agent_system/` | Versioned local Agent runs containing regenerable graph artifacts and raw provider responses; keep out of default Git and model context. |
 | `reports/stages/paper_figure_gallery.html` and gallery manifests | Local visual-comparison pages generated during paper review; useful for inspection, not thesis evidence. |
 
 ## Artifact Management Policy
@@ -66,6 +67,10 @@ large, environment-specific, or easy to rebuild: raw NASA ATMONTO snapshots unde
 `data/experiments/nasa_atmonto/formal/smoke/`; vector indexes, chunks, local
 paper PDFs, temporary PDF extraction assets, gallery HTML/manifest files,
 historical local archives under `reports/archive/`, and `outputs/`.
+Versioned multi-Agent KG runtime directories under `data/runs/agent_system/`
+are also ignored because they are regenerable and may contain raw provider
+responses. Durable evidence from a selected run should be summarized in a
+small tracked report rather than committing the entire run directory.
 
 Cross-source normalized registries, decisions, links, RDF graphs, and Neo4j
 property-graph projections under
