@@ -92,6 +92,13 @@ TOP_LEVEL_COMMANDS: tuple[dict[str, Any], ...] = (
             "evaluate-mainline",
         ),
     },
+    {
+        "module": "aviation_agentic_ai.cli_agent_system",
+        "attribute": "agent_system",
+        "name": "agent-system",
+        "help": "Multi-Agent aviation event knowledge system (ingest / neo4j-export / ask).",
+        "subcommands": ("ingest", "neo4j-export", "ask"),
+    },
 )
 
 REPORT_REGISTRARS: tuple[dict[str, Any], ...] = (
