@@ -616,3 +616,112 @@ model execution, ontology changes, prompt changes, commits, or pushes.
 ```text
 TASK|run=formal-graph-kernel-20260726|task=fact-level-evidence-correction|depends_on=batch-one-checkpoint-review|inputs=docs/agent_system_formal_graph_kernel_execution_plan.md#11,current-batch-one-diff|scope=batch-one-allowed-files-only|produces=fact-specific-evidence-binding,exact-facility-and-term-evidence,adversarial-regressions,explicit-impacting-condition-profile-gap|accept=section-11-adversarial-tests+section-5.6-commands|on_deviation=BLOCKED|reply=CHECKPOINT-or-BLOCKED
 ```
+
+## 12. Codex Checkpoint Review: Full-Date Binding and Useful Model Calls
+
+Status: correction required before the batch-one implementation can be
+committed
+Review date: 2026-07-26
+
+### Current objective
+
+Close the two remaining contract-level failures in the fixed Ground Stop path:
+
+1. a time fact must bind to the complete source date and time, not merely the
+   day and clock time;
+2. a model call must have a defined effect on an Agent result. The system must
+   not pay for an Advisory Agent response that is discarded.
+
+These are Critical Path corrections. They can change whether a false fact is
+published and whether the registered three-call vertical slice is respected.
+RDF, Neo4j, Query, and live execution remain unauthorized.
+
+### Independently reproduced failures
+
+The source record and title identify `2026-05-19`, and the source period says
+`19/2100Z`. The current normalizer reduces both the source and proposed value to
+`19T21:00`. Consequently both of these false patch values are accepted and the
+result is marked `publishable=True`:
+
+```text
+2026-06-19T21:00:00Z
+2027-05-19T21:00:00Z
+```
+
+The same checkpoint also leaves a complete structured advisory on the
+unconditional model-call path. A fake invoker receives one Advisory Agent call
+even though all fixed fields were parsed, and its response is not used in any
+claim. This contradicts the registered final vertical slice, which permits only
+two Knowledge Graph Construction Agent calls and one supported Query Agent
+call.
+
+Finally, a rejected `atm:impactingCondition` patch row is not an explicit
+profile gap. It is a `RejectedFact` and makes the patch non-publishable. The
+fixed case must demonstrate a parsed, source-supported `PROFILE_GAPS` entry;
+the checkpoint must not describe a domain rejection as if it were that entry.
+
+### Minimum correction
+
+#### Complete date-time binding
+
+- Anchor advisory period tokens to the full date already present in source
+  metadata or the advisory header before they become EvidenceClaim values.
+- Preserve the raw source substring separately as `evidence_text`.
+- Compare complete normalized UTC timestamps in the Formal Graph Kernel.
+- Do not discard year or month during comparison.
+- If a raw period cannot be anchored to one full date deterministically, omit
+  that time claim and abstain on the corresponding fact. Do not guess.
+- Keep the conversion in the deterministic advisory parsing/source layer. The
+  Formal Graph Kernel consumes canonical claim values; it must not infer a
+  missing calendar context from a proposed patch.
+
+The current vertical slice needs only the fixed, unambiguous
+`2026-05-19:123` case. Do not generalize the correction into a new temporal
+framework.
+
+#### Advisory Agent invocation policy
+
+- A complete deterministic parse of the fixed record makes zero Advisory Agent
+  model calls.
+- Do not call a model when its response is not consumed by a bounded output
+  parser and cannot change the EvidenceCard.
+- For this vertical slice, an incomplete or ambiguous deterministic parse may
+  abstain without a model call. A future model-assisted fallback is deferred
+  until its output contract and consumer are explicitly designed.
+- Keep the existing prompt text and few-shot examples unchanged. This is a
+  runtime policy correction, not prompt tuning.
+- The expected final live budget remains exactly three successful provider
+  calls: two graph-construction calls and one supported query call.
+
+#### Explicit profile-gap evidence
+
+- Add a fixed-case fixture whose `PROFILE_GAPS` section contains the real
+  `impacting_condition`, normalized value, exact source evidence, and a short
+  schema-mapping reason.
+- Assert that it parses as one `ProfileGap` and is not represented as a formal
+  Ground Stop fact.
+- Assert that the profile-gap evidence is a verbatim source substring.
+- Do not change the frozen ontology slice and do not reinterpret a rejected
+  graph row as a profile gap.
+
+### Required regression tests
+
+- Exact `2026-05-19T21:00:00Z` binds and remains publishable.
+- `2026-06-19T21:00:00Z` is rejected.
+- `2027-05-19T21:00:00Z` is rejected.
+- A value with the wrong day or clock time remains rejected.
+- The complete fixed advisory makes zero Advisory Agent model calls.
+- No no-op model response is recorded in the fixed ingest ledger.
+- The fixed `impacting_condition` appears as one source-contained
+  `ProfileGap`, not as an accepted fact or a domain-rejection substitute.
+- All fact-level binding tests from Section 11 continue to pass.
+
+### Success and stop condition
+
+Run the focused batch-one tests, the full test suite, Ruff, and
+`git diff --check`. Return one `CHECKPOINT` only after the new adversarial tests
+pass. Do not start batch two and do not commit or push.
+
+```text
+TASK|run=formal-graph-kernel-20260726|task=full-date-and-call-policy-correction|depends_on=fact-level-evidence-checkpoint-review|inputs=docs/agent_system_formal_graph_kernel_execution_plan.md#12,current-batch-one-diff|scope=batch-one-allowed-files-only|produces=full-date-evidence-values,strict-time-binding,zero-noop-advisory-calls,explicit-source-supported-profile-gap,regression-tests|accept=section-12-regressions+section-11-regressions+section-5.6-commands|on_deviation=BLOCKED|reply=CHECKPOINT-or-BLOCKED
+```
