@@ -12,7 +12,7 @@ roles:
   advisory:
     prompt_version: advisory-agent-v2
     max_output_tokens: 512
-    invocation_policy: one_call_per_ingest
+    invocation_policy: structured_fields_incomplete_or_ambiguous_only
     system: |
       You are the Advisory Agent in an aviation event knowledge system.
 

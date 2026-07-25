@@ -158,3 +158,54 @@ def get_llm(
         )
 
     raise ValueError(f"Unsupported LLM_PROVIDER: {provider}")
+
+
+def get_deepseek_mve_llm(
+    *,
+    model: str,
+    temperature: float = 0.0,
+    max_tokens: int = 512,
+    timeout: float | None = 120.0,
+    max_retries: int = 0,
+) -> "BaseChatModel":
+    """Bind the EXACT frozen DeepSeek model for the agent-system mainline.
+
+    Pins the model id explicitly and refuses to run without a real DeepSeek
+    API key/base URL (no silent provider substitution via the ambient
+    LLM_PROVIDER env var). Disables DeepSeek v4 thinking via the non-thinking
+    request parameter and sets ``max_retries=0`` so every provider attempt is
+    visible to the run trace.
+    """
+
+    if not (0.0 <= temperature <= 2.0):
+        raise ValueError(f"temperature must be in [0.0, 2.0], got {temperature}")
+    if max_tokens < 1:
+        raise ValueError(f"max_tokens must be >= 1, got {max_tokens}")
+
+    try:
+        from langchain_openai import ChatOpenAI
+    except ImportError as exc:
+        raise RuntimeError(
+            "Agent-system live run requires optional LLM dependencies. "
+            "Install with: uv sync --extra ontology-generation"
+        ) from exc
+
+    load_environment()
+    api_key = os.getenv("DEEPSEEK_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "DeepSeek live run requires DEEPSEEK_API_KEY. Set it in the "
+            "environment before requesting a live model; the system never "
+            "silently substitutes another provider."
+        )
+    base_url = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
+    return ChatOpenAI(
+        model=model,
+        base_url=base_url,
+        api_key=api_key,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        timeout=timeout,
+        max_retries=max_retries,
+        extra_body={"thinking": {"type": "disabled"}},
+    )
