@@ -3,17 +3,42 @@
 Repo-level instructions for Codex. Keep this file short and operational; detailed
 protocols live in `docs/`.
 
+## Project Posture
+
+This is a **system / framework construction project**, not a thesis or paired
+comparison experiment. The primary deliverable is a runnable multi-Agent
+aviation event knowledge system. The mainline is a single pipeline:
+
+**ingest** (one real ATCSCC advisory + NASR facility card + FAA term card)
+→ **Advisory Agent / Facility Agent / Terminology Agent / KG Construction Agent**
+→ **source-bounded event KG** → **RDF + Neo4j projection** → **Query Agent**
+(KG-grounded answer that lists actual source IDs).
+
+The single normative design source for the system implementation is
+**`docs/multi_agent_kg_system_design.md`** (sections 18–22 fix the file layout,
+command interface, acceptance requirements, protected areas, and executor
+protocol). Implement that document; do not redesign it, copy it into a second
+design document, or restore comparison-experiment scope.
+
+Reader-facing documents use the full Agent names (Advisory Agent, Facility
+Agent, Terminology Agent, KG Construction Agent, Query Agent); do not use
+internal alphanumeric codes. Comparison experiments, Gold adjudication,
+go/no-go scoring, a Critic/Verification role, weather, and full-718 model runs
+are explicitly **not** part of the current system mainline.
+
 ## Default Context
 
 - For a new thread, start from `RESEARCH_AUDIT.md` (project snapshot and
-  navigation map), then `RESEARCH_OVERVIEW.md` and `ARTIFACT_INDEX.md`
-  (which absorbs the former context-hygiene audit, maintenance guide, and
-  tracked-context inventory).
+  navigation map), then `GOALS.md`.
 - Keep the active plugin/skill surface minimal. Use task-specific skills only
   when their trigger matches the current action; do not treat broad research,
   design, or document-generation skills as default context.
-- Current thesis: schema-constrained, evidence-grounded Agentic KG-RAG over
-  retrospective FAA ATCSCC advisories.
+- Current mainline: source-bounded event KG construction over retrospective FAA
+  ATCSCC advisories, materialized to RDF and Neo4j and queried by a KG-grounded
+  Query Agent.
+- The legacy 24-case alignment MVE / `alignment_mve` package and any paired
+  comparison designs are **historical, optional evaluation tracks**, not the
+  default context. Do not preload them unless a task explicitly names them.
 - PHAK, web-demo, chunking-era, and old final-report docs are historical unless
   explicitly requested.
 - Avoid unsupported claims: full aviation ontology completeness, live ATC

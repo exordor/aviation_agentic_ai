@@ -1,8 +1,30 @@
 # Project Goals
 
-Last updated: 2026-05-30
+Last updated: 2026-07-25
 
 This file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TODO.md`.
+
+## Project Posture (2026-07-25)
+
+This is a **system / framework construction project**, not a thesis or paired
+comparison experiment. The primary deliverable is a runnable multi-Agent
+aviation event knowledge system. The current mainline is a single pipeline:
+
+**ingest** (one real ATCSCC advisory + NASR facility card + FAA term card)
+→ **Advisory Agent, Facility Agent, Terminology Agent, KG Construction Agent**
+→ **source-bounded event KG** → **RDF + Neo4j projection** → **Query Agent**
+(KG-grounded answer that lists actual source IDs).
+
+Success for the system mainline: `agent-system ingest`, `agent-system ask`,
+and `agent-system neo4j-export` run end-to-end; re-ingesting the same source
+does not create duplicate canonical nodes or relationships; the Query Agent
+answer lists actual source IDs drawn from the materialized KG.
+
+The goals below remain durable context. Comparison experiments, Gold
+adjudication, go/no-go scoring, a Critic/Verification role, weather, and
+full-718 model runs are explicitly **not** part of the current system mainline.
+The legacy 24-case alignment MVE / `alignment_mve` package is a historical,
+optional evaluation track.
 
 ## Goal vs Task
 

@@ -1,5 +1,50 @@
 # Aviation Agentic AI
 
+Aviation Agentic AI is a **system / framework project** that builds a runnable
+multi-Agent aviation event knowledge system over retrospective FAA ATCSCC
+advisories. The mainline is a single pipeline:
+
+**ingest** (one real ATCSCC advisory + NASR facility card + FAA term card)
+→ **Advisory Agent, Facility Agent, Terminology Agent, KG Construction Agent**
+→ **source-bounded event KG** → **RDF (Turtle) + Neo4j projection**
+→ **Query Agent** (KG-grounded answer that lists actual source IDs).
+
+The system uses LangGraph for the fixed multi-Agent topology and LangChain for
+model calls. It is not a thesis or paired comparison experiment; comparison
+experiments, Gold adjudication, go/no-go scoring, a Critic/Verification role,
+weather, and full-718 model runs are explicitly out of scope for the current
+system mainline. The legacy 24-case alignment MVE / `alignment_mve` package is
+a historical, optional evaluation track.
+
+### System commands
+
+```bash
+uv run aviation-ai agent-system ingest \
+  --source-id <source_id> \
+  --config <config_path> \
+  --allow-live-model
+
+uv run aviation-ai agent-system neo4j-export \
+  --run-dir <run_directory>
+
+uv run aviation-ai agent-system ask \
+  --run-dir <run_directory> \
+  --question "<question>" \
+  --allow-live-model
+```
+
+`ingest` runs the four construction Agents and materializes a source-bounded
+event KG (JSONL + Turtle); `neo4j-export` currently validates and reports the
+run's Neo4j projection files; `ask` answers from the materialized KG and lists
+the source IDs it used. Direct parameterized `MERGE` into Neo4j and the final
+formal-fact writer are active implementation work, so the current projection
+command must not yet be described as a completed database load.
+
+---
+
+The sections below are historical research-prototype context retained for
+continuity; they are not the current system mainline.
+
 Aviation Agentic AI is a research prototype for schema-constrained,
 authority-grounded cross-source Agentic KG-RAG over retrospective FAA ATCSCC advisories. It
 extracts advisory-event facts from semi-structured FAA traffic-management

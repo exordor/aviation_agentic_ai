@@ -2,16 +2,39 @@
 
 > Migrated on 2026-07-05 from `TASKS.md`. `TASKS.md` (now archived under `docs/archive/governance_era/TASKS.md`) was migrated on 2026-07-05. Concrete execution tasks live here. Durable project outcomes and scope boundaries live in `GOALS.md`. A task should be small enough to finish, verify, and check off. When a task produces evidence, attach the report or artifact path.
 
-Last updated: 2026-07-13.
+Last updated: 2026-07-25.
 
-## Status Legend
+## Project Posture (2026-07-25)
 
-- `[ ]` Not started
-- `[~]` In progress
-- `[x]` Done
-- `[!]` Blocked or needs decision
+This is a **system / framework construction project**, not a thesis or paired
+comparison experiment. The current mainline is the multi-Agent aviation event
+knowledge system: ingest → KG → RDF/Neo4j → KG-grounded Query Agent. Comparison
+experiments, Gold adjudication, go/no-go scoring, a Critic/Verification role,
+weather, and full-718 model runs are explicitly out of scope for the current
+mainline. The legacy 24-case alignment MVE / `alignment_mve` package is a
+historical, optional evaluation track.
 
-## Active Task Queue
+## Active Task Queue — Multi-Agent KG System (mainline)
+
+1. [x] Create the isolated `codex/multi-agent-kg-system` worktree.
+2. [x] Update reader documents to make system/framework construction the
+   project mainline.
+3. [~] Complete the `agent_system` package: contracts, sources, five Agents,
+   fixed LangGraph workflow, Graph Patch parser, materialization, query,
+   runtime, and CLI. The package exists; its formal fact-evidence boundary is
+   still under correction.
+4. [x] Add the minimal top-level CLI and explicit DeepSeek provider wiring.
+5. [!] Pass the Formal Graph Kernel checkpoint. The registered offline tests
+   pass, but an independent adversarial check found that a schema-valid wrong
+   value could bind to unrelated evidence from the same source. RDF, Neo4j,
+   Query, and another live run remain blocked until fact-level evidence binding
+   passes.
+6. [ ] Generate RDF and Neo4j projections directly from validated facts, load
+   Neo4j with parameterized `MERGE`, and remove unrelated-query fallback.
+7. [ ] Run one bounded real vertical slice only after both offline checkpoints
+   pass.
+
+## Historical Research-Task Queue (optional evaluation track)
 
 1. [x] Promote cross-source V2 into the thesis mainline and freeze the closure plan.
 2. [x] Align `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`,

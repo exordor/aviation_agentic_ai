@@ -1,5 +1,14 @@
 # Experiments
 
+> **Optional evaluation track — not the current system mainline (2026-07-25).**
+> This project is a system / framework construction project whose mainline is
+> the multi-Agent aviation event knowledge system (ingest → KG → RDF/Neo4j →
+> KG-grounded Query Agent). The formal experiments documented below are an
+> optional evaluation track, not the default context and not a prerequisite for
+> the system mainline. Comparison experiments, Gold adjudication, go/no-go
+> scoring, a Critic/Verification role, weather, and full-718 model runs remain
+> out of scope for the current mainline.
+
 > Migrated from `docs/experiment_protocol.md` on 2026-07-05 as part of the research-governance refactor (spec `docs/superpowers/specs/2026-07-05-research-governance-refactor-design.md`). `docs/experiment_protocol.md` (now archived under `docs/archive/governance_era/experiment_protocol.md`) was migrated on 2026-07-05. This file is the live protocol referenced by `_audit_reports.py` and the formal-experiment tests.
 
 ## Material Passport

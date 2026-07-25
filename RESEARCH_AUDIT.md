@@ -4,12 +4,22 @@
 
 ## 1. Project Snapshot
 
-- Audit date: 2026-07-06
-- Current branch: refactor/research-governance-framework
+- Audit date: 2026-07-25
+- Current branch: `codex/multi-agent-kg-system`
 - Main language: Python (`uv` workspace).
-- Main framework: custom CLI (`aviation-ai`) over `pyproject.toml`.
-- Current thesis line: Agentic KG-RAG for evidence-grounded question answering over retrospective FAA ATCSCC advisories.
-- Current status: writing-up phase. Schema, extraction, agentic loop, KG-RAG, and failure-audit evidence collected; thesis chapter draft in progress.
+- Main framework: custom CLI (`aviation-ai`) over `pyproject.toml`; LangGraph
+  for the fixed multi-Agent topology, LangChain for model calls.
+- **Project posture: system / framework construction.** The primary deliverable
+  is a runnable multi-Agent aviation event knowledge system whose mainline is
+  ingest → KG → RDF/Neo4j → KG-grounded Query Agent. This is not a thesis or
+  paired comparison experiment.
+- The single normative design source for the system implementation is
+  `docs/multi_agent_kg_system_design.md` (sections 18–22 fix the file layout,
+  command interface, acceptance requirements, protected areas, and executor
+  protocol).
+- The legacy 24-case alignment MVE / `alignment_mve` package and paired
+  comparison designs are historical, optional evaluation tracks, not the
+  default context.
 
 ## 2. Navigation Map
 
