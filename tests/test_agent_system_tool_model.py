@@ -113,6 +113,25 @@ def test_adapter_preserves_native_tool_call_and_metadata():
     }
 
 
+def test_adapter_records_the_configured_agent_role():
+    message = _tool_call_message()
+    adapter = LangChainToolCallingModel(
+        chat_model=_FakeChat(required=[message]),
+        tools=[fictional_lookup],
+        prompt_set_id="prompt:test",
+        prompt_version="knowledge-graph-construction-agent-v4",
+        agent="knowledge_graph_construction",
+        provider="deepseek",
+        model="deepseek-test",
+        temperature=0,
+    )
+    turn = adapter.invoke(
+        [HumanMessage(content="Inspect the registered context.")],
+        phase="select_tool",
+    )
+    assert turn.record.agent == "knowledge_graph_construction"
+
+
 def test_adapter_binds_tools_only_for_selection_without_json_mode_or_strict_schema():
     chat = _FakeChat(required=[_tool_call_message()])
     _adapter(chat)

@@ -72,16 +72,25 @@ class EvidenceClaim(StrictModel):
 class ToolTraceEntry(StrictModel):
     """A safe tool-trace record: tool name, safe params, result refs, timing."""
 
+    tool_call_id: str | None = None
     tool: str = Field(min_length=1)
     parameters: dict[str, str] = Field(default_factory=dict)
     result_refs: list[str] = Field(default_factory=list)
+    source_ids: list[str] = Field(default_factory=list)
+    status: Literal["ok", "blocked"] = "ok"
     duration_ms: float = Field(default=0.0, ge=0.0)
+    error: str | None = None
 
 
 class EvidenceCard(StrictModel):
     """An Agent's evidence card (design §6.3). No hidden chain-of-thought."""
 
-    agent_role: Literal["advisory", "facility", "terminology"]
+    agent_role: Literal[
+        "advisory",
+        "facility",
+        "terminology",
+        "knowledge_graph_construction",
+    ]
     status: AgentStatus
     claims: list[EvidenceClaim] = Field(default_factory=list)
     canonical_refs: list[str] = Field(default_factory=list)

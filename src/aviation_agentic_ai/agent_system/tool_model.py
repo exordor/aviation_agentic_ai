@@ -1,9 +1,10 @@
-"""Native tool-calling model adapter for the Query Agent.
+"""Native LangChain tool-calling model adapter for bounded Agents.
 
 This is deliberately separate from the text-only ``ModelInvoker``.  It binds a
 fixed read-only tool set once, preserves the provider's ``AIMessage`` (including
 native tool calls), and emits the same auditable ``ModelCallRecord`` used by the
-rest of the system.
+rest of the system. Query and KG Construction reuse this adapter with different
+frozen prompts and session-scoped tools.
 """
 
 from __future__ import annotations
@@ -99,6 +100,7 @@ class LangChainToolCallingModel:
         tools: list[BaseTool],
         prompt_set_id: str,
         prompt_version: str,
+        agent: str = "query",
         provider: str = FROZEN_PROVIDER,
         model: str = FROZEN_MODEL,
         temperature: float = FROZEN_TEMPERATURE,
@@ -119,6 +121,7 @@ class LangChainToolCallingModel:
         self._answer_model = chat_model
         self.prompt_set_id = prompt_set_id
         self.prompt_version = prompt_version
+        self.agent = agent
         self.provider = provider
         self.model = model
         self.temperature = temperature
@@ -142,7 +145,7 @@ class LangChainToolCallingModel:
             return ToolModelTurn(
                 message=None,
                 record=ModelCallRecord(
-                    agent="query",
+                    agent=self.agent,
                     raw_response="",
                     prompt_set_id=self.prompt_set_id,
                     prompt_version=self.prompt_version,
@@ -159,7 +162,7 @@ class LangChainToolCallingModel:
             return ToolModelTurn(
                 message=None,
                 record=ModelCallRecord(
-                    agent="query",
+                    agent=self.agent,
                     raw_response="",
                     prompt_set_id=self.prompt_set_id,
                     prompt_version=self.prompt_version,
@@ -179,7 +182,7 @@ class LangChainToolCallingModel:
         ]
         error = "provider returned an invalid native tool call" if invalid_calls else None
         record = ModelCallRecord(
-            agent="query",
+            agent=self.agent,
             # A tool-selection turn is represented by its sanitized native tool
             # calls. Any accompanying prose may contain unrequested reasoning
             # and is intentionally not persisted.
@@ -204,14 +207,15 @@ class LangChainToolCallingModel:
 def make_live_tool_calling_model(
     *,
     tools: list[BaseTool],
+    role: str = "query",
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
 ) -> LangChainToolCallingModel:
-    """Build the frozen DeepSeek native tool adapter for one Query run."""
+    """Build the frozen DeepSeek native tool adapter for one Agent run."""
 
     from aviation_agentic_ai.llm.providers import get_deepseek_mve_llm
 
     catalog = get_prompt_catalog(catalog_path)
-    prompt = catalog.role("query")
+    prompt = catalog.role(role)
     chat = get_deepseek_mve_llm(
         model=FROZEN_MODEL,
         temperature=FROZEN_TEMPERATURE,
@@ -224,6 +228,7 @@ def make_live_tool_calling_model(
         tools=tools,
         prompt_set_id=prompt.prompt_set_id,
         prompt_version=prompt.prompt_version,
+        agent=role,
     )
 
 
