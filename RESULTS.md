@@ -1,8 +1,13 @@
 # Results
 
-> Migrated on 2026-07-05 and updated on 2026-07-13 to include the cross-source
-> V2 mainline. Observations remain layer-specific; engineering conformance is not
-> presented as independently reviewed semantic correctness.
+> **Historical and optional evaluation ledger.** The rows below report earlier
+> extraction, alignment, cross-source, and KG-RAG experiments. They do not
+> define current `main` capabilities. Current system status is documented in
+> `RESEARCH_AUDIT.md`, `README.md`, and `GOALS.md`.
+>
+> Migrated on 2026-07-05 and updated on 2026-07-13 for the then-current
+> cross-source V2 study. Observations remain layer-specific; engineering
+> conformance is not presented as independently reviewed semantic correctness.
 
 ## Deliverables And Evidence
 

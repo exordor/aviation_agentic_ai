@@ -1,75 +1,97 @@
-# Research Audit
+# Project Audit And Context Router
 
-> This is the new thread entry point. It replaces the start-here role of `docs/thread_handoff.md` and `docs/documentation_map.md`. Both (now archived under `docs/archive/governance_era/`) were migrated on 2026-07-05. For a new thread, read this file first, then follow the navigation map below.
+Audit date: 2026-07-26
+Canonical integration branch: `main`
 
-## 1. Project Snapshot
+This is the default entry point for a new project task. It replaces the former
+thesis-first navigation model.
 
-- Audit date: 2026-07-25
-- Current branch: `codex/multi-agent-kg-system`
-- Main language: Python (`uv` workspace).
-- Main framework: custom CLI (`aviation-ai`) over `pyproject.toml`; LangGraph
-  for the fixed multi-Agent topology, LangChain for model calls.
-- **Project posture: system / framework construction.** The primary deliverable
-  is a runnable multi-Agent aviation event knowledge system whose mainline is
-  ingest → KG → RDF/Neo4j → KG-grounded Query Agent. This is not a thesis or
-  paired comparison experiment.
-- The single normative design source for the system implementation is
-  `docs/multi_agent_kg_system_design.md` (sections 18–22 fix the file layout,
-  command interface, acceptance requirements, protected areas, and executor
-  protocol).
-- The legacy 24-case alignment MVE / `alignment_mve` package and paired
-  comparison designs are historical, optional evaluation tracks, not the
-  default context.
+## Current Project Snapshot
 
-## 2. Navigation Map
+Aviation Agentic AI is a runnable, source-bounded multi-Agent system for
+converting one retrospective FAA ATCSCC advisory into a validated event
+knowledge graph, RDF/Turtle, and a Neo4j projection, then answering a small
+registered set of decision-record questions with explicit source evidence.
 
-Read in this order when entering the project:
+The active path is:
 
-| Order | File | Purpose |
-|---|---|---|
-| 1 | `RESEARCH_AUDIT.md` (this file) | Project snapshot and navigation. |
-| 2 | `RESEARCH_OVERVIEW.md` | Problem, claim, scope, contributions, claim-safety matrix, SOTA positioning. |
-| 3 | `RESEARCH_QUESTIONS.md` | Four descriptively named questions with motivation, hypotheses, evidence, and current answer. |
-| 4 | `HYPOTHESES.md` | Descriptively named hypotheses with falsification criteria. |
-| 5 | `EXPERIMENTS.md` | Full formal-experiment protocol: systems, gold, metrics, procedure, completion gate, layered evaluation. |
-| 6 | `RESULTS.md` | Deliverables and evidence rows with Observation/Evidence/Interpretation/Confidence. |
-| 7 | `ARTIFACT_INDEX.md` | Tracked, non-default, and ignored artifact families; artifact management policy. |
-| 8 | `DECISION_LOG.md` | Structural decisions D001+ with context/reason/alternatives/consequences. |
-| 9 | `REPRODUCIBILITY.md` | Environment, install, regeneration commands, verification defaults. |
-| 10 | `TODO.md` | Active task queue and P0–P4 backlog. |
+```text
+one advisory + FAA facility and terminology records
+  -> four bounded construction Agents
+  -> deterministic Formal Graph Kernel
+  -> validated event KG
+  -> RDF and Neo4j projection
+  -> Query Agent with read-only graph tools
+```
 
-## 3. Six-Question File Rubric
+The Coordinator and Formal Graph Kernel are deterministic components, not
+Agents. LLM output cannot bypass the publication gate.
 
-When looking at any file in this repo, ask:
+## Verified Main-Branch Capabilities
 
-1. Which research question does this file serve?
-2. Which hypothesis does it support?
-3. Which experiment is it part of?
-4. What are its inputs and outputs?
-5. What evidence does it produce?
-6. Should it be kept, archived, or deleted?
+- `agent-system ingest` builds one source-bounded run.
+- `agent-system neo4j-export` loads a validated projection with parameterized
+  `MERGE` when Neo4j is available.
+- `agent-system ask` answers registered measure, facility, operational-period,
+  declared-reason, provenance, and combined-record questions from local
+  validated run artifacts.
+- Missing or unsupported fields return an explicit insufficient state.
+- Profile gaps remain audit records and never become formal KG facts.
+- Canonical facility identity is reused across records.
 
-If a file cannot answer these, treat it as an `unknown artifact` — do not delete it; move it under `archive/unknown/` and note it in `ARTIFACT_INDEX.md`.
+The browser visualization exists only on
+`codex/kg-visualization-research`. It is paused and not part of `main`.
 
-## 4. Default Context For New Threads
+## Context Routing
 
-- Read this file, then `RESEARCH_OVERVIEW.md`, then `ARTIFACT_INDEX.md`. Load additional files only when the task needs their layer.
-- Keep the active plugin/skill surface minimal. Use task-specific skills only when their trigger matches the current action.
-- PHAK, web-demo, chunking-era, and old final-report docs are historical unless explicitly requested.
-- Avoid unsupported claims: full aviation ontology completeness, live ATC decision support, external expert certification, or universal GraphRAG superiority.
+| Need | Read |
+| --- | --- |
+| Durable system goal and boundaries | `GOALS.md` |
+| Installation and current commands | `README.md` |
+| Active execution queue | `TODO.md` |
+| Normative Agent-system design | `docs/multi_agent_kg_system_design.md` |
+| Decision-record semantics and cases | `docs/atcscc_decision_record_explorer_design.md`, `docs/atcscc_decision_record_explorer_cases.md` |
+| Artifact ownership and context hygiene | `ARTIFACT_INDEX.md` |
+| Reproduction commands | `REPRODUCIBILITY.md` |
+| Why a structural decision was made | `DECISION_LOG.md` |
+| Optional historical experiments | `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`, `RESULTS.md` |
 
-## 5. Source Boundaries
+Do not preload optional experiments, stage reports, ignored run directories, or
+archives. They do not define the current system.
 
-Keep source families separate unless a source-specific profile and evaluation protocol exists: ATCSCC advisories; FAA/NASA reference PDFs; NASR/facility data; weather data; transfer pilots or non-ATCSCC corpora.
+## Current Boundaries
 
-## 6. Verification Defaults
+The project does not currently provide:
 
-- Code changes: `uv run ruff check .` and `uv run pytest -q`.
+- general aviation question answering;
+- live ATC or flight decision support;
+- weather-based causal explanation;
+- historical-case ranking or TMI recommendation;
+- full-corpus autonomous model execution;
+- a complete aviation ontology;
+- external expert certification.
+
+The next system increment must be selected explicitly after the metadata
+cleanup. Candidate future directions do not become active merely because a
+historical document mentions them.
+
+## File Audit Rubric
+
+Before treating a file as current context, ask:
+
+1. Which current system capability does it define?
+2. Is it normative design, implementation, evidence, or history?
+3. What are its inputs and outputs?
+4. Does it describe `main` or another branch?
+5. Does it make a claim stronger than the available evidence?
+6. Should it remain default context?
+
+Unknown artifacts are preserved and classified in `ARTIFACT_INDEX.md`; they
+are not silently deleted.
+
+## Verification Defaults
+
 - Documentation-only changes: `git diff --check` and `uv run ruff check .`.
-- Report-generation changes: run the relevant command in `REPRODUCIBILITY.md` and inspect the generated diff before committing.
-
-## 7. Git And Publishing
-
-- Publishing remotes: `origin` is GitLab; `github` is GitHub.
-- When a branch should be shared, push both remotes unless the user requests one remote only.
-- After merging into `main`, push `main` to both remotes and verify local `main`, `origin/main`, and `github/main` resolve to the intended commit.
+- Code changes: `uv run ruff check .` and `uv run pytest -q`.
+- Result claims require inspection of the implementation and the named
+  artifacts, not a historical test count.

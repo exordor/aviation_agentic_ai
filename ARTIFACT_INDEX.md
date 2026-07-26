@@ -1,98 +1,116 @@
 # Artifact Index
 
-> Migrated on 2026-07-05 from `docs/documentation_map.md` Context Inventory, Ignored Local Material, and Artifact Management Policy sections. `docs/documentation_map.md` (now archived under `docs/archive/governance_era/documentation_map.md`) was migrated on 2026-07-05.
+Last updated: 2026-07-26
 
-## Artifact Type Vocabulary
+This file routes project context. It does not assert that every tracked artifact
+is current.
 
-`code`, `dataset`, `model`, `notebook`, `figure`, `screenshot`, `prompt`, `generated_asset`, `log`, `report`, `configuration`.
+## Active Context
 
-## Tracked File-Family Snapshot
-
-| Family | Default context status |
+| Artifact | Role |
 | --- | --- |
-| Root project docs | mixed; `AGENTS.md` is authoritative, `CLAUDE.md` is a compatibility shim, `README.md` and `GOALS.md` are project references, `TODO.md` is execution backlog only. |
-| Root research-governance files | canonical; `RESEARCH_AUDIT.md` is the thread entry point, with `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`, `RESULTS.md`, `ARTIFACT_INDEX.md`, `DECISION_LOG.md`, `REPRODUCIBILITY.md` as the canonical governance surface. |
-| `docs/*.md` | protocols and architecture (e.g. `docs/research_paper_analysis_protocol.md`, `docs/atcscc_agent_architecture.md`, `docs/pipeline_authority_model.md`, `docs/thesis_writing_spine.md`); PHAK-era protocols archived under `docs/archive/phak_era/`; former governance spine archived under `docs/archive/governance_era/`. |
-| `reports/stages/*` | mixed; current ATCSCC evidence, method literature, and legacy experiment reports live together. |
-| `reports/final/*` | mostly historical/transitional; current ATCSCC entry files are explicitly named `atcscc_*`. |
-| `data/evaluation/nasa_atmonto/*` | current evaluation evidence; load only for gold/review tasks. |
-| `data/raw/nasa_bga_aerodynamics/*` | tracked transfer-pilot corpus; not current ATCSCC mainline. |
-| `docs/cross_source_multi_agent_v2_design.md` | approved cross-source mainline architecture and implementation contract. |
-| `data/evaluation/cross_source/v1/*` | current hard ambiguity challenge and 24-case automated evaluation inputs plus superseded review history. |
+| `AGENTS.md` | Authoritative operational instructions. |
+| `RESEARCH_AUDIT.md` | Default context router and current branch-level truth. |
+| `GOALS.md` | Durable system goal and boundaries. |
+| `README.md` | Current user-facing system overview and commands. |
+| `TODO.md` | Active execution queue only. |
+| `docs/multi_agent_kg_system_design.md` | Normative multi-Agent system design. |
+| `src/aviation_agentic_ai/agent_system/` | Active Agent-system implementation. |
+| `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused Agent-system acceptance surface. |
+| `configs/cross_source_v1.yaml` | Admitted ATCSCC, facility, and terminology source configuration reused by the system. |
+| `configs/prompts/agent_system_v1.yaml` | Versioned Agent-system prompt configuration. |
 
-## Tracked But Non-Default Families
+## Decision-Record Reference
 
-| Family | Why it can pollute context | Safe use |
-| --- | --- | --- |
-| `docs/archive/phak_era/*` | Describe the earlier aviation-training prototype; can make the thesis look ontology-first. | Historical method evolution only. |
-| Early `reports/stages/benchmark_*`, `chunking_*`, `hybrid_rag_*`, `retrieval_ablation*`, `graphrag_review.*`, `kg_validation.*`, `web_demo_*` | Mix PHAK/web-demo evidence with current ATCSCC terminology. | Negative results, method evolution, or explicit comparison. |
-| `reports/final/project_*`, `reports/final/defense_deck_outline.md`, old deck source JSON | Final-style but mostly pre-ATCSCC. | Presentation format reference or manually reviewed reusable fragments. |
-| `reports/phak_era_archive/reviews/*` and root `reports/*review*.md` | Archived 2026-05/06 adversarial/implementation review trails; the thesis has incorporated their findings. | Audit history only. |
-| `data/cqs/06_phak_*.json` | Historical PHAK benchmark and gold data. | Load only for explicit PHAK benchmark or historical comparison tasks. |
+| Artifact | Status |
+| --- | --- |
+| `docs/atcscc_decision_record_explorer_design.md` | Query and evidence contract implemented on `main`; browser layer paused. |
+| `docs/atcscc_decision_record_explorer_cases.md` | Source-audited Ground Stop, GDP, and missing-reason acceptance cases. |
+| `codex/kg-visualization-research` | Separate branch containing the reviewed read-only visualization; not merged into `main`. |
 
-## Current-Use Families
+## Generated Runtime Artifacts
+
+Validated Agent-system runs are written under ignored local run directories and
+may contain:
+
+- `source_snapshot.json`;
+- `run_manifest.json`;
+- `fact_trace.jsonl`;
+- `profile_gaps.jsonl`;
+- `kg.jsonl`;
+- `kg.ttl`;
+- `neo4j_nodes.jsonl`;
+- `neo4j_relationships.jsonl`;
+- optional `neo4j_load.json`;
+- latest `query_run.json`.
+
+These directories are reproducible, environment-specific, and may contain raw
+provider material. Do not commit them. Summarize a selected run in a small
+tracked report only when it supports a durable system claim.
+
+## Optional Evaluation Tracks
+
+The following families are retained but are not default context:
 
 | Family | Use |
 | --- | --- |
-| `reports/stages/atcscc_*` | ATCSCC source, schema, validation, repair, and graph-use explainers. |
-| `reports/stages/nasa_atmonto_*` | Current formal experiment scoring, agentic loop, retrieval, answer generation, and reviewer-defense evidence. |
-| `data/evaluation/nasa_atmonto/*` | Gold review, CQ query templates, candidate review, and review packets. |
-| `data/evaluation/cross_source/v1/*` | Cross-source mainline challenge/evaluation inputs and superseded review history. |
-| `reports/stages/cross_source_mainline_evaluation.*` | Current matched baseline, hard ambiguity, and independent Evaluation Agent results. |
-| `reports/stages/*sota*`, `*method*`, `*paper_analysis*`, `*paper_adaptation*` | Related work and method migration, not direct experiment evidence unless linked by the dashboard. |
+| `RESEARCH_QUESTIONS.md`, `HYPOTHESES.md`, `EXPERIMENTS.md`, `RESULTS.md` | Historical or explicitly reactivated formal evaluation. |
+| `src/aviation_agentic_ai/alignment_mve/` | Optional alignment comparison experiment. |
+| `src/aviation_agentic_ai/cross_source/` | Earlier broad cross-source, weather, and RAG implementation. |
+| `data/evaluation/nasa_atmonto/` | Reviewed extraction-evaluation material. |
+| `data/evaluation/cross_source/` | Alignment and cross-source calibration/evaluation material. |
+| `data/experiments/nasa_atmonto/formal/` | Formal extraction experiment inputs and outputs. |
+| `reports/stages/nasa_atmonto_*` | Formal extraction, validation, retrieval, and answer reports. |
+| `reports/stages/cross_source_*` | Cross-source design and evaluation history. |
+
+These artifacts may support a future evaluation task. They do not define the
+current system goal and must not be presented as external expert certification.
+
+## Historical Context
+
+| Family | Safe use |
+| --- | --- |
+| `docs/archive/phak_era/` | Earlier PHAK ontology and GraphRAG method history. |
+| `docs/archive/governance_era/` | Superseded governance and thesis-first planning. |
+| `reports/phak_era_archive/` | Historical review and prototype evidence. |
+| older `reports/stages/*web_demo*`, `*chunking*`, `*hybrid_rag*` | Explicit historical comparison only. |
+| `reports/final/` | Draft and historical presentation material; not current system truth. |
+
+Do not batch-rewrite historical reports merely to make their dated language
+look current. Keep them out of default context instead.
 
 ## Ignored Local Material
 
-| Path | Why it is risky |
+| Path | Policy |
 | --- | --- |
-| `reports/archive/` | Local archive of obsolete stage reports; keep out of thesis-writing context. |
-| `outputs/` | Runtime outputs and scratch material that may combine multiple branches or stale experiments. |
-| `data/runs/agent_system/` | Versioned local Agent runs containing regenerable graph artifacts and raw provider responses; keep out of default Git and model context. |
-| `reports/stages/paper_figure_gallery.html` and gallery manifests | Local visual-comparison pages generated during paper review; useful for inspection, not thesis evidence. |
+| `data/runs/agent_system/` | Reproducible local runs; never default context. |
+| `outputs/` | Scratch and mixed-branch outputs. |
+| `reports/archive/` | Local archived reports. |
+| vector indexes and model caches | Rebuild locally; do not commit. |
+| `.env` and credentials | Never commit or print. |
 
-## Artifact Management Policy
+## Admission Policy
 
-The repository intentionally tracks bounded thesis-evidence artifacts needed to
-reproduce the current ATCSCC claims:
+A new tracked artifact must have:
 
-- reviewed gold and review-decision artifacts under `data/evaluation/nasa_atmonto/`;
-- formal extraction, validation, retrieval, and answer-generation artifacts under
-  `data/experiments/nasa_atmonto/formal/`;
-- stage-report JSON/Markdown files that feed the thesis dashboard, SOTA audit,
-  reviewer-defense audit, and chapter draft.
+- a clear owner or producing command;
+- declared inputs and outputs;
+- a current, optional, generated, or historical classification;
+- a reason it must be tracked rather than regenerated;
+- no credentials or hidden model reasoning.
 
-The repository intentionally ignores raw/local/generated material that is either
-large, environment-specific, or easy to rebuild: raw NASA ATMONTO snapshots under
-`data/raw/nasa_atmonto/`; smoke outputs under
-`data/experiments/nasa_atmonto/formal/smoke/`; vector indexes, chunks, local
-paper PDFs, temporary PDF extraction assets, gallery HTML/manifest files,
-historical local archives under `reports/archive/`, and `outputs/`.
-Versioned multi-Agent KG runtime directories under `data/runs/agent_system/`
-are also ignored because they are regenerable and may contain raw provider
-responses. Durable evidence from a selected run should be summarized in a
-small tracked report rather than committing the entire run directory.
-
-Cross-source normalized registries, decisions, links, RDF graphs, and Neo4j
-property-graph projections under
-`data/processed/cross_source/` and `data/kg/cross_source/` are also generated
-and ignored. Rebuild them from the tracked config and pinned local source
-snapshots. Only the bounded challenge/evaluation inputs and superseded review
-history under `data/evaluation/cross_source/v1/` are tracked. Regression success
-is internal evidence conformance and remains distinct from external expert
-certification.
-
-Future large experiment outputs should enter Git only when they are referenced
-by the thesis dashboard or a claim-safety audit. Otherwise place them under an
-ignored runtime/output location and summarize them in a small tracked report.
+Unknown artifacts are preserved, classified, and routed. They are not silently
+deleted or promoted into current context.
 
 ## Audit Commands
 
-Use tracked-file scans for context hygiene:
-
 ```bash
-git ls-files '*.md' 'reports/**/*.json'
-git grep -n -E '<pattern>' -- AGENTS.md README.md docs reports src scripts tests data/papers
+git status --short
+git ls-files
+git grep -n -E '<pattern>' -- \
+  AGENTS.md CLAUDE.md README.md RESEARCH_AUDIT.md GOALS.md TODO.md \
+  ARTIFACT_INDEX.md REPRODUCIBILITY.md docs src tests
 ```
 
-Do not use broad multi-root `rg` scans as proof that repository context is
-clean; they can include ignored local archives when explicit paths are supplied.
+Use tracked-file scans for context hygiene. Broad filesystem scans can include
+ignored runs and obsolete local archives.

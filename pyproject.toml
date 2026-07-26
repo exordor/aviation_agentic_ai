@@ -1,7 +1,7 @@
 [project]
 name = "aviation-agentic-ai"
 version = "0.1.0"
-description = "CLI-first aviation ontology, KG, and GraphRAG research prototype."
+description = "Source-bounded multi-Agent system for aviation event knowledge construction and querying."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

@@ -1,5 +1,10 @@
 # Research Questions
 
+> **Optional historical evaluation framing.** These questions describe the
+> earlier thesis-oriented experiment program. They do not define the current
+> system goal or active implementation queue. Load this file only when an
+> evaluation task explicitly reactivates one of these questions.
+>
 > Revised on 2026-07-13. Questions and hypotheses use descriptive names rather
 > than internal numeric codes.
 

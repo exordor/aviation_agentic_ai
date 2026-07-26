@@ -1,256 +1,106 @@
 # Project Goals
 
-Last updated: 2026-07-25
+Last updated: 2026-07-26
+
+This file defines durable system outcomes. Concrete work belongs in `TODO.md`;
+historical comparison hypotheses belong in the optional experiment documents.
+
+## Primary Goal
+
+Build a useful, extensible multi-Agent aviation event knowledge system that:
+
+1. reads a retrospective FAA ATCSCC advisory and bounded authority records;
+2. coordinates specialized Agents for source interpretation, facility
+   resolution, terminology normalization, and graph construction;
+3. publishes only evidence-bound facts accepted by a deterministic schema and
+   provenance gate;
+4. materializes one canonical event graph as JSONL, RDF/Turtle, and a Neo4j
+   projection;
+5. answers bounded user questions through read-only graph tools while exposing
+   evidence, uncertainty, and missing information.
+
+The goal is a working system and framework, not proof that more Agent roles are
+always better than fewer roles.
+
+## User Value
+
+The system should help a user understand and verify a published ATCSCC decision
+record:
+
+- what traffic-management measure was published;
+- which facility it controlled;
+- when it applied;
+- which reason the source declared;
+- which source and graph fact support each statement.
+
+It must distinguish formal graph facts, source-bound profile gaps, derived
+provenance, and genuinely missing information.
+
+## Completed Foundation
+
+The current `main` branch provides:
+
+- one-record ingest through a fixed LangGraph construction workflow;
+- bounded Facility and Terminology authority resolution;
+- a tool-using Knowledge Graph Construction Agent;
+- deterministic formal validation as the sole publication gate;
+- fact-level evidence binding and source provenance;
+- canonical facility reuse and idempotent Neo4j merge behavior;
+- JSONL, RDF/Turtle, and Neo4j projection artifacts;
+- a bounded read-only Query Agent;
+- deterministic support for measure, facility, operational period, declared
+  reason, provenance, and combined decision-record questions;
+- explicit profile-gap, insufficient, and blocked outcomes.
+
+The three approved records - Ground Stop `123`, Ground Delay Program `138`, and
+missing-reason cancellation `020` - exercise those capabilities.
+
+## Success Criteria
+
+The system mainline succeeds when:
+
+- a selected source record can run end to end;
+- every published fact is admitted by the active schema profile;
+- every published fact carries source and exact evidence support;
+- canonical entities are reused rather than duplicated;
+- RDF and Neo4j represent the same validated fact identities;
+- the Query Agent retrieves only query-relevant facts;
+- unsupported or missing questions do not trigger model completion;
+- a user can inspect why an answer was produced.
+
+These are system acceptance criteria, not external semantic certification.
+
+## Current Transition
+
+The read-only visualization batch has reached a stable stopping point on
+`codex/kg-visualization-research`. It is an optional presentation layer and is
+not merged into `main`.
+
+After this metadata cleanup, the next mainline capability must be chosen
+explicitly. Plausible later increments include decision-episode identity or
+additional source-bounded situation evidence, but neither is active until its
+data boundary and user task are approved.
+
+## Deferred Work
+
+- Weather-based causal explanation.
+- ASPM outcomes and flight-level impact.
+- Initial/revision/extension/cancellation episode grouping.
+- Historical similarity ranking and TMI recommendation.
+- General-purpose aviation QA.
+- Full-corpus live-model execution.
+- Automatic ontology expansion.
+- Production deployment and access control.
+- New Agent roles without a demonstrated system need.
+- Paired comparison experiments as a prerequisite for feature delivery.
+
+## Historical And Optional Tracks
+
+The repository retains earlier PHAK GraphRAG work, schema-extraction
+experiments, cross-source weather evaluation, alignment MVE artifacts, and
+thesis-oriented reports. They remain useful for calibration, method history, or
+an explicitly reactivated evaluation task. They do not define the current
+system goal.
 
-This file defines the durable project goals, scope boundaries, and success criteria. Execution work is tracked separately in `TODO.md`.
-
-## Project Posture (2026-07-25)
-
-This is a **system / framework construction project**, not a thesis or paired
-comparison experiment. The primary deliverable is a runnable multi-Agent
-aviation event knowledge system. The current mainline is a single pipeline:
-
-**ingest** (one real ATCSCC advisory + NASR facility card + FAA term card)
-→ **Advisory Agent, Facility Agent, Terminology Agent, KG Construction Agent**
-→ **source-bounded event KG** → **RDF + Neo4j projection** → **Query Agent**
-(KG-grounded answer that lists actual source IDs).
-
-Success for the system mainline: `agent-system ingest`, `agent-system ask`,
-and `agent-system neo4j-export` run end-to-end; re-ingesting the same source
-does not create duplicate canonical nodes or relationships; the Query Agent
-answer lists actual source IDs drawn from the materialized KG.
-
-The goals below remain durable context. Comparison experiments, Gold
-adjudication, go/no-go scoring, a Critic/Verification role, weather, and
-full-718 model runs are explicitly **not** part of the current system mainline.
-The legacy 24-case alignment MVE / `alignment_mve` package is a historical,
-optional evaluation track.
-
-## Goal vs Task
-
-- A goal describes an outcome the project must achieve.
-- A task describes a concrete action that can be completed and checked off.
-- Goals change slowly. Tasks change whenever implementation or experiment evidence changes.
-- Reports under `reports/` provide evidence that a goal has been met.
-
-## G1 - Course Objective And Project Rationale
-
-Build a research prototype that demonstrates how schema constraints, knowledge
-graphs, RAG, GraphRAG, hallucination reduction, and agentic workflow concepts
-can support evidence-grounded advisory-event question answering.
-
-Success criteria:
-
-- The final report explains what problem the project solves and why this problem matters for private-pilot learning and decision support.
-- The final report explains schema constraints, KG, RAG, GraphRAG,
-  hallucination mitigation, and agentic workflow design in the context of the
-  implemented system.
-- The project can explain where GraphRAG adds evidence traceability beyond plain LLM prompting or vector-only RAG, and where vector retrieval is sufficient.
-- The project uses FAA aviation handbook material as the starting source corpus.
-- The report clearly connects implementation choices to the course objective.
-
-Current status: in progress.
-
-## G2 - Ontology-Grounded KG Deliverable
-
-Deliver a focused aviation KG/ABox artifact generated from PHAK Chapter 4, grounded by a validated ontology/TBox design.
-
-Rationale:
-
-- The KG is a project deliverable, not only an intermediate cache.
-- KG generation depends on ontology design because class/property constraints define what can be extracted and validated.
-- The ontology provides the schema boundary that prevents arbitrary LLM-generated triples from entering the KG.
-
-Success criteria:
-
-- A baseline or generated TBox ontology exists and can be validated.
-- The extraction profile maps focused aviation classes/properties back to the ontology design.
-- Focused ABox/KG triples are extracted only when supported by source chunks.
-- KG validation rejects unsupported classes, unsupported properties, missing provenance, and evidence that is not present in the source chunk.
-- The final report explains how ontology design affects KG extraction quality, provenance, and downstream GraphRAG retrieval.
-
-Current status: active curated ontology is available; focused KG was extracted and validated against the curated schema.
-
-## G3 - GraphRAG Core Pipeline
-
-Implement GraphRAG as a core project goal: combine KG/graph retrieval with vector retrieval so answers can use both semantic text evidence and structured relationship evidence.
-
-Target pipeline:
-
-```text
-PDF -> chunks -> ontology-constrained KG/ABox
-    -> Chroma vector index
-    -> graph retrieval + vector retrieval
-    -> reciprocal-rank hybrid fusion
-    -> grounded LLM answer with citations
-```
-
-Success criteria:
-
-- Chunks, KG, index, retrieval results, and LLM answers are generated through CLI commands.
-- Each run records configuration, model name, collection name, chunking strategy, paths, and rebuild flags.
-- Experiments compare vector-only, graph-only, and hybrid/GraphRAG retrieval rather than reporting hybrid results alone.
-- Reports explain when graph evidence helps, when vector retrieval is enough, and when the KG is too sparse to improve retrieval.
-- Answers cite chunk/page/triple evidence or abstain when evidence is insufficient.
-
-Current status: implementation exists for both fixed-window and structure-aware GraphRAG runs. Fixed-window shows GraphRAG's value mainly through KG evidence coverage; structure-aware Hybrid RAG matches vector-only Recall@5 in the 10-question run while preserving KG evidence coverage. The expanded 35-question ablation shows vector Recall@5 can be higher than default hybrid Recall@5, so GraphRAG is defended as structured evidence support rather than a universal Recall winner.
-
-## G4 - Evaluation And Experiment Protocol
-
-Evaluate retrieval, KG evidence, and LLM answer quality as separate layers rather than a single mixed score.
-
-Success criteria:
-
-- Retrieval metrics include Recall@5, MRR@5, Context Precision@5, hit ranks, and hit source identifiers.
-- KG evidence metrics include relevant triple counts, entity coverage, provenance completeness, and invalid/unsupported triple counts.
-- LLM answer metrics include citation completeness, citation validity, and insufficient-evidence abstention behavior.
-- Gold labels support page-level ground truth now and can later be refined to chunk/span-level evidence.
-- Per-question evidence cards explain gold evidence, vector retrieval, graph retrieval, hybrid fusion behavior, citation status, and failure category for each evaluated CQ.
-- Thesis claims are reviewed with a claim safety matrix so unsupported Recall, certification, and operational-safety claims are kept out of final reports.
-
-Current status: protocol modules and real experiment evidence exist for the
-10-CQ pilot, expanded 35-question labels, benchmark v2 120-label retrieval and
-safety benchmark, benchmark reviewed-subset scaffold, answer-evaluation subset,
-chunking-v2 hardening, fixed-window Hybrid RAG, structure-aware KG extraction,
-structure-aware Hybrid RAG, evidence-level evaluation, retrieval ablation, KG
-extraction comparison, answer evaluation, robustness evaluation, final
-evaluation review, and per-question evidence cards. The gold labels are
-course-project / thesis-oriented evidence and are not external aviation examiner
-certification.
-
-## G5 - Report Hygiene And Final Project Report
-
-Maintain readable project evidence and generate a complete final report from
-deterministic sources plus optional model polishing.
-
-Success criteria:
-
-- `reports/stages/` remains a compact dashboard.
-- Historical stage artifacts are archived rather than deleted.
-- `reports/phak_era_archive/project_report.md` is generated from evidence sources and does not invent missing results.
-- Missing experiments are explicitly marked TBD / Not yet run until evidence exists.
-
-Current status: report hygiene, deterministic final report, academic-style
-report, project-defense notes, illustrative visual assets with local SVG
-fallbacks, and an editable academic defense PPTX are available under
-`reports/final/`. Final evaluation and web smoke evidence are recorded under
-`reports/stages/`. Thesis positioning is documented in
-`RESEARCH_OVERVIEW.md`, with deterministic claim review output under
-`reports/stages/thesis_claims_review.md` when regenerated.
-
-## G6 - Future Advisory QA Boundary
-
-Prepare for a future advisory QA workflow while keeping the current prototype within a safe learning and decision-support boundary.
-
-Success criteria:
-
-- The system is described as aviation learning and decision support only.
-- It does not claim to replace the POH, approved checklists, ATC, flight instructor guidance, or pilot judgment.
-- Future live aircraft/environment data and emergency/procedure manuals are treated as later-stage extensions.
-
-Current status: boundary text exists; future live-context integration is out of scope for the current phase.
-
-## G7 - Web Interface Demonstrator
-
-Provide a user-facing web interface that demonstrates the implemented pipeline without claiming production cockpit readiness.
-
-Success criteria:
-
-- The interface lets a user ask aviation questions and choose or display retrieval mode: vector, graph, or hybrid/GraphRAG.
-- The interface shows the final answer together with cited chunks, pages, and KG triples when available.
-- The interface makes the advisory boundary visible: learning and decision support only, not a replacement for POH, approved checklists, ATC, instructor guidance, or pilot judgment.
-- The interface can display experiment evidence or pipeline status so the project is understandable to a reviewer.
-
-Current status: offline-first FastAPI demo implemented with a macOS-style
-utility layout. It reads existing GraphRAG reports, gold labels, KG artifacts,
-and evidence-level metrics by default; live query is opt-in. The interface now
-includes a deterministic demo narrative, pipeline explanation, mode comparison,
-Why This Result panel, and question-scoped KG relationship graph so reviewers
-can see why evidence was selected, not only read the answer and evidence lists.
-Offline FastAPI smoke evidence is available in
-`reports/stages/web_demo_final_smoke.md`.
-
-## G8 - Pipeline Explanation And Project Defense
-
-Be ready to answer project-review questions about what was built, why it was built this way, and how the design choices affect quality.
-
-Success criteria:
-
-- The final report and/or presentation clearly explains the pipeline from PDF to chunks, ontology, KG, index, retrieval, GraphRAG answer, and citations.
-- The project includes a comparison of chunking strategies and retrieval modes with an explanation of observed tradeoffs.
-- The project can answer "what does each component do?", "why is it needed?", "why not use a simpler baseline?", and "where can the system fail?"
-- Limitations are explicit: coarse gold labels, incomplete KG coverage, LLM dependency, source-scope limits, and non-production advisory boundary.
-
-Current status: ontology design documentation, KG validation evidence, pilot
-chunking comparison, benchmark-v2 chunking hardening reports, fixed-window
-Hybrid RAG, structure-aware Hybrid RAG, GraphRAG review, evidence-level
-evaluation, web demo readiness/smoke evidence, academic report, final
-evaluation review, defense notes, illustrative defense PPT, and per-question
-evidence cards are available. The current defense framing is: GraphRAG should be
-defended as evidence traceability, KG evidence coverage, and safety-aware
-abstention rather than a simple page-level Recall winner; chunking-v2 top-k
-results are valid for their setting but must be balanced against fixed-budget
-and category-specific results; and the web demo is offline-first by default for
-reproducible review.
-
-## G9 - Experimental Expansion, Robustness, And Chunking Hardening
-
-Extend the current proof-of-pipeline experiments into a stronger evaluation suite that can support more defensible research claims about GraphRAG value.
-
-Rationale:
-
-- The 10-CQ experiment proves that the system works end to end, but it remains pilot evidence.
-- Stronger claims require benchmark-v2 labels, retrieval ablations, KG extraction comparisons, answer-level evaluation, robustness checks, and chunking comparisons that do not overclaim a universal best strategy.
-- The project should keep retrieval quality, KG evidence quality, answer faithfulness, cost, and safety boundary behavior as separate experiment layers.
-
-Success criteria:
-
-- Gold labels expand beyond 10 boundary CQs to benchmark-sized labels with chunk/span evidence, key entities, and no-answer or insufficient-evidence cases.
-- Retrieval ablations compare vector-only, graph-only, hybrid RRF, hybrid with graph disabled, different graph hops, and different top-k settings.
-- KG extraction experiments compare fixed-window and structure-aware chunks, model choice, max-token settings, prompt strictness, provenance completeness, and unsupported triple rejection.
-- Answer-level evaluation records citation correctness, faithfulness, answer relevance, abstention correctness, and advisory-boundary violations without creating a single mixed score.
-- Robustness tests include paraphrased CQs, terminology variation, cross-page questions, ambiguous questions, and insufficient-evidence questions.
-- Chunking-v2 evaluation includes implementation audit, fixed-budget comparison, top-k sensitivity, category analysis, confidence intervals, and qualitative failure cards.
-- Cost and latency reports record chunk build time, KG extraction cost/time, index build time, query latency, token usage, and collection/index size.
-- Dataset expansion beyond PHAK Chapter 4 only starts after document metadata and section schema are enforced for each new source.
-
-Current status: in progress. The 10-CQ experiment remains pilot evidence; the
-expanded 35-label suite, benchmark v2 120-label benchmark, benchmark reviewed
-subset scaffold, answer-eval subset, deterministic retrieval ablation, graph
-traversal ablation, sufficiency evaluation, KG extraction comparison, answer
-evaluation, robustness evaluation, cost/latency metadata blocks, and document
-expansion protocol now exist. Chunking-v2 hardening is implemented with
-implementation audit, top-k comparison, fixed-context-budget comparison, top-k
-sensitivity, category analysis, confidence intervals, and failure cards. Current
-chunking conclusion is benchmark-specific: default top-k favors `fixed_large`,
-fixed 4000-character budget favors `recursive_medium`, and category winners
-vary. Embedding/index backend comparison and full parent-return retrieval for
-hierarchical/proposition methods remain future work.
-
-The review direction is model-based: benchmark, triple, graph-path, and answer
-review artifacts are internal model-assisted checks when run. They are not
-human review, not external aviation expert certification, and not operational
-readiness evidence.
-
-## Current Non-Goals
-
-- Do not build a production cockpit QA system in this phase.
-- Do not present the web interface as certified, real-time, or operational flight software.
-- Do not integrate live aircraft sensors or real-time environmental data in this phase.
-- Do not expand to emergency/procedure manuals before the document metadata and section schema are stable.
-- Do not collapse retrieval, KG evidence, and LLM answer quality into one overall score.
-- Do not submit local secrets, Chroma indexes, model caches, or temporary generated files.
-
-## Traceability
-
-| Goal | Main evidence | Execution tasks |
-| --- | --- | --- |
-| G1 | `GOALS.md`, `README.md`, `reports/phak_era_archive/project_report.md`, optional local note `tmp/goal.md` | `TODO.md` P2 |
-| G2 | `data/ontology/`, `configs/extraction_profile.yaml`, KG reports | `TODO.md` P0/P1 |
-| G3 | chunk/index/query CLI outputs, Hybrid RAG report | `TODO.md` P0 |
-| G4 | `src/aviation_agentic_ai/evaluation/`, experiment reports, `reports/stages/final_evaluation_review.md`, `reports/stages/evidence_cards.md` | `TODO.md` P0/P1 |
-| G5 | `reports/stages/index.md`, `reports/phak_era_archive/project_report.md`, `reports/phak_era_archive/project_academic_report.md`, defense PPT | `TODO.md` P2 |
-| G6 | advisory boundary text, final report limitations | `TODO.md` P1/P2 |
-| G7 | web app code, `reports/stages/web_demo_readiness.md`, `reports/stages/web_demo_final_smoke.md`, demo instructions | `TODO.md` P2 |
-| G8 | `RESEARCH_OVERVIEW.md`, final report, academic report, comparison reports, evidence cards, defense notes, defense PPT | `TODO.md` P1/P2 |
-| G9 | benchmark v2 labels, ablation reports, robustness reports, cost/latency reports, chunking-v2 hardening reports | `TODO.md` P3 |
+See `ARTIFACT_INDEX.md` for routing and `DECISION_LOG.md` for the sequence of
+scope changes.

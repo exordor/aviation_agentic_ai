@@ -56,12 +56,13 @@
   protocol does not support live aviation operations, operational advisories,
   flight planning, dispatch, ATC decisions, or safety certification.
 
-## Cross-Source Mainline Protocol
+## Historical Cross-Source Evaluation Protocol
 
-Cross-source V2 is a main thesis experiment, not a future-work add-on. It keeps
-the 718 retrospective advisories as the event corpus, applies terminology and
-facility alignment to all records, and limits weather linking and answer
-evaluation to the predeclared 68-record connectable cohort.
+This protocol records the earlier cross-source thesis experiment. It is an
+optional evaluation track, not the current system mainline. It keeps the 718
+retrospective advisories as the event corpus, applies terminology and facility
+alignment to all records, and limits weather linking and answer evaluation to
+the predeclared 68-record connectable cohort.
 
 The source families remain separately versioned and scored:
 

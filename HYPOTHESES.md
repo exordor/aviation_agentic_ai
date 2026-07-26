@@ -1,5 +1,10 @@
 # Research Hypotheses
 
+> **Optional historical evaluation framing.** These hypotheses are retained for
+> reproducibility and possible future evaluation. They are not current system
+> requirements, and their prior status labels must not be read as proof of the
+> present multi-Agent system's overall quality.
+>
 > Revised on 2026-07-13. Hypotheses use descriptive names rather than internal
 > numeric codes. Machine artifact names remain unchanged for reproducibility.
 

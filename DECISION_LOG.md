@@ -2,6 +2,20 @@
 
 > Seeded on 2026-07-05 from the project scope lock (`docs/master_project_scope_lock.md`) and the documentation map tiering rules. Each entry records a structural decision and its consequences. Future significant choices (tool changes, abandoned experiments, model selection, refactor scope) should be appended here.
 
+## Current Precedence
+
+Decisions are append-only historical records. Later decisions supersede earlier
+ones when their scopes conflict.
+
+| Decision | Current status |
+| --- | --- |
+| D001-D003 | Historical thesis and evaluation governance. |
+| D004-D005 | Still applicable as archive and source-boundary guidance. |
+| D006 | Documentation tiers remain applicable; its original thesis-routing table is superseded by D010. |
+| D007-D008 | Historical cross-source evaluation route; optional, not the system mainline. |
+| D009 | Decision-record interaction contract remains useful; query foundation is complete and visualization is paused. |
+| D010 | Current project posture and default-context decision. |
+
 ## D001 — Single thesis-grade system study
 
 ### Date
@@ -164,15 +178,22 @@ artifacts from polluting each other.
 
 | Tier | Location | Examples | Maintenance rule |
 | --- | --- | --- | --- |
-| Canonical framing | repo root | `RESEARCH_OVERVIEW.md`, `RESEARCH_QUESTIONS.md`, `ARTIFACT_INDEX.md` | Update when the thesis scope, research questions, claim boundaries, or entry points change. |
-| Protocols and scope control | repo root + `docs/` | `EXPERIMENTS.md`, `docs/research_paper_analysis_protocol.md` | Update when the reproducible workflow, scoring rules, or paper-intake process changes. |
-| Current thesis evidence | `reports/stages/` | formal scoring, retrieval, and chapter-draft reports | Keep as generated or reviewed evidence; cite through this map. |
+| Current system context | repo root | `AGENTS.md`, `RESEARCH_AUDIT.md`, `GOALS.md`, `README.md`, `TODO.md`, `ARTIFACT_INDEX.md` | Keep short, consistent, and implementation-accurate. |
+| Normative system design | `docs/` | `docs/multi_agent_kg_system_design.md` | Update only when the approved system contract changes. |
+| Optional evaluation protocols | repo root + `docs/` | `EXPERIMENTS.md`, `docs/research_paper_analysis_protocol.md` | Load only for an explicitly reactivated evaluation or paper-analysis task. |
+| Historical evaluation evidence | `reports/stages/` | formal scoring, retrieval, and chapter-draft reports | Preserve as dated evidence; do not present as current system truth. |
 | Source and schema explainers | `reports/stages/` | ATCSCC data-flow and ontology-profile reports | Keep thesis-facing and readable; update when data/profile boundaries change. |
 | Method migration and paper analysis | `reports/stages/`, `data/papers/README.md` | adaptation and analysis reports | Use for design inspiration only after full-paper/figure inspection; do not import claims directly. |
 | Historical artifacts | `docs/archive/phak_era/`, `reports/stages/`, `reports/final/` | old prototype and report drafts | Preserve for provenance, but do not let them override current ATCSCC framing. |
 | Generated side artifacts | `reports/stages/*.json`, `.csv`, `.html`, `.log` | report JSON, review packets, worksheets, logs | Track only if they support a current dashboard/audit/chapter claim; otherwise keep under ignored output paths. |
 
-### Where New Documents Should Go
+### Historical Routing Table
+
+The table below records the original thesis-era routing policy. D010 supersedes
+it for active system work. New system goals, capability contracts, and
+implementation priorities now route through `GOALS.md`, the relevant normative
+design under `docs/`, and `TODO.md`; optional experiment changes continue to
+use the experiment documents only when that track is explicitly reactivated.
 
 | New material | Destination | Required follow-up |
 | --- | --- | --- |
@@ -238,7 +259,7 @@ later migrate to a state-graph framework without rewriting the nodes.
 Pro: the V2 path is reproducible, reviewable, and isolated from current thesis evidence.
 Con: cross-source results cannot be presented as current thesis findings without a separate evaluation and scope decision.
 
-## Decision: Promote Cross-Source V2 Into The Thesis Mainline
+## D008 - Promote Cross-Source V2 Into The Thesis Mainline
 
 ### Date
 
@@ -274,3 +295,87 @@ Agentic KG-RAG method with autonomous runtime gates.
 Con: the result remains a component evaluation over one cohort and one
 ambiguity family. The linked-text arm shares accepted links, and the automated
 evaluator is not external aviation-expert certification.
+
+## D009 - Make Published Decision-Record Understanding The Next User Goal
+
+### Date
+
+2026-07-26
+
+### Context
+
+The mainline system can ingest one retrospective ATCSCC advisory, construct and
+validate an event graph, project it to RDF and Neo4j, and answer a bounded
+graph-grounded question. The longer-term decision-case vision includes weather,
+capacity, outcomes, lifecycle grouping, and historical similarity, but those
+sources and semantic units are not yet established.
+
+### Decision
+
+The next user-facing stage is a bounded ATCSCC Decision Record Explorer. Its
+purpose is to help a user understand and verify what measure was published,
+which facility it controlled, when it was effective, which reason the advisory
+declared, and which source supports each statement.
+
+The stage reuses the existing Agents and ontology profile. It adds no new Agent
+role, source family, causal explanation, historical ranking, or TMI
+recommendation.
+
+### Reason
+
+- It exposes the value of the existing graph and provenance path to a user.
+- It tests a complete user task before adding more data or semantic layers.
+- It keeps source statements separate from system associations and unsupported
+  causal inference.
+- It creates the minimum interaction foundation needed before advisory
+  lifecycle and cross-source decision-case work.
+
+### Consequences
+
+Pro: the system gains a concrete, verifiable user-facing purpose without
+expanding its evidence claims.
+
+Con: the explorer can explain a published record but cannot yet explain why the
+decision was operationally optimal or recommend a future TMI.
+
+## D010 - Make The Multi-Agent System The Mainline And Pause Visualization
+
+### Date
+
+2026-07-26
+
+### Context
+
+The repository had a working multi-Agent ingest, validation, RDF/Neo4j, and
+bounded Query Agent path, but its root metadata still presented earlier thesis
+experiments, cross-source weather evaluation, Gold workflows, and web-demo work
+as current. The read-only query visualization had also reached a stable
+feature-branch checkpoint.
+
+### Decision
+
+Treat system and framework construction as the only default mainline.
+
+The active deliverable is the source-bounded multi-Agent event knowledge system
+on `main`. Formal experiments remain optional evidence tracks. The
+visualization implementation stays isolated on
+`codex/kg-visualization-research` until the user explicitly requests a merge.
+
+New sessions start from `RESEARCH_AUDIT.md` and `GOALS.md`; they do not preload
+the experiment, result, stage-report, or archive families.
+
+### Reason
+
+- The project is intended to deliver a useful system, not to optimize a paired
+  comparison paper.
+- Stale root metadata repeatedly redirected new sessions into superseded work.
+- Keeping visualization isolated allows the project to return to its semantic
+  and user-value mainline without discarding reviewed UI work.
+
+### Consequences
+
+Pro: current implementation, project goal, and task queue now share one scope.
+Historical experiments remain reproducible without polluting default context.
+
+Con: the next semantic system increment is intentionally undecided and requires
+an explicit user-task contract before implementation.
