@@ -456,12 +456,14 @@ provenance.
 
 - user question;
 - graph-store handle;
+- registered event IDs as graph-scope metadata;
 - ontology labels and property descriptions.
 
 ### 12.3 Allowed tools
 
-- `graph_search`
-- `graph_neighbors`
+- `find_events`
+- `get_event_facts`
+- `get_neighbors`
 - `get_provenance`
 
 ### 12.4 Internal process
@@ -479,7 +481,7 @@ provenance.
 ### 12.5 Limits
 
 - at most three graph-tool calls;
-- at most one model call;
+- at most two model calls for one bounded model-tool-model cycle;
 - no raw advisory reader;
 - no external web or model-memory answer fallback.
 
