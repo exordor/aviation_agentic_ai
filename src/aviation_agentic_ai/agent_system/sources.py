@@ -14,15 +14,21 @@ persisted, so provenance is auditable end-to-end.
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSOnTimeRow,
     SourceFamily,
     SourceRecord,
     SourceSnapshot,
     SourceSnapshotRegistry,
+)
+from aviation_agentic_ai.agent_system.bts_outcomes import (
+    NORMALIZED_SNAPSHOT_SHA256,
+    NORMALIZED_SOURCE_ID,
 )
 from aviation_agentic_ai.cross_source.alignment.registry import (
     build_facility_registry,
@@ -144,6 +150,125 @@ def term_candidates(config: dict[str, Any]) -> list[Any]:
     """Return all FAA term concepts from the term seed."""
 
     return build_term_registry(_cross_source_config(config))
+
+
+def _weather_logical_time(row: dict[str, Any], family: SourceFamily) -> str:
+    field = "reportTime" if family == SourceFamily.METAR else "issueTime"
+    value = row.get(field)
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{family.value} row has no {field}")
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{family.value} {field} must be timezone-aware")
+    return parsed.astimezone(UTC).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _weather_source_id(
+    row: dict[str, Any],
+    family: SourceFamily,
+) -> str:
+    station = row.get("icaoId")
+    raw_field = "rawOb" if family == SourceFamily.METAR else "rawTAF"
+    raw = row.get(raw_field)
+    if not isinstance(station, str) or not station:
+        raise ValueError(f"{family.value} row has no ICAO station")
+    if not isinstance(raw, str) or not raw:
+        raise ValueError(f"{family.value} row has no raw report")
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+    return (
+        f"weather-source:{family.value}:{station}:"
+        f"{_weather_logical_time(row, family)}:{digest}"
+    )
+
+
+def _load_weather_file(path: Path, family: SourceFamily) -> list[SourceRecord]:
+    records: list[SourceRecord] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"invalid {family.value} JSON at line {line_number}"
+            ) from exc
+        if not isinstance(row, dict):
+            raise ValueError(f"{family.value} row must be an object at line {line_number}")
+        records.append(
+            SourceRecord(
+                source_id=_weather_source_id(row, family),
+                family=family,
+                content=line,
+                title=f"{family.value.upper()} {row.get('icaoId', '')}".strip(),
+            )
+        )
+    source_ids = [record.source_id for record in records]
+    if len(source_ids) != len(set(source_ids)):
+        raise ValueError(f"duplicate {family.value} source ID")
+    return records
+
+
+def load_weather_sources(config: dict[str, Any]) -> list[SourceRecord]:
+    """Load exact configured METAR/TAF JSONL rows as deterministic sources."""
+
+    sources = config["sources"]
+    metar = _load_weather_file(
+        resolve_project_path(sources["metar"]),
+        SourceFamily.METAR,
+    )
+    taf = _load_weather_file(
+        resolve_project_path(sources["taf"]),
+        SourceFamily.TAF,
+    )
+    return sorted([*metar, *taf], key=lambda record: record.source_id)
+
+
+def load_bts_context_source(
+    config: dict[str, Any] | None = None,
+) -> tuple[SourceRecord, list[BTSOnTimeRow]]:
+    """Load the tracked, checksum-pinned BTS normalized snapshot."""
+
+    del config
+    data_path = resolve_project_path("data/sources/bts_on_time_2026_05_nyc.jsonl")
+    manifest_path = resolve_project_path(
+        "data/sources/bts_on_time_2026_05_manifest.json"
+    )
+    content = data_path.read_text(encoding="utf-8")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict):
+        raise ValueError("BTS manifest must be an object")
+    if manifest.get("source_id") != NORMALIZED_SOURCE_ID:
+        raise ValueError("BTS manifest source ID does not match the pinned snapshot")
+    checksum = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    if (
+        manifest.get("normalized_sha256") != checksum
+        or checksum != NORMALIZED_SNAPSHOT_SHA256
+    ):
+        raise ValueError("BTS normalized snapshot checksum mismatch")
+    rows: list[BTSOnTimeRow] = []
+    for line_number, line in enumerate(content.splitlines(), 1):
+        if not line:
+            continue
+        try:
+            rows.append(BTSOnTimeRow.model_validate_json(line))
+        except Exception as exc:
+            raise ValueError(
+                f"invalid normalized BTS row at line {line_number}"
+            ) from exc
+    if len(rows) != manifest.get("row_count"):
+        raise ValueError("BTS normalized row count does not match manifest")
+    if len({row.row_id for row in rows}) != len(rows):
+        raise ValueError("duplicate normalized BTS row ID")
+    return (
+        SourceRecord(
+            source_id=NORMALIZED_SOURCE_ID,
+            family=SourceFamily.BTS_ON_TIME,
+            content=content,
+            title="BTS On-Time Performance 2026-05 NYC subset",
+            source_url=str(manifest.get("url") or "") or None,
+        ),
+        rows,
+    )
 
 
 # ---------------------------------------------------------------------------

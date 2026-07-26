@@ -191,6 +191,7 @@ def write_run_manifest(
     graph_patch_raw: str | None,
     prompt_set_id: str,
     profile_gap_count: int,
+    context_artifacts: dict[str, dict[str, Any]] | None = None,
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
 ) -> Path:
     """Write the run manifest (audit memory, design §15).
@@ -232,6 +233,7 @@ def write_run_manifest(
             "path": "profile_gaps.jsonl",
             "count": profile_gap_count,
         },
+        "context_artifacts": context_artifacts or {},
         "evidence_cards": [c.model_dump(mode="json") for c in evidence_cards],
         "graph_patch_raw": graph_patch_raw,
     }

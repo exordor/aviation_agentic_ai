@@ -39,6 +39,8 @@ from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
     facility_candidates,
     load_advisory_source,
+    load_bts_context_source,
+    load_weather_sources,
     term_candidates,
 )
 from aviation_agentic_ai.agent_system.tool_model import (
@@ -76,6 +78,19 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
     catalog = get_prompt_catalog(DEFAULT_PROMPT_CATALOG)
     facilities = facility_candidates(config)
     terms = term_candidates(config)
+    weather_sources = []
+    bts_rows = []
+    bts_source = None
+    weather_failure_reason = ""
+    bts_failure_reason = ""
+    try:
+        weather_sources = load_weather_sources(config)
+    except (OSError, TypeError, ValueError) as exc:
+        weather_failure_reason = str(exc)
+    try:
+        bts_source, bts_rows = load_bts_context_source(config)
+    except (OSError, TypeError, ValueError) as exc:
+        bts_failure_reason = str(exc)
     runs_root = resolve_project_path(
         config.get("paths", {}).get("agent_system_runs_root", "data/runs/agent_system")
     )
@@ -89,6 +104,11 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         advisory=advisory,
         facility_candidates=facilities,
         term_candidates=terms,
+        weather_sources=weather_sources,
+        bts_rows=bts_rows,
+        bts_source=bts_source,
+        weather_failure_reason=weather_failure_reason,
+        bts_failure_reason=bts_failure_reason,
         guide=guide,
         model_invoker=invoker,
         kg_tool_model_factory=lambda tools: make_live_tool_calling_model(
@@ -130,6 +150,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         graph_patch_raw=graph_patch_raw,
         prompt_set_id=catalog.prompt_set_id,
         profile_gap_count=len(validation.profile_gaps) if validation else 0,
+        context_artifacts=state.get("context_artifacts", {}),
         catalog_path=DEFAULT_PROMPT_CATALOG,
     )
     click.echo(f"run_dir: {run_dir}")

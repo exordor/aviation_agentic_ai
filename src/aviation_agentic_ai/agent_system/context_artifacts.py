@@ -1,0 +1,516 @@
+"""Validated artifacts for deterministic weather and public outcome context."""
+
+from __future__ import annotations
+
+import hashlib
+import re
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, TypeVar
+
+from pydantic import BaseModel
+
+from aviation_agentic_ai.agent_system.bts_outcomes import (
+    build_bts_outcome_summaries,
+)
+from aviation_agentic_ai.agent_system.contracts import (
+    BTSOutcomeBundle,
+    BTSOutcomeSummary,
+    DecisionContextEvent,
+    SourceFamily,
+    SourceRecord,
+    SourceSnapshotRegistry,
+    WeatherContextAssociation,
+    WeatherContextBundle,
+    WeatherFactTrace,
+)
+from aviation_agentic_ai.agent_system.materialize import (
+    _absolute_event_iri,
+    materialize_validated_facts,
+)
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.sources import (
+    build_source_snapshot_registry,
+    write_source_snapshot_registry,
+)
+from aviation_agentic_ai.agent_system.weather_context import (
+    FORECASTING_AIRPORT,
+    FORECAST_ISSUE_TIME,
+    INTERVAL_END,
+    INTERVAL_START,
+    METAR_STRING,
+    METEOROLOGICAL_REPORT,
+    RDF_TYPE,
+    TAF_STRING,
+    build_weather_context,
+)
+from aviation_agentic_ai.cross_source.contracts import CanonicalEntity
+
+
+_SIGNATURE_RE = re.compile(
+    r"(?m)^SIGNATURE:\s*\n(?P<stamp>\d{2}/\d{2}/\d{2} \d{2}:\d{2})\s*$"
+)
+_SIGNATURE_FIELD_RE = re.compile(r"(?m)^SIGNATURE:")
+_ATM_START = "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveStartTime"
+_ATM_END = "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveEndTime"
+_WEATHER_PREDICATES = {
+    RDF_TYPE,
+    FORECASTING_AIRPORT,
+    METAR_STRING,
+    TAF_STRING,
+    INTERVAL_START,
+    INTERVAL_END,
+    FORECAST_ISSUE_TIME,
+}
+_APPROVED_ASSOCIATIONS = {
+    "latest_forecast_known_at_issue",
+    "latest_observation_at_or_before_issue",
+    "observation_during_operation",
+}
+_T = TypeVar("_T", bound=BaseModel)
+
+
+def parse_advisory_signature(content: str) -> datetime | None:
+    """Parse the exact ATCSCC ``SIGNATURE`` field as a UTC decision clock."""
+
+    match = _SIGNATURE_RE.search(content)
+    if match is None:
+        if _SIGNATURE_FIELD_RE.search(content):
+            raise ValueError("malformed SIGNATURE field")
+        return None
+    try:
+        parsed = datetime.strptime(match.group("stamp"), "%y/%m/%d %H:%M")
+    except ValueError as exc:
+        raise ValueError("malformed SIGNATURE field") from exc
+    return parsed.replace(tzinfo=UTC)
+
+
+def _parse_accepted_datetime(facts: list[Any], predicate_iri: str) -> datetime:
+    values = [
+        fact.object_value
+        for fact in facts
+        if fact.predicate_iri == predicate_iri and fact.object_kind == "literal"
+    ]
+    if len(values) != 1:
+        raise ValueError(f"accepted core facts require exactly one {predicate_iri}")
+    parsed = datetime.fromisoformat(values[0].replace("Z", "+00:00"))
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("accepted operational period must be timezone-aware")
+    return parsed.astimezone(UTC)
+
+
+def _resolve_facility(ctx: Any, state: dict[str, Any]) -> CanonicalEntity:
+    result = state.get("facility_result")
+    card = getattr(result, "evidence_card", None)
+    status = getattr(getattr(result, "status", None), "value", None)
+    if status != "resolved" or card is None:
+        raise LookupError("canonical facility was not resolved")
+    refs = sorted(set(card.canonical_refs))
+    if len(refs) != 1:
+        raise LookupError("canonical facility resolution is not unique")
+    matches = [
+        candidate
+        for candidate in ctx.facility_candidates
+        if getattr(candidate, "entity_id", None) == refs[0]
+    ]
+    if len(matches) != 1:
+        raise LookupError("canonical facility is absent from accepted candidates")
+    return matches[0]
+
+
+def _build_event(ctx: Any, state: dict[str, Any]) -> DecisionContextEvent:
+    validation = state.get("validation")
+    if validation is None or not validation.publishable:
+        raise LookupError("core event is not publishable")
+    issued_at = parse_advisory_signature(ctx.advisory.content)
+    if issued_at is None:
+        raise LookupError("advisory SIGNATURE is missing")
+    start = _parse_accepted_datetime(validation.accepted, _ATM_START)
+    end = _parse_accepted_datetime(validation.accepted, _ATM_END)
+    event_uri = str(state.get("event_uri") or "")
+    if not event_uri:
+        raise LookupError("accepted event ID is missing")
+    return DecisionContextEvent(
+        run_id=ctx.run_id,
+        event_id=_absolute_event_iri(event_uri),
+        advisory_source_id=ctx.advisory.source_id,
+        advisory_issued_at=issued_at,
+        operational_start=start,
+        operational_end=end,
+    )
+
+
+def validate_weather_context_bundle(
+    bundle: WeatherContextBundle,
+    *,
+    event: DecisionContextEvent,
+    facility: CanonicalEntity,
+    registry: SourceSnapshotRegistry,
+) -> None:
+    """Fail closed before deterministic weather facts reach materialization."""
+
+    if bundle.status != "ok":
+        if (
+            bundle.selected_report_ids
+            or bundle.formal_facts
+            or bundle.fact_traces
+            or bundle.associations
+        ):
+            raise ValueError("non-ok weather bundle contains publishable rows")
+        return
+    if not bundle.selected_report_ids:
+        raise ValueError("ok weather bundle has no selected report")
+    for name, identifiers in (
+        ("weather fact", [fact.fact_id for fact in bundle.formal_facts]),
+        ("weather trace", [trace.fact_id for trace in bundle.fact_traces]),
+        (
+            "weather association",
+            [association.association_id for association in bundle.associations],
+        ),
+    ):
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError(f"duplicate {name} ID")
+    if set(bundle.selected_report_ids) != {
+        association.report_id for association in bundle.associations
+    }:
+        raise ValueError("weather association report set does not match selection")
+
+    trace_by_fact = {trace.fact_id: trace for trace in bundle.fact_traces}
+    report_sources: dict[str, tuple[str, str]] = {}
+    for association in bundle.associations:
+        if association.run_id != event.run_id or association.event_id != event.event_id:
+            raise ValueError("weather association run/event binding mismatch")
+        if association.facility_id != facility.entity_id:
+            raise ValueError("weather association facility binding mismatch")
+        if association.relation_type not in _APPROVED_ASSOCIATIONS:
+            raise ValueError("weather association type is not approved")
+        if association.causal_claim is not False:
+            raise ValueError("weather association must be non-causal")
+        snapshot = registry.get(association.source_id)
+        if snapshot is None or snapshot.family not in {
+            SourceFamily.METAR,
+            SourceFamily.TAF,
+        }:
+            raise ValueError("weather association source is not registered")
+        if snapshot.content_sha256 != association.source_snapshot_sha256:
+            raise ValueError("weather association checksum binding mismatch")
+        source_binding = (
+            association.source_id,
+            association.source_snapshot_sha256,
+        )
+        existing_binding = report_sources.get(association.report_id)
+        if existing_binding is not None and existing_binding != source_binding:
+            raise ValueError("conflicting weather report source binding")
+        report_sources[association.report_id] = source_binding
+
+    for fact in bundle.formal_facts:
+        if fact.predicate_iri not in _WEATHER_PREDICATES:
+            raise ValueError("weather fact uses an unapproved predicate")
+        if fact.subject_class_iri != METEOROLOGICAL_REPORT:
+            raise ValueError("weather fact uses an unapproved subject class")
+        if fact.subject_iri == event.event_id or fact.object_value == event.event_id:
+            raise ValueError("weather facts must not create an event-weather edge")
+        report_id = fact.subject_iri.removeprefix("urn:aviation-agentic-ai:")
+        if report_id not in report_sources:
+            raise ValueError("weather fact subject is not a selected report")
+        if len(fact.source_ids) != 1:
+            raise ValueError("weather fact must cite exactly one source")
+        source_id, checksum = report_sources[report_id]
+        if fact.source_ids != [source_id]:
+            raise ValueError("weather fact source binding mismatch")
+        snapshot = registry.get(source_id)
+        if snapshot is None:
+            raise ValueError("weather fact source is not registered")
+        trace = trace_by_fact.get(fact.fact_id)
+        if trace is None:
+            raise ValueError("weather fact has no matching trace")
+        if (
+            trace.source_id != source_id
+            or trace.source_snapshot_sha256 != checksum
+            or trace.evidence_text not in snapshot.content
+            or fact.evidence_texts != [trace.evidence_text]
+        ):
+            raise ValueError("weather fact trace binding mismatch")
+        if fact.predicate_iri == FORECASTING_AIRPORT:
+            if (
+                fact.object_value != facility.entity_id
+                or fact.object_class_iri
+                != "https://data.nasa.gov/ontologies/atmonto/NAS#Airport"
+            ):
+                raise ValueError("weather report airport binding mismatch")
+    if len(trace_by_fact) != len(bundle.formal_facts):
+        raise ValueError("weather trace set does not match formal facts")
+
+
+def _validate_outcomes(
+    bundle: BTSOutcomeBundle,
+    *,
+    event: DecisionContextEvent,
+    facility: CanonicalEntity,
+    registry: SourceSnapshotRegistry,
+) -> None:
+    if bundle.status != "ok":
+        if bundle.summaries:
+            raise ValueError("non-ok BTS bundle contains summaries")
+        return
+    identifiers = [summary.summary_id for summary in bundle.summaries]
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError("duplicate BTS outcome summary ID")
+    phases = [summary.phase for summary in bundle.summaries]
+    if len(phases) != 3 or len(phases) != len(set(phases)) or set(phases) != {
+        "baseline",
+        "active",
+        "recovery",
+    }:
+        raise ValueError("BTS outcome bundle requires exactly one summary per phase")
+    for summary in bundle.summaries:
+        snapshot = registry.get(summary.source_id)
+        if snapshot is None or snapshot.family != SourceFamily.BTS_ON_TIME:
+            raise ValueError("BTS outcome source is not registered")
+        if (
+            summary.run_id != event.run_id
+            or summary.event_id != event.event_id
+            or summary.facility_id != facility.entity_id
+            or summary.source_snapshot_sha256 != snapshot.content_sha256
+            or summary.causal_claim is not False
+        ):
+            raise ValueError("BTS outcome binding mismatch")
+
+
+def _write_typed_jsonl(
+    path: Path,
+    rows: list[_T],
+    *,
+    id_field: str,
+) -> Path:
+    identifiers = [str(getattr(row, id_field)) for row in rows]
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError(f"duplicate {id_field}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ordered = sorted(rows, key=lambda row: str(getattr(row, id_field)))
+    path.write_text(
+        "".join(row.model_dump_json() + "\n" for row in ordered),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _read_typed_jsonl(path: str | Path, model: type[_T], *, id_field: str) -> list[_T]:
+    rows: list[_T] = []
+    for line_number, line in enumerate(
+        Path(path).read_text(encoding="utf-8").splitlines(),
+        1,
+    ):
+        if not line:
+            continue
+        try:
+            rows.append(model.model_validate_json(line))
+        except Exception as exc:
+            raise ValueError(f"invalid {path} row at line {line_number}") from exc
+    identifiers = [str(getattr(row, id_field)) for row in rows]
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError(f"duplicate {id_field}")
+    return rows
+
+
+def read_context_associations(path: str | Path) -> list[WeatherContextAssociation]:
+    return _read_typed_jsonl(
+        path,
+        WeatherContextAssociation,
+        id_field="association_id",
+    )
+
+
+def read_outcome_summaries(path: str | Path) -> list[BTSOutcomeSummary]:
+    return _read_typed_jsonl(path, BTSOutcomeSummary, id_field="summary_id")
+
+
+def read_weather_fact_traces(path: str | Path) -> list[WeatherFactTrace]:
+    return _read_typed_jsonl(path, WeatherFactTrace, id_field="fact_id")
+
+
+def _artifact_metadata(
+    path: Path,
+    *,
+    status: str,
+    failure_reason: str = "",
+) -> dict[str, Any]:
+    count = sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line)
+    metadata: dict[str, Any] = {
+        "path": path.name,
+        "count": count,
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "status": status,
+    }
+    if status == "blocked":
+        metadata["failure_reason"] = failure_reason
+    return metadata
+
+
+def _empty_weather(status: str, reason: str) -> WeatherContextBundle:
+    return WeatherContextBundle(status=status, failure_reason=reason)
+
+
+def _empty_outcomes(status: str, reason: str) -> BTSOutcomeBundle:
+    return BTSOutcomeBundle(status=status, failure_reason=reason)
+
+
+def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
+    """Attach optional deterministic context while preserving the core event."""
+
+    output_dir = Path(ctx.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    core_materialization = state.get("materialization")
+    decision_event: DecisionContextEvent | None = None
+    facility: CanonicalEntity | None = None
+    common_status = "ok"
+    common_reason = ""
+    try:
+        decision_event = _build_event(ctx, state)
+        facility = _resolve_facility(ctx, state)
+    except LookupError as exc:
+        common_status = "insufficient"
+        common_reason = str(exc)
+    except (TypeError, ValueError) as exc:
+        common_status = "blocked"
+        common_reason = str(exc)
+
+    weather_bundle = _empty_weather(common_status, common_reason)
+    weather_records_by_id: dict[str, SourceRecord] = {}
+    if common_status == "ok" and decision_event is not None and facility is not None:
+        if ctx.weather_failure_reason:
+            weather_bundle = _empty_weather("blocked", ctx.weather_failure_reason)
+        elif not ctx.weather_sources:
+            weather_bundle = _empty_weather(
+                "insufficient",
+                "no weather sources were provided",
+            )
+        else:
+            try:
+                weather_records_by_id = {
+                    record.source_id: record for record in ctx.weather_sources
+                }
+                transient_registry = build_source_snapshot_registry(
+                    [ctx.advisory, *ctx.weather_sources]
+                )
+                weather_bundle = build_weather_context(
+                    decision_event,
+                    facility,
+                    transient_registry,
+                )
+                validate_weather_context_bundle(
+                    weather_bundle,
+                    event=decision_event,
+                    facility=facility,
+                    registry=transient_registry,
+                )
+            except (TypeError, ValueError) as exc:
+                weather_bundle = _empty_weather("blocked", str(exc))
+
+    outcome_bundle = _empty_outcomes(common_status, common_reason)
+    bts_record: SourceRecord | None = None
+    if common_status == "ok" and decision_event is not None and facility is not None:
+        if ctx.bts_failure_reason:
+            outcome_bundle = _empty_outcomes("blocked", ctx.bts_failure_reason)
+        elif ctx.bts_source is None or not ctx.bts_rows:
+            outcome_bundle = _empty_outcomes(
+                "insufficient",
+                "no BTS normalized snapshot was provided",
+            )
+        else:
+            try:
+                bts_record = ctx.bts_source
+                bts_registry = build_source_snapshot_registry([bts_record])
+                bts_snapshot = bts_registry.snapshots[0]
+                outcome_bundle = build_bts_outcome_summaries(
+                    decision_event,
+                    facility,
+                    ctx.bts_rows,
+                    source_id=bts_record.source_id,
+                    source_snapshot_sha256=bts_snapshot.content_sha256,
+                )
+                _validate_outcomes(
+                    outcome_bundle,
+                    event=decision_event,
+                    facility=facility,
+                    registry=bts_registry,
+                )
+            except (TypeError, ValueError) as exc:
+                outcome_bundle = _empty_outcomes("blocked", str(exc))
+
+    persisted_records = [ctx.advisory]
+    if weather_bundle.status == "ok":
+        selected_source_ids = sorted(
+            {association.source_id for association in weather_bundle.associations}
+        )
+        persisted_records.extend(
+            weather_records_by_id[source_id] for source_id in selected_source_ids
+        )
+    if outcome_bundle.status == "ok" and bts_record is not None:
+        persisted_records.append(bts_record)
+    persisted_registry = build_source_snapshot_registry(persisted_records)
+    snapshots_path = write_source_snapshot_registry(
+        persisted_registry,
+        output_dir,
+    )
+
+    materialization = core_materialization
+    if (
+        weather_bundle.status == "ok"
+        and state.get("validation") is not None
+        and state["validation"].publishable
+    ):
+        materialization = materialize_validated_facts(
+            facts=[*state["validation"].accepted, *weather_bundle.formal_facts],
+            guide=ctx.guide or load_schema_guide(),
+            source_snapshot=persisted_registry,
+            output_dir=output_dir,
+        )
+
+    associations = (
+        weather_bundle.associations if weather_bundle.status == "ok" else []
+    )
+    traces = weather_bundle.fact_traces if weather_bundle.status == "ok" else []
+    summaries = outcome_bundle.summaries if outcome_bundle.status == "ok" else []
+    association_path = _write_typed_jsonl(
+        output_dir / "context_associations.jsonl",
+        associations,
+        id_field="association_id",
+    )
+    outcome_path = _write_typed_jsonl(
+        output_dir / "outcome_summaries.jsonl",
+        summaries,
+        id_field="summary_id",
+    )
+    trace_path = _write_typed_jsonl(
+        output_dir / "weather_fact_trace.jsonl",
+        traces,
+        id_field="fact_id",
+    )
+    context_artifacts = {
+        "source_snapshots": _artifact_metadata(snapshots_path, status="ok"),
+        "context_associations": _artifact_metadata(
+            association_path,
+            status=weather_bundle.status,
+            failure_reason=weather_bundle.failure_reason,
+        ),
+        "outcome_summaries": _artifact_metadata(
+            outcome_path,
+            status=outcome_bundle.status,
+            failure_reason=outcome_bundle.failure_reason,
+        ),
+        "weather_fact_trace": _artifact_metadata(
+            trace_path,
+            status=weather_bundle.status,
+            failure_reason=weather_bundle.failure_reason,
+        ),
+    }
+    return {
+        "decision_context_event": decision_event,
+        "weather_context": weather_bundle,
+        "outcome_context": outcome_bundle,
+        "context_artifacts": context_artifacts,
+        "source_snapshot": persisted_registry,
+        "materialization": materialization,
+        "model_calls": [],
+    }

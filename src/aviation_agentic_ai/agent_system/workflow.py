@@ -39,9 +39,13 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentResult,
     AgentStatus,
     AgentTask,
+    BTSOnTimeRow,
     GraphValidationResult,
     ModelCallRecord,
     SourceRecord,
+)
+from aviation_agentic_ai.agent_system.context_artifacts import (
+    integrate_decision_context,
 )
 from aviation_agentic_ai.agent_system.formal_graph import (
     validate_graph_patch,
@@ -69,6 +73,11 @@ class IngestContext:
     advisory: SourceRecord
     facility_candidates: list[Any] = field(default_factory=list)
     term_candidates: list[Any] = field(default_factory=list)
+    weather_sources: list[SourceRecord] = field(default_factory=list)
+    bts_rows: list[BTSOnTimeRow] = field(default_factory=list)
+    bts_source: SourceRecord | None = None
+    weather_failure_reason: str = ""
+    bts_failure_reason: str = ""
     guide: SchemaGuide | None = None
     model_invoker: ModelInvoker | None = None
     kg_tool_model_factory: ToolModelFactory | None = None
@@ -96,6 +105,10 @@ class IngestState(TypedDict):
     materialization: Any
     validation: Any
     source_snapshot: Any
+    decision_context_event: Any
+    weather_context: Any
+    outcome_context: Any
+    context_artifacts: Any
     model_calls: Annotated[list, operator.add]
 
 
@@ -109,6 +122,7 @@ def build_ingest_graph() -> Any:
     sg.add_node("join", _join_node)
     sg.add_node("kg_construction", _kg_construction_node)
     sg.add_node("materialize", _materialize_node)
+    sg.add_node("decision_context", _decision_context_node)
     sg.add_edge(START, "advisory")
     # Parallel fan-out after the Advisory Agent.
     sg.add_edge("advisory", "facility")
@@ -118,7 +132,8 @@ def build_ingest_graph() -> Any:
     sg.add_edge("terminology", "join")
     sg.add_edge("join", "kg_construction")
     sg.add_edge("kg_construction", "materialize")
-    sg.add_edge("materialize", END)
+    sg.add_edge("materialize", "decision_context")
+    sg.add_edge("decision_context", END)
     return sg.compile()
 
 
@@ -409,6 +424,12 @@ def _materialize_node(state: dict) -> dict:
         "validation": validation,
         "source_snapshot": snapshot_registry,
     }
+
+
+def _decision_context_node(state: dict) -> dict:
+    """Attach deterministic optional context without issuing model calls."""
+
+    return integrate_decision_context(_ctx(), state)
 
 
 def run_ingest(ctx: IngestContext) -> dict:

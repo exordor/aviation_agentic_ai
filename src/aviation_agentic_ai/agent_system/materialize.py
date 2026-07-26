@@ -462,6 +462,9 @@ _PROV_WAS_DERIVED_FROM_IRI = "http://www.w3.org/ns/prov#wasDerivedFrom"
 _PROV_NAMESPACE = "http://www.w3.org/ns/prov#"
 _RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 _XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#"
+_DATA_NAMESPACE = "https://data.nasa.gov/ontologies/atmonto/data#"
+_METEOROLOGICAL_REPORT_IRI = f"{_DATA_NAMESPACE}MeteorologicalReport"
+_FORECASTING_AIRPORT_IRI = f"{_DATA_NAMESPACE}forecastingAirport"
 _FACT_NAMESPACE = "urn:aviation-agentic-ai:fact:"
 _EVENT_NAMESPACE = "urn:aviation-agentic-ai:event:"
 _SOURCE_NAMESPACE = "urn:aviation-agentic-ai:source:"
@@ -470,8 +473,10 @@ _SOURCE_NAMESPACE = "urn:aviation-agentic-ai:source:"
 _LABEL_EVENT = "AviationEvent"
 _LABEL_FACILITY = "Facility"
 _LABEL_SOURCE = "SourceRecord"
+_LABEL_WEATHER_REPORT = "MeteorologicalReport"
 _REL_CONTROLLED = "CONTROLLED_NAS_ELEMENT"
 _REL_DERIVED = "DERIVED_FROM"
+_REL_FORECASTING_AIRPORT = "FORECASTING_AIRPORT"
 
 
 @dataclass(frozen=True)
@@ -646,6 +651,7 @@ def _build_rdflib_graph() -> Any:
     g.bind("xsd", XSD)
     g.bind("atm", "https://data.nasa.gov/ontologies/atmonto/ATM#")
     g.bind("nas", "https://data.nasa.gov/ontologies/atmonto/NAS#")
+    g.bind("data", _DATA_NAMESPACE)
     g.bind("prov", _PROV_NAMESPACE)
     g.bind("aviation-event", _EVENT_NAMESPACE)
     g.bind("aviation-source", _SOURCE_NAMESPACE)
@@ -694,6 +700,7 @@ def _predicate_prefixed(fact: ValidatedFact) -> str:
     for prefix, ns in (
         ("atm", "https://data.nasa.gov/ontologies/atmonto/ATM#"),
         ("nas", "https://data.nasa.gov/ontologies/atmonto/NAS#"),
+        ("data", _DATA_NAMESPACE),
         ("rdf", _RDF_NAMESPACE),
         ("prov", _PROV_NAMESPACE),
     ):
@@ -710,6 +717,13 @@ def _class_prefixed(class_iri: str | None, guide: SchemaGuide) -> str:
     for cls in guide.classes.values():
         if cls.iri == class_iri:
             return cls.prefixed_name
+    for prefix, namespace in (
+        ("atm", "https://data.nasa.gov/ontologies/atmonto/ATM#"),
+        ("nas", "https://data.nasa.gov/ontologies/atmonto/NAS#"),
+        ("data", _DATA_NAMESPACE),
+    ):
+        if class_iri.startswith(namespace):
+            return f"{prefix}:{class_iri[len(namespace):]}"
     return class_iri
 
 
@@ -778,6 +792,25 @@ def build_validated_facts_neo4j_projection(
             }
         return facility_iri
 
+    def _ensure_weather_report(subject_iri: str, class_iri: str) -> str:
+        report_id = _absolute_event_iri(subject_iri)
+        if report_id not in nodes:
+            nodes[report_id] = {
+                "id": report_id,
+                "label": _LABEL_WEATHER_REPORT,
+                "properties": {
+                    "id": report_id,
+                    "ontology_class_iri": class_iri,
+                    "schema_slice_id": slice_id,
+                },
+            }
+        return report_id
+
+    def _ensure_subject(subject_iri: str, class_iri: str) -> str:
+        if class_iri == _METEOROLOGICAL_REPORT_IRI:
+            return _ensure_weather_report(subject_iri, class_iri)
+        return _ensure_event(subject_iri, class_iri)
+
     def _ensure_source(source_id: str) -> str:
         sid_iri = _source_iri(source_id)
         if sid_iri not in nodes:
@@ -794,26 +827,36 @@ def build_validated_facts_neo4j_projection(
     for fact in facts:
         # rdf:type -> ensure the event node exists with its class.
         if _is_rdf_type_predicate(fact.predicate_iri):
-            _ensure_event(fact.subject_iri, fact.object_value if _is_absolute(fact.object_value) else fact.subject_class_iri)
+            _ensure_subject(
+                fact.subject_iri,
+                fact.object_value
+                if _is_absolute(fact.object_value)
+                else fact.subject_class_iri,
+            )
             continue
         # prov:wasDerivedFrom -> DERIVED_FROM relationship to a SourceRecord node.
         if _is_prov_predicate(fact.predicate_iri):
-            event_id = _ensure_event(fact.subject_iri, fact.subject_class_iri)
+            event_id = _ensure_subject(fact.subject_iri, fact.subject_class_iri)
             src_id = _ensure_source(fact.object_value)
             _add_relationship(_relationship(event_id, src_id, _REL_DERIVED, fact, slice_id))
             continue
         # Object property (e.g. controlledNASelement) -> typed relationship.
         if fact.object_kind == "iri":
-            event_id = _ensure_event(fact.subject_iri, fact.subject_class_iri)
+            event_id = _ensure_subject(fact.subject_iri, fact.subject_class_iri)
             facility_id = _ensure_facility(
                 fact.object_value if _is_absolute(fact.object_value) else _absolute_event_iri(fact.object_value),
                 fact.object_class_iri or "",
             )
-            rel_type = _REL_CONTROLLED if "controlledNASelement" in fact.predicate_iri else _relationship_type_for(fact.predicate_iri)
+            if fact.predicate_iri == _FORECASTING_AIRPORT_IRI:
+                rel_type = _REL_FORECASTING_AIRPORT
+            elif "controlledNASelement" in fact.predicate_iri:
+                rel_type = _REL_CONTROLLED
+            else:
+                rel_type = _relationship_type_for(fact.predicate_iri)
             _add_relationship(_relationship(event_id, facility_id, rel_type, fact, slice_id))
             continue
         # Datatype property -> set on the event node (no Literal node).
-        event_id = _ensure_event(fact.subject_iri, fact.subject_class_iri)
+        event_id = _ensure_subject(fact.subject_iri, fact.subject_class_iri)
         prop_name = _predicate_local_name(fact.predicate_iri)
         nodes[event_id]["properties"][prop_name] = _coerce_datatype_value(fact)
 
@@ -828,7 +871,7 @@ def build_validated_facts_neo4j_projection(
         rel_id for rel_id, rel in relationships.items() if rel["type"] == _REL_DERIVED
     }
     for fact in facts:
-        event_id = _ensure_event(fact.subject_iri, fact.subject_class_iri)
+        event_id = _ensure_subject(fact.subject_iri, fact.subject_class_iri)
         for source_id in fact.source_ids:
             src_id = _ensure_source(source_id)
             rel_id = stable_id("neo4j-rel", event_id, _PROV_WAS_DERIVED_FROM_IRI, src_id)
@@ -945,8 +988,17 @@ class Neo4jLoadBlocked(RuntimeError):
     """Raised when Neo4j load cannot proceed (plan §6.2: BLOCKED, not faked)."""
 
 
-_ALLOWED_NEO4J_LABELS = {_LABEL_EVENT, _LABEL_FACILITY, _LABEL_SOURCE}
-_ALLOWED_NEO4J_RELATIONSHIPS = {_REL_CONTROLLED, _REL_DERIVED}
+_ALLOWED_NEO4J_LABELS = {
+    _LABEL_EVENT,
+    _LABEL_FACILITY,
+    _LABEL_SOURCE,
+    _LABEL_WEATHER_REPORT,
+}
+_ALLOWED_NEO4J_RELATIONSHIPS = {
+    _REL_CONTROLLED,
+    _REL_DERIVED,
+    _REL_FORECASTING_AIRPORT,
+}
 _SAFE_NEO4J_TOKEN = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
 

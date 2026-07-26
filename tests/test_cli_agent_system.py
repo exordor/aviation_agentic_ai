@@ -12,6 +12,8 @@ import aviation_agentic_ai.cli_agent_system as cli_module
 from aviation_agentic_ai.agent_system.contracts import (
     ModelCallRecord,
     ModelToolCall,
+    SourceFamily,
+    SourceRecord,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     DECLARED_REASON_QUESTION,
@@ -215,3 +217,127 @@ def test_supported_cli_question_runs_native_tool_loop(tmp_path, monkeypatch):
     assert "graph_facts_seen: 4" in result.output
     assert "model_calls: 2" in result.output
     assert "tool_calls: 1" in result.output
+
+
+def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
+    tmp_path,
+    monkeypatch,
+):
+    captured = {}
+    advisory = SourceRecord(
+        source_id=SOURCE_ID,
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="SIGNATURE:\n26/05/19 21:38\n",
+    )
+    weather = SourceRecord(
+        source_id="weather-source:metar:KJFK:test",
+        family=SourceFamily.METAR,
+        content='{"icaoId":"KJFK","rawOb":"METAR KJFK","reportTime":"2026-05-19T21:30:00Z"}',
+    )
+    bts = SourceRecord(
+        source_id="bts_on_time:2026-05:nyc",
+        family=SourceFamily.BTS_ON_TIME,
+        content="{}\n",
+    )
+    monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
+    monkeypatch.setattr(cli_module, "facility_candidates", lambda config: [])
+    monkeypatch.setattr(cli_module, "term_candidates", lambda config: [])
+    monkeypatch.setattr(cli_module, "load_weather_sources", lambda config: [weather])
+    monkeypatch.setattr(cli_module, "load_bts_context_source", lambda config: (bts, []))
+    monkeypatch.setattr(cli_module, "new_run_directory", lambda root, source_id: tmp_path)
+    monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        lambda **kwargs: object(),
+    )
+
+    def fake_run(ctx):
+        captured["ctx"] = ctx
+        return {
+            "model_calls": [],
+            "materialization": None,
+            "validation": None,
+            "kg_result": None,
+            "context_artifacts": {},
+        }
+
+    monkeypatch.setattr(cli_module, "run_ingest", fake_run)
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ingest",
+            "--source-id",
+            SOURCE_ID,
+            "--config",
+            "configs/cross_source_v1.yaml",
+            "--allow-live-model",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert captured["ctx"].weather_sources == [weather]
+    assert captured["ctx"].bts_source == bts
+    assert captured["ctx"].weather_failure_reason == ""
+    assert captured["ctx"].bts_failure_reason == ""
+
+
+def test_ingest_records_optional_loader_failures_for_the_context_layer(
+    tmp_path,
+    monkeypatch,
+):
+    captured = {}
+    advisory = SourceRecord(
+        source_id=SOURCE_ID,
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="SIGNATURE:\n26/05/19 21:38\n",
+    )
+    monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
+    monkeypatch.setattr(cli_module, "facility_candidates", lambda config: [])
+    monkeypatch.setattr(cli_module, "term_candidates", lambda config: [])
+    monkeypatch.setattr(
+        cli_module,
+        "load_weather_sources",
+        lambda config: (_ for _ in ()).throw(ValueError("weather checksum mismatch")),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "load_bts_context_source",
+        lambda config: (_ for _ in ()).throw(ValueError("BTS checksum mismatch")),
+    )
+    monkeypatch.setattr(cli_module, "new_run_directory", lambda root, source_id: tmp_path)
+    monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        lambda **kwargs: object(),
+    )
+
+    def fake_run(ctx):
+        captured["ctx"] = ctx
+        return {
+            "model_calls": [],
+            "materialization": None,
+            "validation": None,
+            "kg_result": None,
+            "context_artifacts": {},
+        }
+
+    monkeypatch.setattr(cli_module, "run_ingest", fake_run)
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ingest",
+            "--source-id",
+            SOURCE_ID,
+            "--config",
+            "configs/cross_source_v1.yaml",
+            "--allow-live-model",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert captured["ctx"].weather_sources == []
+    assert captured["ctx"].bts_source is None
+    assert captured["ctx"].weather_failure_reason == "weather checksum mismatch"
+    assert captured["ctx"].bts_failure_reason == "BTS checksum mismatch"
