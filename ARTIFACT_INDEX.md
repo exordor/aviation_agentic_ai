@@ -17,8 +17,11 @@ is current.
 | `docs/multi_agent_kg_system_design.md` | Normative multi-Agent system design. |
 | `src/aviation_agentic_ai/agent_system/` | Active Agent-system implementation. |
 | `tests/test_agent_system*.py`, `tests/test_cli_agent_system.py` | Focused Agent-system acceptance surface. |
-| `configs/cross_source_v1.yaml` | Admitted ATCSCC, facility, and terminology source configuration reused by the system. |
+| `configs/cross_source_v1.yaml` | Admitted ATCSCC, facility, terminology, Weather-context, and BTS-proxy source configuration. |
 | `configs/prompts/agent_system_v1.yaml` | Versioned Agent-system prompt configuration. |
+| `data/ontology/curated/nasa_atmonto_decision_context_weather_slice.json` | Curated formal vocabulary for Weather report nodes only. |
+| `data/sources/bts_on_time_2026_05_manifest.json` | Pinned BTS archive/member checksums, normalization contract, and source identity. |
+| `data/sources/bts_on_time_2026_05_nyc.jsonl` | Tracked 1,978-row normalized JFK/EWR/LGA snapshot for 2026-05-19/20. |
 
 ## Decision-Record Reference
 
@@ -34,9 +37,13 @@ Validated Agent-system runs are written under ignored local run directories and
 may contain:
 
 - `source_snapshot.json`;
+- `source_snapshots.jsonl`;
 - `run_manifest.json`;
 - `fact_trace.jsonl`;
+- `weather_fact_trace.jsonl`;
 - `profile_gaps.jsonl`;
+- `context_associations.jsonl`;
+- `outcome_summaries.jsonl`;
 - `kg.jsonl`;
 - `kg.ttl`;
 - `neo4j_nodes.jsonl`;
@@ -47,6 +54,19 @@ may contain:
 These directories are reproducible, environment-specific, and may contain raw
 provider material. Do not commit them. Summarize a selected run in a small
 tracked report only when it supports a durable system claim.
+
+`source_snapshot.json` is the compatibility snapshot for older single-source
+runs. New runs use `source_snapshots.jsonl` as the canonical registry.
+`context_associations.jsonl` and `outcome_summaries.jsonl` are audit-only:
+Weather associations are non-causal and BTS summaries are public operational
+proxies. Neither artifact is serialized as RDF or Neo4j relationships.
+
+The run manifest owns the optional-layer publication state:
+
+- `ok`: validated rows may be read within their declared layer;
+- `insufficient`: no eligible evidence exists and the artifact is empty;
+- `blocked`: checksum, schema, source binding, or validation failed and no
+  rows are publishable.
 
 ## Optional Evaluation Tracks
 

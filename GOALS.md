@@ -31,10 +31,15 @@ record:
 - which facility it controlled;
 - when it applied;
 - which reason the source declared;
+- which time-bounded forecast and observation records were available as
+  non-causal context;
+- which public BTS operational proxies describe the baseline, active, and
+  recovery windows;
 - which source and graph fact support each statement.
 
 It must distinguish formal graph facts, source-bound profile gaps, derived
-provenance, and genuinely missing information.
+provenance, non-causal context associations, public outcome proxies, and
+genuinely missing information.
 
 ## Completed Foundation
 
@@ -54,6 +59,24 @@ The current `main` branch provides:
 
 The three approved records - Ground Stop `123`, Ground Delay Program `138`, and
 missing-reason cancellation `020` - exercise those capabilities.
+
+## Current Approved Extension
+
+Decision Context Case v0 adds deterministic Weather and BTS adapters for the
+same three records:
+
+- eligible TAF and METAR reports become source-bound weather report facts;
+- event-to-weather links remain audit-only associations with
+  `causal_claim=false`;
+- BTS data is summarized into public operational proxies for fixed baseline,
+  active, and recovery windows;
+- BTS summaries remain outside RDF and Neo4j and are never represented as FAA
+  demand, AAR, capacity, or EDCT;
+- missing or invalid optional layers remain `insufficient` or `blocked` without
+  invalidating an otherwise verified ATCSCC event.
+
+The extension adds no Agent role and no model call. It reconstructs auditable
+historical context; it does not evaluate operational optimality.
 
 ## Success Criteria
 
@@ -76,10 +99,13 @@ The read-only visualization batch has reached a stable stopping point on
 `codex/kg-visualization-research`. It is an optional presentation layer and is
 not merged into `main`.
 
-After this metadata cleanup, the next mainline capability must be chosen
-explicitly. Plausible later increments include decision-episode identity or
-additional source-bounded situation evidence, but neither is active until its
-data boundary and user task are approved.
+The active semantic increment is Decision Context Case v0 on
+`codex/decision-context-cases`. It is under local review and is not merged into
+`main`.
+
+Later increments still require an explicit user task and source boundary.
+Possible directions include decision-episode identity, regional weather,
+ASPM-based demand/capacity evidence, and historical case retrieval.
 
 ## Deferred Work
 

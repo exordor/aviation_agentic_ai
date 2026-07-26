@@ -379,3 +379,64 @@ Historical experiments remain reproducible without polluting default context.
 
 Con: the next semantic system increment is intentionally undecided and requires
 an explicit user-task contract before implementation.
+
+## D011 - Add Non-Causal Decision Context Before Case Recommendation
+
+### Date
+
+2026-07-26
+
+### Context
+
+The Decision Record Explorer established reliable source-grounded access to
+three ATCSCC records, including a formal GDP reason, a Ground Stop profile gap,
+and an honest missing-reason cancellation. It did not reconstruct what weather
+information was available at issue time or what public operational results
+surrounded the TMI period.
+
+The user approved a bounded next increment over the same three records. The
+available tracked data supports deterministic TAF/METAR selection and a pinned
+BTS On-Time subset without adding a model-mediated source-fusion step.
+
+### Decision
+
+Implement Decision Context Case v0 as an additive deterministic layer:
+
+- select only TAF reports issued no later than the advisory and valid during
+  the TMI operational period;
+- select METAR reports only within the approved pre-issue and operational
+  windows;
+- store event-to-weather links as non-causal context associations;
+- summarize pinned public BTS rows into baseline, active, and recovery-window
+  operational proxies;
+- keep BTS summaries outside RDF and Neo4j;
+- preserve the original reason status for all three records;
+- expose the validated context and outcome summaries through bounded read-only
+  Query Agent tools.
+
+The system does not map BTS values to FAA demand, Airport Arrival Rate,
+capacity, or EDCT. Carrier-reported weather and NAS delay fields remain source
+attributions, not causal findings. The extension adds no Agent role, graph-write
+tool, recommendation policy, or model call.
+
+### Reason
+
+- It advances the user task from reading a decision record to reconstructing an
+  auditable historical case.
+- Deterministic adapters are appropriate for stable structured source fields.
+- Separate formal facts, context associations, and outcome summaries preserve
+  the semantic boundary between source statements, temporal context, and public
+  proxies.
+- The three-record scope can reveal source-binding, temporal-leakage, and
+  missing-evidence failures before broader data expansion.
+
+### Consequences
+
+Pro: the system can retrieve a bounded decision record together with
+decision-time weather context and public operational proxies while retaining
+source-level provenance and honest missing states.
+
+Con: the reconstructed case does not establish why a TMI was selected, whether
+it caused an outcome, or whether it was operationally optimal. ASPM demand,
+AAR, capacity, EDCT, regional weather, lifecycle grouping, historical ranking,
+and TMI recommendation remain separate future decisions.

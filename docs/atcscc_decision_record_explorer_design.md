@@ -283,9 +283,12 @@ If the expected call count exceeds eight, stop and request a scope decision.
 
 ## 13. Explicitly Deferred Work
 
-The next semantic stage after this explorer is a decision-episode skeleton that
-groups initial, revised, extended, and cancelled advisories. Only after stable
-episode identity exists should the project add decision-time TAF/METAR evidence.
+After this Explorer stage, the separately approved Decision Context Case v0
+increment adds time-bounded TAF/METAR context and public BTS operational proxies
+for the same three records. It preserves the Explorer's reason semantics,
+creates no causal event-to-weather fact, and does not merge the paused browser
+branch.
 
-ASPM outcomes, flight-level impact, historical similarity, candidate ranking,
-and TMI recommendation remain later stages.
+Decision-episode grouping, ASPM demand/capacity evidence, flight-level impact,
+historical similarity, candidate ranking, and TMI recommendation remain later
+stages.

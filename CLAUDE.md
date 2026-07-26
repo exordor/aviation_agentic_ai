@@ -18,7 +18,9 @@ Aviation Agentic AI is a system and framework project. It converts one
 retrospective FAA ATCSCC advisory and bounded FAA authority records into a
 validated event knowledge graph, RDF/Turtle, and a Neo4j projection, then
 answers a registered set of decision-record questions with explicit source
-evidence.
+evidence. The active Decision Context Case extension adds deterministic,
+time-bounded METAR/TAF context and public BTS operational proxies without
+adding an Agent role or model call.
 
 LLMs perform bounded interpretation and graph construction. Deterministic
 validation is the publication gate.
@@ -26,6 +28,9 @@ validation is the publication gate.
 The project does not currently claim weather-based causal explanation,
 historical-case recommendation, full-corpus autonomous processing, general
 aviation question answering, or live operational decision support.
+
+BTS summaries must never be described as FAA demand, AAR, capacity, or EDCT.
+Weather associations and BTS summaries remain non-causal.
 
 ## Repository Rules
 

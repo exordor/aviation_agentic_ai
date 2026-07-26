@@ -1,8 +1,8 @@
 # Multi-Agent Aviation Event Knowledge System
 
 Status: normative implementation design
-Version: 1.0
-Date: 2026-07-25
+Version: 1.1
+Date: 2026-07-26
 
 ## 1. Purpose
 
@@ -11,9 +11,10 @@ multi-Agent aviation event knowledge system.
 
 The system reads one retrospective FAA ATCSCC advisory together with
 authoritative facility and terminology sources, coordinates source-specialist
-Agents, constructs an ontology-guided event knowledge graph, materializes it as
-RDF and a Neo4j projection, and answers a user question from that graph with
-source references.
+Agents, constructs an ontology-guided event knowledge graph, and answers a user
+question from that graph with source references. The Decision Context Case v0
+extension deterministically adds time-bounded METAR/TAF context and public BTS
+operational proxies without adding Agent roles or causal claims.
 
 The project objective is to build a useful and extensible system. It is not
 currently a Single-Agent versus Multi-Agent comparison experiment, a Gold-set
@@ -27,7 +28,10 @@ ATCSCC advisory
     -> Facility Agent and Terminology Agent
     -> Knowledge Graph Construction Agent
     -> ontology-constrained Graph Patch
-    -> RDF and Neo4j
+    -> core formal validation and materialization
+    -> deterministic decision_context node
+       -> Weather context and BTS outcome adapters
+       -> final RDF and Neo4j artifacts
     -> Query Agent
     -> graph-grounded answer with source IDs
 ```
@@ -39,7 +43,10 @@ ATCSCC advisory
 - One real ATCSCC advisory per ingest command.
 - NASR and ARTCC authority data for facility resolution.
 - FAA terminology and the existing operational-term registry.
+- Deterministic METAR/TAF selection for decision-time and operational context.
+- Deterministic BTS On-Time aggregation for public operational proxies.
 - The existing NASA ATMONTO-derived ATCSCC schema profile.
+- The curated NASA ATMONTO weather profile slice.
 - Five named Agent roles:
   - Advisory Agent
   - Facility Agent
@@ -58,7 +65,9 @@ ATCSCC advisory
 - Single-Agent versus Multi-Agent comparisons.
 - Gold construction, benchmark scoring, and go/no-go research claims.
 - Critic, Verifier, Self-Refine, debate, voting, and repair Agents.
-- Weather ingestion and weather Agents.
+- Weather Agents and broader weather-source expansion.
+- Weather-based causal explanation.
+- ASPM demand, AAR, capacity, EDCT, and runway configuration.
 - Cross-advisory event coreference.
 - Full-corpus model execution over all 718 advisories.
 - Generic RAG, vector-memory expansion, and automatic prompt learning.
@@ -101,12 +110,18 @@ flowchart LR
     F --> J
     J --> K["Graph Patch Parser"]
     K --> L["Schema Validator"]
-    L --> M["RDF / Neo4j Materializer"]
-    M --> N["Knowledge Graph"]
+    L --> M["Core RDF / Neo4j Materializer"]
+    M --> S["Deterministic decision_context"]
+    T["METAR / TAF Snapshots"] --> S
+    U["BTS On-Time Snapshot"] --> S
+    S --> N["Final Formal Knowledge Graph"]
+    S --> W["Audit-only Context / Outcome Artifacts"]
     O["User Question"] --> P["Query Agent"]
     P --> Q["Graph Search Tools"]
     Q --> N
     N --> Q
+    Q --> W
+    W --> Q
     Q --> P
     P --> R["Answer with Source IDs"]
 ```
@@ -114,6 +129,39 @@ flowchart LR
 The Workflow Coordinator is a deterministic LangGraph controller. It creates
 tasks, performs fan-out and join, and records state transitions. It does not
 call an LLM and is not counted as an Agent role.
+
+### 4.1 Decision Context Case v0 extension
+
+After the core event and canonical facility pass formal validation, the
+`decision_context` node invokes two deterministic adapters. Weather is
+validated against a transient advisory-plus-Weather registry; BTS is validated
+against a separate BTS-only registry. The node then persists one combined
+registry containing the advisory and only the selected, validated context
+sources:
+
+```text
+validated event + canonical airport + METAR/TAF snapshots
+  -> source-derived report selection
+  -> formal MeteorologicalReport facts
+  -> audit-only non-causal context associations
+
+validated event + canonical airport + normalized BTS snapshot
+  -> baseline / active / recovery aggregation
+  -> audit-only public outcome summaries
+```
+
+TAF must be issued at or before the advisory signature time and overlap the
+operational period. METAR selection is limited to the latest observation in the
+two hours before issue plus observations in the half-open operational period.
+BTS windows are half-open and fixed to baseline `[-2h, start)`, active
+`[start, end)`, and recovery `[end, +6h)`.
+
+Weather reports may enter the formal graph only through the curated weather
+profile. Event-to-report associations remain outside RDF and Neo4j with
+`causal_claim=false`. BTS summaries never enter the formal graph and must not
+be mapped to FAA demand, AAR, capacity, EDCT, or ASPM fields.
+`WeatherDelay` and `NASDelay` retain their source meaning as carrier-reported
+attributions and are not causal labels.
 
 ## 5. Ontology and Schema Guide
 
@@ -478,6 +526,13 @@ provenance.
 - `get_event_facts`
 - `get_neighbors`
 - `get_provenance`
+- `get_profile_gaps`
+
+Two typed high-level tools are available only to the deterministic query
+router, not to the model-visible tool registry:
+
+- `get_decision_context`
+- `get_outcome_summary`
 
 ### 12.4 Internal process
 
@@ -491,18 +546,28 @@ provenance.
 6. Generate a concise natural-language answer.
 7. List the supporting source IDs.
 
+Registered deterministic intents cover measure, facility, operational period,
+declared reason, provenance, forecast known at decision time, observed weather
+context, public operational outcome proxies, and one reconstructed-case
+question. Unsupported, absent, or malformed optional context is decided before
+model construction.
+
 ### 12.5 Limits
 
 - at most three graph-tool calls;
 - at most two model calls for one bounded model-tool-model cycle;
 - no raw advisory reader;
 - no external web or model-memory answer fallback.
+- no Weather or BTS graph-write tool;
+- no provider call for registered deterministic context intents.
 
 ### 12.6 Stop conditions
 
 - no supporting graph evidence: answer `Insufficient graph evidence.`;
 - missing provenance: omit the unsupported claim;
 - graph-store failure: `blocked`.
+- a valid missing optional layer: `insufficient`;
+- checksum, schema, source binding, or layer-disjointness failure: `blocked`.
 
 ## 13. Deterministic Components
 
@@ -510,7 +575,11 @@ The following are infrastructure, not Agents:
 
 - Workflow Coordinator;
 - source loaders;
+- multi-source snapshot registry;
 - structured-field parser;
+- Weather context adapter;
+- BTS outcome adapter;
+- context artifact validator;
 - Schema Guide;
 - Graph Patch parser;
 - schema validator;
@@ -554,6 +623,10 @@ START
   -> Graph Patch parser
   -> schema validator
   -> RDF/Neo4j materializer
+  -> decision_context
+       -> deterministic Weather/BTS adapters
+       -> optional-layer validation
+       -> final materialization and audit artifacts
   -> END
 ```
 
@@ -570,6 +643,18 @@ START
   -> END
 ```
 
+The Decision Context v0 extension is a post-validation deterministic branch:
+
+```text
+validated event + canonical facility
+  -> Weather adapter
+  -> BTS adapter
+  -> optional-layer validation
+  -> append formal Weather facts
+  -> write audit-only associations and summaries
+  -> bounded deterministic query tools
+```
+
 ## 15. Memory Model
 
 The system has three memory layers:
@@ -578,7 +663,8 @@ The system has three memory layers:
 2. **Knowledge memory:** canonical RDF/Neo4j graph shared across runs.
 3. **Audit memory:** versioned run directory with source references, evidence
    cards, tool traces, model responses, Graph Patch, schema version, and graph
-   artifacts.
+   artifacts. New runs also record a multi-source registry, Weather fact trace,
+   non-causal context associations, and BTS proxy summaries.
 
 There is no Memory Agent in this version. There is no vectorized conversation
 history, autonomous experience replay, or automatic prompt modification.
@@ -698,6 +784,11 @@ graph fact
   -> versioned source snapshot
 ```
 
+An EvidenceClaim is validated against its own `source_id` and checksum in
+`source_snapshots.jsonl`; the kernel must not assume that every claim comes
+from the advisory snapshot. Audit-only Weather associations and BTS summaries
+carry their own source ID and checksum but are not graph facts.
+
 The trace stores concise decisions and evidence. It must not store credentials,
 hidden chain-of-thought, or unrelated environment values.
 
@@ -715,6 +806,13 @@ src/aviation_agentic_ai/agent_system/
   agents.py
   graph_patch.py
   materialize.py
+  weather_context.py
+  weather_context_validation.py
+  bts_outcomes.py
+  context_artifacts.py
+  query_context_store.py
+  query_tools.py
+  query_tool_graph.py
   workflow.py
   query.py
   runtime.py
@@ -778,6 +876,17 @@ the raw advisory.
 - No trace stores chain-of-thought or credentials.
 - The run manifest records the KG Construction Agent EvidenceCard and safe tool
   trace.
+- Every new run records `source_snapshots.jsonl`,
+  `context_associations.jsonl`, `outcome_summaries.jsonl`, and
+  `weather_fact_trace.jsonl` with path, count, checksum, and
+  `ok | insufficient | blocked` status.
+- Decision-time TAF selection excludes forecasts issued after the advisory.
+- Weather associations remain non-causal and absent from RDF/Neo4j.
+- BTS summaries remain audit-only public proxies and absent from RDF/Neo4j.
+- The Ground Stop 123 reason remains a profile gap, GDP 138 retains the formal
+  `weather` reason, and cancellation 020 remains missing-reason.
+- Missing or unsupported deterministic context queries make zero provider
+  calls.
 
 ### 20.2 Repository checks
 
@@ -808,14 +917,14 @@ The implementation must not modify:
 
 - `alignment_mve`;
 - alignment Gold, Critic, or Self-Refine workflows;
-- weather/linking code;
+- legacy cross-source and weather-linking code outside `agent_system`;
 - `reports/final/figure_descriptions.md`;
 - `.superpowers/`;
 - `.zcode/`;
 - NASA ATMONTO source OWL files;
 - the content of the existing ATCSCC schema slice.
 
-No commit or push is made before Codex review.
+No push or merge is made before local Codex review.
 
 ## 22. Executor Protocol
 
@@ -828,7 +937,7 @@ ZCode must return `BLOCKED` when implementation requires:
 - a change to the ATCSCC schema profile;
 - a second Agent framework;
 - an unbounded Agent loop;
-- a new source family;
+- a new unapproved source family;
 - a broader live-model run.
 
 Completion evidence must report:

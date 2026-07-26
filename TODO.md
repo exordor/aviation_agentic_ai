@@ -6,26 +6,32 @@ This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Main Metadata Cleanup
+## Current Stage - Decision Context Case v0
 
-Objective: make every default project entry point describe the same active
-multi-Agent system and remove obsolete thesis, Gold, cross-source experiment,
-and web-demo wording from current context.
+Objective: reconstruct three auditable historical decision cases by connecting
+validated ATCSCC records to time-bounded Weather context and public BTS
+operational proxies without causal, prescriptive, or model-generated expansion.
 
-- [x] Confirm the primary worktree is on `main`.
-- [x] Audit root metadata against the implemented CLI and Agent-system code.
-- [x] Align `AGENTS.md`, `CLAUDE.md`, `RESEARCH_AUDIT.md`, `README.md`,
-  `GOALS.md`, `TODO.md`, `ARTIFACT_INDEX.md`, `REPRODUCIBILITY.md`, and package
-  metadata.
-- [x] Mark formal experiment documents as optional historical evaluation
-  tracks rather than current system definitions.
-- [x] Update Decision Record Explorer documents to distinguish completed query
-  support from the paused visualization branch.
-- [x] Run documentation and repository verification.
-- [ ] Review and commit the metadata batch when approved.
+- [x] Add a canonical multi-source snapshot registry and per-source checksum
+  validation.
+- [x] Add deterministic TAF/METAR selection and formal Weather report facts.
+- [x] Keep event-to-Weather associations audit-only and non-causal.
+- [x] Add deterministic BTS normalization and baseline/active/recovery
+  aggregation.
+- [x] Keep BTS summaries outside RDF and Neo4j.
+- [x] Integrate both adapters after core event/facility validation without
+  adding an Agent role or model call.
+- [x] Add bounded deterministic context and outcome query tools.
+- [x] Preserve all three reason states: Ground Stop 123 profile gap, GDP 138
+  formal `weather`, and cancellation 020 missing.
+- [x] Add fail-closed source, checksum, time, identity, and layer-disjointness
+  checks.
+- [x] Complete documentation review and the full repository verification gate.
+- [x] Keep the reviewed branch unpushed and unmerged for user review.
 
-Success: a new session reaches the same project goal, current capabilities,
-scope boundaries, and active queue without loading historical experiments.
+Success: all three cases expose validated Weather context and BTS proxies with
+source provenance, exact reason-state preservation, and zero additional
+provider calls.
 
 ## Completed System Foundation
 
@@ -54,31 +60,22 @@ The read-only query evidence explorer is implemented and reviewed on
   interaction, and narrow layouts.
 - [ ] Merge the visualization branch only when the user wants it in `main`.
 
-## Next Mainline Decision
+## Next Decision After v0
 
-After the metadata batch, define one new user task before implementation.
-
-Candidate directions:
-
-- group related initial, revision, extension, and cancellation advisories into
-  a source-bounded decision episode;
-- add one approved situation-evidence source to a decision record;
-- improve Query Agent interaction without adding new data semantics.
-
-Selection criteria:
-
-- directly advances the system's user value;
-- can be demonstrated end to end with existing or explicitly admitted data;
-- does not require unsupported causal or prescriptive claims;
-- is smaller than a general cross-source or full-corpus expansion.
-
-No candidate is active until the user approves its contract.
+Do not start another semantic expansion until the three-case v0 verification
+and review are complete. The next approved task must choose only one bounded
+increment, such as ASPM validation, regional Weather context, decision-episode
+grouping, or historical-case retrieval.
 
 ## Explicitly Deferred
 
 - Weather-cause claims and decision optimality.
-- ASPM outcomes and flight-level impact.
+- ASPM demand, AAR, capacity, EDCT, runway configuration, and flight-level
+  impact.
+- TCF, CWA, SIGMET, NOTAM, ADS-B, and single-flight trajectories.
+- Advisory lifecycle or decision-episode grouping.
 - Historical-case ranking and TMI recommendation.
+- General-purpose planner and long-term Agent memory.
 - Full-corpus live-model runs.
 - General RAG and general aviation chat.
 - New Agent roles without an observed need.

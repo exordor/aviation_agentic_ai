@@ -42,6 +42,35 @@ uv run python -c \
 The URL and checksum come from the local source manifest for the selected FAA
 cycle. Do not replace the snapshot implicitly during an ordinary run.
 
+Decision Context Case v0 also uses tracked normalized Weather inputs and the
+tracked 1,978-row BTS snapshot:
+
+```text
+data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_metar.jsonl
+data/processed/nasa_atmonto/aligned/2026-05-14/aviationweather_taf.jsonl
+data/sources/bts_on_time_2026_05_manifest.json
+data/sources/bts_on_time_2026_05_nyc.jsonl
+```
+
+The full BTS ZIP is an ignored audit source. To verify it independently:
+
+```bash
+BTS_DIR=data/raw/bts
+BTS_ZIP="$BTS_DIR/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip"
+mkdir -p "$BTS_DIR"
+curl -L --fail \
+  "https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_5.zip" \
+  -o "$BTS_ZIP"
+uv run python -c \
+  'import hashlib,pathlib,sys; expected="4e7b96999440afec8c92dd23bfbc68a5852e14d9a56c3d0d366f884542ea80b3"; actual=hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest(); print(actual); raise SystemExit(actual != expected)' \
+  "$BTS_ZIP"
+```
+
+The tracked BTS manifest pins the archive member, normalized checksum, source
+fields, 1,978-row filter, natural key, and `America/New_York` timezone. Null
+values remain null. BTS rows are public operational proxies and are not FAA
+demand, AAR, capacity, EDCT, or ASPM records.
+
 ## Build One Validated Run
 
 ```bash
@@ -60,6 +89,13 @@ A publishable run contains the validated graph and audit artifacts described in
 `ARTIFACT_INDEX.md`. Non-publishable runs may preserve audit records but must
 not publish formal KG files.
 
+For new multi-source runs, `source_snapshots.jsonl` is the canonical registry.
+The deterministic post-validation branch writes
+`context_associations.jsonl`, `outcome_summaries.jsonl`, and
+`weather_fact_trace.jsonl`. Each manifest entry is `ok`, `insufficient`, or
+`blocked`. A failed optional layer does not invalidate already validated core
+ATCSCC facts, but that layer is not exposed.
+
 ## Query A Validated Run
 
 Deterministic registered field query:
@@ -73,6 +109,29 @@ uv run aviation-ai agent-system ask \
 Supported deterministic fields include measure, facility, operational period,
 declared reason, and provenance. Missing or unsupported evidence returns an
 insufficient state without a provider call.
+
+Decision Context v0 adds four deterministic question families:
+
+```bash
+uv run aviation-ai agent-system ask \
+  --run-dir <validated-run-directory> \
+  --question "What forecast was known at decision time?"
+
+uv run aviation-ai agent-system ask \
+  --run-dir <validated-run-directory> \
+  --question "What observed weather context is recorded?"
+
+uv run aviation-ai agent-system ask \
+  --run-dir <validated-run-directory> \
+  --question "What public operational outcome proxies are recorded?"
+
+uv run aviation-ai agent-system ask \
+  --run-dir <validated-run-directory> \
+  --question "Reconstruct the decision case."
+```
+
+These registered questions are resolved through validated read-only tools and
+make no provider call. They never infer a stated reason from Weather context.
 
 The combined decision-record question uses the bounded Query Agent model loop
 and therefore requires:
@@ -114,16 +173,29 @@ The tracked case contract is
 Routine verification uses deterministic tests and does not require provider
 calls. Temporary run directories belong outside Git.
 
+The active-window BTS acceptance values are:
+
+| Case | Scheduled proxy | Completed | Cancelled | Diverted |
+| --- | ---: | ---: | ---: | ---: |
+| Ground Stop 123 / KJFK | 20 | 18 | 2 | 0 |
+| GDP 138 / KJFK | 77 | 68 | 4 | 5 |
+| GDP cancellation 020 / KEWR | 50 | 49 | 1 | 0 |
+
+Ground Stop 123 retains a profile-gap reason, GDP 138 retains formal
+`weather`, and cancellation 020 remains missing-reason.
+
 ## Verification
 
 Focused Agent-system checks:
 
 ```bash
 uv run pytest -q \
-  tests/test_agent_system.py \
-  tests/test_agent_system_graph_kernel.py \
+  tests/test_agent_system_multisource_context.py \
+  tests/test_agent_system_weather_context.py \
+  tests/test_agent_system_bts_outcomes.py \
   tests/test_agent_system_query_tools.py \
   tests/test_agent_system_query_tool_graph.py \
+  tests/test_agent_system.py \
   tests/test_cli_agent_system.py
 ```
 
@@ -132,6 +204,7 @@ Repository checks:
 ```bash
 uv run ruff check .
 uv run pytest -q
+uv build
 git diff --check
 ```
 
@@ -159,5 +232,7 @@ outputs do not change the current system scope automatically.
 - Neo4j loading requires a reachable local or remote Neo4j instance.
 - The browser explorer is not present on `main`; it remains on
   `codex/kg-visualization-research`.
-- Weather explanation, decision episodes, case ranking, and recommendation are
-  not current reproduction targets.
+- Weather-based causal explanation, decision episodes, case ranking, and
+  recommendation are not current reproduction targets.
+- `WeatherDelay` and `NASDelay` remain carrier-reported attributions, not causal
+  labels.
