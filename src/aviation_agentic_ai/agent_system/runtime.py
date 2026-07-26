@@ -22,7 +22,10 @@ from pathlib import Path
 from typing import Any
 
 from aviation_agentic_ai.agent_system.contracts import ModelCallRecord
-from aviation_agentic_ai.agent_system.materialize import GraphPatchMaterialization
+from aviation_agentic_ai.agent_system.materialize import (
+    FactMaterialization,
+    GraphPatchMaterialization,
+)
 from aviation_agentic_ai.agent_system.prompts import (
     DEFAULT_PROMPT_CATALOG,
     assemble_prompt,
@@ -171,7 +174,7 @@ def write_run_manifest(
     run_dir: Path,
     source_id: str,
     model_calls: list[ModelCallRecord],
-    materialization: GraphPatchMaterialization | None,
+    materialization: GraphPatchMaterialization | FactMaterialization | None,
     schema_slice_id: str,
     schema_checksum: str,
     evidence_cards: list[Any],
@@ -217,9 +220,24 @@ def write_run_manifest(
     return path
 
 
-def _materialization_summary(mat: GraphPatchMaterialization | None) -> dict[str, Any]:
+def _materialization_summary(
+    mat: GraphPatchMaterialization | FactMaterialization | None,
+) -> dict[str, Any]:
     if mat is None:
         return {"materialized": False}
+    if isinstance(mat, FactMaterialization):
+        return {
+            "materialized": True,
+            "fact_count": mat.fact_count,
+            "schema_slice_id": mat.schema_slice_id,
+            "schema_checksum": mat.schema_checksum,
+            "artifacts": {
+                "kg_jsonl": mat.jsonl_path,
+                "kg_ttl": mat.ttl_path,
+                "neo4j_nodes": mat.nodes_path,
+                "neo4j_relationships": mat.relationships_path,
+            },
+        }
     return {
         "materialized": True,
         "valid_count": mat.valid_count,

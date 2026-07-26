@@ -48,7 +48,7 @@ from aviation_agentic_ai.agent_system.formal_graph import (
     write_fact_trace,
 )
 from aviation_agentic_ai.agent_system.materialize import (
-    materialize_graph_patch,
+    materialize_validated_facts,
 )
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide, load_schema_guide
 from aviation_agentic_ai.agent_system.sources import build_source_snapshot, write_source_snapshot
@@ -369,13 +369,14 @@ def _materialize_node(state: dict) -> dict:
         # constraint-violating patch.
         return {"materialization": None, "validation": validation, "source_snapshot": snapshot}
 
-    mat = materialize_graph_patch(
-        graph_patch_block=kg_result.graph_patch,
-        advisory_source_id=ctx.advisory.source_id,
-        event_class=event_class,
+    # Plan §6: materialize the accepted ValidatedFacts (from the Formal Graph
+    # Kernel) directly to RDF + JSONL + Neo4j projection. This is the single
+    # batch-two path; the legacy KGTriple materializer is retained only for the
+    # offline schema-validator tests.
+    mat = materialize_validated_facts(
+        facts=validation.accepted,
         guide=guide,
-        canonical_entities=canonical_entities,
-        known_source_ids=known_source_ids,
+        source_snapshot=snapshot,
         output_dir=ctx.output_dir,
     )
     return {"materialization": mat, "validation": validation, "source_snapshot": snapshot}
