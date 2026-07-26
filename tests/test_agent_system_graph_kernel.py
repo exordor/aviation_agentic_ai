@@ -42,6 +42,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     ModelToolCall,
     SourceFamily,
     SourceRecord,
+    SourceSnapshotRegistry,
 )
 from aviation_agentic_ai.agent_system.formal_graph import (
     build_evidence_index,
@@ -491,8 +492,84 @@ def test_unknown_source_and_forged_provenance_rejected(guide, event_uri, snapsho
     result = _validate(block, guide, event_uri, snapshot,
                        _evidence_cards_for_fixed_case(advisory_record, facility_entity, mentions))
     rules = {r.rule for r in result.rejected}
-    assert "source_id" in rules or "provenance_endpoint" in rules
+    assert rules & {"source_id", "source_snapshot", "provenance_endpoint"}
     assert not result.publishable
+
+
+def test_registry_rejects_mixed_and_unsnapshotted_provenance_sources(
+    guide, event_uri, snapshot, advisory_record, facility_entity, mentions
+):
+    """Known caller IDs cannot bypass checksum-valid snapshot membership."""
+
+    registry = SourceSnapshotRegistry(snapshots=[snapshot])
+    block = (
+        f"GRAPH_PATCH\n"
+        f"{event_uri} | rdf:type | {EVENT_CLASS} | {SOURCE_ID}, caller:extra\n"
+        f"{event_uri} | atm:controlledNASelement | {FACILITY_ID} | {SOURCE_ID}\n"
+        f"{event_uri} | atm:extensionProbability | MEDIUM | {SOURCE_ID}\n"
+        f"{event_uri} | prov:wasDerivedFrom | caller:extra | {SOURCE_ID}\n"
+    )
+
+    result = _validate(
+        block,
+        guide,
+        event_uri,
+        registry,
+        _evidence_cards_for_fixed_case(advisory_record, facility_entity, mentions),
+        sources={SOURCE_ID, "caller:extra"},
+    )
+
+    assert {rejected.rule for rejected in result.rejected} >= {
+        "source_snapshot",
+        "provenance_endpoint",
+    }
+    assert all("caller:extra" not in fact.source_ids for fact in result.accepted)
+
+
+def test_registry_binds_profile_gap_artifact_to_its_exact_snapshot(
+    guide, event_uri, snapshot, advisory_record, facility_entity, mentions, tmp_path
+):
+    """A multi-source profile gap persists the snapshot that contains its evidence."""
+
+    metar = build_source_snapshot(
+        SourceRecord(
+            source_id="metar:KJFK:1",
+            family=SourceFamily.METAR,
+            content="KJFK 192151Z TSRA",
+        )
+    )
+    registry = SourceSnapshotRegistry(snapshots=[snapshot, metar])
+    block = parse_graph_patch_block(
+        "GRAPH_PATCH\n"
+        f"{event_uri} | rdf:type | {EVENT_CLASS} | {SOURCE_ID}\n"
+        f"{event_uri} | atm:controlledNASelement | {FACILITY_ID} | {SOURCE_ID}\n"
+        f"{event_uri} | atm:extensionProbability | MEDIUM | {SOURCE_ID}\n"
+        "PROFILE_GAPS\n"
+        "weather_observation | thunderstorm | KJFK 192151Z TSRA | outside active profile\n"
+    )
+    result = validate_graph_patch(
+        block=block,
+        event_iri=event_uri,
+        event_class=EVENT_CLASS,
+        schema_guide=guide,
+        canonical_entities={FACILITY_ID: "nas:Airport"},
+        known_source_ids={SOURCE_ID, metar.source_id},
+        evidence_cards=_evidence_cards_for_fixed_case(
+            advisory_record, facility_entity, mentions
+        ),
+        source_snapshot=registry,
+    )
+
+    path = write_profile_gaps(
+        result=result,
+        event_id=event_uri,
+        source_snapshot=registry,
+        output_dir=tmp_path,
+    )
+
+    row = json.loads(path.read_text(encoding="utf-8"))
+    assert row["source_id"] == metar.source_id
+    assert row["source_snapshot_sha256"] == metar.content_sha256
 
 
 def test_invalid_extension_probability_rejected(guide, event_uri, snapshot, advisory_record, facility_entity, mentions):

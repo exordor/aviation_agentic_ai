@@ -12,12 +12,21 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentStatus,
     EvidenceCard,
     EvidenceClaim,
+    GraphPatchBlock,
+    GraphPatchLine,
+    GraphValidationResult,
     PersistedProfileGap,
     SourceFamily,
     SourceRecord,
+    ValidatedFact,
 )
-from aviation_agentic_ai.agent_system.formal_graph import build_evidence_index
+from aviation_agentic_ai.agent_system.formal_graph import (
+    build_evidence_index,
+    write_fact_trace,
+)
+from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
+from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system import sources
 from aviation_agentic_ai.agent_system.sources import build_source_snapshot
 
@@ -247,3 +256,81 @@ def test_source_snapshot_registry_builds_from_records_and_writes_new_run_artifac
 
     assert path.name == "source_snapshots.jsonl"
     assert contracts.SourceSnapshotRegistry.read_jsonl(path).snapshots == registry.snapshots
+
+
+def test_fact_trace_uses_the_checksum_of_the_matched_multisource_claim(tmp_path):
+    """Trace persistence uses the matched claim's snapshot, not registry order."""
+
+    advisory = build_source_snapshot(
+        _record("advisory:1", SourceFamily.ATCSCC_ADVISORY, "GROUND STOP")
+    )
+    metar = build_source_snapshot(
+        _record("metar:1", SourceFamily.METAR, "KJFK 192151Z TSRA")
+    )
+    registry = contracts.SourceSnapshotRegistry(snapshots=[advisory, metar])
+    line = GraphPatchLine(
+        subject="urn:event:1",
+        predicate="atm:impactingCondition",
+        object="thunderstorm",
+        source_ids=[metar.source_id],
+    )
+    fact = ValidatedFact(
+        fact_id="fact:weather",
+        subject_iri=line.subject,
+        subject_class_iri="https://example.test/GroundDelayProgram",
+        predicate_iri="https://example.test/impactingCondition",
+        object_kind="literal",
+        object_value=line.object,
+        source_ids=[metar.source_id],
+        evidence_texts=[metar.content],
+    )
+    card = EvidenceCard(
+        agent_role="advisory",
+        status=AgentStatus.RESOLVED,
+        claims=[
+            EvidenceClaim(
+                field_name="weather",
+                value="thunderstorm",
+                evidence_text=metar.content,
+                source_id=metar.source_id,
+            )
+        ],
+    )
+
+    path = write_fact_trace(
+        result=GraphValidationResult(accepted=[fact], publishable=True),
+        block=GraphPatchBlock(patch_lines=[line]),
+        evidence_cards=[card],
+        source_snapshot=registry,
+        output_dir=tmp_path,
+    )
+
+    row = json.loads(path.read_text(encoding="utf-8"))
+    assert row["source_id"] == metar.source_id
+    assert row["source_snapshot_sha256"] == metar.content_sha256
+
+
+def test_materialization_rejects_a_fact_without_a_registered_snapshot(tmp_path):
+    """Materialization cannot persist provenance absent from the run registry."""
+
+    advisory = build_source_snapshot(
+        _record("advisory:1", SourceFamily.ATCSCC_ADVISORY, "GROUND STOP")
+    )
+    registry = contracts.SourceSnapshotRegistry(snapshots=[advisory])
+    fact = ValidatedFact(
+        fact_id="fact:unsnapshotted",
+        subject_iri="urn:event:1",
+        subject_class_iri="https://example.test/GroundDelayProgram",
+        predicate_iri="https://example.test/advisoryNumber",
+        object_kind="literal",
+        object_value="1",
+        source_ids=["caller:extra"],
+    )
+
+    with pytest.raises(ValueError, match="checksum-valid source snapshots"):
+        materialize_validated_facts(
+            facts=[fact],
+            guide=load_schema_guide(),
+            source_snapshot=registry,
+            output_dir=tmp_path,
+        )

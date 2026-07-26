@@ -33,7 +33,6 @@ every accepted fact carries the source IDs and bound evidence texts.
 
 from __future__ import annotations
 
-import hashlib
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -94,17 +93,12 @@ def build_evidence_index(
     to the *specific* claim that supports it via :func:`_bind_claim`.
     """
 
+    registry = _snapshot_registry(source_snapshot)
+    if registry is None:
+        return {}
     index: dict[str, list[EvidenceClaim]] = defaultdict(list)
-    snapshots = (
-        source_snapshot.snapshots
-        if isinstance(source_snapshot, SourceSnapshotRegistry)
-        else (source_snapshot,)
-    )
     snapshots_by_source_id = {
-        snapshot.source_id: snapshot
-        for snapshot in snapshots
-        if snapshot.content_sha256
-        == hashlib.sha256(snapshot.content.encode("utf-8")).hexdigest()
+        snapshot.source_id: snapshot for snapshot in registry.snapshots
     }
     for card in evidence_cards:
         for claim in card.claims:
@@ -117,6 +111,22 @@ def build_evidence_index(
                 continue
             index[claim.source_id].append(claim)
     return dict(index)
+
+
+def _snapshot_registry(
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+) -> SourceSnapshotRegistry | None:
+    """Return a checksum-validated registry, preserving legacy input support."""
+
+    snapshots = (
+        source_snapshot.snapshots
+        if isinstance(source_snapshot, SourceSnapshotRegistry)
+        else (source_snapshot,)
+    )
+    try:
+        return SourceSnapshotRegistry(snapshots=snapshots)
+    except ValueError:
+        return None
 
 
 # Datatype-value normalization for fact-to-claim value comparison (plan §11.2,
@@ -248,7 +258,7 @@ def validate_graph_patch(
     canonical_entities: dict[str, str],
     known_source_ids: set[str],
     evidence_cards: list[EvidenceCard],
-    source_snapshot: SourceSnapshot,
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
 ) -> GraphValidationResult:
     """Run the Formal Graph Kernel over one parsed Graph Patch (plan §5.4).
 
@@ -257,6 +267,12 @@ def validate_graph_patch(
     graph-level constraint for the event class is satisfied.
     """
 
+    snapshot_registry = _snapshot_registry(source_snapshot)
+    snapshot_source_ids = (
+        {snapshot.source_id for snapshot in snapshot_registry.snapshots}
+        if snapshot_registry is not None
+        else set()
+    )
     evidence_index = build_evidence_index(evidence_cards, source_snapshot)
     known_entities = dict(canonical_entities or {})
     # The event entity itself is a known subject of class event_class.
@@ -274,6 +290,7 @@ def validate_graph_patch(
             schema_guide=schema_guide,
             known_entities=known_entities,
             known_source_ids=known_source_ids,
+            snapshot_source_ids=snapshot_source_ids,
             evidence_index=evidence_index,
         )
         if isinstance(outcome, ValidatedFact):
@@ -302,7 +319,8 @@ def validate_graph_patch(
 
 
 def _collect_profile_gaps(
-    block: GraphPatchBlock, source_snapshot: SourceSnapshot
+    block: GraphPatchBlock,
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
 ) -> list[ProfileGap]:
     """Return the parsed PROFILE_GAPS whose evidence is source-contained (§12).
 
@@ -311,10 +329,26 @@ def _collect_profile_gaps(
     evidence is not source-contained are dropped (they cannot be audited).
     """
 
+    registry = _snapshot_registry(source_snapshot)
+    if registry is None:
+        return []
     gaps: list[ProfileGap] = []
     for gap in block.profile_gaps:
-        if gap.evidence and gap.evidence in source_snapshot.content:
-            gaps.append(gap)
+        matches = [
+            snapshot
+            for snapshot in registry.snapshots
+            if gap.evidence and gap.evidence in snapshot.content
+        ]
+        if len(matches) == 1:
+            snapshot = matches[0]
+            gaps.append(
+                gap.model_copy(
+                    update={
+                        "source_id": snapshot.source_id,
+                        "source_snapshot_sha256": snapshot.content_sha256,
+                    }
+                )
+            )
     return gaps
 
 
@@ -331,7 +365,8 @@ def _validate_line(
     schema_guide: SchemaGuide,
     known_entities: dict[str, str],
     known_source_ids: set[str],
-    evidence_index: dict[str, list[tuple[str, str]]],
+    snapshot_source_ids: set[str],
+    evidence_index: dict[str, list[EvidenceClaim]],
 ) -> ValidatedFact | RejectedFact:
     """Validate one Graph Patch line; return a ValidatedFact or RejectedFact."""
 
@@ -349,6 +384,13 @@ def _validate_line(
     # Check 8: every source ID is registered and non-empty.
     if not line.source_ids:
         return _reject(raw_line, "source_id", "no source IDs cited")
+    missing_snapshots = [s for s in line.source_ids if s not in snapshot_source_ids]
+    if missing_snapshots:
+        return _reject(
+            raw_line,
+            "source_snapshot",
+            f"source IDs lack checksum-valid snapshots: {missing_snapshots}",
+        )
     unknown_sources = [s for s in line.source_ids if s not in known_source_ids]
     if unknown_sources:
         return _reject(
@@ -382,6 +424,12 @@ def _validate_line(
     # Source-trace predicate (prov:wasDerivedFrom): deterministic provenance —
     # the cited registered source snapshot is the binding (plan §11.2, §4.2).
     if pred in TRACE_PREDICATES:
+        if obj not in snapshot_source_ids:
+            return _reject(
+                raw_line,
+                "provenance_endpoint",
+                f"prov:wasDerivedFrom object {obj!r} lacks a checksum-valid source snapshot",
+            )
         if obj not in known_source_ids:
             return _reject(
                 raw_line, "provenance_endpoint",
@@ -389,7 +437,7 @@ def _validate_line(
             )
         return _to_fact(line, subject_class_iri=_class_iri(schema_guide, subject_class),
                         predicate_iri=_PROV_WAS_DERIVED_FROM_IRI, object_kind="iri", object_value=obj,
-                        object_class_iri=None, bound_claim=None)
+                        object_class_iri=None, bound_claim=None, bound_source_id=obj)
 
     # Object property.
     if schema_guide.is_object_property(pred):
@@ -472,6 +520,7 @@ def _to_fact(
     object_kind: str,
     object_value: str,
     bound_claim: EvidenceClaim | None,
+    bound_source_id: str | None = None,
     object_class_iri: str | None = None,
     datatype_iri: str | None = None,
 ) -> ValidatedFact:
@@ -485,6 +534,7 @@ def _to_fact(
     evidence_texts: list[str] = []
     if bound_claim is not None and bound_claim.evidence_text:
         evidence_texts.append(bound_claim.evidence_text)
+    bound_source = bound_claim.source_id if bound_claim is not None else bound_source_id
     return ValidatedFact(
         fact_id=stable_id("fact", line.subject, line.predicate, object_value),
         subject_iri=line.subject,
@@ -494,7 +544,7 @@ def _to_fact(
         object_value=object_value,
         object_class_iri=object_class_iri,
         datatype_iri=datatype_iri,
-        source_ids=list(line.source_ids),
+        source_ids=[bound_source] if bound_source else [],
         evidence_texts=evidence_texts,
     )
 
@@ -624,7 +674,7 @@ def write_fact_trace(
     result: GraphValidationResult,
     block: GraphPatchBlock,
     evidence_cards: list[EvidenceCard],
-    source_snapshot: SourceSnapshot,
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
     output_dir: str | Path,
 ) -> Path:
     """Write ``fact_trace.jsonl``, one row per accepted fact (plan §5.5, §11.3).
@@ -644,13 +694,24 @@ def write_fact_trace(
     for line in block.patch_lines:
         fact_id = stable_id("fact", line.subject, line.predicate, line.object.strip())
         line_by_fact[fact_id] = _line_text(line)
-    # evidence_text -> (agent_role, source_id) lookup so the trace can recover
-    # which agent role and source the bound claim came from.
-    evidence_role: dict[str, tuple[str, str]] = {}
+    registry = _snapshot_registry(source_snapshot)
+    if registry is None:
+        path.write_text("", encoding="utf-8")
+        return path
+    # (evidence_text, source_id) -> agent role lets the trace recover the
+    # specific claim binding without conflating identical text across sources.
+    evidence_role: dict[tuple[str, str], str] = {}
     for card in evidence_cards:
         for claim in card.claims:
-            if claim.evidence_text and claim.evidence_text in source_snapshot.content:
-                evidence_role.setdefault(claim.evidence_text, (card.agent_role, claim.source_id))
+            snapshot = registry.get(claim.source_id)
+            if (
+                snapshot is not None
+                and claim.evidence_text
+                and claim.evidence_text in snapshot.content
+            ):
+                evidence_role.setdefault(
+                    (claim.evidence_text, claim.source_id), card.agent_role
+                )
     rows: list[str] = []
     for fact in result.accepted:
         line_text = line_by_fact.get(fact.fact_id, "")
@@ -658,16 +719,33 @@ def write_fact_trace(
         # (plan §11.3). For deterministic provenance (no bound claim) the trace
         # records the cited source with no advisory evidence text.
         evidence_text = fact.evidence_texts[0] if fact.evidence_texts else ""
-        agent_role, bound_source = evidence_role.get(evidence_text, ("", ""))
-        if not bound_source:
-            bound_source = fact.source_ids[0] if fact.source_ids else ""
+        bound_candidates = [
+            (source_id, evidence_role[(evidence_text, source_id)])
+            for source_id in fact.source_ids
+            if (evidence_text, source_id) in evidence_role
+        ]
+        if len(bound_candidates) == 1:
+            bound_source, agent_role = bound_candidates[0]
+        elif (
+            fact.predicate_iri == _PROV_WAS_DERIVED_FROM_IRI
+            and fact.object_value in fact.source_ids
+            and registry.get(fact.object_value) is not None
+        ):
+            bound_source, agent_role = fact.object_value, "provenance"
+        elif len(fact.source_ids) == 1 and registry.get(fact.source_ids[0]) is not None:
+            bound_source, agent_role = fact.source_ids[0], "provenance"
+        else:
+            continue
+        snapshot = registry.get(bound_source)
+        if snapshot is None:
+            continue
         row = FactTraceRow(
             fact_id=fact.fact_id,
             graph_patch_line=line_text,
             source_id=bound_source,
             evidence_text=evidence_text,
-            evidence_agent_role=agent_role or "provenance",
-            source_snapshot_sha256=source_snapshot.content_sha256,
+            evidence_agent_role=agent_role,
+            source_snapshot_sha256=snapshot.content_sha256,
         )
         rows.append(row.model_dump_json())
     path.write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")
@@ -678,7 +756,7 @@ def write_profile_gaps(
     *,
     result: GraphValidationResult,
     event_id: str,
-    source_snapshot: SourceSnapshot,
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
     output_dir: str | Path,
 ) -> Path:
     """Persist validated profile gaps without promoting them to graph facts."""
@@ -686,8 +764,16 @@ def write_profile_gaps(
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     path = out / "profile_gaps.jsonl"
+    registry = _snapshot_registry(source_snapshot)
     rows: list[str] = []
     for gap in result.profile_gaps:
+        snapshot = registry.get(gap.source_id) if registry and gap.source_id else None
+        if (
+            snapshot is None
+            or gap.source_snapshot_sha256 != snapshot.content_sha256
+            or gap.evidence not in snapshot.content
+        ):
+            continue
         row = PersistedProfileGap(
             profile_gap_id=stable_id(
                 "profile-gap",
@@ -695,15 +781,15 @@ def write_profile_gaps(
                 gap.field,
                 gap.value,
                 gap.evidence,
-                source_snapshot.source_id,
+                snapshot.source_id,
             ),
             event_id=event_id,
             field=gap.field,
             value=gap.value,
             evidence_text=gap.evidence,
             reason=gap.reason,
-            source_id=source_snapshot.source_id,
-            source_snapshot_sha256=source_snapshot.content_sha256,
+            source_id=snapshot.source_id,
+            source_snapshot_sha256=snapshot.content_sha256,
         )
         rows.append(row.model_dump_json())
     path.write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")

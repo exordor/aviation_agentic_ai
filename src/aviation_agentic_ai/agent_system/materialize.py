@@ -32,6 +32,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     GraphPatchBlock,
     GraphPatchLine,
     SourceSnapshot,
+    SourceSnapshotRegistry,
     ValidatedFact,
 )
 from aviation_agentic_ai.agent_system.graph_patch import parse_graph_patch_block, parse_rate
@@ -523,11 +524,45 @@ def _datatype_short(iri: str) -> str:
     return iri
 
 
+def _validated_snapshot_registry(
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+) -> SourceSnapshotRegistry:
+    """Normalize legacy input and reject malformed multi-source registries."""
+
+    snapshots = (
+        source_snapshot.snapshots
+        if isinstance(source_snapshot, SourceSnapshotRegistry)
+        else (source_snapshot,)
+    )
+    return SourceSnapshotRegistry(snapshots=snapshots)
+
+
+def _require_fact_snapshot_bindings(
+    facts: list[ValidatedFact],
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
+) -> None:
+    """Ensure materialization cannot persist sources absent from a valid snapshot."""
+
+    registry = _validated_snapshot_registry(source_snapshot)
+    registered_source_ids = {snapshot.source_id for snapshot in registry.snapshots}
+    missing_source_ids = {
+        source_id
+        for fact in facts
+        for source_id in fact.source_ids
+        if source_id not in registered_source_ids
+    }
+    if missing_source_ids:
+        raise ValueError(
+            "facts cite source IDs without checksum-valid source snapshots: "
+            f"{sorted(missing_source_ids)}"
+        )
+
+
 def write_validated_facts_rdf(
     *,
     facts: list[ValidatedFact],
     guide: SchemaGuide,
-    source_snapshot: SourceSnapshot,
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
     output_dir: str | Path,
 ) -> str:
     """Write ``kg.ttl`` from accepted ValidatedFacts (plan §6.1).
@@ -539,6 +574,7 @@ def write_validated_facts_rdf(
     ``example.org/...#atm:*`` IRIs.
     """
 
+    _require_fact_snapshot_bindings(facts, source_snapshot)
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     ttl_path = out / "kg.ttl"
@@ -871,7 +907,7 @@ def materialize_validated_facts(
     *,
     facts: list[ValidatedFact],
     guide: SchemaGuide,
-    source_snapshot: SourceSnapshot,
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
     output_dir: str | Path,
 ) -> FactMaterialization:
     """Materialize accepted ValidatedFacts to RDF + JSONL + Neo4j projection.
@@ -881,6 +917,7 @@ def materialize_validated_facts(
     Neo4j projection (``neo4j_nodes.jsonl`` / ``neo4j_relationships.jsonl``).
     """
 
+    _require_fact_snapshot_bindings(facts, source_snapshot)
     jsonl_path = write_validated_facts_jsonl(facts=facts, guide=guide, output_dir=output_dir)
     ttl_path = write_validated_facts_rdf(
         facts=facts, guide=guide, source_snapshot=source_snapshot, output_dir=output_dir,

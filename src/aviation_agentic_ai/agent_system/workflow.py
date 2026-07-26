@@ -353,7 +353,6 @@ def _materialize_node(state: dict) -> dict:
     # Persist the source snapshot (plan §5.2) so every accepted fact binds to
     # auditable, checksum-pinned source content.
     snapshot_registry = build_source_snapshot_registry([ctx.advisory])
-    snapshot = snapshot_registry.snapshots[0]
     write_source_snapshot_registry(snapshot_registry, ctx.output_dir)
 
     # Formal Graph Kernel: the deterministic gate between model output and the
@@ -369,7 +368,7 @@ def _materialize_node(state: dict) -> dict:
         canonical_entities=canonical_entities,
         known_source_ids=known_source_ids,
         evidence_cards=evidence_cards,
-        source_snapshot=snapshot,
+        source_snapshot=snapshot_registry,
     )
     # Fact trace: one row per accepted fact (plan §5.5), written regardless of
     # publishability so rejected/blocked runs still leave an audit trail.
@@ -377,19 +376,23 @@ def _materialize_node(state: dict) -> dict:
         result=validation,
         block=kg_result.graph_patch,
         evidence_cards=evidence_cards,
-        source_snapshot=snapshot,
+        source_snapshot=snapshot_registry,
         output_dir=ctx.output_dir,
     )
     write_profile_gaps(
         result=validation,
         event_id=event_uri,
-        source_snapshot=snapshot,
+        source_snapshot=snapshot_registry,
         output_dir=ctx.output_dir,
     )
     if not validation.publishable:
         # Fail-closed: do not produce formal graph artifacts for a rejected or
         # constraint-violating patch.
-        return {"materialization": None, "validation": validation, "source_snapshot": snapshot}
+        return {
+            "materialization": None,
+            "validation": validation,
+            "source_snapshot": snapshot_registry,
+        }
 
     # Plan §6: materialize the accepted ValidatedFacts (from the Formal Graph
     # Kernel) directly to RDF + JSONL + Neo4j projection. This is the single
@@ -398,10 +401,14 @@ def _materialize_node(state: dict) -> dict:
     mat = materialize_validated_facts(
         facts=validation.accepted,
         guide=guide,
-        source_snapshot=snapshot,
+        source_snapshot=snapshot_registry,
         output_dir=ctx.output_dir,
     )
-    return {"materialization": mat, "validation": validation, "source_snapshot": snapshot}
+    return {
+        "materialization": mat,
+        "validation": validation,
+        "source_snapshot": snapshot_registry,
+    }
 
 
 def run_ingest(ctx: IngestContext) -> dict:

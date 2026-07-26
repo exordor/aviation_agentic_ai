@@ -130,6 +130,8 @@ class ProfileGap(StrictModel):
     value: str = Field(min_length=1)
     evidence: str = Field(min_length=1)
     reason: str = Field(min_length=1)
+    source_id: str | None = None
+    source_snapshot_sha256: str | None = None
 
 
 class GraphPatchBlock(StrictModel):
