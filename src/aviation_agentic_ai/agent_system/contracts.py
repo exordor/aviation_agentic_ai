@@ -424,6 +424,66 @@ class WeatherContextBundle(StrictModel):
     failure_reason: str = ""
 
 
+class BTSOnTimeRow(StrictModel):
+    """One normalized, source-pinned BTS scheduled-arrival record."""
+
+    row_id: str = Field(min_length=1)
+    FlightDate: str = Field(min_length=1)
+    DOT_ID_Reporting_Airline: int
+    Reporting_Airline: str = Field(min_length=1)
+    IATA_CODE_Reporting_Airline: str = Field(min_length=1)
+    Flight_Number_Reporting_Airline: int
+    OriginAirportSeqID: int
+    DestAirportSeqID: int
+    CRSDepTime: int = Field(ge=0)
+    Origin: str = Field(min_length=1)
+    Dest: str = Field(min_length=1)
+    CRSArrTime: int = Field(ge=0)
+    CRSElapsedTime: float = Field(ge=0)
+    scheduled_arrival_utc: datetime
+    Cancelled: int
+    Diverted: int
+    ArrDelay: float | None = None
+    ArrDel15: int | None = None
+    WeatherDelay: float | None = None
+    NASDelay: float | None = None
+
+
+class BTSOutcomeSummary(StrictModel):
+    """Audit-only public BTS outcome proxy for a resolved decision event."""
+
+    summary_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
+    facility_id: str = Field(min_length=1)
+    phase: Literal["baseline", "active", "recovery"]
+    window_start: datetime
+    window_end: datetime
+    source_id: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(min_length=1)
+    scheduled_arrival_count_proxy: int = Field(ge=0)
+    completed_arrival_count: int = Field(ge=0)
+    cancelled_count: int = Field(ge=0)
+    diverted_count: int = Field(ge=0)
+    arrival_delay_15_count: int = Field(ge=0)
+    mean_arrival_delay_minutes: float | None = None
+    median_arrival_delay_minutes: float | None = None
+    carrier_reported_weather_delay_minutes: float | None = None
+    carrier_reported_nas_delay_minutes: float | None = None
+    scheduled_arrival_semantics: str = Field(min_length=1)
+    weather_delay_semantics: str = Field(min_length=1)
+    nas_delay_semantics: str = Field(min_length=1)
+    causal_claim: Literal[False] = False
+
+
+class BTSOutcomeBundle(StrictModel):
+    """Deterministic BTS adapter result; Task 4 owns persistence and query use."""
+
+    status: Literal["ok", "insufficient", "blocked"]
+    summaries: list[BTSOutcomeSummary] = Field(default_factory=list)
+    failure_reason: str = ""
+
+
 class FactTraceRow(StrictModel):
     """One row of ``fact_trace.jsonl`` (plan §5.5).
 

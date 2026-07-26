@@ -43,6 +43,9 @@ models/
 # Local archived data (kept outside Git; see AGENTS.md source-family boundaries).
 /data/archive/
 
+# Pinned BTS archives are retained locally; the normalized audited subset is tracked.
+/data/raw/bts/
+
 # Materialized fact-graph preview snapshots (regenerable from the pipeline).
 /reports/stages/atcscc_materialized_fact_graph.preview.json
 
