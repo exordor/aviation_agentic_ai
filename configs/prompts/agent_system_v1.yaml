@@ -482,7 +482,7 @@ roles:
       --- END EVIDENCE DATA ---
 
   query:
-    prompt_version: query-agent-v2
+    prompt_version: query-agent-v3
     max_output_tokens: 512
     invocation_policy: one_call_after_graph_retrieval
     system: |
@@ -496,14 +496,14 @@ roles:
       - State only claims directly supported by GRAPH_EVIDENCE.
       - Preserve uncertainty and do not turn association into causation.
       - Cite only source IDs present in GRAPH_EVIDENCE.
+      - Always answer in English.
       - If no graph fact supports the requested answer, respond exactly:
-        图中证据不足
-      - Otherwise answer in the language of USER_QUESTION.
+        Insufficient graph evidence.
 
       Return only:
 
       ANSWER
-      <concise graph-grounded answer>
+      <concise graph-grounded answer in English>
 
       SOURCES
       - <supporting source ID>
@@ -539,7 +539,7 @@ roles:
           urn:example:event:001 rdf:type schema:ExampleFlowEvent [example:001]
           --- END GRAPH DATA ---
         assistant: |
-          图中证据不足
+          Insufficient graph evidence.
     user_template: |
       USER_QUESTION:
       ${user_question}

@@ -19,6 +19,11 @@ from pathlib import Path
 
 import click
 
+from aviation_agentic_ai.agent_system.materialize import (
+    FactMaterialization,
+    Neo4jLoadBlocked,
+    load_validated_facts_neo4j,
+)
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, get_prompt_catalog
 from aviation_agentic_ai.agent_system.query import answer_question
 from aviation_agentic_ai.agent_system.runtime import (
@@ -126,43 +131,74 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
             f"{'error=' + call.error if call.error else 'tokens=' + str(call.input_tokens) + '/' + str(call.output_tokens)}"
         )
     if materialization:
-        click.echo(
-            f"materialized: {materialization.valid_count} valid / "
-            f"{materialization.schema_violation_count} schema_violation / "
-            f"{materialization.profile_gap_count} profile_gap"
-        )
+        if isinstance(materialization, FactMaterialization):
+            click.echo(f"materialized: {materialization.fact_count} validated facts")
+        else:
+            click.echo(
+                f"materialized: {materialization.valid_count} valid / "
+                f"{materialization.schema_violation_count} schema_violation / "
+                f"{materialization.profile_gap_count} profile_gap"
+            )
         click.echo(f"kg_jsonl: {materialization.jsonl_path}")
     else:
-        click.echo("materialized: 0 (abstained — no resolved event type)")
+        click.echo("materialized: 0 (abstained — no resolved event type or non-publishable)")
 
 
 @agent_system.command("neo4j-export")
 @click.option("--run-dir", "run_dir", type=click.Path(path_type=Path), required=True)
-def neo4j_export(run_dir: Path):
-    """Report the Neo4j nodes/relationships JSONL for a run (MERGE semantics)."""
+@click.option("--uri", default=None, help="Neo4j bolt URI. Defaults to NEO4J_URI.")
+@click.option("--username", default=None, help="Neo4j username. Defaults to NEO4J_USERNAME.")
+@click.option("--password", default=None, help="Neo4j password. Defaults to NEO4J_PASSWORD.")
+@click.option("--database", default="neo4j", show_default=True)
+def neo4j_export(run_dir: Path, uri: str | None, username: str | None, password: str | None, database: str):
+    """Load a run's projection into Neo4j with parameterized MERGE (plan §6.2).
+
+    Connects to Neo4j and executes parameterized MERGE for the run's nodes and
+    relationships. Missing credentials, failed connectivity, or a load error
+    returns ``BLOCKED``. It never clears unrelated graph data (no DETACH
+    DELETE); an unrelated sentinel node is preserved. Writes
+    ``neo4j_load.json`` with the load summary.
+    """
+
+    import os
 
     nodes_path = run_dir / "neo4j_nodes.jsonl"
     rels_path = run_dir / "neo4j_relationships.jsonl"
     if not nodes_path.exists():
         raise click.ClickException(f"no neo4j projection at {nodes_path}; run ingest first")
-    nodes = [json.loads(ln) for ln in nodes_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
-    rels = [json.loads(ln) for ln in rels_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
-    # Idempotency check: canonical node ids are unique within a run.
-    node_ids = [n["entity_id"] for n in nodes]
-    dup_nodes = len(node_ids) - len(set(node_ids))
-    node_id_set = set(node_ids)
-    rel_keys = [(r["from"], r["to"], r["predicate"]) for r in rels]
-    dup_rels = len(rel_keys) - len(set(rel_keys))
-    # Endpoint completeness: every relationship endpoint must be a node row.
-    missing_endpoints = sum(
-        1 for r in rels if not r.get("from") or not r.get("to")
-        or r["from"] not in node_id_set or r["to"] not in node_id_set
+    uri = uri or os.getenv("NEO4J_URI")
+    username = username or os.getenv("NEO4J_USERNAME")
+    password = password or os.getenv("NEO4J_PASSWORD")
+    # Plan §6.2: missing credentials -> BLOCKED (never fake success).
+    if not (uri and username and password):
+        click.echo("BLOCKED: missing Neo4j credentials (set NEO4J_URI/NEO4J_USERNAME/NEO4J_PASSWORD)")
+        _write_neo4j_load(run_dir, {"status": "blocked", "reason": "missing credentials"})
+        raise click.ClickException("neo4j-export BLOCKED: missing Neo4j credentials")
+    try:
+        summary = load_validated_facts_neo4j(
+            nodes_path=nodes_path,
+            relationships_path=rels_path,
+            uri=uri,
+            username=username,
+            password=password,
+            database=database,
+        )
+    except Neo4jLoadBlocked as exc:
+        click.echo(f"BLOCKED: {exc}")
+        _write_neo4j_load(run_dir, {"status": "blocked", "reason": str(exc)})
+        raise click.ClickException(f"neo4j-export BLOCKED: {exc}") from exc
+    summary["status"] = "loaded"
+    _write_neo4j_load(run_dir, summary)
+    click.echo(f"loaded nodes: {summary['nodes']} | relationships: {summary['relationships']}")
+    click.echo(f"node_labels: {', '.join(summary['node_labels'])}")
+    click.echo(f"relationship_types: {', '.join(summary['relationship_types'])}")
+    click.echo(f"neo4j_load: {run_dir / 'neo4j_load.json'}")
+
+
+def _write_neo4j_load(run_dir: Path, summary: dict) -> None:
+    (run_dir / "neo4j_load.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    click.echo(f"nodes: {len(nodes)} (duplicate canonical ids: {dup_nodes})")
-    click.echo(f"relationships: {len(rels)} (duplicate: {dup_rels})")
-    click.echo(f"missing endpoints: {missing_endpoints}")
-    click.echo(f"nodes_path: {nodes_path}")
-    click.echo(f"relationships_path: {rels_path}")
 
 
 @agent_system.command("ask")
@@ -177,9 +213,14 @@ def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
     if not allow_live_model:
         raise click.ClickException("ask requires --allow-live-model to run the Query Agent.")
     invoker = make_live_model_invoker()
-    answer, sources, rec, facts = answer_question(
+    status, answer, sources, rec, facts = answer_question(
         run_dir=run_dir, question=question, model_invoker=invoker
     )
+    # §13 T3: a provider failure is reported as BLOCKED with a non-zero exit.
+    if status == "blocked":
+        click.echo(f"BLOCKED: {rec.error or 'query provider failure'}")
+        raise click.ClickException(f"ask BLOCKED: {rec.error or 'query provider failure'}")
+    click.echo(f"status: {status}")
     click.echo(f"answer: {answer}")
     click.echo(f"sources: {', '.join(sources) if sources else '(none)'}")
     click.echo(f"graph_facts_seen: {len(facts)}")

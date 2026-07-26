@@ -44,6 +44,12 @@ from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide
 # ledger (agent, prompt_set_id, prompt_version, attempt).
 ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
 
+# Shared English insufficient-evidence fallback for the active Query interface
+# (plan §13 T4: English-only active interface). Defined here so both the Query
+# Agent (agents.py) and the query runtime (query.py) reference one constant
+# without a circular import.
+INSUFFICIENT_EVIDENCE_ANSWER = "Insufficient graph evidence."
+
 
 @dataclass
 class AdvisoryMentions:
@@ -757,6 +763,23 @@ class QueryGraphEvidence:
     source_ids: list[str] = field(default_factory=list)
 
 
+@dataclass
+class QueryResult:
+    """The Query Agent's bounded outcome (plan §13 T3).
+
+    ``status`` distinguishes a successful answer (``ok``), a deterministic
+    insufficient-evidence decision (``insufficient``), and a provider failure
+    (``blocked``). Only ``blocked`` carries a failure reason; provider failure
+    must not be reported as insufficient evidence (plan §6.3, §13).
+    """
+
+    status: str  # ok | insufficient | blocked
+    answer: str
+    source_ids: list[str] = field(default_factory=list)
+    model_call: ModelCallRecord | None = None
+    failure_reason: str = ""
+
+
 def run_query_agent(
     *,
     task: AgentTask,
@@ -764,17 +787,25 @@ def run_query_agent(
     evidence: QueryGraphEvidence,
     ontology_labels: dict[str, str],
     model_invoker: ModelInvoker,
-) -> tuple[str, list[str], ModelCallRecord]:
+    insufficient_answer: str = "Insufficient graph evidence.",
+) -> QueryResult:
     """Answer a question using only the materialized graph + provenance.
 
-    Returns (answer_text, source_ids, model_call). If no graph evidence, the
-    answer is exactly ``图中证据不足`` and no model call is made.
+    Plan §6.3 / §13 T3/T4: a non-empty model-call error or an empty provider
+    response raises a narrow ``blocked`` result BEFORE answer parsing.
+    ``Insufficient graph evidence.`` is reserved for a successful deterministic
+    retrieval decision with no relevant graph evidence — never for provider
+    failure.
     """
 
     for tool in ("graph_search", "graph_neighbors", "get_provenance"):
         _check_tool(task, tool)
     if not evidence.facts:
-        return ("图中证据不足", [], _no_call_record("query"))
+        return QueryResult(
+            status="insufficient", answer=insufficient_answer,
+            model_call=_no_call_record("query"),
+            failure_reason="no matching graph evidence",
+        )
     rec = model_invoker(
         "query",
         {
@@ -783,8 +814,28 @@ def run_query_agent(
             "graph_evidence": _graph_evidence_text(evidence.facts),
         },
     )
+    # §13 T3: provider failure -> BLOCKED before answer parsing.
+    if rec.error:
+        return QueryResult(
+            status="blocked", answer="", model_call=rec, failure_reason=rec.error,
+        )
+    if not rec.raw_response.strip():
+        return QueryResult(
+            status="blocked", answer="", model_call=rec,
+            failure_reason="empty provider response",
+        )
     answer, sources = _parse_query_answer(rec.raw_response, evidence.source_ids)
-    return answer, sources, rec
+    if not answer:
+        return QueryResult(
+            status="blocked", answer="", model_call=rec,
+            failure_reason="query response contained no answer",
+        )
+    if not sources:
+        return QueryResult(
+            status="blocked", answer="", model_call=rec,
+            failure_reason="query response cited no retrieved source",
+        )
+    return QueryResult(status="ok", answer=answer, source_ids=sources, model_call=rec)
 
 
 def _ontology_labels_text(labels: dict[str, str]) -> str:
@@ -809,17 +860,34 @@ def _graph_evidence_text(facts: list[dict[str, Any]]) -> str:
 
 
 def _parse_query_answer(raw: str, available: list[str]) -> tuple[str, list[str]]:
-    """Extract the answer text and the cited source ids (must be known)."""
+    """Extract the answer text and the cited source ids (must be known).
+
+    Plan §6.3: the internal ``ANSWER`` and ``SOURCES`` headers emitted by the
+    frozen query catalog are parsed but NOT displayed. ``ANSWER`` on its own
+    line (or as an ``ANSWER:`` prefix) marks the start of the answer text and
+    is stripped; ``SOURCES`` / ``sources:`` mark the source list.
+    """
 
     lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
     sources: list[str] = []
     answer_lines: list[str] = []
     avail = set(available)
     in_sources = False
+    in_answer = False
     for ln in lines:
         low = ln.lower()
+        # ANSWER header: start of the displayed answer; the header itself is
+        # stripped (plan §6.3).
+        if low == "answer" or low.startswith("answer:"):
+            in_answer = True
+            if low.startswith("answer:"):
+                tail = ln.split(":", 1)[1].strip()
+                if tail:
+                    answer_lines.append(tail)
+            continue
         if low == "sources" or low.startswith("sources:"):
             in_sources = True
+            in_answer = False
             if low.startswith("sources:"):
                 tail = ln.split(":", 1)[1]
                 for tok in re.split(r"[,\s]+", tail):
@@ -834,7 +902,11 @@ def _parse_query_answer(raw: str, available: list[str]) -> tuple[str, list[str]]
                     sources.append(tok)
             continue
         answer_lines.append(ln)
-    answer = " ".join(answer_lines).strip() or "图中证据不足"
+    _ = in_answer  # parsed header presence; the answer text follows regardless
+    # A non-empty provider response can still omit the answer body. Keep that
+    # distinct from deterministic insufficient evidence so the caller can mark
+    # the malformed model result BLOCKED.
+    answer = " ".join(answer_lines).strip()
     return answer, sources
 
 

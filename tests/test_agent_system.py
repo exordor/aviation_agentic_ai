@@ -8,7 +8,7 @@ schema_violation; real unsupported fields -> profile_gap; profile gaps never
 enter RDF/Neo4j; run manifest records schema_slice_id+checksum; no custom cs:*
 core predicates; re-ingest idempotency; no missing relationship endpoints;
 Query Agent sees graph-tool results not raw sources; missing evidence ->
-图中证据不足; no chain-of-thought/credentials stored.
+"Insufficient graph evidence."; no chain-of-thought/credentials stored.
 
 Regression coverage added for the §16/§17/§20 core-correctness fixes: frozen
 prompt catalog is the sole prompt source; runtime assembles the fixed 6-message
@@ -650,7 +650,7 @@ def test_runtime_invoker_assembles_catalog_and_records_ledger(monkeypatch):
     assert captured["roles"] == ["system", "human", "ai", "human", "ai", "human"]
     assert rec.agent == "query"
     assert rec.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v3"
-    assert rec.prompt_version == "query-agent-v2"
+    assert rec.prompt_version == "query-agent-v3"
     assert rec.attempt == 1
     assert rec.input_tokens == 10 and rec.output_tokens == 5
     assert rec.system_fingerprint == "fp_test"
@@ -695,11 +695,12 @@ def test_missing_graph_evidence_answers_insufficient(tmp_path):
         called.append(1)
         return ModelCallRecord(agent="query", raw_response="")
 
-    answer, sources, rec, facts = answer_question(
+    status, answer, sources, rec, facts = answer_question(
         run_dir=tmp_path, question="what is the event", model_invoker=invoker
     )
     assert called == []
-    assert answer == "图中证据不足"
+    assert status == "insufficient"
+    assert answer == "Insufficient graph evidence."
     assert sources == []
     assert rec.error  # fail-closed: the no-call record carries an error reason
 
@@ -717,8 +718,10 @@ def test_query_agent_lists_source_ids(tmp_path):
             raw_response="It is a Ground Delay Program.\nSOURCES\n- src:1",
         )
 
-    answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="event", model_invoker=invoker
+    # §6.3: the question must match a graph fact keyword (no whole-graph
+    # fallback). "delay" matches the GroundDelayProgramTMI object.
+    status, answer, sources, rec, facts = answer_question(
+        run_dir=tmp_path, question="delay program", model_invoker=invoker
     )
     assert "src:1" in sources
     assert facts
@@ -737,8 +740,9 @@ def test_query_agent_uses_graph_not_raw_source(tmp_path):
         assert "controlledNASelement" in rendered or "KSFO" in rendered
         return ModelCallRecord(agent="query", raw_response="affected KSFO\nSOURCES\n- src:1")
 
-    answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="airport", model_invoker=invoker
+    # §6.3: "airport" matches the controlled-facility fact via KSFO/facility.
+    status, answer, sources, rec, facts = answer_question(
+        run_dir=tmp_path, question="KSFO airport", model_invoker=invoker
     )
     assert "src:1" in sources
 
@@ -762,8 +766,8 @@ def test_query_agent_pins_ground_stop_label_from_ontology(guide, tmp_path):
             raw_response="The graph records a Ground Stop.\nSOURCES\n- src:1",
         )
 
-    answer, sources, rec, facts = answer_question(
-        run_dir=tmp_path, question="what is the event", model_invoker=invoker, guide=guide
+    status, answer, sources, rec, facts = answer_question(
+        run_dir=tmp_path, question="ground stop event", model_invoker=invoker, guide=guide
     )
     # Controlled ontology label for GroundStopTMI is surfaced to the Agent.
     assert "Ground Stop" in labels_seen["labels"]

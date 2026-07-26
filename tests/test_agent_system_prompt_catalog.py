@@ -80,7 +80,7 @@ def test_every_role_has_version_policy_and_bounded_output() -> None:
         "facility": "facility-agent-v2",
         "terminology": "terminology-agent-v2",
         "knowledge_graph_construction": "knowledge-graph-construction-agent-v3",
-        "query": "query-agent-v2",
+        "query": "query-agent-v3",
     }
     for role, prompt in _catalog()["roles"].items():
         assert prompt["prompt_version"] == expected_versions[role]
@@ -97,7 +97,7 @@ def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
         "facility": {"FACILITY_DECISION"},
         "terminology": {"TERMINOLOGY_DECISION"},
         "knowledge_graph_construction": {"GRAPH_PATCH"},
-        "query": {"ANSWER", "图中证据不足"},
+        "query": {"ANSWER", "Insufficient graph evidence."},
     }
     forbidden_real_tokens = re.compile(r"\b(?:DCA|SFO|MIA|CLT|GDP|GS)\b")
     for role, prompt in _catalog()["roles"].items():
@@ -120,7 +120,7 @@ def test_every_role_has_two_fictional_contrastive_few_shot_pairs() -> None:
     assert "PROFILE_GAPS\nEXAMPLE PRIORITY" in (
         roles["knowledge_graph_construction"]["few_shot"][1]["assistant"]
     )
-    assert roles["query"]["few_shot"][1]["assistant"].strip() == "图中证据不足"
+    assert roles["query"]["few_shot"][1]["assistant"].strip() == "Insufficient graph evidence."
 
 
 def test_templates_expose_only_the_declared_placeholders() -> None:
@@ -195,7 +195,7 @@ def test_query_prompt_is_graph_only_and_has_exact_insufficient_evidence_response
     system = _catalog()["roles"]["query"]["system"]
     assert "using only GRAPH_EVIDENCE" in system
     assert "Do not use model memory, external knowledge, or the raw advisory" in system
-    assert "图中证据不足" in system
+    assert "Insufficient graph evidence." in system
     assert "SOURCES" in system
 
 
