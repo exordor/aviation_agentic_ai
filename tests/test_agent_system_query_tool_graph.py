@@ -21,6 +21,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     WeatherContextAssociation,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
+    CONTROLLED_FACILITY_QUESTION,
     DECLARED_REASON_QUESTION,
     FORECAST_CONTEXT_QUESTION,
     MEASURE_QUESTION,
@@ -34,10 +35,29 @@ from aviation_agentic_ai.agent_system.query_tool_graph import (
     question_requires_model,
 )
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+from aviation_agentic_ai.agent_system.weather_context import (
+    FORECASTING_AIRPORT,
+    FORECAST_ISSUE_TIME,
+    INTERVAL_END,
+    INTERVAL_START,
+    METAR_STRING,
+    RDF_TYPE,
+    TAF_STRING,
+    XSD_DATETIME,
+    XSD_STRING,
+)
+from aviation_agentic_ai.agent_system.weather_context_validation import (
+    expected_weather_fact_id,
+)
 
 EVENT_ID = "urn:aviation-agentic-ai:event:tool-graph-test"
 FACILITY_ID = "urn:aviation-agentic-ai:facility:airport:KJFK"
 SOURCE_ID = "2026-05-19:123"
+ADVISORY_CONTENT = (
+    "SIGNATURE:\n"
+    "26/05/19 20:30\n"
+    "IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n"
+)
 PREDICATES = [
     "rdf:type",
     "atm:controlledNASelement",
@@ -104,7 +124,7 @@ def _write_profile_gap(
     profile_gap_id: str = "profile-gap:reason",
 ) -> None:
     evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
-    content = f"{evidence}\n"
+    content = ADVISORY_CONTENT
     import hashlib
 
     checksum = hashlib.sha256(content.encode("utf-8")).hexdigest()
@@ -152,6 +172,99 @@ def _artifact(
     }
 
 
+def _weather_report_id(
+    family: SourceFamily,
+    station: str,
+    logical_time: datetime,
+    raw: str,
+    snapshot_checksum: str,
+) -> str:
+    raw_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+    token = logical_time.astimezone(UTC).strftime("%Y%m%dT%H%M%SZ")
+    return (
+        f"weather-report:{family.value}:{station}:{token}:"
+        f"{raw_hash}:{snapshot_checksum[:16]}"
+    )
+
+
+def _weather_association_id(
+    *,
+    run_id: str,
+    report_id: str,
+    relation_type: str,
+    source_checksum: str,
+) -> str:
+    digest = hashlib.sha256(
+        "|".join(
+            (
+                run_id,
+                EVENT_ID,
+                report_id,
+                FACILITY_ID,
+                relation_type,
+                source_checksum,
+            )
+        ).encode("utf-8")
+    ).hexdigest()[:24]
+    return f"weather-association:{digest}"
+
+
+def _weather_fact_row(
+    *,
+    report_id: str,
+    predicate: str,
+    predicate_iri: str,
+    value: str,
+    source_id: str,
+    evidence_text: str,
+    object_kind: str,
+    object_class: str = "",
+    datatype_iri: str = "",
+) -> dict[str, Any]:
+    return {
+        "triple_id": expected_weather_fact_id(
+            report_id,
+            predicate_iri,
+            value,
+        ),
+        "subject": f"urn:aviation-agentic-ai:{report_id}",
+        "predicate": predicate,
+        "object": value,
+        "subject_class": "data:MeteorologicalReport",
+        "object_class": object_class,
+        "object_kind": object_kind,
+        "source_document": source_id,
+        "evidence_text": evidence_text,
+        "datatype_iri": datatype_iri,
+    }
+
+
+def _bts_summary_id(
+    *,
+    run_id: str,
+    phase: str,
+    window_start: datetime,
+    window_end: datetime,
+    source_id: str,
+    source_checksum: str,
+) -> str:
+    digest = hashlib.sha256(
+        "|".join(
+            (
+                run_id,
+                EVENT_ID,
+                FACILITY_ID,
+                phase,
+                window_start.isoformat(),
+                window_end.isoformat(),
+                source_id,
+                source_checksum,
+            )
+        ).encode("utf-8")
+    ).hexdigest()[:24]
+    return f"bts-outcome:{source_id}:{digest}"
+
+
 def _write_query_context(
     run_dir: Path,
     *,
@@ -186,10 +299,8 @@ def _write_query_context(
         SourceSnapshot(
             source_id=SOURCE_ID,
             family=SourceFamily.ATCSCC_ADVISORY,
-            content="IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n",
-            content_sha256=hashlib.sha256(
-                b"IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n"
-            ).hexdigest(),
+            content=ADVISORY_CONTENT,
+            content_sha256=hashlib.sha256(ADVISORY_CONTENT.encode()).hexdigest(),
             snapshot_timestamp="2026-05-19T20:30:00+00:00",
         ),
         SourceSnapshot(
@@ -214,88 +325,171 @@ def _write_query_context(
             snapshot_timestamp="2026-05-19T20:00:00+00:00",
         ),
     ]
+    taf_issue = datetime(2026, 5, 19, 20, tzinfo=UTC)
+    taf_start = taf_issue
+    taf_end = datetime(2026, 5, 20, 2, tzinfo=UTC)
+    metar_time = datetime(2026, 5, 19, 20, 15, tzinfo=UTC)
     reports = [
         (
-            "weather-report:taf:KJFK:test",
+            _weather_report_id(
+                SourceFamily.TAF,
+                "KJFK",
+                taf_issue,
+                "TAF KJFK TEST",
+                snapshots[1].content_sha256,
+            ),
             taf_source,
             "latest_forecast_known_at_issue",
+            "latest eligible TAF by issue time",
             "TAF KJFK TEST",
             "data:tafReportString",
+            taf_start,
+            taf_end,
+            taf_issue,
         ),
         (
-            "weather-report:metar:KJFK:test",
+            _weather_report_id(
+                SourceFamily.METAR,
+                "KJFK",
+                metar_time,
+                "METAR KJFK TEST",
+                snapshots[2].content_sha256,
+            ),
             metar_source,
             "latest_observation_at_or_before_issue",
+            "latest METAR within two hours",
             "METAR KJFK TEST",
             "data:metarReportString",
+            metar_time,
+            metar_time,
+            None,
         ),
     ]
     associations = []
     rows = _graph_rows()
-    for index, (report_id, source_id, relation, raw, raw_predicate) in enumerate(
-        reports
-    ):
+    for (
+        report_id,
+        source_id,
+        relation,
+        selection_method,
+        raw,
+        raw_predicate,
+        interval_start,
+        interval_end,
+        forecast_issue,
+    ) in reports:
+        snapshot = next(
+            snapshot for snapshot in snapshots if snapshot.source_id == source_id
+        )
+        relevant_times = {
+            "advisory_issued_at": "2026-05-19T20:30:00+00:00",
+            "operational_start": "2026-05-19T21:00:00+00:00",
+            "operational_end": "2026-05-19T22:45:00+00:00",
+        }
+        if forecast_issue is None:
+            relevant_times["observation_time"] = interval_start.isoformat()
+        else:
+            relevant_times.update(
+                {
+                    "forecast_issue_time": forecast_issue.isoformat(),
+                    "forecast_valid_from": interval_start.isoformat(),
+                    "forecast_valid_to": interval_end.isoformat(),
+                }
+            )
         associations.append(
             WeatherContextAssociation(
-                association_id=f"weather-association:{index}",
+                association_id=_weather_association_id(
+                    run_id=run_id,
+                    report_id=report_id,
+                    relation_type=relation,
+                    source_checksum=snapshot.content_sha256,
+                ),
                 run_id=run_id,
                 event_id=EVENT_ID,
                 report_id=report_id,
                 facility_id=FACILITY_ID,
                 relation_type=relation,
-                selection_method="deterministic test selection",
-                relevant_times={
-                    "advisory_issued_at": "2026-05-19T20:30:00+00:00",
-                    "operational_start": "2026-05-19T21:00:00+00:00",
-                    "operational_end": "2026-05-19T22:45:00+00:00",
-                },
+                selection_method=selection_method,
+                relevant_times=relevant_times,
                 source_id=source_id,
-                source_snapshot_sha256=next(
-                    snapshot.content_sha256
-                    for snapshot in snapshots
-                    if snapshot.source_id == source_id
-                ),
+                source_snapshot_sha256=snapshot.content_sha256,
                 causal_claim=False,
             )
         )
-        subject = f"urn:aviation-agentic-ai:{report_id}"
         rows.extend(
             [
-                {
-                    "triple_id": f"weather:{index}:type",
-                    "subject": subject,
-                    "predicate": "rdf:type",
-                    "object": (
+                _weather_fact_row(
+                    report_id=report_id,
+                    predicate="rdf:type",
+                    predicate_iri=RDF_TYPE,
+                    value=(
                         "https://data.nasa.gov/ontologies/atmonto/"
                         "data#MeteorologicalReport"
                     ),
-                    "subject_class": "data:MeteorologicalReport",
-                    "object_class": "data:MeteorologicalReport",
-                    "object_kind": "iri",
-                    "source_document": source_id,
-                },
-                {
-                    "triple_id": f"weather:{index}:facility",
-                    "subject": subject,
-                    "predicate": "data:forecastingAirport",
-                    "object": FACILITY_ID,
-                    "subject_class": "data:MeteorologicalReport",
-                    "object_class": "nas:Airport",
-                    "object_kind": "iri",
-                    "source_document": source_id,
-                },
-                {
-                    "triple_id": f"weather:{index}:raw",
-                    "subject": subject,
-                    "predicate": raw_predicate,
-                    "object": raw,
-                    "subject_class": "data:MeteorologicalReport",
-                    "object_class": "",
-                    "object_kind": "literal",
-                    "source_document": source_id,
-                },
+                    source_id=source_id,
+                    evidence_text=raw,
+                    object_kind="iri",
+                    object_class="data:MeteorologicalReport",
+                ),
+                _weather_fact_row(
+                    report_id=report_id,
+                    predicate="data:forecastingAirport",
+                    predicate_iri=FORECASTING_AIRPORT,
+                    value=FACILITY_ID,
+                    source_id=source_id,
+                    evidence_text=raw,
+                    object_kind="iri",
+                    object_class="nas:Airport",
+                ),
+                _weather_fact_row(
+                    report_id=report_id,
+                    predicate=raw_predicate,
+                    predicate_iri=(
+                        TAF_STRING
+                        if raw_predicate == "data:tafReportString"
+                        else METAR_STRING
+                    ),
+                    value=raw,
+                    source_id=source_id,
+                    evidence_text=raw,
+                    object_kind="literal",
+                    datatype_iri=XSD_STRING,
+                ),
+                _weather_fact_row(
+                    report_id=report_id,
+                    predicate="data:dataIntervalStartTime",
+                    predicate_iri=INTERVAL_START,
+                    value=interval_start.isoformat(),
+                    source_id=source_id,
+                    evidence_text=raw,
+                    object_kind="literal",
+                    datatype_iri=XSD_DATETIME,
+                ),
+                _weather_fact_row(
+                    report_id=report_id,
+                    predicate="data:dataIntervalEndTime",
+                    predicate_iri=INTERVAL_END,
+                    value=interval_end.isoformat(),
+                    source_id=source_id,
+                    evidence_text=raw,
+                    object_kind="literal",
+                    datatype_iri=XSD_DATETIME,
+                ),
             ]
         )
+        if forecast_issue is not None:
+            rows.append(
+                _weather_fact_row(
+                    report_id=report_id,
+                    predicate="data:forecastIssueTime",
+                    predicate_iri=FORECAST_ISSUE_TIME,
+                    value=forecast_issue.isoformat(),
+                    source_id=source_id,
+                    evidence_text=raw,
+                    object_kind="literal",
+                    datatype_iri=XSD_DATETIME,
+                )
+            )
     _write_graph(run_dir, rows)
 
     start = datetime(2026, 5, 19, 21, tzinfo=UTC)
@@ -312,7 +506,14 @@ def _write_query_context(
         )
         summaries.append(
             BTSOutcomeSummary(
-                summary_id=f"bts-outcome:{phase}",
+                summary_id=_bts_summary_id(
+                    run_id=run_id,
+                    phase=phase,
+                    window_start=window_start,
+                    window_end=window_end,
+                    source_id=bts_source,
+                    source_checksum=snapshots[-1].content_sha256,
+                ),
                 run_id=run_id,
                 event_id=EVENT_ID,
                 facility_id=FACILITY_ID,
@@ -330,9 +531,15 @@ def _write_query_context(
                 median_arrival_delay_minutes=None,
                 carrier_reported_weather_delay_minutes=None,
                 carrier_reported_nas_delay_minutes=5.0,
-                scheduled_arrival_semantics="public scheduled-demand proxy",
-                weather_delay_semantics="carrier-reported attribution",
-                nas_delay_semantics="carrier-reported attribution",
+                scheduled_arrival_semantics=(
+                    "public scheduled-demand proxy; not FAA arrival demand"
+                ),
+                weather_delay_semantics=(
+                    "carrier-reported attribution; not a causal claim"
+                ),
+                nas_delay_semantics=(
+                    "carrier-reported attribution; not a causal claim"
+                ),
                 causal_claim=False,
             )
         )
@@ -357,6 +564,323 @@ def _write_query_context(
         json.dumps({"run_id": run_id, "context_artifacts": metadata}),
         encoding="utf-8",
     )
+
+
+def _read_jsonl_objects(path: Path) -> list[dict[str, Any]]:
+    return [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def _rewrite_registered_artifact(
+    run_dir: Path,
+    *,
+    key: str,
+    filename: str,
+    rows: list[dict[str, Any]],
+) -> None:
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"][key] = _artifact(
+        run_dir,
+        filename,
+        [json.dumps(row, sort_keys=True, separators=(",", ":")) for row in rows],
+    )
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+
+def _replace_weather_report(
+    run_dir: Path,
+    *,
+    family: SourceFamily,
+    source_row: dict[str, Any],
+    interval_start: datetime,
+    interval_end: datetime,
+    logical_time: datetime,
+) -> None:
+    snapshots = _read_jsonl_objects(run_dir / "source_snapshots.jsonl")
+    snapshot = next(row for row in snapshots if row["family"] == family.value)
+    raw_key = "rawTAF" if family == SourceFamily.TAF else "rawOb"
+    raw = str(source_row[raw_key])
+    canonical_content = json.dumps(
+        source_row,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    checksum = hashlib.sha256(canonical_content.encode("utf-8")).hexdigest()
+    snapshot["content"] = canonical_content
+    snapshot["content_sha256"] = checksum
+    snapshot["snapshot_timestamp"] = logical_time.isoformat()
+    _rewrite_registered_artifact(
+        run_dir,
+        key="source_snapshots",
+        filename="source_snapshots.jsonl",
+        rows=snapshots,
+    )
+
+    associations = _read_jsonl_objects(run_dir / "context_associations.jsonl")
+    relation = (
+        "latest_forecast_known_at_issue"
+        if family == SourceFamily.TAF
+        else "latest_observation_at_or_before_issue"
+    )
+    association = next(row for row in associations if row["relation_type"] == relation)
+    old_report_id = str(association["report_id"])
+    report_id = _weather_report_id(
+        family,
+        "KJFK",
+        logical_time,
+        raw,
+        checksum,
+    )
+    association["report_id"] = report_id
+    association["source_snapshot_sha256"] = checksum
+    association["association_id"] = _weather_association_id(
+        run_id=run_dir.name,
+        report_id=report_id,
+        relation_type=relation,
+        source_checksum=checksum,
+    )
+    association["relevant_times"] = {
+        "advisory_issued_at": "2026-05-19T20:30:00+00:00",
+        "operational_start": "2026-05-19T21:00:00+00:00",
+        "operational_end": "2026-05-19T22:45:00+00:00",
+    }
+    if family == SourceFamily.TAF:
+        association["relevant_times"].update(
+            {
+                "forecast_issue_time": logical_time.isoformat(),
+                "forecast_valid_from": interval_start.isoformat(),
+                "forecast_valid_to": interval_end.isoformat(),
+            }
+        )
+    else:
+        association["relevant_times"]["observation_time"] = logical_time.isoformat()
+    _rewrite_registered_artifact(
+        run_dir,
+        key="context_associations",
+        filename="context_associations.jsonl",
+        rows=associations,
+    )
+
+    graph_rows = _read_jsonl_objects(run_dir / "kg.jsonl")
+    old_subject = f"urn:aviation-agentic-ai:{old_report_id}"
+    new_subject = f"urn:aviation-agentic-ai:{report_id}"
+    for row in graph_rows:
+        if row.get("subject") != old_subject:
+            continue
+        row["subject"] = new_subject
+        if row["predicate"] == "data:dataIntervalStartTime":
+            row["object"] = interval_start.isoformat()
+        elif row["predicate"] == "data:dataIntervalEndTime":
+            row["object"] = interval_end.isoformat()
+        elif row["predicate"] == "data:forecastIssueTime":
+            row["object"] = logical_time.isoformat()
+        elif row["predicate"] in {"data:tafReportString", "data:metarReportString"}:
+            row["object"] = raw
+    _write_graph(run_dir, graph_rows)
+
+
+def _append_qualifying_weather_relation(
+    run_dir: Path,
+    *,
+    family: SourceFamily,
+    logical_time: datetime,
+    raw: str,
+) -> None:
+    relation = (
+        "latest_forecast_known_at_issue"
+        if family == SourceFamily.TAF
+        else "latest_observation_at_or_before_issue"
+    )
+    selection_method = (
+        "latest eligible TAF by issue time"
+        if family == SourceFamily.TAF
+        else "latest METAR within two hours"
+    )
+    source_id = (
+        f"weather-source:{family.value}:KJFK:"
+        f"{logical_time.astimezone(UTC).strftime('%Y%m%dT%H%M%SZ')}"
+    )
+    if family == SourceFamily.TAF:
+        interval_start = datetime(2026, 5, 19, 20, tzinfo=UTC)
+        interval_end = datetime(2026, 5, 20, 2, tzinfo=UTC)
+        source_row = {
+            "icaoId": "KJFK",
+            "issueTime": logical_time.isoformat(),
+            "rawTAF": raw,
+            "validTimeFrom": interval_start.isoformat(),
+            "validTimeTo": interval_end.isoformat(),
+        }
+        raw_predicate = "data:tafReportString"
+    else:
+        interval_start = logical_time
+        interval_end = logical_time
+        source_row = {
+            "icaoId": "KJFK",
+            "rawOb": raw,
+            "reportTime": logical_time.isoformat(),
+        }
+        raw_predicate = "data:metarReportString"
+    content = json.dumps(source_row, sort_keys=True, separators=(",", ":"))
+    checksum = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    snapshot = SourceSnapshot(
+        source_id=source_id,
+        family=family,
+        content=content,
+        content_sha256=checksum,
+        snapshot_timestamp=logical_time.isoformat(),
+    )
+    snapshots = _read_jsonl_objects(run_dir / "source_snapshots.jsonl")
+    snapshots.append(snapshot.model_dump(mode="json"))
+    _rewrite_registered_artifact(
+        run_dir,
+        key="source_snapshots",
+        filename="source_snapshots.jsonl",
+        rows=snapshots,
+    )
+
+    report_id = _weather_report_id(
+        family,
+        "KJFK",
+        logical_time,
+        raw,
+        checksum,
+    )
+    relevant_times = {
+        "advisory_issued_at": "2026-05-19T20:30:00+00:00",
+        "operational_start": "2026-05-19T21:00:00+00:00",
+        "operational_end": "2026-05-19T22:45:00+00:00",
+    }
+    if family == SourceFamily.TAF:
+        relevant_times.update(
+            {
+                "forecast_issue_time": logical_time.isoformat(),
+                "forecast_valid_from": interval_start.isoformat(),
+                "forecast_valid_to": interval_end.isoformat(),
+            }
+        )
+    else:
+        relevant_times["observation_time"] = logical_time.isoformat()
+    association = WeatherContextAssociation(
+        association_id=_weather_association_id(
+            run_id=run_dir.name,
+            report_id=report_id,
+            relation_type=relation,
+            source_checksum=checksum,
+        ),
+        run_id=run_dir.name,
+        event_id=EVENT_ID,
+        report_id=report_id,
+        facility_id=FACILITY_ID,
+        relation_type=relation,
+        selection_method=selection_method,
+        relevant_times=relevant_times,
+        source_id=source_id,
+        source_snapshot_sha256=checksum,
+        causal_claim=False,
+    )
+    associations = _read_jsonl_objects(run_dir / "context_associations.jsonl")
+    associations.append(association.model_dump(mode="json"))
+    _rewrite_registered_artifact(
+        run_dir,
+        key="context_associations",
+        filename="context_associations.jsonl",
+        rows=associations,
+    )
+
+    subject = f"urn:aviation-agentic-ai:{report_id}"
+    prefix = f"weather:additional:{family.value}"
+    graph_rows = _read_jsonl_objects(run_dir / "kg.jsonl")
+    graph_rows.extend(
+        [
+            {
+                "triple_id": f"{prefix}:type",
+                "subject": subject,
+                "predicate": "rdf:type",
+                "object": (
+                    "https://data.nasa.gov/ontologies/atmonto/"
+                    "data#MeteorologicalReport"
+                ),
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "data:MeteorologicalReport",
+                "object_kind": "iri",
+                "source_document": source_id,
+            },
+            {
+                "triple_id": f"{prefix}:facility",
+                "subject": subject,
+                "predicate": "data:forecastingAirport",
+                "object": FACILITY_ID,
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "nas:Airport",
+                "object_kind": "iri",
+                "source_document": source_id,
+            },
+            {
+                "triple_id": f"{prefix}:raw",
+                "subject": subject,
+                "predicate": raw_predicate,
+                "object": raw,
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "",
+                "object_kind": "literal",
+                "source_document": source_id,
+            },
+            {
+                "triple_id": f"{prefix}:start",
+                "subject": subject,
+                "predicate": "data:dataIntervalStartTime",
+                "object": interval_start.isoformat(),
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "",
+                "object_kind": "literal",
+                "source_document": source_id,
+            },
+            {
+                "triple_id": f"{prefix}:end",
+                "subject": subject,
+                "predicate": "data:dataIntervalEndTime",
+                "object": interval_end.isoformat(),
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "",
+                "object_kind": "literal",
+                "source_document": source_id,
+            },
+        ]
+    )
+    if family == SourceFamily.TAF:
+        graph_rows.append(
+            {
+                "triple_id": f"{prefix}:issue",
+                "subject": subject,
+                "predicate": "data:forecastIssueTime",
+                "object": logical_time.isoformat(),
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "",
+                "object_kind": "literal",
+                "source_document": source_id,
+            }
+        )
+    _write_graph(run_dir, graph_rows)
+
+
+def _assert_deterministic_query_is_blocked(
+    run_dir: Path,
+    *,
+    question: str,
+) -> None:
+    factory = _Factory(_ScriptedModel([]))
+    outcome = answer_question_with_tools(
+        run_dir=run_dir,
+        question=question,
+        model_factory=factory,
+    )
+    assert outcome.status == "blocked"
+    assert outcome.model_calls == []
+    assert factory.calls == 0
 
 
 def _tool_message(
@@ -531,13 +1055,20 @@ def test_forecast_context_is_deterministic_non_causal_and_query_run_is_separate(
     assert [trace.tool for trace in outcome.tool_calls] == [
         "get_decision_context"
     ]
-    assert outcome.retrieved_context_association_ids == [
-        "weather-association:0"
+    associations = [
+        WeatherContextAssociation.model_validate_json(line)
+        for line in (tmp_path / "context_associations.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
     ]
+    expected_ids = [
+        association.association_id
+        for association in associations
+        if association.relation_type == "latest_forecast_known_at_issue"
+    ]
+    assert outcome.retrieved_context_association_ids == expected_ids
     record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
-    assert record["retrieved_context_association_ids"] == [
-        "weather-association:0"
-    ]
+    assert record["retrieved_context_association_ids"] == expected_ids
     assert record["retrieved_outcome_summary_ids"] == []
     assert record["retrieved_facts"]
     assert record["retrieved_context_associations"]
@@ -559,8 +1090,17 @@ def test_observed_context_uses_only_metar_associations_without_model(tmp_path):
     assert "non-causal context" in outcome.answer
     assert "METAR KJFK TEST" in outcome.answer
     assert "TAF KJFK TEST" not in outcome.answer
+    associations = [
+        WeatherContextAssociation.model_validate_json(line)
+        for line in (tmp_path / "context_associations.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
     assert outcome.retrieved_context_association_ids == [
-        "weather-association:1"
+        association.association_id
+        for association in associations
+        if association.relation_type
+        == "latest_observation_at_or_before_issue"
     ]
     assert len(outcome.tool_calls) == 1
     assert factory.calls == 0
@@ -598,9 +1138,10 @@ def test_public_outcome_response_preserves_three_case_active_counts(
     ) in outcome.answer
     assert outcome.retrieved_fact_ids == []
     assert outcome.retrieved_outcome_summary_ids == [
-        "bts-outcome:baseline",
-        "bts-outcome:active",
-        "bts-outcome:recovery",
+        BTSOutcomeSummary.model_validate_json(line).summary_id
+        for line in (tmp_path / "outcome_summaries.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
     ]
     assert outcome.model_calls == []
     assert factory.calls == 0
@@ -682,6 +1223,588 @@ def test_optional_context_corruption_does_not_block_old_core_question(tmp_path):
     assert "Ground Stop" in outcome.answer
     assert outcome.model_calls == []
     assert factory.calls == 0
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        MEASURE_QUESTION,
+        CONTROLLED_FACILITY_QUESTION,
+        OPERATIONAL_PERIOD_QUESTION,
+        DECLARED_REASON_QUESTION,
+    ],
+)
+def test_unrelated_corrupt_weather_snapshot_does_not_block_core_queries(
+    tmp_path,
+    question,
+):
+    _write_graph(tmp_path)
+    _write_query_context(tmp_path)
+    _write_profile_gap(tmp_path)
+    registry_path = tmp_path / "source_snapshots.jsonl"
+    rows = [
+        json.loads(line)
+        for line in registry_path.read_text(encoding="utf-8").splitlines()
+    ]
+    taf = next(row for row in rows if row["family"] == SourceFamily.TAF)
+    taf["content_sha256"] = "0" * 64
+    registry_path.write_text(
+        "".join(json.dumps(row) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=question,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert factory.calls == 0
+
+
+def test_taf_issued_after_advisory_is_blocked_from_forecast_context(tmp_path):
+    _write_query_context(tmp_path)
+    issue_time = datetime(2026, 5, 19, 23, tzinfo=UTC)
+    _replace_weather_report(
+        tmp_path,
+        family=SourceFamily.TAF,
+        source_row={
+            "icaoId": "KJFK",
+            "issueTime": issue_time.isoformat(),
+            "rawTAF": "TAF KJFK POST DECISION",
+            "validTimeFrom": "2026-05-19T20:00:00+00:00",
+            "validTimeTo": "2026-05-20T02:00:00+00:00",
+        },
+        interval_start=datetime(2026, 5, 19, 20, tzinfo=UTC),
+        interval_end=datetime(2026, 5, 20, 2, tzinfo=UTC),
+        logical_time=issue_time,
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+    )
+
+
+def test_taf_without_operational_period_overlap_is_blocked(tmp_path):
+    _write_query_context(tmp_path)
+    issue_time = datetime(2026, 5, 19, 20, tzinfo=UTC)
+    _replace_weather_report(
+        tmp_path,
+        family=SourceFamily.TAF,
+        source_row={
+            "icaoId": "KJFK",
+            "issueTime": issue_time.isoformat(),
+            "rawTAF": "TAF KJFK EXPIRED",
+            "validTimeFrom": "2026-05-19T18:00:00+00:00",
+            "validTimeTo": "2026-05-19T20:30:00+00:00",
+        },
+        interval_start=datetime(2026, 5, 19, 18, tzinfo=UTC),
+        interval_end=datetime(2026, 5, 19, 20, 30, tzinfo=UTC),
+        logical_time=issue_time,
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("selection_method", "trust the artifact label"),
+        (
+            "relevant_times",
+            {
+                "advisory_issued_at": "2026-05-19T19:00:00+00:00",
+                "operational_start": "2026-05-19T21:00:00+00:00",
+                "operational_end": "2026-05-19T22:45:00+00:00",
+                "forecast_issue_time": "2026-05-19T20:00:00+00:00",
+                "forecast_valid_from": "2026-05-19T20:00:00+00:00",
+                "forecast_valid_to": "2026-05-20T02:00:00+00:00",
+            },
+        ),
+    ],
+)
+def test_taf_relation_metadata_must_match_source_derived_selection(
+    tmp_path,
+    field,
+    value,
+):
+    _write_query_context(tmp_path)
+    associations = _read_jsonl_objects(tmp_path / "context_associations.jsonl")
+    forecast = next(
+        row
+        for row in associations
+        if row["relation_type"] == "latest_forecast_known_at_issue"
+    )
+    forecast[field] = value
+    _rewrite_registered_artifact(
+        tmp_path,
+        key="context_associations",
+        filename="context_associations.jsonl",
+        rows=associations,
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+    )
+
+
+def test_taf_formal_time_facts_must_match_source_snapshot(tmp_path):
+    _write_query_context(tmp_path)
+    rows = _read_jsonl_objects(tmp_path / "kg.jsonl")
+    issue_row = next(
+        row
+        for row in rows
+        if row["predicate"] == "data:forecastIssueTime"
+    )
+    issue_row["object"] = "2026-05-19T19:59:00+00:00"
+    _write_graph(tmp_path, rows)
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("triple_id", "weather-fact:forged-but-not-reserved"),
+        ("object_kind", "iri"),
+        (
+            "datatype_iri",
+            "http://www.w3.org/2001/XMLSchema#integer",
+        ),
+    ],
+)
+def test_weather_formal_fact_shape_and_id_must_be_source_derived(
+    tmp_path,
+    field,
+    value,
+):
+    _write_query_context(tmp_path)
+    rows = _read_jsonl_objects(tmp_path / "kg.jsonl")
+    raw_taf = next(
+        row for row in rows if row["predicate"] == "data:tafReportString"
+    )
+    raw_taf[field] = value
+    _write_graph(tmp_path, rows)
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+    )
+
+
+@pytest.mark.parametrize(
+    ("question", "source_id", "predicate"),
+    [
+        (
+            FORECAST_CONTEXT_QUESTION,
+            "weather-source:taf:KJFK:test",
+            "atm:causedBy",
+        ),
+        (
+            FORECAST_CONTEXT_QUESTION,
+            "weather-source:taf:KJFK:test",
+            "atm:impactingCondition",
+        ),
+        (
+            PUBLIC_OUTCOME_QUESTION,
+            "bts_on_time:2026-05:nyc",
+            "data:arrivalDemand",
+        ),
+        (
+            PUBLIC_OUTCOME_QUESTION,
+            "bts_on_time:2026-05:nyc",
+            "data:airportArrivalRate",
+        ),
+        (
+            PUBLIC_OUTCOME_QUESTION,
+            "bts_on_time:2026-05:nyc",
+            "atm:causedBy",
+        ),
+    ],
+)
+def test_context_source_families_cannot_support_out_of_profile_formal_facts(
+    tmp_path,
+    question,
+    source_id,
+    predicate,
+):
+    _write_query_context(tmp_path)
+    rows = _read_jsonl_objects(tmp_path / "kg.jsonl")
+    rows.append(
+        {
+            "triple_id": f"fact:forged:{predicate}",
+            "subject": EVENT_ID,
+            "predicate": predicate,
+            "object": "forged-context-claim",
+            "subject_class": "atm:GroundStopTMI",
+            "object_class": "",
+            "object_kind": "literal",
+            "source_document": source_id,
+            "evidence_text": "FORGED CONTEXT CLAIM",
+            "datatype_iri": XSD_STRING,
+        }
+    )
+    _write_graph(tmp_path, rows)
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=question,
+    )
+
+
+def test_insufficient_bts_layer_still_rejects_bts_sourced_formal_facts(
+    tmp_path,
+):
+    _write_query_context(tmp_path)
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"]["outcome_summaries"] = _artifact(
+        tmp_path,
+        "outcome_summaries.jsonl",
+        [],
+        status="insufficient",
+    )
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    rows = _read_jsonl_objects(tmp_path / "kg.jsonl")
+    rows.append(
+        {
+            "triple_id": "fact:forged:bts-demand",
+            "subject": EVENT_ID,
+            "predicate": "data:arrivalDemand",
+            "object": "20",
+            "subject_class": "atm:GroundStopTMI",
+            "object_class": "",
+            "object_kind": "literal",
+            "source_document": "bts_on_time:2026-05:nyc",
+            "evidence_text": "FORGED BTS DEMAND",
+            "datatype_iri": XSD_STRING,
+        }
+    )
+    _write_graph(tmp_path, rows)
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=PUBLIC_OUTCOME_QUESTION,
+    )
+
+
+@pytest.mark.parametrize(
+    ("artifact_key", "filename", "question"),
+    [
+        (
+            "context_associations",
+            "context_associations.jsonl",
+            FORECAST_CONTEXT_QUESTION,
+        ),
+        (
+            "outcome_summaries",
+            "outcome_summaries.jsonl",
+            PUBLIC_OUTCOME_QUESTION,
+        ),
+    ],
+)
+def test_registered_multisource_run_requires_each_context_artifact(
+    tmp_path,
+    artifact_key,
+    filename,
+    question,
+):
+    _write_query_context(tmp_path)
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"].pop(artifact_key)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    (tmp_path / filename).unlink()
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=question,
+    )
+
+
+def test_non_latest_qualifying_taf_relation_is_blocked(tmp_path):
+    _write_query_context(tmp_path)
+    _append_qualifying_weather_relation(
+        tmp_path,
+        family=SourceFamily.TAF,
+        logical_time=datetime(2026, 5, 19, 19, tzinfo=UTC),
+        raw="TAF KJFK OLDER QUALIFYING",
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+    )
+
+
+def test_post_issue_metar_is_blocked_from_pre_issue_observation_context(tmp_path):
+    _write_query_context(tmp_path)
+    report_time = datetime(2026, 5, 19, 20, 45, tzinfo=UTC)
+    _replace_weather_report(
+        tmp_path,
+        family=SourceFamily.METAR,
+        source_row={
+            "icaoId": "KJFK",
+            "rawOb": "METAR KJFK POST DECISION",
+            "reportTime": report_time.isoformat(),
+        },
+        interval_start=report_time,
+        interval_end=report_time,
+        logical_time=report_time,
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=OBSERVED_WEATHER_CONTEXT_QUESTION,
+    )
+
+
+def test_metar_formal_time_facts_must_match_source_snapshot(tmp_path):
+    _write_query_context(tmp_path)
+    rows = _read_jsonl_objects(tmp_path / "kg.jsonl")
+    metar_source = "weather-source:metar:KJFK:test"
+    start_row = next(
+        row
+        for row in rows
+        if row["predicate"] == "data:dataIntervalStartTime"
+        and row["source_document"] == metar_source
+    )
+    start_row["object"] = "2026-05-19T20:14:00+00:00"
+    _write_graph(tmp_path, rows)
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=OBSERVED_WEATHER_CONTEXT_QUESTION,
+    )
+
+
+def test_non_latest_qualifying_metar_relation_is_blocked(tmp_path):
+    _write_query_context(tmp_path)
+    _append_qualifying_weather_relation(
+        tmp_path,
+        family=SourceFamily.METAR,
+        logical_time=datetime(2026, 5, 19, 19, 45, tzinfo=UTC),
+        raw="METAR KJFK OLDER QUALIFYING",
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=OBSERVED_WEATHER_CONTEXT_QUESTION,
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "tampered_value"),
+    [
+        ("scheduled_arrival_semantics", "FAA arrival demand"),
+        ("weather_delay_semantics", "weather caused the recorded delay"),
+        ("nas_delay_semantics", "NAS constraints caused the recorded delay"),
+    ],
+)
+def test_bts_semantic_labels_are_exact_audit_boundaries(
+    tmp_path,
+    field,
+    tampered_value,
+):
+    _write_query_context(tmp_path)
+    summaries = _read_jsonl_objects(tmp_path / "outcome_summaries.jsonl")
+    summaries[0][field] = tampered_value
+    _rewrite_registered_artifact(
+        tmp_path,
+        key="outcome_summaries",
+        filename="outcome_summaries.jsonl",
+        rows=summaries,
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=PUBLIC_OUTCOME_QUESTION,
+    )
+
+
+@pytest.mark.parametrize(
+    "forged_id",
+    [
+        "weather-association:arbitrary",
+        "fact:type",
+        EVENT_ID,
+        FACILITY_ID,
+    ],
+)
+def test_weather_association_id_must_be_deterministic_and_graph_disjoint(
+    tmp_path,
+    forged_id,
+):
+    _write_query_context(tmp_path)
+    associations = _read_jsonl_objects(tmp_path / "context_associations.jsonl")
+    associations[0]["association_id"] = forged_id
+    _rewrite_registered_artifact(
+        tmp_path,
+        key="context_associations",
+        filename="context_associations.jsonl",
+        rows=associations,
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+    )
+
+
+@pytest.mark.parametrize(
+    "forged_id",
+    [
+        "bts-outcome:arbitrary",
+        "fact:end",
+        EVENT_ID,
+        FACILITY_ID,
+    ],
+)
+def test_bts_summary_id_must_be_deterministic_and_graph_disjoint(
+    tmp_path,
+    forged_id,
+):
+    _write_query_context(tmp_path)
+    summaries = _read_jsonl_objects(tmp_path / "outcome_summaries.jsonl")
+    summaries[0]["summary_id"] = forged_id
+    _rewrite_registered_artifact(
+        tmp_path,
+        key="outcome_summaries",
+        filename="outcome_summaries.jsonl",
+        rows=summaries,
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=PUBLIC_OUTCOME_QUESTION,
+    )
+
+
+@pytest.mark.parametrize(
+    ("question", "field", "forged_identity"),
+    [
+        (
+            FORECAST_CONTEXT_QUESTION,
+            "subject",
+            "weather-association:foreign",
+        ),
+        (
+            FORECAST_CONTEXT_QUESTION,
+            "object",
+            "urn:aviation-agentic-ai:weather-association:foreign",
+        ),
+        (
+            FORECAST_CONTEXT_QUESTION,
+            "triple_id",
+            "weather-association:foreign",
+        ),
+        (
+            PUBLIC_OUTCOME_QUESTION,
+            "subject",
+            "bts-outcome:foreign",
+        ),
+        (
+            PUBLIC_OUTCOME_QUESTION,
+            "object",
+            "urn:aviation-agentic-ai:bts-outcome:foreign",
+        ),
+        (
+            PUBLIC_OUTCOME_QUESTION,
+            "triple_id",
+            "bts-outcome:foreign",
+        ),
+    ],
+)
+def test_audit_only_namespaces_are_absent_from_the_formal_graph(
+    tmp_path,
+    question,
+    field,
+    forged_identity,
+):
+    _write_query_context(tmp_path)
+    row = {
+        "triple_id": "fact:foreign-audit-identity",
+        "subject": "urn:aviation-agentic-ai:unrelated:subject",
+        "predicate": "rdf:type",
+        "object": "urn:aviation-agentic-ai:unrelated:object",
+        "subject_class": "owl:Thing",
+        "object_class": "owl:Thing",
+        "object_kind": "iri",
+        "source_document": SOURCE_ID,
+    }
+    row[field] = forged_identity
+    _write_graph(
+        tmp_path,
+        [*_read_jsonl_objects(tmp_path / "kg.jsonl"), row],
+    )
+
+    _assert_deterministic_query_is_blocked(
+        tmp_path,
+        question=question,
+    )
+
+
+def test_blocked_reconstructed_case_persists_prior_validated_evidence(tmp_path):
+    _write_query_context(tmp_path)
+    outcome_path = tmp_path / "outcome_summaries.jsonl"
+    outcome_path.write_bytes(outcome_path.read_bytes() + b" ")
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=RECONSTRUCTED_CASE_QUESTION,
+        model_factory=_Factory(_ScriptedModel([])),
+    )
+
+    assert outcome.status == "blocked"
+    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
+    successful_traces = [
+        trace for trace in record["tool_calls"] if trace["status"] == "ok"
+    ]
+    expected_fact_ids = {
+        fact_id
+        for trace in successful_traces
+        for fact_id in trace["result_refs"]
+    }
+    expected_context_ids = {
+        association_id
+        for trace in successful_traces
+        for association_id in trace["context_association_ids"]
+    }
+    expected_source_ids = {
+        source_id
+        for trace in successful_traces
+        for source_id in trace["source_ids"]
+    }
+    assert expected_fact_ids
+    assert expected_context_ids
+    assert set(outcome.retrieved_fact_ids) == expected_fact_ids
+    assert (
+        set(outcome.retrieved_context_association_ids)
+        == expected_context_ids
+    )
+    assert set(outcome.source_ids) == expected_source_ids
+    assert set(record["retrieved_fact_ids"]) == expected_fact_ids
+    assert set(record["retrieved_context_association_ids"]) == expected_context_ids
+    assert set(record["source_ids"]) == expected_source_ids
+    assert {
+        item["fact_id"] for item in record["retrieved_facts"]
+    } == expected_fact_ids
+    assert {
+        item["association_id"]
+        for item in record["retrieved_context_associations"]
+    } == expected_context_ids
+    assert record["retrieved_outcome_summary_ids"] == []
+    assert record["retrieved_outcome_summaries"] == []
 
 
 def test_reconstructed_case_persists_partial_context_when_outcomes_are_absent(

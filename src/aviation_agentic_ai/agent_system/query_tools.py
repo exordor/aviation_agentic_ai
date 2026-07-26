@@ -7,6 +7,7 @@ registered event/entity IDs and predicates from the active competency question.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from enum import Enum
 from pathlib import Path
@@ -18,7 +19,6 @@ from pydantic import Field
 from aviation_agentic_ai.agent_system.contracts import (
     PersistedProfileGap,
     SourceSnapshot,
-    SourceSnapshotRegistry,
     StrictModel,
 )
 from aviation_agentic_ai.agent_system.query_context_store import (
@@ -211,32 +211,6 @@ class QueryGraphStore:
         resolved = path.resolve()
         if not resolved.is_relative_to(root):
             raise QueryToolError("profile-gap artifact escapes the requested run directory")
-        registry_path = root / "source_snapshots.jsonl"
-        legacy_snapshot_path = root / "source_snapshot.json"
-        if registry_path.exists():
-            resolved_registry = registry_path.resolve()
-            if not resolved_registry.is_relative_to(root):
-                raise QueryToolError("source-snapshot artifact escapes the requested run directory")
-            try:
-                snapshots = SourceSnapshotRegistry.read_jsonl(resolved_registry)
-            except Exception as exc:
-                raise QueryToolError("invalid source snapshots for profile gaps") from exc
-        elif legacy_snapshot_path.exists():
-            resolved_snapshot = legacy_snapshot_path.resolve()
-            if not resolved_snapshot.is_relative_to(root):
-                raise QueryToolError("source-snapshot artifact escapes the requested run directory")
-            try:
-                snapshots = SourceSnapshotRegistry(
-                    snapshots=(
-                        SourceSnapshot.model_validate_json(
-                            resolved_snapshot.read_text(encoding="utf-8")
-                        ),
-                    )
-                )
-            except Exception as exc:
-                raise QueryToolError("invalid source snapshot for profile gaps") from exc
-        else:
-            raise QueryToolError("profile-gap artifact has no source snapshot")
 
         gaps: list[PersistedProfileGap] = []
         seen_ids: set[str] = set()
@@ -273,6 +247,13 @@ class QueryGraphStore:
                 raise QueryToolError(
                     f"profile gap source is not bound to its event: {gap.profile_gap_id}"
                 )
+            seen_ids.add(gap.profile_gap_id)
+            gaps.append(gap)
+        snapshots = self._load_profile_gap_snapshots(
+            root,
+            {gap.source_id for gap in gaps},
+        )
+        for gap in gaps:
             snapshot = snapshots.get(gap.source_id)
             if (
                 snapshot is None
@@ -282,9 +263,88 @@ class QueryGraphStore:
                 raise QueryToolError(
                     f"profile gap does not match the run snapshot: {gap.profile_gap_id}"
                 )
-            seen_ids.add(gap.profile_gap_id)
-            gaps.append(gap)
         return gaps
+
+    @staticmethod
+    def _load_profile_gap_snapshots(
+        root: Path,
+        required_source_ids: set[str],
+    ) -> dict[str, SourceSnapshot]:
+        if not required_source_ids:
+            return {}
+        registry_path = root / "source_snapshots.jsonl"
+        legacy_snapshot_path = root / "source_snapshot.json"
+        selected: dict[str, SourceSnapshot] = {}
+        if registry_path.exists():
+            resolved_registry = registry_path.resolve()
+            if not resolved_registry.is_relative_to(root):
+                raise QueryToolError(
+                    "source-snapshot artifact escapes the requested run directory"
+                )
+            for line_number, line in enumerate(
+                resolved_registry.read_text(encoding="utf-8").splitlines(),
+                1,
+            ):
+                if not line.strip():
+                    continue
+                try:
+                    payload = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if (
+                    not isinstance(payload, dict)
+                    or payload.get("source_id") not in required_source_ids
+                ):
+                    continue
+                source_id = str(payload["source_id"])
+                if source_id in selected:
+                    raise QueryToolError(
+                        f"duplicate profile-gap source snapshot ID: {source_id}"
+                    )
+                try:
+                    snapshot = SourceSnapshot.model_validate(payload)
+                except Exception as exc:
+                    raise QueryToolError(
+                        f"invalid profile-gap source snapshot at line {line_number}"
+                    ) from exc
+                if snapshot.content_sha256 != hashlib.sha256(
+                    snapshot.content.encode("utf-8")
+                ).hexdigest():
+                    raise QueryToolError(
+                        f"profile-gap source snapshot checksum mismatch: {source_id}"
+                    )
+                selected[source_id] = snapshot
+        elif legacy_snapshot_path.exists():
+            resolved_snapshot = legacy_snapshot_path.resolve()
+            if not resolved_snapshot.is_relative_to(root):
+                raise QueryToolError(
+                    "source-snapshot artifact escapes the requested run directory"
+                )
+            try:
+                snapshot = SourceSnapshot.model_validate_json(
+                    resolved_snapshot.read_text(encoding="utf-8")
+                )
+            except Exception as exc:
+                raise QueryToolError(
+                    "invalid source snapshot for profile gaps"
+                ) from exc
+            if snapshot.source_id in required_source_ids:
+                if snapshot.content_sha256 != hashlib.sha256(
+                    snapshot.content.encode("utf-8")
+                ).hexdigest():
+                    raise QueryToolError(
+                        "profile-gap source snapshot checksum mismatch: "
+                        f"{snapshot.source_id}"
+                    )
+                selected[snapshot.source_id] = snapshot
+        else:
+            raise QueryToolError("profile-gap artifact has no source snapshot")
+        missing = sorted(required_source_ids - set(selected))
+        if missing:
+            raise QueryToolError(
+                f"profile-gap source snapshot is missing: {missing[0]}"
+            )
+        return selected
 
     def event_class(self, event_id: str) -> str:
         for row in self.rows:

@@ -919,7 +919,13 @@ def _deterministic_context_outcome(
     outcome_result: QueryToolResult | None = None
     core_result: QueryToolResult | None = None
 
-    def blocked(exc: Exception, *, tool: str, arguments: dict[str, Any], started: float) -> QueryToolOutcome:
+    def blocked(
+        exc: Exception,
+        *,
+        tool: str,
+        arguments: dict[str, Any],
+        started: float,
+    ) -> QueryToolOutcome:
         error = sanitize_text(f"{type(exc).__name__}: {exc}")
         trace = QueryToolTrace(
             tool_call_id=f"deterministic:{intent.value}:{tool}:blocked",
@@ -929,17 +935,72 @@ def _deterministic_context_outcome(
             duration_ms=(time.perf_counter() - started) * 1000.0,
             error=error,
         )
+        completed_results = [
+            result
+            for result in (core_result, context_result, outcome_result)
+            if result is not None
+        ]
+        fact_ids = list(
+            dict.fromkeys(
+                fact_id
+                for result in completed_results
+                for fact_id in result.fact_ids
+            )
+        )
+        context_ids = list(
+            dict.fromkeys(
+                association_id
+                for result in completed_results
+                for association_id in result.context_association_ids
+            )
+        )
+        outcome_ids = list(
+            dict.fromkeys(
+                summary_id
+                for result in completed_results
+                for summary_id in result.outcome_summary_ids
+            )
+        )
+        source_ids = sorted(
+            {
+                source_id
+                for result in completed_results
+                for source_id in result.source_ids
+            }
+        )
+        context_items = [
+            item
+            for result in completed_results
+            for item in result.items
+            if item.get("item_type") == "context_association"
+        ]
+        outcome_items = [
+            item
+            for result in completed_results
+            for item in result.items
+            if item.get("item_type") == "outcome_summary"
+        ]
         return _write_deterministic_result(
             run_dir=run_dir,
             question=question,
             outcome=QueryToolOutcome(
                 status="blocked",
                 answer="",
+                source_ids=source_ids,
+                retrieved_fact_ids=fact_ids,
+                retrieved_context_association_ids=context_ids,
+                retrieved_outcome_summary_ids=outcome_ids,
                 tool_calls=[*traces, trace],
                 failure_reason=error,
             ),
             store=store,
-            allowed_predicates=[],
+            allowed_predicates=[
+                predicate.value for predicate in core_predicates
+            ]
+            if core_result
+            else [],
+            retrieved_context_associations=context_items,
+            retrieved_outcome_summaries=outcome_items,
         )
 
     if intent is QueryIntent.RECONSTRUCTED_CASE:

@@ -26,6 +26,19 @@ from aviation_agentic_ai.agent_system.query_tools import (
     build_query_tools,
     tool_registry,
 )
+from aviation_agentic_ai.agent_system.weather_context import (
+    FORECASTING_AIRPORT,
+    FORECAST_ISSUE_TIME,
+    INTERVAL_END,
+    INTERVAL_START,
+    RDF_TYPE,
+    TAF_STRING,
+    XSD_DATETIME,
+    XSD_STRING,
+)
+from aviation_agentic_ai.agent_system.weather_context_validation import (
+    expected_weather_fact_id,
+)
 
 EVENT_ID = "urn:aviation-agentic-ai:event:tool-test"
 FACILITY_ID = "urn:aviation-agentic-ai:facility:airport:KJFK"
@@ -119,23 +132,70 @@ def _write_artifact(
     }
 
 
+def _weather_fact_row(
+    *,
+    report_id: str,
+    predicate: str,
+    predicate_iri: str,
+    value: str,
+    source_id: str,
+    object_kind: str,
+    object_class: str = "",
+    datatype_iri: str = "",
+) -> dict[str, object]:
+    return {
+        "triple_id": expected_weather_fact_id(
+            report_id,
+            predicate_iri,
+            value,
+        ),
+        "subject": f"urn:aviation-agentic-ai:{report_id}",
+        "predicate": predicate,
+        "object": value,
+        "subject_class": "data:MeteorologicalReport",
+        "object_class": object_class,
+        "object_kind": object_kind,
+        "source_document": source_id,
+        "evidence_text": "TAF KJFK TEST",
+        "datatype_iri": datatype_iri,
+    }
+
+
 def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
     run_id = run_dir.name
     taf_source_id = "weather-source:taf:KJFK:test"
     bts_source_id = "bts_on_time:2026-05:nyc"
+    advisory_content = (
+        "SIGNATURE:\n"
+        "26/05/19 20:30\n"
+        "IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n"
+    )
     taf_content = json.dumps(
         {
             "icaoId": "KJFK",
             "issueTime": "2026-05-19T20:00:00Z",
             "rawTAF": "TAF KJFK TEST",
-            "validTimeFrom": "2026-05-19T20:00:00Z",
-            "validTimeTo": "2026-05-20T02:00:00Z",
+            "validTimeFrom": int(
+                datetime(2026, 5, 19, 20, tzinfo=UTC).timestamp()
+            ),
+            "validTimeTo": int(
+                datetime(2026, 5, 20, 2, tzinfo=UTC).timestamp()
+            ),
         },
         sort_keys=True,
         separators=(",", ":"),
     )
     bts_content = "{}\n"
     snapshots = [
+        SourceSnapshot(
+            source_id=SOURCE_ID,
+            family=SourceFamily.ATCSCC_ADVISORY,
+            content=advisory_content,
+            content_sha256=hashlib.sha256(
+                advisory_content.encode()
+            ).hexdigest(),
+            snapshot_timestamp="2026-05-19T20:30:00+00:00",
+        ),
         SourceSnapshot(
             source_id=taf_source_id,
             family=SourceFamily.TAF,
@@ -151,9 +211,29 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
             snapshot_timestamp="2026-05-19T20:00:00+00:00",
         ),
     ]
-    report_id = "weather-report:taf:KJFK:test"
+    taf_issue = datetime(2026, 5, 19, 20, tzinfo=UTC)
+    taf_start = taf_issue
+    taf_end = datetime(2026, 5, 20, 2, tzinfo=UTC)
+    raw_taf = "TAF KJFK TEST"
+    report_id = (
+        "weather-report:taf:KJFK:20260519T200000Z:"
+        f"{hashlib.sha256(raw_taf.encode()).hexdigest()[:16]}:"
+        f"{snapshots[1].content_sha256[:16]}"
+    )
+    association_id = "weather-association:" + hashlib.sha256(
+        "|".join(
+            (
+                run_id,
+                EVENT_ID,
+                report_id,
+                FACILITY_ID,
+                "latest_forecast_known_at_issue",
+                snapshots[1].content_sha256,
+            )
+        ).encode()
+    ).hexdigest()[:24]
     association = WeatherContextAssociation(
-        association_id="weather-association:test",
+        association_id=association_id,
         run_id=run_id,
         event_id=EVENT_ID,
         report_id=report_id,
@@ -169,7 +249,7 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
             "operational_end": "2026-05-19T22:45:00+00:00",
         },
         source_id=taf_source_id,
-        source_snapshot_sha256=snapshots[0].content_sha256,
+        source_snapshot_sha256=snapshots[1].content_sha256,
         causal_claim=False,
     )
     start = datetime(2026, 5, 19, 21, tzinfo=UTC)
@@ -189,7 +269,23 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
         scheduled, completed, cancelled, diverted = counts[phase]
         outcomes.append(
             BTSOutcomeSummary(
-                summary_id=f"bts-outcome:{phase}",
+                summary_id=(
+                    f"bts-outcome:{bts_source_id}:"
+                    + hashlib.sha256(
+                        "|".join(
+                            (
+                                run_id,
+                                EVENT_ID,
+                                FACILITY_ID,
+                                phase,
+                                window_start.isoformat(),
+                                window_end.isoformat(),
+                                bts_source_id,
+                                snapshots[2].content_sha256,
+                            )
+                        ).encode()
+                    ).hexdigest()[:24]
+                ),
                 run_id=run_id,
                 event_id=EVENT_ID,
                 facility_id=FACILITY_ID,
@@ -197,7 +293,7 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
                 window_start=window_start,
                 window_end=window_end,
                 source_id=bts_source_id,
-                source_snapshot_sha256=snapshots[1].content_sha256,
+                source_snapshot_sha256=snapshots[2].content_sha256,
                 scheduled_arrival_count_proxy=scheduled,
                 completed_arrival_count=completed,
                 cancelled_count=cancelled,
@@ -207,50 +303,79 @@ def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
                 median_arrival_delay_minutes=None,
                 carrier_reported_weather_delay_minutes=None,
                 carrier_reported_nas_delay_minutes=5.0,
-                scheduled_arrival_semantics="public scheduled-demand proxy",
-                weather_delay_semantics="carrier-reported attribution",
-                nas_delay_semantics="carrier-reported attribution",
+                scheduled_arrival_semantics=(
+                    "public scheduled-demand proxy; not FAA arrival demand"
+                ),
+                weather_delay_semantics=(
+                    "carrier-reported attribution; not a causal claim"
+                ),
+                nas_delay_semantics=(
+                    "carrier-reported attribution; not a causal claim"
+                ),
                 causal_claim=False,
             )
         )
 
     graph_rows = _rows()
-    report_subject = f"urn:aviation-agentic-ai:{report_id}"
     graph_rows.extend(
         [
-            {
-                "triple_id": "weather:type",
-                "subject": report_subject,
-                "predicate": "rdf:type",
-                "object": (
+            _weather_fact_row(
+                report_id=report_id,
+                predicate="rdf:type",
+                predicate_iri=RDF_TYPE,
+                value=(
                     "https://data.nasa.gov/ontologies/atmonto/"
                     "data#MeteorologicalReport"
                 ),
-                "subject_class": "data:MeteorologicalReport",
-                "object_class": "data:MeteorologicalReport",
-                "object_kind": "iri",
-                "source_document": taf_source_id,
-            },
-            {
-                "triple_id": "weather:facility",
-                "subject": report_subject,
-                "predicate": "data:forecastingAirport",
-                "object": FACILITY_ID,
-                "subject_class": "data:MeteorologicalReport",
-                "object_class": "nas:Airport",
-                "object_kind": "iri",
-                "source_document": taf_source_id,
-            },
-            {
-                "triple_id": "weather:raw",
-                "subject": report_subject,
-                "predicate": "data:tafReportString",
-                "object": "TAF KJFK TEST",
-                "subject_class": "data:MeteorologicalReport",
-                "object_class": "",
-                "object_kind": "literal",
-                "source_document": taf_source_id,
-            },
+                source_id=taf_source_id,
+                object_kind="iri",
+                object_class="data:MeteorologicalReport",
+            ),
+            _weather_fact_row(
+                report_id=report_id,
+                predicate="data:forecastingAirport",
+                predicate_iri=FORECASTING_AIRPORT,
+                value=FACILITY_ID,
+                source_id=taf_source_id,
+                object_kind="iri",
+                object_class="nas:Airport",
+            ),
+            _weather_fact_row(
+                report_id=report_id,
+                predicate="data:tafReportString",
+                predicate_iri=TAF_STRING,
+                value="TAF KJFK TEST",
+                source_id=taf_source_id,
+                object_kind="literal",
+                datatype_iri=XSD_STRING,
+            ),
+            _weather_fact_row(
+                report_id=report_id,
+                predicate="data:dataIntervalStartTime",
+                predicate_iri=INTERVAL_START,
+                value=taf_start.isoformat(),
+                source_id=taf_source_id,
+                object_kind="literal",
+                datatype_iri=XSD_DATETIME,
+            ),
+            _weather_fact_row(
+                report_id=report_id,
+                predicate="data:dataIntervalEndTime",
+                predicate_iri=INTERVAL_END,
+                value=taf_end.isoformat(),
+                source_id=taf_source_id,
+                object_kind="literal",
+                datatype_iri=XSD_DATETIME,
+            ),
+            _weather_fact_row(
+                report_id=report_id,
+                predicate="data:forecastIssueTime",
+                predicate_iri=FORECAST_ISSUE_TIME,
+                value=taf_issue.isoformat(),
+                source_id=taf_source_id,
+                object_kind="literal",
+                datatype_iri=XSD_DATETIME,
+            ),
         ]
     )
     _write_graph(run_dir, graph_rows)
@@ -313,7 +438,7 @@ def test_tool_registry_contains_only_read_only_query_tools(tmp_path):
 
 def test_context_tools_are_typed_read_only_and_not_model_visible(tmp_path):
     _write_graph(tmp_path)
-    _write_context_layer(tmp_path)
+    report_id, outcome_ids = _write_context_layer(tmp_path)
     gateway = _gateway(tmp_path, with_context=True)
 
     model_registry = tool_registry(build_query_tools(gateway))
@@ -338,17 +463,50 @@ def test_context_tools_are_typed_read_only_and_not_model_visible(tmp_path):
             {"event_id": EVENT_ID}
         )
     )
-    assert context["context_association_ids"] == ["weather-association:test"]
-    assert context["fact_ids"] == [
-        "weather:facility",
-        "weather:raw",
-        "weather:type",
+    persisted_association = json.loads(
+        (tmp_path / "context_associations.jsonl").read_text(encoding="utf-8")
+    )
+    assert context["context_association_ids"] == [
+        persisted_association["association_id"]
     ]
-    assert outcomes["outcome_summary_ids"] == [
-        "bts-outcome:baseline",
-        "bts-outcome:active",
-        "bts-outcome:recovery",
-    ]
+    assert context["fact_ids"] == sorted(
+        [
+            expected_weather_fact_id(
+                report_id,
+                RDF_TYPE,
+                (
+                    "https://data.nasa.gov/ontologies/atmonto/"
+                    "data#MeteorologicalReport"
+                ),
+            ),
+            expected_weather_fact_id(
+                report_id,
+                FORECASTING_AIRPORT,
+                FACILITY_ID,
+            ),
+            expected_weather_fact_id(
+                report_id,
+                TAF_STRING,
+                "TAF KJFK TEST",
+            ),
+            expected_weather_fact_id(
+                report_id,
+                INTERVAL_START,
+                "2026-05-19T20:00:00+00:00",
+            ),
+            expected_weather_fact_id(
+                report_id,
+                INTERVAL_END,
+                "2026-05-20T02:00:00+00:00",
+            ),
+            expected_weather_fact_id(
+                report_id,
+                FORECAST_ISSUE_TIME,
+                "2026-05-19T20:00:00+00:00",
+            ),
+        ]
+    )
+    assert outcomes["outcome_summary_ids"] == outcome_ids
     assert outcomes["items"][1]["mean_arrival_delay_minutes"] is None
 
 

@@ -96,15 +96,17 @@ def _weather_slice_checksum() -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _expected_fact_id(
-    report: _SourceWeatherReport,
+def expected_weather_fact_id(
+    report_id: str,
     predicate: str,
     value: str,
 ) -> str:
+    """Return the source-independent stable ID for one formal Weather fact."""
+
     digest = hashlib.sha256(
         "|".join(
             (
-                report.report_id,
+                report_id,
                 predicate,
                 value,
                 _weather_slice_checksum(),
@@ -404,7 +406,11 @@ def _expected_facts(
         )
     return [
         ValidatedFact(
-            fact_id=_expected_fact_id(report, predicate, value),
+            fact_id=expected_weather_fact_id(
+                report.report_id,
+                predicate,
+                value,
+            ),
             subject_iri=f"urn:aviation-agentic-ai:{report.report_id}",
             subject_class_iri=METEOROLOGICAL_REPORT,
             predicate_iri=predicate,
