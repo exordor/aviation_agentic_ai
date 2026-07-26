@@ -1,0 +1,24 @@
+{
+  "schema_slice_id": "nasa_atmonto_decision_context_weather_slice",
+  "source_catalog": "nasa_atmonto",
+  "selection_policy": {
+    "primary_source": "NASA ATMONTO curated schema catalog",
+    "boundary": "closed-world decision-context weather-report provenance slice"
+  },
+  "classes": [
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/NAS#Airport", "prefixed_name": "nas:Airport", "local_name": "Airport", "label": "Airport", "comment": "A facility where regularly-scheduled aircraft arrive and depart."},
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#MeteorologicalReport", "prefixed_name": "data:MeteorologicalReport", "local_name": "MeteorologicalReport", "label": "Meteorological condition", "comment": "A representation of the meteorological status for the specified time period, including sky, wind, visibility, and weather subcomponents."},
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#WeatherCondition", "prefixed_name": "data:WeatherCondition", "local_name": "WeatherCondition", "label": "Weather condition", "comment": "The current or forecast weather conditions at a given airport or other reporting station."}
+  ],
+  "object_properties": [
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#forecastingAirport", "prefixed_name": "data:forecastingAirport", "local_name": "forecastingAirport", "label": "forecasting airport", "comment": "Links to the airport for which the report was compiled."},
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#hasMeteorologicalReport", "prefixed_name": "data:hasMeteorologicalReport", "local_name": "hasMeteorologicalReport", "label": "has Meteorological report", "comment": "Associates an airport with weather reports generated for that airport."}
+  ],
+  "datatype_properties": [
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#dataIntervalEndTime", "prefixed_name": "data:dataIntervalEndTime", "local_name": "dataIntervalEndTime", "label": "data interval end time", "comment": "For temporally-dependent data, the ending time of the data's period of validity."},
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#dataIntervalStartTime", "prefixed_name": "data:dataIntervalStartTime", "local_name": "dataIntervalStartTime", "label": "data interval start time", "comment": "For temporally-dependent data, the starting time of the data's period of validity."},
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#forecastIssueTime", "prefixed_name": "data:forecastIssueTime", "local_name": "forecastIssueTime", "label": "forecast issue time", "comment": "The time that the report was issued."},
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#metarReportString", "prefixed_name": "data:metarReportString", "local_name": "metarReportString", "label": "METAR report string", "comment": "Entire text of METAR report."},
+    {"iri": "https://data.nasa.gov/ontologies/atmonto/data#tafReportString", "prefixed_name": "data:tafReportString", "local_name": "tafReportString", "label": "taf report string", "comment": "The full text of the entire Meteorological report."}
+  ]
+}

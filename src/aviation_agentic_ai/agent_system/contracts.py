@@ -360,6 +360,63 @@ class SourceSnapshotRegistry(StrictModel):
         return cls(snapshots=tuple(rows))
 
 
+class DecisionContextEvent(StrictModel):
+    """Resolved event clock used by deterministic decision-context adapters."""
+
+    run_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
+    advisory_source_id: str = Field(min_length=1)
+    advisory_issued_at: datetime
+    operational_start: datetime
+    operational_end: datetime
+
+    @model_validator(mode="after")
+    def _require_nonempty_operational_period(self) -> "DecisionContextEvent":
+        if self.operational_end <= self.operational_start:
+            raise ValueError("operational end must be after operational start")
+        return self
+
+
+class WeatherContextAssociation(StrictModel):
+    """Non-causal audit association between an event and a weather report."""
+
+    association_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
+    report_id: str = Field(min_length=1)
+    facility_id: str = Field(min_length=1)
+    relation_type: Literal[
+        "latest_forecast_known_at_issue",
+        "latest_observation_at_or_before_issue",
+        "observation_during_operation",
+    ]
+    selection_method: str = Field(min_length=1)
+    relevant_times: dict[str, str] = Field(default_factory=dict)
+    source_id: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(min_length=1)
+    causal_claim: Literal[False] = False
+
+
+class WeatherFactTrace(StrictModel):
+    """Exact source binding for one deterministic weather fact."""
+
+    fact_id: str = Field(min_length=1)
+    source_id: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(min_length=1)
+    evidence_text: str = Field(min_length=1)
+
+
+class WeatherContextBundle(StrictModel):
+    """Selection result only; Task 4 owns graph/artifact materialization."""
+
+    status: Literal["ok", "insufficient", "blocked"]
+    selected_report_ids: list[str] = Field(default_factory=list)
+    formal_facts: list[ValidatedFact] = Field(default_factory=list)
+    fact_traces: list[WeatherFactTrace] = Field(default_factory=list)
+    associations: list[WeatherContextAssociation] = Field(default_factory=list)
+    failure_reason: str = ""
+
+
 class FactTraceRow(StrictModel):
     """One row of ``fact_trace.jsonl`` (plan §5.5).
 
