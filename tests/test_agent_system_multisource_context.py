@@ -208,6 +208,22 @@ def bts_context(config):
     return load_bts_context_source(config)
 
 
+@pytest.mark.parametrize(
+    "source_key",
+    ["bts_on_time_snapshot", "bts_on_time_manifest"],
+)
+def test_bts_loader_uses_configured_snapshot_paths(
+    config,
+    tmp_path,
+    source_key,
+):
+    configured = {"sources": dict(config["sources"])}
+    configured["sources"][source_key] = str(tmp_path / "missing-bts-source")
+
+    with pytest.raises(FileNotFoundError):
+        load_bts_context_source(configured)
+
+
 @pytest.fixture(scope="module")
 def weather_validation_case(config, weather_sources):
     source_id = "2026-05-19:138"

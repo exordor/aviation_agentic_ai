@@ -237,12 +237,24 @@ def load_weather_sources(config: dict[str, Any]) -> list[SourceRecord]:
 def load_bts_context_source(
     config: dict[str, Any] | None = None,
 ) -> tuple[SourceRecord, list[BTSOnTimeRow]]:
-    """Load the tracked, checksum-pinned BTS normalized snapshot."""
+    """Load the configured, checksum-pinned BTS normalized snapshot."""
 
-    del config
-    data_path = resolve_project_path("data/sources/bts_on_time_2026_05_nyc.jsonl")
+    configured = (
+        config.get("sources", {})
+        if isinstance(config, dict)
+        else {}
+    )
+    data_path = resolve_project_path(
+        configured.get(
+            "bts_on_time_snapshot",
+            "data/sources/bts_on_time_2026_05_nyc.jsonl",
+        )
+    )
     manifest_path = resolve_project_path(
-        "data/sources/bts_on_time_2026_05_manifest.json"
+        configured.get(
+            "bts_on_time_manifest",
+            "data/sources/bts_on_time_2026_05_manifest.json",
+        )
     )
     content = data_path.read_text(encoding="utf-8")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
