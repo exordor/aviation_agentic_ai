@@ -183,9 +183,11 @@ def test_normalization_rejects_duplicate_natural_keys(monkeypatch, tmp_path):
 
 
 def test_infers_overnight_destination_arrival_and_real_iana_dst_offsets():
+    same_day = infer_destination_arrival_utc("2026-05-19", 900, 1130, 150)
     overnight = infer_destination_arrival_utc("2026-05-19", 2300, 45, 105)
     winter = infer_destination_arrival_utc("2026-01-15", 2200, 30, 150)
 
+    assert same_day == datetime(2026, 5, 19, 15, 30, tzinfo=UTC)
     assert overnight == datetime(2026, 5, 20, 4, 45, tzinfo=UTC)
     assert winter == datetime(2026, 1, 16, 5, 30, tzinfo=UTC)
     with pytest.raises(ValueError, match="residual"):
@@ -366,3 +368,38 @@ def test_summary_uses_half_open_boundaries_and_null_aggregates(monkeypatch, norm
     assert active.median_arrival_delay_minutes is None
     assert active.carrier_reported_weather_delay_minutes is None
     assert active.carrier_reported_nas_delay_minutes is None
+
+
+def test_summary_includes_lower_bounds_and_excludes_upper_bounds(monkeypatch, normalized):
+    event = _event(
+        "urn:test:all-window-boundaries",
+        datetime(2026, 5, 19, 21, tzinfo=UTC),
+        datetime(2026, 5, 19, 22, tzinfo=UTC),
+    )
+    timestamps = (
+        event.operational_start - timedelta(hours=2),
+        event.operational_start,
+        event.operational_end,
+        event.operational_end + timedelta(hours=6),
+    )
+    rows = [
+        row.model_copy(update={"Dest": "JFK", "scheduled_arrival_utc": timestamp})
+        for row, timestamp in zip(normalized.rows[:4], timestamps, strict=True)
+    ]
+    serialized = "".join(
+        json.dumps(row.model_dump(mode="json"), sort_keys=True, separators=(",", ":")) + "\n"
+        for row in sorted(rows, key=lambda row: row.row_id)
+    ).encode()
+    snapshot_sha256 = hashlib.sha256(serialized).hexdigest()
+    monkeypatch.setattr(bts_outcomes, "NORMALIZED_SNAPSHOT_SHA256", snapshot_sha256)
+
+    bundle = build_bts_outcome_summaries(
+        event,
+        _facility("JFK", "KJFK"),
+        rows,
+        source_id=NORMALIZED_SOURCE_ID,
+        source_snapshot_sha256=snapshot_sha256,
+    )
+
+    assert bundle.status == "ok"
+    assert [summary.scheduled_arrival_count_proxy for summary in bundle.summaries] == [1, 1, 1]
