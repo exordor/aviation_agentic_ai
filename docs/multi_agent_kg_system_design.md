@@ -395,11 +395,17 @@ the source record and the three evidence cards.
 
 ### 11.2 Input
 
-- `SourceRecord`;
-- `AdvisoryEvidenceCard`;
-- `FacilityEvidenceCard`;
-- `TerminologyEvidenceCard`;
-- compact `SchemaGuide` context.
+- stable event URI and resolved event class;
+- references to `AdvisoryEvidenceCard`, `FacilityEvidenceCard`, and
+  `TerminologyEvidenceCard`;
+- Schema Guide slice identifier;
+- allowed source IDs and available canonical references.
+
+The prompt does not receive the full evidence cards or Schema Guide context.
+Those values remain behind the registered read-only tools so tool use changes
+the Agent's observable state rather than decorating a preassembled prompt.
+The active KG Construction Agent has no text-only model fallback: a resolved
+event without a native tool-calling model adapter is blocked.
 
 ### 11.3 Allowed tools
 
@@ -409,14 +415,16 @@ the source record and the three evidence cards.
 
 ### 11.4 Internal process
 
-1. Select the event ontology class from the resolved terminology evidence.
-2. Use the program-supplied stable event URI.
-3. Plan only facts supported by evidence cards.
-4. Map each fact to an allowed ontology property.
-5. Use resolved canonical entity IDs as graph objects.
-6. Generate `GRAPH_PATCH`.
-7. Place real but unmapped source facts under `PROFILE_GAPS`.
-8. Omit unresolved or abstained entities from the formal patch.
+1. Receive the stable event URI, resolved event class, and context references.
+2. In one native tool-call turn, select the required read-only context tools.
+3. Receive matching `ToolMessage` observations for the selected calls.
+4. Plan only facts supported by the retrieved evidence cards.
+5. Map each fact to an ontology property returned by `get_schema_context`.
+6. Use only canonical entity IDs returned by `resolve_canonical_ref`.
+7. Generate `GRAPH_PATCH` as text on the second model turn.
+8. Place real but unmapped source facts under `PROFILE_GAPS`.
+9. Omit unresolved or abstained entities from the formal patch.
+10. Send the parsed patch to the existing deterministic Formal Graph Kernel.
 
 ### 11.5 Output format
 
@@ -433,7 +441,10 @@ The parser ignores blank lines, code fences, and lines beginning with `#`.
 ### 11.6 Limits
 
 - at most three read-only tool calls;
-- at most one model call;
+- each tool may be called at most once;
+- exactly one context-tool round;
+- at most two model calls: tool selection, then Graph Patch generation;
+- no retry, repair turn, self-refinement, or unbounded loop;
 - no direct RDF, Turtle, Cypher, or provider JSON Schema output;
 - no new ontology vocabulary;
 - no writing to Neo4j.
@@ -443,6 +454,8 @@ The parser ignores blank lines, code fences, and lines beginning with `#`.
 - missing resolved event type: `abstain`;
 - missing required source evidence: `abstain`;
 - missing Schema Guide: `blocked`;
+- no native context-tool call or an out-of-scope tool call: `blocked`;
+- a second-round tool request: `blocked`;
 - output parse failure: `blocked`, with the raw response preserved.
 
 ## 12. Query Agent
@@ -739,6 +752,11 @@ the raw advisory.
 ### 20.1 Component tests
 
 - Every Agent can call only its declared tools.
+- The Knowledge Graph Construction Agent receives context references first,
+  selects its read-only tools with native tool calls, and receives matching
+  `ToolMessage` observations before generating a Graph Patch.
+- The KG prompt does not preload the full Schema Guide or EvidenceCards.
+- The KG tool loop makes at most two model calls and three tool calls.
 - The Advisory Agent does not canonicalize facilities or terms.
 - Unique authority facility and terminology paths make no model call.
 - Unresolved multiple candidates produce `abstain`.
@@ -758,6 +776,8 @@ the raw advisory.
 - The Query Agent sees graph-tool results, not raw source documents.
 - Missing graph evidence produces `Insufficient graph evidence.`.
 - No trace stores chain-of-thought or credentials.
+- The run manifest records the KG Construction Agent EvidenceCard and safe tool
+  trace.
 
 ### 20.2 Repository checks
 
