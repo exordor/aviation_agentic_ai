@@ -441,12 +441,21 @@ class BTSOnTimeRow(StrictModel):
     CRSArrTime: int = Field(ge=0)
     CRSElapsedTime: float = Field(ge=0)
     scheduled_arrival_utc: datetime
-    Cancelled: int
-    Diverted: int
+    Cancelled: Literal[0, 1]
+    Diverted: Literal[0, 1]
     ArrDelay: float | None = None
-    ArrDel15: int | None = None
+    ArrDel15: Literal[0, 1] | None = None
     WeatherDelay: float | None = None
     NASDelay: float | None = None
+
+    @model_validator(mode="after")
+    def _require_timezone_aware_arrival(self) -> "BTSOnTimeRow":
+        if (
+            self.scheduled_arrival_utc.tzinfo is None
+            or self.scheduled_arrival_utc.utcoffset() is None
+        ):
+            raise ValueError("scheduled_arrival_utc must be timezone-aware")
+        return self
 
 
 class BTSOutcomeSummary(StrictModel):

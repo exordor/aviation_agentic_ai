@@ -31,6 +31,8 @@ ARCHIVE_SHA256 = "4e7b96999440afec8c92dd23bfbc68a5852e14d9a56c3d0d366f884542ea80
 MEMBER_NAME = "On_Time_Reporting_Carrier_On_Time_Performance_(1987_present)_2026_5.csv"
 MEMBER_SHA256 = "12470de43703fe0c23e25510b5af6e6e4e1d5d0aa55818dcc7d0f0b407801be8"
 TIMEZONE_NAME = "America/New_York"
+NORMALIZED_SOURCE_ID = "bts_on_time:2026-05:nyc"
+NORMALIZED_SNAPSHOT_SHA256 = "434ef44bae82213607006b7a6888621245528fe5ca8a8a168be919329f84c20d"
 FILTER_DATES = {"2026-05-19", "2026-05-20"}
 FILTER_DESTINATIONS = {"JFK", "EWR", "LGA"}
 
@@ -86,6 +88,15 @@ def _sha256_path(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _canonical_rows_bytes(rows: Iterable[BTSOnTimeRow]) -> bytes:
+    """Return the canonical sorted normalized JSONL bytes for source binding."""
+
+    return "".join(
+        json.dumps(row.model_dump(mode="json"), sort_keys=True, separators=(",", ":")) + "\n"
+        for row in sorted(rows, key=lambda row: row.row_id)
+    ).encode("utf-8")
 
 
 def _as_int(value: str | None, field: str, *, required: bool = True) -> int | None:
@@ -149,8 +160,11 @@ def infer_destination_arrival_utc(
         local_day = date.fromisoformat(flight_date) + timedelta(days=offsets[0])
     except ValueError as exc:
         raise ValueError("invalid FlightDate") from exc
-    local_time = time(hour=(arrival % 1440) // 60, minute=arrival % 60)
-    return datetime.combine(local_day, local_time, tzinfo=ZoneInfo(timezone_name)).astimezone(UTC)
+    arrival_day, arrival_minute = divmod(arrival, 1440)
+    local_time = time(hour=arrival_minute // 60, minute=arrival_minute % 60)
+    return datetime.combine(
+        local_day + timedelta(days=arrival_day), local_time, tzinfo=ZoneInfo(timezone_name)
+    ).astimezone(UTC)
 
 
 def _normalize_row(raw: dict[str, str], archive_sha256: str) -> BTSOnTimeRow:
@@ -240,18 +254,20 @@ def normalize_bts_archive(
             raise ValueError("duplicate BTS natural key")
         rows.sort(key=lambda row: row.row_id)
         output.parent.mkdir(parents=True, exist_ok=True)
-        serialized = "".join(
-            json.dumps(row.model_dump(mode="json"), sort_keys=True, separators=(",", ":")) + "\n"
-            for row in rows
-        )
-        output.write_text(serialized, encoding="utf-8")
+        serialized = _canonical_rows_bytes(rows)
+        normalized_sha256 = hashlib.sha256(serialized).hexdigest()
+        if normalized_sha256 != NORMALIZED_SNAPSHOT_SHA256:
+            raise ValueError("normalized BTS subset checksum does not match pinned snapshot")
+        output.write_bytes(serialized)
         manifest.parent.mkdir(parents=True, exist_ok=True)
         manifest.write_text(
             json.dumps(
                 {
                     "archive_name": ARCHIVE_NAME,
                     "archive_sha256": ARCHIVE_SHA256,
-                    "expected_named_field_count": 110,
+                    "expected_named_field_count": len(EXPECTED_FIELDS),
+                    "expected_terminal_unnamed_column_count": 1,
+                    "expected_total_column_count": len(EXPECTED_FIELDS) + 1,
                     "filter": {"Dest": sorted(FILTER_DESTINATIONS), "FlightDate": sorted(FILTER_DATES)},
                     "member_name": MEMBER_NAME,
                     "member_sha256": MEMBER_SHA256,
@@ -260,10 +276,11 @@ def normalize_bts_archive(
                         "OriginAirportSeqID", "DestAirportSeqID", "CRSDepTime",
                     ],
                     "normalized_fields": list(NORMALIZED_FIELDS),
-                    "normalized_sha256": _sha256_path(output),
+                    "normalized_sha256": normalized_sha256,
                     "row_count": len(rows),
                     "scheduled_arrival_method": "unique day offset minimizing schedule residual over -1,0,1,2",
-                    "terminal_unnamed_column": "",
+                    "source_fields": [*EXPECTED_FIELDS, ""],
+                    "source_id": NORMALIZED_SOURCE_ID,
                     "timezone": TIMEZONE_NAME,
                     "url": ARCHIVE_URL,
                 },
@@ -305,8 +322,8 @@ def _summary(
     arrival_delays = [row.ArrDelay for row in completed if row.ArrDelay is not None]
     weather_delays = [row.WeatherDelay for row in selected if row.WeatherDelay is not None]
     nas_delays = [row.NASDelay for row in selected if row.NASDelay is not None]
-    summary_id = "bts-outcome:" + hashlib.sha256(
-        "|".join((event.run_id, event.event_id, facility.entity_id, phase, window_start.isoformat(), window_end.isoformat(), source_snapshot_sha256)).encode()
+    summary_id = "bts-outcome:" + source_id + ":" + hashlib.sha256(
+        "|".join((event.run_id, event.event_id, facility.entity_id, phase, window_start.isoformat(), window_end.isoformat(), source_id, source_snapshot_sha256)).encode()
     ).hexdigest()[:24]
     return BTSOutcomeSummary(
         summary_id=summary_id,
@@ -348,12 +365,20 @@ def build_bts_outcome_summaries(
     try:
         if timezone_name != TIMEZONE_NAME:
             ZoneInfo(timezone_name)
+        if source_id != NORMALIZED_SOURCE_ID:
+            raise ValueError("BTS outcome source ID does not match the pinned normalized snapshot")
+        if source_snapshot_sha256 != NORMALIZED_SNAPSHOT_SHA256:
+            raise ValueError("BTS outcome source checksum does not match the pinned normalized snapshot")
+        all_rows = list(rows)
+        reconstructed_sha256 = hashlib.sha256(_canonical_rows_bytes(all_rows)).hexdigest()
+        if reconstructed_sha256 != source_snapshot_sha256:
+            raise ValueError("BTS outcome rows do not match the supplied normalized snapshot checksum")
         destination = _facility_iata(canonical_facility)
         if any(clock.tzinfo is None or clock.utcoffset() is None for clock in (event.operational_start, event.operational_end)):
             raise ValueError("decision context clocks must be timezone-aware")
         if event.operational_end <= event.operational_start:
             raise ValueError("operational end must be after operational start")
-        source_rows = [row for row in rows if row.Dest == destination]
+        source_rows = [row for row in all_rows if row.Dest == destination]
         if not source_rows:
             return BTSOutcomeBundle(status="insufficient", failure_reason="no BTS rows for canonical facility")
         phases = (
@@ -362,7 +387,16 @@ def build_bts_outcome_summaries(
             ("recovery", event.operational_end, event.operational_end + timedelta(hours=6)),
         )
         summaries = [
-            _summary(event, canonical_facility, phase, start, end, source_id, source_snapshot_sha256, source_rows)
+            _summary(
+                event,
+                canonical_facility,
+                phase,
+                start.astimezone(UTC),
+                end.astimezone(UTC),
+                source_id,
+                source_snapshot_sha256,
+                source_rows,
+            )
             for phase, start, end in phases
         ]
     except (TypeError, ValueError) as exc:
