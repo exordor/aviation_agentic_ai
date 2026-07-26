@@ -7,9 +7,9 @@ Three commands:
     aviation-ai agent-system ask      --run-dir <dir> --question "<q>" [--allow-live-model]
 
 ``ingest`` runs the fixed multi-Agent topology and materializes a source-bounded
-event KG (JSONL + Turtle) in a versioned run directory. ``neo4j-export`` writes
-the Neo4j nodes/relationships JSONL for a run. ``ask`` answers from that run's
-materialized graph and lists the supporting source IDs.
+event KG (JSONL + Turtle) in a versioned run directory. ``neo4j-export`` loads
+the run's validated projection into Neo4j. ``ask`` runs the bounded native
+tool-using Query Agent and lists the supporting source IDs.
 """
 
 from __future__ import annotations
@@ -25,7 +25,10 @@ from aviation_agentic_ai.agent_system.materialize import (
     load_validated_facts_neo4j,
 )
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, get_prompt_catalog
-from aviation_agentic_ai.agent_system.query import answer_question
+from aviation_agentic_ai.agent_system.query_tool_graph import (
+    answer_question_with_tools,
+    is_registered_competency_question,
+)
 from aviation_agentic_ai.agent_system.runtime import (
     MAX_PROVIDER_CALLS,
     make_live_model_invoker,
@@ -37,6 +40,9 @@ from aviation_agentic_ai.agent_system.sources import (
     facility_candidates,
     load_advisory_source,
     term_candidates,
+)
+from aviation_agentic_ai.agent_system.tool_model import (
+    make_live_tool_calling_model,
 )
 from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
 from aviation_agentic_ai.config import load_yaml, resolve_project_path
@@ -206,21 +212,28 @@ def _write_neo4j_load(run_dir: Path, summary: dict) -> None:
 @click.option("--question", required=True, help="Question to answer from the graph.")
 @click.option("--allow-live-model", is_flag=True, help="Authorize the Query Agent model call.")
 def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
-    """Answer a question from the materialized graph with source IDs."""
+    """Answer through the bounded native tool-using Query Agent."""
 
     if not (run_dir / "kg.jsonl").exists():
         raise click.ClickException(f"no materialized KG at {run_dir / 'kg.jsonl'}")
-    if not allow_live_model:
+    supported = is_registered_competency_question(question)
+    if supported and not allow_live_model:
         raise click.ClickException("ask requires --allow-live-model to run the Query Agent.")
-    invoker = make_live_model_invoker()
-    status, answer, sources, rec, facts = answer_question(
-        run_dir=run_dir, question=question, model_invoker=invoker
+    outcome = answer_question_with_tools(
+        run_dir=run_dir,
+        question=question,
+        # The unsupported path exits before invoking this factory. This preserves
+        # the zero-provider-call contract without requiring credentials.
+        model_factory=lambda tools: make_live_tool_calling_model(tools=tools),
     )
-    # §13 T3: a provider failure is reported as BLOCKED with a non-zero exit.
-    if status == "blocked":
-        click.echo(f"BLOCKED: {rec.error or 'query provider failure'}")
-        raise click.ClickException(f"ask BLOCKED: {rec.error or 'query provider failure'}")
-    click.echo(f"status: {status}")
-    click.echo(f"answer: {answer}")
-    click.echo(f"sources: {', '.join(sources) if sources else '(none)'}")
-    click.echo(f"graph_facts_seen: {len(facts)}")
+    if outcome.status == "blocked":
+        click.echo(f"BLOCKED: {outcome.failure_reason}")
+        raise click.ClickException(f"ask BLOCKED: {outcome.failure_reason}")
+    click.echo(f"status: {outcome.status}")
+    click.echo(f"answer: {outcome.answer}")
+    click.echo(
+        f"sources: {', '.join(outcome.source_ids) if outcome.source_ids else '(none)'}"
+    )
+    click.echo(f"graph_facts_seen: {len(outcome.retrieved_fact_ids)}")
+    click.echo(f"model_calls: {len(outcome.model_calls)}")
+    click.echo(f"tool_calls: {len(outcome.tool_calls)}")

@@ -16,6 +16,9 @@ from langchain_core.tools import BaseTool, tool
 from pydantic import Field
 
 from aviation_agentic_ai.agent_system.contracts import StrictModel
+from aviation_agentic_ai.agent_system.schema_guide import TERM_TO_EVENT_CLASS
+
+_REGISTERED_EVENT_CLASSES = frozenset(TERM_TO_EVENT_CLASS.values())
 
 
 class QueryToolError(RuntimeError):
@@ -140,7 +143,14 @@ class QueryGraphStore:
         self.graph_path = resolved_graph
         self.rows = rows
         self.fact_by_id = {row["fact_id"]: row for row in rows}
-        self.event_ids = sorted({str(row["subject"]) for row in rows})
+        self.event_ids = sorted(
+            {
+                str(row["subject"])
+                for row in rows
+                if row["predicate"] == QueryPredicate.EVENT_TYPE
+                and str(row.get("object") or "") in _REGISTERED_EVENT_CLASSES
+            }
+        )
         entity_ids = set(self.event_ids)
         for row in rows:
             if str(row.get("object_kind") or "") == "iri":
@@ -182,12 +192,16 @@ class QueryToolGateway:
         event_class: str | None = None,
     ) -> QueryToolResult:
         items: list[dict[str, Any]] = []
-        fact_ids: set[str] = set()
-        source_ids: set[str] = set()
+        remaining_fact_budget = self.max_facts
         for event_id in self.store.event_ids:
-            event_rows = [
-                row for row in self.store.rows if row["subject"] == event_id
-            ]
+            if remaining_fact_budget <= 0:
+                break
+            event_rows = sorted(
+                (
+                    row for row in self.store.rows if row["subject"] == event_id
+                ),
+                key=lambda row: str(row["fact_id"]),
+            )
             row_sources = {
                 source
                 for row in event_rows
@@ -198,18 +212,36 @@ class QueryToolGateway:
                 continue
             if event_class and event_class != current_class:
                 continue
-            event_fact_ids = sorted(str(row["fact_id"]) for row in event_rows)
+            selected_rows = event_rows[:remaining_fact_budget]
+            event_fact_ids = [
+                str(row["fact_id"]) for row in selected_rows
+            ]
+            selected_sources = sorted(
+                {
+                    source
+                    for row in selected_rows
+                    for source in row["source_ids"]
+                }
+            )
             items.append(
                 {
                     "event_id": event_id,
                     "event_class": current_class,
                     "matching_fact_ids": event_fact_ids,
-                    "source_ids": sorted(row_sources),
+                    "source_ids": selected_sources,
                 }
             )
-            fact_ids.update(event_fact_ids)
-            source_ids.update(row_sources)
-        items = items[: self.max_facts]
+            remaining_fact_budget -= len(event_fact_ids)
+        fact_ids = {
+            fact_id
+            for item in items
+            for fact_id in item["matching_fact_ids"]
+        }
+        source_ids = {
+            source_id
+            for item in items
+            for source_id in item["source_ids"]
+        }
         return QueryToolResult(
             tool="find_events",
             fact_ids=sorted(fact_ids),
@@ -233,13 +265,18 @@ class QueryToolGateway:
             raise QueryToolError(
                 f"predicates are outside the current query scope: {disallowed}"
             )
-        rows = [
-            row
-            for row in self.store.rows
-            if row["subject"] == event_id and row["predicate"] in requested
-        ][: self.max_facts]
-        if not rows:
-            raise QueryToolError("no graph facts match the requested event and predicates")
+        predicate_order = {predicate: index for index, predicate in enumerate(requested)}
+        rows = sorted(
+            (
+                row
+                for row in self.store.rows
+                if row["subject"] == event_id and row["predicate"] in requested
+            ),
+            key=lambda row: (
+                predicate_order[str(row["predicate"])],
+                str(row["fact_id"]),
+            ),
+        )[: self.max_facts]
         unsourced = [row["fact_id"] for row in rows if not row["source_ids"]]
         if unsourced:
             raise QueryToolError(

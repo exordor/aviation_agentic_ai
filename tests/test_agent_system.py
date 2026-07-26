@@ -65,7 +65,7 @@ def catalog():
 
 def test_catalog_is_frozen_with_all_five_roles(catalog):
     assert catalog.status == "frozen"
-    assert catalog.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v3"
+    assert catalog.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v4"
     for role in ("advisory", "facility", "terminology", "knowledge_graph_construction", "query"):
         assert role in catalog.roles
         assert catalog.roles[role].prompt_version
@@ -643,14 +643,15 @@ def test_runtime_invoker_assembles_catalog_and_records_ledger(monkeypatch):
         {
             "user_question": "what event",
             "ontology_labels": "atm:GroundStopTMI=Ground Stop (GS)",
-            "graph_evidence": "evt:1 rdf:type atm:GroundStopTMI [src:1]",
+            "graph_scope": "- evt:1",
+            "allowed_predicates": "- rdf:type",
         },
     )
     assert captured["message_count"] == 6
     assert captured["roles"] == ["system", "human", "ai", "human", "ai", "human"]
     assert rec.agent == "query"
-    assert rec.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v3"
-    assert rec.prompt_version == "query-agent-v3"
+    assert rec.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v4"
+    assert rec.prompt_version == "query-agent-v4"
     assert rec.attempt == 1
     assert rec.input_tokens == 10 and rec.output_tokens == 5
     assert rec.system_fingerprint == "fp_test"
@@ -676,8 +677,13 @@ def test_runtime_invoker_records_per_role_attempt_and_failures(monkeypatch):
     from aviation_agentic_ai.agent_system.runtime import make_live_model_invoker
 
     invoker = make_live_model_invoker()
-    rec1 = invoker("query", {"user_question": "q1", "ontology_labels": "", "graph_evidence": "x"})
-    rec2 = invoker("query", {"user_question": "q2", "ontology_labels": "", "graph_evidence": "y"})
+    query_vars = {
+        "ontology_labels": "",
+        "graph_scope": "- evt:1",
+        "allowed_predicates": "- rdf:type",
+    }
+    rec1 = invoker("query", {"user_question": "q1", **query_vars})
+    rec2 = invoker("query", {"user_question": "q2", **query_vars})
     assert rec1.attempt == 1 and rec2.attempt == 2  # per-role attempt counter
     assert rec1.error and rec2.error  # both attempts recorded, no silent retry
 

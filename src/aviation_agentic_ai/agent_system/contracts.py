@@ -193,6 +193,31 @@ class ModelCallRecord(StrictModel):
     invalid_tool_calls: list[dict[str, Any]] = Field(default_factory=list)
 
 
+class QueryToolTrace(StrictModel):
+    """One validated Query Agent tool execution."""
+
+    tool_call_id: str = Field(min_length=1)
+    tool: str = Field(min_length=1)
+    arguments: dict[str, Any] = Field(default_factory=dict)
+    result_refs: list[str] = Field(default_factory=list)
+    source_ids: list[str] = Field(default_factory=list)
+    status: Literal["ok", "blocked"]
+    duration_ms: float = Field(default=0.0, ge=0.0)
+    error: str | None = None
+
+
+class QueryToolOutcome(StrictModel):
+    """Final outcome of one bounded Query Agent tool loop."""
+
+    status: Literal["ok", "insufficient", "blocked"]
+    answer: str = ""
+    source_ids: list[str] = Field(default_factory=list)
+    retrieved_fact_ids: list[str] = Field(default_factory=list)
+    model_calls: list[ModelCallRecord] = Field(default_factory=list)
+    tool_calls: list[QueryToolTrace] = Field(default_factory=list)
+    failure_reason: str = ""
+
+
 class AgentRunResult(StrictModel):
     """The full result of one ``ingest`` run of the multi-Agent workflow."""
 

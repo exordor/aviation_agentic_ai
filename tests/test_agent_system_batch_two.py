@@ -527,6 +527,7 @@ def _write_query_kg(tmp_path: Path) -> None:
 
     rows = [
         {
+            "triple_id": "query-fact:type",
             "subject": "urn:aviation-agentic-ai:event:1",
             "predicate": "rdf:type",
             "object": "atm:GroundStopTMI",
@@ -535,6 +536,7 @@ def _write_query_kg(tmp_path: Path) -> None:
             "source_document": SOURCE_ID,
         },
         {
+            "triple_id": "query-fact:facility",
             "subject": "urn:aviation-agentic-ai:event:1",
             "predicate": "atm:controlledNASelement",
             "object": FACILITY_ID,
@@ -543,6 +545,7 @@ def _write_query_kg(tmp_path: Path) -> None:
             "source_document": SOURCE_ID,
         },
         {
+            "triple_id": "query-fact:start",
             "subject": "urn:aviation-agentic-ai:event:1",
             "predicate": "atm:effectiveStartTime",
             "object": "2026-05-19T21:00:00Z",
@@ -551,6 +554,7 @@ def _write_query_kg(tmp_path: Path) -> None:
             "source_document": SOURCE_ID,
         },
         {
+            "triple_id": "query-fact:end",
             "subject": "urn:aviation-agentic-ai:event:1",
             "predicate": "atm:effectiveEndTime",
             "object": "2026-05-19T22:45:00Z",
@@ -908,7 +912,7 @@ def test_sec13_regression5_provider_error_is_blocked(tmp_path):
 
     def failing_invoker(agent_role, template_vars):
         return ModelCallRecord(
-            agent="query", raw_response="", prompt_version="query-agent-v3",
+            agent="query", raw_response="", prompt_version="query-agent-v4",
             error="ProviderError: upstream timeout",
         )
 
@@ -931,27 +935,35 @@ def test_sec13_regression5_cli_ask_exits_nonzero_on_blocked(tmp_path):
 
     _write_query_kg(tmp_path)
 
-    def failing_invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="query", raw_response="", error="ProviderError: timeout",
-        )
+    from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+
+    class FailingToolModel:
+        def invoke(self, messages, *, phase):
+            return ToolModelTurn(
+                message=None,
+                record=ModelCallRecord(
+                    agent="query",
+                    raw_response="",
+                    error="ProviderError: timeout",
+                ),
+            )
 
     # Patch the CLI's invoker factory to return the failing invoker.
     import aviation_agentic_ai.cli_agent_system as cli_mod
 
-    original = cli_mod.make_live_model_invoker
-    cli_mod.make_live_model_invoker = lambda *a, **kw: failing_invoker
+    original = cli_mod.make_live_tool_calling_model
+    cli_mod.make_live_tool_calling_model = lambda *a, **kw: FailingToolModel()
     try:
         runner = CliRunner()
         result = runner.invoke(
             cli_mod.agent_system,  # type: ignore[arg-type]
             [
                 "ask", "--run-dir", str(tmp_path),
-                "--question", "ground stop", "--allow-live-model",
+                "--question", REGISTERED_QUESTION, "--allow-live-model",
             ],
         )
     finally:
-        cli_mod.make_live_model_invoker = original
+        cli_mod.make_live_tool_calling_model = original
     assert result.exit_code != 0
     assert "BLOCKED" in result.output
 
@@ -963,29 +975,18 @@ def test_sec13_regression7_no_chinese_interface_text_in_active_paths():
     # query catalog, and the agent-system tests. Quoted external source data
     # (advisory fixtures) is exempt; the scan is over interface strings.
     paths = [
-        "src/aviation_agentic_ai/agent_system/agents.py",
-        "src/aviation_agentic_ai/agent_system/query.py",
-        "src/aviation_agentic_ai/agent_system/materialize.py",
-        "src/aviation_agentic_ai/agent_system/workflow.py",
-        "src/aviation_agentic_ai/agent_system/runtime.py",
-        "src/aviation_agentic_ai/agent_system/contracts.py",
-        "src/aviation_agentic_ai/agent_system/formal_graph.py",
-        "src/aviation_agentic_ai/agent_system/graph_patch.py",
-        "src/aviation_agentic_ai/agent_system/schema_guide.py",
-        "src/aviation_agentic_ai/agent_system/sources.py",
-        "src/aviation_agentic_ai/agent_system/prompts.py",
-        "src/aviation_agentic_ai/cli_agent_system.py",
-        "configs/prompts/agent_system_v1.yaml",
-        "tests/test_agent_system.py",
-        "tests/test_agent_system_batch_two.py",
-        "tests/test_agent_system_prompt_catalog.py",
-        "tests/test_agent_system_graph_kernel.py",
+        *sorted(Path("src/aviation_agentic_ai/agent_system").glob("*.py")),
+        Path("src/aviation_agentic_ai/cli_agent_system.py"),
+        Path("configs/prompts/agent_system_v1.yaml"),
+        *sorted(Path("tests").glob("test_agent_system*.py")),
+        Path("tests/test_cli_agent_system.py"),
+        Path("docs/multi_agent_kg_system_design.md"),
+        Path("docs/agent_tool_use_execution_plan.md"),
     ]
     pattern = re.compile(r"[\u4e00-\u9fff]")
     offenders = [
-        path
+        str(path)
         for path in paths
-        if Path(path).exists()
-        and pattern.search(Path(path).read_text(encoding="utf-8"))
+        if path.exists() and pattern.search(path.read_text(encoding="utf-8"))
     ]
     assert offenders == [], f"Chinese interface text found in active paths: {offenders}"

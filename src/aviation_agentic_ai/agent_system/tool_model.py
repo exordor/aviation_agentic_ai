@@ -17,6 +17,10 @@ from typing import Any, Literal, Protocol
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.tools import BaseTool
 
+from aviation_agentic_ai.agent_system.audit import (
+    sanitize_json_value,
+    sanitize_text,
+)
 from aviation_agentic_ai.agent_system.contracts import (
     ModelCallRecord,
     ModelToolCall,
@@ -67,25 +71,6 @@ def _content_text(message: AIMessage) -> str:
     return str(content or "")
 
 
-def _safe_json(value: Any) -> Any:
-    """Make provider metadata JSON-safe without retaining secret-like fields."""
-
-    if isinstance(value, dict):
-        safe: dict[str, Any] = {}
-        for key, item in value.items():
-            lowered = str(key).lower()
-            if any(token in lowered for token in ("api_key", "password", "credential")):
-                safe[str(key)] = "[REDACTED]"
-            else:
-                safe[str(key)] = _safe_json(item)
-        return safe
-    if isinstance(value, list):
-        return [_safe_json(item) for item in value]
-    if isinstance(value, (str, int, float, bool)) or value is None:
-        return value
-    return str(value)
-
-
 def _tool_call_records(message: AIMessage) -> list[ModelToolCall]:
     records: list[ModelToolCall] = []
     for call in message.tool_calls:
@@ -98,7 +83,7 @@ def _tool_call_records(message: AIMessage) -> list[ModelToolCall]:
             ModelToolCall(
                 call_id=call_id,
                 name=name,
-                arguments=_safe_json(arguments),
+                arguments=sanitize_json_value(arguments),
             )
         )
     return records
@@ -127,10 +112,11 @@ class LangChainToolCallingModel:
             list(self.tools),
             tool_choice="required",
         )
-        self._answer_model = chat_model.bind_tools(
-            list(self.tools),
-            tool_choice="none",
-        )
+        # The second turn has no available action: it composes the answer from
+        # the matching ToolMessage. Keeping it unbound avoids sending unused
+        # tool schemas again and works with providers that do not implement
+        # ``tool_choice="none"`` consistently.
+        self._answer_model = chat_model
         self.prompt_set_id = prompt_set_id
         self.prompt_version = prompt_version
         self.provider = provider
@@ -165,7 +151,7 @@ class LangChainToolCallingModel:
                     temperature=self.temperature,
                     latency_ms=latency,
                     attempt=attempt,
-                    error=f"{type(exc).__name__}: {exc}",
+                    error=sanitize_text(f"{type(exc).__name__}: {exc}"),
                 ),
             )
         latency = (time.perf_counter() - started) * 1000.0
@@ -188,11 +174,16 @@ class LangChainToolCallingModel:
         input_tokens, output_tokens, _provider, model, fingerprint = (
             extract_model_metadata(result)
         )
-        invalid_calls = [_safe_json(dict(call)) for call in result.invalid_tool_calls]
+        invalid_calls = [
+            sanitize_json_value(dict(call)) for call in result.invalid_tool_calls
+        ]
         error = "provider returned an invalid native tool call" if invalid_calls else None
         record = ModelCallRecord(
             agent="query",
-            raw_response=_content_text(result),
+            # A tool-selection turn is represented by its sanitized native tool
+            # calls. Any accompanying prose may contain unrequested reasoning
+            # and is intentionally not persisted.
+            raw_response="" if result.tool_calls else _content_text(result),
             prompt_set_id=self.prompt_set_id,
             prompt_version=self.prompt_version,
             provider=self.provider,

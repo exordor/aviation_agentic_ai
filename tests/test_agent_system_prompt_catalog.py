@@ -54,7 +54,8 @@ EXPECTED_PLACEHOLDERS = {
     "query": {
         "user_question",
         "ontology_labels",
-        "graph_evidence",
+        "graph_scope",
+        "allowed_predicates",
     },
 }
 
@@ -70,7 +71,7 @@ def _placeholders(text: str) -> set[str]:
 def test_prompt_catalog_is_frozen_and_has_exact_roles() -> None:
     catalog = _catalog()
     assert catalog["status"] == "frozen"
-    assert catalog["prompt_set_id"] == "multi-agent-aviation-kg-system-prompts-v3"
+    assert catalog["prompt_set_id"] == "multi-agent-aviation-kg-system-prompts-v4"
     assert set(catalog["roles"]) == EXPECTED_ROLES
 
 
@@ -80,7 +81,7 @@ def test_every_role_has_version_policy_and_bounded_output() -> None:
         "facility": "facility-agent-v2",
         "terminology": "terminology-agent-v2",
         "knowledge_graph_construction": "knowledge-graph-construction-agent-v3",
-        "query": "query-agent-v3",
+        "query": "query-agent-v4",
     }
     for role, prompt in _catalog()["roles"].items():
         assert prompt["prompt_version"] == expected_versions[role]
@@ -191,12 +192,16 @@ def test_kg_prompt_uses_atmonto_graph_patch_contract() -> None:
     assert "PROFILE_GAPS is not a summary of unused mentions" in system
 
 
-def test_query_prompt_is_graph_only_and_has_exact_insufficient_evidence_response() -> None:
+def test_query_prompt_requires_native_tool_evidence_and_english_answer() -> None:
     system = _catalog()["roles"]["query"]["system"]
-    assert "using only GRAPH_EVIDENCE" in system
-    assert "Do not use model memory, external knowledge, or the raw advisory" in system
-    assert "Insufficient graph evidence." in system
-    assert "SOURCES" in system
+    normalized = " ".join(system.split())
+    assert "Select and call a bound read-only graph tool before answering" in normalized
+    assert "Do not answer before receiving a ToolMessage" in normalized
+    assert "get_event_facts" in normalized
+    assert "Do not use model memory, external knowledge, or raw advisory text" in normalized
+    assert "Insufficient graph evidence." in normalized
+    assert "SOURCES" in normalized
+    assert "Always answer in English" in normalized
 
 
 def test_model_defaults_are_reproducibility_oriented() -> None:

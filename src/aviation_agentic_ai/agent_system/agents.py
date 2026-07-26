@@ -824,7 +824,7 @@ def run_query_agent(
             status="blocked", answer="", model_call=rec,
             failure_reason="empty provider response",
         )
-    answer, sources = _parse_query_answer(rec.raw_response, evidence.source_ids)
+    answer, sources = parse_query_answer(rec.raw_response, evidence.source_ids)
     if not answer:
         return QueryResult(
             status="blocked", answer="", model_call=rec,
@@ -859,8 +859,8 @@ def _graph_evidence_text(facts: list[dict[str, Any]]) -> str:
     return "\n".join(rows)
 
 
-def _parse_query_answer(raw: str, available: list[str]) -> tuple[str, list[str]]:
-    """Extract the answer text and the cited source ids (must be known).
+def parse_query_answer_claims(raw: str) -> tuple[str, list[str]]:
+    """Extract answer text and every source ID claimed by the response.
 
     Plan §6.3: the internal ``ANSWER`` and ``SOURCES`` headers emitted by the
     frozen query catalog are parsed but NOT displayed. ``ANSWER`` on its own
@@ -871,9 +871,15 @@ def _parse_query_answer(raw: str, available: list[str]) -> tuple[str, list[str]]
     lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
     sources: list[str] = []
     answer_lines: list[str] = []
-    avail = set(available)
     in_sources = False
     in_answer = False
+
+    def add_source_tokens(text: str) -> None:
+        for token in re.split(r"[,\s]+", text):
+            token = token.strip().lstrip("-").rstrip(".;")
+            if token and token.lower() not in {"and", "+"} and token not in sources:
+                sources.append(token)
+
     for ln in lines:
         low = ln.lower()
         # ANSWER header: start of the displayed answer; the header itself is
@@ -889,17 +895,10 @@ def _parse_query_answer(raw: str, available: list[str]) -> tuple[str, list[str]]
             in_sources = True
             in_answer = False
             if low.startswith("sources:"):
-                tail = ln.split(":", 1)[1]
-                for tok in re.split(r"[,\s]+", tail):
-                    tok = tok.strip()
-                    if tok and tok in avail:
-                        sources.append(tok)
+                add_source_tokens(ln.split(":", 1)[1])
             continue
         if in_sources:
-            for tok in re.split(r"[,\s]+", ln):
-                tok = tok.strip().lstrip("-")
-                if tok and tok in avail and tok not in sources:
-                    sources.append(tok)
+            add_source_tokens(ln)
             continue
         answer_lines.append(ln)
     _ = in_answer  # parsed header presence; the answer text follows regardless
@@ -908,6 +907,14 @@ def _parse_query_answer(raw: str, available: list[str]) -> tuple[str, list[str]]
     # the malformed model result BLOCKED.
     answer = " ".join(answer_lines).strip()
     return answer, sources
+
+
+def parse_query_answer(raw: str, available: list[str]) -> tuple[str, list[str]]:
+    """Extract the answer and retain only citations present in ``available``."""
+
+    answer, claimed = parse_query_answer_claims(raw)
+    allowed = set(available)
+    return answer, [source for source in claimed if source in allowed]
 
 
 def _no_call_record(agent: str) -> ModelCallRecord:
@@ -930,6 +937,8 @@ __all__ = [
     "ToolNotAllowedError",
     "assemble_prompt",
     "parse_structured_fields",
+    "parse_query_answer",
+    "parse_query_answer_claims",
     "run_advisory_agent",
     "run_facility_agent",
     "run_kg_construction_agent",

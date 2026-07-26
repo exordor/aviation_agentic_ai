@@ -193,3 +193,60 @@ def test_find_events_exposes_scope_metadata_not_fact_values(tmp_path):
     assert result.items[0]["event_id"] == EVENT_ID
     serialized = result.model_dump_json()
     assert "2026-05-19T21:00:00Z" not in serialized
+
+
+def test_registered_events_require_an_event_type_assertion(tmp_path):
+    rows = _rows()
+    rows.append(
+        {
+            "triple_id": "fact:facility-type",
+            "subject": "urn:aviation-agentic-ai:facility:airport:KLAX",
+            "predicate": "rdf:type",
+            "object": "nas:Airport",
+            "subject_class": "nas:Airport",
+            "object_class": "nas:Airport",
+            "object_kind": "iri",
+            "source_document": SOURCE_ID,
+        }
+    )
+    _write_graph(tmp_path, rows)
+    store = QueryGraphStore(tmp_path)
+    assert store.event_ids == [EVENT_ID]
+
+
+def test_valid_fact_request_with_no_match_returns_empty_observation(tmp_path):
+    rows = [
+        row
+        for row in _rows()
+        if row["predicate"] != QueryPredicate.EFFECTIVE_END.value
+    ]
+    _write_graph(tmp_path, rows)
+    gateway = _gateway(tmp_path)
+    result = gateway.get_event_facts(
+        event_id=EVENT_ID,
+        predicates=[QueryPredicate.EFFECTIVE_END],
+    )
+    assert result.fact_ids == []
+    assert result.source_ids == []
+    assert result.items == []
+
+
+def test_find_events_caps_flattened_fact_references(tmp_path):
+    rows = _rows()
+    for index in range(25):
+        rows.append(
+            {
+                "triple_id": f"fact:extra:{index:02d}",
+                "subject": EVENT_ID,
+                "predicate": "atm:advisoryNumber",
+                "object": str(index),
+                "subject_class": "atm:GroundStopTMI",
+                "object_class": "",
+                "object_kind": "literal",
+                "source_document": SOURCE_ID,
+            }
+        )
+    _write_graph(tmp_path, rows)
+    result = _gateway(tmp_path).find_events()
+    assert len(result.fact_ids) == 20
+    assert len(result.items[0]["matching_fact_ids"]) == 20

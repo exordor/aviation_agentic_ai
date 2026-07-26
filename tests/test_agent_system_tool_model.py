@@ -50,6 +50,13 @@ class _FakeChat:
         self.bind_calls.append({"tools": list(tools), **kwargs})
         return _FakeBoundModel(self, kwargs["tool_choice"])
 
+    def invoke(self, messages):
+        self.invocations.append(("unbound", list(messages)))
+        response = self.responses["none"].pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
+
 
 def _adapter(chat: _FakeChat) -> LangChainToolCallingModel:
     return LangChainToolCallingModel(
@@ -106,13 +113,10 @@ def test_adapter_preserves_native_tool_call_and_metadata():
     }
 
 
-def test_adapter_binds_fixed_tools_without_json_mode_or_strict_schema():
+def test_adapter_binds_tools_only_for_selection_without_json_mode_or_strict_schema():
     chat = _FakeChat(required=[_tool_call_message()])
     _adapter(chat)
-    assert [call["tool_choice"] for call in chat.bind_calls] == [
-        "required",
-        "none",
-    ]
+    assert [call["tool_choice"] for call in chat.bind_calls] == ["required"]
     for call in chat.bind_calls:
         assert [bound.name for bound in call["tools"]] == ["fictional_lookup"]
         assert "response_format" not in call
@@ -136,7 +140,7 @@ def test_final_turn_receives_original_ai_message_and_matching_tool_message():
     )
     assert second_turn.message is final
     phase, captured = chat.invocations[-1]
-    assert phase == "none"
+    assert phase == "unbound"
     assert captured[-2] is first
     assert captured[-1] is observation
     assert captured[-1].tool_call_id == first.tool_calls[0]["id"]
@@ -154,6 +158,22 @@ def test_provider_exception_is_a_recorded_attempt():
     assert turn.record.model == "deepseek-test"
     assert turn.record.error == "TimeoutError: upstream timeout"
     assert turn.record.latency_ms >= 0
+
+
+def test_provider_exception_redacts_credentials():
+    adapter = _adapter(
+        _FakeChat(
+            required=[
+                RuntimeError("Authorization: Bearer sk-provider-secret123")
+            ]
+        )
+    )
+    turn = adapter.invoke(
+        [HumanMessage(content="Use a tool.")],
+        phase="select_tool",
+    )
+    assert "sk-provider-secret123" not in str(turn.record.error)
+    assert "[REDACTED]" in str(turn.record.error)
 
 
 def test_invalid_native_tool_call_is_explicitly_recorded():
