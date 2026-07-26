@@ -37,6 +37,7 @@ from aviation_agentic_ai.agent_system.prompts import (
     assemble_prompt,
 )
 from aviation_agentic_ai.agent_system.query import ontology_labels_for
+from aviation_agentic_ai.agent_system.query_context_store import QueryContextStore
 from aviation_agentic_ai.agent_system.query_tools import (
     QueryGraphStore,
     QueryPredicate,
@@ -58,6 +59,10 @@ CONTROLLED_FACILITY_QUESTION = "Which airport was controlled?"
 OPERATIONAL_PERIOD_QUESTION = "When did the measure apply?"
 DECLARED_REASON_QUESTION = "What reason did the advisory state?"
 PROVENANCE_QUESTION = "Which source supports this decision record?"
+FORECAST_CONTEXT_QUESTION = "What forecast was known at decision time?"
+OBSERVED_WEATHER_CONTEXT_QUESTION = "What observed weather context was available?"
+PUBLIC_OUTCOME_QUESTION = "What public operational outcome proxies are recorded?"
+RECONSTRUCTED_CASE_QUESTION = "Reconstruct this decision case."
 
 
 class QueryIntent(str, Enum):
@@ -67,6 +72,10 @@ class QueryIntent(str, Enum):
     OPERATIONAL_PERIOD = "operational_period"
     DECLARED_REASON = "declared_reason"
     PROVENANCE = "provenance"
+    FORECAST_CONTEXT = "forecast_context"
+    OBSERVED_WEATHER_CONTEXT = "observed_weather_context"
+    PUBLIC_OUTCOME = "public_outcome"
+    RECONSTRUCTED_CASE = "reconstructed_case"
 
 
 MAX_MODEL_CALLS = 2
@@ -118,6 +127,12 @@ def classify_registered_question(question: str) -> QueryIntent | None:
         _normalize_question(OPERATIONAL_PERIOD_QUESTION): QueryIntent.OPERATIONAL_PERIOD,
         _normalize_question(DECLARED_REASON_QUESTION): QueryIntent.DECLARED_REASON,
         _normalize_question(PROVENANCE_QUESTION): QueryIntent.PROVENANCE,
+        _normalize_question(FORECAST_CONTEXT_QUESTION): QueryIntent.FORECAST_CONTEXT,
+        _normalize_question(
+            OBSERVED_WEATHER_CONTEXT_QUESTION
+        ): QueryIntent.OBSERVED_WEATHER_CONTEXT,
+        _normalize_question(PUBLIC_OUTCOME_QUESTION): QueryIntent.PUBLIC_OUTCOME,
+        _normalize_question(RECONSTRUCTED_CASE_QUESTION): QueryIntent.RECONSTRUCTED_CASE,
     }
     if normalized in exact:
         return exact[normalized]
@@ -143,6 +158,23 @@ def classify_registered_question(question: str) -> QueryIntent | None:
         {"support", "supports", "record", "statement", "evidence", "provenance"}
     ):
         matches.append(QueryIntent.PROVENANCE)
+    if "forecast" in words and words.intersection(
+        {"decision", "issue", "issued", "known", "time"}
+    ):
+        matches.append(QueryIntent.FORECAST_CONTEXT)
+    if words.intersection({"observed", "observation", "metar"}) and words.intersection(
+        {"weather", "context", "available"}
+    ):
+        matches.append(QueryIntent.OBSERVED_WEATHER_CONTEXT)
+    if words.intersection({"outcome", "outcomes"}) and words.intersection(
+        {"public", "operational", "proxy", "proxies"}
+    ):
+        matches.append(QueryIntent.PUBLIC_OUTCOME)
+    if words.intersection({"reconstruct", "reconstructed"}) and {
+        "decision",
+        "case",
+    }.issubset(words):
+        matches.append(QueryIntent.RECONSTRUCTED_CASE)
     return matches[0] if len(set(matches)) == 1 else None
 
 
@@ -722,6 +754,8 @@ def _write_query_tool_run(
     ontology_labels: dict[str, str],
     retrieved_facts: list[dict[str, Any]],
     retrieved_profile_gaps: list[dict[str, Any]] | None = None,
+    retrieved_context_associations: list[dict[str, Any]] | None = None,
+    retrieved_outcome_summaries: list[dict[str, Any]] | None = None,
 ) -> None:
     payload = {
         "execution": "native_tool_loop",
@@ -732,8 +766,16 @@ def _write_query_tool_run(
         "ontology_labels": ontology_labels,
         "retrieved_fact_ids": outcome.retrieved_fact_ids,
         "retrieved_profile_gap_ids": outcome.retrieved_profile_gap_ids,
+        "retrieved_context_association_ids": (
+            outcome.retrieved_context_association_ids
+        ),
+        "retrieved_outcome_summary_ids": outcome.retrieved_outcome_summary_ids,
         "retrieved_facts": retrieved_facts,
         "retrieved_profile_gaps": retrieved_profile_gaps or [],
+        "retrieved_context_associations": (
+            retrieved_context_associations or []
+        ),
+        "retrieved_outcome_summaries": retrieved_outcome_summaries or [],
         "source_ids": outcome.source_ids,
         "answer": outcome.answer,
         "failure_reason": outcome.failure_reason,
@@ -777,8 +819,468 @@ def _terminal_outcome(
         ontology_labels={},
         retrieved_facts=[],
         retrieved_profile_gaps=[],
+        retrieved_context_associations=[],
+        retrieved_outcome_summaries=[],
     )
     return outcome
+
+
+def _report_subject(report_id: str) -> str:
+    return report_id if report_id.startswith("urn:") else f"urn:aviation-agentic-ai:{report_id}"
+
+
+def _context_items_for_relations(
+    result: QueryToolResult,
+    relations: set[str],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    associations = [
+        item
+        for item in result.items
+        if item.get("item_type") == "context_association"
+        and item.get("relation_type") in relations
+    ]
+    subjects = {_report_subject(str(item["report_id"])) for item in associations}
+    facts = [
+        item
+        for item in result.items
+        if item.get("item_type") == "formal_weather_fact"
+        and item.get("subject") in subjects
+    ]
+    return associations, facts
+
+
+def _raw_weather_values(
+    facts: list[dict[str, Any]],
+    predicate: str,
+) -> list[str]:
+    return sorted(
+        {
+            str(item.get("object") or "")
+            for item in facts
+            if item.get("predicate") == predicate and item.get("object")
+        }
+    )
+
+
+def _context_trace(
+    *,
+    tool_call_id: str,
+    tool: str,
+    arguments: dict[str, Any],
+    result: QueryToolResult,
+    started: float,
+) -> QueryToolTrace:
+    return QueryToolTrace(
+        tool_call_id=tool_call_id,
+        tool=tool,
+        arguments=arguments,
+        result_refs=result.fact_ids,
+        context_association_ids=result.context_association_ids,
+        outcome_summary_ids=result.outcome_summary_ids,
+        source_ids=result.source_ids,
+        status="ok",
+        duration_ms=(time.perf_counter() - started) * 1000.0,
+    )
+
+
+def _deterministic_context_outcome(
+    *,
+    run_dir: Path,
+    question: str,
+    intent: QueryIntent,
+    store: QueryGraphStore,
+    ontology_labels: dict[str, str],
+) -> QueryToolOutcome:
+    """Answer one registered context question without constructing a model."""
+
+    if len(store.event_ids) != 1:
+        return _terminal_outcome(
+            run_dir=run_dir,
+            question=question,
+            status="insufficient",
+            answer="Insufficient graph evidence.",
+            reason="decision-context questions require exactly one registered event",
+        )
+    event_id = store.event_ids[0]
+    context_store = QueryContextStore(run_dir, graph_store=store)
+    core_predicates = [
+        QueryPredicate.EVENT_TYPE,
+        QueryPredicate.CONTROLLED_NAS_ELEMENT,
+        QueryPredicate.EFFECTIVE_START,
+        QueryPredicate.EFFECTIVE_END,
+    ]
+    gateway = QueryToolGateway(
+        store,
+        allowed_predicates={predicate.value for predicate in core_predicates},
+        context_store=context_store,
+    )
+    traces: list[QueryToolTrace] = []
+    context_result: QueryToolResult | None = None
+    outcome_result: QueryToolResult | None = None
+    core_result: QueryToolResult | None = None
+
+    def blocked(exc: Exception, *, tool: str, arguments: dict[str, Any], started: float) -> QueryToolOutcome:
+        error = sanitize_text(f"{type(exc).__name__}: {exc}")
+        trace = QueryToolTrace(
+            tool_call_id=f"deterministic:{intent.value}:{tool}:blocked",
+            tool=tool,
+            arguments=arguments,
+            status="blocked",
+            duration_ms=(time.perf_counter() - started) * 1000.0,
+            error=error,
+        )
+        return _write_deterministic_result(
+            run_dir=run_dir,
+            question=question,
+            outcome=QueryToolOutcome(
+                status="blocked",
+                answer="",
+                tool_calls=[*traces, trace],
+                failure_reason=error,
+            ),
+            store=store,
+            allowed_predicates=[],
+        )
+
+    if intent is QueryIntent.RECONSTRUCTED_CASE:
+        arguments = {
+            "event_id": event_id,
+            "predicates": [predicate.value for predicate in core_predicates],
+        }
+        started = time.perf_counter()
+        try:
+            core_result = gateway.get_event_facts(
+                event_id=event_id,
+                predicates=core_predicates,
+            )
+        except QueryToolError as exc:
+            return blocked(
+                exc,
+                tool="get_event_facts",
+                arguments=arguments,
+                started=started,
+            )
+        traces.append(
+            _context_trace(
+                tool_call_id="deterministic:reconstructed_case:facts",
+                tool="get_event_facts",
+                arguments=arguments,
+                result=core_result,
+                started=started,
+            )
+        )
+        predicate_counts = {
+            predicate.value: sum(
+                item.get("predicate") == predicate.value
+                for item in core_result.items
+            )
+            for predicate in core_predicates
+        }
+        if any(count != 1 for count in predicate_counts.values()):
+            return _write_deterministic_result(
+                run_dir=run_dir,
+                question=question,
+                outcome=QueryToolOutcome(
+                    status="insufficient",
+                    answer="Insufficient graph evidence.",
+                    retrieved_fact_ids=core_result.fact_ids,
+                    tool_calls=traces,
+                    failure_reason=(
+                        "reconstructed case requires singular core event facts"
+                    ),
+                ),
+                store=store,
+                allowed_predicates=[
+                    predicate.value for predicate in core_predicates
+                ],
+            )
+
+    if intent in {
+        QueryIntent.FORECAST_CONTEXT,
+        QueryIntent.OBSERVED_WEATHER_CONTEXT,
+        QueryIntent.RECONSTRUCTED_CASE,
+    }:
+        arguments = {"event_id": event_id}
+        started = time.perf_counter()
+        try:
+            context_result = gateway.get_decision_context(event_id=event_id)
+        except QueryToolError as exc:
+            return blocked(
+                exc,
+                tool="get_decision_context",
+                arguments=arguments,
+                started=started,
+            )
+        traces.append(
+            _context_trace(
+                tool_call_id=f"deterministic:{intent.value}:context",
+                tool="get_decision_context",
+                arguments=arguments,
+                result=context_result,
+                started=started,
+            )
+        )
+        if context_result.status == "insufficient":
+            return _write_deterministic_result(
+                run_dir=run_dir,
+                question=question,
+                outcome=QueryToolOutcome(
+                    status="insufficient",
+                    answer="Insufficient graph evidence.",
+                    retrieved_fact_ids=core_result.fact_ids if core_result else [],
+                    tool_calls=traces,
+                    failure_reason="validated decision context is absent",
+                ),
+                store=store,
+                allowed_predicates=[
+                    predicate.value for predicate in core_predicates
+                ]
+                if core_result
+                else [],
+            )
+
+    if intent in {QueryIntent.PUBLIC_OUTCOME, QueryIntent.RECONSTRUCTED_CASE}:
+        arguments = {
+            "event_id": event_id,
+            "phases": ["baseline", "active", "recovery"],
+        }
+        started = time.perf_counter()
+        try:
+            outcome_result = gateway.get_outcome_summary(
+                event_id=event_id,
+                phases=("baseline", "active", "recovery"),
+            )
+        except QueryToolError as exc:
+            return blocked(
+                exc,
+                tool="get_outcome_summary",
+                arguments=arguments,
+                started=started,
+            )
+        traces.append(
+            _context_trace(
+                tool_call_id=f"deterministic:{intent.value}:outcomes",
+                tool="get_outcome_summary",
+                arguments=arguments,
+                result=outcome_result,
+                started=started,
+            )
+        )
+        if outcome_result.status == "insufficient":
+            partial_associations = (
+                [
+                    item
+                    for item in context_result.items
+                    if item.get("item_type") == "context_association"
+                ]
+                if context_result
+                else []
+            )
+            return _write_deterministic_result(
+                run_dir=run_dir,
+                question=question,
+                outcome=QueryToolOutcome(
+                    status="insufficient",
+                    answer="Insufficient graph evidence.",
+                    source_ids=sorted(
+                        {
+                            *(
+                                core_result.source_ids
+                                if core_result
+                                else []
+                            ),
+                            *(
+                                context_result.source_ids
+                                if context_result
+                                else []
+                            ),
+                        }
+                    ),
+                    retrieved_fact_ids=[
+                        *(core_result.fact_ids if core_result else []),
+                        *(context_result.fact_ids if context_result else []),
+                    ],
+                    retrieved_context_association_ids=(
+                        context_result.context_association_ids
+                        if context_result
+                        else []
+                    ),
+                    tool_calls=traces,
+                    failure_reason="validated public outcome proxies are absent",
+                ),
+                store=store,
+                allowed_predicates=[
+                    predicate.value for predicate in core_predicates
+                ]
+                if core_result
+                else [],
+                retrieved_context_associations=partial_associations,
+            )
+
+    selected_associations: list[dict[str, Any]] = []
+    selected_weather_facts: list[dict[str, Any]] = []
+    selected_outcomes = list(outcome_result.items) if outcome_result else []
+    source_ids: set[str] = set()
+    retrieved_fact_ids: list[str] = core_result.fact_ids if core_result else []
+    context_ids: list[str] = []
+    outcome_ids = outcome_result.outcome_summary_ids if outcome_result else []
+
+    if context_result is not None:
+        relations = (
+            {"latest_forecast_known_at_issue"}
+            if intent is QueryIntent.FORECAST_CONTEXT
+            else {
+                "latest_observation_at_or_before_issue",
+                "observation_during_operation",
+            }
+            if intent is QueryIntent.OBSERVED_WEATHER_CONTEXT
+            else {
+                "latest_forecast_known_at_issue",
+                "latest_observation_at_or_before_issue",
+                "observation_during_operation",
+            }
+        )
+        selected_associations, selected_weather_facts = (
+            _context_items_for_relations(context_result, relations)
+        )
+        if not selected_associations:
+            return _write_deterministic_result(
+                run_dir=run_dir,
+                question=question,
+                outcome=QueryToolOutcome(
+                    status="insufficient",
+                    answer="Insufficient graph evidence.",
+                    retrieved_fact_ids=retrieved_fact_ids,
+                    tool_calls=traces,
+                    failure_reason="requested Weather context relation is absent",
+                ),
+                store=store,
+                allowed_predicates=[
+                    predicate.value for predicate in core_predicates
+                ]
+                if core_result
+                else [],
+            )
+        context_ids = sorted(
+            str(item["association_id"]) for item in selected_associations
+        )
+        retrieved_fact_ids = [
+            *retrieved_fact_ids,
+            *sorted(str(item["fact_id"]) for item in selected_weather_facts),
+        ]
+        source_ids.update(
+            str(item["source_id"]) for item in selected_associations
+        )
+    if outcome_result is not None:
+        source_ids.update(outcome_result.source_ids)
+    if core_result is not None:
+        source_ids.update(core_result.source_ids)
+
+    if intent is QueryIntent.FORECAST_CONTEXT:
+        raw = _raw_weather_values(
+            selected_weather_facts,
+            "data:tafReportString",
+        )
+        if not raw:
+            answer = "Insufficient graph evidence."
+            status = "insufficient"
+            reason = "forecast context has no formal TAF report string"
+        else:
+            answer = (
+                "The latest forecast known at decision time is non-causal "
+                f"context: {'; '.join(raw)}."
+            )
+            status = "ok"
+            reason = ""
+    elif intent is QueryIntent.OBSERVED_WEATHER_CONTEXT:
+        raw = _raw_weather_values(
+            selected_weather_facts,
+            "data:metarReportString",
+        )
+        if not raw:
+            answer = "Insufficient graph evidence."
+            status = "insufficient"
+            reason = "observed context has no formal METAR report string"
+        else:
+            answer = (
+                "The observed Weather reports are non-causal context: "
+                f"{'; '.join(raw)}."
+            )
+            status = "ok"
+            reason = ""
+    else:
+        status = "ok"
+        reason = ""
+        outcome_lines = [
+            (
+                f"{item['phase']}: scheduled "
+                f"{item['scheduled_arrival_count_proxy']}, completed "
+                f"{item['completed_arrival_count']}, cancelled "
+                f"{item['cancelled_count']}, diverted "
+                f"{item['diverted_count']}"
+            )
+            for item in selected_outcomes
+        ]
+        outcome_text = "; ".join(outcome_lines)
+        proxy_note = (
+            "These counts use a public scheduled-demand proxy, not FAA arrival "
+            "demand; WeatherDelay and NASDelay are carrier-reported attribution."
+        )
+        if intent is QueryIntent.PUBLIC_OUTCOME:
+            answer = f"{proxy_note} {outcome_text}."
+        else:
+            assert core_result is not None
+            by_predicate = {
+                str(item["predicate"]): item for item in core_result.items
+            }
+            event_type = str(
+                by_predicate[QueryPredicate.EVENT_TYPE]["object"]
+            )
+            facility = str(
+                by_predicate[QueryPredicate.CONTROLLED_NAS_ELEMENT]["object"]
+            ).rsplit(":", 1)[-1]
+            start = by_predicate[QueryPredicate.EFFECTIVE_START]["object"]
+            end = by_predicate[QueryPredicate.EFFECTIVE_END]["object"]
+            forecast = _raw_weather_values(
+                selected_weather_facts,
+                "data:tafReportString",
+            )
+            observations = _raw_weather_values(
+                selected_weather_facts,
+                "data:metarReportString",
+            )
+            weather_text = "; ".join([*forecast, *observations])
+            answer = (
+                f"The reconstructed decision case records "
+                f"{ontology_labels.get(event_type, event_type)} controlling "
+                f"{facility} from {start} to {end}. Weather reports are "
+                f"non-causal context: {weather_text}. {proxy_note} "
+                f"{outcome_text}."
+            )
+
+    outcome = QueryToolOutcome(
+        status=status,
+        answer=answer,
+        source_ids=sorted(source_ids),
+        retrieved_fact_ids=list(dict.fromkeys(retrieved_fact_ids)),
+        retrieved_context_association_ids=context_ids,
+        retrieved_outcome_summary_ids=outcome_ids,
+        tool_calls=traces,
+        failure_reason=reason,
+    )
+    return _write_deterministic_result(
+        run_dir=run_dir,
+        question=question,
+        outcome=outcome,
+        store=store,
+        allowed_predicates=[
+            predicate.value for predicate in core_predicates
+        ]
+        if core_result
+        else [],
+        retrieved_context_associations=selected_associations,
+        retrieved_outcome_summaries=selected_outcomes,
+    )
 
 
 def _deterministic_intent_outcome(
@@ -975,6 +1477,8 @@ def _write_deterministic_result(
     outcome: QueryToolOutcome,
     store: QueryGraphStore,
     allowed_predicates: list[str],
+    retrieved_context_associations: list[dict[str, Any]] | None = None,
+    retrieved_outcome_summaries: list[dict[str, Any]] | None = None,
 ) -> QueryToolOutcome:
     retrieved_facts = [
         store.fact_by_id[fact_id]
@@ -995,6 +1499,8 @@ def _write_deterministic_result(
         ontology_labels={},
         retrieved_facts=retrieved_facts,
         retrieved_profile_gaps=retrieved_gaps,
+        retrieved_context_associations=retrieved_context_associations,
+        retrieved_outcome_summaries=retrieved_outcome_summaries,
     )
     return outcome
 
@@ -1040,14 +1546,36 @@ def answer_question_with_tools(
         )
     guide = load_schema_guide()
     labels = ontology_labels_for(store.rows, guide)
-    if intent is not QueryIntent.COMBINED_RECORD:
-        return _deterministic_intent_outcome(
+    if intent in {
+        QueryIntent.FORECAST_CONTEXT,
+        QueryIntent.OBSERVED_WEATHER_CONTEXT,
+        QueryIntent.PUBLIC_OUTCOME,
+        QueryIntent.RECONSTRUCTED_CASE,
+    }:
+        return _deterministic_context_outcome(
             run_dir=path,
             question=question,
             intent=intent,
             store=store,
             ontology_labels=labels,
         )
+    if intent is not QueryIntent.COMBINED_RECORD:
+        try:
+            return _deterministic_intent_outcome(
+                run_dir=path,
+                question=question,
+                intent=intent,
+                store=store,
+                ontology_labels=labels,
+            )
+        except QueryToolError as exc:
+            return _terminal_outcome(
+                run_dir=path,
+                question=question,
+                status="blocked",
+                answer="",
+                reason=sanitize_text(f"{type(exc).__name__}: {exc}"),
+            )
 
     allowed_predicates = [
         QueryPredicate.EVENT_TYPE.value,

@@ -21,6 +21,10 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceSnapshotRegistry,
     StrictModel,
 )
+from aviation_agentic_ai.agent_system.query_context_store import (
+    QueryContextError,
+    QueryContextStore,
+)
 from aviation_agentic_ai.agent_system.schema_guide import TERM_TO_EVENT_CLASS
 
 _REGISTERED_EVENT_CLASSES = frozenset(TERM_TO_EVENT_CLASS.values())
@@ -68,6 +72,23 @@ class GetProfileGapsInput(StrictModel):
     fields: list[str] = Field(min_length=1, max_length=2)
 
 
+class GetDecisionContextInput(StrictModel):
+    """A registered event whose validated non-causal context is requested."""
+
+    event_id: str = Field(min_length=1)
+
+
+class GetOutcomeSummaryInput(StrictModel):
+    """A registered event and the bounded public outcome phases to retrieve."""
+
+    event_id: str = Field(min_length=1)
+    phases: list[Literal["baseline", "active", "recovery"]] = Field(
+        default_factory=lambda: ["baseline", "active", "recovery"],
+        min_length=1,
+        max_length=3,
+    )
+
+
 class GetNeighborsInput(StrictModel):
     """A registered graph entity and one allowed relation."""
 
@@ -90,10 +111,14 @@ class QueryToolResult(StrictModel):
         "get_neighbors",
         "get_provenance",
         "get_profile_gaps",
+        "get_decision_context",
+        "get_outcome_summary",
     ]
-    status: Literal["ok"] = "ok"
+    status: Literal["ok", "insufficient"] = "ok"
     fact_ids: list[str] = Field(default_factory=list)
     profile_gap_ids: list[str] = Field(default_factory=list)
+    context_association_ids: list[str] = Field(default_factory=list)
+    outcome_summary_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
     items: list[dict[str, Any]] = Field(default_factory=list)
 
@@ -279,13 +304,17 @@ class QueryToolGateway:
         store: QueryGraphStore,
         *,
         allowed_predicates: set[str],
+        context_store: QueryContextStore | None = None,
         max_facts: int = 20,
     ) -> None:
         self.store = store
+        self.context_store = context_store
         self.allowed_predicates = set(allowed_predicates)
         self.max_facts = max_facts
         self.retrieved_fact_ids: set[str] = set()
         self.retrieved_profile_gap_ids: set[str] = set()
+        self.retrieved_context_association_ids: set[str] = set()
+        self.retrieved_outcome_summary_ids: set[str] = set()
         self.retrieved_source_ids: set[str] = set()
 
     def find_events(
@@ -520,6 +549,97 @@ class QueryToolGateway:
             items=[gap.model_dump(mode="json") for gap in gaps],
         )
 
+    def get_decision_context(self, *, event_id: str) -> QueryToolResult:
+        """Read validated, non-causal Weather context for one event."""
+
+        if self.context_store is None:
+            raise QueryToolError("decision-context store is not configured")
+        try:
+            read = self.context_store.get_decision_context(event_id)
+        except QueryContextError as exc:
+            raise QueryToolError(str(exc)) from exc
+        if read.status == "insufficient":
+            return QueryToolResult(
+                tool="get_decision_context",
+                status="insufficient",
+            )
+        association_ids = [
+            association.association_id for association in read.associations
+        ]
+        fact_ids = [str(row["fact_id"]) for row in read.formal_fact_rows]
+        items = [
+            {
+                "item_type": "context_association",
+                **association.model_dump(mode="json"),
+            }
+            for association in read.associations
+        ]
+        items.extend(
+            {
+                "item_type": "formal_weather_fact",
+                "fact_id": row["fact_id"],
+                "subject": row["subject"],
+                "predicate": row["predicate"],
+                "object": row.get("object"),
+                "object_class": row.get("object_class") or "",
+                "source_ids": sorted(_split_source_ids(row.get("source_document"))),
+            }
+            for row in read.formal_fact_rows
+        )
+        items.extend(
+            {
+                "item_type": "source_record",
+                **snapshot.model_dump(mode="json"),
+            }
+            for snapshot in read.source_records
+        )
+        self.retrieved_context_association_ids.update(association_ids)
+        self.retrieved_fact_ids.update(fact_ids)
+        self.retrieved_source_ids.update(read.source_ids)
+        return QueryToolResult(
+            tool="get_decision_context",
+            fact_ids=fact_ids,
+            context_association_ids=association_ids,
+            source_ids=list(read.source_ids),
+            items=items,
+        )
+
+    def get_outcome_summary(
+        self,
+        *,
+        event_id: str,
+        phases: list[str] | tuple[str, ...] = (
+            "baseline",
+            "active",
+            "recovery",
+        ),
+    ) -> QueryToolResult:
+        """Read validated public BTS proxies for the requested phases."""
+
+        if self.context_store is None:
+            raise QueryToolError("decision-context store is not configured")
+        try:
+            read = self.context_store.get_outcome_summaries(
+                event_id,
+                tuple(phases),
+            )
+        except QueryContextError as exc:
+            raise QueryToolError(str(exc)) from exc
+        if read.status == "insufficient":
+            return QueryToolResult(
+                tool="get_outcome_summary",
+                status="insufficient",
+            )
+        summary_ids = [summary.summary_id for summary in read.summaries]
+        self.retrieved_outcome_summary_ids.update(summary_ids)
+        self.retrieved_source_ids.update(read.source_ids)
+        return QueryToolResult(
+            tool="get_outcome_summary",
+            outcome_summary_ids=summary_ids,
+            source_ids=list(read.source_ids),
+            items=[summary.model_dump(mode="json") for summary in read.summaries],
+        )
+
 
 def build_query_tools(gateway: QueryToolGateway) -> list[BaseTool]:
     """Build the five model-visible LangChain tools for one query session."""
@@ -579,6 +699,30 @@ def build_query_tools(gateway: QueryToolGateway) -> list[BaseTool]:
         get_provenance,
         get_profile_gaps,
     ]
+
+
+def build_context_query_tools(gateway: QueryToolGateway) -> list[BaseTool]:
+    """Build deterministic context tools kept outside the model-visible surface."""
+
+    @tool("get_decision_context", args_schema=GetDecisionContextInput)
+    def get_decision_context(event_id: str) -> str:
+        """Read validated non-causal Weather context for one registered event."""
+
+        return gateway.get_decision_context(event_id=event_id).model_dump_json()
+
+    @tool("get_outcome_summary", args_schema=GetOutcomeSummaryInput)
+    def get_outcome_summary(
+        event_id: str,
+        phases: list[Literal["baseline", "active", "recovery"]],
+    ) -> str:
+        """Read validated public BTS outcome proxies for selected phases."""
+
+        return gateway.get_outcome_summary(
+            event_id=event_id,
+            phases=phases,
+        ).model_dump_json()
+
+    return [get_decision_context, get_outcome_summary]
 
 
 def tool_registry(tools: list[BaseTool]) -> dict[str, BaseTool]:

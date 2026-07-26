@@ -263,5 +263,12 @@ def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
         f"sources: {', '.join(outcome.source_ids) if outcome.source_ids else '(none)'}"
     )
     click.echo(f"graph_facts_seen: {len(outcome.retrieved_fact_ids)}")
+    click.echo(
+        "context_associations_seen: "
+        f"{len(outcome.retrieved_context_association_ids)}"
+    )
+    click.echo(
+        f"outcome_summaries_seen: {len(outcome.retrieved_outcome_summary_ids)}"
+    )
     click.echo(f"model_calls: {len(outcome.model_calls)}")
     click.echo(f"tool_calls: {len(outcome.tool_calls)}")

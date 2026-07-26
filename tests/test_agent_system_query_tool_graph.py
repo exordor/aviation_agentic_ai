@@ -2,24 +2,36 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+import pytest
 from langchain_core.messages import AIMessage, ToolMessage
 
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSOutcomeSummary,
     ModelCallRecord,
     ModelToolCall,
     PersistedProfileGap,
+    SourceFamily,
     SourceSnapshot,
+    WeatherContextAssociation,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     DECLARED_REASON_QUESTION,
+    FORECAST_CONTEXT_QUESTION,
+    MEASURE_QUESTION,
+    OBSERVED_WEATHER_CONTEXT_QUESTION,
     OPERATIONAL_PERIOD_QUESTION,
+    PUBLIC_OUTCOME_QUESTION,
     PROVENANCE_QUESTION,
+    RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
     answer_question_with_tools,
+    question_requires_model,
 )
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 
@@ -119,6 +131,230 @@ def _write_profile_gap(
     )
     (run_dir / "profile_gaps.jsonl").write_text(
         gap.model_dump_json() + "\n",
+        encoding="utf-8",
+    )
+
+
+def _artifact(
+    run_dir: Path,
+    name: str,
+    rows: list[str],
+    *,
+    status: str = "ok",
+) -> dict[str, object]:
+    data = "".join(row + "\n" for row in rows).encode("utf-8")
+    (run_dir / name).write_bytes(data)
+    return {
+        "path": name,
+        "count": len(rows),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "status": status,
+    }
+
+
+def _write_query_context(
+    run_dir: Path,
+    *,
+    active_counts: tuple[int, int, int, int] = (20, 18, 2, 0),
+) -> None:
+    run_id = run_dir.name
+    taf_source = "weather-source:taf:KJFK:test"
+    metar_source = "weather-source:metar:KJFK:test"
+    bts_source = "bts_on_time:2026-05:nyc"
+    taf_content = json.dumps(
+        {
+            "icaoId": "KJFK",
+            "issueTime": "2026-05-19T20:00:00Z",
+            "rawTAF": "TAF KJFK TEST",
+            "validTimeFrom": "2026-05-19T20:00:00Z",
+            "validTimeTo": "2026-05-20T02:00:00Z",
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    metar_content = json.dumps(
+        {
+            "icaoId": "KJFK",
+            "rawOb": "METAR KJFK TEST",
+            "reportTime": "2026-05-19T20:15:00Z",
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    bts_content = "{}\n"
+    snapshots = [
+        SourceSnapshot(
+            source_id=SOURCE_ID,
+            family=SourceFamily.ATCSCC_ADVISORY,
+            content="IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n",
+            content_sha256=hashlib.sha256(
+                b"IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n"
+            ).hexdigest(),
+            snapshot_timestamp="2026-05-19T20:30:00+00:00",
+        ),
+        SourceSnapshot(
+            source_id=taf_source,
+            family=SourceFamily.TAF,
+            content=taf_content,
+            content_sha256=hashlib.sha256(taf_content.encode()).hexdigest(),
+            snapshot_timestamp="2026-05-19T20:00:00+00:00",
+        ),
+        SourceSnapshot(
+            source_id=metar_source,
+            family=SourceFamily.METAR,
+            content=metar_content,
+            content_sha256=hashlib.sha256(metar_content.encode()).hexdigest(),
+            snapshot_timestamp="2026-05-19T20:15:00+00:00",
+        ),
+        SourceSnapshot(
+            source_id=bts_source,
+            family=SourceFamily.BTS_ON_TIME,
+            content=bts_content,
+            content_sha256=hashlib.sha256(bts_content.encode()).hexdigest(),
+            snapshot_timestamp="2026-05-19T20:00:00+00:00",
+        ),
+    ]
+    reports = [
+        (
+            "weather-report:taf:KJFK:test",
+            taf_source,
+            "latest_forecast_known_at_issue",
+            "TAF KJFK TEST",
+            "data:tafReportString",
+        ),
+        (
+            "weather-report:metar:KJFK:test",
+            metar_source,
+            "latest_observation_at_or_before_issue",
+            "METAR KJFK TEST",
+            "data:metarReportString",
+        ),
+    ]
+    associations = []
+    rows = _graph_rows()
+    for index, (report_id, source_id, relation, raw, raw_predicate) in enumerate(
+        reports
+    ):
+        associations.append(
+            WeatherContextAssociation(
+                association_id=f"weather-association:{index}",
+                run_id=run_id,
+                event_id=EVENT_ID,
+                report_id=report_id,
+                facility_id=FACILITY_ID,
+                relation_type=relation,
+                selection_method="deterministic test selection",
+                relevant_times={
+                    "advisory_issued_at": "2026-05-19T20:30:00+00:00",
+                    "operational_start": "2026-05-19T21:00:00+00:00",
+                    "operational_end": "2026-05-19T22:45:00+00:00",
+                },
+                source_id=source_id,
+                source_snapshot_sha256=next(
+                    snapshot.content_sha256
+                    for snapshot in snapshots
+                    if snapshot.source_id == source_id
+                ),
+                causal_claim=False,
+            )
+        )
+        subject = f"urn:aviation-agentic-ai:{report_id}"
+        rows.extend(
+            [
+                {
+                    "triple_id": f"weather:{index}:type",
+                    "subject": subject,
+                    "predicate": "rdf:type",
+                    "object": (
+                        "https://data.nasa.gov/ontologies/atmonto/"
+                        "data#MeteorologicalReport"
+                    ),
+                    "subject_class": "data:MeteorologicalReport",
+                    "object_class": "data:MeteorologicalReport",
+                    "object_kind": "iri",
+                    "source_document": source_id,
+                },
+                {
+                    "triple_id": f"weather:{index}:facility",
+                    "subject": subject,
+                    "predicate": "data:forecastingAirport",
+                    "object": FACILITY_ID,
+                    "subject_class": "data:MeteorologicalReport",
+                    "object_class": "nas:Airport",
+                    "object_kind": "iri",
+                    "source_document": source_id,
+                },
+                {
+                    "triple_id": f"weather:{index}:raw",
+                    "subject": subject,
+                    "predicate": raw_predicate,
+                    "object": raw,
+                    "subject_class": "data:MeteorologicalReport",
+                    "object_class": "",
+                    "object_kind": "literal",
+                    "source_document": source_id,
+                },
+            ]
+        )
+    _write_graph(run_dir, rows)
+
+    start = datetime(2026, 5, 19, 21, tzinfo=UTC)
+    end = datetime(2026, 5, 19, 22, 45, tzinfo=UTC)
+    windows = {
+        "baseline": (start - timedelta(hours=2), start),
+        "active": (start, end),
+        "recovery": (end, end + timedelta(hours=6)),
+    }
+    summaries = []
+    for phase, (window_start, window_end) in windows.items():
+        scheduled, completed, cancelled, diverted = (
+            active_counts if phase == "active" else (10, 9, 1, 0)
+        )
+        summaries.append(
+            BTSOutcomeSummary(
+                summary_id=f"bts-outcome:{phase}",
+                run_id=run_id,
+                event_id=EVENT_ID,
+                facility_id=FACILITY_ID,
+                phase=phase,
+                window_start=window_start,
+                window_end=window_end,
+                source_id=bts_source,
+                source_snapshot_sha256=snapshots[-1].content_sha256,
+                scheduled_arrival_count_proxy=scheduled,
+                completed_arrival_count=completed,
+                cancelled_count=cancelled,
+                diverted_count=diverted,
+                arrival_delay_15_count=1,
+                mean_arrival_delay_minutes=None,
+                median_arrival_delay_minutes=None,
+                carrier_reported_weather_delay_minutes=None,
+                carrier_reported_nas_delay_minutes=5.0,
+                scheduled_arrival_semantics="public scheduled-demand proxy",
+                weather_delay_semantics="carrier-reported attribution",
+                nas_delay_semantics="carrier-reported attribution",
+                causal_claim=False,
+            )
+        )
+    metadata = {
+        "source_snapshots": _artifact(
+            run_dir,
+            "source_snapshots.jsonl",
+            [snapshot.model_dump_json() for snapshot in snapshots],
+        ),
+        "context_associations": _artifact(
+            run_dir,
+            "context_associations.jsonl",
+            [association.model_dump_json() for association in associations],
+        ),
+        "outcome_summaries": _artifact(
+            run_dir,
+            "outcome_summaries.jsonl",
+            [summary.model_dump_json() for summary in summaries],
+        ),
+    }
+    (run_dir / "run_manifest.json").write_text(
+        json.dumps({"run_id": run_id, "context_artifacts": metadata}),
         encoding="utf-8",
     )
 
@@ -223,6 +459,19 @@ class _Factory:
         return self.model
 
 
+def test_only_preexisting_combined_question_requires_a_model():
+    assert question_requires_model(REGISTERED_COMPETENCY_QUESTION) is True
+    assert all(
+        question_requires_model(question) is False
+        for question in (
+            FORECAST_CONTEXT_QUESTION,
+            OBSERVED_WEATHER_CONTEXT_QUESTION,
+            PUBLIC_OUTCOME_QUESTION,
+            RECONSTRUCTED_CASE_QUESTION,
+        )
+    )
+
+
 def test_supported_question_runs_model_tool_model_and_cites_source(tmp_path):
     _write_graph(tmp_path)
     model = _ScriptedModel([_tool_message(), _final_message()])
@@ -259,6 +508,280 @@ def test_supported_question_runs_model_tool_model_and_cites_source(tmp_path):
         "select_tool",
         "final_answer",
     ]
+
+
+def test_forecast_context_is_deterministic_non_causal_and_query_run_is_separate(
+    tmp_path,
+):
+    _write_graph(tmp_path)
+    _write_query_context(tmp_path)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert "non-causal context" in outcome.answer
+    assert "TAF KJFK TEST" in outcome.answer
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+    assert [trace.tool for trace in outcome.tool_calls] == [
+        "get_decision_context"
+    ]
+    assert outcome.retrieved_context_association_ids == [
+        "weather-association:0"
+    ]
+    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
+    assert record["retrieved_context_association_ids"] == [
+        "weather-association:0"
+    ]
+    assert record["retrieved_outcome_summary_ids"] == []
+    assert record["retrieved_facts"]
+    assert record["retrieved_context_associations"]
+    assert record["retrieved_outcome_summaries"] == []
+
+
+def test_observed_context_uses_only_metar_associations_without_model(tmp_path):
+    _write_graph(tmp_path)
+    _write_query_context(tmp_path)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=OBSERVED_WEATHER_CONTEXT_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert "non-causal context" in outcome.answer
+    assert "METAR KJFK TEST" in outcome.answer
+    assert "TAF KJFK TEST" not in outcome.answer
+    assert outcome.retrieved_context_association_ids == [
+        "weather-association:1"
+    ]
+    assert len(outcome.tool_calls) == 1
+    assert factory.calls == 0
+
+
+@pytest.mark.parametrize(
+    "active_counts",
+    [
+        (20, 18, 2, 0),
+        (77, 68, 4, 5),
+        (50, 49, 1, 0),
+    ],
+)
+def test_public_outcome_response_preserves_three_case_active_counts(
+    tmp_path,
+    active_counts,
+):
+    _write_graph(tmp_path)
+    _write_query_context(tmp_path, active_counts=active_counts)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=PUBLIC_OUTCOME_QUESTION,
+        model_factory=factory,
+    )
+
+    scheduled, completed, cancelled, diverted = active_counts
+    assert outcome.status == "ok"
+    assert "public scheduled-demand proxy, not FAA arrival demand" in outcome.answer
+    assert "carrier-reported attribution" in outcome.answer
+    assert (
+        f"active: scheduled {scheduled}, completed {completed}, "
+        f"cancelled {cancelled}, diverted {diverted}"
+    ) in outcome.answer
+    assert outcome.retrieved_fact_ids == []
+    assert outcome.retrieved_outcome_summary_ids == [
+        "bts-outcome:baseline",
+        "bts-outcome:active",
+        "bts-outcome:recovery",
+    ]
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+
+
+def test_reconstructed_case_uses_three_tools_without_retrieving_reason(tmp_path):
+    rows = _graph_rows()
+    rows.append(
+        {
+            "triple_id": "fact:reason",
+            "subject": EVENT_ID,
+            "predicate": "atm:impactingCondition",
+            "object": "weather",
+            "subject_class": "atm:GroundDelayProgramTMI",
+            "object_class": "",
+            "object_kind": "literal",
+            "source_document": SOURCE_ID,
+            "evidence_text": "IMPACTING CONDITION: WEATHER",
+        }
+    )
+    _write_graph(tmp_path, rows)
+    _write_query_context(tmp_path)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=RECONSTRUCTED_CASE_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert len(outcome.tool_calls) == 3
+    assert [trace.tool for trace in outcome.tool_calls] == [
+        "get_event_facts",
+        "get_decision_context",
+        "get_outcome_summary",
+    ]
+    assert "fact:reason" not in outcome.retrieved_fact_ids
+    assert "impacting condition" not in outcome.answer.lower()
+    assert "non-causal context" in outcome.answer
+    assert "public scheduled-demand proxy, not FAA arrival demand" in outcome.answer
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+
+
+def test_absent_context_is_insufficient_before_model_construction(tmp_path):
+    _write_graph(tmp_path)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=FORECAST_CONTEXT_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "insufficient"
+    assert outcome.model_calls == []
+    assert [trace.tool for trace in outcome.tool_calls] == [
+        "get_decision_context"
+    ]
+    assert factory.calls == 0
+
+
+def test_optional_context_corruption_does_not_block_old_core_question(tmp_path):
+    _write_graph(tmp_path)
+    (tmp_path / "context_associations.jsonl").write_text(
+        "not-json\n",
+        encoding="utf-8",
+    )
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=MEASURE_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert "Ground Stop" in outcome.answer
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+
+
+def test_reconstructed_case_persists_partial_context_when_outcomes_are_absent(
+    tmp_path,
+):
+    _write_graph(tmp_path)
+    _write_query_context(tmp_path)
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"]["outcome_summaries"] = _artifact(
+        tmp_path,
+        "outcome_summaries.jsonl",
+        [],
+        status="insufficient",
+    )
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=RECONSTRUCTED_CASE_QUESTION,
+        model_factory=_Factory(_ScriptedModel([])),
+    )
+
+    assert outcome.status == "insufficient"
+    record = json.loads((tmp_path / "query_run.json").read_text(encoding="utf-8"))
+    assert record["retrieved_context_association_ids"]
+    assert {
+        item["association_id"]
+        for item in record["retrieved_context_associations"]
+    } == set(record["retrieved_context_association_ids"])
+    assert {
+        item["fact_id"] for item in record["retrieved_facts"]
+    } == set(record["retrieved_fact_ids"])
+    assert record["retrieved_outcome_summary_ids"] == []
+    assert record["retrieved_outcome_summaries"] == []
+
+
+def test_weather_context_never_changes_the_three_reason_states(tmp_path):
+    ground_stop = tmp_path / "ground-stop"
+    _write_graph(ground_stop)
+    _write_query_context(ground_stop)
+    _write_profile_gap(ground_stop)
+    ground_stop_factory = _Factory(_ScriptedModel([]))
+    ground_stop_outcome = answer_question_with_tools(
+        run_dir=ground_stop,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=ground_stop_factory,
+    )
+    assert ground_stop_outcome.status == "ok"
+    assert ground_stop_outcome.retrieved_profile_gap_ids == [
+        "profile-gap:reason"
+    ]
+    assert ground_stop_outcome.retrieved_fact_ids == []
+
+    gdp = tmp_path / "gdp"
+    _write_graph(gdp)
+    _write_query_context(gdp)
+    gdp_rows = [
+        json.loads(line)
+        for line in (gdp / "kg.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    gdp_rows.append(
+        {
+            "triple_id": "fact:reason",
+            "subject": EVENT_ID,
+            "predicate": "atm:impactingCondition",
+            "object": "weather",
+            "subject_class": "atm:GroundDelayProgramTMI",
+            "object_class": "",
+            "object_kind": "literal",
+            "source_document": SOURCE_ID,
+            "evidence_text": "IMPACTING CONDITION: WEATHER / THUNDERSTORMS",
+        }
+    )
+    _write_graph(gdp, gdp_rows)
+    gdp_factory = _Factory(_ScriptedModel([]))
+    gdp_outcome = answer_question_with_tools(
+        run_dir=gdp,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=gdp_factory,
+    )
+    assert gdp_outcome.status == "ok"
+    assert gdp_outcome.retrieved_fact_ids == ["fact:reason"]
+    assert "records weather" in gdp_outcome.answer
+
+    cancellation = tmp_path / "cancellation"
+    _write_graph(cancellation)
+    _write_query_context(cancellation)
+    cancellation_factory = _Factory(_ScriptedModel([]))
+    cancellation_outcome = answer_question_with_tools(
+        run_dir=cancellation,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=cancellation_factory,
+    )
+    assert cancellation_outcome.status == "insufficient"
+    assert cancellation_outcome.retrieved_fact_ids == []
+
+    assert ground_stop_factory.calls == 0
+    assert gdp_factory.calls == 0
+    assert cancellation_factory.calls == 0
 
 
 def test_ground_stop_reason_uses_profile_gap_without_model_call(tmp_path):

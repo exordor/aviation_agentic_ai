@@ -2,17 +2,27 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+from aviation_agentic_ai.agent_system.contracts import (
+    BTSOutcomeSummary,
+    SourceFamily,
+    SourceSnapshot,
+    WeatherContextAssociation,
+)
+from aviation_agentic_ai.agent_system.query_context_store import QueryContextStore
 from aviation_agentic_ai.agent_system.query_tools import (
     QueryGraphStore,
     QueryPredicate,
     QueryToolError,
     QueryToolGateway,
+    build_context_query_tools,
     build_query_tools,
     tool_registry,
 )
@@ -76,11 +86,212 @@ def _write_graph(run_dir: Path, rows: list[dict] | None = None) -> None:
     )
 
 
-def _gateway(run_dir: Path) -> QueryToolGateway:
+def _gateway(
+    run_dir: Path,
+    *,
+    with_context: bool = False,
+) -> QueryToolGateway:
+    store = QueryGraphStore(run_dir)
     return QueryToolGateway(
-        QueryGraphStore(run_dir),
+        store,
         allowed_predicates={predicate.value for predicate in QueryPredicate},
+        context_store=QueryContextStore(run_dir, graph_store=store)
+        if with_context
+        else None,
     )
+
+
+def _write_artifact(
+    run_dir: Path,
+    name: str,
+    rows: list[str],
+    *,
+    status: str = "ok",
+) -> dict[str, object]:
+    path = run_dir / name
+    data = "".join(row + "\n" for row in rows).encode("utf-8")
+    path.write_bytes(data)
+    return {
+        "path": name,
+        "count": len(rows),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "status": status,
+    }
+
+
+def _write_context_layer(run_dir: Path) -> tuple[str, list[str]]:
+    run_id = run_dir.name
+    taf_source_id = "weather-source:taf:KJFK:test"
+    bts_source_id = "bts_on_time:2026-05:nyc"
+    taf_content = json.dumps(
+        {
+            "icaoId": "KJFK",
+            "issueTime": "2026-05-19T20:00:00Z",
+            "rawTAF": "TAF KJFK TEST",
+            "validTimeFrom": "2026-05-19T20:00:00Z",
+            "validTimeTo": "2026-05-20T02:00:00Z",
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    bts_content = "{}\n"
+    snapshots = [
+        SourceSnapshot(
+            source_id=taf_source_id,
+            family=SourceFamily.TAF,
+            content=taf_content,
+            content_sha256=hashlib.sha256(taf_content.encode()).hexdigest(),
+            snapshot_timestamp="2026-05-19T20:00:00+00:00",
+        ),
+        SourceSnapshot(
+            source_id=bts_source_id,
+            family=SourceFamily.BTS_ON_TIME,
+            content=bts_content,
+            content_sha256=hashlib.sha256(bts_content.encode()).hexdigest(),
+            snapshot_timestamp="2026-05-19T20:00:00+00:00",
+        ),
+    ]
+    report_id = "weather-report:taf:KJFK:test"
+    association = WeatherContextAssociation(
+        association_id="weather-association:test",
+        run_id=run_id,
+        event_id=EVENT_ID,
+        report_id=report_id,
+        facility_id=FACILITY_ID,
+        relation_type="latest_forecast_known_at_issue",
+        selection_method="latest eligible TAF by issue time",
+        relevant_times={
+            "advisory_issued_at": "2026-05-19T20:30:00+00:00",
+            "forecast_issue_time": "2026-05-19T20:00:00+00:00",
+            "forecast_valid_from": "2026-05-19T20:00:00+00:00",
+            "forecast_valid_to": "2026-05-20T02:00:00+00:00",
+            "operational_start": "2026-05-19T21:00:00+00:00",
+            "operational_end": "2026-05-19T22:45:00+00:00",
+        },
+        source_id=taf_source_id,
+        source_snapshot_sha256=snapshots[0].content_sha256,
+        causal_claim=False,
+    )
+    start = datetime(2026, 5, 19, 21, tzinfo=UTC)
+    end = datetime(2026, 5, 19, 22, 45, tzinfo=UTC)
+    windows = {
+        "baseline": (start - timedelta(hours=2), start),
+        "active": (start, end),
+        "recovery": (end, end + timedelta(hours=6)),
+    }
+    counts = {
+        "baseline": (10, 9, 1, 0),
+        "active": (20, 18, 2, 0),
+        "recovery": (30, 28, 1, 1),
+    }
+    outcomes = []
+    for phase, (window_start, window_end) in windows.items():
+        scheduled, completed, cancelled, diverted = counts[phase]
+        outcomes.append(
+            BTSOutcomeSummary(
+                summary_id=f"bts-outcome:{phase}",
+                run_id=run_id,
+                event_id=EVENT_ID,
+                facility_id=FACILITY_ID,
+                phase=phase,
+                window_start=window_start,
+                window_end=window_end,
+                source_id=bts_source_id,
+                source_snapshot_sha256=snapshots[1].content_sha256,
+                scheduled_arrival_count_proxy=scheduled,
+                completed_arrival_count=completed,
+                cancelled_count=cancelled,
+                diverted_count=diverted,
+                arrival_delay_15_count=1,
+                mean_arrival_delay_minutes=None,
+                median_arrival_delay_minutes=None,
+                carrier_reported_weather_delay_minutes=None,
+                carrier_reported_nas_delay_minutes=5.0,
+                scheduled_arrival_semantics="public scheduled-demand proxy",
+                weather_delay_semantics="carrier-reported attribution",
+                nas_delay_semantics="carrier-reported attribution",
+                causal_claim=False,
+            )
+        )
+
+    graph_rows = _rows()
+    report_subject = f"urn:aviation-agentic-ai:{report_id}"
+    graph_rows.extend(
+        [
+            {
+                "triple_id": "weather:type",
+                "subject": report_subject,
+                "predicate": "rdf:type",
+                "object": (
+                    "https://data.nasa.gov/ontologies/atmonto/"
+                    "data#MeteorologicalReport"
+                ),
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "data:MeteorologicalReport",
+                "object_kind": "iri",
+                "source_document": taf_source_id,
+            },
+            {
+                "triple_id": "weather:facility",
+                "subject": report_subject,
+                "predicate": "data:forecastingAirport",
+                "object": FACILITY_ID,
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "nas:Airport",
+                "object_kind": "iri",
+                "source_document": taf_source_id,
+            },
+            {
+                "triple_id": "weather:raw",
+                "subject": report_subject,
+                "predicate": "data:tafReportString",
+                "object": "TAF KJFK TEST",
+                "subject_class": "data:MeteorologicalReport",
+                "object_class": "",
+                "object_kind": "literal",
+                "source_document": taf_source_id,
+            },
+        ]
+    )
+    _write_graph(run_dir, graph_rows)
+    metadata = {
+        "source_snapshots": _write_artifact(
+            run_dir,
+            "source_snapshots.jsonl",
+            [snapshot.model_dump_json() for snapshot in snapshots],
+        ),
+        "context_associations": _write_artifact(
+            run_dir,
+            "context_associations.jsonl",
+            [association.model_dump_json()],
+        ),
+        "outcome_summaries": _write_artifact(
+            run_dir,
+            "outcome_summaries.jsonl",
+            [outcome.model_dump_json() for outcome in outcomes],
+        ),
+    }
+    (run_dir / "run_manifest.json").write_text(
+        json.dumps({"run_id": run_id, "context_artifacts": metadata}),
+        encoding="utf-8",
+    )
+    return report_id, [outcome.summary_id for outcome in outcomes]
+
+
+def _replace_registered_artifact(
+    run_dir: Path,
+    key: str,
+    rows: list[dict[str, object]],
+) -> None:
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    filename = str(manifest["context_artifacts"][key]["path"])
+    manifest["context_artifacts"][key] = _write_artifact(
+        run_dir,
+        filename,
+        [json.dumps(row) for row in rows],
+    )
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
 
 def test_tool_registry_contains_only_read_only_query_tools(tmp_path):
@@ -98,6 +309,177 @@ def test_tool_registry_contains_only_read_only_query_tools(tmp_path):
         for name in registry
         for token in ("write", "create", "delete", "merge", "cypher", "sparql")
     )
+
+
+def test_context_tools_are_typed_read_only_and_not_model_visible(tmp_path):
+    _write_graph(tmp_path)
+    _write_context_layer(tmp_path)
+    gateway = _gateway(tmp_path, with_context=True)
+
+    model_registry = tool_registry(build_query_tools(gateway))
+    context_registry = tool_registry(build_context_query_tools(gateway))
+
+    assert set(model_registry) == {
+        "find_events",
+        "get_event_facts",
+        "get_neighbors",
+        "get_profile_gaps",
+        "get_provenance",
+    }
+    assert set(context_registry) == {
+        "get_decision_context",
+        "get_outcome_summary",
+    }
+    context = json.loads(
+        context_registry["get_decision_context"].invoke({"event_id": EVENT_ID})
+    )
+    outcomes = json.loads(
+        context_registry["get_outcome_summary"].invoke(
+            {"event_id": EVENT_ID}
+        )
+    )
+    assert context["context_association_ids"] == ["weather-association:test"]
+    assert context["fact_ids"] == [
+        "weather:facility",
+        "weather:raw",
+        "weather:type",
+    ]
+    assert outcomes["outcome_summary_ids"] == [
+        "bts-outcome:baseline",
+        "bts-outcome:active",
+        "bts-outcome:recovery",
+    ]
+    assert outcomes["items"][1]["mean_arrival_delay_minutes"] is None
+
+
+def test_context_artifact_checksum_corruption_fails_closed(tmp_path):
+    _write_graph(tmp_path)
+    _write_context_layer(tmp_path)
+    (tmp_path / "context_associations.jsonl").write_text(
+        "{}\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(QueryToolError, match="checksum"):
+        _gateway(tmp_path, with_context=True).get_decision_context(
+            event_id=EVENT_ID
+        )
+
+
+def test_optional_artifact_without_manifest_registration_fails_closed(tmp_path):
+    _write_graph(tmp_path)
+    _write_context_layer(tmp_path)
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"].pop("context_associations")
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(QueryToolError, match="without manifest registration"):
+        _gateway(tmp_path, with_context=True).get_decision_context(
+            event_id=EVENT_ID
+        )
+
+
+def test_optional_artifact_without_any_manifest_fails_closed(tmp_path):
+    _write_graph(tmp_path)
+    (tmp_path / "context_associations.jsonl").write_text("", encoding="utf-8")
+
+    with pytest.raises(QueryToolError, match="without manifest registration"):
+        _gateway(tmp_path, with_context=True).get_decision_context(
+            event_id=EVENT_ID
+        )
+
+
+@pytest.mark.parametrize("status", ["insufficient", "blocked"])
+def test_non_ok_context_manifest_status_cannot_hide_nonempty_rows(
+    tmp_path,
+    status,
+):
+    _write_graph(tmp_path)
+    _write_context_layer(tmp_path)
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"]["context_associations"]["status"] = status
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(QueryToolError, match=f"{status} decision context"):
+        _gateway(tmp_path, with_context=True).get_decision_context(
+            event_id=EVENT_ID
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("run_id", "another-run", "run binding mismatch"),
+        (
+            "facility_id",
+            "urn:aviation-agentic-ai:facility:airport:KEWR",
+            "facility binding mismatch",
+        ),
+        ("source_snapshot_sha256", "0" * 64, "source binding mismatch"),
+    ],
+)
+def test_context_cross_bindings_fail_closed(
+    tmp_path,
+    field,
+    value,
+    message,
+):
+    _write_graph(tmp_path)
+    _write_context_layer(tmp_path)
+    association = json.loads(
+        (tmp_path / "context_associations.jsonl").read_text(encoding="utf-8")
+    )
+    association[field] = value
+    _replace_registered_artifact(
+        tmp_path,
+        "context_associations",
+        [association],
+    )
+
+    with pytest.raises(QueryToolError, match=message):
+        _gateway(tmp_path, with_context=True).get_decision_context(
+            event_id=EVENT_ID
+        )
+
+
+def test_duplicate_outcome_phase_fails_closed(tmp_path):
+    _write_graph(tmp_path)
+    _write_context_layer(tmp_path)
+    rows = [
+        json.loads(line)
+        for line in (tmp_path / "outcome_summaries.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    rows[1]["phase"] = rows[0]["phase"]
+    _replace_registered_artifact(tmp_path, "outcome_summaries", rows)
+
+    with pytest.raises(QueryToolError, match="duplicate outcome phase"):
+        _gateway(tmp_path, with_context=True).get_outcome_summary(
+            event_id=EVENT_ID,
+        )
+
+
+def test_legacy_run_without_optional_context_keeps_core_queries_available(tmp_path):
+    _write_graph(tmp_path)
+    store = QueryGraphStore(tmp_path)
+    gateway = QueryToolGateway(
+        store,
+        allowed_predicates={QueryPredicate.EVENT_TYPE.value},
+        context_store=QueryContextStore(tmp_path, graph_store=store),
+    )
+
+    core = gateway.get_event_facts(
+        event_id=EVENT_ID,
+        predicates=[QueryPredicate.EVENT_TYPE],
+    )
+    context = gateway.get_decision_context(event_id=EVENT_ID)
+
+    assert core.fact_ids == ["fact:type"]
+    assert context.status == "insufficient"
+    assert context.context_association_ids == []
 
 
 def test_get_event_facts_returns_registered_facts_and_sources(tmp_path):

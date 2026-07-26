@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 from langchain_core.messages import AIMessage
 
@@ -17,6 +18,10 @@ from aviation_agentic_ai.agent_system.contracts import (
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     DECLARED_REASON_QUESTION,
+    FORECAST_CONTEXT_QUESTION,
+    OBSERVED_WEATHER_CONTEXT_QUESTION,
+    PUBLIC_OUTCOME_QUESTION,
+    RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
 )
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
@@ -187,6 +192,46 @@ def test_missing_reason_question_needs_no_live_authorization(
             DECLARED_REASON_QUESTION,
         ],
     )
+    assert result.exit_code == 0
+    assert "status: insufficient" in result.output
+    assert "model_calls: 0" in result.output
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        FORECAST_CONTEXT_QUESTION,
+        OBSERVED_WEATHER_CONTEXT_QUESTION,
+        PUBLIC_OUTCOME_QUESTION,
+        RECONSTRUCTED_CASE_QUESTION,
+    ],
+)
+def test_context_questions_need_no_live_authorization(
+    tmp_path,
+    monkeypatch,
+    question,
+):
+    _write_graph(tmp_path)
+
+    def forbidden_factory(*args, **kwargs):
+        raise AssertionError("deterministic context question constructed a live model")
+
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        forbidden_factory,
+    )
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--run-dir",
+            str(tmp_path),
+            "--question",
+            question,
+        ],
+    )
+
     assert result.exit_code == 0
     assert "status: insufficient" in result.output
     assert "model_calls: 0" in result.output

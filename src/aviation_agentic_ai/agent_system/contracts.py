@@ -216,6 +216,8 @@ class QueryToolTrace(StrictModel):
     tool: str = Field(min_length=1)
     arguments: dict[str, Any] = Field(default_factory=dict)
     result_refs: list[str] = Field(default_factory=list)
+    context_association_ids: list[str] = Field(default_factory=list)
+    outcome_summary_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
     status: Literal["ok", "blocked"]
     duration_ms: float = Field(default=0.0, ge=0.0)
@@ -230,6 +232,8 @@ class QueryToolOutcome(StrictModel):
     source_ids: list[str] = Field(default_factory=list)
     retrieved_fact_ids: list[str] = Field(default_factory=list)
     retrieved_profile_gap_ids: list[str] = Field(default_factory=list)
+    retrieved_context_association_ids: list[str] = Field(default_factory=list)
+    retrieved_outcome_summary_ids: list[str] = Field(default_factory=list)
     model_calls: list[ModelCallRecord] = Field(default_factory=list)
     tool_calls: list[QueryToolTrace] = Field(default_factory=list)
     failure_reason: str = ""
