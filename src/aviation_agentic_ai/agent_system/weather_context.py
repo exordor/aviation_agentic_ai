@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -33,6 +34,7 @@ TAF_STRING = "https://data.nasa.gov/ontologies/atmonto/data#tafReportString"
 INTERVAL_START = "https://data.nasa.gov/ontologies/atmonto/data#dataIntervalStartTime"
 INTERVAL_END = "https://data.nasa.gov/ontologies/atmonto/data#dataIntervalEndTime"
 FORECAST_ISSUE_TIME = "https://data.nasa.gov/ontologies/atmonto/data#forecastIssueTime"
+ICAO_AIRPORT_CODE = re.compile(r"[A-Z]{4}\Z")
 
 
 @dataclass(frozen=True)
@@ -54,7 +56,10 @@ def _slice_checksum() -> str:
 
 def _as_datetime(value: object) -> datetime:
     if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return datetime.fromtimestamp(value, tz=UTC)
+        try:
+            return datetime.fromtimestamp(value, tz=UTC)
+        except (OverflowError, OSError, ValueError) as exc:
+            raise ValueError("epoch timestamp is out of supported range") from exc
     if isinstance(value, str):
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
         if parsed.tzinfo is None:
@@ -100,9 +105,8 @@ def _parse_report(snapshot: SourceSnapshot) -> _WeatherReport:
 
     family = SourceFamily(snapshot.family)
     station = row.get("icaoId")
-    if not isinstance(station, str) or not station.strip():
-        raise ValueError(f"weather source has no ICAO station: {snapshot.source_id}")
-    station = station.upper()
+    if not isinstance(station, str) or not ICAO_AIRPORT_CODE.fullmatch(station):
+        raise ValueError(f"weather source has invalid ICAO station: {snapshot.source_id}")
     if family == SourceFamily.METAR:
         if "issueTime" in row or "validTimeFrom" in row or "validTimeTo" in row:
             raise ValueError(f"weather source family does not match METAR row: {snapshot.source_id}")
@@ -147,10 +151,20 @@ def _parse_report(snapshot: SourceSnapshot) -> _WeatherReport:
 def _canonical_airport_code(facility: CanonicalEntity) -> str:
     if facility.entity_type != EntityType.AIRPORT:
         raise ValueError("canonical facility is not an airport")
-    icao_codes = [code.value.upper() for code in facility.codes if code.scheme.upper() == "ICAO"]
-    if len(icao_codes) != 1 or len(icao_codes[0]) != 4:
+    icao_codes = [code.value for code in facility.codes if code.scheme.upper() == "ICAO"]
+    if len(icao_codes) != 1 or not ICAO_AIRPORT_CODE.fullmatch(icao_codes[0]):
         raise ValueError("canonical facility must have exactly one ICAO airport code")
     return icao_codes[0]
+
+
+def _require_timezone_aware_event_clock(event: DecisionContextEvent) -> None:
+    clocks = (
+        event.advisory_issued_at,
+        event.operational_start,
+        event.operational_end,
+    )
+    if any(clock.tzinfo is None or clock.utcoffset() is None for clock in clocks):
+        raise ValueError("decision context clocks must be timezone-aware")
 
 
 def _deduplicate_reports(reports: list[_WeatherReport]) -> list[_WeatherReport]:
@@ -257,6 +271,7 @@ def build_weather_context(
     """Select source-pinned METAR/TAF context without asserting causality."""
 
     try:
+        _require_timezone_aware_event_clock(event)
         airport_code = _canonical_airport_code(canonical_facility)
         weather_snapshots = [
             snapshot
@@ -264,7 +279,7 @@ def build_weather_context(
             if snapshot.family in {SourceFamily.METAR, SourceFamily.TAF}
         ]
         reports = [_parse_report(snapshot) for snapshot in weather_snapshots]
-    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+    except (OverflowError, OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
         return WeatherContextBundle(status="blocked", failure_reason=str(exc))
 
     try:

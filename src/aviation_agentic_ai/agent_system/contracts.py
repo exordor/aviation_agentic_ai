@@ -372,6 +372,13 @@ class DecisionContextEvent(StrictModel):
 
     @model_validator(mode="after")
     def _require_nonempty_operational_period(self) -> "DecisionContextEvent":
+        clocks = (
+            self.advisory_issued_at,
+            self.operational_start,
+            self.operational_end,
+        )
+        if any(clock.tzinfo is None or clock.utcoffset() is None for clock in clocks):
+            raise ValueError("decision context clocks must be timezone-aware")
         if self.operational_end <= self.operational_start:
             raise ValueError("operational end must be after operational start")
         return self

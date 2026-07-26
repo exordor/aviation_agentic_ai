@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from aviation_agentic_ai.agent_system.contracts import (
     SourceFamily,
@@ -291,3 +292,86 @@ def test_weather_slice_is_closed_to_the_approved_nasa_atmonto_terms():
         "data:dataIntervalEndTime",
         "data:forecastIssueTime",
     }
+
+
+@pytest.mark.parametrize(
+    "clock_name",
+    ["advisory_issued_at", "operational_start", "operational_end"],
+)
+def test_decision_context_event_rejects_timezone_naive_clocks(clock_name):
+    clocks = {
+        "advisory_issued_at": ISSUED_AT,
+        "operational_start": OPERATIONAL_START,
+        "operational_end": OPERATIONAL_END,
+    }
+    clocks[clock_name] = clocks[clock_name].replace(tzinfo=None)
+
+    with pytest.raises(ValidationError, match="timezone-aware"):
+        DecisionContextEvent(
+            run_id="run:naive-clock",
+            event_id="urn:test:event:naive-clock",
+            advisory_source_id="advisory:naive-clock",
+            **clocks,
+        )
+
+
+def test_adapter_blocks_a_bypassed_timezone_naive_event_without_leaking_type_error():
+    bypassed_event = DecisionContextEvent.model_construct(
+        run_id="run:bypassed-naive-clock",
+        event_id="urn:test:event:bypassed-naive-clock",
+        advisory_source_id="advisory:bypassed-naive-clock",
+        advisory_issued_at=ISSUED_AT.replace(tzinfo=None),
+        operational_start=OPERATIONAL_START,
+        operational_end=OPERATIONAL_END,
+    )
+
+    bundle = build_weather_context(
+        bypassed_event,
+        _facility(),
+        _registry(_metar("metar:bypassed-naive-clock", observed=ISSUED_AT)),
+    )
+
+    assert bundle.status == "blocked"
+    assert bundle.failure_reason == "decision context clocks must be timezone-aware"
+
+
+def test_extreme_epoch_returns_blocked_instead_of_leaking_a_platform_exception():
+    extreme = _snapshot(
+        "taf:extreme-epoch",
+        SourceFamily.TAF,
+        {
+            "icaoId": "KJFK",
+            "issueTime": ISSUED_AT.isoformat(),
+            "rawTAF": "TAF KJFK EXTREME",
+            "validTimeFrom": 10**1000,
+            "validTimeTo": 10**1000 + 1,
+        },
+    )
+
+    bundle = build_weather_context(_event(), _facility(), _registry(extreme))
+
+    assert bundle.status == "blocked"
+    assert "timestamp" in bundle.failure_reason
+
+
+@pytest.mark.parametrize(
+    ("facility", "report", "reason"),
+    [
+        (
+            _facility(codes=[CodeValue(scheme="ICAO", value="KJF1")]),
+            _metar("metar:facility-code", observed=ISSUED_AT, station="KJF1"),
+            "canonical facility must have exactly one ICAO airport code",
+        ),
+        (
+            _facility(),
+            _metar("metar:station-code", observed=ISSUED_AT, station="KJF1"),
+            "weather source has invalid ICAO station",
+        ),
+    ],
+)
+def test_blocks_nonalphabetic_icao_codes_before_emitting_airport_facts(facility, report, reason):
+    bundle = build_weather_context(_event(), facility, _registry(report))
+
+    assert bundle.status == "blocked"
+    assert bundle.failure_reason.startswith(reason)
+    assert bundle.formal_facts == []

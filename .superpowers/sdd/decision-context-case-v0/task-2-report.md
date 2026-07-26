@@ -16,6 +16,13 @@
 - It validates source checksums and family/row agreement, blocks malformed or
   conflicting in-scope data, and returns `insufficient` when no report is
   eligible.
+- Decision clocks must be timezone-aware at contract validation. The adapter
+  independently blocks a bypassed invalid clock, so it never compares naive
+  and aware datetimes or consults a host-local timezone. Extreme epoch values
+  are also normalized to a blocked result.
+- Both canonical-facility and source-report ICAO values must match the strict
+  four-character uppercase alphabetic airport-code pattern before any
+  `nas:Airport`-typed fact can be returned.
 - It returns source-bound `ValidatedFact` weather-report provenance only. It
   emits no event-to-weather fact, no `data:hasMeteorologicalReport` inverse,
   no graph write, no Agent/model call, and no causal claim. Every association
@@ -28,7 +35,7 @@
 uv run pytest -q tests/test_agent_system_weather_context.py \
   tests/test_agent_system_multisource_contracts.py \
   tests/test_agent_system_graph_kernel.py
-62 passed, 5 external deprecation warnings
+69 passed, 5 external deprecation warnings
 
 uv run ruff check .
 All checks passed
