@@ -47,11 +47,18 @@ from aviation_agentic_ai.agent_system.formal_graph import (
     build_evidence_index,
     validate_graph_patch,
     write_fact_trace,
+    write_profile_gaps,
 )
 from aviation_agentic_ai.agent_system.graph_patch import parse_graph_patch_block
+from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
-from aviation_agentic_ai.agent_system.sources import build_source_snapshot, write_source_snapshot
+from aviation_agentic_ai.agent_system.sources import (
+    build_source_snapshot,
+    load_advisory_source,
+    write_source_snapshot,
+)
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
+from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 # ---------------------------------------------------------------------------
@@ -159,7 +166,10 @@ def test_extension_probability_and_impacting_condition_normalized(mentions):
     """Plan §2: extension_probability=MEDIUM, impacting_condition=weather."""
 
     assert mentions.extension_probability == "MEDIUM"
-    assert mentions.impacting_condition == "WEATHER"
+    assert mentions.impacting_condition == "weather"
+    assert mentions.evidence_spans["impacting_condition"] == (
+        "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+    )
 
 
 def test_source_snapshot_records_content_and_sha256(advisory_record, tmp_path):
@@ -177,6 +187,39 @@ def test_source_snapshot_records_content_and_sha256(advisory_record, tmp_path):
     import hashlib
 
     assert payload["content_sha256"] == hashlib.sha256(ADVISORY_CONTENT.encode("utf-8")).hexdigest()
+
+
+def test_run_manifest_registers_profile_gap_artifact(tmp_path):
+    path = write_run_manifest(
+        run_dir=tmp_path,
+        source_id=SOURCE_ID,
+        model_calls=[],
+        materialization=None,
+        schema_slice_id="slice:test",
+        schema_checksum="checksum:test",
+        evidence_cards=[],
+        graph_patch_raw=None,
+        prompt_set_id="prompt:test",
+        profile_gap_count=1,
+    )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["profile_gaps"] == {
+        "path": "profile_gaps.jsonl",
+        "count": 1,
+    }
+
+
+def test_empty_profile_gap_artifact_is_still_written(snapshot, tmp_path):
+    from aviation_agentic_ai.agent_system.contracts import GraphValidationResult
+
+    path = write_profile_gaps(
+        result=GraphValidationResult(publishable=True),
+        event_id="urn:aviation-agentic-ai:event:empty-gap-test",
+        source_snapshot=snapshot,
+        output_dir=tmp_path,
+    )
+    assert path.exists()
+    assert path.read_text(encoding="utf-8") == ""
 
 
 # ---------------------------------------------------------------------------
@@ -991,3 +1034,212 @@ def test_unanchored_period_abstains_without_guessing():
     assert _anchor_period_value("20/2100Z", 2026, 5, 19) is None
     # Day 19 agrees -> full UTC.
     assert _anchor_period_value("19/2100Z", 2026, 5, 19) == "2026-05-19T21:00:00Z"
+
+
+def test_approved_real_records_have_bounded_period_and_reason_semantics():
+    config = load_yaml("configs/cross_source_v1.yaml")
+    expected = {
+        "2026-05-19:123": (
+            "GS",
+            "JFK",
+            "2026-05-19T21:00:00Z",
+            "2026-05-19T22:45:00Z",
+            "weather",
+        ),
+        "2026-05-19:138": (
+            "GDP",
+            "JFK",
+            "2026-05-19T22:05:00Z",
+            "2026-05-20T02:59:00Z",
+            "weather",
+        ),
+        "2026-05-20:020": (
+            "GDP",
+            "EWR",
+            "2026-05-20T01:24:00Z",
+            "2026-05-20T05:46:00Z",
+            None,
+        ),
+    }
+    for source_id, values in expected.items():
+        record = load_advisory_source(config, source_id)
+        parsed = parse_structured_fields(record.content)
+        assert (
+            parsed.event_type,
+            parsed.controlled_facility,
+            parsed.effective_start,
+            parsed.effective_end,
+            parsed.impacting_condition,
+        ) == values
+        if parsed.impacting_condition:
+            assert parsed.evidence_spans["impacting_condition"] == (
+                "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+            )
+
+
+def test_period_anchor_allows_only_immediate_calendar_rollover():
+    from aviation_agentic_ai.agent_system.agents import _anchor_period_value
+
+    assert _anchor_period_value(
+        "01/0030Z",
+        2026,
+        12,
+        31,
+        allow_next_day=True,
+    ) == "2027-01-01T00:30:00Z"
+    assert (
+        _anchor_period_value(
+            "02/0030Z",
+            2026,
+            12,
+            31,
+            allow_next_day=True,
+        )
+        is None
+    )
+
+
+def test_validated_profile_gap_is_persisted_as_a_source_bound_audit_row(
+    guide,
+    event_uri,
+    snapshot,
+    advisory_record,
+    facility_entity,
+    mentions,
+    tmp_path,
+):
+    block = parse_graph_patch_block(
+        "GRAPH_PATCH\n"
+        f"{event_uri} | rdf:type | {EVENT_CLASS} | {SOURCE_ID}\n"
+        f"{event_uri} | atm:controlledNASelement | {FACILITY_ID} | {SOURCE_ID}\n"
+        f"{event_uri} | atm:extensionProbability | MEDIUM | {SOURCE_ID}\n"
+        "\nPROFILE_GAPS\n"
+        "impacting_condition | weather | "
+        "IMPACTING CONDITION: WEATHER / THUNDERSTORMS | "
+        "atm:impactingCondition domain is GDP-only in the active slice\n"
+    )
+    result = validate_graph_patch(
+        block=block,
+        event_iri=event_uri,
+        event_class=EVENT_CLASS,
+        schema_guide=guide,
+        canonical_entities={FACILITY_ID: "nas:Airport"},
+        known_source_ids={SOURCE_ID},
+        evidence_cards=_evidence_cards_for_fixed_case(
+            advisory_record,
+            facility_entity,
+            mentions,
+        ),
+        source_snapshot=snapshot,
+    )
+    path = write_profile_gaps(
+        result=result,
+        event_id=event_uri,
+        source_snapshot=snapshot,
+        output_dir=tmp_path,
+    )
+    rows = [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+    ]
+    assert len(rows) == 1
+    assert rows[0]["event_id"] == event_uri
+    assert rows[0]["source_id"] == SOURCE_ID
+    assert rows[0]["value"] == "weather"
+    assert rows[0]["source_snapshot_sha256"] == snapshot.content_sha256
+    assert rows[0]["profile_gap_id"]
+
+
+def test_gdp_reason_is_a_formal_lowercase_fact_with_exact_evidence(guide):
+    source_id = "2026-05-19:138"
+    event_class = "atm:GroundDelayProgramTMI"
+    config = load_yaml("configs/cross_source_v1.yaml")
+    advisory = load_advisory_source(config, source_id)
+    parsed = parse_structured_fields(advisory.content)
+    snapshot = build_source_snapshot(advisory)
+    event_id = stable_id("evt", source_id, event_class)
+    advisory_claims = [
+        EvidenceClaim(
+            field_name=field,
+            value=getattr(parsed, field),
+            evidence_text=parsed.evidence_spans[field],
+            source_id=source_id,
+        )
+        for field in (
+            "advisory_number",
+            "effective_start",
+            "effective_end",
+            "impacting_condition",
+        )
+    ]
+    cards = [
+        EvidenceCard(
+            agent_role="advisory",
+            status=AgentStatus.RESOLVED,
+            claims=advisory_claims,
+            source_ids=[source_id],
+        ),
+        EvidenceCard(
+            agent_role="facility",
+            status=AgentStatus.RESOLVED,
+            claims=[
+                EvidenceClaim(
+                    field_name="controlled_facility",
+                    value=FACILITY_ID,
+                    ontology_target="nas:Airport",
+                    evidence_text=parsed.evidence_spans["controlled_facility"],
+                    source_id=source_id,
+                    canonical_ref=FACILITY_ID,
+                )
+            ],
+            canonical_refs=[FACILITY_ID],
+            source_ids=[source_id],
+        ),
+        EvidenceCard(
+            agent_role="terminology",
+            status=AgentStatus.RESOLVED,
+            claims=[
+                EvidenceClaim(
+                    field_name="operational_term",
+                    value="urn:aviation-agentic-ai:term:gdp",
+                    ontology_target=event_class,
+                    evidence_text=parsed.evidence_spans["operational_term"],
+                    source_id=source_id,
+                    canonical_ref="urn:aviation-agentic-ai:term:gdp",
+                )
+            ],
+            canonical_refs=["urn:aviation-agentic-ai:term:gdp"],
+            source_ids=[source_id],
+        ),
+    ]
+    block = parse_graph_patch_block(
+        "GRAPH_PATCH\n"
+        f"{event_id} | rdf:type | {event_class} | {source_id}\n"
+        f"{event_id} | atm:controlledNASelement | {FACILITY_ID} | {source_id}\n"
+        f"{event_id} | atm:advisoryNumber | 138 | {source_id}\n"
+        f"{event_id} | atm:effectiveStartTime | "
+        f"2026-05-19T22:05:00Z | {source_id}\n"
+        f"{event_id} | atm:effectiveEndTime | "
+        f"2026-05-20T02:59:00Z | {source_id}\n"
+        f"{event_id} | atm:impactingCondition | weather | {source_id}\n"
+    )
+    result = validate_graph_patch(
+        block=block,
+        event_iri=event_id,
+        event_class=event_class,
+        schema_guide=guide,
+        canonical_entities={FACILITY_ID: "nas:Airport"},
+        known_source_ids={source_id},
+        evidence_cards=cards,
+        source_snapshot=snapshot,
+    )
+    assert result.publishable
+    reason = next(
+        fact
+        for fact in result.accepted
+        if fact.predicate_iri.endswith("impactingCondition")
+    )
+    assert reason.object_value == "weather"
+    assert reason.evidence_texts == [
+        "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+    ]

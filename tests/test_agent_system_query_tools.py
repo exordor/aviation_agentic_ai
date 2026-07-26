@@ -90,6 +90,7 @@ def test_tool_registry_contains_only_read_only_query_tools(tmp_path):
         "find_events",
         "get_event_facts",
         "get_neighbors",
+        "get_profile_gaps",
         "get_provenance",
     }
     assert not any(

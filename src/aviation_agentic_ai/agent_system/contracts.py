@@ -222,6 +222,7 @@ class QueryToolOutcome(StrictModel):
     answer: str = ""
     source_ids: list[str] = Field(default_factory=list)
     retrieved_fact_ids: list[str] = Field(default_factory=list)
+    retrieved_profile_gap_ids: list[str] = Field(default_factory=list)
     model_calls: list[ModelCallRecord] = Field(default_factory=list)
     tool_calls: list[QueryToolTrace] = Field(default_factory=list)
     failure_reason: str = ""
@@ -302,6 +303,19 @@ class FactTraceRow(StrictModel):
     source_id: str = Field(min_length=1)
     evidence_text: str
     evidence_agent_role: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(min_length=1)
+
+
+class PersistedProfileGap(StrictModel):
+    """One validated source-bound row in ``profile_gaps.jsonl``."""
+
+    profile_gap_id: str = Field(min_length=1)
+    event_id: str = Field(min_length=1)
+    field: str = Field(min_length=1)
+    value: str = Field(min_length=1)
+    evidence_text: str = Field(min_length=1)
+    reason: str = Field(min_length=1)
+    source_id: str = Field(min_length=1)
     source_snapshot_sha256: str = Field(min_length=1)
 
 

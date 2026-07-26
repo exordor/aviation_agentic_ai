@@ -11,8 +11,13 @@ from langchain_core.messages import AIMessage, ToolMessage
 from aviation_agentic_ai.agent_system.contracts import (
     ModelCallRecord,
     ModelToolCall,
+    PersistedProfileGap,
+    SourceSnapshot,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
+    DECLARED_REASON_QUESTION,
+    OPERATIONAL_PERIOD_QUESTION,
+    PROVENANCE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
     answer_question_with_tools,
 )
@@ -75,6 +80,45 @@ def _write_graph(run_dir: Path, rows: list[dict[str, Any]] | None = None) -> Non
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "kg.jsonl").write_text(
         "\n".join(json.dumps(row) for row in (rows or _graph_rows())) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _write_profile_gap(
+    run_dir: Path,
+    *,
+    event_id: str = EVENT_ID,
+    source_id: str = SOURCE_ID,
+    profile_gap_id: str = "profile-gap:reason",
+) -> None:
+    evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+    content = f"{evidence}\n"
+    import hashlib
+
+    checksum = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    snapshot = SourceSnapshot(
+        source_id=source_id,
+        family="atcscc_advisory",
+        content=content,
+        content_sha256=checksum,
+        snapshot_timestamp="2026-05-19T21:00:00+00:00",
+    )
+    (run_dir / "source_snapshot.json").write_text(
+        snapshot.model_dump_json(),
+        encoding="utf-8",
+    )
+    gap = PersistedProfileGap(
+        profile_gap_id=profile_gap_id,
+        event_id=event_id,
+        field="impacting_condition",
+        value="weather",
+        evidence_text=evidence,
+        reason="atm:impactingCondition domain is GDP-only in the active slice",
+        source_id=source_id,
+        source_snapshot_sha256=checksum,
+    )
+    (run_dir / "profile_gaps.jsonl").write_text(
+        gap.model_dump_json() + "\n",
         encoding="utf-8",
     )
 
@@ -208,12 +252,185 @@ def test_supported_question_runs_model_tool_model_and_cites_source(tmp_path):
         "find_events",
         "get_event_facts",
         "get_neighbors",
+        "get_profile_gaps",
         "get_provenance",
     }
     assert [phase for phase, _messages in model.invocations] == [
         "select_tool",
         "final_answer",
     ]
+
+
+def test_ground_stop_reason_uses_profile_gap_without_model_call(tmp_path):
+    _write_graph(tmp_path)
+    _write_profile_gap(tmp_path)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert "IMPACTING CONDITION: WEATHER / THUNDERSTORMS" in outcome.answer
+    assert "outside the active formal profile" in outcome.answer
+    assert outcome.retrieved_fact_ids == []
+    assert outcome.retrieved_profile_gap_ids == ["profile-gap:reason"]
+    assert outcome.source_ids == [SOURCE_ID]
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+    assert [trace.tool for trace in outcome.tool_calls] == [
+        "get_event_facts",
+        "get_profile_gaps",
+    ]
+
+
+def test_gdp_reason_uses_formal_fact_and_exact_source_wording(tmp_path):
+    rows = _graph_rows()
+    rows.append(
+        {
+            "triple_id": "fact:reason",
+            "subject": EVENT_ID,
+            "predicate": "atm:impactingCondition",
+            "object": "weather",
+            "subject_class": "atm:GroundDelayProgramTMI",
+            "object_class": "",
+            "object_kind": "literal",
+            "source_document": "2026-05-19:138",
+            "evidence_text": (
+                "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+            ),
+        }
+    )
+    for row in rows:
+        row["source_document"] = "2026-05-19:138"
+    _write_graph(tmp_path, rows)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert "records weather as its impacting condition" in outcome.answer
+    assert (
+        "IMPACTING CONDITION: WEATHER / THUNDERSTORMS" in outcome.answer
+    )
+    assert outcome.retrieved_fact_ids == ["fact:reason"]
+    assert outcome.retrieved_profile_gap_ids == []
+    assert outcome.source_ids == ["2026-05-19:138"]
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+
+
+def test_missing_reason_is_insufficient_before_model_construction(tmp_path):
+    rows = _graph_rows()
+    for row in rows:
+        row["source_document"] = "2026-05-20:020"
+    _write_graph(tmp_path, rows)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "insufficient"
+    assert outcome.answer == "Insufficient graph evidence."
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+
+
+def test_operational_period_question_uses_only_time_predicates(tmp_path):
+    _write_graph(tmp_path)
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=OPERATIONAL_PERIOD_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert (
+        "2026-05-19T21:00:00Z to 2026-05-19T22:45:00Z"
+        in outcome.answer
+    )
+    assert set(outcome.retrieved_fact_ids) == {"fact:start", "fact:end"}
+    assert outcome.model_calls == []
+    assert factory.calls == 0
+
+
+def test_provenance_question_requires_advisory_number(tmp_path):
+    rows = _graph_rows()
+    rows.append(
+        {
+            "triple_id": "fact:advisory",
+            "subject": EVENT_ID,
+            "predicate": "atm:advisoryNumber",
+            "object": "123",
+            "subject_class": "atm:GroundStopTMI",
+            "object_class": "",
+            "object_kind": "literal",
+            "source_document": SOURCE_ID,
+            "evidence_text": "ADVZY 123",
+        }
+    )
+    _write_graph(tmp_path, rows)
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=PROVENANCE_QUESTION,
+        model_factory=_Factory(_ScriptedModel([])),
+    )
+
+    assert outcome.status == "ok"
+    assert outcome.answer == f"Source {SOURCE_ID} supports advisory 123."
+    assert outcome.retrieved_fact_ids == ["fact:advisory"]
+
+
+def test_malformed_or_duplicate_profile_gap_artifact_blocks_before_model(tmp_path):
+    _write_graph(tmp_path)
+    _write_profile_gap(tmp_path)
+    path = tmp_path / "profile_gaps.jsonl"
+    path.write_text(
+        path.read_text(encoding="utf-8") * 2,
+        encoding="utf-8",
+    )
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "blocked"
+    assert "duplicate profile-gap ID" in outcome.failure_reason
+    assert factory.calls == 0
+
+
+def test_profile_gap_cannot_reference_another_event(tmp_path):
+    _write_graph(tmp_path)
+    _write_profile_gap(
+        tmp_path,
+        event_id="urn:aviation-agentic-ai:event:other",
+    )
+    factory = _Factory(_ScriptedModel([]))
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=DECLARED_REASON_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "blocked"
+    assert "unregistered event" in outcome.failure_reason
+    assert factory.calls == 0
 
 
 def test_second_model_turn_contains_matching_tool_message(tmp_path):

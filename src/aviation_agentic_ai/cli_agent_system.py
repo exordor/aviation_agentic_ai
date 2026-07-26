@@ -27,7 +27,7 @@ from aviation_agentic_ai.agent_system.materialize import (
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, get_prompt_catalog
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     answer_question_with_tools,
-    is_registered_competency_question,
+    question_requires_model,
 )
 from aviation_agentic_ai.agent_system.runtime import (
     MAX_PROVIDER_CALLS,
@@ -106,6 +106,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
             f"provider calls exceeded hard maximum {MAX_PROVIDER_CALLS}"
         )
     materialization = state.get("materialization")
+    validation = state.get("validation")
     kg_result = state.get("kg_result")
     graph_patch_raw = kg_result.graph_patch.raw if kg_result and kg_result.graph_patch else None
     evidence_cards = [
@@ -128,6 +129,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         evidence_cards=evidence_cards,
         graph_patch_raw=graph_patch_raw,
         prompt_set_id=catalog.prompt_set_id,
+        profile_gap_count=len(validation.profile_gaps) if validation else 0,
         catalog_path=DEFAULT_PROMPT_CATALOG,
     )
     click.echo(f"run_dir: {run_dir}")
@@ -222,8 +224,7 @@ def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
 
     if not (run_dir / "kg.jsonl").exists():
         raise click.ClickException(f"no materialized KG at {run_dir / 'kg.jsonl'}")
-    supported = is_registered_competency_question(question)
-    if supported and not allow_live_model:
+    if question_requires_model(question) and not allow_live_model:
         raise click.ClickException("ask requires --allow-live-model to run the Query Agent.")
     outcome = answer_question_with_tools(
         run_dir=run_dir,

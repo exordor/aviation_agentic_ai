@@ -46,6 +46,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.formal_graph import (
     validate_graph_patch,
     write_fact_trace,
+    write_profile_gaps,
 )
 from aviation_agentic_ai.agent_system.materialize import (
     materialize_validated_facts,
@@ -372,6 +373,12 @@ def _materialize_node(state: dict) -> dict:
         result=validation,
         block=kg_result.graph_patch,
         evidence_cards=evidence_cards,
+        source_snapshot=snapshot,
+        output_dir=ctx.output_dir,
+    )
+    write_profile_gaps(
+        result=validation,
+        event_id=event_uri,
         source_snapshot=snapshot,
         output_dir=ctx.output_dir,
     )

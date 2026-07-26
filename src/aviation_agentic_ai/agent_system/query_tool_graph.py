@@ -7,6 +7,7 @@ import operator
 import re
 import time
 from collections.abc import Callable
+from enum import Enum
 from pathlib import Path
 from typing import Annotated, Any, TypedDict
 
@@ -52,6 +53,22 @@ REGISTERED_COMPETENCY_QUESTION = (
     "What traffic management measure, controlled airport, and effective time "
     "are recorded in this advisory?"
 )
+MEASURE_QUESTION = "What traffic management measure was published?"
+CONTROLLED_FACILITY_QUESTION = "Which airport was controlled?"
+OPERATIONAL_PERIOD_QUESTION = "When did the measure apply?"
+DECLARED_REASON_QUESTION = "What reason did the advisory state?"
+PROVENANCE_QUESTION = "Which source supports this decision record?"
+
+
+class QueryIntent(str, Enum):
+    COMBINED_RECORD = "combined_record"
+    MEASURE = "measure"
+    CONTROLLED_FACILITY = "controlled_facility"
+    OPERATIONAL_PERIOD = "operational_period"
+    DECLARED_REASON = "declared_reason"
+    PROVENANCE = "provenance"
+
+
 MAX_MODEL_CALLS = 2
 MAX_TOOL_CALLS = 3
 MAX_CALLS_PER_TOOL = 1
@@ -88,14 +105,57 @@ def _normalize_question(question: str) -> str:
     return " ".join(re.findall(r"[a-z0-9]+", question.lower()))
 
 
-def is_registered_competency_question(question: str) -> bool:
-    """Return whether this first tool-use MVE explicitly supports the question."""
+def classify_registered_question(question: str) -> QueryIntent | None:
+    """Map a bounded English question to one registered record intent."""
 
     if not question.isascii():
-        return False
-    return _normalize_question(question) == _normalize_question(
-        REGISTERED_COMPETENCY_QUESTION
-    )
+        return None
+    normalized = _normalize_question(question)
+    exact = {
+        _normalize_question(REGISTERED_COMPETENCY_QUESTION): QueryIntent.COMBINED_RECORD,
+        _normalize_question(MEASURE_QUESTION): QueryIntent.MEASURE,
+        _normalize_question(CONTROLLED_FACILITY_QUESTION): QueryIntent.CONTROLLED_FACILITY,
+        _normalize_question(OPERATIONAL_PERIOD_QUESTION): QueryIntent.OPERATIONAL_PERIOD,
+        _normalize_question(DECLARED_REASON_QUESTION): QueryIntent.DECLARED_REASON,
+        _normalize_question(PROVENANCE_QUESTION): QueryIntent.PROVENANCE,
+    }
+    if normalized in exact:
+        return exact[normalized]
+    words = set(normalized.split())
+    matches: list[QueryIntent] = []
+    if words.intersection({"measure", "tmi"}) and words.intersection(
+        {"published", "recorded", "type"}
+    ):
+        matches.append(QueryIntent.MEASURE)
+    if words.intersection({"airport", "facility"}) and words.intersection(
+        {"controlled", "control"}
+    ):
+        matches.append(QueryIntent.CONTROLLED_FACILITY)
+    if words.intersection({"when", "period", "start", "end"}) and words.intersection(
+        {"apply", "applied", "effective", "period", "start", "end"}
+    ):
+        matches.append(QueryIntent.OPERATIONAL_PERIOD)
+    if words.intersection({"reason", "condition"}) and words.intersection(
+        {"advisory", "declared", "state", "stated", "impacting"}
+    ):
+        matches.append(QueryIntent.DECLARED_REASON)
+    if words.intersection({"source", "evidence", "provenance"}) and words.intersection(
+        {"support", "supports", "record", "statement", "evidence", "provenance"}
+    ):
+        matches.append(QueryIntent.PROVENANCE)
+    return matches[0] if len(set(matches)) == 1 else None
+
+
+def is_registered_competency_question(question: str) -> bool:
+    """Return whether the bounded Query Agent explicitly supports the question."""
+
+    return classify_registered_question(question) is not None
+
+
+def question_requires_model(question: str) -> bool:
+    """Return whether the registered question uses the model-tool-model path."""
+
+    return classify_registered_question(question) is QueryIntent.COMBINED_RECORD
 
 
 def _base_messages(
@@ -661,6 +721,7 @@ def _write_query_tool_run(
     allowed_predicates: list[str],
     ontology_labels: dict[str, str],
     retrieved_facts: list[dict[str, Any]],
+    retrieved_profile_gaps: list[dict[str, Any]] | None = None,
 ) -> None:
     payload = {
         "execution": "native_tool_loop",
@@ -670,7 +731,9 @@ def _write_query_tool_run(
         "allowed_predicates": allowed_predicates,
         "ontology_labels": ontology_labels,
         "retrieved_fact_ids": outcome.retrieved_fact_ids,
+        "retrieved_profile_gap_ids": outcome.retrieved_profile_gap_ids,
         "retrieved_facts": retrieved_facts,
+        "retrieved_profile_gaps": retrieved_profile_gaps or [],
         "source_ids": outcome.source_ids,
         "answer": outcome.answer,
         "failure_reason": outcome.failure_reason,
@@ -713,6 +776,225 @@ def _terminal_outcome(
         allowed_predicates=[],
         ontology_labels={},
         retrieved_facts=[],
+        retrieved_profile_gaps=[],
+    )
+    return outcome
+
+
+def _deterministic_intent_outcome(
+    *,
+    run_dir: Path,
+    question: str,
+    intent: QueryIntent,
+    store: QueryGraphStore,
+    ontology_labels: dict[str, str],
+) -> QueryToolOutcome:
+    """Answer one bounded field question through validated read-only tools."""
+
+    if len(store.event_ids) != 1:
+        return _terminal_outcome(
+            run_dir=run_dir,
+            question=question,
+            status="insufficient",
+            answer="Insufficient graph evidence.",
+            reason="bounded field questions require exactly one registered event",
+        )
+    event_id = store.event_ids[0]
+    predicates_by_intent = {
+        QueryIntent.MEASURE: [QueryPredicate.EVENT_TYPE],
+        QueryIntent.CONTROLLED_FACILITY: [
+            QueryPredicate.CONTROLLED_NAS_ELEMENT
+        ],
+        QueryIntent.OPERATIONAL_PERIOD: [
+            QueryPredicate.EFFECTIVE_START,
+            QueryPredicate.EFFECTIVE_END,
+        ],
+        QueryIntent.PROVENANCE: [QueryPredicate.ADVISORY_NUMBER],
+        QueryIntent.DECLARED_REASON: [QueryPredicate.IMPACTING_CONDITION],
+    }
+    predicates = predicates_by_intent[intent]
+    gateway = QueryToolGateway(
+        store,
+        allowed_predicates={predicate.value for predicate in predicates},
+    )
+    started = time.perf_counter()
+    result = gateway.get_event_facts(
+        event_id=event_id,
+        predicates=predicates,
+    )
+    traces = [
+        QueryToolTrace(
+            tool_call_id=f"deterministic:{intent.value}:facts",
+            tool="get_event_facts",
+            arguments={
+                "event_id": event_id,
+                "predicates": [predicate.value for predicate in predicates],
+            },
+            result_refs=result.fact_ids,
+            source_ids=result.source_ids,
+            status="ok",
+            duration_ms=(time.perf_counter() - started) * 1000.0,
+        )
+    ]
+    profile_result: QueryToolResult | None = None
+    if intent is QueryIntent.DECLARED_REASON and not result.items:
+        started = time.perf_counter()
+        profile_result = gateway.get_profile_gaps(
+            event_id=event_id,
+            fields=["impacting_condition"],
+        )
+        traces.append(
+            QueryToolTrace(
+                tool_call_id="deterministic:declared_reason:profile_gap",
+                tool="get_profile_gaps",
+                arguments={
+                    "event_id": event_id,
+                    "fields": ["impacting_condition"],
+                },
+                result_refs=profile_result.profile_gap_ids,
+                source_ids=profile_result.source_ids,
+                status="ok",
+                duration_ms=(time.perf_counter() - started) * 1000.0,
+            )
+        )
+
+    if intent is QueryIntent.DECLARED_REASON and profile_result is not None:
+        if len(profile_result.items) != 1:
+            return _write_deterministic_result(
+                run_dir=run_dir,
+                question=question,
+                outcome=QueryToolOutcome(
+                    status="insufficient",
+                    answer="Insufficient graph evidence.",
+                    tool_calls=traces,
+                    failure_reason="the advisory has no singular declared reason",
+                ),
+                store=store,
+                allowed_predicates=[predicate.value for predicate in predicates],
+            )
+        item = profile_result.items[0]
+        answer = (
+            f"The advisory states {item['evidence_text']}. "
+            "This source-supported field is outside the active formal profile."
+        )
+        outcome = QueryToolOutcome(
+            status="ok",
+            answer=answer,
+            source_ids=profile_result.source_ids,
+            retrieved_profile_gap_ids=profile_result.profile_gap_ids,
+            tool_calls=traces,
+        )
+        return _write_deterministic_result(
+            run_dir=run_dir,
+            question=question,
+            outcome=outcome,
+            store=store,
+            allowed_predicates=[predicate.value for predicate in predicates],
+        )
+
+    expected_count = 2 if intent is QueryIntent.OPERATIONAL_PERIOD else 1
+    if len(result.items) != expected_count:
+        return _write_deterministic_result(
+            run_dir=run_dir,
+            question=question,
+            outcome=QueryToolOutcome(
+                status="insufficient",
+                answer="Insufficient graph evidence.",
+                retrieved_fact_ids=result.fact_ids,
+                tool_calls=traces,
+                failure_reason="graph evidence is missing or not singular",
+            ),
+            store=store,
+            allowed_predicates=[predicate.value for predicate in predicates],
+        )
+
+    by_predicate = {str(item["predicate"]): item for item in result.items}
+    if intent is QueryIntent.MEASURE:
+        value = str(by_predicate[QueryPredicate.EVENT_TYPE]["object"])
+        answer = (
+            "The published traffic-management measure is "
+            f"{ontology_labels.get(value, value)}."
+        )
+    elif intent is QueryIntent.CONTROLLED_FACILITY:
+        value = str(
+            by_predicate[QueryPredicate.CONTROLLED_NAS_ELEMENT]["object"]
+        )
+        answer = f"The controlled facility is {value.rsplit(':', 1)[-1]}."
+    elif intent is QueryIntent.OPERATIONAL_PERIOD:
+        start = by_predicate[QueryPredicate.EFFECTIVE_START]["object"]
+        end = by_predicate[QueryPredicate.EFFECTIVE_END]["object"]
+        answer = f"The TMI operational period is {start} to {end}."
+    elif intent is QueryIntent.DECLARED_REASON:
+        item = by_predicate[QueryPredicate.IMPACTING_CONDITION]
+        if not str(item.get("evidence_text") or "").strip():
+            return _write_deterministic_result(
+                run_dir=run_dir,
+                question=question,
+                outcome=QueryToolOutcome(
+                    status="insufficient",
+                    answer="Insufficient graph evidence.",
+                    retrieved_fact_ids=result.fact_ids,
+                    tool_calls=traces,
+                    failure_reason="declared reason has no exact source evidence",
+                ),
+                store=store,
+                allowed_predicates=[
+                    predicate.value for predicate in predicates
+                ],
+            )
+        answer = (
+            f"The advisory records {item['object']} as its impacting condition. "
+            f"Source wording: {item['evidence_text']}."
+        )
+    else:
+        item = by_predicate[QueryPredicate.ADVISORY_NUMBER]
+        answer = (
+            f"Source {result.source_ids[0]} supports advisory "
+            f"{item['object']}."
+        )
+    outcome = QueryToolOutcome(
+        status="ok",
+        answer=answer,
+        source_ids=result.source_ids,
+        retrieved_fact_ids=result.fact_ids,
+        tool_calls=traces,
+    )
+    return _write_deterministic_result(
+        run_dir=run_dir,
+        question=question,
+        outcome=outcome,
+        store=store,
+        allowed_predicates=[predicate.value for predicate in predicates],
+    )
+
+
+def _write_deterministic_result(
+    *,
+    run_dir: Path,
+    question: str,
+    outcome: QueryToolOutcome,
+    store: QueryGraphStore,
+    allowed_predicates: list[str],
+) -> QueryToolOutcome:
+    retrieved_facts = [
+        store.fact_by_id[fact_id]
+        for fact_id in outcome.retrieved_fact_ids
+        if fact_id in store.fact_by_id
+    ]
+    retrieved_gaps = [
+        store.profile_gap_by_id[gap_id].model_dump(mode="json")
+        for gap_id in outcome.retrieved_profile_gap_ids
+        if gap_id in store.profile_gap_by_id
+    ]
+    _write_query_tool_run(
+        run_dir=run_dir,
+        question=question,
+        outcome=outcome,
+        event_ids=store.event_ids,
+        allowed_predicates=allowed_predicates,
+        ontology_labels={},
+        retrieved_facts=retrieved_facts,
+        retrieved_profile_gaps=retrieved_gaps,
     )
     return outcome
 
@@ -724,10 +1006,11 @@ def answer_question_with_tools(
     model_factory: ToolModelFactory,
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
 ) -> QueryToolOutcome:
-    """Run the first registered competency question through native graph tools."""
+    """Run one registered decision-record question through read-only tools."""
 
     path = Path(run_dir)
-    if not is_registered_competency_question(question):
+    intent = classify_registered_question(question)
+    if intent is None:
         return _terminal_outcome(
             run_dir=path,
             question=question,
@@ -747,7 +1030,6 @@ def answer_question_with_tools(
             reason=str(exc),
         )
 
-    allowed_predicates = [predicate.value for predicate in QueryPredicate]
     if not store.event_ids:
         return _terminal_outcome(
             run_dir=path,
@@ -756,6 +1038,23 @@ def answer_question_with_tools(
             answer="Insufficient graph evidence.",
             reason="materialized graph contains no registered event",
         )
+    guide = load_schema_guide()
+    labels = ontology_labels_for(store.rows, guide)
+    if intent is not QueryIntent.COMBINED_RECORD:
+        return _deterministic_intent_outcome(
+            run_dir=path,
+            question=question,
+            intent=intent,
+            store=store,
+            ontology_labels=labels,
+        )
+
+    allowed_predicates = [
+        QueryPredicate.EVENT_TYPE.value,
+        QueryPredicate.CONTROLLED_NAS_ELEMENT.value,
+        QueryPredicate.EFFECTIVE_START.value,
+        QueryPredicate.EFFECTIVE_END.value,
+    ]
     gateway = QueryToolGateway(
         store,
         allowed_predicates=set(allowed_predicates),
@@ -772,8 +1071,6 @@ def answer_question_with_tools(
             reason=sanitize_text(f"{type(exc).__name__}: {exc}"),
         )
 
-    guide = load_schema_guide()
-    labels = ontology_labels_for(store.rows, guide)
     messages = _base_messages(
         question=question,
         event_ids=store.event_ids,

@@ -15,7 +15,11 @@ from typing import Any, Literal
 from langchain_core.tools import BaseTool, tool
 from pydantic import Field
 
-from aviation_agentic_ai.agent_system.contracts import StrictModel
+from aviation_agentic_ai.agent_system.contracts import (
+    PersistedProfileGap,
+    SourceSnapshot,
+    StrictModel,
+)
 from aviation_agentic_ai.agent_system.schema_guide import TERM_TO_EVENT_CLASS
 
 _REGISTERED_EVENT_CLASSES = frozenset(TERM_TO_EVENT_CLASS.values())
@@ -32,6 +36,8 @@ class QueryPredicate(str, Enum):
     CONTROLLED_NAS_ELEMENT = "atm:controlledNASelement"
     EFFECTIVE_START = "atm:effectiveStartTime"
     EFFECTIVE_END = "atm:effectiveEndTime"
+    ADVISORY_NUMBER = "atm:advisoryNumber"
+    IMPACTING_CONDITION = "atm:impactingCondition"
 
 
 class QueryRelation(str, Enum):
@@ -51,7 +57,14 @@ class GetEventFactsInput(StrictModel):
     """A registered event and the permitted predicates to retrieve."""
 
     event_id: str = Field(min_length=1)
-    predicates: list[QueryPredicate] = Field(min_length=1, max_length=4)
+    predicates: list[QueryPredicate] = Field(min_length=1, max_length=6)
+
+
+class GetProfileGapsInput(StrictModel):
+    """A registered event and the source-only field to retrieve."""
+
+    event_id: str = Field(min_length=1)
+    fields: list[str] = Field(min_length=1, max_length=2)
 
 
 class GetNeighborsInput(StrictModel):
@@ -75,9 +88,11 @@ class QueryToolResult(StrictModel):
         "get_event_facts",
         "get_neighbors",
         "get_provenance",
+        "get_profile_gaps",
     ]
     status: Literal["ok"] = "ok"
     fact_ids: list[str] = Field(default_factory=list)
+    profile_gap_ids: list[str] = Field(default_factory=list)
     source_ids: list[str] = Field(default_factory=list)
     items: list[dict[str, Any]] = Field(default_factory=list)
 
@@ -158,6 +173,74 @@ class QueryGraphStore:
             elif str(row.get("predicate") or "") == QueryPredicate.CONTROLLED_NAS_ELEMENT:
                 entity_ids.add(str(row.get("object") or ""))
         self.entity_ids = {entity_id for entity_id in entity_ids if entity_id}
+        self.profile_gaps = self._load_profile_gaps(root)
+        self.profile_gap_by_id = {
+            gap.profile_gap_id: gap for gap in self.profile_gaps
+        }
+
+    def _load_profile_gaps(self, root: Path) -> list[PersistedProfileGap]:
+        path = root / "profile_gaps.jsonl"
+        if not path.exists():
+            return []
+        resolved = path.resolve()
+        if not resolved.is_relative_to(root):
+            raise QueryToolError("profile-gap artifact escapes the requested run directory")
+        snapshot_path = root / "source_snapshot.json"
+        if not snapshot_path.exists():
+            raise QueryToolError("profile-gap artifact has no source snapshot")
+        try:
+            snapshot = SourceSnapshot.model_validate_json(
+                snapshot_path.read_text(encoding="utf-8")
+            )
+        except Exception as exc:
+            raise QueryToolError("invalid source snapshot for profile gaps") from exc
+
+        gaps: list[PersistedProfileGap] = []
+        seen_ids: set[str] = set()
+        event_sources = {
+            event_id: {
+                source_id
+                for row in self.rows
+                if row["subject"] == event_id
+                for source_id in row["source_ids"]
+            }
+            for event_id in self.event_ids
+        }
+        for line_number, line in enumerate(
+            resolved.read_text(encoding="utf-8").splitlines(),
+            start=1,
+        ):
+            if not line.strip():
+                continue
+            try:
+                gap = PersistedProfileGap.model_validate_json(line)
+            except Exception as exc:
+                raise QueryToolError(
+                    f"invalid profile-gap JSON at line {line_number}"
+                ) from exc
+            if gap.profile_gap_id in seen_ids:
+                raise QueryToolError(
+                    f"duplicate profile-gap ID: {gap.profile_gap_id}"
+                )
+            if gap.event_id not in self.event_ids:
+                raise QueryToolError(
+                    f"profile gap references an unregistered event: {gap.event_id}"
+                )
+            if gap.source_id not in event_sources[gap.event_id]:
+                raise QueryToolError(
+                    f"profile gap source is not bound to its event: {gap.profile_gap_id}"
+                )
+            if (
+                gap.source_id != snapshot.source_id
+                or gap.source_snapshot_sha256 != snapshot.content_sha256
+                or gap.evidence_text not in snapshot.content
+            ):
+                raise QueryToolError(
+                    f"profile gap does not match the run snapshot: {gap.profile_gap_id}"
+                )
+            seen_ids.add(gap.profile_gap_id)
+            gaps.append(gap)
+        return gaps
 
     def event_class(self, event_id: str) -> str:
         for row in self.rows:
@@ -183,6 +266,7 @@ class QueryToolGateway:
         self.allowed_predicates = set(allowed_predicates)
         self.max_facts = max_facts
         self.retrieved_fact_ids: set[str] = set()
+        self.retrieved_profile_gap_ids: set[str] = set()
         self.retrieved_source_ids: set[str] = set()
 
     def find_events(
@@ -297,6 +381,7 @@ class QueryToolGateway:
                 "predicate": row["predicate"],
                 "object": row.get("object"),
                 "object_class": row.get("object_class") or "",
+                "evidence_text": str(row.get("evidence_text") or ""),
                 "source_ids": row["source_ids"],
             }
             for row in rows
@@ -384,9 +469,41 @@ class QueryToolGateway:
             items=items,
         )
 
+    def get_profile_gaps(
+        self,
+        *,
+        event_id: str,
+        fields: list[str],
+    ) -> QueryToolResult:
+        if event_id not in self.store.event_ids:
+            raise QueryToolError(f"unregistered event ID: {event_id}")
+        requested = [field.strip() for field in fields if field.strip()]
+        if len(requested) != len(fields) or len(requested) != len(set(requested)):
+            raise QueryToolError("profile-gap fields must be unique and non-empty")
+        if set(requested) - {"impacting_condition"}:
+            raise QueryToolError("profile-gap field is outside the current query scope")
+        gaps = sorted(
+            (
+                gap
+                for gap in self.store.profile_gaps
+                if gap.event_id == event_id and gap.field in requested
+            ),
+            key=lambda gap: gap.profile_gap_id,
+        )
+        ids = [gap.profile_gap_id for gap in gaps]
+        source_ids = sorted({gap.source_id for gap in gaps})
+        self.retrieved_profile_gap_ids.update(ids)
+        self.retrieved_source_ids.update(source_ids)
+        return QueryToolResult(
+            tool="get_profile_gaps",
+            profile_gap_ids=ids,
+            source_ids=source_ids,
+            items=[gap.model_dump(mode="json") for gap in gaps],
+        )
+
 
 def build_query_tools(gateway: QueryToolGateway) -> list[BaseTool]:
-    """Build the four model-visible LangChain tools for one query session."""
+    """Build the five model-visible LangChain tools for one query session."""
 
     @tool("find_events", args_schema=FindEventsInput)
     def find_events(
@@ -427,7 +544,22 @@ def build_query_tools(gateway: QueryToolGateway) -> list[BaseTool]:
 
         return gateway.get_provenance(fact_ids=fact_ids).model_dump_json()
 
-    return [find_events, get_event_facts, get_neighbors, get_provenance]
+    @tool("get_profile_gaps", args_schema=GetProfileGapsInput)
+    def get_profile_gaps(event_id: str, fields: list[str]) -> str:
+        """Read source-bound fields excluded from the active formal profile."""
+
+        return gateway.get_profile_gaps(
+            event_id=event_id,
+            fields=fields,
+        ).model_dump_json()
+
+    return [
+        find_events,
+        get_event_facts,
+        get_neighbors,
+        get_provenance,
+        get_profile_gaps,
+    ]
 
 
 def tool_registry(tools: list[BaseTool]) -> dict[str, BaseTool]:

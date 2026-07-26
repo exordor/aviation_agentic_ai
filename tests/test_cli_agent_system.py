@@ -14,6 +14,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     ModelToolCall,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
+    DECLARED_REASON_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
 )
 from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
@@ -158,6 +159,35 @@ def test_supported_cli_question_requires_live_authorization(tmp_path):
     )
     assert result.exit_code != 0
     assert "requires --allow-live-model" in result.output
+
+
+def test_missing_reason_question_needs_no_live_authorization(
+    tmp_path,
+    monkeypatch,
+):
+    _write_graph(tmp_path)
+
+    def forbidden_factory(*args, **kwargs):
+        raise AssertionError("missing reason constructed a live model")
+
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        forbidden_factory,
+    )
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--run-dir",
+            str(tmp_path),
+            "--question",
+            DECLARED_REASON_QUESTION,
+        ],
+    )
+    assert result.exit_code == 0
+    assert "status: insufficient" in result.output
+    assert "model_calls: 0" in result.output
 
 
 def test_supported_cli_question_runs_native_tool_loop(tmp_path, monkeypatch):

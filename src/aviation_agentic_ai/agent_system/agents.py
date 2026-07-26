@@ -22,6 +22,7 @@ import re
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from aviation_agentic_ai.agent_system.contracts import (
@@ -89,7 +90,10 @@ _EXT_PROB_RE = re.compile(
     r"PROBABILITY\s+OF\s+EXTENSION\s*:\s*([A-Z]+)", re.IGNORECASE
 )
 _IMPACTING_RE = re.compile(
-    r"IMPACTING\s+CONDITION\s*:\s*([A-Z][A-Z\s/]*)", re.IGNORECASE
+    r"IMPACTING\s+CONDITION\s*:\s*([A-Z][A-Z /]*?)"
+    r"(?=\s+(?:COMMENTS?|PROBABILITY|EFFECTIVE|CTL|GROUND|GDP|CUMULATIVE)"
+    r"\s*:|[\r\n]|$)",
+    re.IGNORECASE,
 )
 # Advisory header date: ``ADVZY <num> <facility> <MM>/<DD>/<YYYY>``. This is the
 # deterministic calendar anchor for the period tokens (plan §12). The header
@@ -102,24 +106,41 @@ _HEADER_DATE_RE = re.compile(
 _PERIOD_TOKEN_RE = re.compile(r"^(\d{1,2})/(\d{2})(\d{2})Z?$")
 
 
-def _anchor_period_value(token: str, year: int, month: int, header_day: int) -> str | None:
+def _anchor_period_value(
+    token: str,
+    year: int,
+    month: int,
+    header_day: int,
+    *,
+    allow_next_day: bool = False,
+) -> str | None:
     """Anchor a ``DD/HHMMZ`` period token to a full UTC timestamp (plan §12).
 
     Returns ``YYYY-MM-DDTHH:MM:SSZ`` when the token's day agrees with the
-    header day (deterministic confirmation), otherwise ``None``. The raw source
-    substring is preserved separately as ``evidence_text``; this function only
-    produces the canonical claim value. It never guesses a calendar context.
+    header day. An end token may also name the immediately following calendar
+    day when ``allow_next_day`` is true. Other mismatches return ``None``. The
+    raw source substring is preserved separately as ``evidence_text``.
     """
 
     m = _PERIOD_TOKEN_RE.match(token.strip())
     if not m:
         return None
-    day, hh, mm = int(m.group(1)), m.group(2), m.group(3)
-    if day != header_day:
-        # The period day disagrees with the header date -> not uniquely
-        # anchorable; abstain on this time fact rather than guess.
+    day, hour, minute = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    try:
+        header_date = datetime(year, month, header_day, tzinfo=UTC)
+    except ValueError:
         return None
-    return f"{year:04d}-{month:02d}-{day:02d}T{hh}:{mm}:00Z"
+    target_date = header_date
+    if day != header_day:
+        next_date = header_date + timedelta(days=1)
+        if not allow_next_day or day != next_date.day:
+            return None
+        target_date = next_date
+    try:
+        anchored = target_date.replace(hour=hour, minute=minute)
+    except ValueError:
+        return None
+    return anchored.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
@@ -165,7 +186,13 @@ def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
             start_token = parts[0].strip()
             end_token = parts[1].strip()
             start_val = _anchor_period_value(start_token, year, month, header_day)
-            end_val = _anchor_period_value(end_token, year, month, header_day)
+            end_val = _anchor_period_value(
+                end_token,
+                year,
+                month,
+                header_day,
+                allow_next_day=True,
+            )
             # Only emit a time claim when the period is uniquely anchored to the
             # header date. Preserve the raw substring as evidence_text.
             if start_val is not None:
@@ -190,7 +217,7 @@ def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
         # Normalize to the leading single-word cause (e.g. "WEATHER") while
         # keeping the full exact span as evidence.
         raw = impacting.group(1).strip()
-        first_token = re.split(r"\s*/\s*|\s+", raw, maxsplit=1)[0].upper()
+        first_token = re.split(r"\s*/\s*|\s+", raw, maxsplit=1)[0].lower()
         mentions.impacting_condition = first_token
         mentions.evidence_spans["impacting_condition"] = impacting.group(0)
     return mentions

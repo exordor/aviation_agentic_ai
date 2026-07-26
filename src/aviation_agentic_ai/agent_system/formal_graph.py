@@ -45,6 +45,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     GraphPatchBlock,
     GraphPatchLine,
     GraphValidationResult,
+    PersistedProfileGap,
     ProfileGap,
     RejectedFact,
     SourceSnapshot,
@@ -591,6 +592,7 @@ __all__ = [
     "build_evidence_index",
     "validate_graph_patch",
     "write_fact_trace",
+    "write_profile_gaps",
 ]
 
 
@@ -651,6 +653,42 @@ def write_fact_trace(
             source_id=bound_source,
             evidence_text=evidence_text,
             evidence_agent_role=agent_role or "provenance",
+            source_snapshot_sha256=source_snapshot.content_sha256,
+        )
+        rows.append(row.model_dump_json())
+    path.write_text("\n".join(rows) + ("\n" if rows else ""), encoding="utf-8")
+    return path
+
+
+def write_profile_gaps(
+    *,
+    result: GraphValidationResult,
+    event_id: str,
+    source_snapshot: SourceSnapshot,
+    output_dir: str | Path,
+) -> Path:
+    """Persist validated profile gaps without promoting them to graph facts."""
+
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / "profile_gaps.jsonl"
+    rows: list[str] = []
+    for gap in result.profile_gaps:
+        row = PersistedProfileGap(
+            profile_gap_id=stable_id(
+                "profile-gap",
+                event_id,
+                gap.field,
+                gap.value,
+                gap.evidence,
+                source_snapshot.source_id,
+            ),
+            event_id=event_id,
+            field=gap.field,
+            value=gap.value,
+            evidence_text=gap.evidence,
+            reason=gap.reason,
+            source_id=source_snapshot.source_id,
             source_snapshot_sha256=source_snapshot.content_sha256,
         )
         rows.append(row.model_dump_json())
