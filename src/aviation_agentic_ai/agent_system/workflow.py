@@ -54,7 +54,8 @@ from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide, load_sche
 from aviation_agentic_ai.agent_system.sources import build_source_snapshot, write_source_snapshot
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
-ModelInvoker = Callable[[str, str], ModelCallRecord]
+ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
+ToolModelFactory = Callable[[list[Any]], Any]
 
 
 @dataclass
@@ -66,6 +67,7 @@ class IngestContext:
     term_candidates: list[Any] = field(default_factory=list)
     guide: SchemaGuide | None = None
     model_invoker: ModelInvoker | None = None
+    kg_tool_model_factory: ToolModelFactory | None = None
     run_id: str = "agent-system"
     output_dir: str = ""
 
@@ -292,10 +294,19 @@ def _kg_construction_node(state: dict) -> dict:
         guide=ctx.guide,
         allowed_source_ids=allowed_source_ids,
     )
-    if ctx.model_invoker is None:
-        # Offline/contract path: no model call -> abstain (no formal patch).
-        return {"kg_result": AgentResult(status=AgentStatus.ABSTAIN, failure_reason="no model invoker")}
-    result = run_kg_construction_agent(task=task, inputs=inputs, model_invoker=ctx.model_invoker)
+    if ctx.kg_tool_model_factory is None:
+        # Offline/contract path: no native tool model -> abstain (no formal patch).
+        return {
+            "kg_result": AgentResult(
+                status=AgentStatus.ABSTAIN,
+                failure_reason="no KG tool model factory",
+            )
+        }
+    result = run_kg_construction_agent(
+        task=task,
+        inputs=inputs,
+        tool_model_factory=ctx.kg_tool_model_factory,
+    )
     return {
         "kg_result": result,
         "event_uri": event_uri,

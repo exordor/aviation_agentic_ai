@@ -65,7 +65,7 @@ def catalog():
 
 def test_catalog_is_frozen_with_all_five_roles(catalog):
     assert catalog.status == "frozen"
-    assert catalog.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v4"
+    assert catalog.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v5"
     for role in ("advisory", "facility", "terminology", "knowledge_graph_construction", "query"):
         assert role in catalog.roles
         assert catalog.roles[role].prompt_version
@@ -570,9 +570,9 @@ def test_missing_event_type_abstains_and_constructs_no_graph(guide, tmp_path):
 
     called = []
 
-    def invoker(agent_role, template_vars):
-        called.append((agent_role, template_vars))
-        return ModelCallRecord(agent=agent_role, raw_response="GRAPH_PATCH\n")
+    def tool_model_factory(tools):
+        called.append(tools)
+        raise AssertionError("tool model must not be built without an event type")
 
     task = AgentTask(
         run_id="r", source_id="src:1", objective="construct patch",
@@ -587,7 +587,11 @@ def test_missing_event_type_abstains_and_constructs_no_graph(guide, tmp_path):
         event_class="",  # unresolved
         guide=guide,
     )
-    result = run_kg_construction_agent(task=task, inputs=inputs, model_invoker=invoker)
+    result = run_kg_construction_agent(
+        task=task,
+        inputs=inputs,
+        tool_model_factory=tool_model_factory,
+    )
     assert called == []  # no model call when event type unresolved
     assert result.status == AgentStatus.ABSTAIN
     assert result.graph_patch is None
@@ -650,7 +654,7 @@ def test_runtime_invoker_assembles_catalog_and_records_ledger(monkeypatch):
     assert captured["message_count"] == 6
     assert captured["roles"] == ["system", "human", "ai", "human", "ai", "human"]
     assert rec.agent == "query"
-    assert rec.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v4"
+    assert rec.prompt_set_id == "multi-agent-aviation-kg-system-prompts-v5"
     assert rec.prompt_version == "query-agent-v4"
     assert rec.attempt == 1
     assert rec.input_tokens == 10 and rec.output_tokens == 5

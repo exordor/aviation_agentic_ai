@@ -34,7 +34,6 @@ from aviation_agentic_ai.agent_system.contracts import (
     SourceRecord,
     ToolTraceEntry,
 )
-from aviation_agentic_ai.agent_system.graph_patch import parse_graph_patch_block
 from aviation_agentic_ai.agent_system.prompts import assemble_prompt
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide
 
@@ -43,6 +42,7 @@ from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide
 # 6-message prompt from the catalog (design §16) and recording the call
 # ledger (agent, prompt_set_id, prompt_version, attempt).
 ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
+ToolModelFactory = Callable[[list[Any]], Any]
 
 # Shared English insufficient-evidence fallback for the active Query interface
 # (plan §13 T4: English-only active interface). Defined here so both the Query
@@ -626,7 +626,7 @@ def run_kg_construction_agent(
     *,
     task: AgentTask,
     inputs: KGConstructionInput,
-    model_invoker: ModelInvoker,
+    tool_model_factory: ToolModelFactory | None = None,
 ) -> AgentResult:
     """Generate an ontology-constrained Graph Patch from the evidence cards.
 
@@ -640,79 +640,58 @@ def run_kg_construction_agent(
     # Missing resolved event type -> abstain, no formal patch (design §11.6).
     if not inputs.event_class:
         card = EvidenceCard(
-            agent_role="terminology", status=AgentStatus.ABSTAIN,
+            agent_role="knowledge_graph_construction",
+            status=AgentStatus.ABSTAIN,
             source_ids=[inputs.advisory.source_id],
             decision_basis="missing resolved event type; no graph constructed",
         )
         return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
 
-    compact = inputs.guide.compact_context_for_event(inputs.event_class)
     allowed = sorted(inputs.allowed_source_ids or {inputs.advisory.source_id})
     known = _known_canonical_entities(inputs.facility_card, inputs.guide)
-    rec = model_invoker(
-        "knowledge_graph_construction",
-        {
-            "event_uri": inputs.event_uri,
-            "allowed_source_ids": "; ".join(allowed),
-            "known_canonical_entities": _known_canonical_entities_text(known),
-            "schema_context": compact,
-            "advisory_evidence_card": _card_summary(inputs.advisory_card),
-            "facility_evidence_card": _card_summary(inputs.facility_card),
-            "terminology_evidence_card": _card_summary(inputs.terminology_card),
-        },
-    )
-    block = parse_graph_patch_block(rec.raw_response)
+    if tool_model_factory is None:
+        card = EvidenceCard(
+            agent_role="knowledge_graph_construction",
+            status=AgentStatus.BLOCKED,
+            source_ids=[inputs.advisory.source_id],
+            decision_basis="no native tool-calling model adapter is available",
+        )
+        return AgentResult(
+            status=AgentStatus.BLOCKED,
+            evidence_card=card,
+            failure_reason="no native tool-calling model adapter is available",
+        )
 
-    # Fail-closed model-output gate (plan §5.3). The raw response and any
-    # provider error remain in the run trace; no KG artifacts are produced for
-    # a BLOCKED or ABSTAINED patch.
-    if rec.error:
-        card = EvidenceCard(
-            agent_role="terminology", status=AgentStatus.BLOCKED,
-            source_ids=[inputs.advisory.source_id],
-            decision_basis=f"provider error: {rec.error}",
-        )
-        return AgentResult(
-            status=AgentStatus.BLOCKED, evidence_card=card,
-            model_calls=[rec], failure_reason=f"provider error: {rec.error}",
-        )
-    from aviation_agentic_ai.agent_system.graph_patch import (
-        PATCH_OK,
-        PATCH_PARSED_EMPTY,
-        classify_graph_patch_response,
+    from aviation_agentic_ai.agent_system.kg_tool_graph import (
+        run_kg_tool_agent,
     )
-    outcome, reason = classify_graph_patch_response(rec.raw_response, block)
-    if outcome == PATCH_PARSED_EMPTY:
-        card = EvidenceCard(
-            agent_role="terminology", status=AgentStatus.ABSTAIN,
-            source_ids=[inputs.advisory.source_id],
-            decision_basis="GRAPH_PATCH parsed with zero formal facts",
-        )
-        return AgentResult(
-            status=AgentStatus.ABSTAIN, evidence_card=card, model_calls=[rec],
-            failure_reason=reason or "",
-        )
-    if outcome != PATCH_OK:
-        card = EvidenceCard(
-            agent_role="terminology", status=AgentStatus.BLOCKED,
-            source_ids=[inputs.advisory.source_id],
-            decision_basis=f"fail-closed: {reason}",
-        )
-        return AgentResult(
-            status=AgentStatus.BLOCKED, evidence_card=card, model_calls=[rec],
-            failure_reason=reason or "",
-        )
-    card = EvidenceCard(
-        agent_role="terminology", status=AgentStatus.RESOLVED,
-        source_ids=[inputs.advisory.source_id],
-        decision_basis=f"generated {len(block.patch_lines)} patch lines",
+    from aviation_agentic_ai.agent_system.kg_tools import (
+        KGConstructionToolGateway,
+        build_kg_construction_tools,
     )
-    return AgentResult(
-        status=AgentStatus.RESOLVED,
-        artifact_ref="graph_patch",
-        evidence_card=card,
-        model_calls=[rec],
-        graph_patch=block,
+
+    evidence_cards = {
+        "advisory": inputs.advisory_card,
+        "facility": inputs.facility_card,
+        "terminology": inputs.terminology_card,
+    }
+    gateway = KGConstructionToolGateway(
+        guide=inputs.guide,
+        event_class=inputs.event_class,
+        evidence_cards=evidence_cards,
+        canonical_entities=known,
+        allowed_source_ids=set(allowed),
+    )
+    tools = build_kg_construction_tools(gateway)
+    return run_kg_tool_agent(
+        model=tool_model_factory(tools),
+        tools=tools,
+        event_uri=inputs.event_uri,
+        event_class=inputs.event_class,
+        schema_slice_id=inputs.guide.schema_slice_id,
+        allowed_source_ids=set(allowed),
+        canonical_entities=known,
+        evidence_cards=evidence_cards,
     )
 
 
@@ -724,30 +703,6 @@ def _known_canonical_entities(facility_card: EvidenceCard, guide: SchemaGuide) -
         if claim.canonical_ref and claim.ontology_target:
             entities[claim.canonical_ref] = claim.ontology_target
     return entities
-
-
-def _known_canonical_entities_text(entities: dict[str, str]) -> str:
-    if not entities:
-        return "NONE"
-    return "\n".join(f"{eid} -> {cls}" for eid, cls in sorted(entities.items()))
-
-
-def _card_summary(card: EvidenceCard) -> str:
-    """Render one evidence card as a compact delimited block for the KG prompt."""
-
-    parts = [f"status={card.status.value}"]
-    for claim in card.claims:
-        bits = [f"{claim.field_name}={claim.value}"]
-        if claim.ontology_target:
-            bits.append(f"ontology={claim.ontology_target}")
-        if claim.canonical_ref:
-            bits.append(f"canonical_ref={claim.canonical_ref}")
-        bits.append(f"source={claim.source_id}")
-        bits.append(f"evidence='{claim.evidence_text}'")
-        parts.append(" ".join(bits))
-    if card.canonical_refs:
-        parts.append("canonical_refs=" + ",".join(card.canonical_refs))
-    return "\n".join(parts)
 
 
 # ---------------------------------------------------------------------------

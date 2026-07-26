@@ -44,12 +44,11 @@ EXPECTED_PLACEHOLDERS = {
     },
     "knowledge_graph_construction": {
         "event_uri",
+        "event_class",
+        "schema_slice_id",
         "allowed_source_ids",
-        "known_canonical_entities",
-        "schema_context",
-        "advisory_evidence_card",
-        "facility_evidence_card",
-        "terminology_evidence_card",
+        "available_canonical_refs",
+        "available_evidence_roles",
     },
     "query": {
         "user_question",
@@ -71,7 +70,7 @@ def _placeholders(text: str) -> set[str]:
 def test_prompt_catalog_is_frozen_and_has_exact_roles() -> None:
     catalog = _catalog()
     assert catalog["status"] == "frozen"
-    assert catalog["prompt_set_id"] == "multi-agent-aviation-kg-system-prompts-v4"
+    assert catalog["prompt_set_id"] == "multi-agent-aviation-kg-system-prompts-v5"
     assert set(catalog["roles"]) == EXPECTED_ROLES
 
 
@@ -80,7 +79,7 @@ def test_every_role_has_version_policy_and_bounded_output() -> None:
         "advisory": "advisory-agent-v2",
         "facility": "facility-agent-v2",
         "terminology": "terminology-agent-v2",
-        "knowledge_graph_construction": "knowledge-graph-construction-agent-v3",
+        "knowledge_graph_construction": "knowledge-graph-construction-agent-v4",
         "query": "query-agent-v4",
     }
     for role, prompt in _catalog()["roles"].items():
@@ -183,6 +182,11 @@ def test_facility_and_terminology_prompts_have_abstain_and_closed_candidates() -
 def test_kg_prompt_uses_atmonto_graph_patch_contract() -> None:
     system = _catalog()["roles"]["knowledge_graph_construction"]["system"]
     assert "NASA ATMONTO-derived Schema Guide" in system
+    assert "get_schema_context" in system
+    assert "get_source_evidence" in system
+    assert "resolve_canonical_ref" in system
+    assert "Do not emit a Graph Patch" in system
+    assert "After ToolMessages" in system
     assert "GRAPH_PATCH" in system
     assert "PROFILE_GAPS" in system
     assert "rdf:type" in system

@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 import pytest
+from langchain_core.messages import AIMessage
 
 from aviation_agentic_ai.agent_system.agents import (
     AdvisoryMentions,
@@ -38,6 +39,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     EvidenceCard,
     EvidenceClaim,
     ModelCallRecord,
+    ModelToolCall,
     SourceFamily,
     SourceRecord,
 )
@@ -49,6 +51,7 @@ from aviation_agentic_ai.agent_system.formal_graph import (
 from aviation_agentic_ai.agent_system.graph_patch import parse_graph_patch_block
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import build_source_snapshot, write_source_snapshot
+from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 # ---------------------------------------------------------------------------
@@ -208,18 +211,90 @@ def _kg_inputs(advisory_record, event_uri, guide) -> KGConstructionInput:
     )
 
 
+class _ScriptedKGToolModel:
+    def __init__(self, turns: list[ToolModelTurn]) -> None:
+        self.turns = list(turns)
+
+    def invoke(self, messages, *, phase):
+        return self.turns.pop(0)
+
+
+def _kg_tool_factory(
+    *,
+    raw_response: str = "",
+    provider_error: str | None = None,
+):
+    if provider_error:
+        model = _ScriptedKGToolModel(
+            [
+                ToolModelTurn(
+                    message=None,
+                    record=ModelCallRecord(
+                        agent="knowledge_graph_construction",
+                        raw_response="",
+                        prompt_version="knowledge-graph-construction-agent-v4",
+                        error=provider_error,
+                    ),
+                )
+            ]
+        )
+        return lambda tools: model
+
+    calls = [
+        {
+            "id": "call:schema",
+            "name": "get_schema_context",
+            "args": {"event_class": EVENT_CLASS},
+            "type": "tool_call",
+        },
+        {
+            "id": "call:evidence",
+            "name": "get_source_evidence",
+            "args": {"roles": ["advisory", "facility", "terminology"]},
+            "type": "tool_call",
+        },
+    ]
+    selection = AIMessage(content="", tool_calls=calls)
+    model = _ScriptedKGToolModel(
+        [
+            ToolModelTurn(
+                message=selection,
+                record=ModelCallRecord(
+                    agent="knowledge_graph_construction",
+                    raw_response="",
+                    prompt_version="knowledge-graph-construction-agent-v4",
+                    tool_calls=[
+                        ModelToolCall(
+                            call_id=call["id"],
+                            name=call["name"],
+                            arguments=call["args"],
+                        )
+                        for call in calls
+                    ],
+                ),
+            ),
+            ToolModelTurn(
+                message=AIMessage(content=raw_response),
+                record=ModelCallRecord(
+                    agent="knowledge_graph_construction",
+                    raw_response=raw_response,
+                    prompt_version="knowledge-graph-construction-agent-v4",
+                ),
+            ),
+        ]
+    )
+    return lambda tools: model
+
+
 def test_provider_failure_returns_blocked_and_no_artifacts(advisory_record, event_uri, guide, tmp_path):
     """§5.6 acceptance 1: provider failure -> BLOCKED, no KG artifacts."""
 
-    def invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="knowledge_graph_construction", raw_response="",
-            prompt_version="knowledge-graph-construction-agent-v3",
-            error="ProviderError: upstream timeout",
-        )
-
     result = run_kg_construction_agent(
-        task=_kg_task(), inputs=_kg_inputs(advisory_record, event_uri, guide), model_invoker=invoker,
+        task=_kg_task(),
+        inputs=_kg_inputs(advisory_record, event_uri, guide),
+        tool_model_factory=_kg_tool_factory(
+            provider_error="ProviderError: upstream timeout"
+        ),
     )
     assert result.status == AgentStatus.BLOCKED
     assert result.graph_patch is None
@@ -231,14 +306,10 @@ def test_provider_failure_returns_blocked_and_no_artifacts(advisory_record, even
 def test_empty_graph_patch_returns_blocked(advisory_record, event_uri, guide):
     """§5.6 acceptance 2: empty Graph Patch -> BLOCKED."""
 
-    def invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="knowledge_graph_construction", raw_response="",
-            prompt_version="knowledge-graph-construction-agent-v3",
-        )
-
     result = run_kg_construction_agent(
-        task=_kg_task(), inputs=_kg_inputs(advisory_record, event_uri, guide), model_invoker=invoker,
+        task=_kg_task(),
+        inputs=_kg_inputs(advisory_record, event_uri, guide),
+        tool_model_factory=_kg_tool_factory(raw_response=""),
     )
     assert result.status == AgentStatus.BLOCKED
     assert result.graph_patch is None
@@ -247,14 +318,12 @@ def test_empty_graph_patch_returns_blocked(advisory_record, event_uri, guide):
 def test_missing_graph_patch_section_returns_blocked(advisory_record, event_uri, guide):
     """§5.6 acceptance 2: response without GRAPH_PATCH section -> BLOCKED."""
 
-    def invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="knowledge_graph_construction", raw_response="I cannot help with that.",
-            prompt_version="knowledge-graph-construction-agent-v3",
-        )
-
     result = run_kg_construction_agent(
-        task=_kg_task(), inputs=_kg_inputs(advisory_record, event_uri, guide), model_invoker=invoker,
+        task=_kg_task(),
+        inputs=_kg_inputs(advisory_record, event_uri, guide),
+        tool_model_factory=_kg_tool_factory(
+            raw_response="I cannot help with that."
+        ),
     )
     assert result.status == AgentStatus.BLOCKED
 
@@ -262,15 +331,12 @@ def test_missing_graph_patch_section_returns_blocked(advisory_record, event_uri,
 def test_malformed_graph_patch_row_returns_blocked(advisory_record, event_uri, guide):
     """§5.6 acceptance 2: a malformed GRAPH_PATCH row -> BLOCKED."""
 
-    def invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="knowledge_graph_construction",
-            raw_response="GRAPH_PATCH\nthis is not a valid pipe row\n",
-            prompt_version="knowledge-graph-construction-agent-v3",
-        )
-
     result = run_kg_construction_agent(
-        task=_kg_task(), inputs=_kg_inputs(advisory_record, event_uri, guide), model_invoker=invoker,
+        task=_kg_task(),
+        inputs=_kg_inputs(advisory_record, event_uri, guide),
+        tool_model_factory=_kg_tool_factory(
+            raw_response="GRAPH_PATCH\nthis is not a valid pipe row\n"
+        ),
     )
     assert result.status == AgentStatus.BLOCKED
 
@@ -278,15 +344,12 @@ def test_malformed_graph_patch_row_returns_blocked(advisory_record, event_uri, g
 def test_parsed_empty_patch_returns_abstain(advisory_record, event_uri, guide):
     """§5.3: a correctly parsed response with no formal facts -> ABSTAIN."""
 
-    def invoker(agent_role, template_vars):
-        return ModelCallRecord(
-            agent="knowledge_graph_construction",
-            raw_response="GRAPH_PATCH\n\nPROFILE_GAPS\nNONE\n",
-            prompt_version="knowledge-graph-construction-agent-v3",
-        )
-
     result = run_kg_construction_agent(
-        task=_kg_task(), inputs=_kg_inputs(advisory_record, event_uri, guide), model_invoker=invoker,
+        task=_kg_task(),
+        inputs=_kg_inputs(advisory_record, event_uri, guide),
+        tool_model_factory=_kg_tool_factory(
+            raw_response="GRAPH_PATCH\n\nPROFILE_GAPS\nNONE\n"
+        ),
     )
     assert result.status == AgentStatus.ABSTAIN
     assert result.graph_patch is None

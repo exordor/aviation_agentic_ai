@@ -91,6 +91,11 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         term_candidates=terms,
         guide=guide,
         model_invoker=invoker,
+        kg_tool_model_factory=lambda tools: make_live_tool_calling_model(
+            tools=tools,
+            role="knowledge_graph_construction",
+            catalog_path=DEFAULT_PROMPT_CATALOG,
+        ),
         run_id=run_dir.name,
         output_dir=str(run_dir),
     )
@@ -109,6 +114,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
             state.get("advisory_result"),
             state.get("facility_result"),
             state.get("terminology_result"),
+            state.get("kg_result"),
         )
         if r and r.evidence_card
     ]
