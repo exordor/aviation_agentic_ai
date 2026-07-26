@@ -18,6 +18,7 @@ from pydantic import Field
 from aviation_agentic_ai.agent_system.contracts import (
     PersistedProfileGap,
     SourceSnapshot,
+    SourceSnapshotRegistry,
     StrictModel,
 )
 from aviation_agentic_ai.agent_system.schema_guide import TERM_TO_EVENT_CLASS
@@ -185,15 +186,32 @@ class QueryGraphStore:
         resolved = path.resolve()
         if not resolved.is_relative_to(root):
             raise QueryToolError("profile-gap artifact escapes the requested run directory")
-        snapshot_path = root / "source_snapshot.json"
-        if not snapshot_path.exists():
+        registry_path = root / "source_snapshots.jsonl"
+        legacy_snapshot_path = root / "source_snapshot.json"
+        if registry_path.exists():
+            resolved_registry = registry_path.resolve()
+            if not resolved_registry.is_relative_to(root):
+                raise QueryToolError("source-snapshot artifact escapes the requested run directory")
+            try:
+                snapshots = SourceSnapshotRegistry.read_jsonl(resolved_registry)
+            except Exception as exc:
+                raise QueryToolError("invalid source snapshots for profile gaps") from exc
+        elif legacy_snapshot_path.exists():
+            resolved_snapshot = legacy_snapshot_path.resolve()
+            if not resolved_snapshot.is_relative_to(root):
+                raise QueryToolError("source-snapshot artifact escapes the requested run directory")
+            try:
+                snapshots = SourceSnapshotRegistry(
+                    snapshots=(
+                        SourceSnapshot.model_validate_json(
+                            resolved_snapshot.read_text(encoding="utf-8")
+                        ),
+                    )
+                )
+            except Exception as exc:
+                raise QueryToolError("invalid source snapshot for profile gaps") from exc
+        else:
             raise QueryToolError("profile-gap artifact has no source snapshot")
-        try:
-            snapshot = SourceSnapshot.model_validate_json(
-                snapshot_path.read_text(encoding="utf-8")
-            )
-        except Exception as exc:
-            raise QueryToolError("invalid source snapshot for profile gaps") from exc
 
         gaps: list[PersistedProfileGap] = []
         seen_ids: set[str] = set()
@@ -230,8 +248,9 @@ class QueryGraphStore:
                 raise QueryToolError(
                     f"profile gap source is not bound to its event: {gap.profile_gap_id}"
                 )
+            snapshot = snapshots.get(gap.source_id)
             if (
-                gap.source_id != snapshot.source_id
+                snapshot is None
                 or gap.source_snapshot_sha256 != snapshot.content_sha256
                 or gap.evidence_text not in snapshot.content
             ):

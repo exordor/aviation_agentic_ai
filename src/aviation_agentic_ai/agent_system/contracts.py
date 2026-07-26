@@ -13,11 +13,13 @@ chain-of-thought.
 
 from __future__ import annotations
 
+import hashlib
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class StrictModel(BaseModel):
@@ -30,6 +32,9 @@ class SourceFamily(str, Enum):
     ATCSCC_ADVISORY = "atcscc_advisory"
     NASR_FACILITY = "nasr_facility"
     FAA_TERM = "faa_term"
+    METAR = "metar"
+    TAF = "taf"
+    BTS_ON_TIME = "bts_on_time"
 
 
 class AgentStatus(str, Enum):
@@ -283,12 +288,74 @@ class SourceSnapshot(StrictModel):
     content and checksum are persisted, so provenance is auditable.
     """
 
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
     source_id: str = Field(min_length=1)
-    family: str = Field(min_length=1)
+    family: SourceFamily
     source_url: str | None = None
     content: str = Field(min_length=1)
     content_sha256: str = Field(min_length=1)
     snapshot_timestamp: str = Field(min_length=1)
+
+
+class SourceSnapshotRegistry(StrictModel):
+    """Immutable, source-ID-addressable snapshots for one ingest run."""
+
+    snapshots: tuple[SourceSnapshot, ...] = Field(min_length=1)
+    expected_families: dict[str, SourceFamily] = Field(default_factory=dict, exclude=True)
+
+    @model_validator(mode="after")
+    def _reject_duplicate_source_ids(self) -> "SourceSnapshotRegistry":
+        source_ids = [snapshot.source_id for snapshot in self.snapshots]
+        if len(source_ids) != len(set(source_ids)):
+            raise ValueError("duplicate source snapshot ID")
+        for snapshot in self.snapshots:
+            if snapshot.content_sha256 != hashlib.sha256(
+                snapshot.content.encode("utf-8")
+            ).hexdigest():
+                raise ValueError(
+                    f"source snapshot checksum does not match content: {snapshot.source_id}"
+                )
+            expected_family = self.expected_families.get(snapshot.source_id)
+            if expected_family is not None and snapshot.family != expected_family:
+                raise ValueError(
+                    f"source snapshot family mismatch: {snapshot.source_id}"
+                )
+        return self
+
+    def get(self, source_id: str) -> SourceSnapshot | None:
+        """Return the one snapshot bound to ``source_id``, if registered."""
+
+        return next(
+            (snapshot for snapshot in self.snapshots if snapshot.source_id == source_id),
+            None,
+        )
+
+    def write_jsonl(self, output_dir: str | Path) -> Path:
+        """Persist canonical multi-source snapshots for a new run."""
+
+        output = Path(output_dir)
+        output.mkdir(parents=True, exist_ok=True)
+        path = output / "source_snapshots.jsonl"
+        path.write_text(
+            "\n".join(snapshot.model_dump_json() for snapshot in self.snapshots) + "\n",
+            encoding="utf-8",
+        )
+        return path
+
+    @classmethod
+    def read_jsonl(cls, path: str | Path) -> "SourceSnapshotRegistry":
+        """Load and validate the canonical multi-source snapshot artifact."""
+
+        rows: list[SourceSnapshot] = []
+        for line_number, line in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                rows.append(SourceSnapshot.model_validate_json(line))
+            except Exception as exc:
+                raise ValueError(f"invalid source snapshot JSON at line {line_number}") from exc
+        return cls(snapshots=tuple(rows))
 
 
 class FactTraceRow(StrictModel):

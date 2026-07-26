@@ -18,7 +18,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from aviation_agentic_ai.agent_system.contracts import SourceFamily, SourceRecord, SourceSnapshot
+from aviation_agentic_ai.agent_system.contracts import (
+    SourceFamily,
+    SourceRecord,
+    SourceSnapshot,
+    SourceSnapshotRegistry,
+)
 from aviation_agentic_ai.cross_source.alignment.registry import (
     build_facility_registry,
     build_term_registry,
@@ -168,6 +173,23 @@ def build_source_snapshot(record: SourceRecord) -> SourceSnapshot:
         content_sha256=_content_sha256(record.content),
         snapshot_timestamp=datetime.now(UTC).isoformat(),
     )
+
+
+def build_source_snapshot_registry(records: list[SourceRecord]) -> SourceSnapshotRegistry:
+    """Build checksum-pinned, family-bound snapshots for one ingest run."""
+
+    return SourceSnapshotRegistry(
+        snapshots=tuple(build_source_snapshot(record) for record in records),
+        expected_families={record.source_id: record.family for record in records},
+    )
+
+
+def write_source_snapshot_registry(
+    registry: SourceSnapshotRegistry, output_dir: str | Path
+) -> Path:
+    """Write the canonical ``source_snapshots.jsonl`` artifact for a new run."""
+
+    return registry.write_jsonl(output_dir)
 
 
 def write_source_snapshot(snapshot: SourceSnapshot, output_dir: str | Path) -> Path:

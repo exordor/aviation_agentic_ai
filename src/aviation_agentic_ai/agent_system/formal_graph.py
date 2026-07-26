@@ -33,6 +33,7 @@ every accepted fact carries the source IDs and bound evidence texts.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -49,6 +50,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     ProfileGap,
     RejectedFact,
     SourceSnapshot,
+    SourceSnapshotRegistry,
     ValidatedFact,
 )
 from aviation_agentic_ai.agent_system.schema_guide import (
@@ -81,7 +83,8 @@ GROUND_STOP_REQUIRED: tuple[tuple[str, str], ...] = (
 
 
 def build_evidence_index(
-    evidence_cards: list[EvidenceCard], source_snapshot: SourceSnapshot
+    evidence_cards: list[EvidenceCard],
+    source_snapshot: SourceSnapshot | SourceSnapshotRegistry,
 ) -> dict[str, list[EvidenceClaim]]:
     """Index ``source_id -> [EvidenceClaim, ...]`` (source-contained claims only).
 
@@ -92,14 +95,25 @@ def build_evidence_index(
     """
 
     index: dict[str, list[EvidenceClaim]] = defaultdict(list)
-    snapshot_content = source_snapshot.content
+    snapshots = (
+        source_snapshot.snapshots
+        if isinstance(source_snapshot, SourceSnapshotRegistry)
+        else (source_snapshot,)
+    )
+    snapshots_by_source_id = {
+        snapshot.source_id: snapshot
+        for snapshot in snapshots
+        if snapshot.content_sha256
+        == hashlib.sha256(snapshot.content.encode("utf-8")).hexdigest()
+    }
     for card in evidence_cards:
         for claim in card.claims:
             if not claim.source_id or not claim.evidence_text:
                 continue
             # Source-containment gate: drop any claim whose text is not verbatim
             # in the snapshot content for its source.
-            if claim.evidence_text not in snapshot_content:
+            snapshot = snapshots_by_source_id.get(claim.source_id)
+            if snapshot is None or claim.evidence_text not in snapshot.content:
                 continue
             index[claim.source_id].append(claim)
     return dict(index)

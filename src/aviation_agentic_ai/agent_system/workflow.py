@@ -52,7 +52,10 @@ from aviation_agentic_ai.agent_system.materialize import (
     materialize_validated_facts,
 )
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide, load_schema_guide
-from aviation_agentic_ai.agent_system.sources import build_source_snapshot, write_source_snapshot
+from aviation_agentic_ai.agent_system.sources import (
+    build_source_snapshot_registry,
+    write_source_snapshot_registry,
+)
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 ModelInvoker = Callable[[str, dict[str, Any]], ModelCallRecord]
@@ -349,8 +352,9 @@ def _materialize_node(state: dict) -> dict:
 
     # Persist the source snapshot (plan §5.2) so every accepted fact binds to
     # auditable, checksum-pinned source content.
-    snapshot = build_source_snapshot(ctx.advisory)
-    write_source_snapshot(snapshot, ctx.output_dir)
+    snapshot_registry = build_source_snapshot_registry([ctx.advisory])
+    snapshot = snapshot_registry.snapshots[0]
+    write_source_snapshot_registry(snapshot_registry, ctx.output_dir)
 
     # Formal Graph Kernel: the deterministic gate between model output and the
     # formal graph (plan §4, §5.4). Runs the 10 authority/schema/source/
