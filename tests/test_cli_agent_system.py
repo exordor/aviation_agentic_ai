@@ -92,7 +92,7 @@ class _SuccessfulModel:
             message = AIMessage(
                 content=(
                     "ANSWER\n"
-                    "MEASURE: Ground Stop\n"
+                    "MEASURE: Ground Stop (GS)\n"
                     "AIRPORT: KJFK\n"
                     "START: 2026-05-19T21:00:00Z\n"
                     "END: 2026-05-19T22:45:00Z\n"

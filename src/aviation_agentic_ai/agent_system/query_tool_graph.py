@@ -210,7 +210,8 @@ def _expected_fixed_answer(
         for row in rows
     }
     type_value = str(by_predicate[QueryPredicate.EVENT_TYPE]["object"])
-    measure = ontology_labels.get(type_value, type_value).split("(", 1)[0].strip()
+    measure_label = ontology_labels.get(type_value, type_value).strip()
+    measure = measure_label.split("(", 1)[0].strip()
     facility_value = str(
         by_predicate[QueryPredicate.CONTROLLED_NAS_ELEMENT]["object"]
     )
@@ -218,7 +219,7 @@ def _expected_fixed_answer(
     start = str(by_predicate[QueryPredicate.EFFECTIVE_START]["object"])
     end = str(by_predicate[QueryPredicate.EFFECTIVE_END]["object"])
     expected = {
-        "MEASURE": measure,
+        "MEASURE": measure_label,
         "AIRPORT": airport,
         "START": start,
         "END": end,

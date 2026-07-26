@@ -528,7 +528,7 @@ roles:
           What event is recorded?
 
           ONTOLOGY_LABELS:
-          schema:ExampleFlowEvent=example flow event
+          schema:ExampleFlowEvent=Example Flow
 
           FICTIONAL_TOOL_OBSERVATION:
           urn:example:event:001 rdf:type schema:ExampleFlowEvent [example:001]
@@ -551,7 +551,7 @@ roles:
           Which runway was closed?
 
           ONTOLOGY_LABELS:
-          schema:ExampleFlowEvent=example flow event
+          schema:ExampleFlowEvent=Example Flow
 
           REGISTERED_EVENT_IDS:
           - urn:example:event:002
