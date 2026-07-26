@@ -34,15 +34,10 @@ from aviation_agentic_ai.agent_system.sources import (
     write_source_snapshot_registry,
 )
 from aviation_agentic_ai.agent_system.weather_context import (
-    FORECASTING_AIRPORT,
-    FORECAST_ISSUE_TIME,
-    INTERVAL_END,
-    INTERVAL_START,
-    METAR_STRING,
-    METEOROLOGICAL_REPORT,
-    RDF_TYPE,
-    TAF_STRING,
     build_weather_context,
+)
+from aviation_agentic_ai.agent_system.weather_context_validation import (
+    validate_weather_context_bundle,
 )
 from aviation_agentic_ai.cross_source.contracts import CanonicalEntity
 
@@ -53,20 +48,6 @@ _SIGNATURE_RE = re.compile(
 _SIGNATURE_FIELD_RE = re.compile(r"(?m)^SIGNATURE:")
 _ATM_START = "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveStartTime"
 _ATM_END = "https://data.nasa.gov/ontologies/atmonto/ATM#effectiveEndTime"
-_WEATHER_PREDICATES = {
-    RDF_TYPE,
-    FORECASTING_AIRPORT,
-    METAR_STRING,
-    TAF_STRING,
-    INTERVAL_START,
-    INTERVAL_END,
-    FORECAST_ISSUE_TIME,
-}
-_APPROVED_ASSOCIATIONS = {
-    "latest_forecast_known_at_issue",
-    "latest_observation_at_or_before_issue",
-    "observation_during_operation",
-}
 _T = TypeVar("_T", bound=BaseModel)
 
 
@@ -138,116 +119,6 @@ def _build_event(ctx: Any, state: dict[str, Any]) -> DecisionContextEvent:
         operational_start=start,
         operational_end=end,
     )
-
-
-def validate_weather_context_bundle(
-    bundle: WeatherContextBundle,
-    *,
-    event: DecisionContextEvent,
-    facility: CanonicalEntity,
-    registry: SourceSnapshotRegistry,
-) -> None:
-    """Fail closed before deterministic weather facts reach materialization."""
-
-    if bundle.status != "ok":
-        if (
-            bundle.selected_report_ids
-            or bundle.formal_facts
-            or bundle.fact_traces
-            or bundle.associations
-        ):
-            raise ValueError("non-ok weather bundle contains publishable rows")
-        if bundle != build_weather_context(event, facility, registry):
-            raise ValueError(
-                "weather bundle does not match deterministic source-derived semantics"
-            )
-        return
-    if not bundle.selected_report_ids:
-        raise ValueError("ok weather bundle has no selected report")
-    for name, identifiers in (
-        ("weather fact", [fact.fact_id for fact in bundle.formal_facts]),
-        ("weather trace", [trace.fact_id for trace in bundle.fact_traces]),
-        (
-            "weather association",
-            [association.association_id for association in bundle.associations],
-        ),
-    ):
-        if len(identifiers) != len(set(identifiers)):
-            raise ValueError(f"duplicate {name} ID")
-    if set(bundle.selected_report_ids) != {
-        association.report_id for association in bundle.associations
-    }:
-        raise ValueError("weather association report set does not match selection")
-
-    trace_by_fact = {trace.fact_id: trace for trace in bundle.fact_traces}
-    report_sources: dict[str, tuple[str, str]] = {}
-    for association in bundle.associations:
-        if association.run_id != event.run_id or association.event_id != event.event_id:
-            raise ValueError("weather association run/event binding mismatch")
-        if association.facility_id != facility.entity_id:
-            raise ValueError("weather association facility binding mismatch")
-        if association.relation_type not in _APPROVED_ASSOCIATIONS:
-            raise ValueError("weather association type is not approved")
-        if association.causal_claim is not False:
-            raise ValueError("weather association must be non-causal")
-        snapshot = registry.get(association.source_id)
-        if snapshot is None or snapshot.family not in {
-            SourceFamily.METAR,
-            SourceFamily.TAF,
-        }:
-            raise ValueError("weather association source is not registered")
-        if snapshot.content_sha256 != association.source_snapshot_sha256:
-            raise ValueError("weather association checksum binding mismatch")
-        source_binding = (
-            association.source_id,
-            association.source_snapshot_sha256,
-        )
-        existing_binding = report_sources.get(association.report_id)
-        if existing_binding is not None and existing_binding != source_binding:
-            raise ValueError("conflicting weather report source binding")
-        report_sources[association.report_id] = source_binding
-
-    for fact in bundle.formal_facts:
-        if fact.predicate_iri not in _WEATHER_PREDICATES:
-            raise ValueError("weather fact uses an unapproved predicate")
-        if fact.subject_class_iri != METEOROLOGICAL_REPORT:
-            raise ValueError("weather fact uses an unapproved subject class")
-        if fact.subject_iri == event.event_id or fact.object_value == event.event_id:
-            raise ValueError("weather facts must not create an event-weather edge")
-        report_id = fact.subject_iri.removeprefix("urn:aviation-agentic-ai:")
-        if report_id not in report_sources:
-            raise ValueError("weather fact subject is not a selected report")
-        if len(fact.source_ids) != 1:
-            raise ValueError("weather fact must cite exactly one source")
-        source_id, checksum = report_sources[report_id]
-        if fact.source_ids != [source_id]:
-            raise ValueError("weather fact source binding mismatch")
-        snapshot = registry.get(source_id)
-        if snapshot is None:
-            raise ValueError("weather fact source is not registered")
-        trace = trace_by_fact.get(fact.fact_id)
-        if trace is None:
-            raise ValueError("weather fact has no matching trace")
-        if (
-            trace.source_id != source_id
-            or trace.source_snapshot_sha256 != checksum
-            or trace.evidence_text not in snapshot.content
-            or fact.evidence_texts != [trace.evidence_text]
-        ):
-            raise ValueError("weather fact trace binding mismatch")
-        if fact.predicate_iri == FORECASTING_AIRPORT:
-            if (
-                fact.object_value != facility.entity_id
-                or fact.object_class_iri
-                != "https://data.nasa.gov/ontologies/atmonto/NAS#Airport"
-            ):
-                raise ValueError("weather report airport binding mismatch")
-    if len(trace_by_fact) != len(bundle.formal_facts):
-        raise ValueError("weather trace set does not match formal facts")
-    if bundle != build_weather_context(event, facility, registry):
-        raise ValueError(
-            "weather bundle does not match deterministic source-derived semantics"
-        )
 
 
 def _validate_outcomes(

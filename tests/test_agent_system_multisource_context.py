@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
 import aviation_agentic_ai.agent_system.context_artifacts as context_artifacts_module
+import aviation_agentic_ai.agent_system.weather_context as weather_context_module
 from aviation_agentic_ai.agent_system.context_artifacts import (
     integrate_decision_context,
     parse_advisory_signature,
@@ -35,6 +37,13 @@ from aviation_agentic_ai.agent_system.sources import (
     load_advisory_source,
     load_bts_context_source,
     load_weather_sources,
+)
+from aviation_agentic_ai.agent_system.weather_context import (
+    FORECASTING_AIRPORT,
+    INTERVAL_END,
+    INTERVAL_START,
+    METAR_STRING,
+    TAF_STRING,
 )
 from aviation_agentic_ai.agent_system.workflow import IngestContext, build_ingest_graph
 from aviation_agentic_ai.config import load_yaml
@@ -672,6 +681,172 @@ def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
     ).read_bytes()
 
 
+def test_integration_blocks_a_self_consistent_rdf_type_retarget_from_the_builder(
+    tmp_path,
+    config,
+    weather_sources,
+    monkeypatch,
+):
+    guide = load_schema_guide()
+    source_id = "2026-05-19:138"
+    advisory = load_advisory_source(config, source_id)
+    facility = FACILITIES["KJFK"]
+    event_id = "evt:retargeted-weather-type"
+    facts = _core_facts(
+        event_id=event_id,
+        event_class="GroundDelayProgramTMI",
+        facility=facility,
+        start="2026-05-19T22:05:00Z",
+        end="2026-05-20T02:59:00Z",
+        source_id=source_id,
+        reason="weather",
+    )
+    registry = build_source_snapshot_registry([advisory])
+    core = materialize_validated_facts(
+        facts=facts,
+        guide=guide,
+        source_snapshot=registry,
+        output_dir=tmp_path,
+    )
+    event = context_artifacts_module._build_event(
+        IngestContext(advisory=advisory, run_id="run:retargeted-type"),
+        {
+            "event_uri": event_id,
+            "validation": GraphValidationResult(accepted=facts, publishable=True),
+        },
+    )
+    transient = build_source_snapshot_registry([advisory, *weather_sources])
+    valid = context_artifacts_module.build_weather_context(
+        event,
+        facility,
+        transient,
+    )
+    rdf_type = next(
+        fact for fact in valid.formal_facts if fact.predicate_iri == RDF_TYPE
+    )
+    retargeted = rdf_type.model_copy(
+        update={
+            "object_value": f"{ATM}GroundDelayProgramTMI",
+            "object_class_iri": f"{ATM}GroundDelayProgramTMI",
+        }
+    )
+    corrupted = valid.model_copy(
+        update={
+            "formal_facts": [
+                retargeted if fact.fact_id == rdf_type.fact_id else fact
+                for fact in valid.formal_facts
+            ]
+        }
+    )
+    monkeypatch.setattr(
+        context_artifacts_module,
+        "build_weather_context",
+        lambda *args, **kwargs: corrupted,
+    )
+
+    result = integrate_decision_context(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=[facility],
+            guide=guide,
+            weather_sources=weather_sources,
+            run_id="run:retargeted-type",
+            output_dir=str(tmp_path),
+        ),
+        {
+            "event_uri": event_id,
+            "facility_result": _facility_result(facility, source_id),
+            "validation": GraphValidationResult(accepted=facts, publishable=True),
+            "materialization": core,
+            "source_snapshot": registry,
+        },
+    )
+
+    assert result["weather_context"].status == "blocked"
+    assert "rdf:type" in result["weather_context"].failure_reason
+    assert Path(result["materialization"].jsonl_path).read_bytes() == Path(
+        core.jsonl_path
+    ).read_bytes()
+    assert (tmp_path / "context_associations.jsonl").read_bytes() == b""
+
+
+def test_integration_blocks_self_consistent_raw_evidence_from_a_regressed_parser(
+    tmp_path,
+    config,
+    weather_sources,
+    monkeypatch,
+):
+    guide = load_schema_guide()
+    source_id = "2026-05-19:138"
+    advisory = load_advisory_source(config, source_id)
+    facility = FACILITIES["KJFK"]
+    event_id = "evt:regressed-weather-parser"
+    facts = _core_facts(
+        event_id=event_id,
+        event_class="GroundDelayProgramTMI",
+        facility=facility,
+        start="2026-05-19T22:05:00Z",
+        end="2026-05-20T02:59:00Z",
+        source_id=source_id,
+        reason="weather",
+    )
+    registry = build_source_snapshot_registry([advisory])
+    core = materialize_validated_facts(
+        facts=facts,
+        guide=guide,
+        source_snapshot=registry,
+        output_dir=tmp_path,
+    )
+    original_parse_report = weather_context_module._parse_report
+
+    def regressed_parse_report(snapshot):
+        parsed = original_parse_report(snapshot)
+        raw = f"FORGED PARSER OUTPUT FOR {parsed.source.source_id}"
+        raw_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+        time_token = parsed.logical_time.astimezone(UTC).strftime(
+            "%Y%m%dT%H%M%SZ"
+        )
+        report_id = (
+            f"weather-report:{parsed.family.value}:{parsed.station}:{time_token}:"
+            f"{raw_hash}:{parsed.source.content_sha256[:16]}"
+        )
+        return replace(parsed, raw=raw, report_id=report_id)
+
+    monkeypatch.setattr(
+        weather_context_module,
+        "_parse_report",
+        regressed_parse_report,
+    )
+
+    result = integrate_decision_context(
+        IngestContext(
+            advisory=advisory,
+            facility_candidates=[facility],
+            guide=guide,
+            weather_sources=weather_sources,
+            run_id="run:regressed-weather-parser",
+            output_dir=str(tmp_path),
+        ),
+        {
+            "event_uri": event_id,
+            "facility_result": _facility_result(facility, source_id),
+            "validation": GraphValidationResult(
+                accepted=facts,
+                publishable=True,
+            ),
+            "materialization": core,
+            "source_snapshot": registry,
+        },
+    )
+
+    assert result["weather_context"].status == "blocked"
+    assert "selected report IDs" in result["weather_context"].failure_reason
+    assert Path(result["materialization"].jsonl_path).read_bytes() == Path(
+        core.jsonl_path
+    ).read_bytes()
+    assert (tmp_path / "context_associations.jsonl").read_bytes() == b""
+
+
 def test_weather_bundle_rejects_conflicting_report_source_bindings(
     config,
     weather_sources,
@@ -816,7 +991,7 @@ def test_weather_validator_rejects_semantically_malformed_adapter_bundles(
             fact
             for fact in facts
             if fact.predicate_iri
-            == context_artifacts_module.FORECASTING_AIRPORT
+            == FORECASTING_AIRPORT
         )
         facts = replace_fact(
             original,
@@ -852,7 +1027,7 @@ def test_weather_validator_rejects_semantically_malformed_adapter_bundles(
         original = next(
             fact
             for fact in facts
-            if fact.predicate_iri == context_artifacts_module.INTERVAL_START
+            if fact.predicate_iri == INTERVAL_START
         )
         facts = replace_fact(
             original,
@@ -862,7 +1037,7 @@ def test_weather_validator_rejects_semantically_malformed_adapter_bundles(
         original = next(
             fact
             for fact in facts
-            if fact.predicate_iri == context_artifacts_module.INTERVAL_END
+            if fact.predicate_iri == INTERVAL_END
         )
         facts = [fact for fact in facts if fact.fact_id != original.fact_id]
         traces = [trace for trace in traces if trace.fact_id != original.fact_id]
@@ -882,8 +1057,8 @@ def test_weather_validator_rejects_semantically_malformed_adapter_bundles(
             for fact in facts
             if fact.predicate_iri
             in {
-                context_artifacts_module.METAR_STRING,
-                context_artifacts_module.TAF_STRING,
+                METAR_STRING,
+                TAF_STRING,
             }
         )
         facts = replace_fact(
