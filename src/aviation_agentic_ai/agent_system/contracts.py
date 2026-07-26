@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -157,6 +157,14 @@ class AgentResult(StrictModel):
     graph_patch: GraphPatchBlock | None = None
 
 
+class ModelToolCall(StrictModel):
+    """Sanitized native tool-call metadata retained for replay."""
+
+    call_id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    arguments: dict[str, Any] = Field(default_factory=dict)
+
+
 class ModelCallRecord(StrictModel):
     """One model call's audit record (raw response + provider metadata).
 
@@ -174,12 +182,15 @@ class ModelCallRecord(StrictModel):
     provider: str | None = None
     model: str | None = None
     system_fingerprint: str | None = None
+    temperature: float | None = None
     input_tokens: int = Field(default=0, ge=0)
     output_tokens: int = Field(default=0, ge=0)
     latency_ms: float = Field(default=0.0, ge=0.0)
     cache_hit: bool = False
     attempt: int = Field(default=1, ge=1)
     error: str | None = None
+    tool_calls: list[ModelToolCall] = Field(default_factory=list)
+    invalid_tool_calls: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class AgentRunResult(StrictModel):

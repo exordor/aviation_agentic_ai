@@ -49,7 +49,9 @@ MAX_PROVIDER_CALLS = 8
 PROMPT_CATALOG = DEFAULT_PROMPT_CATALOG
 
 
-def _extract_usage(result: Any) -> tuple[int, int, str | None, str | None, str | None]:
+def extract_model_metadata(
+    result: Any,
+) -> tuple[int, int, str | None, str | None, str | None]:
     """Extract (input_tokens, output_tokens, provider, model, fingerprint)."""
 
     usage = (
@@ -121,11 +123,16 @@ def make_live_model_invoker(
         try:
             result = chat.invoke(messages)
         except Exception as exc:  # provider/auth/timeout — record, do not fake
+            latency = (time.perf_counter() - started) * 1000.0
             return ModelCallRecord(
                 agent=agent_role,
                 raw_response="",
                 prompt_set_id=assembled.prompt_set_id,
                 prompt_version=assembled.prompt_version,
+                provider=FROZEN_PROVIDER,
+                model=FROZEN_MODEL,
+                temperature=FROZEN_TEMPERATURE,
+                latency_ms=latency,
                 attempt=role_attempt,
                 error=f"{type(exc).__name__}: {exc}",
             )
@@ -134,15 +141,18 @@ def make_live_model_invoker(
         if isinstance(content, list):
             content = "".join(p.get("text", "") if isinstance(p, dict) else str(p) for p in content)
         raw = str(content or "")
-        input_tokens, output_tokens, provider, model_, fingerprint = _extract_usage(result)
+        input_tokens, output_tokens, provider, model_, fingerprint = (
+            extract_model_metadata(result)
+        )
         _ = global_attempt  # recorded for completeness; role_attempt is the ledger key
         return ModelCallRecord(
             agent=agent_role,
             raw_response=raw,
             prompt_set_id=assembled.prompt_set_id,
             prompt_version=assembled.prompt_version,
-            provider=provider,
+            provider=provider or FROZEN_PROVIDER,
             model=model_ or FROZEN_MODEL,
+            temperature=FROZEN_TEMPERATURE,
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             latency_ms=latency,
@@ -189,7 +199,8 @@ def write_run_manifest(
     provider/model/usage/latency (or the recorded error for failed attempts).
     """
 
-    provider_calls = sum(1 for c in model_calls if c.error is None)
+    provider_attempts = len(model_calls)
+    provider_successes = sum(1 for c in model_calls if c.error is None)
     input_tokens = sum(c.input_tokens for c in model_calls)
     output_tokens = sum(c.output_tokens for c in model_calls)
     manifest = {
@@ -207,7 +218,11 @@ def write_run_manifest(
         },
         "schema_slice_id": schema_slice_id,
         "schema_checksum": schema_checksum,
-        "provider_calls": provider_calls,
+        # ``provider_calls`` is retained for artifact compatibility and now
+        # means attempted calls so failures cannot disappear from the budget.
+        "provider_calls": provider_attempts,
+        "provider_attempts": provider_attempts,
+        "provider_successes": provider_successes,
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
         "model_calls": [c.model_dump(mode="json") for c in model_calls],
