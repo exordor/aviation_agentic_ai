@@ -211,13 +211,24 @@ def _load_weather_file(path: Path, family: SourceFamily) -> list[SourceRecord]:
 def load_weather_sources(config: dict[str, Any]) -> list[SourceRecord]:
     """Load exact configured METAR/TAF JSONL rows as deterministic sources."""
 
-    sources = config["sources"]
+    sources = config.get("sources")
+    configured = sources if isinstance(sources, dict) else {}
+    missing = [
+        family
+        for family in ("metar", "taf")
+        if not configured.get(family)
+    ]
+    if missing:
+        raise ValueError(
+            "optional weather source paths are not configured: "
+            + ", ".join(missing)
+        )
     metar = _load_weather_file(
-        resolve_project_path(sources["metar"]),
+        resolve_project_path(configured["metar"]),
         SourceFamily.METAR,
     )
     taf = _load_weather_file(
-        resolve_project_path(sources["taf"]),
+        resolve_project_path(configured["taf"]),
         SourceFamily.TAF,
     )
     return sorted([*metar, *taf], key=lambda record: record.source_id)

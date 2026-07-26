@@ -341,3 +341,69 @@ def test_ingest_records_optional_loader_failures_for_the_context_layer(
     assert captured["ctx"].bts_source is None
     assert captured["ctx"].weather_failure_reason == "weather checksum mismatch"
     assert captured["ctx"].bts_failure_reason == "BTS checksum mismatch"
+
+
+def test_ingest_treats_missing_legacy_weather_config_as_an_optional_layer_failure(
+    tmp_path,
+    monkeypatch,
+):
+    captured = {}
+    advisory = SourceRecord(
+        source_id=SOURCE_ID,
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="SIGNATURE:\n26/05/19 21:38\n",
+    )
+    legacy_config = {
+        "sources": {
+            "atcscc_advisories": "data/sources/atcscc_advisories.jsonl",
+        },
+        "paths": {"agent_system_runs_root": str(tmp_path)},
+    }
+    config_path = tmp_path / "legacy.yaml"
+    config_path.write_text("{}\n", encoding="utf-8")
+    monkeypatch.setattr(cli_module, "load_yaml", lambda path: legacy_config)
+    monkeypatch.setattr(cli_module, "load_advisory_source", lambda config, source_id: advisory)
+    monkeypatch.setattr(cli_module, "facility_candidates", lambda config: [])
+    monkeypatch.setattr(cli_module, "term_candidates", lambda config: [])
+    monkeypatch.setattr(
+        cli_module,
+        "load_bts_context_source",
+        lambda config: (_ for _ in ()).throw(ValueError("BTS unavailable")),
+    )
+    monkeypatch.setattr(cli_module, "new_run_directory", lambda root, source_id: tmp_path)
+    monkeypatch.setattr(cli_module, "make_live_model_invoker", lambda **kwargs: object())
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        lambda **kwargs: object(),
+    )
+
+    def fake_run(ctx):
+        captured["ctx"] = ctx
+        return {
+            "model_calls": [],
+            "materialization": None,
+            "validation": None,
+            "kg_result": None,
+            "context_artifacts": {},
+        }
+
+    monkeypatch.setattr(cli_module, "run_ingest", fake_run)
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ingest",
+            "--source-id",
+            SOURCE_ID,
+            "--config",
+            str(config_path),
+            "--allow-live-model",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert captured["ctx"].weather_sources == []
+    assert (
+        captured["ctx"].weather_failure_reason
+        == "optional weather source paths are not configured: metar, taf"
+    )

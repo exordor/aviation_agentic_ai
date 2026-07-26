@@ -199,6 +199,33 @@ def bts_context(config):
     return load_bts_context_source(config)
 
 
+@pytest.fixture(scope="module")
+def weather_validation_case(config, weather_sources):
+    source_id = "2026-05-19:138"
+    advisory = load_advisory_source(config, source_id)
+    facility = FACILITIES["KJFK"]
+    facts = _core_facts(
+        event_id="evt:weather-validator",
+        event_class="GroundDelayProgramTMI",
+        facility=facility,
+        start="2026-05-19T22:05:00Z",
+        end="2026-05-20T02:59:00Z",
+        source_id=source_id,
+        reason="weather",
+    )
+    event = context_artifacts_module._build_event(
+        IngestContext(advisory=advisory, run_id="run:weather-validator"),
+        {
+            "event_uri": "evt:weather-validator",
+            "validation": GraphValidationResult(accepted=facts, publishable=True),
+        },
+    )
+    registry = build_source_snapshot_registry([advisory, *weather_sources])
+    bundle = context_artifacts_module.build_weather_context(event, facility, registry)
+    assert bundle.status == "ok"
+    return event, facility, registry, bundle
+
+
 def test_signature_parser_uses_signature_and_rejects_missing_or_malformed_values():
     text = "EFFECTIVE TIME:\n192138-192345\nSIGNATURE:\n26/05/19 21:38\n"
     assert parse_advisory_signature(text) == datetime(2026, 5, 19, 21, 38, tzinfo=UTC)
@@ -741,6 +768,194 @@ def test_outcome_bundle_rejects_duplicate_phase_with_a_distinct_id(
     corrupted = valid.model_copy(update={"summaries": [*valid.summaries, duplicate]})
 
     with pytest.raises(ValueError, match="exactly one summary per phase"):
+        context_artifacts_module._validate_outcomes(
+            corrupted,
+            event=event,
+            facility=facility,
+            registry=registry,
+        )
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    [
+        "rdf_type_target",
+        "literal_forecasting_airport",
+        "empty_formal_fact_set",
+        "metar_as_forecast",
+        "arbitrary_association_id",
+        "forged_relevant_times",
+        "wrong_interval_datatype",
+        "missing_required_fact",
+        "arbitrary_fact_id",
+        "forged_raw_report_value",
+    ],
+)
+def test_weather_validator_rejects_semantically_malformed_adapter_bundles(
+    weather_validation_case,
+    corruption,
+):
+    event, facility, registry, valid = weather_validation_case
+    facts = list(valid.formal_facts)
+    traces = list(valid.fact_traces)
+    associations = list(valid.associations)
+
+    def replace_fact(original, replacement):
+        return [
+            replacement if fact.fact_id == original.fact_id else fact for fact in facts
+        ]
+
+    if corruption == "rdf_type_target":
+        original = next(fact for fact in facts if fact.predicate_iri == RDF_TYPE)
+        facts = replace_fact(
+            original,
+            original.model_copy(update={"object_value": f"{NAS}Airport"}),
+        )
+    elif corruption == "literal_forecasting_airport":
+        original = next(
+            fact
+            for fact in facts
+            if fact.predicate_iri
+            == context_artifacts_module.FORECASTING_AIRPORT
+        )
+        facts = replace_fact(
+            original,
+            original.model_copy(
+                update={
+                    "object_kind": "literal",
+                    "object_class_iri": None,
+                    "datatype_iri": XSD_STRING,
+                }
+            ),
+        )
+    elif corruption == "empty_formal_fact_set":
+        facts = []
+        traces = []
+    elif corruption == "metar_as_forecast":
+        index = next(
+            index
+            for index, association in enumerate(associations)
+            if registry.get(association.source_id).family == SourceFamily.METAR
+        )
+        associations[index] = associations[index].model_copy(
+            update={"relation_type": "latest_forecast_known_at_issue"}
+        )
+    elif corruption == "arbitrary_association_id":
+        associations[0] = associations[0].model_copy(
+            update={"association_id": "weather-association:arbitrary"}
+        )
+    elif corruption == "forged_relevant_times":
+        associations[0] = associations[0].model_copy(
+            update={"relevant_times": {"advisory_issued_at": "1999-01-01T00:00:00Z"}}
+        )
+    elif corruption == "wrong_interval_datatype":
+        original = next(
+            fact
+            for fact in facts
+            if fact.predicate_iri == context_artifacts_module.INTERVAL_START
+        )
+        facts = replace_fact(
+            original,
+            original.model_copy(update={"datatype_iri": XSD_STRING}),
+        )
+    elif corruption == "missing_required_fact":
+        original = next(
+            fact
+            for fact in facts
+            if fact.predicate_iri == context_artifacts_module.INTERVAL_END
+        )
+        facts = [fact for fact in facts if fact.fact_id != original.fact_id]
+        traces = [trace for trace in traces if trace.fact_id != original.fact_id]
+    elif corruption == "arbitrary_fact_id":
+        original = facts[0]
+        replacement = original.model_copy(update={"fact_id": "weather-fact:arbitrary"})
+        facts = replace_fact(original, replacement)
+        traces = [
+            trace.model_copy(update={"fact_id": replacement.fact_id})
+            if trace.fact_id == original.fact_id
+            else trace
+            for trace in traces
+        ]
+    elif corruption == "forged_raw_report_value":
+        original = next(
+            fact
+            for fact in facts
+            if fact.predicate_iri
+            in {
+                context_artifacts_module.METAR_STRING,
+                context_artifacts_module.TAF_STRING,
+            }
+        )
+        facts = replace_fact(
+            original,
+            original.model_copy(update={"object_value": "FORGED WEATHER REPORT"}),
+        )
+    corrupted = valid.model_copy(
+        update={
+            "formal_facts": facts,
+            "fact_traces": traces,
+            "associations": associations,
+        }
+    )
+
+    with pytest.raises(ValueError):
+        context_artifacts_module.validate_weather_context_bundle(
+            corrupted,
+            event=event,
+            facility=facility,
+            registry=registry,
+        )
+
+
+def test_outcome_validator_rejects_event_unbound_1999_windows(
+    config,
+    bts_context,
+):
+    source_id = "2026-05-19:138"
+    advisory = load_advisory_source(config, source_id)
+    facility = FACILITIES["KJFK"]
+    facts = _core_facts(
+        event_id="evt:outcome-window",
+        event_class="GroundDelayProgramTMI",
+        facility=facility,
+        start="2026-05-19T22:05:00Z",
+        end="2026-05-20T02:59:00Z",
+        source_id=source_id,
+        reason="weather",
+    )
+    event = context_artifacts_module._build_event(
+        IngestContext(advisory=advisory, run_id="run:outcome-window"),
+        {
+            "event_uri": "evt:outcome-window",
+            "validation": GraphValidationResult(accepted=facts, publishable=True),
+        },
+    )
+    bts_source, bts_rows = bts_context
+    registry = build_source_snapshot_registry([bts_source])
+    valid = context_artifacts_module.build_bts_outcome_summaries(
+        event,
+        facility,
+        bts_rows,
+        source_id=bts_source.source_id,
+        source_snapshot_sha256=registry.snapshots[0].content_sha256,
+    )
+    active = next(summary for summary in valid.summaries if summary.phase == "active")
+    forged = active.model_copy(
+        update={
+            "window_start": datetime(1999, 1, 1, tzinfo=UTC),
+            "window_end": datetime(1999, 1, 2, tzinfo=UTC),
+        }
+    )
+    corrupted = valid.model_copy(
+        update={
+            "summaries": [
+                forged if summary.phase == "active" else summary
+                for summary in valid.summaries
+            ]
+        }
+    )
+
+    with pytest.raises(ValueError, match="BTS outcome window mismatch"):
         context_artifacts_module._validate_outcomes(
             corrupted,
             event=event,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import re
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -157,6 +157,10 @@ def validate_weather_context_bundle(
             or bundle.associations
         ):
             raise ValueError("non-ok weather bundle contains publishable rows")
+        if bundle != build_weather_context(event, facility, registry):
+            raise ValueError(
+                "weather bundle does not match deterministic source-derived semantics"
+            )
         return
     if not bundle.selected_report_ids:
         raise ValueError("ok weather bundle has no selected report")
@@ -240,6 +244,10 @@ def validate_weather_context_bundle(
                 raise ValueError("weather report airport binding mismatch")
     if len(trace_by_fact) != len(bundle.formal_facts):
         raise ValueError("weather trace set does not match formal facts")
+    if bundle != build_weather_context(event, facility, registry):
+        raise ValueError(
+            "weather bundle does not match deterministic source-derived semantics"
+        )
 
 
 def _validate_outcomes(
@@ -263,7 +271,27 @@ def _validate_outcomes(
         "recovery",
     }:
         raise ValueError("BTS outcome bundle requires exactly one summary per phase")
+    expected_windows = {
+        "baseline": (
+            event.operational_start - timedelta(hours=2),
+            event.operational_start,
+        ),
+        "active": (event.operational_start, event.operational_end),
+        "recovery": (
+            event.operational_end,
+            event.operational_end + timedelta(hours=6),
+        ),
+    }
     for summary in bundle.summaries:
+        clocks = (summary.window_start, summary.window_end)
+        if any(clock.tzinfo is None or clock.utcoffset() is None for clock in clocks):
+            raise ValueError("BTS outcome windows must be timezone-aware")
+        expected_start, expected_end = expected_windows[summary.phase]
+        if (
+            summary.window_start.astimezone(UTC) != expected_start.astimezone(UTC)
+            or summary.window_end.astimezone(UTC) != expected_end.astimezone(UTC)
+        ):
+            raise ValueError("BTS outcome window mismatch")
         snapshot = registry.get(summary.source_id)
         if snapshot is None or snapshot.family != SourceFamily.BTS_ON_TIME:
             raise ValueError("BTS outcome source is not registered")
