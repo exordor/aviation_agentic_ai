@@ -380,7 +380,7 @@ result.
 
 Fixed behavior:
 
-- no matching graph fact -> `图中证据不足`;
+- no matching graph fact -> `Insufficient graph evidence.`;
 - missing provenance -> do not call the model;
 - provider failure -> `BLOCKED`;
 - answer source IDs must be a subset of retrieved fact source IDs;
@@ -418,7 +418,7 @@ Neo4j tests must assert:
 Query tests must assert:
 
 - a supported event/facility/time question sees only matching facts;
-- an unrelated LAX runway question returns `图中证据不足`;
+- an unrelated LAX runway question returns `Insufficient graph evidence.`;
 - the unrelated question makes zero provider calls.
 
 Batch two ends with another `CHECKPOINT` or `BLOCKED`.
@@ -435,9 +435,9 @@ Execution:
 3. Live-ingest the same source again.
 4. MERGE both projections into the same Neo4j database.
 5. Ask:
-   `该通告记录了哪种交通管理措施、哪个受控机场以及什么有效时间？`
+   `What traffic management measure, controlled airport, and effective time are recorded in this advisory?`
 6. Ask:
-   `LAX 的跑道材质是什么？`
+   `What is the runway surface at LAX?`
 7. Independently query the RDF and Neo4j artifacts.
 
 Expected provider calls:
@@ -472,7 +472,7 @@ Final success requires all of the following:
 - second load produces no count increase;
 - sentinel node remains;
 - supported answer is correct and cites `2026-05-19:123`;
-- unrelated answer is `图中证据不足` with zero model calls.
+- unrelated answer is `Insufficient graph evidence.` with zero model calls.
 
 Any failure returns `BLOCKED`. ZCode must not repair the result by changing
 prompts or adding model calls.
@@ -724,4 +724,158 @@ pass. Do not start batch two and do not commit or push.
 
 ```text
 TASK|run=formal-graph-kernel-20260726|task=full-date-and-call-policy-correction|depends_on=fact-level-evidence-checkpoint-review|inputs=docs/agent_system_formal_graph_kernel_execution_plan.md#12,current-batch-one-diff|scope=batch-one-allowed-files-only|produces=full-date-evidence-values,strict-time-binding,zero-noop-advisory-calls,explicit-source-supported-profile-gap,regression-tests|accept=section-12-regressions+section-11-regressions+section-5.6-commands|on_deviation=BLOCKED|reply=CHECKPOINT-or-BLOCKED
+```
+
+## 13. Codex Checkpoint Review: Provenance, Query Intent, and Failure Status
+
+Status: batch two not accepted; one root-level correction is required
+Review date: 2026-07-26
+
+### Current objective
+
+Make the batch-two artifacts support the registered end-to-end behavior:
+
+1. every accepted fact remains connected to its registered source in Neo4j;
+2. the fixed Chinese competency question retrieves the required event facts;
+3. a failed Query Agent call is reported as `BLOCKED`, not as missing evidence.
+
+These are Critical Path corrections. They determine whether the final vertical
+slice can run and whether its result is truthful. No additional Agent,
+framework, prompt, ontology term, data source, or generalized retrieval system
+is authorized.
+
+### Independently reproduced failures
+
+The checkpoint's focused tests pass, but direct checks against the registered
+vertical slice reproduce three result-invalidating failures.
+
+#### Neo4j provenance depends on an optional graph row
+
+Every accepted `ValidatedFact` already carries registered `source_ids`.
+However, the Neo4j projection creates a `SourceRecord` and `DERIVED_FROM` only
+when the model separately emits a `prov:wasDerivedFrom` Graph Patch row.
+
+The valid fixed-case graph used by the Formal Graph Kernel does not require that
+extra row. Projecting its accepted facts therefore produces:
+
+```text
+labels = [AviationEvent, Facility]
+relationship_types = [CONTROLLED_NAS_ELEMENT]
+source_nodes = 0
+derived_from = 0
+```
+
+This breaks the minimum Neo4j graph and makes provenance depend on redundant
+model output even though the source binding is already present on every
+validated fact.
+
+#### The registered competency question retrieves no facts
+
+The final registered question is:
+
+```text
+What traffic management measure, controlled airport, and effective time are recorded in this advisory?
+```
+
+The current whitespace keyword matcher does not map the question's semantic
+roles to the corresponding schema predicates. It fails to retrieve the event
+type and can return incomplete evidence. The intended supported Query Agent
+call therefore cannot be trusted.
+
+#### Provider failure is converted into an answer
+
+When the Query Agent invoker returns a non-empty `ModelCallRecord.error`, the
+current code parses the empty response and returns
+`Insufficient graph evidence.`. No
+`BLOCKED` status reaches the caller or CLI. This contradicts section 6.3 and
+makes provider failure indistinguishable from genuine graph insufficiency.
+
+### Minimum correction
+
+#### Source projection is derived from validated facts
+
+- For every accepted `ValidatedFact`, derive provenance from its registered
+  `source_ids`.
+- Create one `SourceRecord` per unique source ID.
+- Create one stable `DERIVED_FROM` relationship from the fact's event to each
+  unique source.
+- An explicit accepted `prov:wasDerivedFrom` fact may confirm the same
+  relationship, but must not be required and must not create a duplicate.
+- Preserve the existing RDF provenance behavior, canonical IDs, parameterized
+  `MERGE`, and no-delete policy.
+
+#### Query retrieval is schema-guided, not raw-string-only
+
+- Add one bounded deterministic intent layer for the registered competency
+  question.
+- Map the supported concepts to the existing schema predicates:
+  traffic-management measure -> `rdf:type`;
+  controlled airport -> `atm:controlledNASelement`;
+  effective time -> `atm:effectiveStartTime` and
+  `atm:effectiveEndTime`.
+- The exact registered English question must retrieve those facts and invoke
+  the Query Agent once.
+- Preserve keyword retrieval for simple matching questions.
+- The unrelated LAX runway question must still retrieve nothing, return
+  `Insufficient graph evidence.`, and make zero provider calls.
+- Do not add vector search, generic RAG, translation calls, another model call,
+  or question-specific answer text.
+
+#### Query failure has an explicit blocked path
+
+- A non-empty model-call error or empty provider response raises a narrow query
+  blocked result before answer parsing.
+- `query_run.json` records `status=blocked`, the failure reason, and the model
+  call metadata.
+- The `ask` command reports `BLOCKED` and exits non-zero.
+- `Insufficient graph evidence.` remains reserved for a successful
+  deterministic retrieval decision with no relevant graph evidence, not
+  provider failure.
+
+#### English-only active interface
+
+- Define one shared exact fallback message:
+  `Insufficient graph evidence.`
+- The Query Agent must always answer in English.
+- Change only the Query Agent prompt language contract and its insufficient
+  evidence few-shot; bump its prompt version from `query-agent-v2` to
+  `query-agent-v3`.
+- Active source code, prompts, CLI output, tests, documentation, and generated
+  system artifacts must contain no Chinese interface text.
+- Do not rewrite quoted external source records; original-language source text
+  remains valid evidence when a future source profile explicitly requires it.
+
+### Required regressions
+
+1. Accepted fixed-case facts without an explicit PROV graph row still produce
+   exactly one `SourceRecord` and one `DERIVED_FROM`.
+2. Adding the explicit PROV row does not increase those counts.
+3. The exact registered English question retrieves the event type, KJFK
+   controlled facility, and both effective-time facts, invokes the provider
+   exactly once, and permits only retrieved source IDs.
+4. The LAX runway question remains `Insufficient graph evidence.` with zero
+   provider calls.
+5. A Query Agent provider error produces `BLOCKED`, a non-zero CLI exit, and a
+   blocked `query_run.json`.
+6. Existing RDF assertions, endpoint completeness, parameterized-MERGE tests,
+   and the full test suite remain green.
+7. A tracked-file scan over the active Agent-system paths finds no Chinese
+   interface text.
+
+The fake Neo4j driver remains a unit/contract test only. It must not be
+described as a live Neo4j acceptance result. Credentialed idempotency and
+sentinel validation remain part of section 7.
+
+### Success and stop condition
+
+Run the section 6.4 focused checks, `uv run ruff check .`,
+`uv run pytest -q`, `git diff --check`, and the registered active-path language
+scan. Return `CHECKPOINT` only after all seven regressions above pass. Do not
+start the live model run, credentialed Neo4j load, ontology editing, commits,
+or pushes.
+
+```text
+PLAN|id=formal-graph-batch-two-root-fix-20260726|tasks=T1:derive-provenance-from-validated-facts,T2:add-schema-guided-competency-query-routing,T3:propagate-query-provider-failure-as-blocked,T4:migrate-active-query-interface-to-English,T5:run-focused-and-full-acceptance|deps=T2<-T1,T3<-T2,T4<-T3,T5<-T4|parallel=none|accept=section-13-seven-regressions+section-6.4-tests+ruff+full-pytest+diff-check+active-language-scan|boundaries=batch-two-only,query-prompt-language-change-only,no-ontology-change,no-new-Agent,no-new-framework,no-live-model,no-live-Neo4j,no-commit,no-push
+
+TASK|run=formal-graph-batch-two-root-fix-20260726|task=T1-T5|depends_on=batch-two-checkpoint-review|inputs=docs/agent_system_formal_graph_kernel_execution_plan.md#13,current-batch-two-diff|scope=src/aviation_agentic_ai/agent_system/materialize.py,src/aviation_agentic_ai/agent_system/query.py,src/aviation_agentic_ai/agent_system/agents.py,src/aviation_agentic_ai/cli_agent_system.py,configs/prompts/agent_system_v1.yaml,tests/test_agent_system_batch_two.py,tests/test_agent_system_prompt_catalog.py,and-only-required-existing-query-tests|produces=source-complete-neo4j-projection,schema-guided-fixed-query,blocked-provider-path,English-only-query-interface,regression-evidence|accept=section-13-seven-regressions+section-6.4-tests+uv-run-ruff-check-dot+uv-run-pytest-q+git-diff-check+active-language-scan|on_deviation=BLOCKED|reply=CHECKPOINT-or-BLOCKED
 ```

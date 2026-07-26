@@ -36,6 +36,9 @@ are explicitly **not** part of the current system mainline.
 - Current mainline: source-bounded event KG construction over retrospective FAA
   ATCSCC advisories, materialized to RDF and Neo4j and queried by a KG-grounded
   Query Agent.
+- Use English for active source code, contracts, prompts, CLI messages, tests,
+  documentation, and generated system artifacts. Original-language text is
+  allowed only when preserved as explicitly identified external source data.
 - The legacy 24-case alignment MVE / `alignment_mve` package and any paired
   comparison designs are **historical, optional evaluation tracks**, not the
   default context. Do not preload them unless a task explicitly names them.

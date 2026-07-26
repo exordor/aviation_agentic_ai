@@ -485,7 +485,7 @@ provenance.
 
 ### 12.6 Stop conditions
 
-- no supporting graph evidence: answer `图中证据不足`;
+- no supporting graph evidence: answer `Insufficient graph evidence.`;
 - missing provenance: omit the unsupported claim;
 - graph-store failure: `blocked`.
 
@@ -754,7 +754,7 @@ the raw advisory.
 - Reingesting produces no duplicate canonical nodes or relationships.
 - No materialized relationship has a missing endpoint.
 - The Query Agent sees graph-tool results, not raw source documents.
-- Missing graph evidence produces `图中证据不足`.
+- Missing graph evidence produces `Insufficient graph evidence.`.
 - No trace stores chain-of-thought or credentials.
 
 ### 20.2 Repository checks
