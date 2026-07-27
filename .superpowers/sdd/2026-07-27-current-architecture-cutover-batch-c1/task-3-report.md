@@ -178,3 +178,108 @@ Source scans confirmed:
   unregistered, malformed, or checksum-mismatched registry blocks all graph and
   context queries, including core questions.
 - No migration tool or dual reader was added.
+
+## Fix Round 1
+
+### Review findings addressed
+
+- `QueryGraphStore` now reconstructs every current graph row as a
+  `ValidatedFact` under the checksum-pinned local `ValidationProfileRegistry`.
+  It then applies the same publication validator used by materialization.
+- The shared validator now enforces profile-admitted evidence modes, source
+  families, property object kinds, decision-profile domains and ranges, and
+  exact source-text evidence references.
+- Direct-source reads require `evidence_ref == fact_id`, exact graph/trace
+  evidence-text agreement, a trace checksum matching the registered source
+  snapshot, and trace evidence contained in that snapshot.
+- Weather source-text traces, public-observation deterministic traces, and
+  reconstruction/system-membership evidence retain their separate contracts.
+- The final context artifact registry now includes `fact_trace.jsonl` with
+  exact path, row count, SHA-256, and decision-layer status. There is no
+  circular checksum: the trace checksum is computed before the manifest is
+  written, and the manifest is not an input to the trace.
+- The ingest CLI provider ceiling now counts every recorded attempt with
+  `len(model_calls)`, including failed attempts.
+- Added regressions for a self-consistent Weather-as-declared-reason forgery,
+  cross-fact `evidence_ref`, mismatched `evidence_text`, and failed provider
+  attempts.
+
+No compatibility reader, manifest-trusted profile reconstruction, new Agent,
+source, ontology term, recommendation, or causal claim was added.
+
+### RED
+
+Commands:
+
+```bash
+uv run pytest -q \
+  tests/test_agent_system_query_tools.py::test_store_rejects_self_consistent_weather_reason_owned_by_decision_profile \
+  tests/test_cli_agent_system.py::test_ingest_provider_limit_counts_failed_attempts
+
+uv run pytest -q \
+  tests/test_agent_system_query_tools.py::test_store_rejects_graph_row_bound_to_another_direct_fact_trace \
+  tests/test_agent_system_query_tools.py::test_store_rejects_graph_evidence_text_that_disagrees_with_trace
+```
+
+Results before the fixes:
+
+```text
+2 failed
+1 failed, 1 passed
+```
+
+The first pair proved the forged decision-owned Weather reason and two failed
+provider attempts were accepted. The second pair proved a row could point at a
+different direct fact's otherwise matching trace; evidence-text mismatch was
+already rejected by the newly shared validator.
+
+### GREEN
+
+Focused query/materialization/runtime/CLI verification:
+
+```bash
+uv run pytest -q \
+  tests/test_agent_system_current_architecture.py \
+  tests/test_agent_system_graph_kernel.py \
+  tests/test_agent_system_public_observations.py \
+  tests/test_agent_system_multisource_context.py \
+  tests/test_agent_system_query_tools.py \
+  tests/test_agent_system_query_tool_graph.py \
+  tests/test_agent_system_multisource_contracts.py \
+  tests/test_agent_system_runtime_binding.py \
+  tests/test_cli_agent_system.py
+```
+
+Result:
+
+```text
+258 passed in 5.87s
+```
+
+Repository-wide regression:
+
+```bash
+uv run pytest -q
+```
+
+Result:
+
+```text
+874 passed, 11 warnings in 25.12s
+```
+
+The warnings remain the existing SWIG deprecations and test output-path
+warnings.
+
+Static verification:
+
+```bash
+uv run ruff check .
+git diff --check
+```
+
+Result:
+
+```text
+All checks passed.
+```

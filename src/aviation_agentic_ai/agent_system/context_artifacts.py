@@ -820,12 +820,24 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
                 weather_fact_traces=traces,
                 output_dir=output_dir,
             )
+    if not fact_trace_path.exists():
+        fact_trace_path.write_text("", encoding="utf-8")
 
+    decision_status = (
+        "ok"
+        if validation is not None and validation.publishable
+        else common_status
+    )
     context_artifacts = {
         "source_snapshots": _artifact_metadata(
             snapshots_path,
             status=authority_status,
             failure_reason=authority_reason,
+        ),
+        "fact_trace": _artifact_metadata(
+            fact_trace_path,
+            status=decision_status,
+            failure_reason=common_reason,
         ),
         "context_associations": _artifact_metadata(
             association_path,
@@ -858,7 +870,6 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             failure_reason=observation_bundle.failure_reason or "",
         ),
     }
-    decision_status = "ok" if validation is not None and validation.publishable else common_status
     formal_layers = {
         "decision": _formal_layer_metadata(
             profile_registry,

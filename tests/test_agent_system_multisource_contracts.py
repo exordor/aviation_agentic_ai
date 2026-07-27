@@ -71,13 +71,17 @@ def _decision_fact(**fields: object) -> ValidatedFact:
     )
 
 
-def _artifact_metadata(path) -> dict[str, object]:
+def _artifact_metadata(
+    path,
+    *,
+    status: str = "ok",
+) -> dict[str, object]:
     data = path.read_bytes()
     return {
         "path": path.name,
         "count": sum(1 for line in data.splitlines() if line.strip()),
         "sha256": __import__("hashlib").sha256(data).hexdigest(),
-        "status": "ok",
+        "status": status,
     }
 
 
@@ -124,6 +128,33 @@ def _write_current_query_run(
         encoding="utf-8",
     )
     context_artifacts: dict[str, dict[str, object]] = {}
+    fact_trace_path = run_dir / "fact_trace.jsonl"
+    fact_trace_path.write_text(
+        json.dumps(
+            {
+                "fact_id": "fact:type",
+                "graph_patch_line": "",
+                "source_id": snapshot.source_id,
+                "evidence_text": "GROUND STOP",
+                "evidence_agent_role": "advisory",
+                "source_snapshot_sha256": snapshot.content_sha256,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    context_artifacts["fact_trace"] = _artifact_metadata(fact_trace_path)
+    for key, filename in (
+        ("weather_fact_trace", "weather_fact_trace.jsonl"),
+        ("observation_fact_trace", "observation_fact_trace.jsonl"),
+        ("reconstruction_trace", "reconstruction_trace.json"),
+    ):
+        path = run_dir / filename
+        path.write_text("", encoding="utf-8")
+        context_artifacts[key] = _artifact_metadata(
+            path,
+            status="insufficient",
+        )
     if write_registry:
         registry_path = contracts.SourceSnapshotRegistry(
             snapshots=[snapshot]

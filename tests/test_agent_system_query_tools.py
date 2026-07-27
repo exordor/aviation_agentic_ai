@@ -160,6 +160,9 @@ def _write_graph(
             )
         )
         profile = PROFILE_BY_LAYER[layer]
+        evidence_mode = str(
+            row.get("evidence_mode") or "source_text"
+        )
         source_ids = row.get("source_ids")
         if not isinstance(source_ids, list):
             source_ids = [
@@ -169,7 +172,24 @@ def _write_graph(
             ]
         row.update(
             {
-                "evidence_text": str(row.get("evidence_text") or ""),
+                "evidence_text": str(
+                    row.get("evidence_text")
+                    or ("SIGNATURE:" if evidence_mode == "source_text" else "")
+                ),
+                "datatype_iri": str(
+                    row.get("datatype_iri")
+                    or (
+                        XSD_DATETIME
+                        if row.get("predicate")
+                        in {
+                            "atm:effectiveStartTime",
+                            "atm:effectiveEndTime",
+                        }
+                        else XSD_STRING
+                        if row.get("object_kind") == "literal"
+                        else ""
+                    )
+                ),
                 "profile_id": str(
                     row.get("profile_id") or profile.profile_id
                 ),
@@ -178,9 +198,7 @@ def _write_graph(
                     or profile.profile_checksum
                 ),
                 "validation_layer": layer,
-                "evidence_mode": str(
-                    row.get("evidence_mode") or "source_text"
-                ),
+                "evidence_mode": evidence_mode,
                 "evidence_ref": str(
                     row.get("evidence_ref") or row["triple_id"]
                 ),
@@ -212,6 +230,69 @@ def _write_graph(
         for row in payload
     }
     snapshot_data = snapshot_path.read_bytes()
+    decision_trace_by_id = {
+        str(row["triple_id"]): {
+                "fact_id": row["triple_id"],
+                "graph_patch_line": "",
+                "source_id": row["source_ids"][0],
+                "evidence_text": row["evidence_text"],
+                "evidence_agent_role": "advisory",
+                "source_snapshot_sha256": row[
+                    "source_snapshot_checksums"
+                ][row["source_ids"][0]],
+            }
+        for row in payload
+        if row["validation_layer"] == "decision"
+        and row["evidence_mode"] == "source_text"
+        and row["source_ids"]
+    }
+    decision_trace_rows = [
+        json.dumps(row)
+        for row in decision_trace_by_id.values()
+    ]
+    fact_trace_metadata = _write_artifact(
+        run_dir,
+        "fact_trace.jsonl",
+        decision_trace_rows,
+        status="ok",
+    )
+    weather_trace_rows = [
+        json.dumps(
+            {
+                "fact_id": row["triple_id"],
+                "source_id": row["source_ids"][0],
+                "source_snapshot_sha256": row[
+                    "source_snapshot_checksums"
+                ][row["source_ids"][0]],
+                "evidence_text": row["evidence_text"],
+            }
+        )
+        for row in payload
+        if row["validation_layer"] == "weather"
+        and row["evidence_mode"] == "source_text"
+        and row["source_ids"]
+    ]
+    weather_status = (
+        "ok" if layer_counts["weather"] else "insufficient"
+    )
+    weather_trace_metadata = _write_artifact(
+        run_dir,
+        "weather_fact_trace.jsonl",
+        weather_trace_rows,
+        status=weather_status,
+    )
+    observation_trace_metadata = _write_artifact(
+        run_dir,
+        "observation_fact_trace.jsonl",
+        [],
+        status="insufficient",
+    )
+    reconstruction_metadata = _write_artifact(
+        run_dir,
+        "reconstruction_trace.json",
+        [],
+        status="insufficient",
+    )
     (run_dir / "run_manifest.json").write_text(
         json.dumps(
             {
@@ -254,7 +335,13 @@ def _write_graph(
                         "count": len(registry.snapshots),
                         "sha256": hashlib.sha256(snapshot_data).hexdigest(),
                         "status": "ok",
-                    }
+                    },
+                    "fact_trace": fact_trace_metadata,
+                    "weather_fact_trace": weather_trace_metadata,
+                    "observation_fact_trace": (
+                        observation_trace_metadata
+                    ),
+                    "reconstruction_trace": reconstruction_metadata,
                 },
             },
             sort_keys=True,
@@ -1131,13 +1218,98 @@ def test_tool_blocks_unsourced_fact(tmp_path):
         _gateway(tmp_path)
 
 
+def test_store_rejects_self_consistent_weather_reason_owned_by_decision_profile(
+    tmp_path,
+):
+    weather_source_id = "weather-source:metar:KJFK:forged-reason"
+    evidence = "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+    snapshot = SourceSnapshot(
+        source_id=weather_source_id,
+        family=SourceFamily.METAR,
+        content=ADVISORY_CONTENT,
+        content_sha256=hashlib.sha256(ADVISORY_CONTENT.encode()).hexdigest(),
+        snapshot_timestamp="2026-05-19T20:30:00+00:00",
+    )
+    rows = [
+        {
+            "triple_id": "fact:forged-type",
+            "subject": EVENT_ID,
+            "predicate": "rdf:type",
+            "object": "atm:GroundStopTMI",
+            "subject_class": "atm:GroundStopTMI",
+            "object_class": "atm:GroundStopTMI",
+            "object_kind": "iri",
+            "source_document": weather_source_id,
+            "evidence_text": evidence,
+        },
+        {
+            "triple_id": "fact:forged-reason",
+            "subject": EVENT_ID,
+            "predicate": "atm:impactingCondition",
+            "object": "WEATHER / THUNDERSTORMS",
+            "subject_class": "atm:GroundStopTMI",
+            "object_class": "",
+            "object_kind": "literal",
+            "source_document": weather_source_id,
+            "evidence_text": evidence,
+        },
+    ]
+    _write_graph(tmp_path, rows, snapshots=[snapshot])
+
+    with pytest.raises(QueryToolError, match="publication contract"):
+        QueryGraphStore(tmp_path)
+
+
+def test_store_rejects_graph_row_bound_to_another_direct_fact_trace(tmp_path):
+    _write_graph(tmp_path)
+    graph_path = tmp_path / "kg.jsonl"
+    rows = [
+        json.loads(line)
+        for line in graph_path.read_text(encoding="utf-8").splitlines()
+    ]
+    rows[0]["evidence_ref"] = rows[1]["triple_id"]
+    graph_path.write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(QueryToolError, match="evidence reference mismatch"):
+        QueryGraphStore(tmp_path)
+
+
+def test_store_rejects_graph_evidence_text_that_disagrees_with_trace(tmp_path):
+    _write_graph(tmp_path)
+    graph_path = tmp_path / "kg.jsonl"
+    rows = [
+        json.loads(line)
+        for line in graph_path.read_text(encoding="utf-8").splitlines()
+    ]
+    rows[0]["evidence_text"] = (
+        "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+    )
+    graph_path.write_text(
+        "\n".join(json.dumps(row) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(QueryToolError, match="evidence text mismatch"):
+        QueryGraphStore(tmp_path)
+
+
 def test_tool_cannot_escape_run_directory_via_symlink(tmp_path):
     run_dir = tmp_path / "run"
     outside = tmp_path / "outside"
     outside.mkdir()
     _write_graph(outside)
     run_dir.mkdir()
-    for name in ("run_manifest.json", "source_snapshots.jsonl"):
+    for name in (
+        "run_manifest.json",
+        "source_snapshots.jsonl",
+        "fact_trace.jsonl",
+        "weather_fact_trace.jsonl",
+        "observation_fact_trace.jsonl",
+        "reconstruction_trace.json",
+    ):
         (run_dir / name).write_bytes((outside / name).read_bytes())
     (run_dir / "kg.jsonl").symlink_to(outside / "kg.jsonl")
     with pytest.raises(QueryToolError, match="escapes"):

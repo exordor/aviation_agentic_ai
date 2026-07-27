@@ -26,6 +26,7 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.validation_profiles import (
     LoadedValidationProfile,
     ValidationProfileRegistry,
+    validate_fact_for_publication,
 )
 from aviation_agentic_ai.cross_source.identifiers import stable_id
 
@@ -293,6 +294,7 @@ def validate_fact_publication(
         tuple[ObservationFactTrace, ...] | list[ObservationFactTrace]
     ) = (),
     reconstruction_trace: ReconstructionTrace | None = None,
+    require_source_text_in_snapshot: bool = False,
 ) -> None:
     """Fail closed before publishing facts from independent semantic profiles."""
 
@@ -314,6 +316,7 @@ def validate_fact_publication(
     )
     for fact in facts:
         profile = profile_registry.resolve(fact.validation_profile)
+        validate_fact_for_publication(fact, profile_registry)
         class_iris = _profile_iris(profile, "class")
         if fact.subject_class_iri not in class_iris:
             raise ValueError(
@@ -340,6 +343,20 @@ def validate_fact_publication(
                 raise ValueError(
                     f"property object kind mismatch for {fact.predicate_iri}"
                 )
+            admitted_subject_classes = set(
+                profile.class_ancestors.get(
+                    fact.subject_class_iri,
+                    (fact.subject_class_iri,),
+                )
+            )
+            domains = set(
+                profile.property_domains.get(fact.predicate_iri, ())
+            )
+            if domains and not domains.intersection(admitted_subject_classes):
+                raise ValueError(
+                    f"property domain does not admit subject class: "
+                    f"{fact.predicate_iri}"
+                )
         if fact.object_kind == "iri" and not _is_rdf_type_predicate(
             fact.predicate_iri
         ):
@@ -352,16 +369,44 @@ def validate_fact_publication(
                     f"object class is not admitted by owning profile: "
                     f"{fact.object_class_iri}"
                 )
+            admitted_object_classes = set(
+                profile.class_ancestors.get(
+                    fact.object_class_iri,
+                    (fact.object_class_iri,),
+                )
+            )
+            ranges = set(
+                profile.property_ranges.get(fact.predicate_iri, ())
+            )
+            if ranges and not ranges.intersection(admitted_object_classes):
+                raise ValueError(
+                    f"property range does not admit object class: "
+                    f"{fact.predicate_iri}"
+                )
         if fact.object_kind == "literal" and not fact.datatype_iri:
             raise ValueError(f"literal fact has no datatype: {fact.fact_id}")
 
         for source_id in fact.source_ids:
-            if source_id not in snapshots:
+            snapshot = snapshots.get(source_id)
+            if snapshot is None:
                 raise ValueError(
                     f"fact source is absent from snapshot registry: {source_id}"
                 )
+            allowed_families = profile.source_families_by_evidence_mode[
+                fact.evidence_mode
+            ]
+            if snapshot.family not in allowed_families:
+                raise ValueError(
+                    f"source family is not admitted by owning profile: "
+                    f"{snapshot.family.value}"
+                )
 
         if fact.evidence_mode == "source_text":
+            if fact.evidence_ref != fact.fact_id:
+                raise ValueError(
+                    f"source-text evidence reference mismatch: "
+                    f"{fact.evidence_ref}"
+                )
             trace = direct_traces.get(fact.evidence_ref)
             if trace is None:
                 raise ValueError(
@@ -379,6 +424,16 @@ def validate_fact_publication(
             if fact.evidence_texts != [trace.evidence_text]:
                 raise ValueError(
                     f"source-text evidence text mismatch: {fact.evidence_ref}"
+                )
+            if (
+                require_source_text_in_snapshot
+                and
+                trace.evidence_text
+                and trace.evidence_text not in snapshot.content
+            ):
+                raise ValueError(
+                    f"source-text evidence is absent from snapshot: "
+                    f"{fact.evidence_ref}"
                 )
         elif fact.evidence_mode == "deterministic_derivation":
             trace = derived_traces.get(fact.evidence_ref)

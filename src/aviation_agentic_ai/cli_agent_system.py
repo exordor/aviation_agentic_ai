@@ -146,7 +146,7 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
     )
     state = run_ingest(ctx)
     model_calls = state.get("model_calls", [])
-    if sum(1 for c in model_calls if c.error is None) > MAX_PROVIDER_CALLS:
+    if len(model_calls) > MAX_PROVIDER_CALLS:
         raise click.ClickException(f"provider calls exceeded hard maximum {MAX_PROVIDER_CALLS}")
     materialization = state.get("materialization")
     validation = state.get("validation")

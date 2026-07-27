@@ -17,11 +17,25 @@ from langchain_core.tools import BaseTool, tool
 from pydantic import Field
 
 from aviation_agentic_ai.agent_system.contracts import (
+    FactTraceRow,
+    ObservationFactTrace,
     PersistedProfileGap,
+    ReconstructionTrace,
     SourceSnapshot,
     SourceSnapshotRegistry,
     StrictModel,
+    ValidatedFact,
     ValidationProfileRef,
+    WeatherFactTrace,
+)
+from aviation_agentic_ai.agent_system.context_artifacts import (
+    read_fact_traces,
+    read_observation_fact_traces,
+    read_reconstruction_trace,
+    read_weather_fact_traces,
+)
+from aviation_agentic_ai.agent_system.materialize import (
+    validate_fact_publication,
 )
 from aviation_agentic_ai.agent_system.query_context_store import (
     QueryContextError,
@@ -31,10 +45,13 @@ from aviation_agentic_ai.agent_system.schema_guide import TERM_TO_EVENT_CLASS
 from aviation_agentic_ai.agent_system.runtime import RUN_MANIFEST_VERSION
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
+    LoadedValidationProfile,
+    ValidationProfileRegistry,
     load_validation_profile_registry,
 )
 
 _REGISTERED_EVENT_CLASSES = frozenset(TERM_TO_EVENT_CLASS.values())
+_RDF_TYPE_IRI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 
 class QueryToolError(RuntimeError):
@@ -146,8 +163,18 @@ class QueryGraphStore:
 
     def __init__(self, run_dir: str | Path) -> None:
         root = Path(run_dir).resolve()
-        manifest, snapshots, profile_refs, formal_layers = (
+        manifest, snapshots, profile_refs, formal_layers, profile_registry = (
             self._load_current_run(root)
+        )
+        (
+            fact_traces,
+            weather_fact_traces,
+            observation_fact_traces,
+            reconstruction_trace,
+        ) = self._load_publication_evidence(
+            root,
+            manifest=manifest,
+            formal_layers=formal_layers,
         )
         graph_path = root / "kg.jsonl"
         if not graph_path.exists():
@@ -157,6 +184,7 @@ class QueryGraphStore:
             raise QueryToolError("materialized graph escapes the requested run directory")
 
         rows: list[dict[str, Any]] = []
+        facts: list[ValidatedFact] = []
         seen_fact_ids: set[str] = set()
         for line_number, line in enumerate(
             resolved_graph.read_text(encoding="utf-8").splitlines(),
@@ -194,8 +222,30 @@ class QueryGraphStore:
                 )
             normalized["fact_id"] = fact_id
             rows.append(normalized)
+            facts.append(
+                self._validated_fact_from_row(
+                    normalized,
+                    profile_registry=profile_registry,
+                    line_number=line_number,
+                )
+            )
             seen_fact_ids.add(fact_id)
 
+        try:
+            validate_fact_publication(
+                facts=facts,
+                profile_registry=profile_registry,
+                snapshot_registry=snapshots,
+                fact_traces=fact_traces,
+                weather_fact_traces=weather_fact_traces,
+                observation_fact_traces=observation_fact_traces,
+                reconstruction_trace=reconstruction_trace,
+                require_source_text_in_snapshot=True,
+            )
+        except ValueError as exc:
+            raise QueryToolError(
+                f"graph row violates the current publication contract: {exc}"
+            ) from exc
         self._validate_materialized_counts(
             manifest,
             rows,
@@ -236,6 +286,7 @@ class QueryGraphStore:
         SourceSnapshotRegistry,
         set[ValidationProfileRef],
         dict[str, dict[str, Any]],
+        ValidationProfileRegistry,
     ]:
         manifest_path = root / "run_manifest.json"
         if (
@@ -360,6 +411,11 @@ class QueryGraphStore:
                     f"current run formal layer profile is invalid: {layer}"
                 ) from exc
             formal_layers[layer] = entry
+            if ref not in profile_refs and status == "ok":
+                raise QueryToolError(
+                    f"current run formal layer profile is absent from "
+                    f"materialization: {layer}"
+                )
         if formal_layers["decision"]["status"] != "ok":
             raise QueryToolError("current run decision layer is not queryable")
 
@@ -418,7 +474,230 @@ class QueryGraphStore:
             raise QueryToolError(
                 "current run source_snapshots.jsonl is invalid"
             ) from exc
-        return manifest, snapshots, profile_refs, formal_layers
+        return (
+            manifest,
+            snapshots,
+            profile_refs,
+            formal_layers,
+            current_profiles,
+        )
+
+    @classmethod
+    def _load_publication_evidence(
+        cls,
+        root: Path,
+        *,
+        manifest: dict[str, Any],
+        formal_layers: dict[str, dict[str, Any]],
+    ) -> tuple[
+        list[FactTraceRow],
+        list[WeatherFactTrace],
+        list[ObservationFactTrace],
+        ReconstructionTrace | None,
+    ]:
+        decision_trace_path = cls._registered_artifact_path(
+            root,
+            manifest=manifest,
+            key="fact_trace",
+            filename="fact_trace.jsonl",
+            expected_status=formal_layers["decision"]["status"],
+        )
+        weather_trace_path = cls._registered_artifact_path(
+            root,
+            manifest=manifest,
+            key="weather_fact_trace",
+            filename="weather_fact_trace.jsonl",
+            expected_status=formal_layers["weather"]["status"],
+        )
+        observation_trace_path = cls._registered_artifact_path(
+            root,
+            manifest=manifest,
+            key="observation_fact_trace",
+            filename="observation_fact_trace.jsonl",
+            expected_status=formal_layers[
+                "public_operational_observation"
+            ]["status"],
+        )
+        reconstruction_path = cls._registered_artifact_path(
+            root,
+            manifest=manifest,
+            key="reconstruction_trace",
+            filename="reconstruction_trace.json",
+            expected_status=formal_layers[
+                "public_operational_observation"
+            ]["status"],
+        )
+        try:
+            direct = read_fact_traces(decision_trace_path)
+            weather = read_weather_fact_traces(weather_trace_path)
+            observations = read_observation_fact_traces(
+                observation_trace_path
+            )
+            reconstruction = (
+                read_reconstruction_trace(reconstruction_path)
+                if formal_layers["public_operational_observation"]["status"]
+                == "ok"
+                else None
+            )
+        except ValueError as exc:
+            raise QueryToolError(
+                "current run publication evidence is invalid"
+            ) from exc
+        return direct, weather, observations, reconstruction
+
+    @staticmethod
+    def _registered_artifact_path(
+        root: Path,
+        *,
+        manifest: dict[str, Any],
+        key: str,
+        filename: str,
+        expected_status: str,
+    ) -> Path:
+        context_artifacts = manifest.get("context_artifacts")
+        entry = (
+            context_artifacts.get(key)
+            if isinstance(context_artifacts, dict)
+            else None
+        )
+        if not isinstance(entry, dict):
+            raise QueryToolError(
+                f"current run manifest does not register {filename}"
+            )
+        if (
+            entry.get("path") != filename
+            or entry.get("status") != expected_status
+        ):
+            raise QueryToolError(
+                f"current run {filename} registration is invalid"
+            )
+        path = root / filename
+        if (
+            path.is_symlink()
+            or not path.exists()
+            or not path.is_file()
+            or not path.resolve().is_relative_to(root)
+        ):
+            raise QueryToolError(
+                f"current run {filename} is missing or unsafe"
+            )
+        try:
+            data = path.read_bytes()
+        except OSError as exc:
+            raise QueryToolError(
+                f"current run {filename} cannot be read"
+            ) from exc
+        if (
+            not isinstance(entry.get("sha256"), str)
+            or hashlib.sha256(data).hexdigest() != entry["sha256"]
+        ):
+            raise QueryToolError(
+                f"current run {filename} checksum mismatch"
+            )
+        count = sum(1 for line in data.splitlines() if line.strip())
+        if (
+            not isinstance(entry.get("count"), int)
+            or isinstance(entry.get("count"), bool)
+            or entry["count"] != count
+            or (expected_status != "ok" and count != 0)
+        ):
+            raise QueryToolError(
+                f"current run {filename} row count mismatch"
+            )
+        return path
+
+    @staticmethod
+    def _validated_fact_from_row(
+        row: dict[str, Any],
+        *,
+        profile_registry: ValidationProfileRegistry,
+        line_number: int,
+    ) -> ValidatedFact:
+        ref = ValidationProfileRef(
+            profile_id=row["profile_id"],
+            profile_checksum=row["profile_checksum"],
+            layer=row["validation_layer"],
+        )
+        profile = profile_registry.resolve(ref)
+        try:
+            subject_class = QueryGraphStore._profile_iri(
+                profile,
+                str(row["subject_class"]),
+                mapping_kind="class",
+            )
+            predicate = (
+                _RDF_TYPE_IRI
+                if row["predicate"] == QueryPredicate.EVENT_TYPE
+                else QueryGraphStore._profile_iri(
+                    profile,
+                    str(row["predicate"]),
+                    mapping_kind="property",
+                )
+            )
+            object_class_value = str(row.get("object_class") or "")
+            object_class = (
+                QueryGraphStore._profile_iri(
+                    profile,
+                    object_class_value,
+                    mapping_kind="class",
+                )
+                if object_class_value
+                else None
+            )
+            object_value = str(row["object"])
+            if predicate == _RDF_TYPE_IRI:
+                object_value = QueryGraphStore._profile_iri(
+                    profile,
+                    object_value,
+                    mapping_kind="class",
+                )
+            evidence_text = str(row.get("evidence_text") or "")
+            return ValidatedFact(
+                fact_id=str(row["triple_id"]),
+                subject_iri=str(row["subject"]),
+                subject_class_iri=subject_class,
+                predicate_iri=predicate,
+                object_kind=row["object_kind"],
+                object_value=object_value,
+                object_class_iri=object_class,
+                datatype_iri=str(row.get("datatype_iri") or "") or None,
+                source_ids=list(row["source_ids"]),
+                evidence_texts=[evidence_text] if evidence_text else [],
+                validation_profile=ref,
+                evidence_mode=row["evidence_mode"],
+                evidence_ref=str(row["evidence_ref"]),
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise QueryToolError(
+                f"graph row {line_number} cannot be reconstructed under "
+                f"its validation profile"
+            ) from exc
+
+    @staticmethod
+    def _profile_iri(
+        profile: LoadedValidationProfile,
+        value: str,
+        *,
+        mapping_kind: Literal["class", "property"],
+    ) -> str:
+        mappings = (
+            profile.class_mappings
+            if mapping_kind == "class"
+            else profile.property_mappings
+        )
+        mapping = mappings.get(value)
+        if mapping is not None:
+            return mapping["iri"]
+        matches = [
+            item["iri"]
+            for item in mappings.values()
+            if item["iri"] == value
+        ]
+        if len(matches) == 1:
+            return matches[0]
+        raise ValueError(
+            f"{mapping_kind} is not admitted by profile: {value}"
+        )
 
     @staticmethod
     def _validate_current_fact_row(

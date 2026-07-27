@@ -10,6 +10,7 @@ from typing import Literal
 from pydantic import ConfigDict, Field, model_validator
 
 from aviation_agentic_ai.agent_system.contracts import (
+    SourceFamily,
     StrictModel,
     ValidatedFact,
     ValidationProfileRef,
@@ -68,6 +69,20 @@ class LoadedValidationProfile(StrictModel):
     namespace_prefixes: dict[str, str]
     class_mappings: dict[str, dict[str, str]]
     property_mappings: dict[str, dict[str, str]]
+    class_ancestors: dict[str, tuple[str, ...]] = Field(
+        default_factory=dict
+    )
+    property_domains: dict[str, tuple[str, ...]] = Field(
+        default_factory=dict
+    )
+    property_ranges: dict[str, tuple[str, ...]] = Field(
+        default_factory=dict
+    )
+    allowed_evidence_modes: tuple[EvidenceMode, ...]
+    source_families_by_evidence_mode: dict[
+        EvidenceMode,
+        tuple[SourceFamily, ...],
+    ]
     forbidden_predicates: tuple[str, ...] = ()
     aggregation_procedure: AggregationProcedureDescriptor | None = None
 
@@ -91,6 +106,14 @@ class LoadedValidationProfile(StrictModel):
         conflict = sorted(admitted & forbidden)
         if conflict:
             raise ValueError(f"forbidden predicate admitted by profile: {conflict[0]}")
+        if not self.allowed_evidence_modes:
+            raise ValueError("validation profile admits no evidence modes")
+        if set(self.source_families_by_evidence_mode) != set(
+            self.allowed_evidence_modes
+        ):
+            raise ValueError(
+                "validation profile evidence modes and source policies disagree"
+            )
         if (
             self.ref.layer == "public_operational_observation"
             and self.aggregation_procedure is None
@@ -145,16 +168,25 @@ def validate_fact_for_publication(
 ) -> None:
     """Require exact profile ownership and evidence before publication."""
 
-    registry.resolve(fact.validation_profile)
+    profile = registry.resolve(fact.validation_profile)
     if not fact.evidence_ref.strip():
         raise ValueError("new facts require a non-empty evidence_ref")
+    if fact.evidence_mode not in profile.allowed_evidence_modes:
+        raise ValueError(
+            f"evidence mode is not admitted by owning profile: "
+            f"{fact.evidence_mode}"
+        )
 
 
 def _file_checksum(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _mapping_entry(entry: dict[str, object]) -> tuple[str, dict[str, str]]:
+def _mapping_entry(
+    entry: dict[str, object],
+    *,
+    kind: str | None = None,
+) -> tuple[str, dict[str, str]]:
     if not all(
         isinstance(key, str) and isinstance(value, str)
         for key, value in entry.items()
@@ -168,6 +200,11 @@ def _mapping_entry(entry: dict[str, object]) -> tuple[str, dict[str, str]]:
     label = entry.get("label")
     if isinstance(label, str):
         mapping["label"] = label
+    entry_kind = entry.get("kind")
+    if isinstance(entry_kind, str):
+        mapping["kind"] = entry_kind
+    elif kind is not None:
+        mapping["kind"] = kind
     return name, mapping
 
 
@@ -185,14 +222,30 @@ def _load_json_profile(path: Path, layer: ValidationLayer) -> LoadedValidationPr
     ):
         raise ValueError("namespace_prefixes must be a string mapping")
     raw_classes = payload.get("class_mappings", payload.get("classes", []))
+    class_mappings = _parse_mappings(raw_classes, "class")
     raw_properties = payload.get("property_mappings")
     if raw_properties is None:
-        raw_properties = [
-            *payload.get("object_properties", []),
-            *payload.get("datatype_properties", []),
+        raw_object_properties = payload.get("object_properties", [])
+        raw_datatype_properties = payload.get("datatype_properties", [])
+        property_mappings = {
+            **_parse_mappings(
+                raw_object_properties,
+                "property",
+                list_kind="object",
+            ),
+            **_parse_mappings(
+                raw_datatype_properties,
+                "property",
+                list_kind="datatype",
+            ),
+        }
+        property_entries = [
+            *raw_object_properties,
+            *raw_datatype_properties,
         ]
-    class_mappings = _parse_mappings(raw_classes, "class")
-    property_mappings = _parse_mappings(raw_properties, "property")
+    else:
+        property_mappings = _parse_mappings(raw_properties, "property")
+        property_entries = []
     forbidden = payload.get("forbidden_predicates", [])
     if not isinstance(forbidden, list) or not all(isinstance(value, str) for value in forbidden):
         raise ValueError("forbidden_predicates must be a string list")
@@ -210,6 +263,20 @@ def _load_json_profile(path: Path, layer: ValidationLayer) -> LoadedValidationPr
         )
     else:
         raise ValueError("aggregation_procedure must be a complete string descriptor")
+    class_ancestors = {
+        mapping["iri"]: (mapping["iri"],)
+        for mapping in class_mappings.values()
+        if isinstance(mapping.get("iri"), str) and mapping["iri"]
+    }
+    property_domains = _property_class_sets(
+        property_entries,
+        field="domain_iri_set",
+    )
+    property_ranges = _property_class_sets(
+        property_entries,
+        field="range_iri_set",
+    )
+    evidence_modes, source_policies = _profile_evidence_policy(layer)
     return LoadedValidationProfile(
         ref=ValidationProfileRef(
             profile_id=profile_id,
@@ -220,12 +287,22 @@ def _load_json_profile(path: Path, layer: ValidationLayer) -> LoadedValidationPr
         namespace_prefixes=namespaces,
         class_mappings=class_mappings,
         property_mappings=property_mappings,
+        class_ancestors=class_ancestors,
+        property_domains=property_domains,
+        property_ranges=property_ranges,
+        allowed_evidence_modes=evidence_modes,
+        source_families_by_evidence_mode=source_policies,
         forbidden_predicates=tuple(forbidden),
         aggregation_procedure=procedure,
     )
 
 
-def _parse_mappings(raw: object, kind: str) -> dict[str, dict[str, str]]:
+def _parse_mappings(
+    raw: object,
+    kind: str,
+    *,
+    list_kind: str | None = None,
+) -> dict[str, dict[str, str]]:
     if isinstance(raw, dict):
         mappings: dict[str, dict[str, str]] = {}
         for name, mapping in raw.items():
@@ -239,8 +316,62 @@ def _parse_mappings(raw: object, kind: str) -> dict[str, dict[str, str]]:
             mappings[name] = dict(mapping)
         return mappings
     if isinstance(raw, list) and all(isinstance(entry, dict) for entry in raw):
-        return dict(_mapping_entry(entry) for entry in raw)
+        return dict(
+            _mapping_entry(entry, kind=list_kind)
+            for entry in raw
+        )
     raise ValueError(f"malformed {kind} mappings")
+
+
+def _property_class_sets(
+    entries: object,
+    *,
+    field: str,
+) -> dict[str, tuple[str, ...]]:
+    if not isinstance(entries, list):
+        return {}
+    result: dict[str, tuple[str, ...]] = {}
+    for entry in entries:
+        if not isinstance(entry, dict) or not isinstance(entry.get("iri"), str):
+            continue
+        values = entry.get(field, [])
+        if isinstance(values, list) and all(
+            isinstance(value, str) and value
+            for value in values
+        ):
+            result[entry["iri"]] = tuple(values)
+    return result
+
+
+def _profile_evidence_policy(
+    layer: ValidationLayer,
+) -> tuple[
+    tuple[EvidenceMode, ...],
+    dict[EvidenceMode, tuple[SourceFamily, ...]],
+]:
+    if layer == "decision":
+        families = (
+            SourceFamily.ATCSCC_ADVISORY,
+            SourceFamily.NASR_FACILITY,
+            SourceFamily.FAA_TERM,
+        )
+        return ("source_text",), {"source_text": families}
+    if layer == "weather":
+        families = (SourceFamily.METAR, SourceFamily.TAF)
+        return ("source_text",), {"source_text": families}
+    all_families = tuple(SourceFamily)
+    return (
+        (
+            "deterministic_derivation",
+            "profile_definition",
+            "system_membership",
+        ),
+        {
+            "deterministic_derivation": (SourceFamily.BTS_ON_TIME,),
+            "profile_definition": (),
+            "system_membership": all_families,
+        },
+    )
 
 
 def _decision_profile(decision_guide: SchemaGuide) -> LoadedValidationProfile:
@@ -249,12 +380,43 @@ def _decision_profile(decision_guide: SchemaGuide) -> LoadedValidationProfile:
         for name, item in decision_guide.classes.items()
     }
     properties = {
-        name: {"iri": item.iri, "label": item.label}
-        for name, item in {
+        **{
+            name: {"iri": item.iri, "label": item.label, "kind": "object"}
+            for name, item in decision_guide.object_properties.items()
+        },
+        **{
+            name: {"iri": item.iri, "label": item.label, "kind": "datatype"}
+            for name, item in decision_guide.datatype_properties.items()
+        },
+    }
+    class_ancestors = {
+        item.iri: tuple(
+            decision_guide.classes[ancestor].iri
+            for ancestor in sorted(decision_guide.superclasses(name))
+            if ancestor in decision_guide.classes
+        )
+        for name, item in decision_guide.classes.items()
+    }
+    property_domains = {
+        item.iri: tuple(
+            decision_guide.classes[domain].iri
+            for domain in sorted(item.domain)
+            if domain in decision_guide.classes
+        )
+        for item in {
             **decision_guide.object_properties,
             **decision_guide.datatype_properties,
-        }.items()
+        }.values()
     }
+    property_ranges = {
+        item.iri: tuple(
+            decision_guide.classes[range_class].iri
+            for range_class in sorted(item.range)
+            if range_class in decision_guide.classes
+        )
+        for item in decision_guide.object_properties.values()
+    }
+    evidence_modes, source_policies = _profile_evidence_policy("decision")
     return LoadedValidationProfile(
         ref=ValidationProfileRef(
             profile_id=decision_guide.schema_slice_id,
@@ -265,6 +427,11 @@ def _decision_profile(decision_guide: SchemaGuide) -> LoadedValidationProfile:
         namespace_prefixes={"atm": "https://data.nasa.gov/ontologies/atmonto/ATM#", "nas": "https://data.nasa.gov/ontologies/atmonto/NAS#"},
         class_mappings=classes,
         property_mappings=properties,
+        class_ancestors=class_ancestors,
+        property_domains=property_domains,
+        property_ranges=property_ranges,
+        allowed_evidence_modes=evidence_modes,
+        source_families_by_evidence_mode=source_policies,
     )
 
 

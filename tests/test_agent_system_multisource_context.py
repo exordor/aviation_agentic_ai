@@ -724,6 +724,13 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     result = integrate_decision_context(ctx, state)
 
     assert result["model_calls"] == []
+    fact_trace_metadata = result["context_artifacts"]["fact_trace"]
+    assert fact_trace_metadata["path"] == "fact_trace.jsonl"
+    assert fact_trace_metadata["count"] == len(facts)
+    assert fact_trace_metadata["sha256"] == hashlib.sha256(
+        (tmp_path / "fact_trace.jsonl").read_bytes()
+    ).hexdigest()
+    assert fact_trace_metadata["status"] == "ok"
     assert result["decision_context_event"].operational_start == datetime.fromisoformat(
         start.replace("Z", "+00:00")
     )

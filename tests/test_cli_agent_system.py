@@ -104,6 +104,15 @@ def _write_graph(run_dir: Path) -> None:
             "object_kind": "iri" if object_class else "literal",
             "source_document": SOURCE_ID,
             "evidence_text": "GROUND STOP",
+            "datatype_iri": (
+                "http://www.w3.org/2001/XMLSchema#dateTime"
+                if predicate
+                in {
+                    "atm:effectiveStartTime",
+                    "atm:effectiveEndTime",
+                }
+                else ""
+            ),
         }
         for fact_id, predicate, value, object_class in values
     ]
@@ -151,6 +160,28 @@ def _write_graph(run_dir: Path) -> None:
         "path": "source_snapshots.jsonl",
         "count": 1,
         "sha256": hashlib.sha256(registry_data).hexdigest(),
+        "status": "ok",
+    }
+    trace_rows = [
+        json.dumps(
+            {
+                "fact_id": row["triple_id"],
+                "graph_patch_line": "",
+                "source_id": SOURCE_ID,
+                "evidence_text": row["evidence_text"],
+                "evidence_agent_role": "advisory",
+                "source_snapshot_sha256": snapshot.content_sha256,
+            }
+        )
+        for row in rows
+    ]
+    trace_path = run_dir / "fact_trace.jsonl"
+    trace_data = "".join(row + "\n" for row in trace_rows).encode("utf-8")
+    trace_path.write_bytes(trace_data)
+    context_artifacts["fact_trace"] = {
+        "path": trace_path.name,
+        "count": len(trace_rows),
+        "sha256": hashlib.sha256(trace_data).hexdigest(),
         "status": "ok",
     }
     for key, filename in (
@@ -600,6 +631,72 @@ def test_ingest_records_optional_loader_failures_for_the_context_layer(
     assert captured["ctx"].bts_source is None
     assert captured["ctx"].weather_failure_reason == "weather checksum mismatch"
     assert captured["ctx"].bts_failure_reason == "BTS checksum mismatch"
+
+
+def test_ingest_provider_limit_counts_failed_attempts(tmp_path, monkeypatch):
+    advisory = SourceRecord(
+        source_id=SOURCE_ID,
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="SIGNATURE:\n26/05/19 21:38\n",
+    )
+    failed_attempts = [
+        ModelCallRecord(
+            agent="semantic_resolution",
+            raw_response="",
+            attempt=attempt,
+            error="TimeoutError: upstream unavailable",
+        )
+        for attempt in (1, 2)
+    ]
+    monkeypatch.setattr(cli_module, "MAX_PROVIDER_CALLS", 1)
+    monkeypatch.setattr(
+        cli_module,
+        "load_advisory_source",
+        lambda config, source_id: advisory,
+    )
+    monkeypatch.setattr(cli_module, "load_weather_sources", lambda config: [])
+    monkeypatch.setattr(
+        cli_module,
+        "load_bts_context_source",
+        lambda config: (None, [], None),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "create_run_binding",
+        lambda root, source_id: _run_binding(tmp_path),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "load_authority_catalog",
+        lambda *args, **kwargs: _authority_catalog(),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "run_ingest",
+        lambda ctx: {
+            "model_calls": failed_attempts,
+            "materialization": None,
+            "validation": None,
+            "assembly_graph_patch": None,
+            "context_artifacts": {},
+        },
+    )
+
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ingest",
+            "--source-id",
+            SOURCE_ID,
+            "--config",
+            "configs/cross_source_v1.yaml",
+            "--allow-live-model",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "provider calls exceeded hard maximum 1" in result.output
+    assert not (tmp_path / "run_manifest.json").exists()
 
 
 def test_ingest_treats_missing_legacy_weather_config_as_an_optional_layer_failure(

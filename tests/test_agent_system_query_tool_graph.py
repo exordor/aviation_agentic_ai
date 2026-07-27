@@ -66,6 +66,7 @@ SOURCE_ID = "2026-05-19:123"
 ADVISORY_CONTENT = (
     "SIGNATURE:\n"
     "26/05/19 20:30\n"
+    "ADVZY 123\n"
     "IMPACTING CONDITION: WEATHER / THUNDERSTORMS\n"
 )
 PREDICATES = [
@@ -118,7 +119,18 @@ def _graph_rows() -> list[dict[str, Any]]:
             "object_kind": object_kind,
             "source_document": SOURCE_ID,
             # The Query Agent must never receive or persist this raw span.
-            "evidence_text": "RAW ADVISORY SPAN MUST REMAIN HIDDEN",
+            "evidence_text": (
+                "IMPACTING CONDITION: WEATHER / THUNDERSTORMS"
+            ),
+            "datatype_iri": (
+                XSD_DATETIME
+                if predicate
+                in {
+                    "atm:effectiveStartTime",
+                    "atm:effectiveEndTime",
+                }
+                else ""
+            ),
         }
         for fact_id, predicate, object_value, object_kind, object_class in values
     ]
@@ -184,6 +196,9 @@ def _write_graph(
             )
         )
         profile = PROFILE_BY_LAYER[layer]
+        evidence_mode = str(
+            row.get("evidence_mode") or "source_text"
+        )
         source_ids = row.get("source_ids")
         if not isinstance(source_ids, list):
             source_ids = [
@@ -191,8 +206,21 @@ def _write_graph(
                 for source_id in str(row.get("source_document") or "").split(";")
                 if source_id.strip()
             ]
+        evidence_text = str(row.get("evidence_text") or "")
+        if not evidence_text and evidence_mode == "source_text" and source_ids:
+            snapshot = registry.get(source_ids[0])
+            evidence_text = snapshot.content if snapshot is not None else ""
         row.update(
             {
+                "evidence_text": evidence_text,
+                "datatype_iri": str(
+                    row.get("datatype_iri")
+                    or (
+                        XSD_STRING
+                        if row.get("object_kind") == "literal"
+                        else ""
+                    )
+                ),
                 "profile_id": str(
                     row.get("profile_id") or profile.profile_id
                 ),
@@ -201,9 +229,7 @@ def _write_graph(
                     or profile.profile_checksum
                 ),
                 "validation_layer": layer,
-                "evidence_mode": str(
-                    row.get("evidence_mode") or "source_text"
-                ),
+                "evidence_mode": evidence_mode,
                 "evidence_ref": str(
                     row.get("evidence_ref") or row["triple_id"]
                 ),
@@ -244,10 +270,55 @@ def _write_graph(
         "sha256": hashlib.sha256(registry_data).hexdigest(),
         "status": "ok",
     }
+    decision_trace_rows = [
+        json.dumps(
+            {
+                "fact_id": row["triple_id"],
+                "graph_patch_line": "",
+                "source_id": row["source_ids"][0],
+                "evidence_text": row["evidence_text"],
+                "evidence_agent_role": "advisory",
+                "source_snapshot_sha256": row[
+                    "source_snapshot_checksums"
+                ][row["source_ids"][0]],
+            }
+        )
+        for row in payload
+        if row["validation_layer"] == "decision"
+        and row["evidence_mode"] == "source_text"
+        and row["source_ids"]
+    ]
+    context_artifacts["fact_trace"] = _artifact(
+        run_dir,
+        "fact_trace.jsonl",
+        decision_trace_rows,
+        status="ok" if layer_counts["decision"] else "insufficient",
+    )
+    weather_trace_rows = [
+        json.dumps(
+            {
+                "fact_id": row["triple_id"],
+                "source_id": row["source_ids"][0],
+                "source_snapshot_sha256": row[
+                    "source_snapshot_checksums"
+                ][row["source_ids"][0]],
+                "evidence_text": row["evidence_text"],
+            }
+        )
+        for row in payload
+        if row["validation_layer"] == "weather"
+        and row["evidence_mode"] == "source_text"
+        and row["source_ids"]
+    ]
+    context_artifacts["weather_fact_trace"] = _artifact(
+        run_dir,
+        "weather_fact_trace.jsonl",
+        weather_trace_rows,
+        status="ok" if layer_counts["weather"] else "insufficient",
+    )
     for key, filename in (
         ("context_associations", "context_associations.jsonl"),
         ("outcome_summaries", "outcome_summaries.jsonl"),
-        ("weather_fact_trace", "weather_fact_trace.jsonl"),
         ("observation_derivations", "observation_derivations.jsonl"),
         ("observation_fact_trace", "observation_fact_trace.jsonl"),
         ("reconstruction_trace", "reconstruction_trace.json"),
