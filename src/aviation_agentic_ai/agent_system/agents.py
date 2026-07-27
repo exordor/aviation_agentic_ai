@@ -71,11 +71,24 @@ class AdvisoryMentions:
     advisory_number: str | None = None
     extension_probability: str | None = None
     impacting_condition: str | None = None
+    element_type_code: str | None = None
+    facility_structural_slot: str | None = None
+    facility_expected_entity_type: str | None = None
+    term_structural_slot: str | None = None
+    term_expected_entity_type: str | None = None
     evidence_spans: dict[str, str] = field(default_factory=dict)
 
 
+FACILITY_SLOT = "controlled_nas_element"
+TERM_SLOT = "traffic_management_initiative_type"
+ELEMENT_TYPE_TO_ENTITY_TYPE = {
+    "APT": "airport",
+    "ARTCC": "artcc",
+}
+
+
 _CTL_ELEMENT_RE = re.compile(r"CTL\s*ELEMENT\s*:\s*([A-Z]{2,5})", re.IGNORECASE)
-_ELEMENT_TYPE_RE = re.compile(r"ELEMENT\s*TYPE\s*:\s*([A-Z]{2,5})", re.IGNORECASE)
+_ELEMENT_TYPE_RE = re.compile(r"ELEMENT\s*TYPE\s*:\s*([A-Z][A-Z0-9_-]*)", re.IGNORECASE)
 _EVENT_RE = re.compile(
     r"\b(GDP|GS|GROUND\s*DELAY\s*PROGRAM|GROUND\s*STOP)\b", re.IGNORECASE
 )
@@ -173,6 +186,18 @@ def parse_structured_fields(advisory_text: str) -> AdvisoryMentions:
         mentions.operational_term = mentions.event_type
         mentions.evidence_spans["event_type"] = event.group(0)
         mentions.evidence_spans["operational_term"] = event.group(0)
+    element_type = _ELEMENT_TYPE_RE.search(advisory_text)
+    if element_type:
+        mentions.element_type_code = element_type.group(1).upper()
+    if mentions.event_type in {"GDP", "GS"}:
+        if mentions.controlled_facility:
+            mentions.facility_structural_slot = FACILITY_SLOT
+            if mentions.element_type_code:
+                mentions.facility_expected_entity_type = (
+                    ELEMENT_TYPE_TO_ENTITY_TYPE.get(mentions.element_type_code)
+                )
+        mentions.term_structural_slot = TERM_SLOT
+        mentions.term_expected_entity_type = "traffic_management_initiative"
     # Deterministic calendar anchor from the advisory header (plan §12).
     header_date = _HEADER_DATE_RE.search(advisory_text)
     period = _PERIOD_RE.search(advisory_text)
@@ -341,6 +366,7 @@ class FacilityCandidates:
     candidates: list[Any] = field(default_factory=list)
     source_id: str = ""
     structural_slot: str = ""
+    expected_entity_type: str = ""
     advisory_evidence: str = ""
 
 
@@ -381,6 +407,15 @@ def run_facility_agent(
     if len(candidates.candidates) == 1:
         entity = candidates.candidates[0]
         ontology_type = _facility_ontology_type(entity)
+        if ontology_type is None:
+            card = EvidenceCard(
+                agent_role="facility",
+                status=AgentStatus.ABSTAIN,
+                source_ids=[candidates.source_id] if candidates.source_id else [],
+                tool_trace=tool_trace,
+                decision_basis="candidate facility type is not mapped by the active profile",
+            )
+            return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
         claim = EvidenceClaim(
             field_name="controlled_facility", value=entity.entity_id,
             ontology_target=ontology_type,
@@ -398,6 +433,16 @@ def run_facility_agent(
     # Multiple candidates: model may disambiguate among authority candidates
     # only; never invents a facility id.
     model_calls: list[ModelCallRecord] = []
+    if not candidates.structural_slot or not candidates.expected_entity_type:
+        card = EvidenceCard(
+            agent_role="facility",
+            status=AgentStatus.ABSTAIN,
+            source_ids=[candidates.source_id] if candidates.source_id else [],
+            uncertainties=["ambiguous candidates lack known structural context"],
+            tool_trace=tool_trace,
+            decision_basis="missing structural slot or expected entity type",
+        )
+        return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
     chosen = None
     if model_invoker is not None:
         cand_rows = [_facility_candidate_row(e) for e in candidates.candidates]
@@ -406,7 +451,7 @@ def run_facility_agent(
             {
                 "source_id": candidates.source_id,
                 "facility_mention": candidates.mention,
-                "structural_slot": candidates.structural_slot or "UNCLASSIFIED TEXT",
+                "structural_slot": candidates.structural_slot,
                 "advisory_evidence": advisory_evidence,
                 "authority_candidates": "\n".join(cand_rows),
             },
@@ -422,6 +467,19 @@ def run_facility_agent(
         )
         return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card, model_calls=model_calls)
     ontology_type = _facility_ontology_type(chosen)
+    if ontology_type is None:
+        card = EvidenceCard(
+            agent_role="facility",
+            status=AgentStatus.ABSTAIN,
+            source_ids=[candidates.source_id] if candidates.source_id else [],
+            tool_trace=tool_trace,
+            decision_basis="selected facility type is not mapped by the active profile",
+        )
+        return AgentResult(
+            status=AgentStatus.ABSTAIN,
+            evidence_card=card,
+            model_calls=model_calls,
+        )
     claim = EvidenceClaim(
         field_name="controlled_facility", value=chosen.entity_id,
         ontology_target=ontology_type,
@@ -438,7 +496,7 @@ def run_facility_agent(
     return AgentResult(status=AgentStatus.RESOLVED, evidence_card=card, model_calls=model_calls)
 
 
-def _facility_ontology_type(entity: Any) -> str:
+def _facility_ontology_type(entity: Any) -> str | None:
     """Map a NASR entity type to its ontology class (nas:Airport / nas:ARTCC)."""
 
     etype = getattr(getattr(entity, "entity_type", None), "value", "")
@@ -446,7 +504,7 @@ def _facility_ontology_type(entity: Any) -> str:
         return "nas:ARTCC"
     if etype == "airport":
         return "nas:Airport"
-    return "nas:NASfacility"
+    return None
 
 
 def _facility_candidate_row(entity: Any) -> str:
@@ -454,7 +512,7 @@ def _facility_candidate_row(entity: Any) -> str:
 
     return (
         f"{entity.entity_id} | {getattr(entity, 'preferred_label', '')} | "
-        f"{_facility_ontology_type(entity)} | airport facility record | "
+        f"{_facility_ontology_type(entity) or 'NONE'} | airport facility record | "
         f"{getattr(entity, 'entity_id', '')}"
     )
 
@@ -482,6 +540,8 @@ class TermCandidates:
     candidates: list[Any] = field(default_factory=list)
     source_id: str = ""
     guide: SchemaGuide | None = None
+    structural_slot: str = ""
+    expected_entity_type: str = ""
     advisory_evidence: str = ""
 
 
@@ -507,40 +567,25 @@ def run_terminology_agent(
         )
         return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
 
-    # Filter to TMI-category candidates for event mapping.
-    tmi_candidates = [
-        t for t in candidates.candidates
-        if getattr(getattr(t, "term_category", None), "value", "") == "traffic_management_initiative"
-    ]
-    pool = tmi_candidates or candidates.candidates
+    # Keep every abbreviation match until candidate-level compatibility is
+    # audited. In particular, ``GS`` must retain Ground Stop and Glide Slope.
+    pool = sorted(candidates.candidates, key=lambda term: term.term_id)
 
     if len(pool) == 1:
         return _resolve_term(pool[0], candidates, tool_trace, [])
-    # Multiple: model may disambiguate among authority candidates only.
-    model_calls: list[ModelCallRecord] = []
-    chosen = None
-    if model_invoker is not None:
-        cand_rows = [_term_candidate_row(t, candidates.guide) for t in pool]
-        rec = model_invoker(
-            "terminology",
-            {
-                "source_id": candidates.source_id,
-                "term_mention": candidates.mention,
-                "advisory_evidence": candidates.advisory_evidence or candidates.mention,
-                "authority_candidates": "\n".join(cand_rows),
-            },
-        )
-        model_calls.append(rec)
-        chosen = _pick_term_from_response(rec.raw_response, pool)
-    if chosen is None:
-        card = EvidenceCard(
-            agent_role="terminology", status=AgentStatus.ABSTAIN,
-            source_ids=[candidates.source_id] if candidates.source_id else [],
-            uncertainties=[f"{len(pool)} unresolved term candidates"],
-            tool_trace=tool_trace, decision_basis="unresolved multiple candidates",
-        )
-        return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card, model_calls=model_calls)
-    return _resolve_term(chosen, candidates, tool_trace, model_calls)
+    # Candidate-level type/schema audit is not active until the deterministic
+    # compatibility wrappers land. Fail closed rather than asking the legacy
+    # provider to choose between meanings such as Ground Stop and Glide Slope.
+    del model_invoker
+    card = EvidenceCard(
+        agent_role="terminology",
+        status=AgentStatus.ABSTAIN,
+        source_ids=[candidates.source_id] if candidates.source_id else [],
+        uncertainties=[f"{len(pool)} unresolved term candidates"],
+        tool_trace=tool_trace,
+        decision_basis="multiple candidates require candidate-level compatibility audit",
+    )
+    return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
 
 
 def _term_candidate_row(term: Any, guide: SchemaGuide | None) -> str:

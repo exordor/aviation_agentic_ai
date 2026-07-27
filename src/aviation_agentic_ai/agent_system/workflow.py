@@ -184,14 +184,20 @@ def _advisory_node(state: dict) -> dict:
     }
 
 
-def _facility_candidates_for_mention(all_candidates: list, mention: str) -> list:
+def _facility_candidates_for_mention(
+    all_candidates: list,
+    mention: str,
+    expected_entity_type: str | None = None,
+) -> list:
     """Filter authority facility candidates to those matching the mention token.
 
     A candidate matches if the mention equals one of its codes or aliases
     (normalized, uppercase). This turns the facility registry into the
-    authority lookup the Facility Agent uses (design §9.4).
+    authority lookup the Facility Agent uses (design §9.4). Expected type is
+    carried to candidate-level audit and never removes a mention match here.
     """
 
+    del expected_entity_type
     if not mention:
         return []
     token = mention.upper()
@@ -201,7 +207,7 @@ def _facility_candidates_for_mention(all_candidates: list, mention: str) -> list
         aliases = {a.upper() for a in getattr(entity, "aliases", [])}
         if token in codes or token in aliases:
             matches.append(entity)
-    return matches
+    return sorted(matches, key=lambda entity: entity.entity_id)
 
 
 def _facility_node(state: dict) -> dict:
@@ -221,8 +227,16 @@ def _facility_node(state: dict) -> dict:
     )
     cands = FacilityCandidates(
         mention=mention_token,
-        candidates=_facility_candidates_for_mention(ctx.facility_candidates, mention_token),
+        candidates=_facility_candidates_for_mention(
+            ctx.facility_candidates,
+            mention_token,
+            getattr(mentions, "facility_expected_entity_type", None),
+        ),
         source_id=ctx.advisory.source_id,
+        structural_slot=getattr(mentions, "facility_structural_slot", None) or "",
+        expected_entity_type=(
+            getattr(mentions, "facility_expected_entity_type", None) or ""
+        ),
         advisory_evidence=advisory_evidence,
     )
     result = run_facility_agent(task=task, candidates=cands, model_invoker=ctx.model_invoker)
@@ -242,7 +256,14 @@ def _term_candidates_for_mention(all_terms: list, mention: str) -> list:
     if not mention:
         return []
     token = mention.upper()
-    return [t for t in all_terms if getattr(t, "abbreviation", "").upper() == token]
+    return sorted(
+        (
+            term
+            for term in all_terms
+            if getattr(term, "abbreviation", "").upper() == token
+        ),
+        key=lambda term: term.term_id,
+    )
 
 
 def _terminology_node(state: dict) -> dict:
@@ -265,6 +286,9 @@ def _terminology_node(state: dict) -> dict:
         candidates=_term_candidates_for_mention(ctx.term_candidates, mention_token),
         source_id=ctx.advisory.source_id,
         guide=ctx.guide,
+        structural_slot=getattr(mentions, "term_structural_slot", None) or "",
+        expected_entity_type=getattr(mentions, "term_expected_entity_type", None)
+        or "",
         advisory_evidence=advisory_evidence,
     )
     result = run_terminology_agent(task=task, candidates=cands, model_invoker=ctx.model_invoker)
