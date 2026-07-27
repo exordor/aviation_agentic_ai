@@ -1079,6 +1079,10 @@ class CaseAssemblyTaskFields(FrozenContractModel):
         gap_item_ids = [row.proposal_item_id for row in self.profile_gaps]
         _validate_set_ids(fact_item_ids, "proposed_facts")
         _validate_set_ids(gap_item_ids, "profile_gaps")
+        if tuple(fact_item_ids) != self.core_event_fact_ids:
+            raise ValueError(
+                "core event fact IDs must exactly match proposed fact IDs"
+            )
         if set(fact_item_ids) & set(gap_item_ids):
             raise ValueError("proposal item IDs must be unique across facts and gaps")
         feedback_ids = [row.feedback_id for row in self.validation_feedback]

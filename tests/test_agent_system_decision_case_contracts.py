@@ -333,7 +333,7 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
         "case-assembly-task",
         "run-1",
         "case-1",
-        canonical_id_tuple_token(("fact:event:type",), sort_values=True),
+        canonical_id_tuple_token(("proposal-fact-1",), sort_values=True),
         canonical_id_tuple_token((resolution_proposal_id,), sort_values=True),
         canonical_id_tuple_token(selected, sort_values=True),
         "profile-1",
@@ -344,7 +344,7 @@ def _assembly_task_fields(resolution_proposal_id: str) -> CaseAssemblyTaskFields
         task_id=task_id,
         run_id="run-1",
         case_id="case-1",
-        core_event_fact_ids=("fact:event:type",),
+        core_event_fact_ids=("proposal-fact-1",),
         resolution_proposal_ids=(resolution_proposal_id,),
         available_evidence_layer_ids=("layer:advisory",),
         required_case_slots=("event_type",),
@@ -582,7 +582,7 @@ def _assembly_proposal_fields(
                 layer_id="core",
                 status=ComponentLayerStatus.OK,
                 required_for_task=True,
-                artifact_ids=("fact:event:type",),
+                artifact_ids=("proposal-fact-1",),
             ),
         ),
         proposed_facts=task_fields.proposed_facts,
@@ -925,6 +925,39 @@ def test_assembly_sealing_enforces_support_profile_and_status_rollup() -> None:
     ).model_copy(update={"component_layer_results": (required_missing,)})
     with pytest.raises(ValueError, match="required"):
         seal_case_assembly_proposal(task=task, fields=bad, binding=_binding())
+
+
+def test_assembly_task_core_ids_must_match_proposed_fact_ids() -> None:
+    fields = _assembly_task_fields("resolution-proposal-1")
+    mismatched_core_ids = ("fact:foreign",)
+    mismatched = fields.model_copy(
+        update={
+            "core_event_fact_ids": mismatched_core_ids,
+            "task_id": stable_contract_id(
+                "case-assembly-task",
+                fields.run_id,
+                fields.case_id,
+                canonical_id_tuple_token(
+                    mismatched_core_ids,
+                    sort_values=True,
+                ),
+                canonical_id_tuple_token(
+                    fields.resolution_proposal_ids,
+                    sort_values=True,
+                ),
+                canonical_id_tuple_token(
+                    fields.selected_evidence_claim_ids,
+                    sort_values=True,
+                ),
+                fields.schema_profile_id,
+                fields.schema_context_id,
+                fields.schema_snapshot_sha256,
+            ),
+        }
+    )
+
+    with pytest.raises(ValueError, match="core event fact IDs"):
+        seal_case_assembly_task(fields=mismatched, binding=_binding())
 
 
 def test_fact_support_profile_gap_support_and_disposition_are_strict() -> None:
