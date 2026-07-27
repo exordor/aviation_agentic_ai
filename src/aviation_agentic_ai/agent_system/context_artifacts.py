@@ -591,13 +591,20 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
                 if weather_bundle.status == "ok"
                 else ()
             )
-            published_members = set(
-                observation_bundle.reconstruction_trace.member_iris
-            )
-            if not expected_weather_ids <= published_members:
+            published_weather_ids = {
+                member
+                for member in observation_bundle.reconstruction_trace.member_iris
+                if member.startswith(
+                    "urn:aviation-agentic-ai:weather-report:"
+                )
+            }
+            if expected_weather_ids != published_weather_ids:
                 observation_bundle = _empty_observations(
                     "blocked",
-                    "reconstruction trace omits validated weather members",
+                    (
+                        "reconstruction trace weather members do not match "
+                        "validated weather members"
+                    ),
                 )
 
     materialization = core_materialization

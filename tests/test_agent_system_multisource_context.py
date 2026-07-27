@@ -739,6 +739,97 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
     assert result["context_artifacts"]["outcome_summaries"]["status"] == "blocked"
 
 
+def test_reconstruction_rejects_an_extra_unvalidated_weather_member(
+    tmp_path,
+    config,
+    weather_sources,
+    bts_context,
+    monkeypatch,
+):
+    guide = load_schema_guide()
+    source_id = "2026-05-19:138"
+    advisory = load_advisory_source(config, source_id)
+    facility = FACILITIES["KJFK"]
+    event_id = "evt:extra-weather-member"
+    facts = _core_facts(
+        event_id=event_id,
+        event_class="GroundDelayProgramTMI",
+        facility=facility,
+        start="2026-05-19T22:05:00Z",
+        end="2026-05-20T02:59:00Z",
+        source_id=source_id,
+        reason="weather",
+    )
+    registry = build_source_snapshot_registry([advisory])
+    core = materialize_validated_facts(
+        facts=facts,
+        guide=guide,
+        source_snapshot=registry,
+        output_dir=tmp_path,
+    )
+    _write_core_fact_trace(tmp_path, facts, registry)
+    bts_source, bts_rows, bts_binding = bts_context
+    ctx = IngestContext(
+        advisory=advisory,
+        facility_candidates=[facility],
+        guide=guide,
+        weather_sources=weather_sources,
+        bts_rows=bts_rows,
+        bts_source=bts_source,
+        bts_manifest_binding=bts_binding,
+        run_id="run:extra-weather-member",
+        output_dir=str(tmp_path),
+    )
+    original_builder = context_artifacts_module.build_bts_observation_facts
+
+    def build_with_extra_weather_member(*args, **kwargs):
+        bundle = original_builder(*args, **kwargs)
+        assert bundle.reconstruction_trace is not None
+        trace = bundle.reconstruction_trace.model_copy(
+            update={
+                "member_iris": tuple(
+                    sorted(
+                        {
+                            *bundle.reconstruction_trace.member_iris,
+                            (
+                                "urn:aviation-agentic-ai:weather-report:"
+                                "unvalidated-extra"
+                            ),
+                        }
+                    )
+                )
+            }
+        )
+        return bundle.model_copy(update={"reconstruction_trace": trace})
+
+    monkeypatch.setattr(
+        context_artifacts_module,
+        "build_bts_observation_facts",
+        build_with_extra_weather_member,
+    )
+
+    result = integrate_decision_context(
+        ctx,
+        {
+            "event_uri": event_id,
+            "event_class": "atm:GroundDelayProgramTMI",
+            "facility_result": _facility_result(facility, source_id),
+            "validation": GraphValidationResult(accepted=facts, publishable=True),
+            "materialization": core,
+            "source_snapshot": registry,
+        },
+    )
+
+    assert result["observation_context"].status == "blocked"
+    assert "validated weather members" in (
+        result["observation_context"].failure_reason or ""
+    )
+    assert result["materialization"].layer_fact_counts == {
+        "decision": len(facts),
+        "weather": len(result["weather_context"].formal_facts),
+    }
+
+
 def test_duplicate_weather_fact_fails_closed_at_the_optional_layer(
     tmp_path,
     config,
