@@ -186,8 +186,114 @@ def test_gateway_rejects_a_tampered_plan_evidence_layer(
     )
     tampered_plan = plan.model_copy(update={"steps": (tampered_step,)})
 
-    with pytest.raises(ValueError, match="evidence layers"):
+    with pytest.raises(ValueError, match="sealed query plan"):
         BoundQueryGateway(plan=tampered_plan, store=store)
+
+
+@pytest.mark.parametrize(
+    "update",
+    (
+        {"payload_checksum": "0" * 64},
+        {"query_plan_id": "query-plan:stale"},
+        {"question": "What decision episode is recorded?"},
+    ),
+)
+def test_gateway_revalidates_the_complete_sealed_plan(
+    store: QueryGraphStore,
+    update: dict[str, object],
+) -> None:
+    """A frozen model_copy must not bypass checksum, ID, or question binding."""
+
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+
+    with pytest.raises(ValueError, match="sealed query plan"):
+        BoundQueryGateway(plan=plan.model_copy(update=update), store=store)
+
+
+def test_query_plan_requires_the_exact_registered_step_sequence(
+    store: QueryGraphStore,
+) -> None:
+    """Reordering or making a registered step optional changes the contract."""
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What applicability and observed flight impact are recorded?",
+        store=store,
+    )
+    reversed_steps = tuple(reversed(plan.steps))
+    optional_step = plan.steps[0].model_copy(update={"required": False})
+
+    for steps in (reversed_steps, (optional_step, plan.steps[1])):
+        with pytest.raises(ValidationError, match="exact registered sequence"):
+            QueryPlan.model_validate(
+                {**plan.model_dump(mode="python"), "steps": steps},
+                context={"skip_payload_checksum": True},
+            )
+
+
+@pytest.mark.parametrize(
+    "question",
+    (
+        "What public operational situation caused this?",
+        "What is the live operational situation now?",
+        "Please describe the decision episode.",
+        "Which operational situation is most similar?",
+        "What applicability is recommended?",
+    ),
+)
+def test_compile_query_plan_rejects_nonexact_analysis_questions(
+    store: QueryGraphStore,
+    question: str,
+) -> None:
+    """Direct compiler callers must not bypass the router's exact gate."""
+
+    with pytest.raises(ValueError, match="exact registered analysis question"):
+        compile_query_plan(
+            run_dir=store.run_dir,
+            question=question,
+            store=store,
+        )
+
+
+def test_non_similarity_plan_requires_one_selected_event(
+    store: QueryGraphStore,
+) -> None:
+    """A multi-event store must not silently select event_ids[0]."""
+
+    second_event_id = "urn:aviation-agentic-ai:event:second"
+    store.event_ids.append(second_event_id)
+
+    with pytest.raises(ValueError, match="explicit event_id"):
+        compile_query_plan(
+            run_dir=store.run_dir,
+            question="What public operational situation is recorded?",
+            store=store,
+        )
+
+    selected = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        event_id=EVENT_ID,
+        store=store,
+    )
+    corpus = compile_query_plan(
+        run_dir=store.run_dir,
+        question="Which historical case is most similar?",
+        store=store,
+    )
+
+    assert selected.event_or_case_scope == (EVENT_ID,)
+    assert all(step.event_ids == (EVENT_ID,) for step in selected.steps)
+    assert corpus.event_or_case_scope == (EVENT_ID, second_event_id)
+    assert corpus.steps[0].event_ids == (EVENT_ID, second_event_id)
 
 
 def test_query_plan_rejects_duplicate_steps_and_foreign_event_scope(
@@ -266,6 +372,50 @@ def test_gateway_observation_cites_only_current_store_sources(
     }.issubset(source_ids_in_store)
 
 
+def test_gateway_reconstructs_no_manifest_operational_observation(
+    store: QueryGraphStore,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A missing manifest must not activate the generic formal-fact fallback."""
+
+    from aviation_agentic_ai.agent_system import case_analysis_tools
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+        BoundQueryObservation,
+    )
+
+    plan = compile_query_plan(
+        run_dir=store.run_dir,
+        question="What public operational situation is recorded?",
+        store=store,
+    )
+    forged = BoundQueryObservation(
+        step_id=plan.steps[0].step_id,
+        status="ok",
+        fact_ids=("fact:type",),
+        source_ids=(SOURCE_ID,),
+        items=(
+            {
+                "fact_id": "fact:type",
+                "subject": EVENT_ID,
+                "predicate": "rdf:type",
+                "object": "atm:GroundStopTMI",
+                "source_ids": (SOURCE_ID,),
+            },
+        ),
+    )
+    monkeypatch.setattr(
+        case_analysis_tools,
+        "_execute_registered_step",
+        lambda **_: forged,
+    )
+
+    with pytest.raises(ValueError, match="operational situation observation"):
+        BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
+            step_id=plan.steps[0].step_id
+        )
+
+
 def test_gateway_rejects_a_fact_outside_the_executing_step_scope(
     store: QueryGraphStore,
     monkeypatch: pytest.MonkeyPatch,
@@ -315,7 +465,7 @@ def test_gateway_rejects_a_fact_outside_the_executing_step_scope(
         lambda **_: forged,
     )
 
-    with pytest.raises(ValueError, match="outside the bound step scope"):
+    with pytest.raises(ValueError, match="operational situation observation"):
         BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
             step_id=plan.steps[0].step_id
         )
@@ -359,7 +509,7 @@ def test_gateway_rejects_forged_item_content_for_a_cited_fact(
         lambda **_: forged,
     )
 
-    with pytest.raises(ValueError, match="does not match its cited fact"):
+    with pytest.raises(ValueError, match="operational situation observation"):
         BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
             step_id=plan.steps[0].step_id
         )
@@ -413,7 +563,7 @@ def test_gateway_rejects_sources_not_bound_to_cited_facts(
         lambda **_: forged,
     )
 
-    with pytest.raises(ValueError, match="sources are not bound to cited facts"):
+    with pytest.raises(ValueError, match="operational situation observation"):
         BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
             step_id=plan.steps[0].step_id
         )

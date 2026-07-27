@@ -153,38 +153,100 @@ def test_similarity_gate_never_ranks_three_case_fixture(
         "Which operational situation do you recommend?",
     ),
 )
-def test_mixed_operational_question_cannot_bypass_similarity_gate(
+def test_mixed_operational_question_is_not_a_registered_analysis_question(
     store: QueryGraphStore,
     question: str,
 ) -> None:
-    """Putting the operational match first must not activate model-bound analysis."""
+    """Similarity safety now starts by rejecting every nonexact direct call."""
 
-    from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
-    from aviation_agentic_ai.agent_system.query_plan import (
-        AnalysisIntent,
-        compile_query_plan,
+    from aviation_agentic_ai.agent_system.query_plan import compile_query_plan
+
+    with pytest.raises(ValueError, match="exact registered analysis question"):
+        compile_query_plan(
+            run_dir=store.run_dir,
+            question=question,
+            store=store,
+        )
+
+
+def _forged_formal_observation(*, step_id: str):
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryObservation,
     )
+
+    return BoundQueryObservation(
+        step_id=step_id,
+        status="ok",
+        fact_ids=("fact:type",),
+        source_ids=(ADVISORY_SOURCE_ID,),
+        items=(
+            {
+                "fact_id": "fact:type",
+                "subject": EVENT_ID,
+                "predicate": "rdf:type",
+                "object": "atm:GroundDelayProgram",
+                "source_ids": (ADVISORY_SOURCE_ID,),
+            },
+        ),
+    )
+
+
+@pytest.mark.parametrize(
+    ("question", "step_index", "error_fragment"),
+    (
+        (
+            "What applicability and observed flight impact are recorded?",
+            0,
+            "applicability observation",
+        ),
+        (
+            "What applicability and observed flight impact are recorded?",
+            1,
+            "observed flight observation",
+        ),
+        (
+            "Which historical case is most similar?",
+            0,
+            "similarity observation",
+        ),
+    ),
+)
+def test_gateway_reconstructs_each_limit_operation_from_its_reader(
+    store: QueryGraphStore,
+    monkeypatch: pytest.MonkeyPatch,
+    question: str,
+    step_index: int,
+    error_fragment: str,
+) -> None:
+    """An ordinary formal fact cannot satisfy a limit-specific operation."""
+
+    from aviation_agentic_ai.agent_system import case_analysis_tools
+    from aviation_agentic_ai.agent_system.case_analysis_tools import (
+        BoundQueryGateway,
+    )
+    from aviation_agentic_ai.agent_system.query_plan import compile_query_plan
 
     plan = compile_query_plan(
         run_dir=store.run_dir,
         question=question,
+        event_id=(
+            EVENT_ID
+            if question.startswith("What applicability")
+            else None
+        ),
         store=store,
     )
-    result = BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
-        step_id=plan.steps[0].step_id
+    step = plan.steps[step_index]
+    monkeypatch.setattr(
+        case_analysis_tools,
+        "_execute_registered_step",
+        lambda **_: _forged_formal_observation(step_id=step.step_id),
     )
 
-    assert plan.intent_family is AnalysisIntent.HISTORICAL_SIMILARITY
-    assert tuple(step.operation for step in plan.steps) == (
-        "read_similarity_corpus_gate",
-    )
-    assert result.status == "insufficient"
-    assert result.fact_ids == ()
-    assert result.source_ids == ()
-    assert result.items == ()
-    assert result.limitation == (
-        "historical similarity requires an approved corpus and comparison profile"
-    )
+    with pytest.raises(ValueError, match=error_fragment):
+        BoundQueryGateway(plan=plan, store=store).execute_bound_query_step(
+            step_id=step.step_id
+        )
 
 
 @pytest.mark.parametrize(

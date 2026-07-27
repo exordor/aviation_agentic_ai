@@ -96,6 +96,13 @@ def test_operational_situation_preserves_evidence_roles(
     ]
     assert weather_items
     assert all(item["causal_claim"] is False for item in weather_items)
+    assert all("fact_id" in item for item in weather_items)
+    weather_fact_ids = {item["fact_id"] for item in weather_items}
+    assert weather_fact_ids.issubset(result.fact_ids)
+    assert all(
+        store.fact_by_id[fact_id]["validation_layer"] == "weather"
+        for fact_id in weather_fact_ids
+    )
     bts_items = [
         item
         for item in result.items

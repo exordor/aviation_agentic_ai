@@ -136,6 +136,7 @@ class OperationalSituationRead:
 
     status: Literal["ok", "insufficient", "blocked"]
     formal_fact_rows: tuple[dict[str, Any], ...] = ()
+    weather_fact_rows: tuple[dict[str, Any], ...] = ()
     weather_associations: tuple[WeatherContextAssociation, ...] = ()
     public_observations: tuple[OutcomeObservationRead, ...] = ()
     source_ids: tuple[str, ...] = ()
@@ -631,6 +632,7 @@ class QueryContextStore:
         return OperationalSituationRead(
             status="ok",
             formal_fact_rows=event_rows,
+            weather_fact_rows=context.formal_fact_rows,
             weather_associations=context.associations,
             public_observations=outcomes.observations,
             source_ids=tuple(

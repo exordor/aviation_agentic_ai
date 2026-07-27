@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
+from pydantic import ValidationError
+
 from aviation_agentic_ai.agent_system.contracts import StrictModel
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
     QueryToolTrace,
@@ -11,6 +13,7 @@ from aviation_agentic_ai.agent_system.decision_case_contracts import (
     stable_contract_id,
 )
 from aviation_agentic_ai.agent_system.query_plan import (
+    AnalysisIntent,
     BoundQueryStep,
     QueryPlan,
     validate_registered_evidence_layers,
@@ -148,6 +151,7 @@ def read_operational_situation(
         fact_ids=tuple(
             str(row["fact_id"]) for row in read.formal_fact_rows
         )
+        + tuple(str(row["fact_id"]) for row in read.weather_fact_rows)
         + bts_fact_ids,
         derivation_ids=tuple(
             observation.derivation_id for observation in read.public_observations
@@ -157,9 +161,10 @@ def read_operational_situation(
         + tuple(
             {
                 "evidence_role": "non_causal_weather_context",
-                **association.model_dump(mode="json"),
+                "causal_claim": False,
+                **_item_for_fact(row),
             }
-            for association in read.weather_associations
+            for row in read.weather_fact_rows
         )
         + tuple(
             {
@@ -338,11 +343,20 @@ class BoundQueryGateway:
     """One-use, plan-bound reader over the supplied current graph-store view."""
 
     def __init__(self, *, plan: QueryPlan, store: QueryGraphStore) -> None:
+        try:
+            plan = QueryPlan.model_validate(plan.model_dump(mode="python"))
+        except ValidationError as exc:
+            raise ValueError("invalid sealed query plan") from exc
         store_run_id = store.manifest.get("run_id")
         if plan.run_id != store_run_id:
             raise ValueError("query plan run_id does not match the current store")
         if not set(plan.event_or_case_scope).issubset(store.event_ids):
             raise ValueError("query plan scope is outside the current store")
+        if plan.intent_family is AnalysisIntent.HISTORICAL_SIMILARITY:
+            if plan.event_or_case_scope != tuple(store.event_ids):
+                raise ValueError("similarity plan must bind the complete current corpus")
+        elif len(plan.event_or_case_scope) != 1:
+            raise ValueError("non-similarity plan must bind exactly one event")
         for step in plan.steps:
             validate_registered_evidence_layers(step)
             if not set(step.event_ids).issubset(plan.event_or_case_scope):
@@ -431,39 +445,34 @@ class BoundQueryGateway:
                 raise ValueError("episode observation does not match current store")
             return
         if step.operation == "read_operational_situation":
-            if (self._store.run_dir / "run_manifest.json").is_file():
-                expected = read_operational_situation(
-                    self._store,
-                    event_id=step.event_ids[0],
-                    step_id=step.step_id,
-                )
-                if observation != expected:
-                    raise ValueError(
-                        "operational situation observation does not match current store"
-                    )
-                return
-        if len(set(observation.fact_ids)) != len(observation.fact_ids):
-            raise ValueError("bound observation contains duplicate fact IDs")
-        if not set(observation.fact_ids).issubset(self._store.fact_by_id):
-            raise ValueError("bound observation cites a fact outside the current store")
-        cited_rows = tuple(
-            self._store.fact_by_id[fact_id] for fact_id in observation.fact_ids
-        )
-        if any(row["subject"] not in step.event_ids for row in cited_rows):
-            raise ValueError("bound observation cites a fact outside the bound step scope")
-        expected_source_ids = tuple(
-            sorted(
-                {
-                    source_id
-                    for row in cited_rows
-                    for source_id in row["source_ids"]
-                }
+            expected = read_operational_situation(
+                self._store,
+                event_id=step.event_ids[0],
+                step_id=step.step_id,
             )
-        )
-        if observation.source_ids != expected_source_ids:
-            raise ValueError(
-                "bound observation sources are not bound to cited facts"
+            error = "operational situation observation does not match current store"
+        elif step.operation == "read_applicability":
+            expected = read_applicability(
+                self._store,
+                event_id=step.event_ids[0],
+                step_id=step.step_id,
             )
-        expected_items = tuple(_item_for_fact(row) for row in cited_rows)
-        if observation.items != expected_items:
-            raise ValueError("bound observation item does not match its cited fact")
+            error = "applicability observation does not match current store"
+        elif step.operation == "read_observed_flight_outcome":
+            expected = read_observed_flight_outcome(
+                self._store,
+                event_id=step.event_ids[0],
+                step_id=step.step_id,
+            )
+            error = "observed flight observation does not match current store"
+        elif step.operation == "read_similarity_corpus_gate":
+            expected = read_similarity_corpus_gate(
+                self._store,
+                event_ids=step.event_ids,
+                step_id=step.step_id,
+            )
+            error = "similarity observation does not match current store"
+        else:
+            raise AssertionError("validated query plan contains an unknown operation")
+        if observation != expected:
+            raise ValueError(error)

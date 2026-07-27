@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
@@ -61,6 +60,17 @@ _EVIDENCE_LAYERS_BY_OPERATION: dict[BoundOperation, tuple[str, ...]] = {
     "read_applicability": ("formal",),
     "read_observed_flight_outcome": ("observed_flight_outcome",),
     "read_similarity_corpus_gate": ("approved_similarity_corpus",),
+}
+
+_REGISTERED_ANALYSIS_QUESTIONS: dict[str, AnalysisIntent] = {
+    "what decision episode is recorded": AnalysisIntent.EPISODE,
+    "what public operational situation is recorded": (
+        AnalysisIntent.OPERATIONAL_SITUATION
+    ),
+    "what applicability and observed flight impact are recorded": (
+        AnalysisIntent.APPLICABILITY_AND_IMPACT
+    ),
+    "which historical case is most similar": AnalysisIntent.HISTORICAL_SIMILARITY,
 }
 
 
@@ -155,6 +165,18 @@ class QueryPlan(ChecksummedContract):
             validate_registered_evidence_layers(step)
             if not set(step.event_ids).issubset(scope):
                 raise ValueError("step event IDs are outside event_or_case_scope")
+        if _registered_intent(self.question) is not self.intent_family:
+            raise ValueError("question does not match the registered analysis intent")
+        if (
+            self.intent_family is not AnalysisIntent.HISTORICAL_SIMILARITY
+            and len(self.event_or_case_scope) != 1
+        ):
+            raise ValueError("non-similarity plan requires exactly one event")
+        if self.steps != _plan_steps(
+            intent=self.intent_family,
+            event_ids=self.event_or_case_scope,
+        ):
+            raise ValueError("query plan steps must equal the exact registered sequence")
         expected = _query_plan_id(
             run_id=self.run_id,
             question=self.question,
@@ -195,22 +217,17 @@ def _query_plan_id(
 
 
 def _registered_intent(question: str) -> AnalysisIntent:
-    normalized = " ".join(question.casefold().split())
-    tokens = re.findall(r"[a-z0-9]+", normalized)
-    if any(
-        token == "best"
-        or token.startswith("similar")
-        or token.startswith("recommend")
-        for token in tokens
-    ):
-        return AnalysisIntent.HISTORICAL_SIMILARITY
-    if "operational situation" in normalized:
-        return AnalysisIntent.OPERATIONAL_SITUATION
-    if "applicability" in normalized or "impact" in normalized:
-        return AnalysisIntent.APPLICABILITY_AND_IMPACT
-    if "episode" in normalized:
-        return AnalysisIntent.EPISODE
-    raise ValueError("question is not a registered analysis intent")
+    normalized = " ".join(
+        token
+        for token in "".join(
+            character.lower() if character.isalnum() else " "
+            for character in question
+        ).split()
+    )
+    try:
+        return _REGISTERED_ANALYSIS_QUESTIONS[normalized]
+    except KeyError as exc:
+        raise ValueError("question is not an exact registered analysis question") from exc
 
 
 def _run_id(store: QueryGraphStore) -> str:
@@ -261,6 +278,7 @@ def compile_query_plan(
     *,
     run_dir: Path,
     question: str,
+    event_id: str | None = None,
     store: QueryGraphStore,
 ) -> QueryPlan:
     """Compile one registered question into an immutable, closed plan."""
@@ -268,8 +286,23 @@ def compile_query_plan(
     if Path(run_dir).resolve() != store.run_dir.resolve():
         raise ValueError("run_dir must match the current query store")
     intent = _registered_intent(question)
-    event_ids = tuple(store.event_ids)
-    _validate_nonempty_unique(event_ids, "event_or_case_scope")
+    current_event_ids = tuple(store.event_ids)
+    _validate_nonempty_unique(current_event_ids, "event_or_case_scope")
+    if intent is AnalysisIntent.HISTORICAL_SIMILARITY:
+        if event_id is not None:
+            raise ValueError("similarity plan binds the current corpus, not event_id")
+        event_ids = current_event_ids
+    else:
+        if event_id is None:
+            if len(current_event_ids) != 1:
+                raise ValueError(
+                    "non-similarity plan requires an explicit event_id for a "
+                    "multi-event store"
+                )
+            event_id = current_event_ids[0]
+        if event_id not in current_event_ids:
+            raise ValueError("event_id is outside the current query store")
+        event_ids = (event_id,)
     steps = _plan_steps(intent=intent, event_ids=event_ids)
     run_id = _run_id(store)
     return _seal_query_plan(
