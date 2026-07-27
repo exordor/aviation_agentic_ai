@@ -27,12 +27,37 @@ from aviation_agentic_ai.agent_system.formal_graph import (
 from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
 from aviation_agentic_ai.agent_system.query_tools import QueryGraphStore
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 from aviation_agentic_ai.agent_system import sources
 from aviation_agentic_ai.agent_system.sources import build_source_snapshot
 
 
 def _record(source_id: str, family: SourceFamily, content: str) -> SourceRecord:
     return SourceRecord(source_id=source_id, family=family, content=content)
+
+
+DECISION_PROFILE_REF = next(
+    ref
+    for ref in load_validation_profile_registry(
+        decision_guide=load_schema_guide()
+    ).refs
+    if ref.layer == "decision"
+)
+
+
+def _decision_fact(**fields: object) -> ValidatedFact:
+    """Build a source-text decision fact with explicit v1 ownership."""
+
+    fact_id = fields["fact_id"]
+    assert isinstance(fact_id, str)
+    return ValidatedFact(
+        **fields,
+        validation_profile=DECISION_PROFILE_REF,
+        evidence_mode="source_text",
+        evidence_ref=fact_id,
+    )
 
 
 def test_source_snapshot_registry_round_trips_canonical_jsonl(tmp_path):
@@ -274,7 +299,7 @@ def test_fact_trace_uses_the_checksum_of_the_matched_multisource_claim(tmp_path)
         object="thunderstorm",
         source_ids=[metar.source_id],
     )
-    fact = ValidatedFact(
+    fact = _decision_fact(
         fact_id="fact:weather",
         subject_iri=line.subject,
         subject_class_iri="https://example.test/GroundDelayProgram",
@@ -317,7 +342,7 @@ def test_materialization_rejects_a_fact_without_a_registered_snapshot(tmp_path):
         _record("advisory:1", SourceFamily.ATCSCC_ADVISORY, "GROUND STOP")
     )
     registry = contracts.SourceSnapshotRegistry(snapshots=[advisory])
-    fact = ValidatedFact(
+    fact = _decision_fact(
         fact_id="fact:unsnapshotted",
         subject_iri="urn:event:1",
         subject_class_iri="https://example.test/GroundDelayProgram",

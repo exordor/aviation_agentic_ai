@@ -53,6 +53,9 @@ from aviation_agentic_ai.agent_system.materialize import (
 from aviation_agentic_ai.agent_system.query import answer_question
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import build_source_snapshot
+from aviation_agentic_ai.agent_system.validation_profiles import (
+    load_validation_profile_registry,
+)
 
 # Real IRIs from the frozen Schema Guide.
 GS_IRI = "https://data.nasa.gov/ontologies/atmonto/ATM#GroundStopTMI"
@@ -94,45 +97,67 @@ def snapshot() -> Any:
     return build_source_snapshot(rec)
 
 
+DECISION_PROFILE_REF = next(
+    ref
+    for ref in load_validation_profile_registry(
+        decision_guide=load_schema_guide()
+    ).refs
+    if ref.layer == "decision"
+)
+
+
+def _decision_fact(**fields: Any) -> ValidatedFact:
+    """Build a source-text decision fact with explicit v1 ownership."""
+
+    fact_id = fields["fact_id"]
+    assert isinstance(fact_id, str)
+    return ValidatedFact(
+        **fields,
+        validation_profile=DECISION_PROFILE_REF,
+        evidence_mode="source_text",
+        evidence_ref=fact_id,
+    )
+
+
 def _fixed_facts() -> list[ValidatedFact]:
     return [
-        ValidatedFact(
+        _decision_fact(
             fact_id="f1", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=RDF_TYPE_IRI, object_kind="iri", object_value="atm:GroundStopTMI",
             object_class_iri=GS_IRI, source_ids=[SOURCE_ID],
             evidence_texts=["GROUND STOP PERIOD: 19/2100Z - 19/2245Z"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f2", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=CONTROLLED_IRI, object_kind="iri", object_value=FACILITY_ID,
             object_class_iri=AIRPORT_IRI, source_ids=[SOURCE_ID],
             evidence_texts=["CTL ELEMENT: JFK"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f3", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=ADVNUM_IRI, object_kind="literal", object_value="123",
             datatype_iri=XSD_INT, source_ids=[SOURCE_ID],
             evidence_texts=["ATCSCC ADVZY 123"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f4", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=START_IRI, object_kind="literal",
             object_value="2026-05-19T21:00:00Z", datatype_iri=XSD_DT,
             source_ids=[SOURCE_ID], evidence_texts=["19/2100Z"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f5", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=END_IRI, object_kind="literal",
             object_value="2026-05-19T22:45:00Z", datatype_iri=XSD_DT,
             source_ids=[SOURCE_ID], evidence_texts=["19/2245Z"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f6", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=EXT_IRI, object_kind="literal", object_value="MEDIUM",
             datatype_iri=XSD_STR, source_ids=[SOURCE_ID],
             evidence_texts=["PROBABILITY OF EXTENSION: MEDIUM"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f7", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=PROV_IRI, object_kind="iri", object_value=SOURCE_ID,
             source_ids=[SOURCE_ID], evidence_texts=[],
@@ -780,25 +805,25 @@ def _no_prov_facts() -> list[ValidatedFact]:
     """Fixed-case facts WITHOUT an explicit prov:wasDerivedFrom row."""
 
     return [
-        ValidatedFact(
+        _decision_fact(
             fact_id="f1", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=RDF_TYPE_IRI, object_kind="iri",
             object_value="atm:GroundStopTMI", object_class_iri=GS_IRI,
             source_ids=[SOURCE_ID], evidence_texts=["GROUND STOP"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f2", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=CONTROLLED_IRI, object_kind="iri", object_value=FACILITY_ID,
             object_class_iri=AIRPORT_IRI, source_ids=[SOURCE_ID],
             evidence_texts=["CTL ELEMENT: JFK"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f3", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=START_IRI, object_kind="literal",
             object_value="2026-05-19T21:00:00Z", datatype_iri=XSD_DT,
             source_ids=[SOURCE_ID], evidence_texts=["19/2100Z"],
         ),
-        ValidatedFact(
+        _decision_fact(
             fact_id="f4", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=END_IRI, object_kind="literal",
             object_value="2026-05-19T22:45:00Z", datatype_iri=XSD_DT,
@@ -825,7 +850,7 @@ def test_sec13_regression2_explicit_prov_row_does_not_increase_counts(guide, tmp
     SourceRecord or DERIVED_FROM counts."""
 
     facts_with_prov = _no_prov_facts() + [
-        ValidatedFact(
+        _decision_fact(
             fact_id="fprov", subject_iri=EVT_SUBJECT, subject_class_iri=GS_IRI,
             predicate_iri=PROV_IRI, object_kind="iri", object_value=SOURCE_ID,
             source_ids=[SOURCE_ID], evidence_texts=[],
