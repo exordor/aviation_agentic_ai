@@ -787,12 +787,42 @@ existing `AgentResult`, resolution-domain outcome, authority-source registry,
 and model-call ledger. The sealed task, proposal, and safe tool trace remain in
 workflow state for replay and testing.
 
-The workflow node topology, public compatibility entrypoints, CLI commands,
-artifacts, Formal Graph Kernel, Weather/BTS behavior, and facility-versus-term
-authority boundaries remain unchanged. Automated acceptance makes no real
-provider call. The bounded live semantic smoke remains pending, so the system
-does not yet claim that the complete three-Agent target architecture is
-active. Decision Case Assembly and Decision Case Analysis remain inactive.
+### 11.8 Decision Case Assembly Agent (Batch C)
+
+In Batch C (`batch-c-decision-case-assembly-v1`), the Knowledge Graph
+Construction node is evolved to run the offline Decision Case Assembly Agent
+pipeline:
+
+1. **CaseAssemblyTask:** The workflow constructs an immutable, sealed
+   `CaseAssemblyTask` carrying core event facts, resolution proposal IDs,
+   schema slice bindings, and multi-source evidence references.
+2. **Deterministic Compiler Fallback:** When no provider model factory is
+   supplied, `compile_case_assembly_proposal` operates offline (0 provider calls)
+   to assemble a valid proposal deterministically. The three approved decision
+   cases (Ground Stop 123, GDP 138, GDP 020) compile deterministically using this path.
+3. **Bounded Agent Loop:** When an assembly model factory is supplied,
+   `run_case_assembly_agent` executes in up to 3 turns:
+   - Turn 1: Batch read-only tool selection (`get_case_requirements`,
+     `get_schema_context`, `get_source_evidence`, `get_resolution_result`,
+     `get_context_associations`, `get_public_observations` — max 6 tool calls across
+     activation).
+   - Turn 2: Proposal generation (`GRAPH_PATCH` and `PROFILE_GAPS`).
+     Evaluated by `preflight_validate_case_assembly_proposal`.
+   - Turn 3 (Revision): At most 1 validation-guided revision turn if a repairable
+     defect occurs (`ALLOWED_VALUE_FORMAT_DEFECT`). Hard causal violations
+     (`FORBIDDEN_CAUSAL_CLAIM`) block immediately without Turn 3.
+4. **Contract Execution Binding:** Every task, proposal, and validation feedback is
+   sealed with `ContractExecutionBinding` (`run_id`, `created_at`, `tool_version`).
+5. **Kernel Authority:** The deterministic Formal Graph Kernel (`validate_graph_patch`)
+   remains the sole final publication authority.
+
+### 14.2 Batch C Decision Case Assembly status
+
+Batch C activates Decision Case Assembly behind contract execution bindings and
+preflight validation while preserving all existing ATCSCC, Weather, BTS,
+provenance, and query contracts. Decision Case Analysis remains inactive.
+Automated regression tests verify deterministic assembly (0 provider calls)
+and replay stability across all three canonical decision cases.
 
 ## 15. Memory Model
 
