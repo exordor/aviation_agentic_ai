@@ -153,6 +153,11 @@ def ingest(source_id: str, config_path: Path, allow_live_model: bool) -> None:
         prompt_set_id=catalog.prompt_set_id,
         profile_gap_count=len(validation.profile_gaps) if validation else 0,
         context_artifacts=state.get("context_artifacts", {}),
+        formal_layers=state.get("formal_layers", {}),
+        public_observation_publication=state.get(
+            "public_observation_publication",
+            {},
+        ),
         catalog_path=DEFAULT_PROMPT_CATALOG,
     )
     click.echo(f"run_dir: {run_dir}")

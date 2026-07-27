@@ -498,7 +498,12 @@ def build_bts_observation_facts(
             if weather.status == "blocked":
                 raise ValueError(weather.failure_reason or "weather selection blocked")
             if weather.status == "ok":
-                weather_member_ids = tuple(sorted(weather.selected_report_ids))
+                weather_member_ids = tuple(
+                    sorted(
+                        f"urn:aviation-agentic-ai:{report_id}"
+                        for report_id in weather.selected_report_ids
+                    )
+                )
                 weather_source_ids = tuple(
                     sorted({association.source_id for association in weather.associations})
                 )

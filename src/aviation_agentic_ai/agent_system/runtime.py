@@ -192,6 +192,8 @@ def write_run_manifest(
     prompt_set_id: str,
     profile_gap_count: int,
     context_artifacts: dict[str, dict[str, Any]] | None = None,
+    formal_layers: dict[str, dict[str, Any]] | None = None,
+    public_observation_publication: dict[str, Any] | None = None,
     catalog_path: str = DEFAULT_PROMPT_CATALOG,
 ) -> Path:
     """Write the run manifest (audit memory, design §15).
@@ -234,6 +236,10 @@ def write_run_manifest(
             "count": profile_gap_count,
         },
         "context_artifacts": context_artifacts or {},
+        "formal_layers": formal_layers or {},
+        "public_observation_publication": (
+            public_observation_publication or {}
+        ),
         "evidence_cards": [c.model_dump(mode="json") for c in evidence_cards],
         "graph_patch_raw": graph_patch_raw,
     }
@@ -253,6 +259,10 @@ def _materialization_summary(
             "fact_count": mat.fact_count,
             "schema_slice_id": mat.schema_slice_id,
             "schema_checksum": mat.schema_checksum,
+            "profile_refs": [
+                ref.model_dump(mode="json") for ref in mat.profile_refs
+            ],
+            "layer_fact_counts": mat.layer_fact_counts,
             "artifacts": {
                 "kg_jsonl": mat.jsonl_path,
                 "kg_ttl": mat.ttl_path,

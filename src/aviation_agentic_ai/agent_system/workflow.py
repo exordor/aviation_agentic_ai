@@ -53,9 +53,6 @@ from aviation_agentic_ai.agent_system.formal_graph import (
     write_fact_trace,
     write_profile_gaps,
 )
-from aviation_agentic_ai.agent_system.materialize import (
-    materialize_validated_facts,
-)
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide, load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
     build_source_snapshot_registry,
@@ -110,7 +107,10 @@ class IngestState(TypedDict):
     decision_context_event: Any
     weather_context: Any
     outcome_context: Any
+    observation_context: Any
     context_artifacts: Any
+    formal_layers: Any
+    public_observation_publication: Any
     model_calls: Annotated[list, operator.add]
 
 
@@ -411,18 +411,12 @@ def _materialize_node(state: dict) -> dict:
             "source_snapshot": snapshot_registry,
         }
 
-    # Plan §6: materialize the accepted ValidatedFacts (from the Formal Graph
-    # Kernel) directly to RDF + JSONL + Neo4j projection. This is the single
-    # batch-two path; the legacy KGTriple materializer is retained only for the
-    # offline schema-validator tests.
-    mat = materialize_validated_facts(
-        facts=validation.accepted,
-        guide=guide,
-        source_snapshot=snapshot_registry,
-        output_dir=ctx.output_dir,
-    )
+    # The deterministic context node owns the one canonical publication after
+    # all independently validated layers have been selected. Keeping the core
+    # validation and audit artifacts here prevents optional context failures
+    # from weakening the Formal Graph Kernel without writing a stale partial KG.
     return {
-        "materialization": mat,
+        "materialization": None,
         "validation": validation,
         "source_snapshot": snapshot_registry,
     }

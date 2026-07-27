@@ -14,9 +14,11 @@ from aviation_agentic_ai.agent_system.bts_outcomes import (
     build_bts_outcome_summaries,
 )
 from aviation_agentic_ai.agent_system.contracts import (
+    BTSObservationBundle,
     BTSOutcomeBundle,
     BTSOutcomeSummary,
     DecisionContextEvent,
+    FactTraceRow,
     ObservationDerivation,
     ObservationFactTrace,
     ReconstructionTrace,
@@ -30,6 +32,9 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.materialize import (
     _absolute_event_iri,
     materialize_validated_facts,
+)
+from aviation_agentic_ai.agent_system.public_observations import (
+    build_bts_observation_facts,
 )
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.sources import (
@@ -234,6 +239,12 @@ def read_weather_fact_traces(path: str | Path) -> list[WeatherFactTrace]:
     return _read_typed_jsonl(path, WeatherFactTrace, id_field="fact_id")
 
 
+def read_fact_traces(path: str | Path) -> list[FactTraceRow]:
+    """Read the Formal Graph Kernel's source-text audit rows."""
+
+    return _read_typed_jsonl(path, FactTraceRow, id_field="fact_id")
+
+
 def write_observation_derivations(
     output_dir: str | Path,
     rows: list[ObservationDerivation],
@@ -290,11 +301,12 @@ def write_reconstruction_trace(
 ) -> Path:
     """Write the one immutable reconstruction input binding."""
 
-    if trace is None:
-        raise ValueError("reconstruction trace is required")
     path = Path(output_dir) / "reconstruction_trace.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(trace.model_dump_json() + "\n", encoding="utf-8")
+    path.write_text(
+        trace.model_dump_json() + "\n" if trace is not None else "",
+        encoding="utf-8",
+    )
     return path
 
 
@@ -333,6 +345,103 @@ def _empty_weather(status: str, reason: str) -> WeatherContextBundle:
 
 def _empty_outcomes(status: str, reason: str) -> BTSOutcomeBundle:
     return BTSOutcomeBundle(status=status, failure_reason=reason)
+
+
+def _empty_observations(status: str, reason: str) -> BTSObservationBundle:
+    return BTSObservationBundle(status=status, failure_reason=reason)
+
+
+def _formal_layer_metadata(
+    profile_registry: Any,
+    *,
+    layer: str,
+    status: str,
+    formal_fact_count: int,
+    failure_reason: str = "",
+) -> dict[str, Any]:
+    profile = next(
+        profile for profile in profile_registry.profiles if profile.ref.layer == layer
+    )
+    metadata: dict[str, Any] = {
+        "status": status,
+        "profile_id": profile.ref.profile_id,
+        "profile_checksum": profile.ref.profile_checksum,
+        "formal_fact_count": formal_fact_count,
+    }
+    if status == "blocked":
+        metadata["failure_reason"] = failure_reason
+    return metadata
+
+
+def _public_observation_publication(
+    bundle: BTSObservationBundle,
+    *,
+    profile_registry: Any,
+) -> dict[str, Any]:
+    metadata: dict[str, Any] = {"status": bundle.status}
+    if bundle.status == "blocked":
+        metadata["failure_reason"] = bundle.failure_reason or ""
+    if bundle.status != "ok" or bundle.reconstruction_trace is None:
+        return metadata
+    public_profile = next(
+        profile
+        for profile in profile_registry.profiles
+        if profile.ref.layer == "public_operational_observation"
+    )
+    procedure = public_profile.aggregation_procedure
+    if procedure is None:
+        raise ValueError("public-observation profile has no aggregation procedure")
+    trace = bundle.reconstruction_trace
+    all_facts = [
+        *bundle.case_facts,
+        *bundle.activity_facts,
+        *bundle.observation_facts,
+    ]
+    class_counts = {
+        "observation_count": "http://www.w3.org/ns/sosa/Observation",
+        "result_count": "http://www.w3.org/ns/sosa/Result",
+        "interval_count": "http://www.w3.org/2006/time#Interval",
+        "instant_count": "http://www.w3.org/2006/time#Instant",
+        "activity_count": "http://www.w3.org/ns/prov#Activity",
+        "procedure_count": "http://www.w3.org/ns/sosa/Procedure",
+        "conceptual_case_count": (
+            "urn:aviation-agentic-ai:decision-case-schema:DecisionCase"
+        ),
+        "reconstruction_count": (
+            "urn:aviation-agentic-ai:decision-case-schema:"
+            "DecisionCaseReconstruction"
+        ),
+    }
+    metadata.update(
+        {
+            "aggregation_procedure_id": procedure.procedure_id,
+            "aggregation_procedure_checksum": procedure.checksum,
+            "source_bindings": [
+                binding.model_dump(mode="json")
+                for binding in trace.source_bindings
+            ],
+            **{
+                field: len(
+                    {
+                        fact.subject_iri
+                        for fact in all_facts
+                        if fact.subject_class_iri == class_iri
+                    }
+                )
+                for field, class_iri in class_counts.items()
+            },
+        }
+    )
+    bts_bindings = [
+        binding
+        for binding in trace.source_bindings
+        if binding.source_family == SourceFamily.BTS_ON_TIME
+    ]
+    if len(bts_bindings) != 1:
+        raise ValueError("reconstruction requires exactly one BTS source binding")
+    metadata["bts_source_id"] = bts_bindings[0].source_id
+    metadata["bts_source_snapshot_sha256"] = bts_bindings[0].snapshot_sha256
+    return metadata
 
 
 def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any]:
@@ -451,18 +560,47 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         output_dir,
     )
 
-    materialization = core_materialization
+    profile_registry = load_validation_profile_registry(
+        decision_guide=ctx.guide or load_schema_guide()
+    )
+    observation_bundle = _empty_observations(
+        outcome_bundle.status,
+        outcome_bundle.failure_reason,
+    )
     if (
-        weather_bundle.status == "ok"
-        and state.get("validation") is not None
-        and state["validation"].publishable
+        outcome_bundle.status == "ok"
+        and decision_event is not None
+        and facility is not None
     ):
-        materialization = materialize_validated_facts(
-            facts=[*state["validation"].accepted, *weather_bundle.formal_facts],
-            guide=ctx.guide or load_schema_guide(),
-            source_snapshot=persisted_registry,
-            output_dir=output_dir,
+        observation_bundle = build_bts_observation_facts(
+            decision_event,
+            facility,
+            outcome_bundle,
+            persisted_registry,
+            profile_registry,
         )
+        if (
+            observation_bundle.status == "ok"
+            and observation_bundle.reconstruction_trace is not None
+        ):
+            expected_weather_ids = set(
+                (
+                    f"urn:aviation-agentic-ai:{report_id}"
+                    for report_id in weather_bundle.selected_report_ids
+                )
+                if weather_bundle.status == "ok"
+                else ()
+            )
+            published_members = set(
+                observation_bundle.reconstruction_trace.member_iris
+            )
+            if not expected_weather_ids <= published_members:
+                observation_bundle = _empty_observations(
+                    "blocked",
+                    "reconstruction trace omits validated weather members",
+                )
+
+    materialization = core_materialization
 
     associations = (
         weather_bundle.associations if weather_bundle.status == "ok" else []
@@ -484,6 +622,79 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
         traces,
         id_field="fact_id",
     )
+    observation_derivations = (
+        observation_bundle.derivations if observation_bundle.status == "ok" else []
+    )
+    observation_fact_traces = (
+        observation_bundle.fact_traces if observation_bundle.status == "ok" else []
+    )
+    reconstruction_trace = (
+        observation_bundle.reconstruction_trace
+        if observation_bundle.status == "ok"
+        else None
+    )
+    derivation_path = write_observation_derivations(
+        output_dir,
+        observation_derivations,
+    )
+    observation_trace_path = write_observation_fact_traces(
+        output_dir,
+        observation_fact_traces,
+    )
+    reconstruction_path = write_reconstruction_trace(
+        output_dir,
+        reconstruction_trace,
+    )
+
+    validation = state.get("validation")
+    fact_trace_path = output_dir / "fact_trace.jsonl"
+    if (
+        validation is not None
+        and validation.publishable
+        and fact_trace_path.exists()
+    ):
+        direct_traces = read_fact_traces(fact_trace_path)
+        formal_facts = list(validation.accepted)
+        if weather_bundle.status == "ok":
+            formal_facts.extend(weather_bundle.formal_facts)
+        if observation_bundle.status == "ok":
+            formal_facts.extend(
+                [
+                    *observation_bundle.case_facts,
+                    *observation_bundle.activity_facts,
+                    *observation_bundle.observation_facts,
+                ]
+            )
+        try:
+            materialization = materialize_validated_facts(
+                facts=formal_facts,
+                profile_registry=profile_registry,
+                source_snapshot=persisted_registry,
+                fact_traces=direct_traces,
+                weather_fact_traces=traces,
+                observation_fact_traces=observation_fact_traces,
+                reconstruction_trace=reconstruction_trace,
+                output_dir=output_dir,
+            )
+        except ValueError as exc:
+            if observation_bundle.status != "ok":
+                raise
+            observation_bundle = _empty_observations("blocked", str(exc))
+            write_observation_derivations(output_dir, [])
+            write_observation_fact_traces(output_dir, [])
+            write_reconstruction_trace(output_dir, None)
+            formal_facts = list(validation.accepted)
+            if weather_bundle.status == "ok":
+                formal_facts.extend(weather_bundle.formal_facts)
+            materialization = materialize_validated_facts(
+                facts=formal_facts,
+                profile_registry=profile_registry,
+                source_snapshot=persisted_registry,
+                fact_traces=direct_traces,
+                weather_fact_traces=traces,
+                output_dir=output_dir,
+            )
+
     context_artifacts = {
         "source_snapshots": _artifact_metadata(snapshots_path, status="ok"),
         "context_associations": _artifact_metadata(
@@ -501,12 +712,75 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             status=weather_bundle.status,
             failure_reason=weather_bundle.failure_reason,
         ),
+        "observation_derivations": _artifact_metadata(
+            derivation_path,
+            status=observation_bundle.status,
+            failure_reason=observation_bundle.failure_reason or "",
+        ),
+        "observation_fact_trace": _artifact_metadata(
+            observation_trace_path,
+            status=observation_bundle.status,
+            failure_reason=observation_bundle.failure_reason or "",
+        ),
+        "reconstruction_trace": _artifact_metadata(
+            reconstruction_path,
+            status=observation_bundle.status,
+            failure_reason=observation_bundle.failure_reason or "",
+        ),
+    }
+    decision_status = (
+        "ok"
+        if validation is not None and validation.publishable
+        else common_status
+    )
+    formal_layers = {
+        "decision": _formal_layer_metadata(
+            profile_registry,
+            layer="decision",
+            status=decision_status,
+            formal_fact_count=(
+                len(validation.accepted)
+                if validation is not None and validation.publishable
+                else 0
+            ),
+            failure_reason=common_reason,
+        ),
+        "weather": _formal_layer_metadata(
+            profile_registry,
+            layer="weather",
+            status=weather_bundle.status,
+            formal_fact_count=(
+                len(weather_bundle.formal_facts)
+                if weather_bundle.status == "ok"
+                else 0
+            ),
+            failure_reason=weather_bundle.failure_reason,
+        ),
+        "public_operational_observation": _formal_layer_metadata(
+            profile_registry,
+            layer="public_operational_observation",
+            status=observation_bundle.status,
+            formal_fact_count=(
+                len(observation_bundle.case_facts)
+                + len(observation_bundle.activity_facts)
+                + len(observation_bundle.observation_facts)
+                if observation_bundle.status == "ok"
+                else 0
+            ),
+            failure_reason=observation_bundle.failure_reason or "",
+        ),
     }
     return {
         "decision_context_event": decision_event,
         "weather_context": weather_bundle,
         "outcome_context": outcome_bundle,
+        "observation_context": observation_bundle,
         "context_artifacts": context_artifacts,
+        "formal_layers": formal_layers,
+        "public_observation_publication": _public_observation_publication(
+            observation_bundle,
+            profile_registry=profile_registry,
+        ),
         "source_snapshot": persisted_registry,
         "materialization": materialization,
         "model_calls": [],

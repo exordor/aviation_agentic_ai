@@ -318,6 +318,17 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
             "validation": None,
             "kg_result": None,
             "context_artifacts": {},
+            "formal_layers": {
+                "decision": {
+                    "status": "ok",
+                    "profile_id": "decision-profile",
+                    "profile_checksum": "d" * 64,
+                    "formal_fact_count": 4,
+                }
+            },
+            "public_observation_publication": {
+                "status": "insufficient",
+            },
         }
 
     monkeypatch.setattr(cli_module, "run_ingest", fake_run)
@@ -339,6 +350,11 @@ def test_ingest_wires_deterministic_context_loaders_without_extra_model_calls(
     assert captured["ctx"].bts_manifest_binding is not None
     assert captured["ctx"].weather_failure_reason == ""
     assert captured["ctx"].bts_failure_reason == ""
+    manifest = json.loads((tmp_path / "run_manifest.json").read_text())
+    assert manifest["formal_layers"]["decision"]["formal_fact_count"] == 4
+    assert manifest["public_observation_publication"] == {
+        "status": "insufficient"
+    }
 
 
 def test_ingest_records_optional_loader_failures_for_the_context_layer(

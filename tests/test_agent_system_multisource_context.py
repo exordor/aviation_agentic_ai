@@ -22,8 +22,10 @@ from aviation_agentic_ai.agent_system.context_artifacts import (
 from aviation_agentic_ai.agent_system.contracts import (
     AgentResult,
     AgentStatus,
+    BTSObservationBundle,
     EvidenceCard,
     EvidenceClaim,
+    FactTraceRow,
     GraphValidationResult,
     PersistedProfileGap,
     SourceFamily,
@@ -204,6 +206,29 @@ def _facility_result(facility: CanonicalEntity, source_id: str) -> AgentResult:
                 )
             ],
         ),
+    )
+
+
+def _write_core_fact_trace(
+    output_dir: Path,
+    facts: list[ValidatedFact],
+    registry,
+) -> None:
+    snapshot = registry.snapshots[0]
+    rows = [
+        FactTraceRow(
+            fact_id=fact.fact_id,
+            graph_patch_line="fixture graph patch line",
+            source_id=snapshot.source_id,
+            evidence_text=fact.evidence_texts[0],
+            evidence_agent_role="fixture",
+            source_snapshot_sha256=snapshot.content_sha256,
+        )
+        for fact in facts
+    ]
+    (output_dir / "fact_trace.jsonl").write_text(
+        "".join(row.model_dump_json() + "\n" for row in rows),
+        encoding="utf-8",
     )
 
 
@@ -395,6 +420,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     config,
     weather_sources,
     bts_context,
+    monkeypatch,
     source_id,
     event_class,
     facility_code,
@@ -424,6 +450,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         source_snapshot=advisory_registry,
         output_dir=tmp_path,
     )
+    _write_core_fact_trace(tmp_path, facts, advisory_registry)
     if source_id.endswith(":123"):
         gap = PersistedProfileGap(
             profile_gap_id="gap:reason:123",
@@ -475,6 +502,42 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     )
     assert result["weather_context"].status == "ok"
     assert result["outcome_context"].status == "ok"
+    if source_id == "2026-05-19:138":
+        assert (
+            result["observation_context"].status == "ok"
+        ), result["observation_context"].failure_reason
+        assert result["materialization"].layer_fact_counts["decision"] == len(facts)
+        assert result["materialization"].layer_fact_counts["weather"] == len(
+            result["weather_context"].formal_facts
+        )
+        assert (
+            result["materialization"]
+            .layer_fact_counts["public_operational_observation"]
+            > 0
+        )
+        for artifact_name in (
+            "observation_derivations",
+            "observation_fact_trace",
+            "reconstruction_trace",
+        ):
+            assert result["context_artifacts"][artifact_name]["status"] == "ok"
+            assert result["context_artifacts"][artifact_name]["count"] > 0
+        assert {
+            layer: metadata["status"]
+            for layer, metadata in result["formal_layers"].items()
+        } == {
+            "decision": "ok",
+            "weather": "ok",
+            "public_operational_observation": "ok",
+        }
+        publication = result["public_observation_publication"]
+        assert publication["status"] == "ok"
+        assert publication["bts_source_id"] == bts_source.source_id
+        assert (
+            publication["aggregation_procedure_checksum"]
+            == result["observation_context"]
+            .reconstruction_trace.aggregation_procedure_checksum
+        )
     active = next(
         summary
         for summary in result["outcome_context"].summaries
@@ -576,6 +639,43 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     ]
     assert len({node["id"] for node in repeated_nodes}) == len(repeated_nodes)
     assert sum(node["id"] == facility.entity_id for node in repeated_nodes) == 1
+
+    if source_id == "2026-05-19:138":
+        monkeypatch.setattr(
+            context_artifacts_module,
+            "build_bts_observation_facts",
+            lambda *args, **kwargs: BTSObservationBundle(
+                status="blocked",
+                failure_reason="injected observation validation failure",
+            ),
+        )
+        blocked = integrate_decision_context(ctx, state)
+        assert blocked["observation_context"].status == "blocked"
+        assert blocked["materialization"].layer_fact_counts == {
+            "decision": len(facts),
+            "weather": len(blocked["weather_context"].formal_facts),
+        }
+        for artifact_name in (
+            "observation_derivations.jsonl",
+            "observation_fact_trace.jsonl",
+            "reconstruction_trace.json",
+        ):
+            assert (tmp_path / artifact_name).read_bytes() == b""
+
+        insufficient = integrate_decision_context(
+            replace(
+                ctx,
+                bts_rows=[],
+                bts_source=None,
+                bts_manifest_binding=None,
+            ),
+            state,
+        )
+        assert insufficient["observation_context"].status == "insufficient"
+        assert insufficient["materialization"].layer_fact_counts == {
+            "decision": len(facts),
+            "weather": len(insufficient["weather_context"].formal_facts),
+        }
 
 
 def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_artifacts(
