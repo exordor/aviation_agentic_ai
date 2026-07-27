@@ -207,6 +207,10 @@ def test_internal_helpers_return_typed_unique_resolution_without_authority_leak(
     assert terminology.agent_result.evidence_card.canonical_refs == [
         _term(_catalog(tmp_path), "Ground Stop").term_id
     ]
+    assert {
+        json.loads(record.content)["preferred_label"]
+        for record in terminology.authority_source_records
+    } == {"Ground Stop", "Glide Slope"}
 
 
 def test_resolution_contracts_share_frozen_run_started_at(tmp_path, monkeypatch):
@@ -435,6 +439,42 @@ def test_required_blocked_domain_stops_kg_factory_and_preserves_blocked_status(
     assert state["formal_layers"]["decision"]["status"] == "blocked"
 
 
+def test_blocked_authority_registry_is_absorbing_at_the_join(tmp_path):
+    """A cross-branch audit conflict blocks preflight without partial recovery."""
+
+    facility = _resolve_facility_compatibility(
+        task=_task("facility"),
+        candidates=_facility_envelope(tmp_path),
+    )
+    terminology = _resolve_terminology_compatibility(
+        task=_task("terminology"),
+        candidates=_gs_envelope(tmp_path),
+    )
+    authority_registry = workflow_module.merge_authority_source_records(
+        workflow_module.AuthoritySourceRecordRegistry(
+            records=facility.authority_source_records
+        ),
+        workflow_module.AuthoritySourceRecordRegistry(
+            records=(
+                facility.authority_source_records[0].model_copy(
+                    update={"content": "conflicting canonical content"}
+                ),
+            )
+        ),
+    )
+
+    joined = workflow_module._join_node(
+        {
+            "facility_resolution_outcome": facility.domain_outcome,
+            "terminology_resolution_outcome": terminology.domain_outcome,
+            "authority_source_records": authority_registry,
+        }
+    )
+
+    assert joined["resolution_preflight_status"] == "blocked"
+    assert authority_registry.records == ()
+
+
 def test_required_insufficient_domain_stops_kg_and_resolution_factories(tmp_path):
     catalog = _catalog(tmp_path)
     incomplete_terms = replace(catalog.terminology, definitions=())
@@ -543,3 +583,111 @@ def test_event_class_hint_mismatch_blocks_before_kg_factory(tmp_path, monkeypatc
     )
 
     assert context_result["formal_layers"]["decision"]["status"] == "blocked"
+
+
+def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
+    tmp_path,
+    monkeypatch,
+):
+    """Authority metadata on a card cannot widen the core KG source allowlist."""
+
+    captured = {}
+    guide = load_schema_guide(str(SCHEMA_PATH))
+    advisory = SourceRecord(
+        source_id="2026-05-19:138",
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="GROUND DELAY PROGRAM",
+    )
+    monkeypatch.setattr(
+        workflow_module,
+        "_CTX_HOLDER",
+        IngestContext(
+            advisory=advisory,
+            guide=guide,
+            run_id="run:test",
+            output_dir=str(tmp_path),
+            kg_tool_model_factory=lambda tools: object(),
+        ),
+    )
+
+    def capture_inputs(*, task, inputs, tool_model_factory):
+        del task, tool_model_factory
+        captured["allowed_source_ids"] = inputs.allowed_source_ids
+        return AgentResult(status=AgentStatus.ABSTAIN)
+
+    monkeypatch.setattr(
+        workflow_module,
+        "run_kg_construction_agent",
+        capture_inputs,
+    )
+    authority_source = "authority:pcg:gdp"
+    advisory_card = EvidenceCard(
+        agent_role="advisory",
+        status=AgentStatus.RESOLVED,
+        claims=[
+            EvidenceClaim(
+                field_name="event_type",
+                value="GDP",
+                evidence_text="GROUND DELAY PROGRAM",
+                source_id=advisory.source_id,
+            )
+        ],
+        source_ids=[advisory.source_id],
+    )
+    facility_card = EvidenceCard(
+        agent_role="facility",
+        status=AgentStatus.RESOLVED,
+        claims=[
+            EvidenceClaim(
+                field_name="controlled_facility",
+                value="JFK",
+                ontology_target="nas:Airport",
+                evidence_text="CTL ELEMENT: JFK",
+                source_id=advisory.source_id,
+                canonical_ref="urn:aviation-agentic-ai:facility:airport:KJFK",
+            )
+        ],
+        source_ids=[advisory.source_id, "authority:nasr:KJFK"],
+    )
+    terminology_card = EvidenceCard(
+        agent_role="terminology",
+        status=AgentStatus.RESOLVED,
+        claims=[
+            EvidenceClaim(
+                field_name="operational_term",
+                value="term:gdp",
+                ontology_target="atm:GroundDelayProgramTMI",
+                evidence_text="GROUND DELAY PROGRAM",
+                source_id=advisory.source_id,
+            ),
+            EvidenceClaim(
+                field_name="authority_definition",
+                value="GDP definition",
+                evidence_text="authority definition text",
+                source_id=authority_source,
+            ),
+        ],
+        source_ids=[advisory.source_id, authority_source],
+    )
+
+    workflow_module._kg_construction_node(
+        {
+            "resolution_preflight_status": "resolved",
+            "advisory_result": AgentResult(
+                status=AgentStatus.RESOLVED,
+                evidence_card=advisory_card,
+            ),
+            "facility_result": AgentResult(
+                status=AgentStatus.RESOLVED,
+                evidence_card=facility_card,
+            ),
+            "terminology_result": AgentResult(
+                status=AgentStatus.RESOLVED,
+                evidence_card=terminology_card,
+            ),
+            "event_class_hint": "atm:GroundDelayProgramTMI",
+            "formal_event_uri_hint": "",
+        }
+    )
+
+    assert captured["allowed_source_ids"] == {advisory.source_id}

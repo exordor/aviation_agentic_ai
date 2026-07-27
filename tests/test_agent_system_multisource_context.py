@@ -29,6 +29,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     GraphValidationResult,
     PersistedProfileGap,
     SourceFamily,
+    SourceRecord,
     ValidatedFact,
 )
 from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
@@ -50,7 +51,12 @@ from aviation_agentic_ai.agent_system.weather_context import (
     METAR_STRING,
     TAF_STRING,
 )
-from aviation_agentic_ai.agent_system.workflow import IngestContext, build_ingest_graph
+from aviation_agentic_ai.agent_system.workflow import (
+    AuthoritySourceRecordRegistry,
+    AuthoritySourceRegistryStatus,
+    IngestContext,
+    build_ingest_graph,
+)
 from aviation_agentic_ai.config import load_yaml
 from aviation_agentic_ai.cross_source.contracts import (
     CanonicalEntity,
@@ -207,6 +213,38 @@ def _facility_result(facility: CanonicalEntity, source_id: str) -> AgentResult:
             ],
         ),
     )
+
+
+def _authority_records(facility_code: str, *, ground_stop: bool) -> tuple[SourceRecord, ...]:
+    records = [
+        SourceRecord(
+            source_id=f"authority:nasr:{facility_code}",
+            family=SourceFamily.NASR_FACILITY,
+            content=f'{{"authority_text":"{facility_code} airport"}}',
+        ),
+        SourceRecord(
+            source_id=(
+                "authority:pcg:ground-stop"
+                if ground_stop
+                else "authority:pcg:ground-delay-program"
+            ),
+            family=SourceFamily.FAA_TERM,
+            content=(
+                '{"authority_text":"Ground Stop"}'
+                if ground_stop
+                else '{"authority_text":"Ground Delay Program"}'
+            ),
+        ),
+    ]
+    if ground_stop:
+        records.append(
+            SourceRecord(
+                source_id="authority:pcg:glide-slope",
+                family=SourceFamily.FAA_TERM,
+                content='{"authority_text":"Glide Slope"}',
+            )
+        )
+    return tuple(sorted(records, key=lambda record: record.source_id))
 
 
 def _write_core_fact_trace(
@@ -485,6 +523,12 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         "validation": validation,
         "materialization": core_materialization,
         "source_snapshot": advisory_registry,
+        "authority_source_records": AuthoritySourceRecordRegistry(
+            records=_authority_records(
+                facility_code,
+                ground_stop=source_id.endswith(":123"),
+            )
+        ),
         "model_calls": ["existing-call"],
     }
 
@@ -572,6 +616,7 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         "arrivalDemand" in row["predicate"] or "airportArrivalRate" in row["predicate"]
         for row in kg_rows
     )
+    assert not any("authority:" in json.dumps(row) for row in kg_rows)
 
     associations = read_context_associations(tmp_path / "context_associations.jsonl")
     summaries = read_outcome_summaries(tmp_path / "outcome_summaries.jsonl")
@@ -588,7 +633,16 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     }
     assert selected_sources <= registry_sources
     assert bts_source.source_id in registry_sources
-    assert len(registry_sources) == len(selected_sources) + 2
+    authority_records = state["authority_source_records"].records
+    assert {record.source_id for record in authority_records} <= registry_sources
+    assert len(registry_sources) == len(selected_sources) + 2 + len(
+        authority_records
+    )
+    if source_id.endswith(":123"):
+        assert {
+            "authority:pcg:ground-stop",
+            "authority:pcg:glide-slope",
+        } <= registry_sources
     assert all(
         association.source_snapshot_sha256
         == result["source_snapshot"].get(association.source_id).content_sha256
@@ -608,6 +662,8 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
         .read_text(encoding="utf-8")
         .splitlines()
     ]
+    assert "authority:" not in ttl
+    assert not any("authority:" in json.dumps(row) for row in [*nodes, *relationships])
     assert "@prefix data:" in ttl
     assert any(node["label"] == "MeteorologicalReport" for node in nodes)
     assert any(rel["type"] == "FORECASTING_AIRPORT" for rel in relationships)
@@ -631,6 +687,16 @@ def test_three_cases_integrate_weather_and_bts_without_widening_core_semantics(
     assert (tmp_path / "context_associations.jsonl").read_bytes() == first_associations
     assert (tmp_path / "outcome_summaries.jsonl").read_bytes() == first_outcomes
     assert (tmp_path / "weather_fact_trace.jsonl").read_bytes() == first_traces
+    first_authority_bindings = {
+        snapshot.source_id: snapshot.content_sha256
+        for snapshot in result["source_snapshot"].snapshots
+        if snapshot.source_id.startswith("authority:")
+    }
+    assert {
+        snapshot.source_id: snapshot.content_sha256
+        for snapshot in repeated["source_snapshot"].snapshots
+        if snapshot.source_id.startswith("authority:")
+    } == first_authority_bindings
     repeated_nodes = [
         json.loads(line)
         for line in Path(repeated["materialization"].nodes_path)
@@ -723,6 +789,11 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
             "validation": GraphValidationResult(accepted=facts, publishable=True),
             "materialization": core,
             "source_snapshot": registry,
+            "authority_source_records": AuthoritySourceRecordRegistry(
+                status=AuthoritySourceRegistryStatus.BLOCKED,
+                reason_code="AUTHORITY_SOURCE_ID_CONFLICT",
+                error_id="authority-source-registry-error:test",
+            ),
         },
     )
 
@@ -737,6 +808,10 @@ def test_optional_context_failure_keeps_the_materialized_core_and_writes_empty_a
         assert (tmp_path / name).read_bytes() == b""
     assert result["context_artifacts"]["context_associations"]["status"] == "blocked"
     assert result["context_artifacts"]["outcome_summaries"]["status"] == "blocked"
+    assert result["context_artifacts"]["source_snapshots"]["status"] == "blocked"
+    assert {
+        snapshot.source_id for snapshot in result["source_snapshot"].snapshots
+    } == {source_id}
 
 
 def test_reconstruction_rejects_an_extra_unvalidated_weather_member(

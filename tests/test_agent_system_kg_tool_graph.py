@@ -17,6 +17,7 @@ from aviation_agentic_ai.agent_system.contracts import (
     ModelToolCall,
     SourceFamily,
     SourceRecord,
+    ToolTraceEntry,
 )
 from aviation_agentic_ai.agent_system.kg_tool_graph import run_kg_tool_agent
 from aviation_agentic_ai.agent_system.kg_tools import (
@@ -280,6 +281,50 @@ def test_agent_entrypoint_prefers_the_tool_model_factory():
     assert len(result.evidence_card.tool_trace) == 3
 
 
+def test_agent_entrypoint_does_not_fallback_to_card_or_advisory_source_ids():
+    """An empty accepted-claim allowlist cannot be widened by envelope metadata."""
+
+    model = _ScriptedToolModel(
+        [_selection_turn(_required_calls()), _draft_turn(_patch())]
+    )
+    cards = _cards()
+    cards["facility"] = cards["facility"].model_copy(
+        update={"source_ids": [SOURCE_ID, "authority:nasr:KZZQ"]}
+    )
+
+    result = run_kg_construction_agent(
+        task=AgentTask(
+            run_id="run:example",
+            source_id=SOURCE_ID,
+            objective="construct event graph patch",
+            allowed_tools=[
+                "get_schema_context",
+                "resolve_canonical_ref",
+                "get_source_evidence",
+            ],
+        ),
+        inputs=KGConstructionInput(
+            advisory=SourceRecord(
+                source_id=SOURCE_ID,
+                family=SourceFamily.ATCSCC_ADVISORY,
+                content="GROUND STOP CTL ELEMENT: ZZQ",
+            ),
+            advisory_card=cards["advisory"],
+            facility_card=cards["facility"],
+            terminology_card=cards["terminology"],
+            event_uri=EVENT_URI,
+            event_class=EVENT_CLASS,
+            guide=load_schema_guide(),
+            allowed_source_ids=set(),
+        ),
+        tool_model_factory=lambda tools: model,
+    )
+
+    assert result.status is AgentStatus.BLOCKED
+    assert "accepted event evidence" in str(result.failure_reason)
+    assert model.invocations == []
+
+
 def test_agent_entrypoint_blocks_without_a_native_tool_model():
     cards = _cards()
     result = run_kg_construction_agent(
@@ -419,3 +464,64 @@ def test_tool_trace_contains_references_not_evidence_payload():
     assert "CTL ELEMENT: ZZQ" not in trace_text
     assert "GROUND STOP" not in trace_text
     assert "evidence:advisory" in trace_text
+
+
+def test_kg_source_evidence_projection_excludes_authority_audit_internals():
+    """The KG model sees accepted event claims, not authority-audit internals."""
+
+    authority_source = "authority:pcg:ground-stop"
+    facility = EvidenceCard(
+        agent_role="facility",
+        status=AgentStatus.RESOLVED,
+        claims=[
+            EvidenceClaim(
+                field_name="controlled_facility",
+                value="ZZQ",
+                ontology_target="nas:Airport",
+                evidence_text="CTL ELEMENT: ZZQ",
+                source_id=SOURCE_ID,
+                canonical_ref=FACILITY_ID,
+                uncertainty="PRIVATE CLAIM NOTE",
+            ),
+            EvidenceClaim(
+                field_name="authority_definition",
+                value="Ground Stop",
+                evidence_text="PRIVATE AUTHORITY RAW TEXT",
+                source_id=authority_source,
+                canonical_ref="term:private",
+            ),
+        ],
+        canonical_refs=[FACILITY_ID, "term:private"],
+        source_ids=[SOURCE_ID, authority_source],
+        uncertainties=["PRIVATE CARD UNCERTAINTY"],
+        tool_trace=[
+            ToolTraceEntry(
+                tool="lookup_nasr_facility",
+                result_refs=["resolution-task:private"],
+                source_ids=[authority_source],
+            )
+        ],
+        decision_basis="PRIVATE DECISION BASIS",
+    )
+    gateway = KGConstructionToolGateway(
+        guide=load_schema_guide(),
+        event_class=EVENT_CLASS,
+        evidence_cards={"facility": facility},
+        canonical_entities={FACILITY_ID: "nas:Airport"},
+        allowed_source_ids={SOURCE_ID},
+    )
+
+    result = gateway.get_source_evidence(roles=["facility"])
+    projected = result.payload["evidence_cards"][0]
+
+    assert set(projected) == {
+        "agent_role",
+        "status",
+        "claims",
+        "canonical_refs",
+    }
+    assert result.source_ids == [SOURCE_ID]
+    assert projected["canonical_refs"] == [FACILITY_ID]
+    assert [claim["source_id"] for claim in projected["claims"]] == [SOURCE_ID]
+    assert projected["claims"][0]["uncertainty"] is None
+    assert "PRIVATE" not in str(result.payload)

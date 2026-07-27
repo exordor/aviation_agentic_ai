@@ -1,6 +1,6 @@
 # Three-Agent Decision Case Architecture Design
 
-Status: approved design, implementation not started
+Status: approved design; Batch A contracts and authority evidence implemented
 
 Date: 2026-07-27
 
@@ -919,6 +919,10 @@ new contracts and regression tests pass.
 
 ### Batch A: Contracts and Authority Evidence
 
+Implementation status: complete. Three-Agent runtime migration has not
+started, and the current workflow and reader-facing role names remain the
+compatibility runtime.
+
 - add the three task and result contract families;
 - carry `structural_slot` and `expected_entity_type` through resolution tasks;
 - supply real term definitions, source references, and snapshot checksums;
@@ -1250,17 +1254,6 @@ The following claims remain unsupported:
 
 ## 22. Planning Boundary
 
-The next step after review of this written specification is a separate
-implementation plan for Batch A only:
-
-```text
-contracts
-structural-slot propagation
-real authority definitions and source references
-schema-compatibility evidence
-placeholder removal
-compatibility wrappers
-focused tests
-```
-
-No runtime Agent migration begins until that plan is approved.
+Batch A contracts and authority evidence are implemented. The Semantic
+Resolution, Decision Case Assembly, and Decision Case Analysis Agent runtime
+migration remains deferred to separately approved later batches.

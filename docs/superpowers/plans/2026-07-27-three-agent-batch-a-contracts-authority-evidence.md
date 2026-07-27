@@ -2,6 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status:** Implemented locally through Task 6. Three-Agent runtime migration
+has not started; the current workflow remains the compatibility runtime.
+
 **Goal:** Establish the strict three-Agent collaboration contracts and give the existing facility and terminology compatibility paths source-bound structural and authority evidence, without activating the three-Agent runtime.
 
 **Architecture:** Batch A is an additive compatibility layer. New immutable, checksummed Resolution, Assembly, and Analysis contracts live beside the existing `AgentTask`, `AgentResult`, `GraphPatchBlock`, and `QueryToolOutcome` contracts. Deterministic parser and authority services construct candidate evidence from known advisory slots, typed authority registries, real FAA definitions, checksum-pinned source snapshots, and the active Schema Guide. Existing role functions remain temporary wrappers and the current workflow topology, CLI, Formal Graph Kernel, graph projections, and persisted artifact names remain unchanged.
@@ -2381,14 +2384,14 @@ uv run pytest -q \
 Expected: new authority-catalog, per-domain status, audit-snapshot, and
 graph-allowlist assertions fail.
 
-- [ ] Merge every authority source record referenced by a sealed compatibility task into the existing persisted source registry.
-- [ ] Keep formal fact evidence bindings unchanged.
-- [ ] Refactor the KG source allowlist to use accepted event claims only,
+- [x] Merge every authority source record referenced by a sealed compatibility task into the existing persisted source registry.
+- [x] Keep formal fact evidence bindings unchanged.
+- [x] Refactor the KG source allowlist to use accepted event claims only,
   sanitize the KG-visible EvidenceCard projection, and prove that authority
   audit sources cannot authorize an event fact or provenance edge.
-- [ ] Update the two approved design documents with the exact Batch A status boundary.
-- [ ] Run the focused tests and confirm GREEN.
-- [ ] Run the complete Batch A focused suite:
+- [x] Update the two approved design documents with the exact Batch A status boundary.
+- [x] Run the focused tests and confirm GREEN.
+- [x] Run the complete Batch A focused suite:
 
 ```bash
 uv run pytest -q \

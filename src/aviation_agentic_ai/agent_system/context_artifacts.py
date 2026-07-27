@@ -563,7 +563,23 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             except (TypeError, ValueError) as exc:
                 outcome_bundle = _empty_outcomes("blocked", str(exc))
 
-    persisted_records = [ctx.advisory]
+    authority_registry = state.get("authority_source_records")
+    authority_status = getattr(
+        getattr(authority_registry, "status", None),
+        "value",
+        getattr(authority_registry, "status", "ok"),
+    )
+    authority_reason = (
+        getattr(authority_registry, "reason_code", None)
+        or getattr(authority_registry, "error_id", None)
+        or ""
+    )
+    authority_records = (
+        list(getattr(authority_registry, "records", ()))
+        if authority_status == "ok"
+        else []
+    )
+    persisted_records = [ctx.advisory, *authority_records]
     if weather_bundle.status == "ok":
         selected_source_ids = sorted(
             {association.source_id for association in weather_bundle.associations}
@@ -722,7 +738,11 @@ def integrate_decision_context(ctx: Any, state: dict[str, Any]) -> dict[str, Any
             )
 
     context_artifacts = {
-        "source_snapshots": _artifact_metadata(snapshots_path, status="ok"),
+        "source_snapshots": _artifact_metadata(
+            snapshots_path,
+            status=authority_status,
+            failure_reason=authority_reason,
+        ),
         "context_associations": _artifact_metadata(
             association_path,
             status=weather_bundle.status,

@@ -15,7 +15,9 @@ from langchain_core.tools import BaseTool, tool
 from pydantic import Field
 
 from aviation_agentic_ai.agent_system.contracts import (
+    AgentStatus,
     EvidenceCard,
+    EvidenceClaim,
     StrictModel,
 )
 from aviation_agentic_ai.agent_system.schema_guide import SchemaGuide
@@ -65,6 +67,50 @@ class KGConstructionToolResult(StrictModel):
     payload: dict[str, Any] = Field(default_factory=dict)
 
 
+class KGVisibleEvidenceCard(StrictModel):
+    """Minimal event-evidence projection exposed to the KG model."""
+
+    agent_role: str
+    status: AgentStatus
+    claims: list[EvidenceClaim]
+    canonical_refs: list[str]
+
+
+def project_kg_visible_evidence(
+    card: EvidenceCard,
+    *,
+    allowed_source_ids: set[str],
+) -> KGVisibleEvidenceCard:
+    """Keep only accepted event claims and canonical references they use."""
+
+    claims = sorted(
+        (
+            claim.model_copy(update={"uncertainty": None})
+            for claim in card.claims
+            if claim.source_id in allowed_source_ids
+        ),
+        key=lambda claim: (
+            claim.source_id,
+            claim.field_name,
+            claim.canonical_ref or "",
+            claim.value,
+            claim.evidence_text,
+        ),
+    )
+    return KGVisibleEvidenceCard(
+        agent_role=card.agent_role,
+        status=card.status,
+        claims=claims,
+        canonical_refs=sorted(
+            {
+                claim.canonical_ref
+                for claim in claims
+                if claim.canonical_ref is not None
+            }
+        ),
+    )
+
+
 class KGConstructionToolGateway:
     """Session-scoped authority boundary behind the construction tools."""
 
@@ -109,13 +155,18 @@ class KGConstructionToolGateway:
         if unknown:
             raise KGToolError(f"EvidenceCard roles are outside the current task: {unknown}")
 
-        cards = [self.evidence_cards[role] for role in requested]
+        cards = [
+            project_kg_visible_evidence(
+                self.evidence_cards[role],
+                allowed_source_ids=self.allowed_source_ids,
+            )
+            for role in requested
+        ]
         source_ids = sorted(
             {
-                source_id
+                claim.source_id
                 for card in cards
-                for source_id in card.source_ids
-                if source_id in self.allowed_source_ids
+                for claim in card.claims
             }
         )
         return KGConstructionToolResult(
@@ -192,8 +243,10 @@ __all__ = [
     "GetSourceEvidenceInput",
     "KGConstructionToolGateway",
     "KGConstructionToolResult",
+    "KGVisibleEvidenceCard",
     "KGToolError",
     "ResolveCanonicalRefInput",
     "build_kg_construction_tools",
     "kg_tool_registry",
+    "project_kg_visible_evidence",
 ]

@@ -687,6 +687,15 @@ validated event + canonical facility
   -> bounded deterministic query tools
 ```
 
+### 14.1 Batch A compatibility status
+
+Batch A contracts and authority evidence are implemented. Task-referenced
+authority records are retained as audit snapshots after formal graph
+validation, but they do not authorize event facts or enter the KG
+Construction Agent's evidence view. Three-Agent runtime migration has not
+started; the current workflow and reader-facing role names remain the
+compatibility runtime.
+
 ## 15. Memory Model
 
 The system has three memory layers:

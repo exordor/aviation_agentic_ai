@@ -20,10 +20,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
+import hashlib
+import json
 import operator
 from typing import Annotated, Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
+from pydantic import model_validator
 
 from aviation_agentic_ai.agent_system.agents import (
     FacilityCandidates,
@@ -48,9 +52,11 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentTask,
     BTSOnTimeRow,
     GraphValidationResult,
+    SourceFamily,
     SourceRecord,
 )
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
+    FrozenContractModel,
     ResolutionDecision,
     stable_contract_id,
 )
@@ -74,6 +80,112 @@ from aviation_agentic_ai.agent_system.runtime import (
 )
 
 ToolModelFactory = Any
+
+
+class AuthoritySourceRegistryStatus(str, Enum):
+    """Outcome of the parallel authority-audit source channel."""
+
+    OK = "ok"
+    BLOCKED = "blocked"
+
+
+class AuthoritySourceRecordRegistry(FrozenContractModel):
+    """Task-referenced authority rows carried outside the formal KG."""
+
+    status: AuthoritySourceRegistryStatus = AuthoritySourceRegistryStatus.OK
+    records: tuple[SourceRecord, ...] = ()
+    reason_code: str | None = None
+    error_id: str | None = None
+
+    @model_validator(mode="after")
+    def validate_status_shape(self) -> "AuthoritySourceRecordRegistry":
+        if self.status is AuthoritySourceRegistryStatus.BLOCKED:
+            if self.records or not self.reason_code or not self.error_id:
+                raise ValueError(
+                    "blocked authority registry requires an error and no records"
+                )
+        elif self.reason_code is not None or self.error_id is not None:
+            raise ValueError("ok authority registry cannot carry an error")
+        return self
+
+
+_AUTHORITY_SOURCE_FAMILIES = {
+    SourceFamily.NASR_FACILITY,
+    SourceFamily.FAA_TERM,
+}
+
+
+def _blocked_authority_registry(
+    reason_code: str,
+    source_id: str,
+) -> AuthoritySourceRecordRegistry:
+    return AuthoritySourceRecordRegistry(
+        status=AuthoritySourceRegistryStatus.BLOCKED,
+        reason_code=reason_code,
+        error_id=stable_contract_id(
+            "authority-source-registry-error",
+            reason_code,
+            source_id,
+        ),
+    )
+
+
+def _canonical_source_record(record: SourceRecord) -> str:
+    return json.dumps(
+        record.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+
+
+def merge_authority_source_records(
+    left: AuthoritySourceRecordRegistry,
+    right: AuthoritySourceRecordRegistry,
+) -> AuthoritySourceRecordRegistry:
+    """Merge parallel authority audit rows, failing closed without partial data."""
+
+    blocked = sorted(
+        (
+            registry
+            for registry in (left, right)
+            if registry.status is AuthoritySourceRegistryStatus.BLOCKED
+        ),
+        key=lambda registry: (registry.reason_code or "", registry.error_id or ""),
+    )
+    if blocked:
+        return blocked[0]
+
+    records_by_id: dict[str, SourceRecord] = {}
+    canonical_by_id: dict[str, tuple[str, str]] = {}
+    for record in (*left.records, *right.records):
+        if record.family not in _AUTHORITY_SOURCE_FAMILIES:
+            return _blocked_authority_registry(
+                "AUTHORITY_SOURCE_FAMILY_NOT_ALLOWED",
+                record.source_id,
+            )
+        canonical = _canonical_source_record(record)
+        content_sha256 = hashlib.sha256(record.content.encode("utf-8")).hexdigest()
+        existing = canonical_by_id.get(record.source_id)
+        if existing is not None and existing != (canonical, content_sha256):
+            return _blocked_authority_registry(
+                "AUTHORITY_SOURCE_ID_CONFLICT",
+                record.source_id,
+            )
+        canonical_by_id[record.source_id] = (canonical, content_sha256)
+        records_by_id[record.source_id] = record.model_copy(deep=True)
+    return AuthoritySourceRecordRegistry(
+        records=tuple(records_by_id[source_id] for source_id in sorted(records_by_id)),
+    )
+
+
+def _authority_source_registry(
+    records: tuple[SourceRecord, ...],
+) -> AuthoritySourceRecordRegistry:
+    return merge_authority_source_records(
+        AuthoritySourceRecordRegistry(),
+        AuthoritySourceRecordRegistry(records=records),
+    )
 
 
 @dataclass
@@ -114,8 +226,10 @@ class IngestState(TypedDict):
     terminology_result: Any
     facility_resolution_outcome: Any
     terminology_resolution_outcome: Any
-    facility_authority_source_records: Any
-    terminology_authority_source_records: Any
+    authority_source_records: Annotated[
+        AuthoritySourceRecordRegistry,
+        merge_authority_source_records,
+    ]
     resolution_event_id: str
     resolution_event_mention: str
     event_class_hint: str
@@ -394,7 +508,9 @@ def _facility_node(state: dict) -> dict:
     return {
         "facility_result": result,
         "facility_resolution_outcome": compatibility.domain_outcome,
-        "facility_authority_source_records": compatibility.authority_source_records,
+        "authority_source_records": _authority_source_registry(
+            compatibility.authority_source_records
+        ),
         "model_calls": list(result.model_calls),
     }
 
@@ -519,7 +635,7 @@ def _terminology_node(state: dict) -> dict:
     return {
         "terminology_result": result,
         "terminology_resolution_outcome": compatibility.domain_outcome,
-        "terminology_authority_source_records": (
+        "authority_source_records": _authority_source_registry(
             compatibility.authority_source_records
         ),
         "model_calls": list(result.model_calls),
@@ -533,7 +649,17 @@ def _join_node(state: dict) -> dict:
         state.get("facility_resolution_outcome"),
         state.get("terminology_resolution_outcome"),
     )
-    if any(
+    authority_registry = state.get("authority_source_records")
+    if (
+        authority_registry is not None
+        and authority_registry.status is AuthoritySourceRegistryStatus.BLOCKED
+    ):
+        status = "blocked"
+        reason = (
+            authority_registry.reason_code
+            or "authority source registry blocked"
+        )
+    elif any(
         outcome is None or outcome.decision is ResolutionDecision.BLOCKED
         for outcome in outcomes
     ):
@@ -552,6 +678,21 @@ def _join_node(state: dict) -> dict:
         "joined": True,
         "resolution_preflight_status": status,
         "resolution_preflight_reason": reason,
+    }
+
+
+def _accepted_event_source_ids(
+    advisory_source_id: str,
+    *results: AgentResult | None,
+) -> set[str]:
+    """Return source IDs from retained event claims, bound to this advisory."""
+
+    return {
+        claim.source_id
+        for result in results
+        if result is not None and result.evidence_card is not None
+        for claim in result.evidence_card.claims
+        if claim.source_id == advisory_source_id
     }
 
 
@@ -606,12 +747,12 @@ def _kg_construction_node(state: dict) -> dict:
         allowed_tools=["get_schema_context", "resolve_canonical_ref", "get_source_evidence"],
         schema_slice_id=ctx.guide.schema_slice_id,
     )
-    # Known source ids: the advisory + any resolved authority sources.
-    allowed_source_ids = {ctx.advisory.source_id}
-    if facility_result.evidence_card:
-        allowed_source_ids.update(facility_result.evidence_card.source_ids)
-    if terminology_result.evidence_card:
-        allowed_source_ids.update(terminology_result.evidence_card.source_ids)
+    allowed_source_ids = _accepted_event_source_ids(
+        ctx.advisory.source_id,
+        advisory_result,
+        facility_result,
+        terminology_result,
+    )
     inputs = KGConstructionInput(
         advisory=ctx.advisory,
         advisory_card=advisory_result.evidence_card,  # type: ignore[arg-type]
@@ -660,19 +801,21 @@ def _materialize_node(state: dict) -> dict:
         for claim in facility_result.evidence_card.claims:
             if claim.canonical_ref and claim.ontology_target:
                 canonical_entities[claim.canonical_ref] = claim.ontology_target
-    # Known source ids: the advisory + any resolved authority sources.
-    known_source_ids = {ctx.advisory.source_id}
     evidence_cards = []
     if facility_result and facility_result.evidence_card:
-        known_source_ids.update(facility_result.evidence_card.source_ids)
         evidence_cards.append(facility_result.evidence_card)
     terminology_result: AgentResult | None = state.get("terminology_result")
     if terminology_result and terminology_result.evidence_card:
-        known_source_ids.update(terminology_result.evidence_card.source_ids)
         evidence_cards.append(terminology_result.evidence_card)
     advisory_result: AgentResult | None = state.get("advisory_result")
     if advisory_result and advisory_result.evidence_card:
         evidence_cards.append(advisory_result.evidence_card)
+    known_source_ids = _accepted_event_source_ids(
+        ctx.advisory.source_id,
+        advisory_result,
+        facility_result,
+        terminology_result,
+    )
 
     # Persist the source snapshot (plan §5.2) so every accepted fact binds to
     # auditable, checksum-pinned source content.

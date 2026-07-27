@@ -1437,7 +1437,18 @@ def run_kg_construction_agent(
         )
         return AgentResult(status=AgentStatus.ABSTAIN, evidence_card=card)
 
-    allowed = sorted(inputs.allowed_source_ids or {inputs.advisory.source_id})
+    allowed = sorted(inputs.allowed_source_ids)
+    if not allowed:
+        card = EvidenceCard(
+            agent_role="knowledge_graph_construction",
+            status=AgentStatus.BLOCKED,
+            decision_basis="no accepted event evidence sources are available",
+        )
+        return AgentResult(
+            status=AgentStatus.BLOCKED,
+            evidence_card=card,
+            failure_reason="no accepted event evidence sources are available",
+        )
     known = _known_canonical_entities(inputs.facility_card, inputs.guide)
     if tool_model_factory is None:
         card = EvidenceCard(

@@ -32,6 +32,11 @@ from aviation_agentic_ai.agent_system.validation_profiles import (
 )
 from aviation_agentic_ai.agent_system import sources
 from aviation_agentic_ai.agent_system.sources import build_source_snapshot
+from aviation_agentic_ai.agent_system.workflow import (
+    AuthoritySourceRecordRegistry,
+    AuthoritySourceRegistryStatus,
+    merge_authority_source_records,
+)
 
 
 def _record(source_id: str, family: SourceFamily, content: str) -> SourceRecord:
@@ -58,6 +63,68 @@ def _decision_fact(**fields: object) -> ValidatedFact:
         evidence_mode="source_text",
         evidence_ref=fact_id,
     )
+
+
+def test_parallel_authority_record_reducer_deduplicates_identical_rows():
+    """Parallel branches may repeat an identical audit row without duplicating it."""
+
+    record = _record(
+        "authority:pcg:ground-stop",
+        SourceFamily.FAA_TERM,
+        '{"authority_text":"Ground Stop"}',
+    )
+
+    merged = merge_authority_source_records(
+        AuthoritySourceRecordRegistry(records=(record,)),
+        AuthoritySourceRecordRegistry(records=(record.model_copy(deep=True),)),
+    )
+
+    assert merged.status is AuthoritySourceRegistryStatus.OK
+    assert [row.source_id for row in merged.records] == [record.source_id]
+
+
+@pytest.mark.parametrize(
+    ("right_record", "reason_code"),
+    [
+        (
+            _record(
+                "authority:pcg:ground-stop",
+                SourceFamily.FAA_TERM,
+                '{"authority_text":"different"}',
+            ),
+            "AUTHORITY_SOURCE_ID_CONFLICT",
+        ),
+        (
+            _record(
+                "authority:pcg:ground-stop",
+                SourceFamily.METAR,
+                '{"authority_text":"Ground Stop"}',
+            ),
+            "AUTHORITY_SOURCE_FAMILY_NOT_ALLOWED",
+        ),
+    ],
+)
+def test_parallel_authority_record_reducer_blocks_without_partial_rows(
+    right_record,
+    reason_code,
+):
+    """A conflicting or non-authority row blocks the audit channel atomically."""
+
+    left = _record(
+        "authority:pcg:ground-stop",
+        SourceFamily.FAA_TERM,
+        '{"authority_text":"Ground Stop"}',
+    )
+
+    merged = merge_authority_source_records(
+        AuthoritySourceRecordRegistry(records=(left,)),
+        AuthoritySourceRecordRegistry(records=(right_record,)),
+    )
+
+    assert merged.status is AuthoritySourceRegistryStatus.BLOCKED
+    assert merged.reason_code == reason_code
+    assert merged.error_id
+    assert merged.records == ()
 
 
 def test_source_snapshot_registry_round_trips_canonical_jsonl(tmp_path):
