@@ -96,12 +96,44 @@ def _normalize_question(question: str) -> str:
     return " ".join(re.findall(r"[a-z0-9]+", question.lower()))
 
 
+def _passes_capability_gate(question: str) -> bool:
+    """Reject non-English and safety-sensitive wording before intent lookup."""
+
+    if not question.isascii():
+        return False
+    normalized = _normalize_question(question)
+    words = set(normalized.split())
+    if not normalized:
+        return False
+    if words.intersection({"live", "current", "now", "today", "realtime"}):
+        return False
+    if "real time" in normalized:
+        return False
+    if (
+        any(word.startswith("caus") for word in words)
+        or words.intersection({"because", "why"})
+        or any(
+            phrase in normalized
+            for phrase in (
+                "result in",
+                "resulted in",
+                "results in",
+                "resulting in",
+            )
+        )
+    ):
+        return False
+    if "flight" in words and any(word.startswith("control") for word in words):
+        return False
+    return True
+
+
 def classify_registered_question(
     question: str,
 ) -> QueryIntent | AnalysisIntent | None:
-    """Map a bounded English question to one registered record intent."""
+    """Map only an exact registered English question to one bounded intent."""
 
-    if not question.isascii():
+    if not _passes_capability_gate(question):
         return None
     normalized = _normalize_question(question)
     exact: dict[str, QueryIntent | AnalysisIntent] = {
@@ -128,62 +160,7 @@ def classify_registered_question(
             HISTORICAL_SIMILARITY_ANALYSIS_QUESTION
         ): AnalysisIntent.HISTORICAL_SIMILARITY,
     }
-    if normalized in exact:
-        return exact[normalized]
-    words = set(normalized.split())
-    if (
-        any(
-            word == "best"
-            or word.startswith("similar")
-            or word.startswith("recommend")
-            or word in {"optimal", "should"}
-            for word in words
-        )
-        or words.intersection({"cause", "caused", "causal", "because", "why"})
-        or words.intersection({"live", "now", "today", "realtime"})
-        or {"flight", "control"}.issubset(words)
-        or {"safe", "fly"}.issubset(words)
-    ):
-        return None
-    matches: list[QueryIntent] = []
-    if words.intersection({"measure", "tmi"}) and words.intersection(
-        {"published", "recorded", "type"}
-    ):
-        matches.append(QueryIntent.MEASURE)
-    if words.intersection({"airport", "facility"}) and words.intersection(
-        {"controlled", "control"}
-    ):
-        matches.append(QueryIntent.CONTROLLED_FACILITY)
-    if words.intersection({"when", "period", "start", "end"}) and words.intersection(
-        {"apply", "applied", "effective", "period", "start", "end"}
-    ):
-        matches.append(QueryIntent.OPERATIONAL_PERIOD)
-    if words.intersection({"reason", "condition"}) and words.intersection(
-        {"advisory", "declared", "state", "stated", "impacting"}
-    ):
-        matches.append(QueryIntent.DECLARED_REASON)
-    if words.intersection({"source", "evidence", "provenance"}) and words.intersection(
-        {"support", "supports", "record", "statement", "evidence", "provenance"}
-    ):
-        matches.append(QueryIntent.PROVENANCE)
-    if "forecast" in words and words.intersection(
-        {"decision", "issue", "issued", "known", "time"}
-    ):
-        matches.append(QueryIntent.FORECAST_CONTEXT)
-    if words.intersection({"observed", "observation", "metar"}) and words.intersection(
-        {"weather", "context", "available"}
-    ):
-        matches.append(QueryIntent.OBSERVED_WEATHER_CONTEXT)
-    if {"bts", "reported"}.issubset(words) and words.intersection(
-        {"observation", "observations", "operational", "outcome", "outcomes"}
-    ):
-        matches.append(QueryIntent.PUBLIC_OUTCOME)
-    if words.intersection({"reconstruct", "reconstructed"}) and {
-        "decision",
-        "case",
-    }.issubset(words):
-        matches.append(QueryIntent.RECONSTRUCTED_CASE)
-    return matches[0] if len(set(matches)) == 1 else None
+    return exact.get(normalized)
 
 
 def is_registered_competency_question(question: str) -> bool:

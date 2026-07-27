@@ -2817,11 +2817,18 @@ def test_historical_similarity_is_a_zero_call_corpus_gate(tmp_path):
         "Why did weather cause this GDP?",
         "What is the live operational situation now?",
         "Should flight control clear this aircraft?",
+        MEASURE_QUESTION + " in the current system?",
+        MEASURE_QUESTION + " in real-time?",
+        MEASURE_QUESTION + " and what resulted in it?",
+        MEASURE_QUESTION + " and what is causing it?",
+        CONTROLLED_FACILITY_QUESTION + " Can flight controllers clear it?",
+        MEASURE_QUESTION + " por favor",
+        "Please tell me what traffic management measure was published.",
         "\u8bf7\u63a8\u8350\u6700\u4f73\u4ea4\u901a\u7ba1\u7406\u63aa\u65bd\u3002",
     ),
 )
 def test_unregistered_or_unsafe_analysis_wording_is_zero_call(tmp_path, question):
-    """A fuzzy safety-sensitive route must not activate the analysis model."""
+    """Only an exact registered English question may cross the capability gate."""
 
     _write_graph(tmp_path)
     factory = _Factory()

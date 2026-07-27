@@ -534,6 +534,76 @@ def test_authorized_analysis_cli_reports_only_its_artifact_directory(
     assert Path(artifact_line.removeprefix("analysis_artifact_dir: ")).is_dir()
 
 
+def test_blocked_analysis_cli_reports_artifact_directory_before_exit(
+    tmp_path,
+    monkeypatch,
+):
+    """A blocked sealed analysis must remain discoverable after the CLI exits."""
+
+    _write_graph(tmp_path)
+    call = {
+        "id": "call:analysis:blocked",
+        "name": "execute_bound_query_step",
+        "args": {"step_id": "step:not-in-plan"},
+        "type": "tool_call",
+    }
+
+    class BlockedAnalysisModel:
+        def invoke(self, messages, *, phase):
+            del messages
+            assert phase == "select_tool"
+            return ToolModelTurn(
+                message=AIMessage(content="", tool_calls=[call]),
+                record=ModelCallRecord(
+                    agent="decision_case_analysis",
+                    raw_response="",
+                    prompt_version="decision-case-analysis-v1",
+                    provider="scripted",
+                    model="scripted",
+                    tool_calls=[
+                        ModelToolCall(
+                            call_id=call["id"],
+                            name=call["name"],
+                            arguments=call["args"],
+                        )
+                    ],
+                ),
+            )
+
+    def scripted_model_factory(*, tools, role):
+        assert [tool.name for tool in tools] == ["execute_bound_query_step"]
+        assert role == "decision_case_analysis"
+        return BlockedAnalysisModel()
+
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        scripted_model_factory,
+    )
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--run-dir",
+            str(tmp_path),
+            "--question",
+            OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
+            "--allow-live-model",
+        ],
+    )
+
+    assert result.exit_code != 0
+    artifact_line = next(
+        line
+        for line in result.output.splitlines()
+        if line.startswith("analysis_artifact_dir: ")
+    )
+    assert Path(artifact_line.removeprefix("analysis_artifact_dir: ")).is_dir()
+    assert result.output.index("analysis_artifact_dir: ") < result.output.index(
+        "BLOCKED:"
+    )
+
+
 def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(
     tmp_path,
     monkeypatch,

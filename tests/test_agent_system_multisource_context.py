@@ -41,7 +41,10 @@ from aviation_agentic_ai.agent_system.contracts import (
 from aviation_agentic_ai.agent_system.decision_case_contracts import stable_contract_id
 from aviation_agentic_ai.agent_system.materialize import materialize_validated_facts
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
-from aviation_agentic_ai.agent_system.query_tool_graph import answer_question_with_tools
+from aviation_agentic_ai.agent_system.query_tool_graph import (
+    DECLARED_REASON_QUESTION,
+    answer_question_with_tools,
+)
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
 from aviation_agentic_ai.agent_system.validation_profiles import (
     load_validation_profile_registry,
@@ -1182,7 +1185,7 @@ def test_current_authority_to_query_chain_preserves_all_three_cases(
 
     outcome = answer_question_with_tools(
         run_dir=tmp_path,
-        question="What reason was declared for this traffic management initiative?",
+        question=DECLARED_REASON_QUESTION,
         model_factory=query_factory,
     )
     assert outcome.status == (

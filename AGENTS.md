@@ -23,7 +23,8 @@ ATCSCC advisory + bounded FAA authority records
   -> strict preflight
   -> deterministic Formal Graph Kernel
   -> profile-owned publication and JSONL + RDF + Neo4j materialization
-  -> Query Agent with bounded read-only graph tools
+  -> deterministic query routing with bounded read-only graph tools
+     -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
 
 The knowledge graph is both a system output and shared evidence memory. The
@@ -40,14 +41,14 @@ names, not internal alphanumeric labels.
   projection, and bounded Query Agent path.
 - The three Decision Record Explorer cases have deterministic query support on
   `main`, including a profile-gap reason and an honest missing-reason outcome.
-- `codex/decision-case-assembly-agent` prepares time-bounded, non-causal
-  METAR/TAF context and BTS-reported public operational observations before
-  sealing one Decision Case Assembly task. The three canonical records use the
-  zero-call deterministic compiler; only a genuine non-canonical
-  evidence/schema choice may activate the bounded Assembly Agent. Strict
-  preflight precedes the Formal Graph Kernel, which remains the sole final
+- `codex/decision-case-analysis-agent` builds on the completed Batch C.1
+  assembly path. The three canonical records still use the zero-call
+  deterministic compiler, and the Formal Graph Kernel remains the sole final
   publication authority.
-- Decision Case Analysis is inactive.
+- Decision Case Analysis is active only for exact registered episode,
+  operational-situation, and applicability questions. It uses closed plans and
+  bounded read-only tools. Historical similarity remains a deterministic
+  insufficient corpus gate; existing record questions remain zero-call.
 - Batch C.1 is the completed breaking cutover. Runs made by an earlier
   architecture must be regenerated; `ingest`, `neo4j-export`, and `ask` are
   retained as current user-facing commands, not compatibility guarantees.

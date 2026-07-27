@@ -1,6 +1,6 @@
 # Reproducibility
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 This file describes the current Agent-system path. Historical formal experiments
 remain reproducible through `EXPERIMENTS.md` but are not the default workflow.
@@ -139,15 +139,41 @@ uv run aviation-ai agent-system ask \
 These registered questions are resolved through validated read-only tools and
 make no provider call. They never infer a stated reason from Weather context.
 
-The combined decision-record question uses the bounded Query Agent model loop
-and therefore requires:
+The combined decision-record question is also deterministic and zero-call:
 
 ```bash
 uv run aviation-ai agent-system ask \
   --run-dir <validated-run-directory> \
-  --question "What traffic management measure, controlled airport, and effective time are recorded in this advisory?" \
+  --question "What traffic management measure, controlled airport, and effective time are recorded in this advisory?"
+```
+
+Decision Case Analysis accepts only its exact registered English questions.
+Episode, operational-situation, and applicability analysis require explicit
+model authorization:
+
+```bash
+uv run aviation-ai agent-system ask \
+  --run-dir <validated-run-directory> \
+  --question "What public operational situation is recorded?" \
   --allow-live-model
 ```
+
+The CLI prints `analysis_artifact_dir` for every sealed analysis, including a
+blocked result before the command exits. The directory is immutable and
+contains the sealed task, evidence bundle, and analysis run record.
+
+The exact historical-similarity question remains a deterministic corpus gate:
+
+```bash
+uv run aviation-ai agent-system ask \
+  --run-dir <validated-run-directory> \
+  --question "Which historical case is most similar?"
+```
+
+It returns `insufficient` without provider construction or an analysis
+artifact. Unregistered, mixed-language, live/current, causal, recommendation,
+or flight-control wording is rejected before intent routing and provider
+construction.
 
 ## Load The Neo4j Projection
 
@@ -202,6 +228,10 @@ uv run pytest -q \
   tests/test_agent_system_multisource_context.py \
   tests/test_agent_system_weather_context.py \
   tests/test_agent_system_bts_outcomes.py \
+  tests/test_agent_system_case_analysis.py \
+  tests/test_agent_system_case_analysis_tools.py \
+  tests/test_agent_system_case_analysis_readers.py \
+  tests/test_agent_system_case_analysis_limits.py \
   tests/test_agent_system_query_tools.py \
   tests/test_agent_system_query_tool_graph.py \
   tests/test_agent_system.py \
@@ -237,11 +267,13 @@ outputs do not change the current system scope automatically.
 
 ## Known Boundaries
 
-- Live construction and combined-query runs require provider access.
+- Live construction and model-bound Decision Case Analysis require provider
+  access. Existing deterministic queries, including the combined record
+  question, do not.
 - Neo4j loading requires a reachable local or remote Neo4j instance.
 - The browser explorer is not present on `main`; it remains on
   `codex/kg-visualization-research`.
-- Weather-based causal explanation, decision episodes, case ranking, and
-  recommendation are not current reproduction targets.
+- Weather-based causal explanation, lifecycle episode grouping, case ranking,
+  and recommendation are not current reproduction targets.
 - `WeatherDelay` and `NASDelay` remain carrier-reported attributions, not causal
   labels.

@@ -294,6 +294,8 @@ def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
             role="decision_case_analysis",
         ),
     )
+    if outcome.analysis_artifact_dir:
+        click.echo(f"analysis_artifact_dir: {outcome.analysis_artifact_dir}")
     if outcome.status == "blocked":
         click.echo(f"BLOCKED: {outcome.failure_reason}")
         raise click.ClickException(f"ask BLOCKED: {outcome.failure_reason}")
@@ -305,5 +307,3 @@ def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
     click.echo(f"outcome_summaries_seen: {len(outcome.retrieved_outcome_summary_ids)}")
     click.echo(f"model_calls: {len(outcome.model_calls)}")
     click.echo(f"tool_calls: {len(outcome.tool_calls)}")
-    if outcome.analysis_artifact_dir:
-        click.echo(f"analysis_artifact_dir: {outcome.analysis_artifact_dir}")
