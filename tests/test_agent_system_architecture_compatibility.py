@@ -6,6 +6,7 @@ import inspect
 import json
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 from click.testing import CliRunner
 
@@ -23,15 +24,27 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentStatus,
     AgentTask,
     EvidenceCard,
+    GraphValidationResult,
     GraphPatchBlock,
     QueryToolOutcome,
+    SourceFamily,
+    SourceRecord,
 )
+from aviation_agentic_ai.agent_system.formal_graph import (
+    write_fact_trace,
+    write_profile_gaps,
+)
+from aviation_agentic_ai.agent_system.materialize import materialize_graph_patch
 from aviation_agentic_ai.agent_system.prompts import load_prompt_catalog
 from aviation_agentic_ai.agent_system.runtime import write_run_manifest
 from aviation_agentic_ai.agent_system.schema_guide import load_schema_guide
-from aviation_agentic_ai.agent_system.materialize import GraphPatchMaterialization
+from aviation_agentic_ai.agent_system.sources import (
+    build_source_snapshot_registry,
+    write_source_snapshot_registry,
+)
 from aviation_agentic_ai.agent_system.workflow import IngestState, build_ingest_graph
 from aviation_agentic_ai.cli_agent_system import agent_system
+from aviation_agentic_ai.cross_source.identifiers import stable_id
 
 
 LEGACY_AGENT_STATUS_VALUES = {
@@ -56,6 +69,94 @@ LEGACY_CLI_COMMANDS = {
     "neo4j-export",
     "ask",
 }
+
+FUTURE_THREE_AGENT_ROLE_MARKERS = {
+    "three-agent",
+    "three_agent",
+    "semantic resolution agent",
+    "semantic-resolution-agent",
+    "semantic_resolution",
+    "semantic_resolution_agent",
+    "decision case assembly agent",
+    "decision-case-assembly-agent",
+    "decision_case_assembly",
+    "decision_case_assembly_agent",
+    "decision case analysis agent",
+    "decision-case-analysis-agent",
+    "decision_case_analysis",
+    "decision_case_analysis_agent",
+}
+
+
+def test_core_run_artifact_writers_preserve_filenames(tmp_path) -> None:
+    """Catches a rename in a run-artifact writer, not merely manifest metadata."""
+
+    source = SourceRecord(
+        source_id="source",
+        family=SourceFamily.ATCSCC_ADVISORY,
+        content="GROUND DELAY PROGRAM",
+    )
+    guide = load_schema_guide()
+    event_class = "atm:GroundDelayProgramTMI"
+    event_uri = stable_id("evt", source.source_id, event_class)
+    materialization = materialize_graph_patch(
+        graph_patch_raw=(
+            "GRAPH_PATCH\n"
+            f"{event_uri} | rdf:type | {event_class} | {source.source_id}\n"
+        ),
+        advisory_source_id=source.source_id,
+        event_class=event_class,
+        guide=guide,
+        known_source_ids={source.source_id},
+        output_dir=tmp_path,
+    )
+    snapshots = build_source_snapshot_registry([source])
+    source_snapshots_path = write_source_snapshot_registry(snapshots, tmp_path)
+    fact_trace_path = write_fact_trace(
+        result=GraphValidationResult(),
+        block=GraphPatchBlock(),
+        evidence_cards=[],
+        source_snapshot=snapshots,
+        output_dir=tmp_path,
+    )
+    profile_gaps_path = write_profile_gaps(
+        result=GraphValidationResult(),
+        event_id=event_uri,
+        source_snapshot=snapshots,
+        output_dir=tmp_path,
+    )
+    manifest_path = write_run_manifest(
+        run_dir=tmp_path,
+        source_id=source.source_id,
+        model_calls=[],
+        materialization=materialization,
+        schema_slice_id=guide.schema_slice_id,
+        schema_checksum=guide.checksum,
+        evidence_cards=[],
+        graph_patch_raw=None,
+        prompt_set_id="prompts",
+        profile_gap_count=0,
+    )
+
+    assert {Path(path).name for path in (
+        materialization.jsonl_path,
+        materialization.ttl_path,
+        materialization.nodes_path,
+        materialization.relationships_path,
+        source_snapshots_path,
+        fact_trace_path,
+        profile_gaps_path,
+        manifest_path,
+    )} == {
+        "fact_trace.jsonl",
+        "kg.jsonl",
+        "kg.ttl",
+        "neo4j_nodes.jsonl",
+        "neo4j_relationships.jsonl",
+        "profile_gaps.jsonl",
+        "run_manifest.json",
+        "source_snapshots.jsonl",
+    }
 
 
 def test_legacy_agent_statuses_and_public_agent_signatures_are_frozen() -> None:
@@ -189,12 +290,7 @@ def test_legacy_workflow_catalog_and_cli_surface_remain_loadable(tmp_path) -> No
         run_dir=tmp_path,
         source_id="source",
         model_calls=[],
-        materialization=GraphPatchMaterialization(
-            jsonl_path="kg.jsonl",
-            ttl_path="kg.ttl",
-            nodes_path="neo4j_nodes.jsonl",
-            relationships_path="neo4j_relationships.jsonl",
-        ),
+        materialization=None,
         schema_slice_id="slice",
         schema_checksum="0" * 64,
         evidence_cards=[EvidenceCard(agent_role="advisory", status=AgentStatus.RESOLVED)],
@@ -228,15 +324,18 @@ def test_legacy_workflow_catalog_and_cli_surface_remain_loadable(tmp_path) -> No
     }
     assert manifest_path.name == "run_manifest.json"
     assert manifest["profile_gaps"]["path"] == "profile_gaps.jsonl"
-    assert manifest["materialization"]["artifacts"] == {
-        "kg_jsonl": "kg.jsonl",
-        "kg_ttl": "kg.ttl",
-        "neo4j_nodes": "neo4j_nodes.jsonl",
-        "neo4j_relationships": "neo4j_relationships.jsonl",
-    }
-    assert "three-agent" not in root_help.output.lower()
-    assert "three_agent" not in json.dumps(manifest).lower()
-    assert not any("three_agent" in key for key in IngestState.__annotations__)
+    cli_surface = "\n".join(
+        [root_help.output, *[
+            runner.invoke(agent_system, [command, "--help"]).output
+            for command in sorted(LEGACY_CLI_COMMANDS)
+        ]]
+    ).lower()
+    persisted_surface = json.dumps(manifest).lower()
+    workflow_state_surface = "\n".join(IngestState.__annotations__).lower()
+    for marker in FUTURE_THREE_AGENT_ROLE_MARKERS:
+        assert marker not in cli_surface
+        assert marker not in persisted_surface
+        assert marker not in workflow_state_surface
 
 
 def test_unique_authority_paths_make_zero_provider_calls() -> None:
