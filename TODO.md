@@ -1,17 +1,31 @@
 # TODO
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 This file contains only the active execution queue and immediate deferred
 decisions. Historical experiment backlogs are discoverable through
 `ARTIFACT_INDEX.md` and Git history.
 
-## Current Stage - Batch C.1 Architecture Cutover
+## Current Stage - Batch D Decision Case Analysis
 
-Objective: reconstruct three auditable historical decision cases by preparing
-validated Weather/BTS context, sealing one task-bounded Assembly input, and
-publishing only proposals accepted by strict preflight and the Formal Graph
-Kernel.
+Objective: expose the validated decision case through exact registered,
+plan-bound analysis questions without changing graph publication or the
+existing deterministic query paths.
+
+- [x] Compile exact registered analysis questions into closed typed plans.
+- [x] Expose only plan-step IDs through the model-visible read tool.
+- [x] Bound the Analysis Agent to two model calls and three distinct steps.
+- [x] Persist sealed evidence under immutable
+  `analysis/<analysis_run_id>/` directories.
+- [x] Route episode, operational-situation, and applicability analysis through
+  the bounded Agent only with explicit model authorization.
+- [x] Keep historical similarity as deterministic `insufficient` with no
+  provider call, artifact, ranking, score, neighbor, or recommendation.
+- [x] Keep all existing scalar, context, provenance, public-observation, and
+  combined questions deterministic and zero-call.
+- [x] Preserve the three canonical declared-reason states.
+
+## Completed Batch C.1 Architecture Cutover
 
 - [x] Add a canonical multi-source snapshot registry and per-source checksum
   validation.
@@ -44,7 +58,7 @@ Kernel.
 - [x] Enforce exact task-signature preflight, advisory-only declared reasons,
   explicit causal denial, and one value-only repair turn.
 - [x] Keep the Formal Graph Kernel as the sole final publication authority.
-- [x] Keep Decision Case Analysis inactive.
+- [x] Keep Decision Case Analysis out of the graph-write and publication path.
 - [x] Complete the breaking cutover to deterministic parsing and authority
   services, conditional Semantic Resolution and Decision Case Assembly Agents,
   the Formal Graph Kernel, and current profile-owned run artifacts.
@@ -84,13 +98,12 @@ The read-only query evidence explorer is implemented and reviewed on
   interaction, and narrow layouts.
 - [ ] Merge the visualization branch only when the user wants it in `main`.
 
-## Next Decision After Batch C.1
+## Next Decision After Batch D
 
-Do not activate Decision Case Analysis or another semantic expansion without a
-new approved task. The next approved task
-must choose only one bounded increment, such as a first read-only analysis
-question family, ASPM validation, regional Weather context, decision-episode
-grouping, or historical-case retrieval.
+Do not expand analysis beyond the exact registered families without a new
+approved task and evidence boundary. The next approved task must choose only
+one bounded increment, such as ASPM validation, regional Weather context,
+decision-episode grouping, or a reviewed historical comparison corpus.
 
 ## Explicitly Deferred
 

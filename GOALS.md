@@ -1,6 +1,6 @@
 # Project Goals
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 This file defines durable system outcomes. Concrete work belongs in `TODO.md`;
 historical comparison hypotheses belong in the optional experiment documents.
@@ -12,7 +12,8 @@ Build a useful, extensible multi-Agent aviation event knowledge system that:
 1. reads a retrospective FAA ATCSCC advisory and bounded authority records;
 2. coordinates deterministic parsing and authority services, conditionally
    activated semantic resolution and decision-case assembly Agents, and a
-   graph-grounded Query Agent;
+   graph-grounded read surface with bounded Decision Case Analysis for exact
+   registered questions;
 3. publishes only evidence-bound facts accepted by a deterministic schema and
    provenance gate;
 4. materializes one canonical event graph as JSONL, RDF/Turtle, and a Neo4j
@@ -58,6 +59,9 @@ The current system provides:
 - a bounded read-only Query Agent;
 - deterministic support for measure, facility, operational period, declared
   reason, provenance, and combined decision-record questions;
+- bounded Decision Case Analysis for exact registered episode,
+  operational-situation, and applicability questions, with immutable analysis
+  artifacts;
 - explicit profile-gap, insufficient, and blocked outcomes.
 
 The three approved records - Ground Stop `123`, Ground Delay Program `138`, and
@@ -92,6 +96,12 @@ The new Assembly role does not turn adapters into Agents and does not add model
 calls to the three canonical cases. It reconstructs auditable historical
 context; it does not evaluate operational optimality.
 
+The active Batch D extension exposes that validated case through a closed
+analysis surface. Operational-situation analysis is the supported complete
+fixture. Episode analysis is current-record-only, applicability analysis has
+no observed individual-flight evidence, and historical similarity remains a
+deterministic insufficient gate without a comparison corpus.
+
 ## Success Criteria
 
 The system mainline succeeds when:
@@ -113,8 +123,9 @@ The read-only visualization batch has reached a stable stopping point on
 `codex/kg-visualization-research`. It is an optional presentation layer and is
 not merged into `main`.
 
-Batch C.1 completed the breaking architecture cutover on
-`codex/decision-case-assembly-agent`. Old runs require regeneration. The
+Batch C.1 completed the breaking architecture cutover. The active
+`codex/decision-case-analysis-agent` branch adds only bounded read-side
+analysis and immutable analysis artifacts. Old runs require regeneration. The
 current command names are retained for user continuity, not as an artifact or
 runtime compatibility guarantee.
 
@@ -133,8 +144,7 @@ ASPM-based demand/capacity evidence, and historical case retrieval.
 - Automatic ontology expansion.
 - Production deployment and access control.
 - New Agent roles without a demonstrated system need.
-- Decision Case Analysis until a separately approved bounded question family
-  is implemented.
+- Analysis beyond the exact registered question families.
 - Paired comparison experiments as a prerequisite for feature delivery.
 
 ## Historical And Optional Tracks

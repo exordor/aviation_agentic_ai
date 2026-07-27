@@ -1,6 +1,6 @@
 # Project Audit And Context Router
 
-Audit date: 2026-07-27
+Audit date: 2026-07-28
 Canonical integration branch: `main`
 
 This is the default entry point for a new project task. It replaces the former
@@ -29,7 +29,8 @@ one advisory + FAA facility and terminology records
   -> strict preflight
   -> deterministic Formal Graph Kernel
   -> publication and RDF/Neo4j materialization
-  -> Query Agent with read-only graph tools
+  -> deterministic query routing with read-only graph tools
+     -> Decision Case Analysis Agent for exact registered analysis questions
 ```
 
 The Coordinator and Formal Graph Kernel are deterministic components, not
@@ -52,7 +53,7 @@ The browser visualization exists only on
 
 ## Active Feature Branch
 
-`codex/decision-case-assembly-agent` implements the current architecture for
+`codex/decision-case-analysis-agent` builds on the current architecture for
 the three approved records:
 
 - the latest eligible TAF known at advisory issue time;
@@ -69,8 +70,15 @@ Weather associations are explicitly non-causal. BTS-reported observations are
 not FAA demand, AAR, capacity, EDCT, or evidence that a particular TMI caused
 an outcome. Ground Stop `123`, GDP `138`, and cancellation `020` use the
 deterministic Assembly compiler and make zero Assembly provider calls. The
-bounded Assembly Agent is reserved for genuine evidence/schema choice, and
-Decision Case Analysis remains inactive.
+bounded Assembly Agent is reserved for genuine evidence/schema choice.
+
+The branch also routes exact registered episode, operational-situation, and
+applicability questions through a sealed plan and bounded Decision Case
+Analysis Agent. Operational situation is the supported complete fixture.
+Episode output is current-record-only; applicability cannot claim observed
+individual-flight impact. Historical similarity remains deterministic
+`insufficient` without a corpus, provider call, artifact, ranking, or
+recommendation. Existing record questions remain deterministic and zero-call.
 
 Batch C.1 deliberately breaks old-run compatibility: regenerate old runs.
 `ingest`, `neo4j-export`, and `ask` are retained as current command names, not
@@ -105,10 +113,11 @@ The project does not currently provide:
 - a complete aviation ontology;
 - external expert certification.
 
-The approved current increment is Batch C Decision Case Assembly on
-`codex/decision-case-assembly-agent`. Broader source expansion, Decision Case
-Analysis, lifecycle grouping, historical ranking, and recommendation do not
-become active merely because a historical document mentions them.
+The approved current increment is bounded Decision Case Analysis on
+`codex/decision-case-analysis-agent`. Broader source expansion, lifecycle
+grouping, historical ranking, recommendation, and analysis outside the exact
+registered families do not become active merely because a historical document
+mentions them.
 
 ## File Audit Rubric
 

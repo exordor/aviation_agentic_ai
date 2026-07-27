@@ -20,7 +20,8 @@ ATCSCC advisory
   -> strict preflight
   -> Formal Graph Kernel
   -> publication/materialization
-  -> Query Agent with bounded read-only tools
+  -> deterministic query routing with bounded read-only tools
+     -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
 
 ## What The System Does
@@ -41,6 +42,9 @@ ATCSCC advisory
 - Answers registered measure, facility, operational-period, declared-reason,
   provenance, decision-context, public-observation, and combined-record
   questions through read-only tools.
+- Runs bounded Decision Case Analysis only for exact registered episode,
+  operational-situation, and applicability questions, and persists each
+  analysis under an immutable analysis-run directory.
 - Returns explicit insufficient or blocked states instead of filling missing
   facts from model knowledge.
 
@@ -93,8 +97,11 @@ uv run aviation-ai agent-system ask \
   --question "Which airport was controlled?"
 ```
 
-Deterministic field queries do not require a model. The combined record
-question requires `--allow-live-model`.
+All existing field, context, public-observation, provenance, and combined
+record questions are deterministic and do not require a model. An exact
+registered Decision Case Analysis question requires `--allow-live-model`;
+the historical-similarity gate remains deterministic and insufficient until
+an approved comparison corpus exists.
 
 Load the validated Neo4j projection:
 
@@ -116,7 +123,8 @@ the loader never clears unrelated graph data.
 | Semantic Resolution Agent | Resolves only genuine multi-candidate ambiguity through source-bounded tools. |
 | Decision Case Assembly Agent | Is activated only for a genuine evidence/schema choice; the three canonical cases use the zero-call compiler. |
 | Formal Graph Kernel | Validates schema, identity, evidence, provenance, datatype, and graph constraints. |
-| Query Agent | Selects bounded read-only tools and composes source-grounded answers. |
+| Query router and tools | Answer existing registered record questions deterministically from validated artifacts. |
+| Decision Case Analysis Agent | Uses only plan-bound read tools for exact registered analysis questions and writes immutable analysis evidence artifacts. |
 
 The LangGraph coordinator schedules the fixed workflow but is not counted as an
 Agent. The ontology profile is a shared contract, not an Agent.
@@ -143,8 +151,8 @@ The decision-record critical fixes are also on `main`:
 - Cancellation `020` returns an honest missing-reason result without a model
   call.
 
-The active `codex/decision-case-assembly-agent` branch extends those records
-with deterministic Weather/BTS context and Batch C Decision Case Assembly:
+The active `codex/decision-case-analysis-agent` branch builds on deterministic
+Weather/BTS context and Batch C Decision Case Assembly:
 
 - TAF selection is limited to forecasts issued no later than the advisory and
   valid during the TMI operational period.
@@ -161,7 +169,15 @@ with deterministic Weather/BTS context and Batch C Decision Case Assembly:
   evidence/schema choices; strict preflight prevents it from changing task
   identity, schema, evidence, profile gaps, or source ownership.
 - The Formal Graph Kernel remains the sole final publication authority.
-- Decision Case Analysis remains inactive.
+- Exact registered analysis questions are routed through a sealed query plan
+  and the bounded Decision Case Analysis Agent.
+- Operational-situation analysis is the supported complete fixture. Episode
+  analysis is limited to the current record, and applicability analysis cannot
+  claim observed individual-flight impact.
+- Historical similarity returns deterministic `insufficient`; no ranking,
+  score, neighbor, or recommendation is produced.
+- Each model-bound analysis writes
+  `analysis/<analysis_run_id>/` without overwriting `query_run.json`.
 
 The read-only browser visualization is implemented separately on
 `codex/kg-visualization-research`. That branch is paused and has not been merged

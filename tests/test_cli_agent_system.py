@@ -10,21 +10,26 @@ from types import SimpleNamespace
 
 import pytest
 from click.testing import CliRunner
+from langchain_core.messages import AIMessage
 
 import aviation_agentic_ai.cli_agent_system as cli_module
 from aviation_agentic_ai.agent_system.authority_evidence import AuthorityBuildStatus
 from aviation_agentic_ai.agent_system.contracts import (
     BTSManifestBinding,
     ModelCallRecord,
+    ModelToolCall,
     SourceFamily,
     SourceRecord,
     SourceSnapshot,
     SourceSnapshotRegistry,
 )
+from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     DECLARED_REASON_QUESTION,
     FORECAST_CONTEXT_QUESTION,
+    HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
     OBSERVED_WEATHER_CONTEXT_QUESTION,
+    OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
     PUBLIC_OUTCOME_QUESTION,
     RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
@@ -398,6 +403,135 @@ def test_combined_record_remains_zero_call_when_live_flag_is_present(
     assert "graph_facts_seen: 4" in result.output
     assert "model_calls: 0" in result.output
     assert "tool_calls: 1" in result.output
+    assert "analysis_artifact_dir:" not in result.output
+
+
+def test_analysis_cli_requires_explicit_live_authorization(tmp_path, monkeypatch):
+    """An exact model-bound analysis question must not construct a provider by default."""
+
+    _write_graph(tmp_path)
+
+    def forbidden_live_model(*args, **kwargs):
+        raise AssertionError("unauthorized analysis constructed a live model")
+
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        forbidden_live_model,
+    )
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--run-dir",
+            str(tmp_path),
+            "--question",
+            OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "requires --allow-live-model" in result.output
+    assert not (tmp_path / "analysis").exists()
+
+
+def test_similarity_cli_is_zero_call_without_authorization(tmp_path, monkeypatch):
+    """The deterministic corpus gate must remain usable without credentials."""
+
+    _write_graph(tmp_path)
+
+    def forbidden_live_model(*args, **kwargs):
+        raise AssertionError("similarity corpus gate constructed a live model")
+
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        forbidden_live_model,
+    )
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--run-dir",
+            str(tmp_path),
+            "--question",
+            HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "status: insufficient" in result.output
+    assert "model_calls: 0" in result.output
+    assert "analysis_artifact_dir:" not in result.output
+
+
+def test_authorized_analysis_cli_reports_only_its_artifact_directory(
+    tmp_path,
+    monkeypatch,
+):
+    """Omitting the analysis path would make the sealed result undiscoverable."""
+
+    _write_graph(tmp_path)
+    call = {
+        "id": "call:analysis:cli",
+        "name": "execute_bound_query_step",
+        "args": {"step_id": "step:operational_situation:1"},
+        "type": "tool_call",
+    }
+
+    class OneTurnAnalysisModel:
+        def invoke(self, messages, *, phase):
+            del messages
+            assert phase == "select_tool"
+            return ToolModelTurn(
+                message=AIMessage(content="", tool_calls=[call]),
+                record=ModelCallRecord(
+                    agent="decision_case_analysis",
+                    raw_response="",
+                    prompt_version="decision-case-analysis-v1",
+                    provider="scripted",
+                    model="scripted",
+                    tool_calls=[
+                        ModelToolCall(
+                            call_id=call["id"],
+                            name=call["name"],
+                            arguments=call["args"],
+                        )
+                    ],
+                ),
+            )
+
+    def scripted_model_factory(*, tools, role):
+        assert [tool.name for tool in tools] == ["execute_bound_query_step"]
+        assert role == "decision_case_analysis"
+        return OneTurnAnalysisModel()
+
+    monkeypatch.setattr(
+        cli_module,
+        "make_live_tool_calling_model",
+        scripted_model_factory,
+    )
+    result = CliRunner().invoke(
+        cli_module.agent_system,
+        [
+            "ask",
+            "--run-dir",
+            str(tmp_path),
+            "--question",
+            OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
+            "--allow-live-model",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "status: insufficient" in result.output
+    assert "model_calls: 1" in result.output
+    artifact_line = next(
+        line
+        for line in result.output.splitlines()
+        if line.startswith("analysis_artifact_dir: ")
+    )
+    assert Path(artifact_line.removeprefix("analysis_artifact_dir: ")).is_dir()
 
 
 def test_cli_preserves_domain_isolation_when_one_authority_file_is_missing(

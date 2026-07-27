@@ -6,6 +6,7 @@ import json
 import re
 import time
 from collections.abc import Callable
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -16,12 +17,28 @@ from aviation_agentic_ai.agent_system.audit import (
     sanitize_json_value,
     sanitize_text,
 )
+from aviation_agentic_ai.agent_system.case_analysis import (
+    run_case_analysis_agent,
+    write_case_analysis_artifacts,
+)
+from aviation_agentic_ai.agent_system.case_analysis_tools import BoundQueryGateway
 from aviation_agentic_ai.agent_system.contracts import (
     QueryToolOutcome,
     QueryToolTrace,
 )
+from aviation_agentic_ai.agent_system.decision_case_contracts import (
+    ContractExecutionBinding,
+)
+from aviation_agentic_ai.agent_system.prompts import (
+    DEFAULT_PROMPT_CATALOG,
+    get_prompt_catalog,
+)
 from aviation_agentic_ai.agent_system.query import ontology_labels_for
 from aviation_agentic_ai.agent_system.query_context_store import QueryContextStore
+from aviation_agentic_ai.agent_system.query_plan import (
+    AnalysisIntent,
+    compile_query_plan,
+)
 from aviation_agentic_ai.agent_system.query_tools import (
     QueryGraphStore,
     QueryPredicate,
@@ -47,6 +64,16 @@ PUBLIC_OUTCOME_QUESTION = (
     "What BTS-reported public operational observations are recorded?"
 )
 RECONSTRUCTED_CASE_QUESTION = "Reconstruct this decision case."
+EPISODE_ANALYSIS_QUESTION = "What decision episode is recorded?"
+OPERATIONAL_SITUATION_ANALYSIS_QUESTION = (
+    "What public operational situation is recorded?"
+)
+APPLICABILITY_ANALYSIS_QUESTION = (
+    "What applicability and observed flight impact are recorded?"
+)
+HISTORICAL_SIMILARITY_ANALYSIS_QUESTION = (
+    "Which historical case is most similar?"
+)
 
 
 class QueryIntent(str, Enum):
@@ -69,13 +96,15 @@ def _normalize_question(question: str) -> str:
     return " ".join(re.findall(r"[a-z0-9]+", question.lower()))
 
 
-def classify_registered_question(question: str) -> QueryIntent | None:
+def classify_registered_question(
+    question: str,
+) -> QueryIntent | AnalysisIntent | None:
     """Map a bounded English question to one registered record intent."""
 
     if not question.isascii():
         return None
     normalized = _normalize_question(question)
-    exact = {
+    exact: dict[str, QueryIntent | AnalysisIntent] = {
         _normalize_question(REGISTERED_COMPETENCY_QUESTION): QueryIntent.COMBINED_RECORD,
         _normalize_question(MEASURE_QUESTION): QueryIntent.MEASURE,
         _normalize_question(CONTROLLED_FACILITY_QUESTION): QueryIntent.CONTROLLED_FACILITY,
@@ -88,10 +117,34 @@ def classify_registered_question(question: str) -> QueryIntent | None:
         ): QueryIntent.OBSERVED_WEATHER_CONTEXT,
         _normalize_question(PUBLIC_OUTCOME_QUESTION): QueryIntent.PUBLIC_OUTCOME,
         _normalize_question(RECONSTRUCTED_CASE_QUESTION): QueryIntent.RECONSTRUCTED_CASE,
+        _normalize_question(EPISODE_ANALYSIS_QUESTION): AnalysisIntent.EPISODE,
+        _normalize_question(
+            OPERATIONAL_SITUATION_ANALYSIS_QUESTION
+        ): AnalysisIntent.OPERATIONAL_SITUATION,
+        _normalize_question(
+            APPLICABILITY_ANALYSIS_QUESTION
+        ): AnalysisIntent.APPLICABILITY_AND_IMPACT,
+        _normalize_question(
+            HISTORICAL_SIMILARITY_ANALYSIS_QUESTION
+        ): AnalysisIntent.HISTORICAL_SIMILARITY,
     }
     if normalized in exact:
         return exact[normalized]
     words = set(normalized.split())
+    if (
+        any(
+            word == "best"
+            or word.startswith("similar")
+            or word.startswith("recommend")
+            or word in {"optimal", "should"}
+            for word in words
+        )
+        or words.intersection({"cause", "caused", "causal", "because", "why"})
+        or words.intersection({"live", "now", "today", "realtime"})
+        or {"flight", "control"}.issubset(words)
+        or {"safe", "fly"}.issubset(words)
+    ):
+        return None
     matches: list[QueryIntent] = []
     if words.intersection({"measure", "tmi"}) and words.intersection(
         {"published", "recorded", "type"}
@@ -137,6 +190,78 @@ def is_registered_competency_question(question: str) -> bool:
     """Return whether the bounded Query Agent explicitly supports the question."""
 
     return classify_registered_question(question) is not None
+
+
+def _deterministic_similarity_outcome(
+    *,
+    run_dir: Path,
+    question: str,
+    store: QueryGraphStore,
+) -> QueryToolOutcome:
+    """Execute the closed corpus gate without constructing a model."""
+
+    plan = compile_query_plan(
+        run_dir=run_dir,
+        question=question,
+        store=store,
+    )
+    gateway = BoundQueryGateway(plan=plan, store=store)
+    observation = gateway.execute_bound_query_step(
+        step_id=plan.steps[0].step_id,
+    )
+    status = "blocked" if observation.status == "blocked" else "insufficient"
+    limitation = observation.limitation or "Insufficient graph evidence."
+    return QueryToolOutcome(
+        status=status,
+        answer=limitation,
+        failure_reason=limitation if status == "blocked" else "",
+    )
+
+
+def _analysis_outcome(
+    *,
+    run_dir: Path,
+    question: str,
+    intent: AnalysisIntent,
+    store: QueryGraphStore,
+    model_factory: ToolModelFactory,
+) -> QueryToolOutcome:
+    """Run one exact analysis route or its deterministic corpus gate."""
+
+    if intent is AnalysisIntent.HISTORICAL_SIMILARITY:
+        return _deterministic_similarity_outcome(
+            run_dir=run_dir,
+            question=question,
+            store=store,
+        )
+    plan = compile_query_plan(
+        run_dir=run_dir,
+        question=question,
+        store=store,
+    )
+    role = get_prompt_catalog(DEFAULT_PROMPT_CATALOG).role(
+        "decision_case_analysis"
+    )
+    binding = ContractExecutionBinding(
+        run_id=str(store.manifest["run_id"]),
+        created_at=datetime.now(UTC),
+        prompt_version=role.prompt_version,
+    )
+    task, bundle, outcome = run_case_analysis_agent(
+        plan=plan,
+        gateway=BoundQueryGateway(plan=plan, store=store),
+        model_factory=model_factory,
+        binding=binding,
+    )
+    artifact_dir = write_case_analysis_artifacts(
+        run_dir=run_dir,
+        task=task,
+        bundle=bundle,
+        outcome=outcome,
+    )
+    return outcome.model_copy(
+        update={"analysis_artifact_dir": str(artifact_dir)}
+    )
 
 
 def _expected_fixed_answer(
@@ -1184,6 +1309,20 @@ def answer_question_with_tools(
             answer="Insufficient graph evidence.",
             reason="materialized graph contains no registered event",
         )
+    if isinstance(intent, AnalysisIntent):
+        try:
+            return _analysis_outcome(
+                run_dir=path,
+                question=question,
+                intent=intent,
+                store=store,
+                model_factory=model_factory,
+            )
+        except (OSError, RuntimeError, ValueError) as exc:
+            return QueryToolOutcome(
+                status="blocked",
+                failure_reason=sanitize_text(f"{type(exc).__name__}: {exc}"),
+            )
     guide = load_schema_guide()
     labels = ontology_labels_for(store.rows, guide)
     if intent in {

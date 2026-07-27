@@ -1,8 +1,8 @@
 # Multi-Agent Aviation Event Knowledge System
 
-Status: normative current architecture after the Batch C.1 cutover
+Status: normative current architecture with bounded Decision Case Analysis
 
-Date: 2026-07-27
+Date: 2026-07-28
 
 ## 1. Purpose and Scope
 
@@ -29,7 +29,8 @@ ATCSCC advisory + bounded FAA authority records
   -> exact preflight
   -> deterministic Formal Graph Kernel
   -> profile-owned current-run artifacts
-  -> bounded Query Agent with read-only graph tools
+  -> deterministic query routing with bounded read-only graph tools
+     -> Decision Case Analysis Agent only for exact registered analysis questions
 ```
 
 The coordinator, parsers, authority services, adapters, validators, profiles,
@@ -40,22 +41,23 @@ Only three components can make bounded model-mediated decisions:
 
 1. the shared Semantic Resolution Agent;
 2. the Decision Case Assembly Agent;
-3. the Query Agent for a registered compound question.
+3. the Decision Case Analysis Agent for exact registered bounded analysis
+   questions.
 
-Decision Case Analysis is inactive. No Critic, Verifier, Planner, Memory,
-Weather, BTS, ASPM, or recommendation Agent is active.
+No Critic, Verifier, Planner, Memory, Weather, BTS, ASPM, or recommendation
+Agent is active.
 
 ## 3. System Increment and Boundaries
 
 | Item | Current decision |
 | --- | --- |
-| Capability | Build and inspect one source-bounded ATCSCC decision case with audited context. |
+| Capability | Build, inspect, and narrowly analyze one source-bounded ATCSCC decision case with audited context. |
 | Smallest end-to-end result | Ingest one approved advisory, publish only accepted facts, and answer registered questions from the run artifacts. |
-| Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, Formal Graph Kernel, profiles, materializers, and Query Agent. |
+| Minimum components | AdvisoryParser, authority services, optional semantic/assembly Agents, Weather/BTS adapters, Formal Graph Kernel, profiles, materializers, deterministic query tools, and bounded Decision Case Analysis. |
 | Evidence | Source IDs, exact evidence text, snapshot checksums, sealed contracts, preflight records, fact traces, and deterministic tests. |
 | Success | Accepted facts materialize consistently; profile gaps and missing evidence remain distinct; registered queries return `ok`, `insufficient`, or `blocked`. |
 | Failure | A component invents a candidate, source, fact, cause, ontology term, or graph write; a provider is built on a deterministic path; or a result bypasses the Kernel. |
-| Deferred | Causal explanation, recommendation, episode grouping, ranking, full-corpus live execution, general aviation QA, and Decision Case Analysis. |
+| Deferred | Causal explanation, recommendation, lifecycle episode grouping, historical ranking, full-corpus live execution, general aviation QA, and analysis outside the exact registered families. |
 
 ## 4. Source and Evidence Boundaries
 
@@ -211,19 +213,41 @@ must reproduce the advisory parser's exact field value and evidence span.
 path, row count, SHA-256, and status; a generic substring from the source
 cannot authorize a profile-gap answer.
 
-## 11. Query Agent
+Model-bound analysis writes a separate immutable directory:
 
-The Query Agent reads only the validated run artifacts through bounded
-read-only graph tools. Registered deterministic question families cover the
+```text
+analysis/<analysis_run_id>/
+  case_analysis_task.json
+  query_evidence_bundle.json
+  case_analysis_run.json
+```
+
+These artifacts do not modify the run manifest or overwrite `query_run.json`.
+
+## 11. Query Tools and Decision Case Analysis
+
+The query surface reads only validated run artifacts through bounded read-only
+tools. Registered deterministic question families cover the
 measure, facility, operational period, declared reason, provenance, decision
 context, public observations, and reconstruction record. Missing or
 unsupported registered evidence returns `insufficient` before model
-construction.
+construction. These existing routes, including the combined record question,
+remain deterministic and make zero model calls.
 
-The model-mediated Query Agent path is restricted to a registered compound
-question, with bounded tool use and provenance retrieval. It has no raw
-advisory reader, external web access, graph-write capability, or model-memory
-fallback.
+Exact registered analysis questions compile to closed typed plans. Episode,
+operational-situation, and applicability analysis may activate the Decision
+Case Analysis Agent with explicit model authorization. The Agent sees only a
+plan-step ID, makes at most two model calls, executes at most three distinct
+steps, and has no raw advisory reader, external web access, graph-write
+capability, or model-memory fallback.
+
+Operational-situation analysis is the supported complete fixture. Episode
+analysis reports only the current record and cannot group a lifecycle.
+Applicability analysis can report formal facility/time applicability but
+cannot infer observed individual-flight impact from aggregate BTS records.
+Historical similarity returns deterministic `insufficient` until an approved
+comparison corpus and profile exist; it invokes no provider and writes no
+analysis artifact.
 
 ## 12. Canonical Acceptance Cases
 
@@ -254,6 +278,10 @@ must be regenerated; the runtime has no old-run reader, writer, alias, or
 artifact bridge. The familiar command names are retained as current user
 experience, not as a backward-compatibility guarantee.
 
+`--allow-live-model` authorizes only a model-bound Decision Case Analysis
+route. Existing deterministic questions and the historical-similarity gate do
+not construct a provider.
+
 ## 14. Verification Requirements
 
 The active verification gate is:
@@ -274,6 +302,7 @@ certification or live semantic accuracy.
 ## 15. Non-Capabilities
 
 The current system does not provide general aviation chat, causal explanation,
-operational optimization, TMI recommendation, decision-episode grouping,
-historical similarity ranking, full-corpus provider execution, automatic
-ontology expansion, public deployment, or external expert certification.
+operational optimization, TMI recommendation, lifecycle decision-episode
+grouping, observed individual-flight impact, historical similarity ranking,
+full-corpus provider execution, automatic ontology expansion, public
+deployment, or external expert certification.

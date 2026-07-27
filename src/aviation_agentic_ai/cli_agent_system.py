@@ -30,7 +30,9 @@ from aviation_agentic_ai.agent_system.authority_evidence import (
 from aviation_agentic_ai.agent_system.prompts import DEFAULT_PROMPT_CATALOG, get_prompt_catalog
 from aviation_agentic_ai.agent_system.query_tool_graph import (
     answer_question_with_tools,
+    classify_registered_question,
 )
+from aviation_agentic_ai.agent_system.query_plan import AnalysisIntent
 from aviation_agentic_ai.agent_system.runtime import (
     MAX_PROVIDER_CALLS,
     create_run_binding,
@@ -273,12 +275,24 @@ def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
 
     if not (run_dir / "kg.jsonl").exists():
         raise click.ClickException(f"no materialized KG at {run_dir / 'kg.jsonl'}")
+    intent = classify_registered_question(question)
+    if (
+        isinstance(intent, AnalysisIntent)
+        and intent is not AnalysisIntent.HISTORICAL_SIMILARITY
+        and not allow_live_model
+    ):
+        raise click.ClickException(
+            "registered Decision Case Analysis requires --allow-live-model"
+        )
     outcome = answer_question_with_tools(
         run_dir=run_dir,
         question=question,
         # The unsupported path exits before invoking this factory. This preserves
         # the zero-provider-call contract without requiring credentials.
-        model_factory=lambda tools: make_live_tool_calling_model(tools=tools),
+        model_factory=lambda tools: make_live_tool_calling_model(
+            tools=tools,
+            role="decision_case_analysis",
+        ),
     )
     if outcome.status == "blocked":
         click.echo(f"BLOCKED: {outcome.failure_reason}")
@@ -291,3 +305,5 @@ def ask(run_dir: Path, question: str, allow_live_model: bool) -> None:
     click.echo(f"outcome_summaries_seen: {len(outcome.retrieved_outcome_summary_ids)}")
     click.echo(f"model_calls: {len(outcome.model_calls)}")
     click.echo(f"tool_calls: {len(outcome.tool_calls)}")
+    if outcome.analysis_artifact_dir:
+        click.echo(f"analysis_artifact_dir: {outcome.analysis_artifact_dir}")

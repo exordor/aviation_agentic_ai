@@ -3,16 +3,20 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import pytest
+from langchain_core.messages import AIMessage
 
 import aviation_agentic_ai.agent_system.query_tool_graph as query_tool_graph_module
 from aviation_agentic_ai.agent_system.contracts import (
     BTSOutcomeSummary,
+    ModelCallRecord,
+    ModelToolCall,
     OutcomeObservationRead,
     OutcomeSummaryRead,
     PersistedProfileGap,
@@ -22,18 +26,25 @@ from aviation_agentic_ai.agent_system.contracts import (
     WeatherContextAssociation,
 )
 from aviation_agentic_ai.agent_system.query_tool_graph import (
+    APPLICABILITY_ANALYSIS_QUESTION,
     CONTROLLED_FACILITY_QUESTION,
     DECLARED_REASON_QUESTION,
+    EPISODE_ANALYSIS_QUESTION,
     FORECAST_CONTEXT_QUESTION,
+    HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
     MEASURE_QUESTION,
     OBSERVED_WEATHER_CONTEXT_QUESTION,
+    OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
     OPERATIONAL_PERIOD_QUESTION,
     PUBLIC_OUTCOME_QUESTION,
     PROVENANCE_QUESTION,
     RECONSTRUCTED_CASE_QUESTION,
     REGISTERED_COMPETENCY_QUESTION,
     answer_question_with_tools,
+    classify_registered_question,
 )
+from aviation_agentic_ai.agent_system.query_plan import AnalysisIntent
+from aviation_agentic_ai.agent_system.tool_model import ToolModelTurn
 from aviation_agentic_ai.agent_system.weather_context import (
     FORECASTING_AIRPORT,
     FORECAST_ISSUE_TIME,
@@ -1202,6 +1213,104 @@ class _Factory:
     def __call__(self, tools):
         self.calls += 1
         raise AssertionError("deterministic query constructed a model")
+
+
+class _ScriptedAnalysisModel:
+    def __init__(self, turns: list[ToolModelTurn]) -> None:
+        self.turns = list(turns)
+
+    def invoke(self, messages, *, phase):
+        del messages, phase
+        return self.turns.pop(0)
+
+
+class _ScriptedAnalysisFactory:
+    def __init__(self, turns: list[ToolModelTurn]) -> None:
+        self.model = _ScriptedAnalysisModel(turns)
+        self.calls = 0
+        self.tool_names: list[str] = []
+
+    def __call__(self, tools):
+        self.calls += 1
+        self.tool_names = [tool.name for tool in tools]
+        return self.model
+
+
+def _analysis_tool_turn(step_id: str) -> ToolModelTurn:
+    call = {
+        "id": "call:analysis:1",
+        "name": "execute_bound_query_step",
+        "args": {"step_id": step_id},
+        "type": "tool_call",
+    }
+    return ToolModelTurn(
+        message=AIMessage(content="", tool_calls=[call]),
+        record=ModelCallRecord(
+            agent="decision_case_analysis",
+            raw_response="",
+            prompt_version="decision-case-analysis-v1",
+            provider="scripted",
+            model="scripted",
+            tool_calls=[
+                ModelToolCall(
+                    call_id=call["id"],
+                    name=call["name"],
+                    arguments=call["args"],
+                )
+            ],
+        ),
+    )
+
+
+def _analysis_answer_turn() -> ToolModelTurn:
+    payload = {
+        "statements": [
+            {
+                "kind": "source_fact",
+                "text": "The record contains a source-qualified operational situation.",
+                "support_fact_ids": ["fact:type"],
+                "support_source_ids": [SOURCE_ID],
+            }
+        ],
+        "limitations": [],
+    }
+    raw = json.dumps(payload)
+    return ToolModelTurn(
+        message=AIMessage(content=raw),
+        record=ModelCallRecord(
+            agent="decision_case_analysis",
+            raw_response=raw,
+            prompt_version="decision-case-analysis-v1",
+            provider="scripted",
+            model="scripted",
+        ),
+    )
+
+
+def _write_supported_analysis_context(run_dir: Path) -> None:
+    """Reuse the current formal-observation fixture without duplicating contracts."""
+
+    fixture_path = Path(__file__).with_name("test_agent_system_query_tools.py")
+    spec = importlib.util.spec_from_file_location(
+        "query_tool_graph_analysis_fixture",
+        fixture_path,
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module._write_graph(run_dir)
+    module._write_formal_observation_layer(run_dir)
+    context_path = run_dir / "context_associations.jsonl"
+    context_data = context_path.read_bytes()
+    manifest_path = run_dir / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["context_artifacts"]["context_associations"] = {
+        "path": context_path.name,
+        "count": len(context_data.splitlines()),
+        "sha256": hashlib.sha256(context_data).hexdigest(),
+        "status": "ok",
+    }
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
 
 class _FormalOutcomeContextStore:
@@ -2617,4 +2726,143 @@ def test_combined_record_query_run_records_a_deterministic_execution(tmp_path):
     assert "budgets" not in payload
     assert payload["model_calls"] == []
     assert len(payload["tool_calls"]) == 1
+    assert factory.calls == 0
+
+
+@pytest.mark.parametrize(
+    ("question", "expected"),
+    (
+        (EPISODE_ANALYSIS_QUESTION, AnalysisIntent.EPISODE),
+        (
+            OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
+            AnalysisIntent.OPERATIONAL_SITUATION,
+        ),
+        (
+            APPLICABILITY_ANALYSIS_QUESTION,
+            AnalysisIntent.APPLICABILITY_AND_IMPACT,
+        ),
+        (
+            HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
+            AnalysisIntent.HISTORICAL_SIMILARITY,
+        ),
+    ),
+)
+def test_exact_analysis_questions_are_registered(question, expected):
+    """Removing an exact route would make the bounded Agent unreachable."""
+
+    assert classify_registered_question(question) is expected
+
+
+def test_operational_analysis_writes_immutable_artifacts(tmp_path):
+    """Routing analysis through the legacy query writer would lose sealed evidence."""
+
+    _write_supported_analysis_context(tmp_path)
+    factory = _ScriptedAnalysisFactory(
+        [
+            _analysis_tool_turn("step:operational_situation:1"),
+            _analysis_answer_turn(),
+        ]
+    )
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=OPERATIONAL_SITUATION_ANALYSIS_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "ok"
+    assert factory.calls == 1
+    assert factory.tool_names == ["execute_bound_query_step"]
+    assert len(outcome.model_calls) == 2
+    assert outcome.analysis_artifact_dir is not None
+    artifact_dir = Path(outcome.analysis_artifact_dir)
+    assert artifact_dir.parent == tmp_path / "analysis"
+    assert {path.name for path in artifact_dir.iterdir()} == {
+        "case_analysis_task.json",
+        "query_evidence_bundle.json",
+        "case_analysis_run.json",
+    }
+    assert not (tmp_path / "query_run.json").exists()
+
+
+def test_historical_similarity_is_a_zero_call_corpus_gate(tmp_path):
+    """The three-record fixture must never reach a ranking model."""
+
+    _write_graph(tmp_path)
+    factory = _Factory()
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=HISTORICAL_SIMILARITY_ANALYSIS_QUESTION,
+        model_factory=factory,
+    )
+
+    assert outcome.status == "insufficient"
+    assert outcome.answer == (
+        "historical similarity requires an approved corpus and comparison profile"
+    )
+    assert outcome.model_calls == []
+    assert outcome.tool_calls == []
+    assert outcome.analysis_artifact_dir is None
+    assert factory.calls == 0
+    assert not (tmp_path / "analysis").exists()
+
+
+@pytest.mark.parametrize(
+    "question",
+    (
+        "Which operational situation is most similar?",
+        "Which traffic-management measure is best?",
+        "Which traffic-management measure do you recommend?",
+        "Why did weather cause this GDP?",
+        "What is the live operational situation now?",
+        "Should flight control clear this aircraft?",
+        "\u8bf7\u63a8\u8350\u6700\u4f73\u4ea4\u901a\u7ba1\u7406\u63aa\u65bd\u3002",
+    ),
+)
+def test_unregistered_or_unsafe_analysis_wording_is_zero_call(tmp_path, question):
+    """A fuzzy safety-sensitive route must not activate the analysis model."""
+
+    _write_graph(tmp_path)
+    factory = _Factory()
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=question,
+        model_factory=factory,
+    )
+
+    assert classify_registered_question(question) is None
+    assert outcome.status == "insufficient"
+    assert outcome.model_calls == []
+    assert outcome.analysis_artifact_dir is None
+    assert factory.calls == 0
+
+
+@pytest.mark.parametrize(
+    "question",
+    (
+        REGISTERED_COMPETENCY_QUESTION,
+        MEASURE_QUESTION,
+        DECLARED_REASON_QUESTION,
+        PUBLIC_OUTCOME_QUESTION,
+    ),
+)
+def test_existing_deterministic_routes_never_gain_analysis_artifacts(
+    tmp_path,
+    question,
+):
+    """Accidentally migrating an existing route would add model and artifact cost."""
+
+    _write_graph(tmp_path)
+    factory = _Factory()
+
+    outcome = answer_question_with_tools(
+        run_dir=tmp_path,
+        question=question,
+        model_factory=factory,
+    )
+
+    assert outcome.model_calls == []
+    assert outcome.analysis_artifact_dir is None
     assert factory.calls == 0
