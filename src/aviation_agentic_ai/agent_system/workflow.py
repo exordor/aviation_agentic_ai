@@ -19,7 +19,7 @@ It does NOT call an LLM and is not an Agent role.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 import hashlib
 import json
@@ -31,13 +31,13 @@ from pydantic import model_validator
 
 from aviation_agentic_ai.agent_system.agents import (
     FacilityCandidates,
-    KGConstructionInput,
+    KGConstructionInput,  # noqa: F401
     TermCandidates,
     _resolve_facility_compatibility,
     _resolve_terminology_compatibility,
     parse_structured_fields,
     run_advisory_agent,
-    run_kg_construction_agent,
+    run_kg_construction_agent,  # noqa: F401
 )
 from aviation_agentic_ai.agent_system.authority_evidence import (
     AuthorityBuildStatus,
@@ -52,13 +52,32 @@ from aviation_agentic_ai.agent_system.contracts import (
     AgentTask,
     BTSOnTimeRow,
     GraphValidationResult,
+    GraphPatchBlock,
+    GraphPatchLine,
+    ProfileGap,
     SourceFamily,
     SourceRecord,
 )
 from aviation_agentic_ai.agent_system.decision_case_contracts import (
+    AssemblyStatus,
+    CaseAssemblyProposal,
+    CaseAssemblyTask,
+    CaseFactProposal,
+    CaseProfileGapProposal,
+    ContractExecutionBinding,
     FrozenContractModel,
     ResolutionDecision,
+    SourceSnapshotBinding,
     stable_contract_id,
+)
+from aviation_agentic_ai.agent_system.case_assembly import (
+    CaseAssemblyResult,
+    run_case_assembly_agent,
+)
+from aviation_agentic_ai.agent_system.case_assembly_tools import (
+    build_case_assembly_task,
+    compile_case_assembly_proposal,
+    preflight_validate_case_assembly_proposal,
 )
 from aviation_agentic_ai.agent_system.context_artifacts import (
     integrate_decision_context,
@@ -206,6 +225,7 @@ class IngestContext:
     model_invoker_factory: ModelInvokerFactory | None = None
     semantic_resolution_tool_model_factory: ToolModelFactory | None = None
     kg_tool_model_factory: ToolModelFactory | None = None
+    case_assembly_model_factory: ToolModelFactory | None = None
     authority_catalog: LoadedAuthorityCatalog | None = None
     run_started_at: datetime | None = None
     run_id: str = "agent-system"
@@ -244,6 +264,10 @@ class IngestState(TypedDict):
     resolution_preflight_status: str
     resolution_preflight_reason: str
     joined: bool
+    case_assembly_task: Any
+    case_assembly_proposal: Any
+    case_assembly_feedback: Any
+    case_assembly_result: Any
     kg_result: Any
     event_uri: str
     event_class: str
@@ -719,6 +743,248 @@ def _accepted_event_source_ids(
     }
 
 
+def _proposal_to_graph_patch_block(proposal: CaseAssemblyProposal) -> GraphPatchBlock:
+    patch_lines: list[GraphPatchLine] = []
+    for fact in proposal.proposed_facts:
+        patch_lines.append(
+            GraphPatchLine(
+                subject=fact.subject_id,
+                predicate=fact.predicate_iri,
+                object=fact.object_value,
+                source_ids=list(fact.evidence_claim_ids),
+            )
+        )
+    profile_gaps: list[ProfileGap] = []
+    for gap in proposal.profile_gaps:
+        profile_gaps.append(
+            ProfileGap(
+                field=gap.field,
+                value=gap.normalized_value,
+                evidence=gap.field,
+                reason=gap.schema_mapping_reason_code,
+            )
+        )
+    return GraphPatchBlock(
+        patch_lines=patch_lines,
+        profile_gaps=profile_gaps,
+        raw="",
+    )
+
+
+def _build_case_assembly_task_from_state(
+    ctx: IngestContext,
+    state: dict,
+    *,
+    event_uri: str,
+    event_class: str,
+) -> CaseAssemblyTask:
+    guide = ctx.guide or load_schema_guide()
+    advisory_result: AgentResult = state["advisory_result"]
+    facility_result: AgentResult = state["facility_result"]
+    terminology_result: AgentResult = state["terminology_result"]
+
+    selected_claims: list[str] = [ctx.advisory.source_id]
+    if advisory_result and advisory_result.evidence_card:
+        selected_claims.extend(c.field_name for c in advisory_result.evidence_card.claims)
+    if facility_result and facility_result.evidence_card:
+        selected_claims.extend(
+            c.canonical_ref for c in facility_result.evidence_card.claims if c.canonical_ref
+        )
+    if terminology_result and terminology_result.evidence_card:
+        selected_claims.extend(
+            c.canonical_ref for c in terminology_result.evidence_card.claims if c.canonical_ref
+        )
+
+    facility_prop = state.get("facility_resolution_proposal")
+    term_prop = state.get("terminology_resolution_proposal")
+    res_prop_ids: list[str] = []
+    if facility_prop and hasattr(facility_prop, "resolution_proposal_id"):
+        res_prop_ids.append(facility_prop.resolution_proposal_id)
+    if term_prop and hasattr(term_prop, "resolution_proposal_id"):
+        res_prop_ids.append(term_prop.resolution_proposal_id)
+
+    mentions = state.get("mentions") or parse_structured_fields(ctx.advisory.content)
+    profile_id = (
+        f"profile-{event_class.split(':')[-1].lower() if ':' in event_class else 'default'}"
+    )
+
+    proposed_facts: list[CaseFactProposal] = []
+    profile_gaps: list[CaseProfileGapProposal] = []
+
+    proposed_facts.append(
+        CaseFactProposal(
+            proposal_item_id=stable_contract_id(
+                "proposal-fact", ctx.run_id, event_uri, "rdf:type", event_class
+            ),
+            subject_id=event_uri,
+            predicate_iri="rdf:type",
+            object_kind="iri",
+            object_value=event_class,
+            evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+            validation_profile_id=profile_id,
+        )
+    )
+
+    fac_ref = ""
+    if (
+        facility_result
+        and facility_result.evidence_card
+        and facility_result.evidence_card.canonical_refs
+    ):
+        fac_ref = facility_result.evidence_card.canonical_refs[0]
+        proposed_facts.append(
+            CaseFactProposal(
+                proposal_item_id=stable_contract_id(
+                    "proposal-fact",
+                    ctx.run_id,
+                    event_uri,
+                    "atm:controlledNASelement",
+                    fac_ref,
+                ),
+                subject_id=event_uri,
+                predicate_iri="atm:controlledNASelement",
+                object_kind="iri",
+                object_value=fac_ref,
+                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                validation_profile_id=profile_id,
+            )
+        )
+
+    adv_num = getattr(mentions, "advisory_number", "")
+    if adv_num:
+        proposed_facts.append(
+            CaseFactProposal(
+                proposal_item_id=stable_contract_id(
+                    "proposal-fact", ctx.run_id, event_uri, "atm:advisoryNumber", adv_num
+                ),
+                subject_id=event_uri,
+                predicate_iri="atm:advisoryNumber",
+                object_kind="literal",
+                object_value=adv_num,
+                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                validation_profile_id=profile_id,
+            )
+        )
+
+    start_time = getattr(mentions, "effective_start", "")
+    end_time = getattr(mentions, "effective_end", "")
+    if start_time:
+        proposed_facts.append(
+            CaseFactProposal(
+                proposal_item_id=stable_contract_id(
+                    "proposal-fact",
+                    ctx.run_id,
+                    event_uri,
+                    "atm:effectiveStartTime",
+                    start_time,
+                ),
+                subject_id=event_uri,
+                predicate_iri="atm:effectiveStartTime",
+                object_kind="literal",
+                object_value=start_time,
+                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                validation_profile_id=profile_id,
+            )
+        )
+    if end_time:
+        proposed_facts.append(
+            CaseFactProposal(
+                proposal_item_id=stable_contract_id(
+                    "proposal-fact",
+                    ctx.run_id,
+                    event_uri,
+                    "atm:effectiveEndTime",
+                    end_time,
+                ),
+                subject_id=event_uri,
+                predicate_iri="atm:effectiveEndTime",
+                object_kind="literal",
+                object_value=end_time,
+                evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                validation_profile_id=profile_id,
+            )
+        )
+
+    impacting = getattr(mentions, "impacting_condition", "")
+    if impacting:
+        if "GroundStop" in event_class:
+            profile_gaps.append(
+                CaseProfileGapProposal(
+                    proposal_item_id=stable_contract_id(
+                        "proposal-gap",
+                        ctx.run_id,
+                        event_uri,
+                        "impacting_condition",
+                        impacting,
+                    ),
+                    event_id=event_uri,
+                    field="impacting_condition",
+                    normalized_value=impacting,
+                    evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                    schema_mapping_reason_code="not_in_profile",
+                    validation_profile_id=profile_id,
+                )
+            )
+        else:
+            proposed_facts.append(
+                CaseFactProposal(
+                    proposal_item_id=stable_contract_id(
+                        "proposal-fact",
+                        ctx.run_id,
+                        event_uri,
+                        "atm:impactingCondition",
+                        impacting,
+                    ),
+                    subject_id=event_uri,
+                    predicate_iri="atm:impactingCondition",
+                    object_kind="literal",
+                    object_value=impacting,
+                    evidence_claim_ids=tuple(sorted({ctx.advisory.source_id})),
+                    validation_profile_id=profile_id,
+                )
+            )
+
+    required_slots = ("controlled_facility", "event_type")
+    optional_slots = ("impacting_condition",)
+    missing_slots = ("impacting_condition",) if not impacting else ()
+
+    source_binding = SourceSnapshotBinding(
+        source_id=ctx.advisory.source_id,
+        source_family=SourceFamily.ATCSCC_ADVISORY,
+        source_snapshot_sha256=hashlib.sha256(
+            ctx.advisory.content.encode("utf-8")
+        ).hexdigest(),
+    )
+
+    binding = ContractExecutionBinding(
+        run_id=ctx.run_id,
+        created_at=ctx.run_started_at or datetime.now(UTC),
+        tool_version="deterministic-assembly-v1",
+    )
+
+    sorted_proposed_facts = tuple(sorted(proposed_facts, key=lambda f: f.proposal_item_id))
+    sorted_profile_gaps = tuple(sorted(profile_gaps, key=lambda g: g.proposal_item_id))
+
+    return build_case_assembly_task(
+        run_id=ctx.run_id,
+        case_id=f"case:{ctx.advisory.source_id}",
+        core_event_fact_ids=tuple(f.proposal_item_id for f in sorted_proposed_facts),
+        resolution_proposal_ids=tuple(res_prop_ids),
+        available_evidence_layer_ids=("layer:advisory", "layer:weather", "layer:bts"),
+        required_case_slots=required_slots,
+        optional_case_slots=optional_slots,
+        missing_slots=missing_slots,
+        schema_profile_id=profile_id,
+        schema_context_id=guide.schema_slice_id,
+        schema_snapshot_sha256=guide.checksum,
+        selected_evidence_claim_ids=tuple(sorted(set(selected_claims))),
+        proposed_facts=sorted_proposed_facts,
+        profile_gaps=sorted_profile_gaps,
+        source_snapshot_bindings=(source_binding,),
+        binding=binding,
+    )
+
+
 def _kg_construction_node(state: dict) -> dict:
     ctx: IngestContext = _ctx()
     preflight = state.get("resolution_preflight_status", "blocked")
@@ -733,8 +999,6 @@ def _kg_construction_node(state: dict) -> dict:
                 ),
             )
         }
-    advisory_result: AgentResult = state["advisory_result"]
-    facility_result: AgentResult = state["facility_result"]
     terminology_result: AgentResult = state["terminology_result"]
     if ctx.guide is None:
         ctx.guide = load_schema_guide()
@@ -763,47 +1027,67 @@ def _kg_construction_node(state: dict) -> dict:
             "event_uri": event_uri,
             "event_class": event_class,
         }
-    task = AgentTask(
+
+    # Construct CaseAssemblyTask
+    assembly_task = _build_case_assembly_task_from_state(
+        ctx, state, event_uri=event_uri, event_class=event_class
+    )
+    binding = ContractExecutionBinding(
         run_id=ctx.run_id,
-        source_id=ctx.advisory.source_id,
-        objective="construct event graph patch",
-        allowed_tools=["get_schema_context", "resolve_canonical_ref", "get_source_evidence"],
-        schema_slice_id=ctx.guide.schema_slice_id,
+        created_at=ctx.run_started_at or datetime.now(UTC),
+        tool_version="deterministic-assembly-v1",
     )
-    allowed_source_ids = _accepted_event_source_ids(
-        ctx.advisory.source_id,
-        advisory_result,
-        facility_result,
-        terminology_result,
+
+    model_factory = ctx.case_assembly_model_factory or ctx.kg_tool_model_factory
+
+    if model_factory is None:
+        # Deterministic assembly compiler (0 model calls)
+        proposal = compile_case_assembly_proposal(
+            task=assembly_task,
+            binding=binding,
+        )
+        assembly_result = CaseAssemblyResult(
+            proposal=proposal,
+            model_calls=(),
+            tool_traces=(),
+            feedback=None,
+        )
+    else:
+        assembly_result = run_case_assembly_agent(
+            task=assembly_task,
+            binding=binding,
+            tool_model_factory=model_factory,
+        )
+        proposal = assembly_result.proposal
+
+    feedback = preflight_validate_case_assembly_proposal(
+        task=assembly_task,
+        proposal=proposal,
+        binding=binding,
     )
-    inputs = KGConstructionInput(
-        advisory=ctx.advisory,
-        advisory_card=advisory_result.evidence_card,  # type: ignore[arg-type]
-        facility_card=facility_result.evidence_card,  # type: ignore[arg-type]
-        terminology_card=terminology_result.evidence_card,  # type: ignore[arg-type]
-        event_uri=event_uri,
-        event_class=event_class,
-        guide=ctx.guide,
-        allowed_source_ids=allowed_source_ids,
+
+    block = _proposal_to_graph_patch_block(proposal)
+    legacy_status = (
+        AgentStatus.RESOLVED if proposal.assembly_status is AssemblyStatus.OK
+        else AgentStatus.BLOCKED if proposal.assembly_status is AssemblyStatus.BLOCKED
+        else AgentStatus.ABSTAIN
     )
-    if ctx.kg_tool_model_factory is None:
-        # Offline/contract path: no native tool model -> abstain (no formal patch).
-        return {
-            "kg_result": AgentResult(
-                status=AgentStatus.ABSTAIN,
-                failure_reason="no KG tool model factory",
-            )
-        }
-    result = run_kg_construction_agent(
-        task=task,
-        inputs=inputs,
-        tool_model_factory=ctx.kg_tool_model_factory,
+    kg_result = AgentResult(
+        status=legacy_status,
+        graph_patch=block,
+        model_calls=list(assembly_result.model_calls),
+        failure_reason=assembly_result.failure_reason,
     )
+
     return {
-        "kg_result": result,
+        "case_assembly_task": assembly_task,
+        "case_assembly_proposal": proposal,
+        "case_assembly_feedback": feedback,
+        "case_assembly_result": assembly_result,
+        "kg_result": kg_result,
         "event_uri": event_uri,
         "event_class": event_class,
-        "model_calls": list(result.model_calls),
+        "model_calls": list(assembly_result.model_calls),
     }
 
 

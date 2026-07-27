@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 import json
+from pathlib import Path
 import pytest
 
 from aviation_agentic_ai.agent_system.contracts import SourceFamily
@@ -544,5 +545,126 @@ def test_case_assembly_agent_replay_stability() -> None:
 
     assert res1.proposal.case_assembly_proposal_id == res2.proposal.case_assembly_proposal_id
     assert res1.proposal.payload_checksum == res2.proposal.payload_checksum
+
+
+def test_workflow_three_cases_decision_case_assembly_regression(tmp_path: Path) -> None:
+    from aviation_agentic_ai.agent_system.sources import load_advisory_source
+    from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
+    from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, CodeValue, EntityType
+    from test_agent_system_authority_evidence import _catalog, _test_inputs
+
+    config, _ = _test_inputs(tmp_path)
+    catalog = _catalog(tmp_path)
+    facilities = {
+        "KJFK": CanonicalEntity(
+            entity_id="urn:aviation-agentic-ai:facility:airport:KJFK",
+            entity_type=EntityType.AIRPORT,
+            preferred_label="John F Kennedy International Airport",
+            codes=[CodeValue(scheme="IATA", value="JFK"), CodeValue(scheme="ICAO", value="KJFK")],
+        ),
+        "KEWR": CanonicalEntity(
+            entity_id="urn:aviation-agentic-ai:facility:airport:KEWR",
+            entity_type=EntityType.AIRPORT,
+            preferred_label="Newark Liberty International Airport",
+            codes=[CodeValue(scheme="IATA", value="EWR"), CodeValue(scheme="ICAO", value="KEWR")],
+        ),
+    }
+
+    test_cases = [
+        ("2026-05-19:123", "KJFK", "GroundStopTMI", True),
+        ("2026-05-19:138", "KJFK", "GroundDelayProgramTMI", False),
+        ("2026-05-20:020", "KEWR", "GroundDelayProgramTMI", False),
+    ]
+
+    now = datetime.now(UTC)
+    for source_id, fac_code, expected_class, is_gs in test_cases:
+        advisory = load_advisory_source(config, source_id)
+        out_dir = tmp_path / source_id.replace(":", "_")
+        ctx = IngestContext(
+            advisory=advisory,
+            facility_candidates=[facilities[fac_code]],
+            authority_catalog=catalog,
+            run_id=f"run:{source_id}",
+            run_started_at=now,
+            output_dir=str(out_dir),
+        )
+
+        state = run_ingest(ctx)
+
+        # 1. Zero Assembly model calls
+        assert len(state["model_calls"]) == 0
+
+        # 2. CaseAssemblyTask & Proposal state present
+        task = state.get("case_assembly_task")
+        proposal = state.get("case_assembly_proposal")
+        assert task is not None
+        assert proposal is not None
+        assert proposal.assembly_status.value == "ok"
+
+        # 3. Canonical facility verification
+        fac_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:controlledNASelement"]
+        assert len(fac_facts) == 1
+        assert fac_facts[0].object_value == facilities[fac_code].entity_id
+
+        # 4. Reason / Profile Gap verification
+        if is_gs:
+            # Ground Stop has impacting_condition as profile gap
+            assert len(proposal.profile_gaps) == 1
+            assert proposal.profile_gaps[0].field == "impacting_condition"
+            assert proposal.profile_gaps[0].normalized_value == "weather"
+            reason_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:impactingCondition"]
+            assert len(reason_facts) == 0
+        elif source_id == "2026-05-19:138":
+            # GDP has impacting_condition as formal fact
+            reason_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:impactingCondition"]
+            assert len(reason_facts) == 1
+            assert reason_facts[0].object_value == "weather"
+            assert len(proposal.profile_gaps) == 0
+        elif source_id == "2026-05-20:020":
+            # GDP cancellation has missing impacting_condition
+            reason_facts = [f for f in proposal.proposed_facts if f.predicate_iri == "atm:impactingCondition"]
+            assert len(reason_facts) == 0
+            assert "impacting_condition" in task.missing_slots
+
+
+def test_workflow_canonical_node_identity_and_idempotency(tmp_path: Path) -> None:
+    from aviation_agentic_ai.agent_system.sources import load_advisory_source
+    from aviation_agentic_ai.agent_system.workflow import IngestContext, run_ingest
+    from aviation_agentic_ai.cross_source.contracts import CanonicalEntity, CodeValue, EntityType
+    from test_agent_system_authority_evidence import _catalog, _test_inputs
+
+    config, _ = _test_inputs(tmp_path)
+    catalog = _catalog(tmp_path)
+    fac_jfk = CanonicalEntity(
+        entity_id="urn:aviation-agentic-ai:facility:airport:KJFK",
+        entity_type=EntityType.AIRPORT,
+        preferred_label="John F Kennedy International Airport",
+        codes=[CodeValue(scheme="IATA", value="JFK"), CodeValue(scheme="ICAO", value="KJFK")],
+    )
+
+    adv123 = load_advisory_source(config, "2026-05-19:123")
+    adv138 = load_advisory_source(config, "2026-05-19:138")
+
+    now = datetime.now(UTC)
+    ctx1 = IngestContext(advisory=adv123, facility_candidates=[fac_jfk], authority_catalog=catalog, run_id="run:123", run_started_at=now, output_dir=str(tmp_path / "run123"))
+    ctx2 = IngestContext(advisory=adv138, facility_candidates=[fac_jfk], authority_catalog=catalog, run_id="run:138", run_started_at=now, output_dir=str(tmp_path / "run138"))
+
+    state1 = run_ingest(ctx1)
+    state2 = run_ingest(ctx2)
+
+    prop1 = state1["case_assembly_proposal"]
+    prop2 = state2["case_assembly_proposal"]
+
+    # Both KJFK records use the exact same canonical facility node ID
+    fac1 = [f for f in prop1.proposed_facts if f.predicate_iri == "atm:controlledNASelement"][0]
+    fac2 = [f for f in prop2.proposed_facts if f.predicate_iri == "atm:controlledNASelement"][0]
+    assert fac1.object_value == fac2.object_value == "urn:aviation-agentic-ai:facility:airport:KJFK"
+
+    # Idempotency check: run state1 again with identical inputs
+    state1_repeat = run_ingest(ctx1)
+    prop1_repeat = state1_repeat["case_assembly_proposal"]
+    assert prop1.case_assembly_proposal_id == prop1_repeat.case_assembly_proposal_id
+    assert prop1.payload_checksum == prop1_repeat.payload_checksum
+
 
 

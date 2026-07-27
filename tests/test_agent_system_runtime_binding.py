@@ -851,14 +851,27 @@ def test_workflow_kg_allowlist_uses_event_claims_not_card_source_ids(
         ),
     )
 
-    def capture_inputs(*, task, inputs, tool_model_factory):
-        del task, tool_model_factory
-        captured["allowed_source_ids"] = inputs.allowed_source_ids
-        return AgentResult(status=AgentStatus.ABSTAIN)
+    def capture_inputs(*, task, binding, tool_model_factory):
+        del binding, tool_model_factory
+        captured["allowed_source_ids"] = {b.source_id for b in task.source_snapshot_bindings}
+        proposal = workflow_module.compile_case_assembly_proposal(
+            task=task,
+            binding=workflow_module.ContractExecutionBinding(
+                run_id="run:test",
+                created_at=datetime.now(UTC),
+                tool_version="deterministic-assembly-v1",
+            ),
+        )
+        return workflow_module.CaseAssemblyResult(
+            proposal=proposal,
+            model_calls=(),
+            tool_traces=(),
+            feedback=None,
+        )
 
     monkeypatch.setattr(
         workflow_module,
-        "run_kg_construction_agent",
+        "run_case_assembly_agent",
         capture_inputs,
     )
     authority_source = "authority:pcg:gdp"
