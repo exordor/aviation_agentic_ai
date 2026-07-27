@@ -388,6 +388,32 @@ If a delay field has no non-null values in the selected population, its
 aggregate is null, not zero. Counts are always defined for a valid selected
 population and may legitimately be zero.
 
+The same adapter pass emits one immutable derivation seed per phase:
+
+```python
+class ObservationDerivationSeed:
+    derivation_id: str
+    summary_id: str
+    summary_sha256: str
+    source_id: str
+    source_snapshot_sha256: str
+    archive_sha256: str
+    aggregation_procedure_id: str
+    aggregation_procedure_checksum: str
+    selected_row_ids: tuple[str, ...]
+    selected_row_ids_sha256: str
+
+class BTSOutcomeBundle:
+    status: Literal["ok", "insufficient", "blocked"]
+    summaries: list[BTSOutcomeSummary]
+    derivation_seeds: list[ObservationDerivationSeed]
+    failure_reason: str
+```
+
+The adapter reads the normalized-snapshot and archive checksums from the pinned
+BTS manifest. It sorts selected row IDs before hashing them. The graph builder
+never reopens raw rows or independently recalculates a summary.
+
 ### 5.2 Observation profile
 
 Add a tracked, checksum-pinned application profile:
@@ -421,6 +447,7 @@ class ValidatedFact:
         "profile_definition",
         "system_membership",
     ]
+    evidence_ref: str
 ```
 
 The materializer receives a checksum-verified profile registry and validates
@@ -428,6 +455,23 @@ each fact with its owning profile. It does not stamp one schema ID across facts
 from unrelated profiles. The legacy loader may synthesize the prior single
 ATCSCC profile reference only for old read-only artifacts; all new runs must
 persist explicit ownership.
+
+`ValidationProfileRegistry` is immutable and checksum-verified. It resolves a
+`ValidationProfileRef` to exactly one loaded profile. A separate explicit
+read-only legacy adapter may synthesize the historical ATCSCC profile reference
+for old artifacts. New validation or write paths reject synthesized ownership.
+
+`evidence_ref` is validated by mode:
+
+```text
+source_text              -> FactTraceRow.fact_id
+deterministic_derivation -> ObservationFactTrace.fact_id
+profile_definition       -> ValidationProfileRef.profile_id + checksum
+system_membership        -> ReconstructionTrace.reconstruction_trace_id
+```
+
+Materialization and query code never infer an evidence target from an empty
+source field or from fact-ID naming conventions.
 
 The tracked observation profile contributes definition facts for observable
 properties, units, phases, and the procedure. Those facts use
@@ -456,6 +500,7 @@ context_associations.jsonl
 outcome_summaries.jsonl
 observation_derivations.jsonl
 observation_fact_trace.jsonl
+reconstruction_trace.json
 ```
 
 After validation, observation facts join the canonical formal artifacts:
@@ -477,6 +522,7 @@ The run manifest records:
 - aggregation procedure ID and checksum;
 - `observation_derivations.jsonl` path, count, and checksum;
 - `observation_fact_trace.jsonl` path, count, and checksum;
+- `reconstruction_trace.json` path and checksum;
 - observation-layer status: `ok`, `insufficient`, or `blocked`;
 - formal layer counts for `decision`, `weather`, and
   `public_operational_observation`.
@@ -505,6 +551,23 @@ The selected row IDs are validated against the checksum-pinned normalized
 snapshot. A derivation row is audit metadata and does not introduce flight rows
 as graph nodes.
 
+`reconstruction_trace.json` contains:
+
+```python
+reconstruction_trace_id: str
+conceptual_case_iri: str
+reconstruction_iri: str
+reconstruction_input_sha256: str
+member_iris: tuple[str, ...]
+profile_refs: tuple[ValidationProfileRef, ...]
+source_bindings: tuple[SourceBinding, ...]
+aggregation_procedure_id: str
+aggregation_procedure_checksum: str
+```
+
+It is the evidence target for conceptual-case, reconstruction, specialization,
+and membership facts.
+
 `observation_fact_trace.jsonl` contains the typed `ObservationFactTrace` rows
 defined in Section 6. It is separate from the exact-text `fact_trace.jsonl` so
 readers and validators cannot confuse derived aggregates with extracted source
@@ -522,9 +585,9 @@ Add:
 build_bts_observation_facts(
     event: DecisionContextEvent,
     canonical_facility: CanonicalEntity,
-    summaries: Sequence[BTSOutcomeSummary],
+    outcome_bundle: BTSOutcomeBundle,
     snapshot_registry: SourceSnapshotRegistry,
-    profile: PublicObservationProfile,
+    profile_registry: ValidationProfileRegistry,
 ) -> BTSObservationBundle
 ```
 
@@ -598,6 +661,13 @@ The Neo4j projection must classify nodes from explicit class IRIs. It must not
 use the current fallback that treats unknown subjects as `AviationEvent` and
 unknown IRI objects as `Facility`.
 
+RDF and Neo4j writers receive the checksum-verified
+`ValidationProfileRegistry`. For every fact they resolve the class, predicate,
+label, datatype, and relationship mapping from that fact's
+`validation_profile`; no single global `SchemaGuide` or schema ID is applied to
+the merged graph. The legacy single-profile adapter is read-only and cannot be
+used by these writers for new runs.
+
 New Neo4j labels:
 
 ```text
@@ -667,6 +737,22 @@ does not answer from `outcome_summaries.jsonl` alone.
 The read contract is:
 
 ```python
+class OutcomeObservationRead:
+    observation_id: str
+    fact_ids: tuple[str, ...]
+    phase: Literal["baseline", "active", "recovery"]
+    metric_key: str
+    label: str
+    value: int | Decimal
+    datatype_iri: str
+    unit_iri: str
+    derivation_id: str
+    evidence_ref: str
+    source_id: str
+    source_snapshot_sha256: str
+    profile_id: str
+    profile_checksum: str
+
 class OutcomeSummaryRead:
     status: Literal["ok", "insufficient", "blocked"]
     event_id: str
@@ -685,6 +771,13 @@ The shared `QueryToolResult.status` is extended to
 
 The tool returns source-qualified labels, values, units, phases, observation
 IDs, fact IDs, derivation IDs, source IDs, profile IDs, and checksums.
+
+At store construction, the bounded query layer loads and validates the formal
+facts, profile registry, observation fact traces, derivation rows,
+reconstruction trace, source registry, and manifest layer status. Provenance is
+resolved through each fact's `evidence_mode` and `evidence_ref`. A blocked
+observation layer remains queryable as `blocked` without preventing validated
+core event facts from loading.
 
 The combined reconstructed-case query may retrieve:
 
